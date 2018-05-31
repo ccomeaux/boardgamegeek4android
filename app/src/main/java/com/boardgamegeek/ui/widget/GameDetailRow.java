@@ -3,10 +3,8 @@ package com.boardgamegeek.ui.widget;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -26,10 +24,11 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.GameDetailActivity;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import icepick.Icepick;
-import icepick.State;
+import kotlin.Pair;
 
 public class GameDetailRow extends LinearLayout {
 	@BindView(android.R.id.icon) ImageView iconView;
@@ -37,9 +36,6 @@ public class GameDetailRow extends LinearLayout {
 	private int queryToken;
 	private String oneMore;
 	private String someMore;
-	private int nameColumnIndex;
-	private int idColumnIndex;
-	@State int count;
 	private int gameId;
 	private String gameName;
 	private String label;
@@ -53,16 +49,6 @@ public class GameDetailRow extends LinearLayout {
 	public GameDetailRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context, attrs);
-	}
-
-	@Override
-	protected Parcelable onSaveInstanceState() {
-		return Icepick.saveInstanceState(this, super.onSaveInstanceState());
-	}
-
-	@Override
-	public void onRestoreInstanceState(Parcelable state) {
-		super.onRestoreInstanceState(Icepick.restoreInstanceState(this, state));
 	}
 
 	private void init(Context context, AttributeSet attrs) {
@@ -133,30 +119,24 @@ public class GameDetailRow extends LinearLayout {
 			}
 		};
 
-	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, int gameId, String gameName) {
-		this.nameColumnIndex = nameColumnIndex;
-		this.idColumnIndex = idColumnIndex;
+	public void bindData(int gameId, String gameName, List<Pair<Integer, String>> list) {
 		this.gameId = gameId;
 		this.gameName = gameName;
-		updateData(cursor);
-	}
-
-	private void updateData(Cursor cursor) {
-		count = cursor.getCount();
 		CharSequence summary = null;
-		final CharSequence text = joinNames(cursor);
+		final CharSequence text = joinNames(list);
 		if (!TextUtils.isEmpty(text)) {
 			TextPaint paint = new TextPaint();
 			paint.setTextSize(dataView.getTextSize());
 			summary = TextUtils.commaEllipsize(text, paint, dataView.getWidth() * 2, oneMore, someMore);
 			if (TextUtils.isEmpty(summary)) {
-				summary = String.format(someMore, count);
+				summary = String.format(someMore, list.size());
 			}
 		}
-		if (count == 1 && idColumnIndex != -1) {
-			cursor.moveToFirst();
+		dataView.setText(summary);
+
+		if (list.size() == 1) {
+			int id = list.get(0).getFirst();
 			Uri uri = null;
-			int id = cursor.getInt(idColumnIndex);
 			if (queryToken == getResources().getInteger(R.integer.query_token_designers)) {
 				uri = Designers.buildDesignerUri(id);
 			} else if (queryToken == getResources().getInteger(R.integer.query_token_artists)) {
@@ -171,25 +151,24 @@ public class GameDetailRow extends LinearLayout {
 				setTag(uri);
 			}
 		}
-
-		dataView.setText(summary);
 	}
 
-	private String joinNames(Cursor cursor) {
+	private String joinNames(List<Pair<Integer, String>> list) {
 		StringBuilder sb = new StringBuilder();
-		if (cursor != null && cursor.moveToFirst()) {
-			final int count = cursor.getCount();
+		if (list != null) {
+			final int count = list.size();
 			if (count == 1) {
-				return cursor.getString(nameColumnIndex);
+				return list.get(0).getSecond();
 			} else if (count == 2) {
-				sb.append(cursor.getString(nameColumnIndex));
-				cursor.moveToNext();
-				sb.append(" & ").append(cursor.getString(nameColumnIndex));
+				sb
+					.append(list.get(0).getSecond())
+					.append(" & ")
+					.append(list.get(1).getSecond());
 			} else {
-				do {
-					final String string = cursor.getString(nameColumnIndex);
-					sb.append(string).append(", ");
-				} while (cursor.moveToNext());
+				for (int i = 0; i < list.size(); i++) {
+					if (i != 0) sb.append(", ");
+					sb.append(list.get(i).getSecond());
+				}
 			}
 		}
 		return sb.toString();

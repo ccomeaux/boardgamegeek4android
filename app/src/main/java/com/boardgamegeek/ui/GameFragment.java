@@ -2,17 +2,12 @@ package com.boardgamegeek.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
@@ -38,14 +33,6 @@ import com.boardgamegeek.tasks.FavoriteGameTask;
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment;
 import com.boardgamegeek.ui.dialog.RanksFragment;
 import com.boardgamegeek.ui.model.Game;
-import com.boardgamegeek.ui.model.GameArtist;
-import com.boardgamegeek.ui.model.GameBaseGame;
-import com.boardgamegeek.ui.model.GameCategory;
-import com.boardgamegeek.ui.model.GameDesigner;
-import com.boardgamegeek.ui.model.GameExpansion;
-import com.boardgamegeek.ui.model.GameList;
-import com.boardgamegeek.ui.model.GameMechanic;
-import com.boardgamegeek.ui.model.GamePublisher;
 import com.boardgamegeek.ui.model.RefreshableResource;
 import com.boardgamegeek.ui.model.Status;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
@@ -76,24 +63,16 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import timber.log.Timber;
+import kotlin.Pair;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class GameFragment extends Fragment implements OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 
 	private static final int HELP_VERSION = 2;
-
-	private static final int DESIGNER_TOKEN = 0x12;
-	private static final int ARTIST_TOKEN = 0x13;
-	private static final int PUBLISHER_TOKEN = 0x14;
-	private static final int CATEGORY_TOKEN = 0x15;
-	private static final int MECHANIC_TOKEN = 0x16;
-	private static final int EXPANSION_TOKEN = 0x17;
-	private static final int BASE_GAME_TOKEN = 0x18;
 
 	private Unbinder unbinder;
 
@@ -214,14 +193,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
-				LoaderManager lm = getLoaderManager();
-				lm.restartLoader(DESIGNER_TOKEN, null, GameFragment.this);
-				lm.restartLoader(ARTIST_TOKEN, null, GameFragment.this);
-				lm.restartLoader(PUBLISHER_TOKEN, null, GameFragment.this);
-				lm.restartLoader(CATEGORY_TOKEN, null, GameFragment.this);
-				lm.restartLoader(MECHANIC_TOKEN, null, GameFragment.this);
-				lm.restartLoader(EXPANSION_TOKEN, null, GameFragment.this);
-				lm.restartLoader(BASE_GAME_TOKEN, null, GameFragment.this);
 				if (game == null || game.getData() == null) {
 					AnimationUtils.fadeOut(rootContainer);
 					AnimationUtils.fadeIn(emptyView);
@@ -266,6 +237,55 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 		});
 
+		viewModel.getDesigners().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, designersView);
+			}
+		});
+
+		viewModel.getArtists().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, artistsView);
+			}
+		});
+
+		viewModel.getPublishers().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, publishersView);
+			}
+		});
+
+		viewModel.getCategories().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, categoriesView);
+			}
+		});
+
+		viewModel.getMechanics().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, mechanicsView);
+			}
+		});
+
+		viewModel.getExpansions().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, expansionsView);
+			}
+		});
+
+		viewModel.getBaseGames().observe(GameFragment.this, new Observer<List<Pair<Integer, String>>>() {
+			@Override
+			public void onChanged(@Nullable List<Pair<Integer, String>> gameDetails) {
+				onListQueryComplete(gameDetails, baseGamesView);
+			}
+		});
+
 		showcaseViewWizard = setUpShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
 	}
@@ -305,77 +325,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		wizard.addTarget(R.string.help_game_poll, new SafeViewTarget(R.id.number_of_players, getActivity()));
 		wizard.addTarget(-1, new SafeViewTarget(R.id.player_age_root, getActivity()));
 		return wizard;
-	}
-
-	@Override
-	@DebugLog
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		switch (id) {
-			case DESIGNER_TOKEN:
-				loader = new CursorLoader(getActivity(), GameDesigner.buildUri(gameId), GameDesigner.PROJECTION, null, null, null);
-				break;
-			case ARTIST_TOKEN:
-				loader = new CursorLoader(getActivity(), GameArtist.buildUri(gameId), GameArtist.PROJECTION, null, null, null);
-				break;
-			case PUBLISHER_TOKEN:
-				loader = new CursorLoader(getActivity(), GamePublisher.buildUri(gameId), GamePublisher.PROJECTION, null, null, null);
-				break;
-			case CATEGORY_TOKEN:
-				loader = new CursorLoader(getActivity(), GameCategory.buildUri(gameId), GameCategory.PROJECTION, null, null, null);
-				break;
-			case MECHANIC_TOKEN:
-				loader = new CursorLoader(getActivity(), GameMechanic.buildUri(gameId), GameMechanic.PROJECTION, null, null, null);
-				break;
-			case EXPANSION_TOKEN:
-				loader = new CursorLoader(getActivity(), GameExpansion.buildUri(gameId), GameExpansion.PROJECTION, GameExpansion.getSelection(), GameExpansion.getSelectionArgs(), null);
-				break;
-			case BASE_GAME_TOKEN:
-				loader = new CursorLoader(getActivity(), GameBaseGame.buildUri(gameId), GameBaseGame.PROJECTION, GameBaseGame.getSelection(), GameBaseGame.getSelectionArgs(), null);
-				break;
-			default:
-				Timber.w("Invalid query token=%s", id);
-				break;
-		}
-		return loader;
-	}
-
-	@Override
-	@DebugLog
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-
-		switch (loader.getId()) {
-			case DESIGNER_TOKEN:
-				onListQueryComplete(cursor, designersView);
-				break;
-			case ARTIST_TOKEN:
-				onListQueryComplete(cursor, artistsView);
-				break;
-			case PUBLISHER_TOKEN:
-				onListQueryComplete(cursor, publishersView);
-				break;
-			case CATEGORY_TOKEN:
-				onListQueryComplete(cursor, categoriesView);
-				break;
-			case MECHANIC_TOKEN:
-				onListQueryComplete(cursor, mechanicsView);
-				break;
-			case EXPANSION_TOKEN:
-				onListQueryComplete(cursor, expansionsView);
-				break;
-			case BASE_GAME_TOKEN:
-				onListQueryComplete(cursor, baseGamesView);
-				break;
-			default:
-				cursor.close();
-				break;
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
 	@Override
@@ -438,13 +387,13 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	@DebugLog
-	private void onListQueryComplete(Cursor cursor, GameDetailRow view) {
-		if (cursor == null || !cursor.moveToFirst()) {
+	private void onListQueryComplete(List<Pair<Integer, String>> list, GameDetailRow view) {
+		if (list == null || list.size() == 0) {
 			view.setVisibility(GONE);
 			view.clear();
 		} else {
 			view.setVisibility(VISIBLE);
-			view.bind(cursor, GameList.NAME_COLUMN_INDEX, GameList.ID_COLUMN_INDEX, gameId, gameName);
+			view.bindData(gameId, gameName, list);
 		}
 	}
 

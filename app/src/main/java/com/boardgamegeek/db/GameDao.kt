@@ -178,6 +178,104 @@ class GameDao(private val context: BggApplication) {
         })
     }
 
+    fun loadDesigners(gameId: Int): LiveData<List<Pair<Int, String>>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildDesignersUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<Pair<Int, String>>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getInt(Designers.DESIGNER_ID) to it.getString(Designers.DESIGNER_NAME))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        })
+    }
+
+    fun loadArtists(gameId: Int): LiveData<List<Pair<Int, String>>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildArtistsUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<Pair<Int, String>>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getInt(Artists.ARTIST_ID) to it.getString(Artists.ARTIST_NAME))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        })
+    }
+
+    fun loadPublishers(gameId: Int): LiveData<List<Pair<Int, String>>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildPublishersUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<Pair<Int, String>>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getInt(Publishers.PUBLISHER_ID) to it.getString(Publishers.PUBLISHER_NAME))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        })
+    }
+
+    fun loadCategories(gameId: Int): LiveData<List<Pair<Int, String>>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildCategoriesUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<Pair<Int, String>>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getInt(Categories.CATEGORY_ID) to it.getString(Categories.CATEGORY_NAME))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        })
+    }
+
+    fun loadMechanics(gameId: Int): LiveData<List<Pair<Int, String>>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildMechanicsUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<Pair<Int, String>>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getInt(Mechanics.MECHANIC_ID) to it.getString(Mechanics.MECHANIC_NAME))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        })
+    }
+
+    fun loadExpansions(gameId: Int, inbound: Boolean = false): LiveData<List<Pair<Int, String>>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildExpansionsUri(gameId)
+        return RegisteredLiveData(context, uri, {
+            val results = arrayListOf<Pair<Int, String>>()
+            context.contentResolver.load(uri,
+                    selection = GamesExpansions.INBOUND + "=?",
+                    selectionArgs = arrayOf(if (inbound) "1" else "0"))?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getInt(GamesExpansions.EXPANSION_ID) to it.getString(GamesExpansions.EXPANSION_NAME))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        })
+    }
+
     fun save(game: GameEntity) {
         // TODO return the internal ID
         if (game.name.isBlank()) {

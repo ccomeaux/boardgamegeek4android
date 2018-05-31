@@ -72,6 +72,62 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    val designers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getDesigners(gameId)
+        }
+    }
+
+    val artists: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getArtists(gameId)
+        }
+    }
+
+    val publishers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getPublishers(gameId)
+        }
+    }
+
+    val categories: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getCategories(gameId)
+        }
+    }
+
+    val mechanics: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getMechanics(gameId)
+        }
+    }
+
+    val expansions: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getExpansions(gameId)
+        }
+    }
+
+    val baseGames: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+        if (gameId == BggContract.INVALID_ID) {
+            AbsentLiveData.create()
+        } else {
+            gameRepository.getBaseGames(gameId)
+        }
+    }
+
     val collectionItems: LiveData<RefreshableResource<List<GameCollectionItem>>> = Transformations.switchMap(_gameId) { gameId ->
         if (gameId == BggContract.INVALID_ID) {
             AbsentLiveData.create()
