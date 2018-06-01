@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	android:id="@+id/player_age_root"
+	android:id="@+id/playerAgeContainer"
 	style="@style/CardRow.Clickable"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -11,7 +11,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_player_age"
+		android:id="@+id/playerAgeIcon"
 		style="@style/Icon"
 		android:contentDescription="@string/player_ages"
 		android:src="@drawable/ic_ages"/>
@@ -24,14 +24,14 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/player_age_message"
+			android:id="@+id/playerAgeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:textAppearance="@style/Text"
 			tools:text="Ages 13+"/>
 
 		<TextView
-			android:id="@+id/player_age_poll"
+			android:id="@+id/playerAgePollView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
@@ -41,7 +41,7 @@
 			tools:visibility="visible"/>
 
 		<TextView
-			android:id="@+id/player_age_votes"
+			android:id="@+id/playerAgeVotesView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"

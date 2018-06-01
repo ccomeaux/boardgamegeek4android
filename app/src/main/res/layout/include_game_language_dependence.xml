@@ -2,7 +2,7 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/language_dependence_root"
+	android:id="@+id/languageContainer"
 	style="@style/CardRow.Clickable"
 	android:layout_width="0dp"
 	android:layout_height="match_parent"
@@ -11,7 +11,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_language_dependence"
+		android:id="@+id/languageIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_language"/>
 
@@ -24,7 +24,7 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/language_dependence_message"
+			android:id="@+id/languageView"
 			style="@style/RatingSmall.Wide"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/language_dependence_score"
+				android:id="@+id/languageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
@@ -51,7 +51,7 @@
 				tools:visibility="visible"/>
 
 			<TextView
-				android:id="@+id/language_dependence_votes"
+				android:id="@+id/languageVotesView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="1"

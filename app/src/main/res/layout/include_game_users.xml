@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	android:id="@+id/users_count_root"
+	android:id="@+id/usersContainer"
 	style="@style/CardRow.Clickable"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -11,7 +11,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_users"
+		android:id="@+id/usersIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_users"/>
 
@@ -23,7 +23,7 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/users_count"
+			android:id="@+id/usersView"
 			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
