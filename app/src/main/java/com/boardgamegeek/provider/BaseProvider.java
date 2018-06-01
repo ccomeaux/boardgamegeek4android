@@ -83,14 +83,14 @@ public abstract class BaseProvider {
 	@DebugLog
 	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
-		notifyChange(context, uri);
+		if (rowCount > 0) notifyChange(context, uri);
 		return rowCount;
 	}
 
 	@DebugLog
 	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).delete(db);
-		notifyChange(context, uri);
+		if (rowCount > 0) notifyChange(context, uri);
 		return rowCount;
 	}
 

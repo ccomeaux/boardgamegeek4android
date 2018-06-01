@@ -54,7 +54,7 @@ class CollectionDao(private val context: BggApplication) {
         val firstStatus = 6
         val lastStatus = 13
         val wishListStatus = 11
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<GameCollectionItem>()
             resolver.load(
                     uri,
@@ -95,7 +95,7 @@ class CollectionDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData list
-        })
+        }
     }
 
     /**

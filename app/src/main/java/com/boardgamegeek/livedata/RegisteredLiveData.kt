@@ -5,7 +5,10 @@ import android.database.ContentObserver
 import android.net.Uri
 import com.boardgamegeek.BggApplication
 
-open class RegisteredLiveData<T>(val application: BggApplication, val uri: Uri, private val loadData: () -> T?) : MutableLiveData<T>() {
+open class RegisteredLiveData<T>(val application: BggApplication,
+                                 val uri: Uri,
+                                 private val notifyForDescendants: Boolean = false,
+                                 private val loadData: () -> T?) : MutableLiveData<T>() {
     private val contentObserver = Observer()
 
     override fun onActive() {
@@ -13,7 +16,7 @@ open class RegisteredLiveData<T>(val application: BggApplication, val uri: Uri, 
         application.appExecutors.diskIO.execute {
             postValue(loadData())
         }
-        application.contentResolver.registerContentObserver(uri, false, contentObserver)
+        application.contentResolver.registerContentObserver(uri, notifyForDescendants, contentObserver)
     }
 
     override fun onInactive() {

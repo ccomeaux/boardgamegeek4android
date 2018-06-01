@@ -28,7 +28,7 @@ class GameDao(private val context: BggApplication) {
     fun load(gameId: Int): LiveData<Game> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildGameUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val projection = arrayOf(
                     Games.GAME_ID,
                     Games.STATS_AVERAGE,
@@ -109,13 +109,13 @@ class GameDao(private val context: BggApplication) {
                 }
                 return@RegisteredLiveData null
             }
-        })
+        }
     }
 
     fun loadRanks(gameId: Int): LiveData<List<GameRankEntity>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildRanksUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val ranks = arrayListOf<GameRankEntity>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -132,14 +132,14 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData ranks
-        })
+        }
     }
 
     fun loadPoll(gameId: Int, pollType: String): LiveData<GamePollEntity> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         if (pollType !in arrayOf(BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)) return AbsentLiveData.create()
         val uri = Games.buildPollResultsResultUri(gameId, pollType)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GamePollResultEntity>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -152,13 +152,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData GamePollEntity(results)
-        })
+        }
     }
 
     fun loadPlayerPoll(gameId: Int): LiveData<List<GamePlayerPollEntity>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GamePlayerPollEntity>()
             val projection = arrayOf(
                     GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
@@ -175,13 +175,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun loadDesigners(gameId: Int): LiveData<List<Pair<Int, String>>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildDesignersUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -191,13 +191,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun loadArtists(gameId: Int): LiveData<List<Pair<Int, String>>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildArtistsUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -207,13 +207,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun loadPublishers(gameId: Int): LiveData<List<Pair<Int, String>>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildPublishersUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -223,13 +223,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun loadCategories(gameId: Int): LiveData<List<Pair<Int, String>>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildCategoriesUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -239,13 +239,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun loadMechanics(gameId: Int): LiveData<List<Pair<Int, String>>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildMechanicsUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -255,13 +255,13 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun loadExpansions(gameId: Int, inbound: Boolean = false): LiveData<List<Pair<Int, String>>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildExpansionsUri(gameId)
-        return RegisteredLiveData(context, uri, {
+        return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri,
                     selection = GamesExpansions.INBOUND + "=?",
@@ -273,7 +273,7 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
-        })
+        }
     }
 
     fun save(game: GameEntity) {
