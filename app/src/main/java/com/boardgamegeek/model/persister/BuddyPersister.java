@@ -47,7 +47,7 @@ public class BuddyPersister {
 				values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
 				values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
 			}
-			return upsert(values);
+			return upsert(values, buddy.name, buddy.getId());
 		}
 		return 0;
 	}
@@ -60,16 +60,15 @@ public class BuddyPersister {
 			values.put(Buddies.BUDDY_FLAG, isBuddy ? 1 : 0);
 			values.put(Buddies.UPDATED_LIST, updateTime);
 
-			return upsert(values);
+			return upsert(values, username, userId);
 		} else {
 			Timber.i("Un-savable buddy %s (%d)", username, userId);
 		}
 		return 0;
 	}
 
-	private int upsert(ContentValues values) {
+	private int upsert(ContentValues values, String username, int userId) {
 		ContentResolver resolver = context.getContentResolver();
-		String username = values.getAsString(Buddies.BUDDY_NAME);
 		Uri uri = Buddies.buildBuddyUri(username);
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			values.remove(Buddies.BUDDY_NAME);
@@ -78,6 +77,8 @@ public class BuddyPersister {
 			maybeDeleteAvatar(values, uri);
 			return count;
 		} else {
+			values.put(Buddies.BUDDY_NAME, username);
+			values.put(Buddies.BUDDY_ID, userId);
 			Uri insertedUri = resolver.insert(Buddies.CONTENT_URI, values);
 			Timber.d("Inserted buddy at %s", insertedUri);
 			return 1;
