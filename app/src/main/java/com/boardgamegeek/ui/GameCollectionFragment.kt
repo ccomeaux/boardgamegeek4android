@@ -48,13 +48,13 @@ class GameCollectionFragment : Fragment() {
                 it.status == Status.ERROR -> showError(if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection))
                 else -> showData(it.data)
             }
+            progress.hide()
         })
     }
 
     private fun showData(items: List<GameCollectionItem>?) {
-        if (activity == null) return
-        if (items != null) {
-            emptyMessage.fadeOut()
+        if (!isAdded) return
+        if (items?.isEmpty() == false) {
             collectionContainer.removeAllViews()
             for (item in items) {
                 val row = GameCollectionRow(context)
@@ -69,7 +69,7 @@ class GameCollectionFragment : Fragment() {
                 collectionContainer.addView(row)
             }
             syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-            progress.hide()
+            emptyMessage.fadeOut()
         } else {
             showError()
             syncTimestamp.timestamp = System.currentTimeMillis()
@@ -80,7 +80,6 @@ class GameCollectionFragment : Fragment() {
         emptyMessage.text = message
         emptyMessage.fadeIn()
         collectionContainer.removeAllViews()
-        progress.hide()
     }
 
     companion object {

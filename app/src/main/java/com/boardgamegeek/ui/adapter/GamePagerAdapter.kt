@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.adapter
 
+import android.arch.lifecycle.ViewModelProviders
 import android.graphics.Color
 import android.support.annotation.ColorInt
 import android.support.annotation.DrawableRes
@@ -12,12 +13,13 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.tasks.AddCollectionItemTask
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
+import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.TaskUtils
+
+const val INVALID_RES_ID = 0
 
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
         FragmentPagerAdapter(fragmentManager) {
@@ -30,6 +32,10 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private val tabs = arrayListOf<Tab>()
     private val fab = activity.findViewById<FloatingActionButton>(R.id.fab)
     private val rootContainer = activity.findViewById<ViewGroup>(R.id.root_container)
+
+    private val viewModel: GameViewModel by lazy {
+        ViewModelProviders.of(activity).get(GameViewModel::class.java)
+    }
 
     private inner class Tab @JvmOverloads constructor(
             @field:StringRes val titleResId: Int,
@@ -111,9 +117,8 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     }
 
     private fun onCollectionFabClicked() {
-        val statusDialogFragment = CollectionStatusDialogFragment.newInstance(rootContainer) { selectedStatuses, wishlistPriority ->
-            val task = AddCollectionItemTask(activity, gameId, selectedStatuses, wishlistPriority)
-            TaskUtils.executeAsyncTask(task)
+        val statusDialogFragment = CollectionStatusDialogFragment.newInstance(rootContainer) { selectedStatuses, wishListPriority ->
+            viewModel.addCollectionItem(selectedStatuses, wishListPriority)
         }
         statusDialogFragment.setTitle(R.string.title_add_a_copy)
         DialogUtils.showFragment(activity, statusDialogFragment, "status_dialog")
@@ -126,8 +131,4 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && PreferencesUtils.getSyncPlays(activity)
 
     private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && PreferencesUtils.isCollectionSetToSync(activity)
-
-    companion object {
-        const val INVALID_RES_ID = 0
-    }
 }

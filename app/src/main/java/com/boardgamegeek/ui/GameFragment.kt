@@ -13,11 +13,9 @@ import com.boardgamegeek.*
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.events.CollectionItemAddedEvent
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.FavoriteGameTask
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.dialog.RanksFragment
@@ -39,8 +37,6 @@ import kotlinx.android.synthetic.main.include_game_ratings.*
 import kotlinx.android.synthetic.main.include_game_users.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
 import java.util.*
@@ -56,7 +52,6 @@ class GameFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        EventBus.getDefault().register(this)
         setHasOptionsMenu(true)
     }
 
@@ -113,11 +108,6 @@ class GameFragment : Fragment() {
 
         showcaseViewWizard = setUpShowcaseViewWizard()
         showcaseViewWizard?.maybeShowHelp()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.getDefault().unregister(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -305,13 +295,6 @@ class GameFragment : Fragment() {
         } else {
             playerCountContainer?.setOnClickListener { }
             playerCountContainer?.isClickable = false
-        }
-    }
-
-    @Subscribe
-    fun onEvent(event: CollectionItemAddedEvent) {
-        if (event.gameId == gameId.toLong()) {
-            SyncService.sync(ctx, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
         }
     }
 

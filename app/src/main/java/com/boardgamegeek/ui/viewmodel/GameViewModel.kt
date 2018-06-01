@@ -165,4 +165,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun updateFavorite(isFavorite: Boolean) {
         gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
     }
+
+    fun addCollectionItem(statuses: List<String>, wishListPriority: Int?) {
+        gameCollectionRepository.addCollectionItem(gameId.value?: BggContract.INVALID_ID, statuses, wishListPriority)
+    }
 }
