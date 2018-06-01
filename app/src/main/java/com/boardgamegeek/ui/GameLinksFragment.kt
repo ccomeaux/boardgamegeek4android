@@ -56,19 +56,11 @@ class GameLinksFragment : Fragment() {
         if (color != iconColor) {
             iconColor = color
             if (isAdded) {
+                val icons = listOf(geekbuddyAnalysisLinkIcon, bggLinkIcon, bgPricesLinkIcon, amazonLinkIcon, ebayLinkIcon)
                 if (iconColor == Color.TRANSPARENT) {
-                    geekbuddyAnalysisLinkIcon.clearColorFilter()
-                    bggLinkIcon.clearColorFilter()
-                    bgPricesLinkIcon.clearColorFilter()
-                    amazonLinkIcon.clearColorFilter()
-                    ebayLinkIcon.clearColorFilter()
+                    icons.forEach { it.clearColorFilter() }
                 } else {
-                    geekbuddyAnalysisLinkIcon.setColorFilter(iconColor)
-                    geekbuddyAnalysisLinkIcon.clearColorFilter()
-                    bggLinkIcon.setColorFilter(iconColor)
-                    bgPricesLinkIcon.setColorFilter(iconColor)
-                    amazonLinkIcon.setColorFilter(iconColor)
-                    ebayLinkIcon.setColorFilter(iconColor)
+                    icons.forEach { it.setColorFilter(iconColor) }
                 }
             }
         }
