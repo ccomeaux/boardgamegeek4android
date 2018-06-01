@@ -13,5 +13,6 @@ data class GameCollectionItem(
         val numberOfPlays: Int,
         val rating: Double,
         val syncTimestamp: Long,
+        val deleteTimestamp: Long,
         val statuses: List<String>
 )

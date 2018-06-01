@@ -24,7 +24,7 @@ private const val NOT_DIRTY = 0L
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
 
-    fun load(gameId: Int): LiveData<List<GameCollectionItem>> {
+    fun load(gameId: Int, includeDeletedItems: Boolean = false): LiveData<List<GameCollectionItem>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Collection.CONTENT_URI
         val projection = arrayOf(
@@ -49,7 +49,8 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.RATING,
                 Collection.IMAGE_URL,
                 Collection.UPDATED,
-                Collection.GAME_NAME
+                Collection.GAME_NAME,
+                Collection.COLLECTION_DELETE_TIMESTAMP
         )
         val firstStatus = 6
         val lastStatus = 13
@@ -88,9 +89,11 @@ class CollectionDao(private val context: BggApplication) {
                                 numberOfPlays = cursor.getIntOrNull(Games.NUM_PLAYS) ?: 0,
                                 rating = cursor.getDoubleOrNull(Collection.RATING) ?: 0.0,
                                 syncTimestamp = cursor.getLongOrNull(Collection.UPDATED) ?: 0,
+                                deleteTimestamp = cursor.getLongOrNull(Collection.COLLECTION_DELETE_TIMESTAMP) ?: 0L,
                                 statuses = statuses
                         )
-                        list.add(item)
+                        if (includeDeletedItems || item.deleteTimestamp == 0L)
+                            list.add(item)
                     } while (cursor.moveToNext())
                 }
             }
