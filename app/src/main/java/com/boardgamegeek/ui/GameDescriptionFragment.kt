@@ -47,6 +47,7 @@ class GameDescriptionFragment : Fragment() {
                 it.data == null -> showError(getString(R.string.empty_game))
                 else -> showData(it.data)
             }
+            progress.hide()
         })
     }
 
@@ -55,13 +56,11 @@ class GameDescriptionFragment : Fragment() {
             emptyMessage.text = message
             gameDescription.fadeOut()
             emptyMessage.fadeIn()
-            progress.hide()
         }
     }
 
     private fun showData(game: Game) {
         emptyMessage.fadeOut()
-        progress.hide()
 
         gameDescription.setTextMaybeHtml(game.description)
         gameDescription.fadeIn()
