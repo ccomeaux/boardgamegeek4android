@@ -15,6 +15,7 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -32,7 +33,7 @@ import butterknife.Unbinder;
 public class GameUsersDialogFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 
-	private int gameId;
+	private int gameId = BggContract.INVALID_ID;
 	private Uri uri;
 	@ColorInt private int barColor;
 	private Unbinder unbinder;
@@ -60,7 +61,10 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
-		if (gameId == BggContract.INVALID_ID) dismiss();
+		if (gameId == BggContract.INVALID_ID) {
+			Toast.makeText(getContext(), R.string.msg_invalid_game_id, Toast.LENGTH_SHORT).show();
+			dismiss();
+		}
 		uri = Games.buildGameUri(gameId);
 	}
 

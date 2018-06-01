@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -55,7 +56,7 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	public static final String SUGGESTED_PLAYER_AGE = "suggested_playerage";
 	private static final Format FORMAT = new DecimalFormat("#0");
 
-	private int gameId;
+	private int gameId = BggContract.INVALID_ID;
 	private String pollType;
 	private Uri pollResultUri;
 	private int[] chartColors;
@@ -88,7 +89,11 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
-		if (gameId == BggContract.INVALID_ID) dismiss();
+		if (gameId == BggContract.INVALID_ID) {
+			Toast.makeText(getContext(), R.string.msg_invalid_game_id, Toast.LENGTH_SHORT).show();
+			dismiss();
+		}
+		dismiss();
 		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
 	}
 

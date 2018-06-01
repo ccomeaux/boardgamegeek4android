@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -38,7 +39,7 @@ import butterknife.Unbinder;
 
 public class SuggestedPlayerCountPollFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
-	private int gameId;
+	private int gameId = BggContract.INVALID_ID;
 	private Uri uri;
 	private Unbinder unbinder;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -61,6 +62,10 @@ public class SuggestedPlayerCountPollFragment extends DialogFragment implements 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
+		if (gameId == BggContract.INVALID_ID) {
+			Toast.makeText(getContext(), R.string.msg_invalid_game_id, Toast.LENGTH_SHORT).show();
+			dismiss();
+		}
 		uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId);
 	}
 
