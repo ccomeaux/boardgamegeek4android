@@ -420,7 +420,6 @@ public class PresentationUtils {
 		return trimTrailingWhitespace(Html.fromHtml(htmlString));
 	}
 
-	@DebugLog
 	public static CharSequence trimTrailingWhitespace(CharSequence source) {
 		if (source == null) return "";
 
