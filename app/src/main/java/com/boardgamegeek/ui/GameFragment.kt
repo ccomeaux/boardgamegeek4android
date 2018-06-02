@@ -16,7 +16,6 @@ import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.tasks.FavoriteGameTask
 import com.boardgamegeek.ui.dialog.RanksFragment
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.Status
@@ -131,9 +130,9 @@ class GameFragment : Fragment() {
 
     private fun showError(message: String?) {
         if (message?.isNotBlank() == true) {
-            emptyMessage.text = message
-            dataContainer.fadeOut()
-            emptyMessage.fadeIn()
+            emptyMessage?.text = message
+            dataContainer?.fadeOut()
+            emptyMessage?.fadeIn()
         }
     }
 
@@ -157,10 +156,8 @@ class GameFragment : Fragment() {
         gameName = game.name
 
         favoriteIcon?.setImageResource(if (game.isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
-        favoriteIcon?.setTag(R.id.favorite, game.isFavorite)
         favoriteIcon?.setOnClickListener {
-            val isFavorite = favoriteIcon?.getTag(R.id.favorite) as? Boolean? ?: false
-            TaskUtils.executeAsyncTask(FavoriteGameTask(ctx, gameId, !isFavorite))
+            viewModel.updateFavorite(!game.isFavorite)
         }
 
         rankView?.text = PresentationUtils.describeRank(ctx, game.rank, BggService.RANK_TYPE_SUBTYPE, game.subtype)
