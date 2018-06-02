@@ -11,6 +11,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.fadeIn
 import com.boardgamegeek.fadeOut
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.setBggColors
 import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.ui.model.Status
@@ -38,10 +39,9 @@ class GameCollectionFragment : Fragment() {
         gameId = arguments?.getInt(ARG_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
 
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh.setBggColors()
-
-        syncTimestamp.timestamp = 0L
+        swipeRefresh?.isEnabled = false
+        swipeRefresh?.setBggColors()
+        syncTimestamp?.timestamp = 0L
 
         viewModel.collectionItems.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
@@ -90,6 +90,12 @@ class GameCollectionFragment : Fragment() {
             }
             syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
             emptyMessage.fadeOut()
+            swipeRefresh?.setOnRefreshListener {
+                if (items.any { it.isDirty })
+                    SyncService.sync(ctx, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                viewModel.refresh()
+            }
+            swipeRefresh?.isEnabled = true
         } else {
             showError()
             syncTimestamp.timestamp = System.currentTimeMillis()

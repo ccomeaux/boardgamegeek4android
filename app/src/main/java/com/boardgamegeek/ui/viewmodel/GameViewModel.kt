@@ -167,6 +167,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addCollectionItem(statuses: List<String>, wishListPriority: Int?) {
-        gameCollectionRepository.addCollectionItem(gameId.value?: BggContract.INVALID_ID, statuses, wishListPriority)
+        gameCollectionRepository.addCollectionItem(gameId.value ?: BggContract.INVALID_ID, statuses, wishListPriority)
     }
 }

@@ -52,7 +52,16 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.IMAGE_URL,
                 Collection.UPDATED,
                 Collection.GAME_NAME,
-                Collection.COLLECTION_DELETE_TIMESTAMP
+                Collection.COLLECTION_DELETE_TIMESTAMP,
+                Collection.COLLECTION_DIRTY_TIMESTAMP,
+                Collection.STATUS_DIRTY_TIMESTAMP,
+                Collection.RATING_DIRTY_TIMESTAMP,
+                Collection.COMMENT_DIRTY_TIMESTAMP,
+                Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+                Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+                Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
+                Collection.HAS_PARTS_DIRTY_TIMESTAMP,
+                Collection.WANT_PARTS_DIRTY_TIMESTAMP
         )
         return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<GameCollectionItem>()
@@ -84,7 +93,16 @@ class CollectionDao(private val context: BggApplication) {
                                 wantToPlay = cursor.getIntOrNull(Collection.STATUS_WANT_TO_PLAY) ?: 0 == 1,
                                 wantToBuy = cursor.getIntOrNull(Collection.STATUS_WANT_TO_BUY) ?: 0 == 1,
                                 wishList = cursor.getIntOrNull(Collection.STATUS_WISHLIST) ?: 0 == 1,
-                                wishListPriority = cursor.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3
+                                wishListPriority = cursor.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3,
+                                dirtyTimestamp = cursor.getLongOrNull(Collection.COLLECTION_DIRTY_TIMESTAMP) ?: 0L,
+                                statusDirtyTimestamp = cursor.getLongOrNull(Collection.STATUS_DIRTY_TIMESTAMP) ?: 0L,
+                                ratingDirtyTimestamp = cursor.getLongOrNull(Collection.RATING_DIRTY_TIMESTAMP) ?: 0L,
+                                commentDirtyTimestamp = cursor.getLongOrNull(Collection.COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+                                privateInfoDirtyTimestamp = cursor.getLongOrNull(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP) ?: 0L,
+                                wishListDirtyTimestamp = cursor.getLongOrNull(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+                                tradeConditionDirtyTimestamp = cursor.getLongOrNull(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP) ?: 0L,
+                                hasPartsDirtyTimestamp = cursor.getLongOrNull(Collection.HAS_PARTS_DIRTY_TIMESTAMP) ?: 0L,
+                                wantPartsDirtyTimestamp = cursor.getLongOrNull(Collection.WANT_PARTS_DIRTY_TIMESTAMP) ?: 0L
                         )
                         if (includeDeletedItems || item.deleteTimestamp == 0L)
                             list.add(item)
