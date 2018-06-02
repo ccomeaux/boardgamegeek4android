@@ -17,6 +17,7 @@ import butterknife.ButterKnife
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 
@@ -70,11 +71,10 @@ class GameDetailRow @JvmOverloads constructor(
 
         setOnClickListener {
             val uri = tag as? Uri?
-            if (uri != null) {
-                // TODO - this doesn't work for games
-                context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-            } else {
-                GameDetailActivity.start(context, label, gameId, gameName, queryToken)
+            when {
+                BggContract.Games.isGameUri(uri) -> GameActivity.start(context, gameId, gameName ?: "")
+                uri != null -> context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                else -> GameDetailActivity.start(context, label, gameId, gameName, queryToken)
             }
         }
     }

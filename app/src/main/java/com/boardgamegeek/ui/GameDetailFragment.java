@@ -177,13 +177,16 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 			}
 
 			public void bind(final Cursor cursor) {
-				titleView.setText(cursor.getString(cursor.getColumnIndex(query.getTitleColumnName())));
+				final String title = cursor.getString(cursor.getColumnIndex(query.getTitleColumnName()));
+				titleView.setText(title);
 				uri = query.getUri(cursor);
 				if (query.isClickable()) {
 					itemView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							if (uri != null) {
+							if (Games.isGameUri(uri)) {
+								GameActivity.start(getContext(), Games.getGameId(uri), title);
+							} else if (uri != null) {
 								getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
 							}
 						}

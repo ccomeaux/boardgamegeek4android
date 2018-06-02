@@ -330,6 +330,12 @@ public class BggContract {
 
 		public static final String POLLS_COUNT = "polls_count";
 
+		public static boolean isGameUri(@Nullable Uri uri) {
+			if (uri == null) return false;
+			List<String> segments = uri.getPathSegments();
+			return segments != null && segments.size() > 0 && PATH_GAMES.equals(segments.get(0));
+		}
+
 		@NonNull
 		public static Uri buildGameUri(int gameId) {
 			return getUriBuilder(gameId).build();
