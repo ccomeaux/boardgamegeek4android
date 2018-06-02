@@ -70,8 +70,8 @@ class GameFragment : Fragment() {
         swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh?.setColorSchemeResources(*PresentationUtils.getColorSchemeResources())
 
-        game_info_id?.text = gameId.toString()
-        game_info_last_updated?.timestamp = 0
+        gameIdView?.text = gameId.toString()
+        lastModifiedView?.timestamp = 0
 
         viewModel.game.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
@@ -201,8 +201,8 @@ class GameFragment : Fragment() {
             usersContainer?.isClickable = false
         }
 
-        game_info_id?.text = game.id.toString()
-        game_info_last_updated?.timestamp = game.updated
+        gameIdView?.text = game.id.toString()
+        lastModifiedView?.timestamp = game.updated
 
         emptyMessage?.fadeOut()
         dataContainer?.fadeIn()

@@ -33,11 +33,11 @@ class GameDescriptionFragment : Fragment() {
         gameId = arguments?.getInt(ARG_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
 
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh.setBggColors()
+        swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
+        swipeRefresh?.setBggColors()
 
-        game_info_id.text = gameId.toString()
-        game_info_last_updated.timestamp = 0L
+        gameIdView.text = gameId.toString()
+        lastModifiedView.timestamp = 0L
 
         viewModel.game.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
@@ -53,7 +53,7 @@ class GameDescriptionFragment : Fragment() {
 
     private fun showError(message: String?) {
         if (message?.isNotBlank() == true) {
-            emptyMessage.text = message
+            emptyMessage?.text = message
             gameDescription.fadeOut()
             emptyMessage.fadeIn()
         }
@@ -62,11 +62,11 @@ class GameDescriptionFragment : Fragment() {
     private fun showData(game: Game) {
         emptyMessage.fadeOut()
 
-        gameDescription.setTextMaybeHtml(game.description)
-        gameDescription.fadeIn()
+        gameDescription?.setTextMaybeHtml(game.description)
+        gameDescription?.fadeIn()
 
-        game_info_id.text = game.id.toString()
-        game_info_last_updated.timestamp = game.updated
+        gameIdView?.text = game.id.toString()
+        lastModifiedView?.timestamp = game.updated
     }
 
     companion object {

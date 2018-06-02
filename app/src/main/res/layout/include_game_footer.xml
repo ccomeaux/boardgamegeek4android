@@ -14,7 +14,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<TextView
-		android:id="@+id/game_info_id"
+		android:id="@+id/gameIdView"
 		style="@style/Text.Footnote2.Hidden"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
 		tools:text="13"/>
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/game_info_last_updated"
+		android:id="@+id/lastModifiedView"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

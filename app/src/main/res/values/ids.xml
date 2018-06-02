@@ -20,6 +20,7 @@
 	<item name="visibility" type="id"/>
 
 	<!-- plays summary -->
+	<item name="game_id" type="id"/>
 	<item name="image" type="id"/>
 	<item name="hero_image" type="id"/>
 

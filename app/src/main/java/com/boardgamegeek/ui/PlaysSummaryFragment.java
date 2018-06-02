@@ -321,7 +321,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
 		view.setTag(R.id.id, internalId);
-		view.setTag(R.id.game_info_id, play.getGameId());
+		view.setTag(R.id.game_id, play.getGameId());
 		view.setTag(R.id.game_name, play.getName());
 		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
 		view.setTag(R.id.image, play.getImageUrl());
@@ -332,7 +332,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			public void onClick(View v) {
 				EventBus.getDefault().postSticky(new PlaySelectedEvent(
 					(long) v.getTag(R.id.id),
-					(int) v.getTag(R.id.game_info_id),
+					(int) v.getTag(R.id.game_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
 					(String) v.getTag(R.id.image),
