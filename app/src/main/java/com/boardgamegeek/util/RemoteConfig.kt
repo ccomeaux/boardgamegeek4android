@@ -27,6 +27,9 @@ class RemoteConfig {
         const val KEY_SYNC_GAMES_DELETE_VIEW_HOURS = "sync_games_delete_view_hours"
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
+        const val KEY_REFRESH_GAME_MINUTES = "refresh_game_minutes"
+        const val KEY_REFRESH_GAME_COLLECTOIN_MINUTES = "refresh_game_collectoin_minutes"
+
         const val KEY_RETRY_202_INITIAL_INTERVAL_MILLIS = "retry_202_initial_interval_millis"
         const val KEY_RETRY_202_RANDOMIZATION_FACTOR = "retry_202_randomization_factor"
         const val KEY_RETRY_202_MULTIPLIER = "retry_202_multiplier"

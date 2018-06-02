@@ -10,18 +10,20 @@ import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
+import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.RefreshableResource
-import com.boardgamegeek.util.DateTimeUtils
+import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class GameRepository(val application: BggApplication) {
     private var dao = GameDao(application)
+    private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
 
     /**
      * Get a game from the database and potentially refresh it from BGG.
@@ -30,18 +32,16 @@ class GameRepository(val application: BggApplication) {
         return object : RefreshableResourceLoader<Game, ThingResponse>(application) {
             override val typeDescriptionResId = R.string.title_game
 
-            override fun loadFromDatabase() = GameDao(application).load(gameId)
+            override fun loadFromDatabase() = dao.load(gameId)
 
             override fun shouldRefresh(data: Game?): Boolean {
                 if (gameId == BggContract.INVALID_ID) return false
-                return data == null || data.pollsVoteCount == 0 ||
-                        DateTimeUtils.isOlderThan(data.updated, 1, TimeUnit.MINUTES)
+                return data == null || data.updated.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
             override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
 
             override fun saveCallResult(result: ThingResponse) {
-                val dao = GameDao(application)
                 for (game in result.games) {
                     dao.save(GameMapper().map(game))
                     Timber.i("Synced game '$gameId'")

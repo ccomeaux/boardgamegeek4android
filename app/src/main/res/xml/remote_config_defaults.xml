@@ -60,6 +60,16 @@
 		<key>sync_plays_fetch_pause_millis</key>
 		<value>3000</value>
 	</entry>
+
+	<entry>
+		<key>refresh_game_minutes</key>
+		<value>1</value>
+	</entry>
+	<entry>
+		<key>KEY_REFRESH_GAME_COLLECTOIN_MINUTES</key>
+		<value>10</value>
+	</entry>
+
 	<entry>
 		<key>retry_202_initial_interval_millis</key>
 		<value>1500</value>

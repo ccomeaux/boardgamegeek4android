@@ -10,6 +10,7 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
+import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.load
 import com.boardgamegeek.mappers.CollectionItemMapper
@@ -17,14 +18,16 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.ui.model.RefreshableResource
-import com.boardgamegeek.util.DateTimeUtils
+import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.StringUtils
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class GameCollectionRepository(val application: BggApplication) {
+    private val dao = CollectionDao(application)
     private var timestamp = 0L
+    private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTOIN_MINUTES)
 
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
@@ -37,12 +40,12 @@ class GameCollectionRepository(val application: BggApplication) {
         return object : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
             override val typeDescriptionResId = R.string.title_collection
 
-            override fun loadFromDatabase() = CollectionDao(application).load(gameId)
+            override fun loadFromDatabase() = dao.load(gameId)
 
             override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
                 if (gameId == BggContract.INVALID_ID || username == null) return false
                 val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-                return data == null || DateTimeUtils.isOlderThan(syncTimestamp, 10, TimeUnit.MINUTES)
+                return data == null || syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
             override fun createCall(): Call<CollectionResponse> {
@@ -55,7 +58,6 @@ class GameCollectionRepository(val application: BggApplication) {
             }
 
             override fun saveCallResult(result: CollectionResponse) {
-                val dao = CollectionDao(application)
                 val mapper = CollectionItemMapper()
                 val collectionIds = arrayListOf<Int>()
 

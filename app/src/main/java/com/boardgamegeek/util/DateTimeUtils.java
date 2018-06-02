@@ -62,10 +62,6 @@ public class DateTimeUtils {
 		return (int) ((System.currentTimeMillis() - time) / DateUtils.DAY_IN_MILLIS);
 	}
 
-	public static boolean isOlderThan(long time, int duration, TimeUnit timeUnit) {
-		return System.currentTimeMillis() - time > timeUnit.toMillis(duration);
-	}
-
 	/**
 	 * Determines how many days ago time was (rounded down).
 	 */
