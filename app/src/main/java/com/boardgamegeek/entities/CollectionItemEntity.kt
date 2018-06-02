@@ -3,58 +3,49 @@ package com.boardgamegeek.entities
 import com.boardgamegeek.model.Constants.YEAR_UNKNOWN
 import com.boardgamegeek.provider.BggContract
 
-class CollectionItemEntity {
-    var gameId = BggContract.INVALID_ID
-    var gameName = ""
-    var collectionId = BggContract.INVALID_ID
-    var collectionName = ""
-    var sortName = ""
-    var yearPublished = YEAR_UNKNOWN
-    var imageUrl: String = ""
-    var thumbnailUrl: String = ""
-
-    //stats
-    var hasStatistics = false
-    var minNumberOfPlayers = 0
-    var maxNumberOfPlayers = 0
-    var minPlayingTime = 0
-    var maxPlayingTime = 0
-    var playingTime = 0
-    var numberOwned = 0
-    var rating = 0.0
-    var numberOfUsersRated = 0 // non-brief
-    var average = 0.0
-    var bayesAverage = 0.0
-    var standardDeviation = 0.0 // non-brief
-    var median = 0.0 // non-brief
-    // ranks - non-brief
-
-    var own = false
-    var previouslyOwned = false
-    var forTrade = false
-    var want = false
-    var wantToPlay = false
-    var wantToBuy = false
-    var wishList = false
-    var wishListPriority = 3 // like to have. should this be 0?
-    var preOrdered = false
-    var lastModifiedDate = 0L
-
-    var numberOfPlays = 0
-
-    // private info
-    var pricePaidCurrency = ""
-    var pricePaid = 0.0
-    var currentValueCurrency = ""
-    var currentValue = 0.0
-    var quantity = 1
-    var acquisitionDate = "" // Long?
-    var acquiredFrom = ""
-    var privateComment = ""
-
-    var comment = ""
-    var conditionText = ""
-    var wantPartsList = ""
-    var hasPartsList = ""
-    var wishListComment = ""
-}
+class CollectionItemEntity(
+        val gameId: Int = BggContract.INVALID_ID,
+        val gameName: String = "",
+        val collectionId: Int = BggContract.INVALID_ID,
+        val collectionName: String = "",
+        val sortName: String = "",
+        val yearPublished: Int = YEAR_UNKNOWN,
+        val imageUrl: String = "",
+        val thumbnailUrl: String = "",
+        val minNumberOfPlayers: Int = 0,
+        val maxNumberOfPlayers: Int = 0,
+        val minPlayingTime: Int = 0,
+        val maxPlayingTime: Int = 0,
+        val playingTime: Int = 0,
+        val numberOwned: Int = 0,
+        val rating: Double = 0.0,
+        val numberOfUsersRated: Int = 0,
+        val average: Double = 0.0,
+        val bayesAverage: Double = 0.0,
+        val standardDeviation: Double = 0.0,
+        val median: Double = 0.0,
+        val own: Boolean = false,
+        val previouslyOwned: Boolean = false,
+        val forTrade: Boolean = false,
+        val want: Boolean = false,
+        val wantToPlay: Boolean = false,
+        val wantToBuy: Boolean = false,
+        val wishList: Boolean = false,
+        val wishListPriority: Int = 3, // like to have. should this be 0?
+        val preOrdered: Boolean = false,
+        val lastModifiedDate: Long = 0L,
+        val numberOfPlays: Int = 0,
+        val pricePaidCurrency: String = "",
+        val pricePaid: Double = 0.0,
+        val currentValueCurrency: String = "",
+        val currentValue: Double = 0.0,
+        val quantity: Int = 1,
+        val acquisitionDate: String = "", // Long?
+        val acquiredFrom: String = "",
+        val privateComment: String = "",
+        val comment: String = "",
+        val conditionText: String = "",
+        val wantPartsList: String = "",
+        val hasPartsList: String = "",
+        val wishListComment: String = ""
+)
