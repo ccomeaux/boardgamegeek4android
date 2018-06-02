@@ -61,19 +61,7 @@ public class GameCollectionRow extends LinearLayout {
 		this.imageUrl = imageUrl;
 	}
 
-	public void setStatus(@NonNull List<String> statuses, int playCount, double rating, String comment) {
-		if (statuses.size() == 0) {
-			if (playCount > 0) {
-				statuses.add(getContext().getString(R.string.played));
-			} else {
-				if (rating > 0.0) {
-					statuses.add(getContext().getString(R.string.rated));
-				}
-				if (!TextUtils.isEmpty(comment)) {
-					statuses.add(getContext().getString(R.string.commented));
-				}
-			}
-		}
+	public void setStatus(@NonNull List<String> statuses) {
 		PresentationUtils.setTextOrHide(statusView, StringUtils.formatList(statuses));
 	}
 

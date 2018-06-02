@@ -16,8 +16,10 @@ import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameCollectionRow
+import com.boardgamegeek.util.PresentationUtils
 import kotlinx.android.synthetic.main.fragment_game_collection.*
 import org.jetbrains.anko.support.v4.act
+import org.jetbrains.anko.support.v4.ctx
 
 class GameCollectionFragment : Fragment() {
     private var gameId: Int = 0
@@ -57,11 +59,29 @@ class GameCollectionFragment : Fragment() {
         if (items?.isEmpty() == false) {
             collectionContainer.removeAllViews()
             for (item in items) {
+                val statuses = mutableListOf<String>()
+                if (item.own) statuses.add(getString(R.string.collection_status_own))
+                if (item.previouslyOwned) statuses.add(getString(R.string.collection_status_prev_owned))
+                if (item.forTrade) statuses.add(getString(R.string.collection_status_for_trade))
+                if (item.wantInTrade) statuses.add(getString(R.string.collection_status_want_in_trade))
+                if (item.wantToBuy) statuses.add(getString(R.string.collection_status_want_to_buy))
+                if (item.wantToPlay) statuses.add(getString(R.string.collection_status_want_to_play))
+                if (item.preOrdered) statuses.add(getString(R.string.collection_status_preordered))
+                if (item.wishList) statuses.add(PresentationUtils.describeWishlist(ctx, item.wishListPriority))
+                if (statuses.isEmpty()) {
+                    if (item.numberOfPlays > 0) {
+                        statuses.add(getString(R.string.played))
+                    } else {
+                        if (item.rating > 0.0) statuses.add(getString(R.string.rated))
+                        if (item.comment.isNotBlank()) statuses.add(getString(R.string.commented))
+                    }
+                }
+
                 val row = GameCollectionRow(context)
                 item.apply {
                     row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl)
                     row.setThumbnail(thumbnailUrl)
-                    row.setStatus(statuses, numberOfPlays, rating, comment)
+                    row.setStatus(statuses)
                     row.setDescription(collectionName, collectionYearPublished)
                     row.setComment(comment)
                     row.setRating(rating)

@@ -14,10 +14,12 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.model.GameCollectionItem
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.CursorUtils
+import com.boardgamegeek.util.FileUtils
+import com.boardgamegeek.util.ResolverUtils
+import com.boardgamegeek.util.SelectionBuilder
 import hugo.weaving.DebugLog
 import timber.log.Timber
-import java.util.*
 
 private const val NOT_DIRTY = 0L
 
@@ -52,9 +54,6 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.GAME_NAME,
                 Collection.COLLECTION_DELETE_TIMESTAMP
         )
-        val firstStatus = 6
-        val lastStatus = 13
-        val wishListStatus = 11
         return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<GameCollectionItem>()
             resolver.load(
@@ -64,18 +63,6 @@ class CollectionDao(private val context: BggApplication) {
                     arrayOf(gameId.toString()))?.use { cursor ->
                 if (cursor.moveToFirst()) {
                     do {
-                        val statuses = ArrayList<String>()
-                        (firstStatus..lastStatus)
-                                .filter { cursor.getInt(it) == 1 }
-                                .forEach {
-                                    if (it == wishListStatus) {
-                                        statuses.add(PresentationUtils.describeWishlist(context, cursor.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY)
-                                                ?: 0))
-                                    } else {
-                                        statuses.add(context.resources.getStringArray(R.array.collection_status_filter_entries)[it - firstStatus])
-                                    }
-                                }
-
                         val item = GameCollectionItem(
                                 internalId = cursor.getLong(Collection._ID),
                                 collectionId = cursor.getInt(Collection.COLLECTION_ID),
@@ -90,7 +77,14 @@ class CollectionDao(private val context: BggApplication) {
                                 rating = cursor.getDoubleOrNull(Collection.RATING) ?: 0.0,
                                 syncTimestamp = cursor.getLongOrNull(Collection.UPDATED) ?: 0,
                                 deleteTimestamp = cursor.getLongOrNull(Collection.COLLECTION_DELETE_TIMESTAMP) ?: 0L,
-                                statuses = statuses
+                                own = cursor.getIntOrNull(Collection.STATUS_OWN) ?: 0 == 1,
+                                previouslyOwned = cursor.getIntOrNull(Collection.STATUS_PREVIOUSLY_OWNED) ?: 0 == 1,
+                                forTrade = cursor.getIntOrNull(Collection.STATUS_FOR_TRADE) ?: 0 == 1,
+                                wantInTrade = cursor.getIntOrNull(Collection.STATUS_WANT) ?: 0 == 1,
+                                wantToPlay = cursor.getIntOrNull(Collection.STATUS_WANT_TO_PLAY) ?: 0 == 1,
+                                wantToBuy = cursor.getIntOrNull(Collection.STATUS_WANT_TO_BUY) ?: 0 == 1,
+                                wishList = cursor.getIntOrNull(Collection.STATUS_WISHLIST) ?: 0 == 1,
+                                wishListPriority = cursor.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3
                         )
                         if (includeDeletedItems || item.deleteTimestamp == 0L)
                             list.add(item)

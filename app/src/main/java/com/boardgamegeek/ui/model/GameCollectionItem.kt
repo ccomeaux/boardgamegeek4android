@@ -14,5 +14,13 @@ data class GameCollectionItem(
         val rating: Double,
         val syncTimestamp: Long,
         val deleteTimestamp: Long,
-        val statuses: List<String>
+        val own: Boolean = false,
+        val previouslyOwned: Boolean = false,
+        val forTrade: Boolean = false,
+        val wantInTrade: Boolean = false,
+        val wantToPlay: Boolean = false,
+        val wantToBuy: Boolean = false,
+        val preOrdered: Boolean = false,
+        val wishList: Boolean = false,
+        val wishListPriority: Int = 3
 )
