@@ -18,6 +18,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.colorize
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
+import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
@@ -38,6 +39,7 @@ class GameActivity : HeroTabActivity() {
     private var thumbnailUrl = ""
     private var heroImageUrl = ""
     private var isFavorite: Boolean = false
+    private var isUserMenuEnabled = false
 
     private val viewModel: GameViewModel by lazy {
         ViewModelProviders.of(this).get(GameViewModel::class.java)
@@ -78,6 +80,7 @@ class GameActivity : HeroTabActivity() {
                         changeName(name)
                         changeImage(imageUrl, thumbnailUrl, heroImageUrl)
                         this@GameActivity.isFavorite = isFavorite
+                        this@GameActivity.isUserMenuEnabled = maxUsers > 0
 
                         adapter.gameName = name
                         adapter.imageUrl = imageUrl
@@ -125,6 +128,7 @@ class GameActivity : HeroTabActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.menu_favorite)?.setTitle(if (isFavorite) R.string.menu_unfavorite else R.string.menu_favorite)
+        menu.findItem(R.id.menu_users)?.isEnabled = isUserMenuEnabled
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -162,6 +166,10 @@ class GameActivity : HeroTabActivity() {
             }
             R.id.menu_view_image -> {
                 ImageActivity.start(ctx, imageUrl)
+                return true
+            }
+            R.id.menu_users -> {
+                GameUsersDialogFragment.launch(this, gameId)
                 return true
             }
         }

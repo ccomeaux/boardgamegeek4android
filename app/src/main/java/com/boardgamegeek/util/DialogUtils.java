@@ -31,10 +31,18 @@ public class DialogUtils {
 		return new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert);
 	}
 
+	public static void showAndSurvive(FragmentActivity host, DialogFragment dialog) {
+		final FragmentManager fragmentManager = host.getSupportFragmentManager();
+		showAndSurvive(dialog, fragmentManager);
+	}
+
 	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
 		final FragmentManager fragmentManager = host.getFragmentManager();
-		if (fragmentManager == null) return;
+		showAndSurvive(dialog, fragmentManager);
+	}
 
+	private static void showAndSurvive(DialogFragment dialog, FragmentManager fragmentManager) {
+		if (fragmentManager == null) return;
 		String tag = "dialog";
 
 		FragmentTransaction ft = fragmentManager.beginTransaction();

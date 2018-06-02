@@ -294,6 +294,7 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_favorite">Favorite</string>
 	<string name="menu_unfavorite">Unfavorite</string>
+	<string name="menu_users">Users</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_view_image">View image</string>

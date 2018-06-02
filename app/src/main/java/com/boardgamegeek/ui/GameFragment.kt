@@ -17,7 +17,6 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.tasks.FavoriteGameTask
-import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.dialog.RanksFragment
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.Status
@@ -34,7 +33,6 @@ import kotlinx.android.synthetic.main.include_game_player_range.*
 import kotlinx.android.synthetic.main.include_game_playing_time.*
 import kotlinx.android.synthetic.main.include_game_ranks.*
 import kotlinx.android.synthetic.main.include_game_ratings.*
-import kotlinx.android.synthetic.main.include_game_users.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
 import org.jetbrains.anko.support.v4.act
@@ -142,7 +140,7 @@ class GameFragment : Fragment() {
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
 
-        val colorizedIcons = listOf(favoriteIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon, usersIcon)
+        val colorizedIcons = listOf(favoriteIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
         if (iconColor != Color.TRANSPARENT) {
             colorizedIcons.forEach { it?.setColorFilter(iconColor) }
 
@@ -192,14 +190,6 @@ class GameFragment : Fragment() {
         weightView.setTextViewBackground(ColorUtils.getFiveStageColor(game.averageWeight))
         weightScoreView?.setTextOrHide(PresentationUtils.describeScore(ctx, game.averageWeight))
         weightScoreView.setTextOrHide(PresentationUtils.getQuantityText(ctx, R.plurals.votes_suffix, game.numberWeights, game.numberWeights))
-
-        usersView?.text = PresentationUtils.getQuantityText(ctx, R.plurals.users_suffix, game.maxUsers, game.maxUsers)
-        if (game.maxUsers > 0) {
-            usersContainer?.setOnClickListener { GameUsersDialogFragment.launch(this, gameId) }
-        } else {
-            usersContainer?.setOnClickListener { }
-            usersContainer?.isClickable = false
-        }
 
         gameIdView?.text = game.id.toString()
         lastModifiedView?.timestamp = game.updated

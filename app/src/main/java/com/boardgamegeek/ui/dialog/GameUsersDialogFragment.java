@@ -8,7 +8,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -48,7 +48,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		R.id.users_wishing_bar
 	}) List<StatBar> statBars;
 
-	public static void launch(Fragment host, int gameId) {
+	public static void launch(FragmentActivity host, int gameId) {
 		Bundle arguments = new Bundle(1);
 		arguments.putInt(KEY_GAME_ID, gameId);
 		final GameUsersDialogFragment dialog = new GameUsersDialogFragment();
@@ -108,35 +108,31 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		if (!isAdded()) return;
 		if (cursor == null) return;
 
-		if (loader.getId() == Query._TOKEN) {
-			if (cursor.moveToFirst()) {
-				barColor = cursor.getInt(Query.DARK_COLOR);
-				colorize();
+		if (cursor.moveToFirst()) {
+			barColor = cursor.getInt(Query.DARK_COLOR);
+			colorize();
 
-				int numberWeights = cursor.getInt(Query.STATS_NUMBER_WEIGHTS);
-				int numberOwned = cursor.getInt(Query.STATS_NUMBER_OWNED);
-				int numberTrading = cursor.getInt(Query.STATS_NUMBER_TRADING);
-				int numberWanting = cursor.getInt(Query.STATS_NUMBER_WANTING);
-				int numberWishing = cursor.getInt(Query.STATS_NUMBER_WISHING);
-				int numberRated = cursor.getInt(Query.STATS_USERS_RATED);
-				int numberComments = cursor.getInt(Query.STATS_NUMBER_COMMENTS);
+			int numberWeights = cursor.getInt(Query.STATS_NUMBER_WEIGHTS);
+			int numberOwned = cursor.getInt(Query.STATS_NUMBER_OWNED);
+			int numberTrading = cursor.getInt(Query.STATS_NUMBER_TRADING);
+			int numberWanting = cursor.getInt(Query.STATS_NUMBER_WANTING);
+			int numberWishing = cursor.getInt(Query.STATS_NUMBER_WISHING);
+			int numberRated = cursor.getInt(Query.STATS_USERS_RATED);
+			int numberComments = cursor.getInt(Query.STATS_NUMBER_COMMENTS);
 
-				int maxUsers = Math.max(numberWeights, numberOwned);
-				maxUsers = Math.max(maxUsers, numberTrading);
-				maxUsers = Math.max(maxUsers, numberWanting);
-				maxUsers = Math.max(maxUsers, numberWishing);
-				maxUsers = Math.max(maxUsers, numberRated);
-				maxUsers = Math.max(maxUsers, numberComments);
+			int maxUsers = Math.max(numberWeights, numberOwned);
+			maxUsers = Math.max(maxUsers, numberTrading);
+			maxUsers = Math.max(maxUsers, numberWanting);
+			maxUsers = Math.max(maxUsers, numberWishing);
+			maxUsers = Math.max(maxUsers, numberRated);
+			maxUsers = Math.max(maxUsers, numberComments);
 
-				numberOwningBar.setBar(R.string.owning_meter_text, numberOwned, maxUsers);
-				numberTradingBar.setBar(R.string.trading_meter_text, numberTrading, maxUsers);
-				numberWantingBar.setBar(R.string.wanting_meter_text, numberWanting, maxUsers);
-				numberWishingBar.setBar(R.string.wishing_meter_text, numberWishing, maxUsers);
-			}
-		} else {
-			cursor.close();
+			numberOwningBar.setBar(R.string.owning_meter_text, numberOwned, maxUsers);
+			numberTradingBar.setBar(R.string.trading_meter_text, numberTrading, maxUsers);
+			numberWantingBar.setBar(R.string.wanting_meter_text, numberWanting, maxUsers);
+			numberWishingBar.setBar(R.string.wishing_meter_text, numberWishing, maxUsers);
 		}
-
+		cursor.close();
 	}
 
 	@Override
