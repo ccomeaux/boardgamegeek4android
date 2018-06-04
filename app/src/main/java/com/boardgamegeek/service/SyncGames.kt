@@ -15,6 +15,7 @@ import java.io.IOException
 import java.util.*
 
 abstract class SyncGames(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
+    private val dao = GameDao(application)
 
     protected open val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX)
 
@@ -47,18 +48,18 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
 
                     val call = service.thing(gameList.ids, 1)
                     try {
+                        val timestamp = System.currentTimeMillis();
                         val response = call.execute()
                         if (response.isSuccessful) {
                             val body = response.body()
                             val games = body?.games ?: emptyList()
                             if (games.isNotEmpty()) {
-                                val dao = GameDao(application)
                                 for (game in games) {
                                     val entity = GameMapper().map(game)
                                     if (entity.name.isBlank()) {
                                         dao.delete(entity.id)
                                     } else {
-                                        dao.save(entity)
+                                        dao.save(entity, timestamp)
                                     }
                                 }
                                 syncResult.stats.numUpdates += games.size.toLong()
@@ -112,17 +113,17 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
         var detail = ""
         val call = service.thing(id, 1)
         try {
+            val timestamp = System.currentTimeMillis();
             val response = call.execute()
             if (response.isSuccessful) {
                 val games = if (response.body() == null) ArrayList(0) else response.body()!!.games
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
-                val dao = GameDao(application)
                 for (game in games) {
                     val entity = GameMapper().map(game)
                     if (entity.name.isBlank()) {
                         dao.delete(entity.id)
                     } else {
-                        dao.save(entity)
+                        dao.save(entity, timestamp)
                     }
                 }
                 syncResult.stats.numUpdates += games.size.toLong()

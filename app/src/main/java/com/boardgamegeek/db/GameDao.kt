@@ -22,7 +22,6 @@ import timber.log.Timber
 
 class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
-    private val updateTime: Long = System.currentTimeMillis()
 
     fun load(gameId: Int): LiveData<Game> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
@@ -280,7 +279,7 @@ class GameDao(private val context: BggApplication) {
         return resolver.delete(Games.buildGameUri(gameId), null, null)
     }
 
-    fun save(game: GameEntity) {
+    fun save(game: GameEntity, updateTime: Long) {
         // TODO return the internal ID
         if (game.name.isBlank()) {
             Timber.w("Missing name from game ID=%s", game.id)

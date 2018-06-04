@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit
 
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
-    private var timestamp = 0L
     private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTOIN_MINUTES)
 
     private val username: String? by lazy {
@@ -38,6 +37,8 @@ class GameCollectionRepository(val application: BggApplication) {
      */
     fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<GameCollectionItem>>> {
         return object : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
+            private var timestamp = 0L
+
             override val typeDescriptionResId = R.string.title_collection
 
             override fun loadFromDatabase() = dao.load(gameId)

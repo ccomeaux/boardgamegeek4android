@@ -30,6 +30,8 @@ class GameRepository(val application: BggApplication) {
      */
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
         return object : RefreshableResourceLoader<Game, ThingResponse>(application) {
+            private var timestamp = 0L
+
             override val typeDescriptionResId = R.string.title_game
 
             override fun loadFromDatabase() = dao.load(gameId)
@@ -39,11 +41,14 @@ class GameRepository(val application: BggApplication) {
                 return data == null || data.updated.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
-            override fun createCall(): Call<ThingResponse> = Adapter.createForXml().thing(gameId, 1)
+            override fun createCall(): Call<ThingResponse> {
+                timestamp = System.currentTimeMillis()
+                return Adapter.createForXml().thing(gameId, 1)
+            }
 
             override fun saveCallResult(result: ThingResponse) {
                 for (game in result.games) {
-                    dao.save(GameMapper().map(game))
+                    dao.save(GameMapper().map(game), timestamp)
                     Timber.i("Synced game '$gameId'")
                 }
             }
