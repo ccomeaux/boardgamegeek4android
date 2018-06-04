@@ -93,7 +93,6 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 			Toast.makeText(getContext(), R.string.msg_invalid_game_id, Toast.LENGTH_SHORT).show();
 			dismiss();
 		}
-		dismiss();
 		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
 	}
 
