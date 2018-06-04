@@ -12,6 +12,7 @@ import com.boardgamegeek.*
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.maxPlayerCount
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.RanksFragment
@@ -20,7 +21,8 @@ import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
 import com.boardgamegeek.ui.widget.SafeViewTarget
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.HelpUtils
+import com.boardgamegeek.util.ShowcaseViewWizard
 import com.github.amlcurran.showcaseview.targets.Target
 import kotlinx.android.synthetic.main.fragment_game.*
 import kotlinx.android.synthetic.main.include_game_ages.*
@@ -34,7 +36,6 @@ import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
-import java.util.*
 
 class GameFragment : Fragment() {
     private var gameId: Int = BggContract.INVALID_ID
@@ -211,48 +212,28 @@ class GameFragment : Fragment() {
 
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
         val message = if (entity?.modalValue.isNullOrBlank()) ""
-        else ctx.getText(R.string.age_community_plus, entity?.modalValue ?: "")
+        else ctx.getText(R.string.age_community, entity?.modalValue ?: "")
         playerAgePollView?.setTextOrHide(message)
         playerAgeContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             PollFragment.launchSuggestedPlayerAge(this, gameId)
         }
     }
 
-    private fun onPlayerCountQueryComplete(list: List<GamePlayerPollEntity>?) {
-        var totalVotes = 0
-        if (list != null) {
-            val bestCounts = ArrayList<Int>()
-            val recommendedCounts = ArrayList<Int>()
-            for ((totalVotes1, playerCount, recommendation) in list) {
-                totalVotes = Math.max(totalVotes, totalVotes1)
-                if (recommendation == PlayerCountRecommendation.BEST) {
-                    bestCounts.add(playerCount)
-                    recommendedCounts.add(playerCount)
-                } else if (recommendation == PlayerCountRecommendation.RECOMMENDED) {
-                    recommendedCounts.add(playerCount)
-                }
-            }
+    private fun onPlayerCountQueryComplete(entity: GamePlayerPollEntity?) {
+        val bestCounts = entity?.bestCounts ?: emptyList()
+        val goodCounts = entity?.recommendedCounts ?: emptyList()
 
-            var communityText: CharSequence = ""
-            if (bestCounts.size > 0) {
-                communityText = PresentationUtils.getText(ctx, R.string.best_prefix, StringUtils.formatRange(bestCounts))
-                if (recommendedCounts.size > 0 && bestCounts != recommendedCounts) {
-                    val good = PresentationUtils.getText(ctx, R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts))
-                    communityText = TextUtils.concat(communityText, " & ", good)
-                }
-            } else if (recommendedCounts.size > 0) {
-                communityText = PresentationUtils.getText(ctx, R.string.recommended_prefix, StringUtils.formatRange(recommendedCounts))
-            }
-            playerCountCommunityView?.setTextOrHide(communityText)
-        } else {
-            playerCountCommunityView?.visibility = View.GONE
+        val best = ctx.getText(R.string.best_prefix, bestCounts.asRange(max = maxPlayerCount))
+        val good = ctx.getText(R.string.recommended_prefix, goodCounts.asRange(max = maxPlayerCount))
+        val communityText = when {
+            bestCounts.isNotEmpty() && goodCounts.isNotEmpty() && bestCounts != goodCounts -> TextUtils.concat(best, " & ", good)
+            bestCounts.isNotEmpty() -> best
+            goodCounts.isNotEmpty() -> good
+            else -> ""
         }
-        playerCountVotesView.setTextOrHide(PresentationUtils.getQuantityText(ctx, R.plurals.votes_suffix, totalVotes, totalVotes))
-        if (totalVotes > 0) {
-            playerCountContainer?.setOnClickListener { SuggestedPlayerCountPollFragment.launch(this, gameId) }
-        } else {
-            playerCountContainer?.setOnClickListener { }
-            playerCountContainer?.isClickable = false
+        playerCountCommunityView?.setTextOrHide(communityText)
+        playerCountContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+            SuggestedPlayerCountPollFragment.launch(this, gameId)
         }
     }
 

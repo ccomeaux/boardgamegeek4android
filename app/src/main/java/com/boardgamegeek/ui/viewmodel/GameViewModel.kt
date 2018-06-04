@@ -64,7 +64,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val playerPoll: LiveData<List<GamePlayerPollEntity>> = Transformations.switchMap(_gameId) { gameId ->
+    val playerPoll: LiveData<GamePlayerPollEntity> = Transformations.switchMap(_gameId) { gameId ->
         if (gameId == BggContract.INVALID_ID) {
             AbsentLiveData.create()
         } else {

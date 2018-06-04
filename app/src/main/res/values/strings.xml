@@ -447,8 +447,8 @@
 	<string name="and_up_suffix" tools:ignore="PluralsCandidate">%,d and up</string>
 	<string name="and_up_suffix_abbr">%,d+</string>
 	<string name="player_range">Player Range</string>
-	<string name="best_prefix">Best with <b>%s</b></string>
-	<string name="recommended_prefix">Good with <b>%s</b></string>
+	<string name="best_prefix">Best w/<b>%s</b></string>
+	<string name="recommended_prefix">Good w/<b>%s</b></string>
 	<string name="recommended_player_count_description_abbr">%s with %s</string>
 	<string name="mins_unknown"><b>\?</b> mins</string>
 	<string name="hrs_suffix"><b>%,d</b> hrs</string>
@@ -471,8 +471,7 @@
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_prefix">Ages <b>%d+</b></string>
-	<string name="age_community">Community: <b>%s</b></string>
-	<string name="age_community_plus">Community: <b>%s+</b></string>
+	<string name="age_community">Community: <b>%s+</b></string>
 	<string name="name">Name</string>
 	<string name="named_prefix">Named \"%s\"</string>
 	<string name="ranked">Ranked</string>

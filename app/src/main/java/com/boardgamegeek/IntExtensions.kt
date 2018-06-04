@@ -67,3 +67,57 @@ fun Pair<Int, Int>.asRange(errorText: String = "?"): String {
         else -> "%,d - %,d".format(first, second)
     }
 }
+
+/**
+ * Format a list of integers as a range.
+ * E.g. [1,3,4,5] would return "1, 3 - 5"
+ * Assumes list is already sorted
+ */
+fun List<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = Int.MAX_VALUE): String {
+    when {
+        this == null -> return ""
+        isEmpty() -> return ""
+        size == 1 -> return this[0].toString()
+        else -> {
+            val invalid = -1
+            var first = invalid
+            var last = invalid
+            val sb = StringBuilder()
+            for (i in indices) {
+                val current = this[i]
+                when {
+                    current == max -> {
+                        if (sb.isNotEmpty()) sb.append(comma)
+                        sb.append(first).append("+")
+                        first = invalid
+                        last = invalid
+                    }
+                    first == invalid -> first = current
+                    current - 1 == this[i - 1] -> last = current
+                    last != invalid -> {
+                        if (sb.isNotEmpty()) sb.append(comma)
+                        sb.append(first).append(dash).append(last)
+                        first = invalid
+                        last = invalid
+                    }
+                    else -> {
+                        if (sb.isNotEmpty()) sb.append(comma)
+                        sb.append(first)
+                        first = current
+                        last = invalid
+                    }
+                }
+            }
+            if (first != invalid) {
+                if (last != invalid) {
+                    if (sb.isNotEmpty()) sb.append(comma)
+                    sb.append(first).append(dash).append(last)
+                } else {
+                    if (sb.isNotEmpty()) sb.append(comma)
+                    sb.append(first)
+                }
+            }
+            return sb.toString()
+        }
+    }
+}

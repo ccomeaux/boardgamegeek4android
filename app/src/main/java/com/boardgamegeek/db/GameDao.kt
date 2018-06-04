@@ -155,11 +155,11 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
-    fun loadPlayerPoll(gameId: Int): LiveData<List<GamePlayerPollEntity>> {
+    fun loadPlayerPoll(gameId: Int): LiveData<GamePlayerPollEntity> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
         return RegisteredLiveData(context, uri) {
-            val results = arrayListOf<GamePlayerPollEntity>()
+            val results = arrayListOf<GamePlayerPollResultsEntity>()
             val projection = arrayOf(
                     GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
                     GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
@@ -167,14 +167,14 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
                     do {
-                        results.add(GamePlayerPollEntity(
+                        results.add(GamePlayerPollResultsEntity(
                                 totalVotes = it.getInt(GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
-                                playerCount = it.getInt(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT),
+                                playerCount = it.getString(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT),
                                 recommendation = it.getInt(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)))
                     } while (it.moveToNext())
                 }
             }
-            return@RegisteredLiveData results
+            return@RegisteredLiveData GamePlayerPollEntity(results)
         }
     }
 

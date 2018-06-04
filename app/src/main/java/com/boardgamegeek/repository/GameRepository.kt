@@ -62,7 +62,7 @@ class GameRepository(val application: BggApplication) {
         return dao.loadRanks(gameId)
     }
 
-    fun getPlayerPoll(gameId: Int): LiveData<List<GamePlayerPollEntity>> {
+    fun getPlayerPoll(gameId: Int): LiveData<GamePlayerPollEntity> {
         return dao.loadPlayerPoll(gameId)
     }
 
