@@ -2,14 +2,12 @@ package com.boardgamegeek.ui
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.graphics.Color
 import android.os.Bundle
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
 import android.text.Html
 import android.text.TextUtils
 import android.view.*
-import butterknife.ButterKnife
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
@@ -141,15 +139,10 @@ class GameFragment : Fragment() {
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
 
-        val colorizedIcons = listOf(favoriteIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
-        if (iconColor != Color.TRANSPARENT) {
-            colorizedIcons.forEach { it?.setColorFilter(iconColor) }
-
-            val colorizedRows = listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics, game_info_expansions, game_info_base_games)
-            ButterKnife.apply(colorizedRows, GameDetailRow.rgbIconSetter, iconColor)
-        } else {
-            colorizedIcons.forEach { it?.clearColorFilter() }
-        }
+        listOf(favoriteIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
+                .forEach { it?.setOrClearColorFilter(iconColor) }
+        listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics, game_info_expansions, game_info_base_games)
+                .forEach { it?.colorize(iconColor) }
     }
 
     private fun onGameContentChanged(game: Game) {
