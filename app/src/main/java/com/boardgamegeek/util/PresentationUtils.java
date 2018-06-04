@@ -86,13 +86,6 @@ public class PresentationUtils {
 	}
 
 	@DebugLog
-	public static String describeWishlist(@Nullable Context context, int priority) {
-		if (context == null) return "";
-		if (priority < 0 || priority > 5) return context.getString(R.string.wishlist);
-		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
-	}
-
-	@DebugLog
 	public static String describeAverageRating(Context context, double rating) {
 		return describeRating(context, rating, AVERAGE_RATING_FORMAT);
 	}

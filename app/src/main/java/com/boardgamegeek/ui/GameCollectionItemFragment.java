@@ -24,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.IntExtensionsKt;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
@@ -580,7 +581,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindWishlist(CollectionItem item) {
 		// view
 		if (item.isWishlist()) {
-			PresentationUtils.setTextOrHide(wishlistStatusView, PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
+			PresentationUtils.setTextOrHide(wishlistStatusView, IntExtensionsKt.asWishListPriority(item.getWishlistPriority(), getContext()));
 		} else {
 			wishlistStatusView.setVisibility(View.GONE);
 		}

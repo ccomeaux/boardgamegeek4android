@@ -46,6 +46,11 @@ fun Int.asAge(context: Context?): CharSequence {
     }
 }
 
+fun Int.asWishListPriority(context: Context?): String {
+    if (context == null) return ""
+    return context.resources.getStringArray(R.array.wishlist_priority).getOrElse(this) { context.getString(R.string.wishlist) }
+}
+
 fun Int.isRankValid(): Boolean {
     return this != Constants.RANK_UNKNOWN
 }

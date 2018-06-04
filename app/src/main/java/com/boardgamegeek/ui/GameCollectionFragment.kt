@@ -7,17 +7,13 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.boardgamegeek.R
-import com.boardgamegeek.fadeIn
-import com.boardgamegeek.fadeOut
+import com.boardgamegeek.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.setBggColors
 import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameCollectionRow
-import com.boardgamegeek.util.PresentationUtils
 import kotlinx.android.synthetic.main.fragment_game_collection.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
@@ -67,7 +63,7 @@ class GameCollectionFragment : Fragment() {
                 if (item.wantToBuy) statuses.add(getString(R.string.collection_status_want_to_buy))
                 if (item.wantToPlay) statuses.add(getString(R.string.collection_status_want_to_play))
                 if (item.preOrdered) statuses.add(getString(R.string.collection_status_preordered))
-                if (item.wishList) statuses.add(PresentationUtils.describeWishlist(ctx, item.wishListPriority))
+                if (item.wishList) statuses.add(item.wishListPriority.asWishListPriority(ctx))
                 if (statuses.isEmpty()) {
                     if (item.numberOfPlays > 0) {
                         statuses.add(getString(R.string.played))
