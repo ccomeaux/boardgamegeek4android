@@ -47,6 +47,4 @@ data class Game constructor(
             max = Math.max(max, numberWishing)
             return max
         }
-
-    val pollsVoteCount = pollVoteTotal + suggestedPlayerCountPollVoteTotal
 }

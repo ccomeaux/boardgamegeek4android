@@ -4,7 +4,6 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
-import getTextColor
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.text = text

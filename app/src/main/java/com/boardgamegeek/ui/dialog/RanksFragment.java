@@ -17,7 +17,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.IntExtensionsKt;
 import com.boardgamegeek.R;
+import com.boardgamegeek.StringExtensionsKt;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameRanks;
@@ -118,12 +120,12 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 
 			do {
 				String type = cursor.getString(Query.GAME_RANK_TYPE);
-				CharSequence name = PresentationUtils.describeRankName(getContext(), type, cursor.getString(Query.GAME_RANK_NAME));
+				CharSequence name = StringExtensionsKt.asRankDescription(cursor.getString(Query.GAME_RANK_NAME), getContext(), type);
 				int rank = cursor.getInt(Query.GAME_RANK_VALUE);
 				double average = cursor.getDouble(Query.GAME_RANK_BAYES_AVERAGE);
 				boolean isFamily = BggService.RANK_TYPE_FAMILY.equals(type);
 
-				if (PresentationUtils.isRankValid(rank)) {
+				if (IntExtensionsKt.isRankValid(rank)) {
 					GameRankRow row = new GameRankRow(getContext(), isFamily);
 					row.setRank(rank);
 					row.setName(name);

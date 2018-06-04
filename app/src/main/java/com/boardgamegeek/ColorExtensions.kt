@@ -1,3 +1,5 @@
+package com.boardgamegeek
+
 import android.graphics.Color
 import android.support.annotation.ColorInt
 
@@ -27,3 +29,29 @@ fun @receiver:ColorInt Int.getTextColor(): Int {
 fun @receiver:ColorInt Int.isColorDark(): Boolean {
     return (30 * Color.red(this) + 59 * Color.green(this) + 11 * Color.blue(this)) / 100 <= 130
 }
+
+fun Int.blendWith(color: Int, ratio: Double): Int {
+    val ir = 1.0 - ratio
+
+    val a = (Color.alpha(this) * ratio + Color.alpha(color) * ir).toInt()
+    val r = (Color.red(this) * ratio + Color.red(color) * ir).toInt()
+    val g = (Color.green(this) * ratio + Color.green(color) * ir).toInt()
+    val b = (Color.blue(this) * ratio + Color.blue(color) * ir).toInt()
+
+    return Color.argb(a, r, g, b)
+}
+
+val ratingColors = intArrayOf(
+        -0x10000, // 1
+        -0xcc9a, // 2
+        -0x9967, // 3
+        -0x9934, // 4
+        -0x336601, // 5
+        -0x666601, // 6
+        -0x660001, // 7
+        -0x990067, // 8
+        -0xcc3367, // 9
+        -0xff3400 // 10
+)
+
+val fiveStageColors = intArrayOf(-0xdb6a9d, -0xd03b7e, -0xe27533, -0xac965e, -0x20b8af)// 0xFFDB303B - alternate red color

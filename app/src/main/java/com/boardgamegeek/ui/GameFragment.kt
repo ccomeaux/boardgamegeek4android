@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
+import android.text.Html
 import android.text.TextUtils
 import android.view.*
 import butterknife.ButterKnife
@@ -13,7 +14,6 @@ import com.boardgamegeek.*
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.RanksFragment
@@ -42,6 +42,8 @@ class GameFragment : Fragment() {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var showcaseViewWizard: ShowcaseViewWizard? = null
+    @Suppress("DEPRECATION")
+    private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
     private val viewModel: GameViewModel by lazy {
         ViewModelProviders.of(act).get(GameViewModel::class.java)
@@ -65,7 +67,7 @@ class GameFragment : Fragment() {
 
 
         swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh?.setColorSchemeResources(*PresentationUtils.getColorSchemeResources())
+        swipeRefresh?.setBggColors()
 
         gameIdView?.text = gameId.toString()
         lastModifiedView?.timestamp = 0
@@ -160,33 +162,30 @@ class GameFragment : Fragment() {
             viewModel.updateFavorite(!game.isFavorite)
         }
 
-        rankView?.text = PresentationUtils.describeRank(ctx, game.rank, BggService.RANK_TYPE_SUBTYPE, game.subtype)
+        rankView?.text = game.rank.asRank(ctx, game.subtype)
         rankContainer?.setOnClickListener { RanksFragment.launch(this, gameId) }
 
-        ratingView?.text = PresentationUtils.describeRating(ctx, game.rating)
-        ratingView.setTextViewBackground(ColorUtils.getRatingColor(game.rating))
-        val numberOfRatings = PresentationUtils.getQuantityText(ctx, R.plurals.ratings_suffix, game.usersRated, game.usersRated)
-        val numberOfComments = PresentationUtils.getQuantityText(ctx, R.plurals.comments_suffix, game.usersCommented, game.usersCommented)
-        ratingVotesView?.text = TextUtils.concat(numberOfRatings, " & ", numberOfComments)
-        if (game.usersRated > 0 || game.usersCommented > 0) {
-            ratingContainer?.setOnClickListener { CommentsActivity.startRating(ctx, Games.buildGameUri(gameId), gameName) }
-        } else {
-            ratingContainer?.setOnClickListener { }
-            ratingContainer?.isClickable = false
+        ratingView?.text = game.rating.asRating(ctx)
+        ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
+        val numberOfRatings = ctx.getQuantityText(R.plurals.ratings_suffix, game.usersRated, game.usersRated)
+        val numberOfComments = ctx.getQuantityText(R.plurals.comments_suffix, game.usersCommented, game.usersCommented)
+        ratingVotesView?.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
+        ratingContainer?.setOrClearOnClickListener(game.usersRated > 0 || game.usersCommented > 0) {
+            CommentsActivity.startRating(ctx, Games.buildGameUri(gameId), gameName)
         }
 
-        yearView?.text = PresentationUtils.describeYear(ctx, game.yearPublished)
+        yearView?.text = game.yearPublished.asYear(ctx)
 
-        playTimeView?.text = PresentationUtils.describeMinuteRange(ctx, game.minPlayingTime, game.maxPlayingTime, game.playingTime)
+        playTimeView?.text = ctx.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
 
-        playerCountView?.text = PresentationUtils.describePlayerRange(ctx, game.minPlayers, game.maxPlayers)
+        playerCountView?.text = ctx.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
 
-        playerAgeView?.text = PresentationUtils.describePlayerAge(ctx, game.minimumAge)
+        playerAgeView?.text = game.minimumAge.asAge(ctx)
 
-        weightView?.text = PresentationUtils.describeWeight(ctx, game.averageWeight)
-        weightView.setTextViewBackground(ColorUtils.getFiveStageColor(game.averageWeight))
-        weightScoreView?.setTextOrHide(PresentationUtils.describeScore(ctx, game.averageWeight))
-        weightScoreView.setTextOrHide(PresentationUtils.getQuantityText(ctx, R.plurals.votes_suffix, game.numberWeights, game.numberWeights))
+        weightView?.text = game.averageWeight.toDescription(ctx, R.array.game_weight, R.string.unknown_weight)
+        weightView?.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
+        weightScoreView?.setTextOrHide(game.averageWeight.asScore(ctx))
+        weightVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, game.numberWeights, game.numberWeights))
 
         gameIdView?.text = game.id.toString()
         lastModifiedView?.timestamp = game.updated
@@ -200,50 +199,29 @@ class GameFragment : Fragment() {
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>?) {
-        if (gameRanks == null || gameRanks.isEmpty()) {
-            subtypeView?.visibility = View.GONE
-        } else {
-            var cs: CharSequence? = null
-            for (rank in gameRanks) {
-                if (rank.isFamilyType) {
-                    val rankDescription = PresentationUtils.describeRank(ctx, rank.value, rank.type, rank.name)
-                    cs = if (cs != null) {
-                        PresentationUtils.getText(ctx, R.string.rank_div, cs, rankDescription)
-                    } else {
-                        rankDescription
-                    }
-                }
-            }
-            subtypeView.setTextOrHide(cs)
-        }
+        val descriptions = gameRanks?.filter { it.isFamilyType }?.map { it.value.asRank(ctx, it.name, it.type) }
+                ?: emptyList()
+        subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 
     private fun onLanguagePollQueryComplete(entity: GamePollEntity?) {
         val score = entity?.calculateScore() ?: 0.0
-        languageView?.text = PresentationUtils.describeLanguageDependence(ctx, score)
-        languageView?.setTextViewBackground(ColorUtils.getFiveStageColor(score))
-        languageScoreView?.setTextOrHide(PresentationUtils.describeScore(ctx, score))
+        languageView?.text = score.toDescription(ctx, R.array.language_poll, R.string.unknown_language)
+        languageView?.setTextViewBackground(score.toColor(fiveStageColors))
+        languageScoreView?.setTextOrHide(score.asScore(ctx))
         val totalVotes = entity?.totalVotes ?: 0
-        languageVotesView?.setTextOrHide(PresentationUtils.getQuantityText(ctx, R.plurals.votes_suffix, totalVotes, totalVotes))
-        if (entity?.totalVotes ?: 0 > 0) {
-            languageContainer?.setOnClickListener { PollFragment.launchLanguageDependence(this, gameId) }
-        } else {
-            languageContainer?.setOnClickListener { }
-            languageContainer?.isClickable = false
+        languageVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
+        languageContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+            PollFragment.launchLanguageDependence(this, gameId)
         }
     }
 
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
-        if (entity != null && entity.modalValue.isNotBlank()) {
-            playerAgePollView?.setTextOrHide(PresentationUtils.describePlayerAge(ctx, entity.modalValue))
-        } else {
-            playerAgePollView.visibility = View.GONE
-        }
-        if (entity?.totalVotes ?: 0 > 0) {
-            playerAgeContainer?.setOnClickListener { PollFragment.launchSuggestedPlayerAge(this, gameId) }
-        } else {
-            playerAgeContainer?.setOnClickListener { }
-            playerAgeContainer?.isClickable = false
+        val message = if (entity?.modalValue.isNullOrBlank()) ""
+        else ctx.getText(R.string.age_community_plus, entity?.modalValue ?: "")
+        playerAgePollView?.setTextOrHide(message)
+        playerAgeContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+            PollFragment.launchSuggestedPlayerAge(this, gameId)
         }
     }
 

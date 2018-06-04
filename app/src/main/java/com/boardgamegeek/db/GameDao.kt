@@ -88,7 +88,7 @@ class GameDao(private val context: BggApplication) {
                             usersRated = it.getIntOrNull(Games.STATS_USERS_RATED) ?: 0,
                             usersCommented = it.getIntOrNull(Games.STATS_NUMBER_COMMENTS) ?: 0,
                             updated = it.getLongOrNull(Games.UPDATED) ?: 0,
-                            rank = it.getIntOrNull(Games.GAME_RANK) ?: 0,
+                            rank = it.getIntOrNull(Games.GAME_RANK) ?: Constants.RANK_UNKNOWN,
                             averageWeight = it.getDoubleOrNull(Games.STATS_AVERAGE_WEIGHT) ?: 0.0,
                             numberWeights = it.getIntOrNull(Games.STATS_NUMBER_WEIGHTS) ?: 0,
                             numberOwned = it.getIntOrNull(Games.STATS_NUMBER_OWNED) ?: 0,
@@ -125,7 +125,7 @@ class GameDao(private val context: BggApplication) {
                                 type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
                                 name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
                                 friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
-                                value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: GameRankEntity.INVALID_RANK,
+                                value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: Constants.RANK_UNKNOWN,
                                 bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
                         ))
                     } while (it.moveToNext())

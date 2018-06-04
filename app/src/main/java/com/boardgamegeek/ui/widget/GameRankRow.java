@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.boardgamegeek.IntExtensionsKt;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -26,7 +27,7 @@ public class GameRankRow extends LinearLayout {
 	}
 
 	public void setRank(int rank) {
-		if (PresentationUtils.isRankValid(rank)) {
+		if (IntExtensionsKt.isRankValid(rank)) {
 			rankView.setText(getContext().getString(R.string.rank_prefix, rank));
 			rankView.setVisibility(VISIBLE);
 		} else {

@@ -12,7 +12,6 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.boardgamegeek.util.ColorUtils
 import com.boardgamegeek.util.ScrimUtils
-import darkenColor
 
 fun View.fadeIn(animate: Boolean = true) {
     if (visibility != VISIBLE) {
@@ -74,4 +73,13 @@ fun View.setViewBackground(color: Int) {
     backgroundDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(), color.darkenColor())
 
     ViewCompat.setBackground(this, backgroundDrawable)
+}
+
+fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {
+    if (clickable) {
+        setOnClickListener(l)
+    } else {
+        setOnClickListener { }
+        isClickable = false
+    }
 }
