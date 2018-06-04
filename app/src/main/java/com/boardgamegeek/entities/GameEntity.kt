@@ -1,6 +1,5 @@
 package com.boardgamegeek.entities
 
-import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
 
 class GameEntity {
@@ -11,7 +10,7 @@ class GameEntity {
     var thumbnailUrl = ""
     var imageUrl = ""
     var description = ""
-    var yearPublished = Constants.YEAR_UNKNOWN
+    var yearPublished = YEAR_UNKNOWN
     var minPlayers = 0
     var maxPlayers = 0
     var playingTime = 0

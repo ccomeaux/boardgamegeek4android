@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Constants;
+import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.ui.GameCollectionItemActivity;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -70,8 +70,8 @@ public class GameCollectionRow extends LinearLayout {
 		collectionYearPublished = yearPublished;
 		String description = "";
 		if ((!TextUtils.isEmpty(name) && !name.equals(gameName)) ||
-			(yearPublished != Constants.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
-			if (yearPublished == Constants.YEAR_UNKNOWN) {
+			(yearPublished != ConstantsKt.YEAR_UNKNOWN && yearPublished != this.yearPublished)) {
+			if (yearPublished == ConstantsKt.YEAR_UNKNOWN) {
 				description = name;
 			} else {
 				description = String.format("%s (%s)", name, PresentationUtils.describeYear(getContext(), yearPublished));

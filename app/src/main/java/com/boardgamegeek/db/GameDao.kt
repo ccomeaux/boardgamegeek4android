@@ -11,7 +11,6 @@ import com.boardgamegeek.*
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.*
@@ -77,7 +76,7 @@ class GameDao(private val context: BggApplication) {
                             imageUrl = it.getStringOrNull(Games.IMAGE_URL) ?: "",
                             heroImageUrl = it.getStringOrNull(Games.HERO_IMAGE_URL) ?: "",
                             rating = it.getDoubleOrNull(Games.STATS_AVERAGE) ?: 0.0,
-                            yearPublished = it.getIntOrNull(Games.YEAR_PUBLISHED) ?: Constants.YEAR_UNKNOWN,
+                            yearPublished = it.getIntOrNull(Games.YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
                             minPlayers = it.getIntOrNull(Games.MIN_PLAYERS) ?: 0,
                             maxPlayers = it.getIntOrNull(Games.MAX_PLAYERS) ?: 0,
                             playingTime = it.getIntOrNull(Games.PLAYING_TIME) ?: 0,
@@ -88,7 +87,7 @@ class GameDao(private val context: BggApplication) {
                             usersRated = it.getIntOrNull(Games.STATS_USERS_RATED) ?: 0,
                             usersCommented = it.getIntOrNull(Games.STATS_NUMBER_COMMENTS) ?: 0,
                             updated = it.getLongOrNull(Games.UPDATED) ?: 0,
-                            rank = it.getIntOrNull(Games.GAME_RANK) ?: Constants.RANK_UNKNOWN,
+                            rank = it.getIntOrNull(Games.GAME_RANK) ?: RANK_UNKNOWN,
                             averageWeight = it.getDoubleOrNull(Games.STATS_AVERAGE_WEIGHT) ?: 0.0,
                             numberWeights = it.getIntOrNull(Games.STATS_NUMBER_WEIGHTS) ?: 0,
                             numberOwned = it.getIntOrNull(Games.STATS_NUMBER_OWNED) ?: 0,
@@ -125,7 +124,7 @@ class GameDao(private val context: BggApplication) {
                                 type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
                                 name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
                                 friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
-                                value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: Constants.RANK_UNKNOWN,
+                                value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: RANK_UNKNOWN,
                                 bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
                         ))
                     } while (it.moveToNext())

@@ -1,8 +1,9 @@
 package com.boardgamegeek
 
 import android.content.Context
+import com.boardgamegeek.entities.RANK_UNKNOWN
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.model.Constants
 import com.boardgamegeek.util.PresentationUtils.getText
 
 fun Int.clamp(min: Int, max: Int) = Math.max(min, Math.min(max, this))
@@ -32,7 +33,7 @@ fun Int.toOrdinal(): String {
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()
-        this == Constants.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
+        this == YEAR_UNKNOWN -> context.getString(R.string.year_zero)
         this > 0 -> context.getString(R.string.year_positive, this.toString())
         else -> context.getString(R.string.year_negative, (-this).toString())
     }
@@ -52,7 +53,7 @@ fun Int.asWishListPriority(context: Context?): String {
 }
 
 fun Int.isRankValid(): Boolean {
-    return this != Constants.RANK_UNKNOWN
+    return this != RANK_UNKNOWN
 }
 
 fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {

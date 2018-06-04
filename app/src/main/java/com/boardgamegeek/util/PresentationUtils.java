@@ -21,7 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Constants;
+import com.boardgamegeek.entities.ConstantsKt;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -78,7 +78,7 @@ public class PresentationUtils {
 		if (context == null) return "";
 		if (year > 0) {
 			return context.getString(R.string.year_positive, String.valueOf(year));
-		} else if (year == Constants.YEAR_UNKNOWN) {
+		} else if (year == ConstantsKt.YEAR_UNKNOWN) {
 			return context.getString(R.string.year_zero);
 		} else {
 			return context.getString(R.string.year_negative, String.valueOf(-year));

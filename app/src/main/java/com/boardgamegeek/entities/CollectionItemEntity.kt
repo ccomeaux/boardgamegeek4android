@@ -1,6 +1,5 @@
 package com.boardgamegeek.entities
 
-import com.boardgamegeek.model.Constants.YEAR_UNKNOWN
 import com.boardgamegeek.provider.BggContract
 
 class CollectionItemEntity(

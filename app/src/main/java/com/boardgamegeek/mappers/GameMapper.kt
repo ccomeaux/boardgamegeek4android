@@ -3,8 +3,8 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.GamePollResultEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.model.Game
-import com.boardgamegeek.model.Constants
 import com.boardgamegeek.replaceHtmlLineFeeds
 import com.boardgamegeek.sortName
 
@@ -20,7 +20,7 @@ class GameMapper {
             thumbnailUrl = from.thumbnail ?: ""
             description = from.description.replaceHtmlLineFeeds().trim()
             subtype = from.type ?: ""
-            yearPublished = from.yearpublished?.toIntOrNull() ?: Constants.YEAR_UNKNOWN
+            yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN
             minPlayers = from.minplayers?.toIntOrNull() ?: 0
             maxPlayers = from.maxplayers?.toIntOrNull() ?: 0
             playingTime = from.playingtime?.toIntOrNull() ?: 0

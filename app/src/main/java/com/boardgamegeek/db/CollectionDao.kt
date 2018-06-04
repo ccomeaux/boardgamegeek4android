@@ -7,9 +7,9 @@ import android.database.Cursor
 import android.net.Uri
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.model.Constants
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -77,8 +77,8 @@ class CollectionDao(private val context: BggApplication) {
                                 collectionId = cursor.getInt(Collection.COLLECTION_ID),
                                 collectionName = cursor.getStringOrNull(Collection.COLLECTION_NAME) ?: "",
                                 gameName = cursor.getStringOrNull(Collection.GAME_NAME) ?: "",
-                                collectionYearPublished = cursor.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: Constants.YEAR_UNKNOWN,
-                                yearPublished = cursor.getIntOrNull(Collection.YEAR_PUBLISHED) ?: Constants.YEAR_UNKNOWN,
+                                collectionYearPublished = cursor.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
+                                yearPublished = cursor.getIntOrNull(Collection.YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
                                 imageUrl = cursor.getStringOrNull(Collection.COLLECTION_IMAGE_URL) ?: "",
                                 thumbnailUrl = cursor.getStringOrNull(Collection.COLLECTION_THUMBNAIL_URL) ?: "",
                                 comment = cursor.getStringOrNull(Collection.COMMENT) ?: "",

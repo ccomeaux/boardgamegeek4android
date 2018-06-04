@@ -3,7 +3,7 @@ package com.boardgamegeek.mappers
 import android.text.TextUtils
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.io.model.CollectionItem
-import com.boardgamegeek.model.Constants
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sortName
 import timber.log.Timber
@@ -19,7 +19,7 @@ class CollectionItemMapper {
                 collectionId = from.collid.toIntOrNull() ?: BggContract.INVALID_ID,
                 collectionName = from.name,
                 sortName = if (from.originalname.isNullOrBlank()) from.name.sortName(from.sortindex) else from.name,
-                yearPublished = from.yearpublished?.toIntOrNull() ?: Constants.YEAR_UNKNOWN,
+                yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
                 imageUrl = from.image ?: "",
                 thumbnailUrl = from.thumbnail ?: "",
                 minNumberOfPlayers = from.stats?.minplayers ?: 0,
