@@ -3,9 +3,9 @@ package com.boardgamegeek.service
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.GameMapper
-import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.service.model.GameList
 import com.boardgamegeek.use
@@ -54,7 +54,12 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                             if (games.isNotEmpty()) {
                                 val dao = GameDao(application)
                                 for (game in games) {
-                                    dao.save(GameMapper().map(game))
+                                    val entity = GameMapper().map(game)
+                                    if (entity.name.isBlank()) {
+                                        dao.delete(entity.id)
+                                    } else {
+                                        dao.save(entity)
+                                    }
                                 }
                                 syncResult.stats.numUpdates += games.size.toLong()
                                 Timber.i("...saved %,d games", games.size)
@@ -113,7 +118,12 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
                 val dao = GameDao(application)
                 for (game in games) {
-                    dao.save(GameMapper().map(game))
+                    val entity = GameMapper().map(game)
+                    if (entity.name.isBlank()) {
+                        dao.delete(entity.id)
+                    } else {
+                        dao.save(entity)
+                    }
                 }
                 syncResult.stats.numUpdates += games.size.toLong()
                 Timber.i("...saved %,d games", games.size)

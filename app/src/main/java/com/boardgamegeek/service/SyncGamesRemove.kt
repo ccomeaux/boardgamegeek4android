@@ -4,6 +4,7 @@ import android.content.SyncResult
 import android.text.format.DateUtils
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Games
@@ -17,6 +18,7 @@ import timber.log.Timber
  * Removes games that aren't in the collection and haven't been viewed in 72 hours.
  */
 class SyncGamesRemove(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
+    private val dao = GameDao(application)
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
@@ -36,7 +38,7 @@ class SyncGamesRemove(application: BggApplication, service: BggService, syncResu
                 // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
                 for (gameId in gameIds) {
                     Timber.i("Deleting game ID=$gameId")
-                    count += context.contentResolver.delete(Games.buildGameUri(gameId), null, null)
+                    count += dao.delete(gameId)
                 }
                 syncResult.stats.numDeletes += count.toLong()
                 Timber.i("Deleted $count games")
