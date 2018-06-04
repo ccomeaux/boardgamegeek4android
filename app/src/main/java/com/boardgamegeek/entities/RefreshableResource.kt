@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui.model
+package com.boardgamegeek.entities
 
 enum class Status {
     SUCCESS,

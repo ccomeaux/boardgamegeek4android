@@ -7,6 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
@@ -17,7 +18,6 @@ import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.model.GameCollectionItem
-import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.StringUtils
 import retrofit2.Call

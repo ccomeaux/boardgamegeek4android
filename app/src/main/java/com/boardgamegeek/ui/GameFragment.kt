@@ -9,15 +9,11 @@ import android.text.Html
 import android.text.TextUtils
 import android.view.*
 import com.boardgamegeek.*
-import com.boardgamegeek.entities.GamePlayerPollEntity
-import com.boardgamegeek.entities.GamePollEntity
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.entities.maxPlayerCount
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.RanksFragment
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
 import com.boardgamegeek.ui.widget.SafeViewTarget

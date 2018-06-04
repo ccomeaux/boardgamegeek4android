@@ -9,13 +9,13 @@ import android.support.v7.graphics.Palette
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.GameCollectionItem
-import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.PaletteUtils
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {

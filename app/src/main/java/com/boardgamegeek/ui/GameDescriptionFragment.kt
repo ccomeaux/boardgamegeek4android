@@ -8,9 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.*
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_description.*
 import kotlinx.android.synthetic.main.include_game_footer.*

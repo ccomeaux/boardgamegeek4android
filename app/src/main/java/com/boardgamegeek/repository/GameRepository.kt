@@ -8,6 +8,7 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.isOlderThan
@@ -15,7 +16,6 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.model.RefreshableResource
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
 import timber.log.Timber

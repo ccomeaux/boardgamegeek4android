@@ -16,10 +16,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.applyDarkScrim
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.colorize
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
-import com.boardgamegeek.ui.model.Status
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ImageUtils.Callback

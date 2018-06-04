@@ -7,7 +7,7 @@ import android.support.annotation.StringRes
 import android.support.annotation.WorkerThread
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.ui.model.RefreshableResource
+import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.util.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
