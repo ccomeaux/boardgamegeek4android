@@ -32,6 +32,8 @@ fun Double.toColor(colors: IntArray): Int {
     return if (this < 1 || this > colors.size) Color.TRANSPARENT
     else {
         val index = this.toInt()
-        colors[index - 1].blendWith(colors[index], index + 1 - this)
+        val low = colors.getOrNull(index - 1) ?: Color.TRANSPARENT
+        val high = colors.getOrNull(index) ?: Color.TRANSPARENT
+        low.blendWith(high, index + 1 - this)
     }
 }
