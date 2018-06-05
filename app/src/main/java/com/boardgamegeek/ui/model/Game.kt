@@ -18,6 +18,7 @@ data class Game constructor(
         val usersRated: Int,
         val usersCommented: Int,
         val updated: Long,
+        val updatedPlays: Long,
         val rank: Int,
         val averageWeight: Double,
         val numberWeights: Int,

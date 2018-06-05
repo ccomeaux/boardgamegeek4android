@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,12 +22,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
-import com.boardgamegeek.ui.model.GamePlays;
+import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.PlaysByGame;
+import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PaletteUtils;
@@ -53,7 +56,6 @@ import static android.view.View.VISIBLE;
 public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final int GAME_TOKEN = 0;
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 1;
@@ -67,6 +69,7 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	@ColorInt private int iconColor = Color.TRANSPARENT;
 	private boolean isRefreshing;
 	@State boolean mightNeedRefreshing = true;
+	private GameViewModel viewModel;
 
 	Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -114,7 +117,15 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
-		getLoaderManager().restartLoader(GAME_TOKEN, null, this);
+		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
+		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
+
+			@Override
+			public void onChanged(@Nullable RefreshableResource<Game> game) {
+				onGameQueryComplete(game.getData());
+			}
+		});
+
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 	}
@@ -148,8 +159,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (getContext() == null) return null;
 		switch (id) {
-			case GAME_TOKEN:
-				return new CursorLoader(getContext(), Games.buildGameUri(gameId), GamePlays.PROJECTION, null, null, null);
 			case PLAYS_TOKEN:
 				return new CursorLoader(getContext(),
 					PlaysByGame.URI,
@@ -171,9 +180,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 		switch (loader.getId()) {
-			case GAME_TOKEN:
-				onGameQueryComplete(cursor);
-				break;
 			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
 				break;
@@ -221,25 +227,20 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		}
 	}
 
-	private void onGameQueryComplete(Cursor cursor) {
-		if (cursor != null && cursor.moveToFirst()) {
-			GamePlays game = GamePlays.fromCursor(cursor);
-			gameName = game.getName();
-			imageUrl = game.getImageUrl();
-			thumbnailUrl = game.getThumbnailUrl();
-			heroImageUrl = game.getHeroImageUrl();
-			arePlayersCustomSorted = game.arePlayersCustomSorted();
-			syncTimestampView.setTimestamp(game.getSyncTimestamp());
-			iconColor = game.getIconColor();
-			colorize();
+	private void onGameQueryComplete(Game game) {
+		gameName = game.getName();
+		imageUrl = game.getImageUrl();
+		thumbnailUrl = game.getThumbnailUrl();
+		heroImageUrl = game.getHeroImageUrl();
+		arePlayersCustomSorted = game.getCustomPlayerSort();
+		syncTimestampView.setTimestamp(game.getUpdatedPlays());
+		iconColor = game.getIconColor();
+		colorize();
 
-			if (mightNeedRefreshing) {
-				mightNeedRefreshing = false;
-				if (DateTimeUtils.howManyDaysOld(game.getSyncTimestamp()) > AGE_IN_DAYS_TO_REFRESH)
-					requestRefresh();
-			}
-		} else {
-			syncTimestampView.setTimestamp(System.currentTimeMillis());
+		if (mightNeedRefreshing) {
+			mightNeedRefreshing = false;
+			if (DateTimeUtils.howManyDaysOld(game.getUpdatedPlays()) > AGE_IN_DAYS_TO_REFRESH)
+				requestRefresh();
 		}
 	}
 
