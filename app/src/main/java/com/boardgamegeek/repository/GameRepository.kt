@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MediatorLiveData
 import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -10,16 +11,21 @@ import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
+import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class GameRepository(val application: BggApplication) {
     private var dao = GameDao(application)
@@ -29,7 +35,9 @@ class GameRepository(val application: BggApplication) {
      * Get a game from the database and potentially refresh it from BGG.
      */
     fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
-        return object : RefreshableResourceLoader<Game, ThingResponse>(application) {
+        val started = AtomicBoolean()
+        val mediatorLiveData = MediatorLiveData<RefreshableResource<Game>>()
+        val liveData = object : RefreshableResourceLoader<Game, ThingResponse>(application) {
             private var timestamp = 0L
 
             override val typeDescriptionResId = R.string.title_game
@@ -53,6 +61,11 @@ class GameRepository(val application: BggApplication) {
                 }
             }
         }.asLiveData()
+        mediatorLiveData.addSource(liveData) {
+            maybeRefreshHeroImageUrl(it?.data, started)
+            mediatorLiveData.value = it
+        }
+        return mediatorLiveData
     }
 
     fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
@@ -142,6 +155,41 @@ class GameRepository(val application: BggApplication) {
             val values = ContentValues()
             values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
             application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+        }
+    }
+
+    private fun maybeRefreshHeroImageUrl(game: Game?, started: AtomicBoolean) {
+        if (game == null) return
+        val heroImageId = ImageUtils.getImageId(game.heroImageUrl)
+        val thumbnailId = ImageUtils.getImageId(game.thumbnailUrl)
+        if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
+            val call = Adapter.createGeekdoApi().image(thumbnailId)
+            call.enqueue(object : Callback<Image> {
+                override fun onResponse(call: Call<Image>?, response: Response<Image>?) {
+                    if (response?.isSuccessful == true) {
+                        val body = response.body()
+                        if (body != null) {
+                            application.appExecutors.diskIO.execute {
+                                val values = ContentValues()
+                                values.put(BggContract.Games.HERO_IMAGE_URL, body.images.medium.url)
+                                application.contentResolver.update(BggContract.Games.buildGameUri(game.id), values, null, null)
+                            }
+                        } else {
+                            Timber.w("Empty body while fetching image $thumbnailId for game ${game.id}")
+                        }
+                    } else {
+                        val message = response?.message() ?: response?.code().toString()
+                        Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for game ${game.id}")
+                    }
+                    started.set(false)
+                }
+
+                override fun onFailure(call: Call<Image>?, t: Throwable?) {
+                    val message = t?.localizedMessage ?: "Unknown error"
+                    Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for game ${game.id}")
+                    started.set(false)
+                }
+            })
         }
     }
 }

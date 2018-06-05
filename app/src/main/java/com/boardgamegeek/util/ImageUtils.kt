@@ -87,7 +87,7 @@ object ImageUtils {
         safelyLoadImage(queue, callback)
     }
 
-    private fun getImageId(imageUrl: String): Int {
+    fun getImageId(imageUrl: String): Int {
         if (imageUrl.isBlank()) return 0
         var partialUrl = imageUrl
         val imageIdPrefix = "/pic"
