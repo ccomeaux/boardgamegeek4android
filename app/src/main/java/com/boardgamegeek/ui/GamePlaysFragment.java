@@ -25,7 +25,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
-import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.PlaysByGame;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
@@ -57,7 +56,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int PLAYS_TOKEN = 1;
-	private static final int COLORS_TOKEN = 2;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 1;
 
 	private int gameId;
@@ -119,15 +117,22 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
 		viewModel.getGame().observe(this, new Observer<RefreshableResource<Game>>() {
-
 			@Override
 			public void onChanged(@Nullable RefreshableResource<Game> game) {
 				onGameQueryComplete(game.getData());
 			}
 		});
 
+		viewModel.getPlayColors().observe(this, new Observer<List<String>>() {
+			@Override
+			public void onChanged(@Nullable List<String> strings) {
+				int count = strings == null ? 0 : strings.size();
+				colorsLabel.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.colors_suffix, count, count));
+				colorsRoot.setVisibility(View.VISIBLE);
+			}
+		});
+
 		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
-		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -166,11 +171,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 					PlaysByGame.getSelection(getContext()),
 					PlaysByGame.getSelectionArgs(gameId),
 					null);
-			case COLORS_TOKEN:
-				return new CursorLoader(getContext(),
-					GameColorAdapter.createUri(gameId),
-					GameColorAdapter.PROJECTION,
-					null, null, null);
 			default:
 				return null;
 		}
@@ -182,9 +182,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 		switch (loader.getId()) {
 			case PLAYS_TOKEN:
 				onPlaysQueryComplete(cursor);
-				break;
-			case COLORS_TOKEN:
-				onColorsQueryComplete(cursor);
 				break;
 		}
 	}
@@ -266,12 +263,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 
 			playStatsRoot.setVisibility(plays.getCount() == 0 ? GONE : VISIBLE);
 		}
-	}
-
-	private void onColorsQueryComplete(Cursor cursor) {
-		colorsRoot.setVisibility(VISIBLE);
-		int count = cursor == null ? 0 : cursor.getCount();
-		colorsLabel.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.colors_suffix, count, count));
 	}
 
 	private void colorize() {

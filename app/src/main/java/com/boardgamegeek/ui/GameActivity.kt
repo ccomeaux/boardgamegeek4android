@@ -197,7 +197,7 @@ class GameActivity : HeroTabActivity() {
 
     private val imageLoadCallback = object : Callback {
         override fun onSuccessfulImageLoad(palette: Palette?) {
-            viewModel.updateColors(palette)
+            viewModel.updateGameColors(palette)
             scrimView?.applyDarkScrim()
             adapter.displayFab()
         }

@@ -112,6 +112,10 @@ class GameRepository(val application: BggApplication) {
         return dao.loadExpansions(gameId, true)
     }
 
+    fun getPlayColors(gameId: Int): LiveData<List<String>> {
+        return dao.loadPlayColors(gameId)
+    }
+
     fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
@@ -121,21 +125,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateHeroImageUrl(gameId: Int, url: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
-        if (gameId == BggContract.INVALID_ID) return
-        application.appExecutors.diskIO.execute {
-            if (url.isNotBlank() &&
-                    url != imageUrl &&
-                    url != thumbnailUrl &&
-                    url != heroImageUrl) {
-                val values = ContentValues()
-                values.put(BggContract.Games.HERO_IMAGE_URL, url)
-                dao.update(gameId, values)
-            }
-        }
-    }
-
-    fun updateColors(gameId: Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
+    fun updateGameColors(gameId: Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues(5)

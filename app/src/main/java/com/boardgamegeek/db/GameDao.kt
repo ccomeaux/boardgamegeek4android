@@ -276,6 +276,22 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
+    fun loadPlayColors(gameId: Int): LiveData<List<String>> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildColorsUri(gameId)
+        return RegisteredLiveData(context, uri) {
+            val results = arrayListOf<String>()
+            context.contentResolver.load(uri)?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results.add(it.getString(GameColors.COLOR))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        }
+    }
+
     fun delete(gameId: Int): Int {
         if (gameId == BggContract.INVALID_ID) return 0
         return resolver.delete(Games.buildGameUri(gameId), null, null)
