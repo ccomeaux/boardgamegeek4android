@@ -18,6 +18,7 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
+import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
@@ -110,6 +111,10 @@ class GameRepository(val application: BggApplication) {
 
     fun getBaseGames(gameId: Int): LiveData<List<Pair<Int, String>>> {
         return dao.loadExpansions(gameId, true)
+    }
+
+    fun getPlays(gameId: Int): LiveData<PlaysByGame> {
+        return dao.loadPlays(gameId)
     }
 
     fun getPlayColors(gameId: Int): LiveData<List<String>> {

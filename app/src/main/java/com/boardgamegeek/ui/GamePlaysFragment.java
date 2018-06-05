@@ -2,16 +2,12 @@ package com.boardgamegeek.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
@@ -52,10 +48,9 @@ import icepick.State;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final int PLAYS_TOKEN = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 1;
 
 	private int gameId;
@@ -123,6 +118,13 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 			}
 		});
 
+		viewModel.getPlays().observe(this, new Observer<PlaysByGame>() {
+			@Override
+			public void onChanged(@Nullable PlaysByGame playsByGame) {
+				onPlaysQueryComplete(playsByGame);
+			}
+		});
+
 		viewModel.getPlayColors().observe(this, new Observer<List<String>>() {
 			@Override
 			public void onChanged(@Nullable List<String> strings) {
@@ -131,8 +133,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 				colorsRoot.setVisibility(View.VISIBLE);
 			}
 		});
-
-		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -158,36 +158,6 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	public void onDestroy() {
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		if (getContext() == null) return null;
-		switch (id) {
-			case PLAYS_TOKEN:
-				return new CursorLoader(getContext(),
-					PlaysByGame.URI,
-					PlaysByGame.PROJECTION,
-					PlaysByGame.getSelection(getContext()),
-					PlaysByGame.getSelectionArgs(gameId),
-					null);
-			default:
-				return null;
-		}
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-		switch (loader.getId()) {
-			case PLAYS_TOKEN:
-				onPlaysQueryComplete(cursor);
-				break;
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
 	@Override
@@ -242,26 +212,24 @@ public class GamePlaysFragment extends Fragment implements LoaderCallbacks<Curso
 	}
 
 	@DebugLog
-	private void onPlaysQueryComplete(Cursor cursor) {
-		if (cursor != null && cursor.moveToFirst()) {
+	private void onPlaysQueryComplete(PlaysByGame plays) {
+		if (plays != null) {
 			playsRoot.setVisibility(VISIBLE);
 
-			PlaysByGame plays = PlaysByGame.fromCursor(cursor);
-
-			String description = PresentationUtils.describePlayCount(getActivity(), plays.getCount());
+			String description = PresentationUtils.describePlayCount(getActivity(), plays.getPlayCount());
 			if (!TextUtils.isEmpty(description)) {
 				description = " (" + description + ")";
 			}
-			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, plays.getCount(), plays.getCount(), description));
+			playsLabel.setText(PresentationUtils.getQuantityText(getActivity(), R.plurals.plays_prefix, plays.getPlayCount(), plays.getPlayCount(), description));
 
-			if (plays.getMaxDateInMillis() > 0) {
-				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(plays.getMaxDateInMillis())));
+			if (plays.getMaxDate() > 0) {
+				lastPlayView.setText(PresentationUtils.getText(getActivity(), R.string.last_played_prefix, PresentationUtils.describePastDaySpan(plays.getMaxDate())));
 				lastPlayView.setVisibility(VISIBLE);
 			} else {
 				lastPlayView.setVisibility(GONE);
 			}
 
-			playStatsRoot.setVisibility(plays.getCount() == 0 ? GONE : VISIBLE);
+			playStatsRoot.setVisibility(plays.getPlayCount() == 0 ? GONE : VISIBLE);
 		}
 	}
 

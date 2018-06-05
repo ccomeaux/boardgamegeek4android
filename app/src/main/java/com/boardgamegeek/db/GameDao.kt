@@ -15,6 +15,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.ui.model.Game
+import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.PlayerCountRecommendation
@@ -264,7 +265,7 @@ class GameDao(private val context: BggApplication) {
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<Pair<Int, String>>()
             context.contentResolver.load(uri,
-                    selection = GamesExpansions.INBOUND + "=?",
+                    selection = "${GamesExpansions.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0"))?.use {
                 if (it.moveToFirst()) {
                     do {
@@ -273,6 +274,24 @@ class GameDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData results
+        }
+    }
+
+    fun loadPlays(gameId: Int): LiveData<PlaysByGame> {
+        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        val uri = Games.buildExpansionsUri(gameId)
+        return RegisteredLiveData(context, uri) {
+            context.contentResolver.load(Plays.CONTENT_URI,
+                    projection = arrayOf(Plays._ID, Plays.MAX_DATE, Plays.SUM_QUANTITY),
+                    selection = "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
+                    selectionArgs = arrayOf(gameId.toString()))?.use {
+                if (it.moveToFirst()) {
+                    return@RegisteredLiveData PlaysByGame(
+                            maxDate = it.getDateInMillis(Plays.MAX_DATE),
+                            playCount = it.getIntOrNull(Plays.SUM_QUANTITY) ?: 0)
+                }
+            }
+            return@RegisteredLiveData null
         }
     }
 

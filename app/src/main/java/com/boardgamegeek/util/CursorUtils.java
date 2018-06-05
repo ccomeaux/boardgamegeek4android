@@ -156,15 +156,6 @@ public class CursorUtils {
 		return array;
 	}
 
-	public static long getDateInMillis(Cursor cursor, int columnIndex) {
-		String date = cursor.getString(columnIndex);
-		if (!TextUtils.isEmpty(date)) {
-			Calendar calendar = getCalendar(date);
-			return calendar.getTimeInMillis();
-		}
-		return 0;
-	}
-
 	/**
 	 * Gets a date from the specified column on the current row of the cursor. The date is formatted as an abbreviated
 	 * form of the local conventions. Returns an empty string if the date could not be determined.

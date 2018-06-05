@@ -3,7 +3,9 @@
 package com.boardgamegeek
 
 import android.database.Cursor
+import android.text.TextUtils
 import com.boardgamegeek.util.DateTimeUtils
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -77,6 +79,28 @@ fun Cursor.getFirstChar(columnName: String): String {
 fun Cursor.getApiTime(columnName: String): Long {
     return DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, getString(columnName), apiDateFormat)
 }
+
+fun Cursor.getDateInMillis(columnName: String): Long {
+    val date = getString(columnName)
+    if (!TextUtils.isEmpty(date)) {
+        val calendar = getCalendar(date)
+        return calendar.timeInMillis
+    }
+    return 0L
+}
+
+private fun getCalendar(date: String): Calendar {
+    Timber.v("Getting date from string: %s", date)
+    val dateParts = date.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    val year = Integer.parseInt(dateParts[0])
+    val month = Integer.parseInt(dateParts[1]) - 1
+    val day = Integer.parseInt(dateParts[2])
+    val calendar = Calendar.getInstance()
+    calendar.set(year, month, day)
+    return calendar
+}
+
+fun String.whereZeroOrNull() = "(${this}=0 OR ${this} IS NULL)"
 
 /**
  * Fix for Cursor not implementing Closeable until API level 16.
