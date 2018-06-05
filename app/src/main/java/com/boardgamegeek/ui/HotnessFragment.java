@@ -243,7 +243,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							GameActivity.start(getContext(), gameId, gameName, "", thumbnailUrl, "");
+							GameActivity.start(getContext(), gameId, gameName, thumbnailUrl);
 						}
 					}
 				});

@@ -120,7 +120,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				GameActivity.startUp(this, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl);
+				GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl);
 				finish();
 				return true;
 		}

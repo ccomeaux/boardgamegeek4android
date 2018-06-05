@@ -74,9 +74,7 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 					GameActivity.start(itemView.getContext(),
 						getGame().getId(),
 						getGame().getName(),
-						"",
-						getGame().getThumbnailUrl(),
-						"");
+						getGame().getThumbnailUrl());
 				}
 			});
 		}

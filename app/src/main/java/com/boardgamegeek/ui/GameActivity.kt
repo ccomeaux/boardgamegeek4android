@@ -17,13 +17,13 @@ import com.boardgamegeek.applyDarkScrim
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.colorize
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.loadUrl
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ImageUtils.Callback
-import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
 import com.crashlytics.android.answers.Answers
@@ -35,9 +35,8 @@ import timber.log.Timber
 class GameActivity : HeroTabActivity() {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
-    private var imageUrl = ""
-    private var thumbnailUrl = ""
     private var heroImageUrl = ""
+    private var thumbnailUrl = ""
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
 
@@ -64,9 +63,7 @@ class GameActivity : HeroTabActivity() {
         initializeViewPager()
 
         changeName(intent.getStringExtra(KEY_GAME_NAME) ?: "")
-        changeImage(intent.getStringExtra(KEY_IMAGE_URL),
-                intent.getStringExtra(KEY_THUMBNAIL_URL),
-                intent.getStringExtra(KEY_HERO_IMAGE_URL))
+        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL), intent.getStringExtra(KEY_THUMBNAIL_URL))
 
         viewModel.setId(gameId)
 
@@ -78,9 +75,11 @@ class GameActivity : HeroTabActivity() {
                 else -> {
                     it.data.apply {
                         changeName(name)
-                        changeImage(imageUrl, thumbnailUrl, heroImageUrl)
+                        changeImage(heroImageUrl, thumbnailUrl)
+
                         this@GameActivity.isFavorite = isFavorite
                         this@GameActivity.isUserMenuEnabled = maxUsers > 0
+                        this@GameActivity.thumbnailUrl = thumbnailUrl
 
                         adapter.gameName = name
                         adapter.imageUrl = imageUrl
@@ -165,7 +164,7 @@ class GameActivity : HeroTabActivity() {
                 return true
             }
             R.id.menu_view_image -> {
-                ImageActivity.start(ctx, imageUrl)
+                ImageActivity.start(ctx, heroImageUrl)
                 return true
             }
             R.id.menu_users -> {
@@ -188,26 +187,17 @@ class GameActivity : HeroTabActivity() {
         }
     }
 
-    private fun changeImage(imageUrl: String?, thumbnailUrl: String?, heroImageUrl: String?) {
-        if (this.imageUrl != imageUrl ||
-                this.thumbnailUrl != thumbnailUrl ||
-                this.heroImageUrl != heroImageUrl) {
-            this.imageUrl = imageUrl ?: ""
-            this.thumbnailUrl = thumbnailUrl ?: ""
-            this.heroImageUrl = heroImageUrl ?: ""
-
-            toolbarImage?.safelyLoadImage(this.imageUrl, this.thumbnailUrl, this.heroImageUrl, imageLoadCallback)
-        } else {
-            this.imageUrl = imageUrl
-            this.thumbnailUrl = thumbnailUrl
-            this.heroImageUrl = heroImageUrl
+    private fun changeImage(heroImageUrl: String?, thumbnailUrl: String?) {
+        val url = if (heroImageUrl.isNullOrBlank()) thumbnailUrl else heroImageUrl
+        if (this.heroImageUrl != url) {
+            this.heroImageUrl = url ?: ""
+            toolbarImage?.loadUrl(this.heroImageUrl, imageLoadCallback)
         }
     }
 
     private val imageLoadCallback = object : Callback {
         override fun onSuccessfulImageLoad(palette: Palette?) {
             viewModel.updateColors(palette)
-            viewModel.updateHeroImageUrl(toolbarImage.getTag(R.id.url) as? String? ?: "")
             scrimView?.applyDarkScrim()
             adapter.displayFab()
         }
@@ -220,38 +210,36 @@ class GameActivity : HeroTabActivity() {
     companion object {
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_GAME_NAME = "GAME_NAME"
-        private const val KEY_IMAGE_URL = "IMAGE_URL"
         private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_FROM_SHORTCUT = "FROM_SHORTCUT"
 
         @JvmOverloads
         @JvmStatic
-        fun start(context: Context, gameId: Int, gameName: String, imageUrl: String = "", thumbnailUrl: String = "", heroImageUrl: String = "") {
-            val intent = createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl) ?: return
+        fun start(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
             context.startActivity(intent)
         }
 
         @JvmOverloads
         @JvmStatic
-        fun startUp(context: Context, gameId: Int, gameName: String, imageUrl: String = "", thumbnailUrl: String = "", heroImageUrl: String = "") {
-            val intent = createIntent(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl) ?: return
+        fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
             context.startActivity(intent.clearTask().clearTop())
         }
 
         @JvmStatic
         fun createIntentAsShortcut(context: Context, gameId: Int, gameName: String, thumbnailUrl: String): Intent? {
-            val intent = createIntent(context, gameId, gameName, thumbnailUrl = thumbnailUrl) ?: return null
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl) ?: return null
             return intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
         }
 
         @JvmStatic
-        fun createIntent(context: Context, gameId: Int, gameName: String, imageUrl: String = "", thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
+        fun createIntent(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
             if (gameId == BggContract.INVALID_ID) return null
             return context.intentFor<GameActivity>(
                     KEY_GAME_ID to gameId,
                     KEY_GAME_NAME to gameName,
-                    KEY_IMAGE_URL to imageUrl,
                     KEY_THUMBNAIL_URL to thumbnailUrl,
                     KEY_HERO_IMAGE_URL to heroImageUrl
             )

@@ -337,7 +337,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					GameActivity.start(getContext(),
 						cursor.getInt(Query.GAME_ID),
 						cursor.getString(Query.GAME_NAME),
-						CursorUtils.getString(cursor, Query.IMAGE_URL),
 						CursorUtils.getString(cursor, Query.THUMBNAIL_URL),
 						CursorUtils.getString(cursor, Query.HERO_IMAGE_URL)
 					);

@@ -146,12 +146,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         gameRepository.updateLastViewed(gameId.value ?: BggContract.INVALID_ID, lastViewed)
     }
 
-    fun updateHeroImageUrl(url: String) {
-        val data = game.value?.data ?: return
-        gameRepository.updateHeroImageUrl(gameId.value
-                ?: BggContract.INVALID_ID, url, data.imageUrl, data.thumbnailUrl, data.heroImageUrl)
-    }
-
     fun updateColors(palette: Palette?) {
         if (palette != null) {
             val iconColor = PaletteUtils.getIconSwatch(palette).rgb

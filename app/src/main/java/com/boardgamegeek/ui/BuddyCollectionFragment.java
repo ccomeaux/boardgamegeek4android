@@ -152,7 +152,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			if (index < adapter.getCount()) {
 				CollectionItemEntity ci = adapter.getItem(index);
 				if (ci != null) {
-					GameActivity.start(getContext(), ci.getGameId(), ci.getGameName(), ci.getImageUrl(), ci.getThumbnailUrl(), "");
+					GameActivity.start(getContext(), ci.getGameId(), ci.getGameName(), ci.getThumbnailUrl());
 					return true;
 				}
 				return false;

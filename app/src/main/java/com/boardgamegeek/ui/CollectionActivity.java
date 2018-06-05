@@ -149,7 +149,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameSelectedEvent event) {
-		GameActivity.start(this, event.getId(), event.getName(), event.getImageUrl(), event.getThumbnailUrl(), event.getHeroImageUrl());
+		GameActivity.start(this, event.getId(), event.getName(), event.getThumbnailUrl(), event.getHeroImageUrl());
 	}
 
 	@SuppressWarnings("unused")

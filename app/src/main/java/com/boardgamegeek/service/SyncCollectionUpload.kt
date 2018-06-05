@@ -35,7 +35,8 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0
     private var currentGameName: String = ""
-    private var currentGameImageUrl: String = ""
+    private var currentGameHeroImageUrl: String = ""
+    private var currentGameThumbnailUrl: String = ""
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
 
@@ -45,7 +46,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     override val notificationIntent: Intent?
         get() = if (currentGameId != BggContract.INVALID_ID) {
-            GameActivity.createIntent(context, currentGameId, currentGameName, currentGameImageUrl)
+            GameActivity.createIntent(context, currentGameId, currentGameName, currentGameThumbnailUrl, currentGameHeroImageUrl)
         } else super.notificationIntent
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_COLLECTION
@@ -197,7 +198,8 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         syncResult.stats.numUpdates++
         currentGameId = item.gameId
         currentGameName = item.collectionName
-        currentGameImageUrl = item.imageUrl ?: ""
+        currentGameHeroImageUrl = item.heroImageUrl
+        currentGameThumbnailUrl = item.thumbnailUrl
         notifyUser(item.collectionName, context.getString(messageResId), id, item.imageUrl, item.thumbnailUrl, item.heroImageUrl)
     }
 
