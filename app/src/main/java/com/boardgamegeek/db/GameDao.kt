@@ -279,6 +279,10 @@ class GameDao(private val context: BggApplication) {
         return resolver.delete(Games.buildGameUri(gameId), null, null)
     }
 
+    fun update(gameId: Int, values: ContentValues): Int {
+        return resolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+    }
+
     fun save(game: GameEntity, updateTime: Long) {
         // TODO return the internal ID
         if (game.name.isBlank()) {

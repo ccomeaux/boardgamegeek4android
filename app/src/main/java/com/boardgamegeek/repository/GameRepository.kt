@@ -117,7 +117,7 @@ class GameRepository(val application: BggApplication) {
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
             values.put(BggContract.Games.LAST_VIEWED, lastViewed)
-            application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+            dao.update(gameId, values)
         }
     }
 
@@ -130,7 +130,7 @@ class GameRepository(val application: BggApplication) {
                     url != heroImageUrl) {
                 val values = ContentValues()
                 values.put(BggContract.Games.HERO_IMAGE_URL, url)
-                application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+                dao.update(gameId, values)
             }
         }
     }
@@ -144,7 +144,7 @@ class GameRepository(val application: BggApplication) {
             values.put(BggContract.Games.WINS_COLOR, winsColor)
             values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
             values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
-            val numberOfRowsModified = application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+            val numberOfRowsModified = dao.update(gameId, values)
             Timber.d(numberOfRowsModified.toString())
         }
     }
@@ -154,7 +154,7 @@ class GameRepository(val application: BggApplication) {
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
             values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
-            application.contentResolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+            dao.update(gameId, values)
         }
     }
 
@@ -172,7 +172,7 @@ class GameRepository(val application: BggApplication) {
                             application.appExecutors.diskIO.execute {
                                 val values = ContentValues()
                                 values.put(BggContract.Games.HERO_IMAGE_URL, body.images.medium.url)
-                                application.contentResolver.update(BggContract.Games.buildGameUri(game.id), values, null, null)
+                                dao.update(game.id, values)
                             }
                         } else {
                             Timber.w("Empty body while fetching image $thumbnailId for game ${game.id}")
