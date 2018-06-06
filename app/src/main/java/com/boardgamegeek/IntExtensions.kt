@@ -1,6 +1,7 @@
 package com.boardgamegeek
 
 import android.content.Context
+import android.support.annotation.StringRes
 import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
@@ -62,6 +63,18 @@ fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TY
         isRankValid() -> getText(context, R.string.rank_description, this, subtype)
         else -> subtype
     }
+}
+
+fun Int.asPlayCount(context: Context): String {
+    @StringRes val resId = when {
+        this >= 100 -> R.string.play_stat_dollar
+        this >= 50 -> R.string.play_stat_half_dollar
+        this >= 25 -> R.string.play_stat_quarter
+        this >= 10 -> R.string.play_stat_dime
+        this >= 5 -> R.string.play_stat_nickel
+        else -> 0
+    }
+    return if (resId != 0) context.getString(resId) else ""
 }
 
 fun Pair<Int, Int>.asRange(errorText: String = "?"): String {

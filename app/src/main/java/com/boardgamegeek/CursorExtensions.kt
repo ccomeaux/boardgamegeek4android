@@ -81,8 +81,8 @@ fun Cursor.getApiTime(columnName: String): Long {
 }
 
 fun Cursor.getDateInMillis(columnName: String): Long {
-    val date = getString(columnName)
-    if (!TextUtils.isEmpty(date)) {
+    val date = getStringOrNull(columnName) ?: ""
+    if (date.isNotEmpty()) {
         val calendar = getCalendar(date)
         return calendar.timeInMillis
     }

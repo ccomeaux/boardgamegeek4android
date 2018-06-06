@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+	android:id="@+id/swipeRefresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -22,7 +22,7 @@
 			android:paddingTop="@dimen/padding_standard">
 
 			<LinearLayout
-				android:id="@+id/plays_root"
+				android:id="@+id/playsContainer"
 				style="@style/CardRow.Clickable"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
 				tools:visibility="visible">
 
 				<ImageView
-					android:id="@+id/icon_plays"
+					android:id="@+id/playsIcon"
 					style="@style/Icon"
 					android:src="@drawable/ic_plays"/>
 
@@ -43,7 +43,7 @@
 					android:orientation="vertical">
 
 					<TextView
-						android:id="@+id/plays_label"
+						android:id="@+id/playsLabel"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:maxLines="1"
@@ -51,7 +51,7 @@
 						android:textAppearance="@style/Text"/>
 
 					<TextView
-						android:id="@+id/plays_last_play"
+						android:id="@+id/lastPlayView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:maxLines="1"
@@ -61,7 +61,7 @@
 			</LinearLayout>
 
 			<LinearLayout
-				android:id="@+id/play_stats_root"
+				android:id="@+id/playStatsConatainer"
 				style="@style/CardRow.Clickable"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
 				tools:visibility="visible">
 
 				<ImageView
-					android:id="@+id/icon_play_stats"
+					android:id="@+id/playStatsIcon"
 					style="@style/Icon"
 					android:src="@drawable/ic_play_stats"/>
 
@@ -86,7 +86,7 @@
 			</LinearLayout>
 
 			<LinearLayout
-				android:id="@+id/colors_root"
+				android:id="@+id/colorsContainer"
 				style="@style/CardRow.Clickable"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -95,12 +95,12 @@
 				tools:visibility="visible">
 
 				<ImageView
-					android:id="@+id/icon_colors"
+					android:id="@+id/colorsIcon"
 					style="@style/Icon"
 					android:src="@drawable/ic_colors"/>
 
 				<TextView
-					android:id="@+id/game_colors_label"
+					android:id="@+id/colorsLabel"
 					style="@style/CardRowContent"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
@@ -111,7 +111,7 @@
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/sync_timestamp"
+				android:id="@+id/syncTimestampView"
 				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

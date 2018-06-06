@@ -61,7 +61,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
             R.string.title_description -> GameDescriptionFragment.newInstance(gameId)
             R.string.title_info -> GameFragment.newInstance(gameId, gameName)
             R.string.title_collection -> GameCollectionFragment.newInstance(gameId)
-            R.string.title_plays -> GamePlaysFragment.newInstance(gameId, gameName)
+            R.string.title_plays -> GamePlaysFragment()
             R.string.title_forums -> ForumsFragment.newInstance(gameId, gameName)
             R.string.links -> GameLinksFragment.newInstance(gameId, gameName, iconColor)
             else -> null
