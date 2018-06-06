@@ -233,7 +233,12 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		if (isRequestingNewAccount) {
 			try {
-				if (!accountManager.addAccountExplicitly(account, password, userData)) {
+				boolean success = accountManager.addAccountExplicitly(account, password, userData);
+				if (!success) {
+					Authenticator.removeAccounts(getApplicationContext());
+					success = accountManager.addAccountExplicitly(account, password, userData);
+				}
+				if (!success) {
 					Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
 					if (accounts.length == 0) {
 						Timber.v("no account!");
