@@ -5,7 +5,9 @@ import android.arch.lifecycle.MediatorLiveData
 import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
@@ -16,11 +18,16 @@ import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
+import com.boardgamegeek.model.PlaysResponse
+import com.boardgamegeek.model.persister.PlayPersister
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
+import com.boardgamegeek.util.TaskUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,6 +38,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 class GameRepository(val application: BggApplication) {
     private var dao = GameDao(application)
     private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val username: String? by lazy {
+        AccountUtils.getUsername(application)
+    }
 
     /**
      * Get a game from the database and potentially refresh it from BGG.
@@ -113,8 +123,41 @@ class GameRepository(val application: BggApplication) {
         return dao.loadExpansions(gameId, true)
     }
 
-    fun getPlays(gameId: Int): LiveData<PlaysByGame> {
-        return dao.loadPlays(gameId)
+    fun getPlays(gameId: Int): LiveData<RefreshableResource<PlaysByGame>> {
+        return object : RefreshableResourceLoader<PlaysByGame, PlaysResponse>(application) {
+            val persister = PlayPersister(application)
+            var timestamp = 0L
+
+            override val typeDescriptionResId: Int
+                get() = R.string.title_plays
+
+            override fun loadFromDatabase(): LiveData<PlaysByGame> {
+                return dao.loadPlays(gameId)
+            }
+
+            override fun shouldRefresh(data: PlaysByGame?): Boolean {
+                if (gameId == BggContract.INVALID_ID || username.isNullOrBlank()) return false
+                return data == null || data.maxDate.isOlderThan(15, TimeUnit.MINUTES)
+            }
+
+            override fun createCall(): Call<PlaysResponse> {
+                timestamp = System.currentTimeMillis()
+                return Adapter.createForXml().playsByGame(username, gameId, 1)
+                // TODO support multiple pages; for now the latest plays are okay
+            }
+
+            override fun saveCallResult(result: PlaysResponse) {
+                persister.save(result.plays, timestamp)
+                Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
+                // TODO when all pages are synced: playDao.deleteUnupdatedPlays(gameId, timestamp)
+                val values = ContentValues(1)
+                values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
+                dao.update(gameId, values)
+                if (SyncPrefs.isPlaysSyncUpToDate(application)) {
+                    TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
+                }
+            }
+        }.asLiveData()
     }
 
     fun getPlayColors(gameId: Int): LiveData<List<String>> {

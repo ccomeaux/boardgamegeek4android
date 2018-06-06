@@ -122,7 +122,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val plays: LiveData<PlaysByGame> = Transformations.switchMap(_gameId) { gameId ->
+    val plays: LiveData<RefreshableResource<PlaysByGame>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getPlays(gameId)

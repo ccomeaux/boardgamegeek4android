@@ -19,20 +19,14 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.RefreshableResource;
+import com.boardgamegeek.entities.Status;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.model.Game;
 import com.boardgamegeek.ui.model.PlaysByGame;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.TaskUtils;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -41,17 +35,13 @@ import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class GamePlaysFragment extends Fragment implements OnRefreshListener {
+public class GamePlaysFragment extends Fragment {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final int AGE_IN_DAYS_TO_REFRESH = 1;
 
 	private int gameId;
 	private String gameName;
@@ -60,8 +50,6 @@ public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	@ColorInt private int iconColor = Color.TRANSPARENT;
-	private boolean isRefreshing;
-	@State boolean mightNeedRefreshing = true;
 	private GameViewModel viewModel;
 
 	Unbinder unbinder;
@@ -89,12 +77,9 @@ public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 	}
 
 	@Override
-	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		EventBus.getDefault().register(this);
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
 
 	@Override
@@ -107,7 +92,12 @@ public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
 
-		swipeRefreshLayout.setOnRefreshListener(this);
+		swipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				viewModel.refresh();
+			}
+		});
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
@@ -118,10 +108,12 @@ public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 			}
 		});
 
-		viewModel.getPlays().observe(this, new Observer<PlaysByGame>() {
+		viewModel.getPlays().observe(this, new Observer<RefreshableResource<PlaysByGame>>() {
 			@Override
-			public void onChanged(@Nullable PlaysByGame playsByGame) {
-				onPlaysQueryComplete(playsByGame);
+			public void onChanged(@Nullable RefreshableResource<PlaysByGame> playsByGame) {
+				if (playsByGame == null) return;
+				updateRefreshStatus(playsByGame.getStatus() == Status.REFRESHING);
+				onPlaysQueryComplete(playsByGame.getData());
 			}
 		});
 
@@ -142,53 +134,17 @@ public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 	}
 
 	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
-	}
-
-	@DebugLog
-	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		EventBus.getDefault().unregister(this);
-	}
-
-	@Override
-	public void onRefresh() {
-		requestRefresh();
-	}
-
-	private void requestRefresh() {
-		if (!isRefreshing) {
-			updateRefreshStatus(true);
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
-		} else {
-			updateRefreshStatus(false);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
-		if (event.getGameId() == gameId) {
-			updateRefreshStatus(false);
-		}
-	}
-
-	protected void updateRefreshStatus(boolean refreshing) {
-		this.isRefreshing = refreshing;
+	protected void updateRefreshStatus(final boolean refreshing) {
 		if (swipeRefreshLayout != null) {
 			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(refreshing);
 				}
 			});
 		}
@@ -203,15 +159,8 @@ public class GamePlaysFragment extends Fragment implements OnRefreshListener {
 		syncTimestampView.setTimestamp(game.getUpdatedPlays());
 		iconColor = game.getIconColor();
 		colorize();
-
-		if (mightNeedRefreshing) {
-			mightNeedRefreshing = false;
-			if (DateTimeUtils.howManyDaysOld(game.getUpdatedPlays()) > AGE_IN_DAYS_TO_REFRESH)
-				requestRefresh();
-		}
 	}
 
-	@DebugLog
 	private void onPlaysQueryComplete(PlaysByGame plays) {
 		if (plays != null) {
 			playsRoot.setVisibility(VISIBLE);
