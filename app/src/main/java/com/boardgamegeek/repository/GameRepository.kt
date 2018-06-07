@@ -7,6 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GamePlayerPollEntity
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.entities.GameRankEntity
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class GameRepository(val application: BggApplication) {
     private var dao = GameDao(application)
+    private var playDao = PlayDao(application)
     private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
@@ -59,7 +61,7 @@ class GameRepository(val application: BggApplication) {
                 return data == null || data.updated.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
-            override fun createCall(): Call<ThingResponse> {
+            override fun createCall(page: Int): Call<ThingResponse> {
                 timestamp = System.currentTimeMillis()
                 return Adapter.createForXml().thing(gameId, 1)
             }
@@ -139,19 +141,25 @@ class GameRepository(val application: BggApplication) {
                 return data == null || data.maxDate.isOlderThan(15, TimeUnit.MINUTES)
             }
 
-            override fun createCall(): Call<PlaysResponse> {
+            override fun createCall(page: Int): Call<PlaysResponse> {
                 timestamp = System.currentTimeMillis()
-                return Adapter.createForXml().playsByGame(username, gameId, 1)
-                // TODO support multiple pages; for now the latest plays are okay
+                return Adapter.createForXml().playsByGame(username, gameId, page)
             }
 
             override fun saveCallResult(result: PlaysResponse) {
                 persister.save(result.plays, timestamp)
                 Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
-                // TODO when all pages are synced: playDao.deleteUnupdatedPlays(gameId, timestamp)
+            }
+
+            override fun hasMorePages(result: PlaysResponse) = result.hasMorePages()
+
+            override fun finishSync() {
+                playDao.deleteUnupdatedPlays(gameId, timestamp)
+
                 val values = ContentValues(1)
                 values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
                 dao.update(gameId, values)
+
                 if (SyncPrefs.isPlaysSyncUpToDate(application)) {
                     TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
                 }

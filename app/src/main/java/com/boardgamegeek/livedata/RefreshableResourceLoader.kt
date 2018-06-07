@@ -54,48 +54,65 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
             }
         }
         if (NetworkUtils.isOffline(application)) return
-        createCall().enqueue(object : Callback<U> {
-            override fun onResponse(call: Call<U>?, response: Response<U>?) {
-                if (response?.isSuccessful == true) {
-                    val body = response.body()
-                    if (body != null) {
-                        application.appExecutors.diskIO.execute {
-                            saveCallResult(body)
-                            application.appExecutors.mainThread.execute {
-                                result.removeSource(dbSource)
-                                result.addSource(dbSource) { newData ->
-                                    setValue(RefreshableResource.success(newData))
+
+        var hasMorePages = false
+        var page = 0
+        do {
+            page++
+            createCall(page).enqueue(object : Callback<U> {
+                override fun onResponse(call: Call<U>?, response: Response<U>?) {
+                    if (response?.isSuccessful == true) {
+                        val body = response.body()
+                        if (body != null) {
+                            application.appExecutors.diskIO.execute {
+                                saveCallResult(body)
+                                hasMorePages = hasMorePages(body)
+                                if (!hasMorePages) {
+                                    finishSync()
                                 }
+                                application.appExecutors.mainThread.execute {
+                                    result.removeSource(dbSource)
+                                    result.addSource(dbSource) { newData ->
+                                        setValue(RefreshableResource.success(newData))
+                                    }
+                                }
+                            }
+                        } else {
+                            result.removeSource(dbSource)
+                            result.addSource(dbSource) { newData ->
+                                setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
                             }
                         }
                     } else {
                         result.removeSource(dbSource)
                         result.addSource(dbSource) { newData ->
-                            setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
+                            setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
                         }
                     }
-                } else {
+                }
+
+                override fun onFailure(call: Call<U>?, t: Throwable?) {
                     result.removeSource(dbSource)
                     result.addSource(dbSource) { newData ->
-                        setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
+                        setValue(RefreshableResource.error(t, newData))
                     }
                 }
-            }
-
-            override fun onFailure(call: Call<U>?, t: Throwable?) {
-                result.removeSource(dbSource)
-                result.addSource(dbSource) { newData ->
-                    setValue(RefreshableResource.error(t, newData))
-                }
-            }
-        })
+            })
+        } while (hasMorePages)
     }
 
     @MainThread
-    protected abstract fun createCall(): Call<U>
+    protected abstract fun createCall(page: Int): Call<U>
 
     @WorkerThread
     protected abstract fun saveCallResult(result: U)
+
+    @WorkerThread
+    protected open fun hasMorePages(result: U) = false
+
+    @WorkerThread
+    protected open fun finishSync() {
+    }
 
     private fun getHttpErrorMessage(httpCode: Int): String {
         @StringRes val resId: Int = when {
