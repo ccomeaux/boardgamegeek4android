@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.graphics.Bitmap
-import android.os.Build
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
@@ -39,22 +38,21 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
     protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
         if (!PreferencesUtils.getPlayUploadNotifications(context)) return
 
+        notificationMessages.add(PresentationUtils.getText(context, R.string.msg_play_upload, title, message))
+
         val loader = LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, object : Callback {
             override fun onSuccessfulIconLoad(bitmap: Bitmap) {
                 buildAndNotify(title, message, id, bitmap)
             }
 
             override fun onFailedIconLoad() {
-                buildAndNotify(title, message, id, null)
+                buildAndNotify(title, message, id)
             }
         })
         loader.executeInBackground()
-
-        notificationMessages.add(PresentationUtils.getText(context, R.string.msg_play_upload, title, message))
-        showNotificationSummary()
     }
 
-    private fun buildAndNotify(title: CharSequence, message: CharSequence, id: Int, largeIcon: Bitmap?) {
+    private fun buildAndNotify(title: CharSequence, message: CharSequence, id: Int, largeIcon: Bitmap? = null) {
         val builder = NotificationUtils
                 .createNotificationBuilder(context,
                         notificationTitleResId,
@@ -66,6 +64,7 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
                 .setLargeIcon(largeIcon)
                 .setOnlyAlertOnce(true)
                 .setGroup(notificationMessageTag)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
         val action = createMessageAction()
         if (action != null) {
@@ -75,25 +74,30 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
             builder.extend(NotificationCompat.WearableExtender().setBackground(largeIcon))
         }
         NotificationUtils.notify(context, notificationMessageTag, id, builder)
+        showNotificationSummary()
     }
 
     @DebugLog
     private fun showNotificationSummary() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) return
         val builder = NotificationUtils
                 .createNotificationBuilder(context,
                         notificationTitleResId,
                         NotificationUtils.CHANNEL_ID_SYNC_UPLOAD,
                         notificationSummaryIntent)
                 .setGroup(notificationMessageTag)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                 .setGroupSummary(true)
         val messageCount = notificationMessages.size
-        if (messageCount == 1) {
-            builder.setContentText(notificationMessages[0])
-        } else {
-            val detail = NotificationCompat.InboxStyle(builder)
-            for (i in messageCount - 1 downTo 0) {
-                detail.addLine(notificationMessages[i])
+        when (messageCount) {
+            0 -> return
+            1 -> builder.setContentText(notificationMessages[0])
+            else -> {
+                val message = context.resources.getQuantityString(R.plurals.plays_suffix, notificationMessages.size, notificationMessages.size)
+                builder.setContentText(message)
+                val detail = NotificationCompat.InboxStyle(builder).setSummaryText(message)
+                for (i in messageCount - 1 downTo 0) {
+                    detail.addLine(notificationMessages[i])
+                }
             }
         }
         NotificationUtils.notify(context, notificationMessageTag, 0, builder)
