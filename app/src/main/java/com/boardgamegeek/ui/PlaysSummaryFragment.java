@@ -430,7 +430,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			colorsCard.setVisibility(View.VISIBLE);
 		} else {
 			colorsCard.setVisibility(View.GONE);
-
 		}
 	}
 

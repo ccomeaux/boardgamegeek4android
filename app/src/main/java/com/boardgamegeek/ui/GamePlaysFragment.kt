@@ -9,12 +9,15 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import com.boardgamegeek.util.ColorUtils
 import kotlinx.android.synthetic.main.fragment_game_plays.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
@@ -55,14 +58,41 @@ class GamePlaysFragment : Fragment() {
         })
 
         viewModel.playColors.observe(this, Observer {
-            val count = it?.size ?: 0
-            colorsLabel?.text = ctx.getQuantityText(R.plurals.colors_suffix, count, count)
-            colorsContainer?.visibility = View.VISIBLE
-            colorsContainer.setOnClickListener {
-                if (gameId != BggContract.INVALID_ID)
-                    GameColorsActivity.start(context, gameId, gameName, iconColor)
-            }
+            updateColors(it)
         })
+    }
+
+    private fun updateColors(colors: List<String>?) {
+        val count = colors?.size ?: 0
+        if (colors != null && count > 0 && colors.all { ColorUtils.isKnownColor(it) }) {
+            colorsList.removeAllViews()
+            colors.forEach {
+                val view = createViewToBeColored()
+                view.setColorViewValue(ColorUtils.parseColor(it))
+                colorsList.addView(view)
+            }
+            colorsList?.visibility = View.VISIBLE
+            colorsLabel?.visibility = View.GONE
+        } else {
+            colorsLabel?.text = ctx.getQuantityText(R.plurals.colors_suffix, count, count)
+            colorsLabel?.visibility = View.VISIBLE
+            colorsList?.visibility = View.GONE
+        }
+        colorsContainer?.visibility = View.VISIBLE
+        colorsContainer.setOnClickListener {
+            if (gameId != BggContract.INVALID_ID)
+                GameColorsActivity.start(context, gameId, gameName, iconColor)
+        }
+    }
+
+    private fun createViewToBeColored(): ImageView {
+        val view = ImageView(activity)
+        val size = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small)
+        val margin = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small_margin)
+        val lp = LinearLayout.LayoutParams(size, size)
+        lp.setMargins(margin, margin, margin, margin)
+        view.layoutParams = lp
+        return view
     }
 
     private fun onGameQueryComplete(game: Game?) {
@@ -99,8 +129,8 @@ class GamePlaysFragment : Fragment() {
                     GamePlaysActivity.start(ctx, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
 
-            playStatsConatainer?.visibility = if (plays.playCount == 0) View.GONE else View.VISIBLE
-            playStatsConatainer.setOnClickListener {
+            playStatsContainer?.visibility = if (plays.playCount == 0) View.GONE else View.VISIBLE
+            playStatsContainer.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlayStatsActivity.start(ctx, gameId, gameName, iconColor)
             }

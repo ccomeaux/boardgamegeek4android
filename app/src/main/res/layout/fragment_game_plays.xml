@@ -61,7 +61,7 @@
 			</LinearLayout>
 
 			<LinearLayout
-				android:id="@+id/playStatsConatainer"
+				android:id="@+id/playStatsContainer"
 				style="@style/CardRow.Clickable"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -107,7 +107,19 @@
 					android:layout_weight="1"
 					android:maxLines="1"
 					android:text="@string/title_colors"
-					android:textAppearance="@style/Text"/>
+					android:textAppearance="@style/Text"
+					android:visibility="gone"/>
+
+				<LinearLayout
+					android:id="@+id/colorsList"
+					style="@style/CardRowContent"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_gravity="center_vertical"
+					android:layout_weight="1"
+					android:minHeight="56dp"
+					android:orientation="horizontal"
+					android:visibility="gone"/>
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TimestampView
