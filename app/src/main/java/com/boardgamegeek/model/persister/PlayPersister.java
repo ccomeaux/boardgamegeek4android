@@ -64,14 +64,8 @@ public class PlayPersister {
 						save(play, BggContract.INVALID_ID, true);
 						insertCount++;
 					} else {
-						if (candidate.getDirtyTimestamp() > 0) {
-							Timber.i("Not saving during the sync; modification in progress.");
-							dirtyCount++;
-						} else if (candidate.getDeleteTimestamp() > 0) {
-							Timber.i("Not saving during the sync; set to delete.");
-							dirtyCount++;
-						} else if (candidate.getUpdateTimestamp() > 0) {
-							Timber.i("Not saving during the sync; set to update.");
+						if (candidate.isDirty()) {
+							Timber.i("Not saving during the sync; local play is modified.");
 							dirtyCount++;
 						} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
 							updateSyncTimestamp(candidate.getInternalId(), startTime);
@@ -141,17 +135,14 @@ public class PlayPersister {
 		if (insertedId == BggContract.INVALID_ID && results != null && results.length > 0) {
 			insertedId = StringUtils.parseLong(results[0].uri.getLastPathSegment(), BggContract.INVALID_ID);
 		}
-		Timber.i("Saved play ID=%s", insertedId);
+		Timber.i("Saved play _ID=%s", insertedId);
 		return insertedId;
 	}
 
 	private void updateSyncTimestamp(long internalId, long startTime) {
-		batch.clear();
-		ContentProviderOperation.Builder builder = ContentProviderOperation
-			.newUpdate(Plays.buildPlayUri(internalId))
-			.withValue(Plays.SYNC_TIMESTAMP, startTime);
-		batch.add(builder.build());
-		ResolverUtils.applyBatch(context, batch);
+		ContentValues values = new ContentValues(1);
+		values.put(Plays.SYNC_TIMESTAMP, startTime);
+		resolver.update(Plays.buildPlayUri(internalId), values, null, null);
 	}
 
 	private boolean isBoardgameSubtype(Play play) {
@@ -375,18 +366,8 @@ public class PlayPersister {
 			}
 
 			@Override
-			public long getDeleteTimestamp() {
-				return 0;
-			}
-
-			@Override
-			public long getDirtyTimestamp() {
-				return 0;
-			}
-
-			@Override
-			public long getUpdateTimestamp() {
-				return 0;
+			public boolean isDirty() {
+				return false;
 			}
 		};
 
@@ -439,16 +420,8 @@ public class PlayPersister {
 			return syncHashCode;
 		}
 
-		public long getDeleteTimestamp() {
-			return deleteTimestamp;
-		}
-
-		public long getUpdateTimestamp() {
-			return updateTimestamp;
-		}
-
-		public long getDirtyTimestamp() {
-			return dirtyTimestamp;
+		public boolean isDirty() {
+			return dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0;
 		}
 	}
 }
