@@ -14,10 +14,16 @@ import java.text.NumberFormat
 private const val ITEM_VIEW_TYPE_FORUM = 0
 private const val ITEM_VIEW_TYPE_HEADER = 1
 
-class ForumsRecyclerViewAdapter(private val forums: List<ForumEntity>, private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumViewHolder>() {
+class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumViewHolder>() {
     init {
         setHasStableIds(true)
     }
+
+    var forums: List<ForumEntity> = emptyList()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForumViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
