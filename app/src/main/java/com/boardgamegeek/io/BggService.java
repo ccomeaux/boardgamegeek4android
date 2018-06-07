@@ -1,11 +1,11 @@
 package com.boardgamegeek.io;
 
 import com.boardgamegeek.io.model.CollectionResponse;
+import com.boardgamegeek.io.model.ForumListResponse;
 import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.io.model.ThingResponse;
 import com.boardgamegeek.io.model.ThreadResponse;
 import com.boardgamegeek.model.Company;
-import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;

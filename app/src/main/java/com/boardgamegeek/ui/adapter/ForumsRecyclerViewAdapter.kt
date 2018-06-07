@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
-import com.boardgamegeek.model.Forum
+import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.ui.ForumActivity
 import kotlinx.android.synthetic.main.row_forum.view.*
 import kotlinx.android.synthetic.main.row_forum_header.view.*
@@ -14,7 +14,7 @@ import java.text.NumberFormat
 private const val ITEM_VIEW_TYPE_FORUM = 0
 private const val ITEM_VIEW_TYPE_HEADER = 1
 
-class ForumsRecyclerViewAdapter(private val forums: List<Forum>, private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumViewHolder>() {
+class ForumsRecyclerViewAdapter(private val forums: List<ForumEntity>, private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumViewHolder>() {
     init {
         setHasStableIds(true)
     }
@@ -50,19 +50,19 @@ private val numberFormat = NumberFormat.getNumberInstance()
 sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
 
-        fun bind(forum: Forum?, gameId: Int, gameName: String?) {
+        fun bind(forum: ForumEntity?, gameId: Int, gameName: String?) {
             if (forum == null) return
             itemView.apply {
                 title.text = forum.title
                 numberOfThreads.text = numberFormat.format(forum.numberOfThreads.toLong())
-                lastPostDate.timestamp = forum.lastPostDate()
+                lastPostDate.timestamp = forum.lastPostDateTime
                 setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, gameId, gameName) }
             }
         }
     }
 
     class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
-        fun bind(forum: Forum?) {
+        fun bind(forum: ForumEntity?) {
             itemView.header.text = forum?.title
         }
     }

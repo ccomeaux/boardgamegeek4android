@@ -17,10 +17,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.ForumEntity;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Forum;
-import com.boardgamegeek.model.ForumListResponse;
+import com.boardgamegeek.io.model.Forum;
+import com.boardgamegeek.io.model.ForumListResponse;
+import com.boardgamegeek.mappers.ForumMapper;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
@@ -28,6 +30,7 @@ import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.util.AnimationUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,7 +76,9 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
-		setUpRecyclerView();
+		recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 	}
 
 	@Override
@@ -106,11 +111,18 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		if (getActivity() == null) return;
 
 		if (adapter == null) {
-			adapter = new ForumsRecyclerViewAdapter(data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(), gameId, gameName);
-			recyclerView.setAdapter(adapter);
+			List<ForumEntity> forums = new ArrayList<>();
+			if (data.getBody() != null && data.getBody().forums != null) {
+				ForumMapper mapper = new ForumMapper();
+				for (Forum f : data.getBody().forums) {
+					forums.add(mapper.map(f));
+				}
+			}
+			adapter = new ForumsRecyclerViewAdapter(forums, gameId, gameName);
 		} else {
 			adapter.notifyDataSetChanged();
 		}
+		if (recyclerView.getAdapter() == null) recyclerView.setAdapter(adapter);
 
 		if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
@@ -127,20 +139,6 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<SafeResponse<ForumListResponse>> loader) {
-	}
-
-	@DebugLog
-	private void setUpRecyclerView() {
-		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-		recyclerView.setLayoutManager(layoutManager);
-
-		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-
-		if (gameId == BggContract.INVALID_ID) {
-			recyclerView.setPadding(recyclerView.getPaddingLeft(), 0, recyclerView.getRight(), recyclerView.getBottom());
-		}
 	}
 
 	private static class ForumsLoader extends BggLoader<SafeResponse<ForumListResponse>> {
