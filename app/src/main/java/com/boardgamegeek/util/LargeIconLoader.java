@@ -10,7 +10,6 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -29,24 +28,23 @@ public class LargeIconLoader implements Target {
 		this.context = context;
 		this.imageUrls = new LinkedList<>();
 		this.callback = callback;
-		if (!TextUtils.isEmpty(imageUrl)) {
-			imageUrls.add(heroImageUrl);
-			imageUrls.add(imageUrl);
-			imageUrls.add(thumbnailUrl);
-		}
+		imageUrls.add(heroImageUrl);
+		imageUrls.add(thumbnailUrl);
+		imageUrls.add(imageUrl);
 	}
 
 	public void executeInBackground() {
+		if (imageUrls.size() == 0) {
+			if (callback != null) callback.onFailedIconLoad();
+		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
-			if (callback != null) {
-				callback.onFailedIconLoad();
-			}
+			executeInBackground();
 		} else {
 			try {
 				final Bitmap bitmap = getRequestCreator().get();
 				onBitmapLoaded(bitmap, null);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Timber.i("Didn't find an image at %s", currentImageUrl);
 				executeInBackground();
 			}
@@ -74,9 +72,7 @@ public class LargeIconLoader implements Target {
 	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
 		Timber.i("Found an image at %s", currentImageUrl);
-		if (callback != null) {
-			callback.onSuccessfulIconLoad(bitmap);
-		}
+		if (callback != null) callback.onSuccessfulIconLoad(bitmap);
 	}
 
 	@Override
