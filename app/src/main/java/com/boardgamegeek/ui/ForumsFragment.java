@@ -40,7 +40,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int LOADER_ID = 0;
 
-	private int gameId;
+	private int gameId = BggContract.INVALID_ID;
 	private String gameName;
 	private ForumsRecyclerViewAdapter adapter;
 
@@ -50,10 +50,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	public static ForumsFragment newInstance() {
-		Bundle args = new Bundle();
-		ForumsFragment fragment = new ForumsFragment();
-		fragment.setArguments(args);
-		return fragment;
+		return new ForumsFragment();
 	}
 
 	public static ForumsFragment newInstance(int gameId, String gameName) {
@@ -69,23 +66,24 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		readBundle(getArguments());
-		View rootView = inflater.inflate(R.layout.fragment_forums, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
-		setUpRecyclerView();
-		return rootView;
+		return inflater.inflate(R.layout.fragment_forums, container, false);
 	}
 
-	private void readBundle(@Nullable Bundle bundle) {
-		if (bundle == null) return;
-		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = bundle.getString(KEY_GAME_NAME);
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
+		setUpRecyclerView();
 	}
 
 	@Override
 	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		if (getArguments() != null) {
+			gameId = getArguments().getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+			gameName = getArguments().getString(KEY_GAME_NAME);
+		}
 		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
@@ -108,7 +106,7 @@ public class ForumsFragment extends Fragment implements LoaderManager.LoaderCall
 		if (getActivity() == null) return;
 
 		if (adapter == null) {
-			adapter = new ForumsRecyclerViewAdapter(getContext(), data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(), gameId, gameName);
+			adapter = new ForumsRecyclerViewAdapter(data.getBody() == null ? new ArrayList<Forum>() : data.getBody().getForums(), gameId, gameName);
 			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.notifyDataSetChanged();
