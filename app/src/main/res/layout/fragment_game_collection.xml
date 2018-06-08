@@ -18,7 +18,7 @@
 			android:layout_height="match_parent">
 
 			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-				android:id="@+id/progress"
+				android:id="@+id/progressView"
 				style="?android:attr/progressBarStyleLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

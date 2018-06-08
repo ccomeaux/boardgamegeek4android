@@ -46,7 +46,7 @@ class GameCollectionFragment : Fragment() {
                 it.status == Status.ERROR -> showError(if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection))
                 else -> showData(it.data)
             }
-            progress.hide()
+            progressView.hide()
         })
     }
 

@@ -55,10 +55,12 @@ class GamePlaysFragment : Fragment() {
         viewModel.plays.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             onPlaysQueryComplete(it?.data)
+            progressView.hide()
         })
 
         viewModel.playColors.observe(this, Observer {
             updateColors(it)
+            progressView.hide()
         })
     }
 
