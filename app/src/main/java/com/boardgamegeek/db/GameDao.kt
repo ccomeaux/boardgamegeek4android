@@ -277,24 +277,6 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
-    fun loadPlays(gameId: Int): LiveData<PlaysByGame> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
-        val uri = Games.buildExpansionsUri(gameId)
-        return RegisteredLiveData(context, uri) {
-            context.contentResolver.load(Plays.CONTENT_URI,
-                    projection = arrayOf(Plays._ID, Plays.MAX_DATE, Plays.SUM_QUANTITY),
-                    selection = "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
-                    selectionArgs = arrayOf(gameId.toString()))?.use {
-                if (it.moveToFirst()) {
-                    return@RegisteredLiveData PlaysByGame(
-                            maxDate = it.getDateInMillis(Plays.MAX_DATE),
-                            playCount = it.getIntOrNull(Plays.SUM_QUANTITY) ?: 0)
-                }
-            }
-            return@RegisteredLiveData null
-        }
-    }
-
     fun loadPlayColors(gameId: Int): LiveData<List<String>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildColorsUri(gameId)

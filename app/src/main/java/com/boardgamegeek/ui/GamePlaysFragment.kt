@@ -12,10 +12,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.boardgamegeek.*
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ColorUtils
 import kotlinx.android.synthetic.main.fragment_game_plays.*
@@ -108,18 +108,19 @@ class GamePlaysFragment : Fragment() {
         colorize()
     }
 
-    private fun onPlaysQueryComplete(plays: PlaysByGame?) {
-        if (plays != null) {
+    private fun onPlaysQueryComplete(plays: List<PlayEntity>?) {
+        if (plays != null && plays.isNotEmpty()) {
             playsContainer?.visibility = View.VISIBLE
 
-            var description = plays.playCount.asPlayCount(ctx)
+            var description = plays.size.asPlayCount(ctx)
             if (description.isNotBlank()) {
                 description = " ($description)"
             }
-            playsLabel?.text = ctx.getQuantityText(R.plurals.plays_prefix, plays.playCount, plays.playCount, description)
+            playsLabel?.text = ctx.getQuantityText(R.plurals.plays_prefix, plays.size, plays.size, description)
 
-            if (plays.maxDate > 0) {
-                lastPlayView?.text = ctx.getText(R.string.last_played_prefix, plays.maxDate.asPastDaySpan(ctx))
+            val maxDate = plays.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
+            if (maxDate > 0) {
+                lastPlayView?.text = ctx.getText(R.string.last_played_prefix, maxDate.asPastDaySpan(ctx))
                 lastPlayView?.visibility = View.VISIBLE
             } else {
                 lastPlayView?.visibility = View.GONE
@@ -129,12 +130,11 @@ class GamePlaysFragment : Fragment() {
                     GamePlaysActivity.start(ctx, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
 
-            playStatsContainer?.visibility = if (plays.playCount == 0) View.GONE else View.VISIBLE
-            playStatsContainer.setOnClickListener {
+            playStatsContainer?.visibility = View.VISIBLE
+            playStatsContainer?.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlayStatsActivity.start(ctx, gameId, gameName, iconColor)
             }
-
         } else {
             playsContainer?.visibility = View.GONE
         }

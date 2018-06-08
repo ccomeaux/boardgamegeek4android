@@ -8,10 +8,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.GamePlayerPollEntity
-import com.boardgamegeek.entities.GamePollEntity
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.io.model.ThingResponse
@@ -24,7 +21,6 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.TaskUtils
@@ -124,25 +120,27 @@ class GameRepository(val application: BggApplication) {
         return dao.loadExpansions(gameId, true)
     }
 
-    fun getPlays(gameId: Int): LiveData<RefreshableResource<PlaysByGame>> {
-        return object : RefreshableResourceLoader<PlaysByGame, PlaysResponse>(application) {
+    fun getPlays(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
             val persister = PlayPersister(application)
             var timestamp = 0L
 
             override val typeDescriptionResId: Int
                 get() = R.string.title_plays
 
-            override fun loadFromDatabase(): LiveData<PlaysByGame> {
-                return dao.loadPlays(gameId)
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.load(gameId)
             }
 
-            override fun shouldRefresh(data: PlaysByGame?): Boolean {
+            override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
                 if (gameId == BggContract.INVALID_ID || username.isNullOrBlank()) return false
-                return data == null || data.maxDate.isOlderThan(15, TimeUnit.MINUTES)
+                if (data == null) return true
+                val oldestSyncTimestamp = data.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+                return oldestSyncTimestamp.isOlderThan(15, TimeUnit.MINUTES)
             }
 
             override fun createCall(page: Int): Call<PlaysResponse> {
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis() // TODO - limit to one page most of the time
                 return Adapter.createForXml().playsByGame(username, gameId, page)
             }
 
