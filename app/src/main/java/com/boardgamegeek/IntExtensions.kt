@@ -1,7 +1,7 @@
 package com.boardgamegeek
 
 import android.content.Context
-import android.support.annotation.StringRes
+import android.graphics.Color
 import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
@@ -65,16 +65,23 @@ fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TY
     }
 }
 
-fun Int.asPlayCount(context: Context): String {
-    @StringRes val resId = when {
-        this >= 100 -> R.string.play_stat_dollar
-        this >= 50 -> R.string.play_stat_half_dollar
-        this >= 25 -> R.string.play_stat_quarter
-        this >= 10 -> R.string.play_stat_dime
-        this >= 5 -> R.string.play_stat_nickel
-        else -> 0
-    }
-    return if (resId != 0) context.getString(resId) else ""
+/**
+ * Returns
+ * 1. the count rounded down
+ * 2. The description of the count (if available)
+ * 3. The color associated with the description (or transparent)
+ */
+fun Int.asPlayCount(context: Context): Triple<Int, String, Int> {
+    val playCounts = mutableListOf<Triple<Int, Int, String>>()
+    playCounts.add(Triple(100, R.string.play_stat_dollar, "#85bb65"))
+    playCounts.add(Triple(25, R.string.play_stat_quarter, "#D3D3D3"))
+    playCounts.add(Triple(10, R.string.play_stat_dime, "#C0C0C0"))
+    playCounts.add(Triple(5, R.string.play_stat_nickel, "#B8B8B6"))
+    playCounts.add(Triple(1, R.string.play_stat_penny, "#b87333"))
+    val pc = playCounts.find {
+        this >= it.first
+    } ?: Triple(0, 0, "#00000000")
+    return Triple(pc.first, if (pc.second == 0) "" else context.getString(pc.second), Color.parseColor(pc.third))
 }
 
 fun Pair<Int, Int>.asRange(errorText: String = "?"): String {
@@ -85,6 +92,15 @@ fun Pair<Int, Int>.asRange(errorText: String = "?"): String {
         first == second -> "%,d".format(first)
         else -> "%,d - %,d".format(first, second)
     }
+}
+
+fun Int.asTime(): String {
+    if (this > 0) {
+        val hours = this / 60
+        val minutes = this % 60
+        return String.format("%d:%02d", hours, minutes)
+    }
+    return "0:00"
 }
 
 /**

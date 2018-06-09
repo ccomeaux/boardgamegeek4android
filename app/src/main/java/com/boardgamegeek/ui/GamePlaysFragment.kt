@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.events.PlaySelectedEvent
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -114,19 +115,20 @@ class GamePlaysFragment : Fragment() {
         if (plays != null && plays.isNotEmpty()) {
             playsContainer?.visibility = View.VISIBLE
 
-            var description = plays.size.asPlayCount(ctx)
-            if (description.isNotBlank()) {
-                description = " ($description)"
-            }
-            playsLabel?.text = ctx.getQuantityText(R.plurals.plays_prefix, plays.size, plays.size, description)
+            val playCount = plays.sumBy { it.quantity }
+            val description = playCount.asPlayCount(ctx)
+            playCountIcon?.text = description.first.toString()
+            playsLabel?.text = ctx.getQuantityText(R.plurals.plays_prefix, playCount, playCount, if (description.second.isNotBlank()) " (${description.second})" else "")
+            playCountBackground?.setColorViewValue(description.third)
 
-            val maxDate = plays.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
-            if (maxDate > 0) {
-                lastPlayView?.text = ctx.getText(R.string.last_played_prefix, maxDate.asPastDaySpan(ctx))
-                lastPlayView?.visibility = View.VISIBLE
-            } else {
-                lastPlayView?.visibility = View.GONE
-            }
+            val lastPlay = plays.maxBy { it.dateInMillis }!!
+            lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
+            lastPlayInfoView?.text = lastPlay.describe(ctx)
+            val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName,
+                    thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+            lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
+            lastPlayContainer?.visibility = View.VISIBLE
+
             playsContainer.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlaysActivity.start(ctx, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
@@ -139,6 +141,7 @@ class GamePlaysFragment : Fragment() {
             }
         } else {
             playsContainer?.visibility = View.GONE
+            lastPlayContainer?.visibility = View.GONE
         }
     }
 

@@ -23,7 +23,8 @@ class PlayDao(private val context: BggApplication) {
         return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<PlayEntity>()
             context.contentResolver.load(uri,
-                    arrayOf(Plays.PLAY_ID,
+                    arrayOf(Plays._ID,
+                            Plays.PLAY_ID,
                             Plays.DATE,
                             Plays.OBJECT_ID,
                             Plays.ITEM_NAME,
@@ -33,13 +34,15 @@ class PlayDao(private val context: BggApplication) {
                             Plays.INCOMPLETE,
                             Plays.NO_WIN_STATS,
                             Plays.COMMENTS,
-                            Plays.SYNC_TIMESTAMP),
+                            Plays.SYNC_TIMESTAMP,
+                            Plays.PLAYER_COUNT),
                     "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
                     arrayOf(gameId.toString())
             )?.use {
                 if (it.moveToFirst()) {
                     do {
-                        val pe = PlayEntity(
+                        list.add(PlayEntity(
+                                internalId = it.getLong(Plays._ID),
                                 playId = it.getInt(Plays.PLAY_ID),
                                 date = it.getString(Plays.DATE),
                                 gameId = it.getInt(Plays.OBJECT_ID),
@@ -50,9 +53,9 @@ class PlayDao(private val context: BggApplication) {
                                 incomplete = it.getInt(Plays.INCOMPLETE) == 1,
                                 noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
                                 comments = it.getString(Plays.COMMENTS),
-                                syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP)
-                        )
-                        list.add(pe)
+                                syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
+                                playerCount = it.getInt(Plays.PLAYER_COUNT)
+                        ))
                     } while (it.moveToNext())
                 }
             }

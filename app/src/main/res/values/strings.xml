@@ -432,7 +432,6 @@
 	<string name="players">players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
-	<string name="minutes">minutes</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
@@ -551,6 +550,7 @@
 	<string name="play_stat_dollars">Dollars</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
+	<string name="play_stat_penny">Penny</string>
 	<string name="play_stat_win_percentage">%1$,d/%2$,d (%3$,d%%)</string>
 	<string name="percentage">%,d%%</string>
 	<string name="title_win_skill">Skill</string>
@@ -679,7 +679,7 @@
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
 	<plurals name="plays_prefix">
-		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
+		<item quantity="one"><b>%1$,d</b> Play%2$s</item>
 		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
 	</plurals>
 	<plurals name="msg_updated_plays_buddy_nickname">

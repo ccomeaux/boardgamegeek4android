@@ -24,7 +24,8 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
 				android:gravity="center"
-				android:padding="@dimen/material_margin_horizontal"/>
+				android:padding="@dimen/material_margin_horizontal"
+				tools:visibility="gone"/>
 
 			<LinearLayout
 				android:layout_width="match_parent"
@@ -39,14 +40,33 @@
 					style="@style/CardRow.Clickable"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:baselineAligned="false"
 					android:orientation="horizontal"
 					android:visibility="gone"
 					tools:visibility="visible">
 
-					<ImageView
-						android:id="@+id/playsIcon"
-						style="@style/Icon"
-						android:src="@drawable/ic_plays"/>
+					<FrameLayout
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent">
+
+						<ImageView
+							android:id="@+id/playCountBackground"
+							android:layout_width="@dimen/color_circle_diameter"
+							android:layout_height="@dimen/color_circle_diameter"
+							android:layout_gravity="left|center_vertical"
+							android:contentDescription="@string/play_stat_play_count"
+							android:scaleType="fitXY"
+							tools:background="#0f0"/>
+
+						<TextView
+							android:id="@+id/playCountIcon"
+							style="@style/Text"
+							android:layout_width="@dimen/color_circle_diameter"
+							android:layout_height="match_parent"
+							android:fontFamily="sans-serif-condensed"
+							android:gravity="center"
+							tools:text="5+"/>
+					</FrameLayout>
 
 					<LinearLayout
 						android:layout_width="0dp"
@@ -62,14 +82,46 @@
 							android:maxLines="1"
 							android:text="@string/title_plays"
 							android:textAppearance="@style/Text"/>
+					</LinearLayout>
+				</LinearLayout>
+
+				<LinearLayout
+					android:id="@+id/lastPlayContainer"
+					style="@style/CardRow.Clickable"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:visibility="gone"
+					tools:visibility="visible">
+
+					<ImageView
+						android:id="@+id/playsIcon"
+						style="@style/Icon"
+						android:contentDescription="@string/play_stat_last_play"
+						android:src="@drawable/ic_plays"/>
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:gravity="center_vertical"
+						android:minHeight="@dimen/view_row_height"
+						android:orientation="vertical"
+						android:paddingBottom="@dimen/padding_half"
+						android:paddingTop="@dimen/padding_half">
 
 						<TextView
-							android:id="@+id/lastPlayView"
+							android:id="@+id/lastPlayDateView"
+							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:maxLines="1"
-							android:textAppearance="@style/Text.Secondary"
-							tools:text="Last play was yesterday"/>
+							tools:text="@tools:sample/lorem"/>
+
+						<TextView
+							android:id="@+id/lastPlayInfoView"
+							style="@style/Text.Secondary"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							tools:text="@tools:sample/lorem"/>
 					</LinearLayout>
 				</LinearLayout>
 
@@ -85,6 +137,7 @@
 					<ImageView
 						android:id="@+id/playStatsIcon"
 						style="@style/Icon"
+						android:contentDescription="@string/title_play_stats"
 						android:src="@drawable/ic_play_stats"/>
 
 					<TextView
@@ -110,6 +163,7 @@
 					<ImageView
 						android:id="@+id/colorsIcon"
 						style="@style/Icon"
+						android:contentDescription="@string/colors"
 						android:src="@drawable/ic_colors"/>
 
 					<TextView
