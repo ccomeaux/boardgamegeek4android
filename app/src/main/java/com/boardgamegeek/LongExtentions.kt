@@ -9,3 +9,7 @@ fun Long.isOlderThan(duration: Int, timeUnit: TimeUnit) = System.currentTimeMill
 fun Long.asPastDaySpan(context: Context): CharSequence {
     return if (this == 0L) context.getString(R.string.never) else DateUtils.getRelativeTimeSpanString(this, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS)
 }
+
+fun Long.asPastMinuteSpan(context: Context): CharSequence {
+    return if (this == 0L) context.getString(R.string.never) else DateUtils.getRelativeTimeSpanString(this, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
+}

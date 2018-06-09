@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
@@ -113,35 +114,58 @@ class GamePlaysFragment : Fragment() {
 
     private fun onPlaysQueryComplete(plays: List<PlayEntity>?) {
         if (plays != null && plays.isNotEmpty()) {
-            playsContainer?.visibility = View.VISIBLE
+            val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
+            if (inProgressPlays.isNotEmpty()) {
+                inProgressPlaysList?.removeAllViews()
+                inProgressPlays.forEach { play ->
+                    val row = LayoutInflater.from(ctx).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
+                    val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(ctx) else play.dateInMillis.asPastDaySpan(ctx)
+                    row.findViewById<TextView>(R.id.line1)?.text = title
+                    row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(ctx))
+                    row.setOnClickListener {
+                        val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName,
+                                thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+                        PlayActivity.start(ctx, event)
+                    }
+                    inProgressPlaysList?.addView(row)
+                }
+                inProgressPlaysContainer?.visibility = View.VISIBLE
+            } else {
+                inProgressPlaysContainer?.visibility = View.GONE
+            }
 
             val playCount = plays.sumBy { it.quantity }
             val description = playCount.asPlayCount(ctx)
             playCountIcon?.text = description.first.toString()
             playsLabel?.text = ctx.getQuantityText(R.plurals.plays_prefix, playCount, playCount, if (description.second.isNotBlank()) " (${description.second})" else "")
             playCountBackground?.setColorViewValue(description.third)
-
-            val lastPlay = plays.maxBy { it.dateInMillis }!!
-            lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
-            lastPlayInfoView?.text = lastPlay.describe(ctx)
-            val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName,
-                    thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
-            lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
-            lastPlayContainer?.visibility = View.VISIBLE
-
-            playsContainer.setOnClickListener {
+            playCountContainer?.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlaysActivity.start(ctx, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
+            playCountContainer?.visibility = View.VISIBLE
 
-            playStatsContainer?.visibility = View.VISIBLE
+            val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
+            if (lastPlay != null) {
+                lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
+                lastPlayInfoView?.text = lastPlay.describe(ctx)
+                val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName,
+                        thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+                lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
+                lastPlayContainer?.visibility = View.VISIBLE
+            } else {
+                lastPlayContainer?.visibility = View.GONE
+            }
+
             playStatsContainer?.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlayStatsActivity.start(ctx, gameId, gameName, iconColor)
+                playStatsContainer?.visibility = View.VISIBLE
             }
         } else {
-            playsContainer?.visibility = View.GONE
+            playCountContainer?.visibility = View.GONE
             lastPlayContainer?.visibility = View.GONE
+            playStatsContainer?.visibility = View.GONE
         }
     }
 

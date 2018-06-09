@@ -35,7 +35,9 @@ class PlayDao(private val context: BggApplication) {
                             Plays.NO_WIN_STATS,
                             Plays.COMMENTS,
                             Plays.SYNC_TIMESTAMP,
-                            Plays.PLAYER_COUNT),
+                            Plays.PLAYER_COUNT,
+                            Plays.DIRTY_TIMESTAMP,
+                            Plays.START_TIME),
                     "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
                     arrayOf(gameId.toString())
             )?.use {
@@ -54,7 +56,9 @@ class PlayDao(private val context: BggApplication) {
                                 noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
                                 comments = it.getString(Plays.COMMENTS),
                                 syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
-                                playerCount = it.getInt(Plays.PLAYER_COUNT)
+                                playerCount = it.getInt(Plays.PLAYER_COUNT),
+                                dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
+                                startTime = it.getLong(Plays.START_TIME)
                         ))
                     } while (it.moveToNext())
                 }

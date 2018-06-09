@@ -36,7 +36,7 @@
 				android:paddingTop="@dimen/padding_standard">
 
 				<LinearLayout
-					android:id="@+id/playsContainer"
+					android:id="@+id/playCountContainer"
 					style="@style/CardRow.Clickable"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -83,6 +83,28 @@
 							android:text="@string/title_plays"
 							android:textAppearance="@style/Text"/>
 					</LinearLayout>
+				</LinearLayout>
+
+				<LinearLayout
+					android:id="@+id/inProgressPlaysContainer"
+					style="@style/CardRow"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:visibility="gone"
+					tools:visibility="visible">
+
+					<ImageView
+						android:id="@+id/inProgressPlaysIcon"
+						style="@style/Icon"
+						android:contentDescription="@string/play_stat_last_play"
+						android:src="@drawable/ic_timer"/>
+
+					<LinearLayout
+						android:id="@+id/inProgressPlaysList"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical"/>
 				</LinearLayout>
 
 				<LinearLayout

@@ -22,7 +22,9 @@ data class PlayEntity(
         val noWinStats: Boolean,
         val comments: String,
         val syncTimestamp: Long,
-        val playerCount: Int
+        val playerCount: Int,
+        val dirtyTimestamp: Long,
+        val startTime: Long
 ) {
     val dateInMillis = tryParseDate(date)
 

@@ -406,11 +406,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
-	private View createRow(LinearLayout container, String title, String text) {
-		View view = LayoutInflater.from(getContext()).inflate(R.layout.row_player_summary, container, false);
+	private View createRow(ViewGroup container, String title, String text) {
+		View view = LayoutInflater.from(getContext()).inflate(R.layout.row_play_summary, container, false);
 		container.addView(view);
-		((TextView) view.findViewById(android.R.id.title)).setText(title);
-		((TextView) view.findViewById(android.R.id.text1)).setText(text);
+		((TextView) view.findViewById(R.id.line1)).setText(title);
+		((TextView) view.findViewById(R.id.line2)).setText(text);
 		return view;
 	}
 
