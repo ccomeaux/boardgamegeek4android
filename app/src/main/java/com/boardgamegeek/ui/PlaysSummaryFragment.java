@@ -344,8 +344,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	private void onPlayCountQueryComplete(Cursor cursor) {
 		morePlaysButton.setVisibility(View.VISIBLE);
 		morePlaysButton.setText(R.string.more);
-		if (cursor == null) return;
-		if (cursor.moveToFirst()) {
+		if (cursor != null && cursor.moveToFirst()) {
 			int morePlaysCount = cursor.getInt(0) - NUMBER_OF_PLAYS_SHOWN;
 			if (morePlaysCount > 0) {
 				morePlaysButton.setText(String.format(getString(R.string.more_suffix), morePlaysCount));
@@ -354,48 +353,56 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void onPlayersQueryComplete(Cursor cursor) {
-		if (cursor == null) return;
-
 		playersContainer.removeAllViews();
-		while (cursor.moveToNext()) {
-			Player player = Player.fromCursor(cursor);
 
-			playersCard.setVisibility(View.VISIBLE);
-			View view = createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
+		if (cursor != null && cursor.moveToFirst()) {
+			do {
+				Player player = Player.fromCursor(cursor);
 
-			view.setTag(R.id.name, player.getName());
-			view.setTag(R.id.username, player.getUsername());
+				playersCard.setVisibility(View.VISIBLE);
+				View view = createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
 
-			view.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					BuddyActivity.start(getContext(),
-						(String) v.getTag(R.id.username),
-						(String) v.getTag(R.id.name));
-				}
-			});
+				view.setTag(R.id.name, player.getName());
+				view.setTag(R.id.username, player.getUsername());
+
+				view.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						BuddyActivity.start(getContext(),
+							(String) v.getTag(R.id.username),
+							(String) v.getTag(R.id.name));
+					}
+				});
+
+			}
+			while (cursor.moveToNext());
+			morePlayersButton.setVisibility(View.VISIBLE);
+		} else {
+			morePlayersButton.setVisibility(View.GONE);
 		}
 	}
 
 	private void onLocationsQueryComplete(Cursor cursor) {
-		if (cursor == null) return;
-
-		moreLocationsButton.setVisibility(View.VISIBLE);
 		locationsContainer.removeAllViews();
-		while (cursor.moveToNext()) {
-			Location location = Location.fromCursor(cursor);
+		if (cursor != null && cursor.moveToFirst()) {
+			do {
+				Location location = Location.fromCursor(cursor);
 
-			locationsCard.setVisibility(View.VISIBLE);
-			View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
+				locationsCard.setVisibility(View.VISIBLE);
+				View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
 
-			view.setTag(R.id.name, location.getName());
+				view.setTag(R.id.name, location.getName());
 
-			view.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					LocationActivity.start(getContext(), (String) v.getTag(R.id.name));
-				}
-			});
+				view.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						LocationActivity.start(getContext(), (String) v.getTag(R.id.name));
+					}
+				});
+			} while (cursor.moveToNext());
+			moreLocationsButton.setVisibility(View.VISIBLE);
+		} else {
+			moreLocationsButton.setVisibility(View.GONE);
 		}
 	}
 
@@ -412,16 +419,14 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	private void onColorsQueryComplete(Cursor cursor) {
-		if (cursor == null) return;
-
 		colorContainer.removeAllViews();
-		if (cursor.getCount() > 0) {
-			while (cursor.moveToNext()) {
+		if (cursor != null && cursor.moveToFirst()) {
+			do {
 				ImageView view = createViewToBeColored();
 				PlayerColor color = PlayerColor.fromCursor(cursor);
 				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
 				colorContainer.addView(view);
-			}
+			} while (cursor.moveToNext());
 			colorsCard.setVisibility(View.VISIBLE);
 		} else {
 			colorsCard.setVisibility(View.GONE);
