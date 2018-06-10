@@ -137,7 +137,8 @@ class GamePlaysFragment : Fragment() {
             val playCount = plays.sumBy { it.quantity }
             val description = playCount.asPlayCount(ctx)
             playCountIcon?.text = description.first.toString()
-            playsLabel?.text = ctx.getQuantityText(R.plurals.plays_prefix, playCount, playCount, if (description.second.isNotBlank()) " (${description.second})" else "")
+            playCountView?.text = ctx.getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
+            playCountDescriptionView?.setTextOrHide(description.second)
             playCountBackground?.setColorViewValue(description.third)
             playCountContainer?.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)

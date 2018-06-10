@@ -678,9 +678,9 @@
 		<item quantity="one">Are you sure you want to send this play?</item>
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
-	<plurals name="plays_prefix">
-		<item quantity="one"><b>%1$,d</b> Play%2$s</item>
-		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
+	<plurals name="play_title_suffix">
+		<item quantity="one">%,d Play</item>
+		<item quantity="other">%,d Plays</item>
 	</plurals>
 	<plurals name="msg_updated_plays_buddy_nickname">
 		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>

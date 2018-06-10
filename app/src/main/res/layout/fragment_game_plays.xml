@@ -76,7 +76,16 @@
 						android:orientation="vertical">
 
 						<TextView
-							android:id="@+id/playsLabel"
+							android:id="@+id/playCountView"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:maxLines="1"
+							android:text="@string/title_plays"
+							android:textAppearance="@style/Text"
+							android:textStyle="bold"/>
+
+						<TextView
+							android:id="@+id/playCountDescriptionView"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
