@@ -3,6 +3,8 @@ package com.boardgamegeek
 import android.content.Context
 import android.support.annotation.StringRes
 import com.boardgamegeek.io.BggService
+import timber.log.Timber
+import java.text.DateFormat
 
 fun String?.replaceHtmlLineFeeds(): String {
     return if (this == null || isBlank()) "" else replace("&#10;", "\n")
@@ -44,5 +46,18 @@ fun String.asRankDescription(context: Context, type: String = BggService.RANK_TY
             return context.getText(resId)
         }
         else -> return context.getText(R.string.title_game)
+    }
+}
+
+fun String.toMillis(format: DateFormat): Long {
+    return if (isBlank()) {
+        0L
+    } else {
+        try {
+            format.parse(this).time
+        } catch (e: Exception) {
+            Timber.w(e, "Unable to parse %s as %s", this, format)
+            0L
+        }
     }
 }

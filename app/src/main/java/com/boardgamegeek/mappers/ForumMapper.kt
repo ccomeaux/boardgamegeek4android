@@ -2,8 +2,7 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.io.model.Forum
-import timber.log.Timber
-import java.text.DateFormat
+import com.boardgamegeek.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -15,21 +14,8 @@ class ForumMapper {
                 id = from.id,
                 title = from.title,
                 numberOfThreads = from.numthreads,
-                lastPostDateTime = tryParseDate(from.lastpostdate),
+                lastPostDateTime = from.lastpostdate.toMillis(FORMAT),
                 isHeader = from.noposting == 1
         )
-    }
-
-    private fun tryParseDate(date: String, format: DateFormat = FORMAT): Long {
-        return if (date.isBlank()) {
-            0L
-        } else {
-            try {
-                format.parse(date).time
-            } catch (e: Exception) {
-                Timber.w(e, "Unable to parse %s as %s", date, format)
-                0L
-            }
-        }
     }
 }

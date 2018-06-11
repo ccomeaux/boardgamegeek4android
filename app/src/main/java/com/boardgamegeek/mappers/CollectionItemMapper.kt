@@ -1,15 +1,15 @@
 package com.boardgamegeek.mappers
 
-import android.text.TextUtils
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.io.model.CollectionItem
 import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.io.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sortName
-import timber.log.Timber
-import java.text.DateFormat
+import com.boardgamegeek.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
+
+private val FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
 class CollectionItemMapper {
     fun map(from: CollectionItem): CollectionItemEntity {
@@ -49,7 +49,7 @@ class CollectionItemMapper {
                 wishList = from.wishlist?.equals("1") ?: false,
                 wishListPriority = from.wishlistpriority,
                 preOrdered = from.preordered?.equals("1") ?: false,
-                lastModifiedDate = tryParseDate(from.lastmodified),
+                lastModifiedDate = from.lastmodified.toMillis(FORMAT),
                 pricePaidCurrency = from.pp_currency ?: "",
                 pricePaid = from.pricepaid?.toDoubleOrNull() ?: 0.0,
                 currentValueCurrency = from.cv_currency ?: "",
@@ -59,20 +59,5 @@ class CollectionItemMapper {
                 acquiredFrom = from.acquiredfrom ?: "",
                 privateComment = from.privatecomment ?: ""
         )
-    }
-}
-
-private val FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-
-private fun tryParseDate(date: String, format: DateFormat = FORMAT): Long {
-    return if (TextUtils.isEmpty(date)) {
-        0L
-    } else {
-        try {
-            format.parse(date).time
-        } catch (e: Exception) {
-            Timber.w(e, "Unable to parse %s as %s", date, format)
-            0L
-        }
     }
 }

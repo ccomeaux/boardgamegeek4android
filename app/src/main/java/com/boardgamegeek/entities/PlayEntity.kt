@@ -1,13 +1,13 @@
 package com.boardgamegeek.entities
 
 import android.content.Context
-import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.asTime
-import timber.log.Timber
-import java.text.DateFormat
+import com.boardgamegeek.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
+
+private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
 data class PlayEntity(
         val internalId: Long,
@@ -26,7 +26,7 @@ data class PlayEntity(
         val dirtyTimestamp: Long,
         val startTime: Long
 ) {
-    val dateInMillis = tryParseDate(date)
+    val dateInMillis = date.toMillis(FORMAT)
 
     fun describe(context: Context): String {
         val info = StringBuilder()
@@ -37,19 +37,4 @@ data class PlayEntity(
         return info.trim().toString()
     }
 
-}
-
-private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
-private fun tryParseDate(date: String, format: DateFormat = FORMAT): Long {
-    return if (TextUtils.isEmpty(date)) {
-        0L
-    } else {
-        try {
-            format.parse(date).time
-        } catch (e: Exception) {
-            Timber.w(e, "Unable to parse %s as %s", date, format)
-            0L
-        }
-    }
 }
