@@ -68,22 +68,24 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                                 saveCallResult(body)
                                 hasMorePages = hasMorePages(body)
                                 if (!hasMorePages) {
-                                    finishSync()
-                                }
-                                application.appExecutors.mainThread.execute {
-                                    result.removeSource(dbSource)
-                                    result.addSource(dbSource) { newData ->
-                                        setValue(RefreshableResource.success(newData))
+                                    onRefreshSucceeded()
+                                    application.appExecutors.mainThread.execute {
+                                        result.removeSource(dbSource)
+                                        result.addSource(dbSource) { newData ->
+                                            setValue(RefreshableResource.success(newData))
+                                        }
                                     }
                                 }
                             }
                         } else {
+                            onRefreshFailed()
                             result.removeSource(dbSource)
                             result.addSource(dbSource) { newData ->
                                 setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
                             }
                         }
                     } else {
+                        onRefreshFailed()
                         result.removeSource(dbSource)
                         result.addSource(dbSource) { newData ->
                             setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
@@ -92,6 +94,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                 }
 
                 override fun onFailure(call: Call<U>?, t: Throwable?) {
+                    onRefreshFailed()
                     result.removeSource(dbSource)
                     result.addSource(dbSource) { newData ->
                         setValue(RefreshableResource.error(t, newData))
@@ -111,8 +114,10 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     protected open fun hasMorePages(result: U) = false
 
     @WorkerThread
-    protected open fun finishSync() {
+    protected open fun onRefreshSucceeded() {
     }
+
+    protected open fun onRefreshFailed() {}
 
     private fun getHttpErrorMessage(httpCode: Int): String {
         @StringRes val resId: Int = when {

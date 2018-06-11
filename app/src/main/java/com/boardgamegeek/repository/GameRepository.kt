@@ -34,7 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 class GameRepository(val application: BggApplication) {
     private var dao = GameDao(application)
     private var playDao = PlayDao(application)
-    private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val refreshPlaysPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
+    private val refreshPlaysFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
     }
@@ -54,7 +56,7 @@ class GameRepository(val application: BggApplication) {
 
             override fun shouldRefresh(data: Game?): Boolean {
                 if (gameId == BggContract.INVALID_ID) return false
-                return data == null || data.updated.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
+                return data == null || data.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)
             }
 
             override fun createCall(page: Int): Call<ThingResponse> {
@@ -124,6 +126,7 @@ class GameRepository(val application: BggApplication) {
         return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
             val persister = PlayPersister(application)
             var timestamp = 0L
+            var isFullRefresh = false
 
             override val typeDescriptionResId: Int
                 get() = R.string.title_plays
@@ -133,14 +136,22 @@ class GameRepository(val application: BggApplication) {
             }
 
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
+                if (isFullRefresh) return false
                 if (gameId == BggContract.INVALID_ID || username.isNullOrBlank()) return false
                 if (data == null) return true
+                // TODO - use Games.UPDATED_PLAYS instead
                 val oldestSyncTimestamp = data.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-                return oldestSyncTimestamp.isOlderThan(15, TimeUnit.MINUTES)
+                return if (oldestSyncTimestamp.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS)) {
+                    isFullRefresh = true
+                    true
+                } else {
+                    isFullRefresh = false
+                    oldestSyncTimestamp.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES)
+                }
             }
 
             override fun createCall(page: Int): Call<PlaysResponse> {
-                timestamp = System.currentTimeMillis() // TODO - limit to one page most of the time
+                if (page == 1) timestamp = System.currentTimeMillis()
                 return Adapter.createForXml().playsByGame(username, gameId, page)
             }
 
@@ -149,18 +160,24 @@ class GameRepository(val application: BggApplication) {
                 Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
             }
 
-            override fun hasMorePages(result: PlaysResponse) = result.hasMorePages()
+            override fun hasMorePages(result: PlaysResponse) = isFullRefresh && result.hasMorePages()
 
-            override fun finishSync() {
-                playDao.deleteUnupdatedPlays(gameId, timestamp)
+            override fun onRefreshSucceeded() {
+                if (isFullRefresh) {
+                    playDao.deleteUnupdatedPlays(gameId, timestamp)
 
-                val values = ContentValues(1)
-                values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
-                dao.update(gameId, values)
-
+                    val values = ContentValues(1)
+                    values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
+                    dao.update(gameId, values)
+                }
                 if (SyncPrefs.isPlaysSyncUpToDate(application)) {
                     TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
                 }
+                isFullRefresh = false
+            }
+
+            override fun onRefreshFailed() {
+                isFullRefresh = false
             }
         }.asLiveData()
     }

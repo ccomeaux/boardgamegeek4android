@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
-    private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTOIN_MINUTES)
+    private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 
     private val username: String? by lazy {
         AccountUtils.getUsername(application)

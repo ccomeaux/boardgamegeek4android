@@ -28,7 +28,9 @@ class RemoteConfig {
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
         const val KEY_REFRESH_GAME_MINUTES = "refresh_game_minutes"
-        const val KEY_REFRESH_GAME_COLLECTOIN_MINUTES = "refresh_game_collectoin_minutes"
+        const val KEY_REFRESH_GAME_COLLECTION_MINUTES = "refresh_game_collection_minutes"
+        const val KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES = "refresh_game_plays_partial_minutes"
+        const val KEY_REFRESH_GAME_PLAYS_FULL_HOURS = "refresh_game_plays_full_hours"
 
         const val KEY_RETRY_202_INITIAL_INTERVAL_MILLIS = "retry_202_initial_interval_millis"
         const val KEY_RETRY_202_RANDOMIZATION_FACTOR = "retry_202_randomization_factor"

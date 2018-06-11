@@ -66,8 +66,16 @@
 		<value>1</value>
 	</entry>
 	<entry>
-		<key>KEY_REFRESH_GAME_COLLECTOIN_MINUTES</key>
+		<key>refresh_game_collection_minutes</key>
 		<value>10</value>
+	</entry>
+	<entry>
+		<key>refresh_game_plays_partial_minutes</key>
+		<value>5</value>
+	</entry>
+	<entry>
+		<key>refresh_game_plays_full_hours</key>
+		<value>12</value>
 	</entry>
 
 	<entry>
