@@ -88,6 +88,7 @@ class CollectionDao(private val context: BggApplication) {
                                 deleteTimestamp = cursor.getLongOrNull(Collection.COLLECTION_DELETE_TIMESTAMP) ?: 0L,
                                 own = cursor.getIntOrNull(Collection.STATUS_OWN) ?: 0 == 1,
                                 previouslyOwned = cursor.getIntOrNull(Collection.STATUS_PREVIOUSLY_OWNED) ?: 0 == 1,
+                                preOrdered = cursor.getIntOrNull(Collection.STATUS_PREORDERED) ?: 0 == 1,
                                 forTrade = cursor.getIntOrNull(Collection.STATUS_FOR_TRADE) ?: 0 == 1,
                                 wantInTrade = cursor.getIntOrNull(Collection.STATUS_WANT) ?: 0 == 1,
                                 wantToPlay = cursor.getIntOrNull(Collection.STATUS_WANT_TO_PLAY) ?: 0 == 1,
