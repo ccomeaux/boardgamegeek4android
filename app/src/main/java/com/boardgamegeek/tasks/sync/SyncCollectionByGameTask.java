@@ -10,6 +10,8 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.db.CollectionDao;
+import com.boardgamegeek.entities.CollectionItemEntity;
+import com.boardgamegeek.entities.CollectionItemGameEntity;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.model.CollectionItem;
@@ -21,6 +23,7 @@ import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlin.Pair;
 import retrofit2.Call;
 import timber.log.Timber;
 
@@ -72,7 +75,8 @@ public class SyncCollectionByGameTask extends SyncTask<CollectionResponse, Compl
 		if (body != null && body.items != null) {
 			CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : body.items) {
-				int collectionId = dao.saveItem(mapper.map(item), timestamp, true, true, false);
+				final Pair<CollectionItemEntity, CollectionItemGameEntity> entities = mapper.map(item);
+				int collectionId = dao.saveItem(entities.getFirst(), entities.getSecond(), timestamp, true, true, false);
 				results.add(collectionId);
 			}
 			Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size(), gameId);

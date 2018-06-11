@@ -3,7 +3,6 @@
 package com.boardgamegeek
 
 import android.database.Cursor
-import android.text.TextUtils
 import com.boardgamegeek.util.DateTimeUtils
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -126,6 +125,21 @@ inline fun <T : Cursor?, R> T.use(block: (T) -> R): R {
         }
     }
 }
+
+inline fun Cursor.getDoubleOrZero(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0.0 else getDouble(it) }
+
+inline fun Cursor.getIntOrZero(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0 else getInt(it) }
+
+inline fun Cursor.getLongOrZero(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0L else getLong(it) }
+
+inline fun Cursor.getBoolean(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) false else getInt(it) == 1 }
+
+inline fun Cursor.getStringOrEmpty(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) "" else getString(it) ?: "" }
 
 // Below is copied from KTX. Replace with library once it's released
 

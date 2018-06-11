@@ -8,10 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.*
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameCollectionRow
 import kotlinx.android.synthetic.main.fragment_game_collection.*
@@ -19,7 +19,7 @@ import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
 
 class GameCollectionFragment : Fragment() {
-    private var gameId: Int = 0
+    private var gameYearPublished = YEAR_UNKNOWN
 
     private val viewModel: GameViewModel by lazy {
         ViewModelProviders.of(act).get(GameViewModel::class.java)
@@ -32,12 +32,13 @@ class GameCollectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        gameId = arguments?.getInt(ARG_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
-        if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
-
         swipeRefresh?.isEnabled = false
         swipeRefresh?.setBggColors()
         syncTimestamp?.timestamp = 0L
+
+        viewModel.game.observe(this, Observer {
+            gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
+        })
 
         viewModel.collectionItems.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
@@ -50,7 +51,7 @@ class GameCollectionFragment : Fragment() {
         })
     }
 
-    private fun showData(items: List<GameCollectionItem>?) {
+    private fun showData(items: List<CollectionItemEntity>?) {
         if (!isAdded) return
         if (items?.isEmpty() == false) {
             collectionContainer.removeAllViews()
@@ -75,10 +76,10 @@ class GameCollectionFragment : Fragment() {
 
                 val row = GameCollectionRow(context)
                 item.apply {
-                    row.bind(internalId, gameId, gameName, collectionId, yearPublished, imageUrl)
+                    row.bind(internalId, gameId, gameName, collectionId, gameYearPublished, imageUrl)
                     row.setThumbnail(thumbnailUrl)
                     row.setStatus(statuses)
-                    row.setDescription(collectionName, collectionYearPublished)
+                    row.setDescription(collectionName, yearPublished)
                     row.setComment(comment)
                     row.setRating(rating)
                 }

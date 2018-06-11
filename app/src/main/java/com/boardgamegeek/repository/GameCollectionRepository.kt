@@ -7,6 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
@@ -17,7 +18,6 @@ import com.boardgamegeek.load
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.ui.model.GameCollectionItem
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.StringUtils
 import retrofit2.Call
@@ -35,15 +35,15 @@ class GameCollectionRepository(val application: BggApplication) {
     /**
      * Get a game from the database and potentially refresh it from BGG.
      */
-    fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<GameCollectionItem>>> {
-        return object : RefreshableResourceLoader<List<GameCollectionItem>, CollectionResponse>(application) {
+    fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
+        return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
             private var timestamp = 0L
 
             override val typeDescriptionResId = R.string.title_collection
 
             override fun loadFromDatabase() = dao.load(gameId)
 
-            override fun shouldRefresh(data: List<GameCollectionItem>?): Boolean {
+            override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
                 if (gameId == BggContract.INVALID_ID || username == null) return false
                 val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
                 return data == null || syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
@@ -63,7 +63,8 @@ class GameCollectionRepository(val application: BggApplication) {
                 val collectionIds = arrayListOf<Int>()
 
                 result.items?.forEach { item ->
-                    val collectionId = dao.saveItem(mapper.map(item), timestamp)
+                    val pair = mapper.map(item)
+                    val collectionId = dao.saveItem(pair.first, pair.second, timestamp)
                     collectionIds.add(collectionId)
                 }
                 Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId)
@@ -74,7 +75,7 @@ class GameCollectionRepository(val application: BggApplication) {
         }.asLiveData()
     }
 
-    fun addCollectionItem(gameId: Int, statuses: List<String>, wishlistPriority: Int?) {
+    fun addCollectionItem(gameId: Int, statuses: List<String>, wishListPriority: Int?) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues()
@@ -87,7 +88,7 @@ class GameCollectionRepository(val application: BggApplication) {
             putValue(statuses, values, BggContract.Collection.STATUS_WANT_TO_BUY)
             putValue(statuses, values, BggContract.Collection.STATUS_WISHLIST)
             putValue(statuses, values, BggContract.Collection.STATUS_PREVIOUSLY_OWNED)
-            putWishList(statuses, wishlistPriority, values)
+            putWishList(statuses, wishListPriority, values)
             values.put(BggContract.Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis())
 
             application.contentResolver.load(BggContract.Games.buildGameUri(gameId),

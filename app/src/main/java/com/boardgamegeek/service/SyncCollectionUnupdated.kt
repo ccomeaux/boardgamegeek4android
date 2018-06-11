@@ -124,7 +124,8 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
                 return if (items != null && items.size > 0) {
                     val mapper = CollectionItemMapper()
                     for (item in items) {
-                        dao.saveItem(mapper.map(item), timestamp)
+                        val pair = mapper.map(item)
+                        dao.saveItem(pair.first, pair.second, timestamp)
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection items", items.size)

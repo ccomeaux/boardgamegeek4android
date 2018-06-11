@@ -12,8 +12,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.ui.model.Game
-import com.boardgamegeek.ui.model.GameCollectionItem
-import com.boardgamegeek.ui.model.PlaysByGame
 import com.boardgamegeek.util.PaletteUtils
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
@@ -112,7 +110,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val collectionItems: LiveData<RefreshableResource<List<GameCollectionItem>>> = Transformations.switchMap(_gameId) { gameId ->
+    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameCollectionRepository.getCollectionItems(gameId)

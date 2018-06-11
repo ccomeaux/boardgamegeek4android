@@ -103,12 +103,12 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                     val mapper = CollectionItemMapper()
                     var count = 0
                     for (item in items) {
-                        val entity = mapper.map(item)
-                        if (isItemStatusSetToSync(entity)) {
-                            val collectionId = dao.saveItem(entity, timestamp)
+                        val pair = mapper.map(item)
+                        if (isItemStatusSetToSync(pair.first)) {
+                            val collectionId = dao.saveItem(pair.first, pair.second, timestamp)
                             if (collectionId != BggContract.INVALID_ID) count++
                         } else {
-                            Timber.i("Skipped collection item '${entity.gameName}' [ID=${entity.gameId}, collection ID=${entity.collectionId}] - collection status not synced")
+                            Timber.i("Skipped collection item '${pair.first.gameName}' [ID=${pair.first.gameId}, collection ID=${pair.first.collectionId}] - collection status not synced")
                         }
                     }
                     syncResult.stats.numUpdates += count.toLong()
@@ -133,7 +133,7 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
         if (item.own && "own" in statusesToSync) return true
         if (item.previouslyOwned && "prevowned" in statusesToSync) return true
         if (item.forTrade && "fortrade" in statusesToSync) return true
-        if (item.want && "want" in statusesToSync) return true
+        if (item.wantInTrade && "want" in statusesToSync) return true
         if (item.wantToPlay && "wanttoplay" in statusesToSync) return true
         if (item.wantToBuy && "wanttobuy" in statusesToSync) return true
         if (item.wishList && "wishlist" in statusesToSync) return true

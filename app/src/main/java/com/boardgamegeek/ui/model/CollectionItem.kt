@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.model
 
-
 import android.database.Cursor
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Collection

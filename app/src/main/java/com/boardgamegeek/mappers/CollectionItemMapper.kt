@@ -1,6 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
@@ -12,12 +13,46 @@ import java.util.*
 private val FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
 class CollectionItemMapper {
-    fun map(from: CollectionItem): CollectionItemEntity {
-        return CollectionItemEntity(
+    fun map(from: CollectionItem): Pair<CollectionItemEntity, CollectionItemGameEntity> {
+        val item = CollectionItemEntity(
                 gameId = from.objectid,
                 gameName = if (from.originalname.isNullOrBlank()) from.name else from.originalname,
                 collectionId = from.collid.toIntOrNull() ?: BggContract.INVALID_ID,
                 collectionName = from.name,
+                sortName = if (from.originalname.isNullOrBlank()) from.name.sortName(from.sortindex) else from.name,
+                yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+                imageUrl = from.image ?: "",
+                thumbnailUrl = from.thumbnail ?: "",
+                rating = from.stats?.rating?.toDoubleOrNull() ?: 0.0,
+                numberOfPlays = from.numplays,
+                comment = from.comment ?: "",
+                wantPartsList = from.wantpartslist ?: "",
+                conditionText = from.conditiontext ?: "",
+                hasPartsList = from.haspartslist ?: "",
+                wishListComment = from.wishlistcomment ?: "",
+                own = from.own?.equals("1") ?: false,
+                previouslyOwned = from.prevowned?.equals("1") ?: false,
+                forTrade = from.fortrade?.equals("1") ?: false,
+                wantInTrade = from.want?.equals("1") ?: false,
+                wantToPlay = from.wanttoplay?.equals("1") ?: false,
+                wantToBuy = from.wanttobuy?.equals("1") ?: false,
+                wishList = from.wishlist?.equals("1") ?: false,
+                wishListPriority = from.wishlistpriority,
+                preOrdered = from.preordered?.equals("1") ?: false,
+                lastModifiedDate = from.lastmodified.toMillis(FORMAT),
+                pricePaidCurrency = from.pp_currency ?: "",
+                pricePaid = from.pricepaid?.toDoubleOrNull() ?: 0.0,
+                currentValueCurrency = from.cv_currency ?: "",
+                currentValue = from.currvalue?.toDoubleOrNull() ?: 0.0,
+                quantity = from.quantity?.toIntOrNull() ?: 1,
+                acquisitionDate = from.acquisitiondate ?: "",
+                acquiredFrom = from.acquiredfrom ?: "",
+                privateComment = from.privatecomment ?: ""
+        )
+
+        val game = CollectionItemGameEntity(
+                gameId = from.objectid,
+                gameName = if (from.originalname.isNullOrBlank()) from.name else from.originalname,
                 sortName = if (from.originalname.isNullOrBlank()) from.name.sortName(from.sortindex) else from.name,
                 yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
                 imageUrl = from.image ?: "",
@@ -34,30 +69,8 @@ class CollectionItemMapper {
                 bayesAverage = from.stats?.bayesaverage?.toDoubleOrNull() ?: 0.0,
                 standardDeviation = from.stats?.stddev?.toDoubleOrNull() ?: 0.0,
                 median = from.stats?.median?.toDoubleOrNull() ?: 0.0,
-                numberOfPlays = from.numplays,
-                comment = from.comment ?: "",
-                wantPartsList = from.wantpartslist ?: "",
-                conditionText = from.conditiontext ?: "",
-                hasPartsList = from.haspartslist ?: "",
-                wishListComment = from.wishlistcomment ?: "",
-                own = from.own?.equals("1") ?: false,
-                previouslyOwned = from.prevowned?.equals("1") ?: false,
-                forTrade = from.fortrade?.equals("1") ?: false,
-                want = from.want?.equals("1") ?: false,
-                wantToPlay = from.wanttoplay?.equals("1") ?: false,
-                wantToBuy = from.wanttobuy?.equals("1") ?: false,
-                wishList = from.wishlist?.equals("1") ?: false,
-                wishListPriority = from.wishlistpriority,
-                preOrdered = from.preordered?.equals("1") ?: false,
-                lastModifiedDate = from.lastmodified.toMillis(FORMAT),
-                pricePaidCurrency = from.pp_currency ?: "",
-                pricePaid = from.pricepaid?.toDoubleOrNull() ?: 0.0,
-                currentValueCurrency = from.cv_currency ?: "",
-                currentValue = from.currvalue?.toDoubleOrNull() ?: 0.0,
-                quantity = from.quantity?.toIntOrNull() ?: 1,
-                acquisitionDate = from.acquisitiondate ?: "",
-                acquiredFrom = from.acquiredfrom ?: "",
-                privateComment = from.privatecomment ?: ""
+                numberOfPlays = from.numplays
         )
+        return item to game
     }
 }

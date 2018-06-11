@@ -195,7 +195,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			data.getBody().items != null) {
 			CollectionItemMapper mapper = new CollectionItemMapper();
 			for (CollectionItem item : data.getBody().items) {
-				list.add(mapper.map(item));
+				list.add(mapper.map(item).getFirst());
 			}
 		}
 
