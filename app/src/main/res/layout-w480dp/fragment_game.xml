@@ -54,12 +54,15 @@
 					android:visibility="gone"
 					tools:visibility="visible">
 
-					<include layout="@layout/include_game_ranks"/>
-
-					<include
-						layout="@layout/include_game_ratings"
+					<LinearLayout
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"/>
+						android:layout_height="wrap_content"
+						android:orientation="horizontal">
+
+						<include layout="@layout/include_game_ranks"/>
+
+						<include layout="@layout/include_game_ratings"/>
+					</LinearLayout>
 
 					<LinearLayout
 						android:layout_width="match_parent"
