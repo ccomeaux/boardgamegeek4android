@@ -259,7 +259,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 
 	private void showAlertDialog(@StringRes int titleResId, @StringRes int messageResId, Object... formatArgs) {
 		SpannableString spannableMessage = new SpannableString(getString(messageResId, formatArgs));
-		Linkify.addLinks(spannableMessage, Linkify.ALL);
+		Linkify.addLinks(spannableMessage, Linkify.WEB_URLS);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
 			.setTitle(titleResId)
 			.setMessage(spannableMessage);

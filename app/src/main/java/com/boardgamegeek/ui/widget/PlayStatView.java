@@ -63,7 +63,7 @@ public class PlayStatView extends TableRow {
 		infoImageView.setVisibility(View.VISIBLE);
 		setClickBackground();
 		final SpannableString s = new SpannableString(text);
-		Linkify.addLinks(s, Linkify.ALL);
+		Linkify.addLinks(s, Linkify.WEB_URLS);
 		builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(labelView.getText()).setMessage(s);
 	}

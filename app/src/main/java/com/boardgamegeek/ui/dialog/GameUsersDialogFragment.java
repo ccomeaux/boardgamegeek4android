@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -47,11 +48,14 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		R.id.users_wishing_bar
 	}) List<StatBar> statBars;
 
-	public static void launch(Fragment fragment, int gameId, @ColorInt int darkColor) {
+	public static void launch(Fragment host, int gameId, @ColorInt int darkColor) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(KEY_GAME_ID, gameId);
 		arguments.putInt(KEY_DARK_COLOR, darkColor);
-		DialogUtils.launchDialog(fragment, new GameUsersDialogFragment(), "users-dialog", arguments);
+		final GameUsersDialogFragment dialog = new GameUsersDialogFragment();
+		dialog.setArguments(arguments);
+		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
+		DialogUtils.showAndSurvive(host, dialog);
 	}
 
 	@Override
@@ -69,7 +73,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		getDialog().setTitle(R.string.title_users);
 
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.dialog_game_users, container, false);
@@ -90,19 +94,15 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 		if (unbinder != null) unbinder.unbind();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == Query._TOKEN) {
-			loader = new CursorLoader(getActivity(), uri, Query.PROJECTION, null, null, null);
-		}
-		return loader;
+		return new CursorLoader(getContext(), uri, Query.PROJECTION, null, null, null);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-		if (loader == null) return;
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		if (!isAdded()) return;
 		if (cursor == null) return;
 
 		if (loader.getId() == Query._TOKEN) {
@@ -135,7 +135,7 @@ public class GameUsersDialogFragment extends DialogFragment implements LoaderCal
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	private interface Query {

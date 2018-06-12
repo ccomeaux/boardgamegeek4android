@@ -362,7 +362,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 							}
 						});
 					sortFragment.setSelection(sorter.getType());
-					DialogUtils.show(sortFragment, getFragmentManager(), "sort");
+					DialogUtils.showAndSurvive(CollectionFragment.this, sortFragment);
 					return true;
 				case R.id.menu_collection_filter:
 					final CollectionFilterDialogFragment filterFragment =
@@ -375,7 +375,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					for (CollectionFilterer filter : filters) {
 						filterFragment.addEnabledFilter(filter.getType());
 					}
-					DialogUtils.show(filterFragment, getFragmentManager(), "filter");
+					DialogUtils.showAndSurvive(CollectionFragment.this, filterFragment);
 					return true;
 			}
 			return launchFilterDialog(item.getItemId());
@@ -439,7 +439,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
-	@Nullable
+	@NonNull
 	@Override
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -592,7 +592,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		if (adapter != null) {
 			adapter.changeCursor(null);
 		}

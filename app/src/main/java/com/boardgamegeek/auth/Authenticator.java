@@ -206,14 +206,19 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		AccountManager am = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(am);
 		if (account != null) {
-			if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
-				removeAccountWithActivity(am, account);
-			} else {
-				removeAccount(am, account);
-			}
+			removeAccountCompat(am, account, true);
 			am.setUserData(account, KEY_USER_ID, INVALID_USER_ID);
 		}
 		AccountUtils.clearFields(context);
+	}
+
+	public static void removeAccounts(final Context context) {
+		AccountManager am = AccountManager.get(context);
+		Account[] accounts = am.getAccountsByType(Authenticator.ACCOUNT_TYPE);
+		for (Account account : accounts) {
+			removeAccountCompat(am, account, false);
+			am.setUserData(account, KEY_USER_ID, INVALID_USER_ID);
+		}
 	}
 
 	@NonNull
@@ -230,14 +235,22 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
 
+	private static void removeAccountCompat(AccountManager am, Account account, boolean postEvent) {
+		if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
+			removeAccountWithActivity(am, account, postEvent);
+		} else {
+			removeAccount(am, account, postEvent);
+		}
+	}
+
 	@SuppressWarnings("deprecation")
-	private static void removeAccount(@NonNull AccountManager am, Account account) {
+	private static void removeAccount(@NonNull AccountManager am, Account account, final boolean postEvent) {
 		am.removeAccount(account, new AccountManagerCallback<Boolean>() {
 			@Override
 			public void run(@NonNull AccountManagerFuture<Boolean> future) {
 				if (future.isDone()) {
 					try {
-						if (future.getResult()) EventBus.getDefault().post(new SignOutEvent());
+						if (postEvent && future.getResult()) EventBus.getDefault().post(new SignOutEvent());
 					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");
 					}
@@ -247,13 +260,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	@TargetApi(VERSION_CODES.LOLLIPOP_MR1)
-	private static void removeAccountWithActivity(@NonNull AccountManager am, Account account) {
+	private static void removeAccountWithActivity(@NonNull AccountManager am, Account account, final boolean postEvent) {
 		am.removeAccount(account, null, new AccountManagerCallback<Bundle>() {
 			@Override
 			public void run(@NonNull AccountManagerFuture<Bundle> future) {
 				if (future.isDone()) {
 					try {
-						if (future.getResult().getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
+						if (postEvent && future.getResult().getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
 							EventBus.getDefault().post(new SignOutEvent());
 						}
 					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {

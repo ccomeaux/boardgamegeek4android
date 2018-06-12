@@ -66,18 +66,22 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 	@BindView(R.id.poll_scroll) ScrollView scrollView;
 	@BindView(R.id.pie_chart) PieChart pieChart;
 
-	public static void launchLanguageDependence(Fragment fragment, int gameId) {
-		Bundle arguments = new Bundle(2);
-		arguments.putInt(KEY_GAME_ID, gameId);
-		arguments.putString(KEY_TYPE, PollFragment.LANGUAGE_DEPENDENCE);
-		DialogUtils.launchDialog(fragment, new PollFragment(), "poll-dialog-language", arguments);
+	public static void launchLanguageDependence(Fragment host, int gameId) {
+		launch(host, gameId, PollFragment.LANGUAGE_DEPENDENCE);
 	}
 
-	public static void launchSuggestedPlayerAge(Fragment fragment, int gameId) {
+	public static void launchSuggestedPlayerAge(Fragment host, int gameId) {
+		launch(host, gameId, PollFragment.SUGGESTED_PLAYER_AGE);
+	}
+
+	private static void launch(Fragment host, int gameId, String type) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(KEY_GAME_ID, gameId);
-		arguments.putString(KEY_TYPE, PollFragment.SUGGESTED_PLAYER_AGE);
-		DialogUtils.launchDialog(fragment, new PollFragment(), "poll-dialog-player-age", arguments);
+		arguments.putString(KEY_TYPE, type);
+		final PollFragment dialog = new PollFragment();
+		dialog.setArguments(arguments);
+		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
+		DialogUtils.showAndSurvive(host, dialog);
 	}
 
 	@Override
@@ -149,37 +153,29 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		if (unbinder != null) unbinder.unbind();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == Query._TOKEN && getContext() != null) {
-			loader = new CursorLoader(getContext(), pollResultUri, Query.PROJECTION, null, null, Query.SORT);
-		}
-		return loader;
+		return new CursorLoader(getContext(), pollResultUri, Query.PROJECTION, null, null, Query.SORT);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-		if (loader == null) return;
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		if (!isAdded()) return;
 
-		if (loader.getId() == Query._TOKEN) {
-			int totalVoteCount = cursor != null && cursor.moveToFirst() ? cursor.getInt(Query.POLL_TOTAL_VOTES) : 0;
+		int totalVoteCount = cursor != null && cursor.moveToFirst() ? cursor.getInt(Query.POLL_TOTAL_VOTES) : 0;
 
-			pieChart.setVisibility(totalVoteCount == 0 ? View.GONE : View.VISIBLE);
-			if (totalVoteCount > 0) {
-				createPieChart(cursor, totalVoteCount);
-			}
-
-			progressView.hide();
-			scrollView.setVisibility(View.VISIBLE);
-		} else {
-			if (cursor != null) cursor.close();
+		pieChart.setVisibility(totalVoteCount == 0 ? View.GONE : View.VISIBLE);
+		if (totalVoteCount > 0) {
+			createPieChart(cursor, totalVoteCount);
 		}
+
+		progressView.hide();
+		scrollView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	@Override
