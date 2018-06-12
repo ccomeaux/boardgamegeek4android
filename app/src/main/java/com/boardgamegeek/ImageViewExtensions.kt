@@ -16,9 +16,9 @@ fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
 fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
     val isSameImage = getTag(R.id.image) == ImageUtils.getImageId(url)
     val requestCreator = Picasso.with(context)
-            .load(HttpUtils.ensureScheme(url))
+            .load(if (url.isEmpty()) null else HttpUtils.ensureScheme(url))
             .transform(PaletteTransformation.instance())
-    if (isSameImage){
+    if (isSameImage) {
         requestCreator.noFade().noPlaceholder()
     }
     requestCreator

@@ -4,22 +4,28 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.boardgamegeek.*
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.fadeIn
+import com.boardgamegeek.fadeOut
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.setBggColors
+import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.ui.widget.GameCollectionRow
 import kotlinx.android.synthetic.main.fragment_game_collection.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
 
 class GameCollectionFragment : Fragment() {
-    private var gameYearPublished = YEAR_UNKNOWN
+    private val adapter: GameCollectionItemAdapter by lazy {
+        GameCollectionItemAdapter()
+    }
 
     private val viewModel: GameViewModel by lazy {
         ViewModelProviders.of(act).get(GameViewModel::class.java)
@@ -36,8 +42,12 @@ class GameCollectionFragment : Fragment() {
         swipeRefresh?.setBggColors()
         syncTimestamp?.timestamp = 0L
 
+        recyclerView?.layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
+        recyclerView?.setHasFixedSize(true)
+        recyclerView?.adapter = adapter
+
         viewModel.game.observe(this, Observer {
-            gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
+            adapter.gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
         })
 
         viewModel.collectionItems.observe(this, Observer {
@@ -53,56 +63,27 @@ class GameCollectionFragment : Fragment() {
 
     private fun showData(items: List<CollectionItemEntity>?) {
         if (!isAdded) return
-        if (items?.isEmpty() == false) {
-            collectionContainer.removeAllViews()
-            for (item in items) {
-                val statuses = mutableListOf<String>()
-                if (item.own) statuses.add(getString(R.string.collection_status_own))
-                if (item.previouslyOwned) statuses.add(getString(R.string.collection_status_prev_owned))
-                if (item.forTrade) statuses.add(getString(R.string.collection_status_for_trade))
-                if (item.wantInTrade) statuses.add(getString(R.string.collection_status_want_in_trade))
-                if (item.wantToBuy) statuses.add(getString(R.string.collection_status_want_to_buy))
-                if (item.wantToPlay) statuses.add(getString(R.string.collection_status_want_to_play))
-                if (item.preOrdered) statuses.add(getString(R.string.collection_status_preordered))
-                if (item.wishList) statuses.add(item.wishListPriority.asWishListPriority(ctx))
-                if (statuses.isEmpty()) {
-                    if (item.numberOfPlays > 0) {
-                        statuses.add(getString(R.string.played))
-                    } else {
-                        if (item.rating > 0.0) statuses.add(getString(R.string.rated))
-                        if (item.comment.isNotBlank()) statuses.add(getString(R.string.commented))
-                    }
-                }
-
-                val row = GameCollectionRow(context)
-                item.apply {
-                    row.bind(internalId, gameId, gameName, collectionId, gameYearPublished, imageUrl)
-                    row.setThumbnail(thumbnailUrl)
-                    row.setStatus(statuses)
-                    row.setDescription(collectionName, yearPublished)
-                    row.setComment(comment)
-                    row.setRating(rating)
-                }
-                collectionContainer.addView(row)
-            }
+        if (items != null && items.isNotEmpty()) {
+            adapter.items = items
             syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
             emptyMessage.fadeOut()
-            swipeRefresh?.setOnRefreshListener {
-                if (items.any { it.isDirty })
-                    SyncService.sync(ctx, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
-                viewModel.refresh()
-            }
-            swipeRefresh?.isEnabled = true
+            recyclerView?.fadeIn()
         } else {
-            showError()
             syncTimestamp.timestamp = System.currentTimeMillis()
+            showError()
         }
+        swipeRefresh?.setOnRefreshListener {
+            if (items != null && items.any { it.isDirty })
+                SyncService.sync(ctx, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+            viewModel.refresh()
+        }
+        swipeRefresh?.isEnabled = true
     }
 
     private fun showError(message: String = getString(R.string.empty_game_collection)) {
         emptyMessage.text = message
         emptyMessage.fadeIn()
-        collectionContainer.removeAllViews()
+        recyclerView?.fadeOut()
     }
 
     companion object {

@@ -42,18 +42,10 @@
 					android:visibility="gone"
 					tools:visibility="visible"/>
 
-				<LinearLayout
+				<android.support.v7.widget.RecyclerView
+					android:id="@+id/recyclerView"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
-
-					<LinearLayout
-						android:id="@+id/collectionContainer"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical"/>
-
-				</LinearLayout>
+					android:layout_height="wrap_content"/>
 
 				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/syncTimestamp"
