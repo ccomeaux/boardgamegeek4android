@@ -75,14 +75,14 @@ class GamePlaysFragment : Fragment() {
                 view.setColorViewValue(ColorUtils.parseColor(it))
                 colorsList.addView(view)
             }
-            colorsList?.visibility = View.VISIBLE
-            colorsLabel?.visibility = View.GONE
+            colorsList?.fadeIn()
+            colorsLabel?.fadeOut()
         } else {
             colorsLabel?.text = ctx.getQuantityText(R.plurals.colors_suffix, count, count)
-            colorsLabel?.visibility = View.VISIBLE
-            colorsList?.visibility = View.GONE
+            colorsLabel?.fadeIn()
+            colorsList?.fadeOut()
         }
-        colorsContainer?.visibility = View.VISIBLE
+        colorsContainer?.fadeIn()
         colorsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
                 GameColorsActivity.start(context, gameId, gameName, iconColor)
@@ -113,25 +113,27 @@ class GamePlaysFragment : Fragment() {
     }
 
     private fun onPlaysQueryComplete(plays: List<PlayEntity>?) {
-        if (plays != null && plays.isNotEmpty()) {
-            val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
-            if (inProgressPlays.isNotEmpty()) {
-                inProgressPlaysList?.removeAllViews()
-                inProgressPlays.forEach { play ->
-                    val row = LayoutInflater.from(ctx).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
-                    val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(ctx) else play.dateInMillis.asPastDaySpan(ctx)
-                    row.findViewById<TextView>(R.id.line1)?.text = title
-                    row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(ctx))
-                    row.setOnClickListener {
-                        val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName,
-                                thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
-                        PlayActivity.start(ctx, event)
+        if (plays != null) {
+            if (plays.isNotEmpty()) {
+                val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
+                if (inProgressPlays.isNotEmpty()) {
+                    inProgressPlaysList?.removeAllViews()
+                    inProgressPlays.forEach { play ->
+                        val row = LayoutInflater.from(ctx).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
+                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(ctx) else play.dateInMillis.asPastDaySpan(ctx)
+                        row.findViewById<TextView>(R.id.line1)?.text = title
+                        row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(ctx))
+                        row.setOnClickListener {
+                            val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName,
+                                    thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+                            PlayActivity.start(ctx, event)
+                        }
+                        inProgressPlaysList?.addView(row)
                     }
-                    inProgressPlaysList?.addView(row)
+                    inProgressPlaysContainer?.fadeIn()
+                } else {
+                    inProgressPlaysContainer?.fadeOut()
                 }
-                inProgressPlaysContainer?.visibility = View.VISIBLE
-            } else {
-                inProgressPlaysContainer?.visibility = View.GONE
             }
 
             val playCount = plays.sumBy { it.quantity }
@@ -144,29 +146,32 @@ class GamePlaysFragment : Fragment() {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlaysActivity.start(ctx, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
-            playCountContainer?.visibility = View.VISIBLE
+            playCountContainer?.fadeIn()
 
-            val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
-            if (lastPlay != null) {
-                lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
-                lastPlayInfoView?.text = lastPlay.describe(ctx)
-                val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName,
-                        thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
-                lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
-                lastPlayContainer?.visibility = View.VISIBLE
-            } else {
-                lastPlayContainer?.visibility = View.GONE
+            if (plays.isNotEmpty()) {
+                val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
+                if (lastPlay != null) {
+                    lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
+                    lastPlayInfoView?.text = lastPlay.describe(ctx)
+                    val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName,
+                            thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+                    lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
+                    lastPlayContainer?.fadeIn()
+                } else {
+                    lastPlayContainer?.fadeOut()
+                }
+
+                playStatsContainer?.setOnClickListener {
+                    if (gameId != BggContract.INVALID_ID)
+                        GamePlayStatsActivity.start(ctx, gameId, gameName, iconColor)
+                }
+                playStatsContainer?.fadeIn()
             }
 
-            playStatsContainer?.setOnClickListener {
-                if (gameId != BggContract.INVALID_ID)
-                    GamePlayStatsActivity.start(ctx, gameId, gameName, iconColor)
-                playStatsContainer?.visibility = View.VISIBLE
-            }
         } else {
-            playCountContainer?.visibility = View.GONE
-            lastPlayContainer?.visibility = View.GONE
-            playStatsContainer?.visibility = View.GONE
+            playCountContainer?.fadeOut()
+            lastPlayContainer?.fadeOut()
+            playStatsContainer?.fadeOut()
         }
     }
 
