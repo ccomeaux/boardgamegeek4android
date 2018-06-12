@@ -14,7 +14,7 @@ import java.text.NumberFormat
 private const val ITEM_VIEW_TYPE_FORUM = 0
 private const val ITEM_VIEW_TYPE_HEADER = 1
 
-class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumViewHolder>() {
+class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
     init {
         setHasStableIds(true)
     }
@@ -49,29 +49,29 @@ class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: S
     }
 
     override fun getItemId(position: Int) = position.toLong()
-}
 
-private val numberFormat = NumberFormat.getNumberInstance()
+    companion object {
+        val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
+    }
 
-sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
+    sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
 
-        fun bind(forum: ForumEntity?, gameId: Int, gameName: String?) {
-            if (forum == null) return
-            itemView.apply {
-                title.text = forum.title
-                numberOfThreads.text = numberFormat.format(forum.numberOfThreads.toLong())
-                lastPostDate.timestamp = forum.lastPostDateTime
-                setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, gameId, gameName) }
+            fun bind(forum: ForumEntity?, gameId: Int, gameName: String?) {
+                if (forum == null) return
+                itemView.apply {
+                    title.text = forum.title
+                    numberOfThreads.text = numberFormat.format(forum.numberOfThreads.toLong())
+                    lastPostDate.timestamp = forum.lastPostDateTime
+                    setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, gameId, gameName) }
+                }
+            }
+        }
+
+        class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
+            fun bind(forum: ForumEntity?) {
+                itemView.header.text = forum?.title
             }
         }
     }
-
-    class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
-        fun bind(forum: ForumEntity?) {
-            itemView.header.text = forum?.title
-        }
-    }
 }
-
-

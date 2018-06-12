@@ -633,6 +633,7 @@
 	<string name="msg_sync_response_429">Rate limit exceeded.</string>
 	<string name="msg_sync_response_202">BoardGameGeek is still processing this request.</string>
 	<string name="msg_sync_error_http_code">Problem communicating with BoardGameGeek (HTTP code: %s)</string>
+	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="this_many">this many</string>
 	<string name="game">game</string>
