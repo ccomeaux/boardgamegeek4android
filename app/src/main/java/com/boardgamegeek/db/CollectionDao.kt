@@ -147,7 +147,7 @@ class CollectionDao(private val context: BggApplication) {
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
             Timber.i("Local copy of the collection item is dirty, skipping sync.")
         } else {
-            upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, timestamp))
+            upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, timestamp), isBrief)
             upsertItem(candidate, toCollectionValues(item, includeStats, includePrivateInfo, isBrief, timestamp), isBrief)
             Timber.i("Saved collection item '%s' [ID=%s, collection ID=%s]", item.gameName, item.gameId, item.collectionId)
         }
@@ -171,20 +171,26 @@ class CollectionDao(private val context: BggApplication) {
             values.put(Games.MIN_PLAYING_TIME, game.minPlayingTime)
             values.put(Games.MAX_PLAYING_TIME, game.maxPlayingTime)
             values.put(Games.STATS_NUMBER_OWNED, game.numberOwned)
-            values.put(Games.STATS_USERS_RATED, game.numberOfUsersRated)
             values.put(Games.STATS_AVERAGE, game.average)
             values.put(Games.STATS_BAYES_AVERAGE, game.bayesAverage)
-            values.put(Games.STATS_STANDARD_DEVIATION, game.standardDeviation)
-            values.put(Games.STATS_MEDIAN, game.median)
+            if (!isBrief) {
+                values.put(Games.STATS_USERS_RATED, game.numberOfUsersRated)
+                values.put(Games.STATS_STANDARD_DEVIATION, game.standardDeviation)
+                values.put(Games.STATS_MEDIAN, game.median)
+            }
         }
         return values
     }
 
     @DebugLog
-    private fun upsertGame(gameId: Int, values: ContentValues) {
+    private fun upsertGame(gameId: Int, values: ContentValues, isBrief: Boolean) {
         val uri = Games.buildGameUri(gameId)
         if (ResolverUtils.rowExists(resolver, uri)) {
             values.remove(Games.GAME_ID)
+            if (isBrief) {
+                values.remove(Games.GAME_NAME)
+                values.remove(Games.GAME_SORT_NAME)
+            }
             resolver.update(uri, values, null, null)
         } else {
             resolver.insert(Games.CONTENT_URI, values)
