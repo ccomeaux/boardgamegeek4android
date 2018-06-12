@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.dialog;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -34,7 +35,7 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 	private int gameId;
 	private Uri uri;
 	private Unbinder unbinder;
-	@BindView(R.id.unranked) TextView unrankedView;
+	@BindView(R.id.unranked) TextView unRankedView;
 	@BindView(R.id.subtypes) ViewGroup subtypesView;
 	@BindView(R.id.families) ViewGroup familiesView;
 	@BindView(R.id.standard_deviation) TextView standardDeviationView;
@@ -43,7 +44,10 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 	public static void launch(Fragment fragment, int gameId) {
 		Bundle arguments = new Bundle(1);
 		arguments.putInt(KEY_GAME_ID, gameId);
-		DialogUtils.launchDialog(fragment, new RanksFragment(), "ranks-dialog", arguments);
+		final RanksFragment dialog = new RanksFragment();
+		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
+		dialog.setArguments(arguments);
+		DialogUtils.showAndSurvive(fragment, dialog);
 	}
 
 	@Override
@@ -60,7 +64,7 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		getDialog().setTitle(R.string.title_ranks_ratings);
 
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.dialog_game_ranks, container, false);
@@ -80,83 +84,74 @@ public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cur
 		if (unbinder != null) unbinder.unbind();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == Query._TOKEN) {
-			loader = new CursorLoader(getActivity(), uri, Query.PROJECTION, null, null, null);
-		}
-		return loader;
+		return new CursorLoader(getContext(), uri, Query.PROJECTION, null, null, null);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-		if (loader == null) return;
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		if (!isAdded()) return;
 		if (cursor == null) return;
 
-		if (loader.getId() == Query._TOKEN) {
-			subtypesView.removeAllViews();
-			familiesView.removeAllViews();
+		subtypesView.removeAllViews();
+		familiesView.removeAllViews();
 
-			boolean hasRankedSubtype = false;
-			CharSequence unrankedSubtype = "Game";
-			if (cursor.moveToFirst()) {
-				double standardDeviation = cursor.getDouble(Query.STATS_STANDARD_DEVIATION);
-				int voteCount = cursor.getInt(Query.STATS_USERS_RATED);
+		boolean hasRankedSubtype = false;
+		CharSequence unRankedSubtype = getString(R.string.game);
+		if (cursor.moveToFirst()) {
+			double standardDeviation = cursor.getDouble(Query.STATS_STANDARD_DEVIATION);
+			int voteCount = cursor.getInt(Query.STATS_USERS_RATED);
 
-				votesView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, voteCount, voteCount));
-				if (voteCount == 0) {
-					standardDeviationView.setVisibility(View.GONE);
-				} else {
-					standardDeviationView.setText(PresentationUtils.getText(getContext(), R.string.standard_deviation_prefix, standardDeviation));
-					standardDeviationView.setVisibility(View.VISIBLE);
-				}
+			votesView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, voteCount, voteCount));
+			if (voteCount == 0) {
+				standardDeviationView.setVisibility(View.GONE);
+			} else {
+				standardDeviationView.setText(PresentationUtils.getText(getContext(), R.string.standard_deviation_prefix, standardDeviation));
+				standardDeviationView.setVisibility(View.VISIBLE);
+			}
 
-				do {
-					String type = cursor.getString(Query.GAME_RANK_TYPE);
-					CharSequence name = PresentationUtils.describeRankName(getContext(), type, cursor.getString(Query.GAME_RANK_NAME));
-					int rank = cursor.getInt(Query.GAME_RANK_VALUE);
-					double average = cursor.getDouble(Query.GAME_RANK_BAYES_AVERAGE);
-					boolean isFamily = BggService.RANK_TYPE_FAMILY.equals(type);
+			do {
+				String type = cursor.getString(Query.GAME_RANK_TYPE);
+				CharSequence name = PresentationUtils.describeRankName(getContext(), type, cursor.getString(Query.GAME_RANK_NAME));
+				int rank = cursor.getInt(Query.GAME_RANK_VALUE);
+				double average = cursor.getDouble(Query.GAME_RANK_BAYES_AVERAGE);
+				boolean isFamily = BggService.RANK_TYPE_FAMILY.equals(type);
 
-					if (PresentationUtils.isRankValid(rank)) {
-						GameRankRow row = new GameRankRow(getContext(), isFamily);
-						row.setRank(rank);
-						row.setName(name);
-						row.setRatingView(average);
-						switch (type) {
-							case BggService.RANK_TYPE_SUBTYPE:
-								subtypesView.addView(row);
-								subtypesView.setVisibility(View.VISIBLE);
-								unrankedView.setVisibility(View.GONE);
-								hasRankedSubtype = true;
-								break;
-							case BggService.RANK_TYPE_FAMILY:
-								familiesView.addView(row);
-								familiesView.setVisibility(View.VISIBLE);
-								break;
-							default:
-								Timber.i("Invalid rank type: %s", type);
-								break;
-						}
-					} else if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
-						unrankedSubtype = name;
+				if (PresentationUtils.isRankValid(rank)) {
+					GameRankRow row = new GameRankRow(getContext(), isFamily);
+					row.setRank(rank);
+					row.setName(name);
+					row.setRatingView(average);
+					switch (type) {
+						case BggService.RANK_TYPE_SUBTYPE:
+							subtypesView.addView(row);
+							subtypesView.setVisibility(View.VISIBLE);
+							unRankedView.setVisibility(View.GONE);
+							hasRankedSubtype = true;
+							break;
+						case BggService.RANK_TYPE_FAMILY:
+							familiesView.addView(row);
+							familiesView.setVisibility(View.VISIBLE);
+							break;
+						default:
+							Timber.i("Invalid rank type: %s", type);
+							break;
 					}
-				} while (cursor.moveToNext());
-			}
-			if (!hasRankedSubtype && !TextUtils.isEmpty(unrankedSubtype)) {
-				unrankedView.setText(PresentationUtils.getText(getContext(), R.string.unranked_prefix, unrankedSubtype));
-				unrankedView.setVisibility(View.VISIBLE);
-			}
-		} else {
-			cursor.close();
+				} else if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
+					unRankedSubtype = name;
+				}
+			} while (cursor.moveToNext());
 		}
-
+		if (!hasRankedSubtype && !TextUtils.isEmpty(unRankedSubtype)) {
+			unRankedView.setText(PresentationUtils.getText(getContext(), R.string.unranked_prefix, unRankedSubtype));
+			unRankedView.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	private interface Query {

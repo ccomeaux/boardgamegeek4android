@@ -652,6 +652,7 @@
 	<string name="player">player</string>
 	<string name="best">Best</string>
 	<string name="recommended">Recommended</string>
+	<string name="not_recommended">Not Recommended</string>
 	<string name="good">Good</string>
 	<string name="title_login">Sign in to BoardGameGeek</string>
 	<string name="prompt_username">Username</string>

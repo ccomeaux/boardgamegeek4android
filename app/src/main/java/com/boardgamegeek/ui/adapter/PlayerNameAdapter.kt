@@ -22,6 +22,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     class Result(val title: String,
                  val subtitle: String,
                  val username: String,
+                 var playCount: Int = 0,
                  avatarUrl: String = "") {
         val avatarUrl: String = avatarUrl
             get() = if (field == "N/A") "" else field
@@ -51,15 +52,19 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             val filter = constraint?.toString() ?: ""
             if (filter.isBlank()) return null
 
-            // list all buddies + all players that aren't buddies, sorted by username
+            // list all buddies + all players that aren't buddies, sorted by play count
             val resultList = arrayListOf<Result>()
             val players = queryPlayerHistory(resolver, filter)
             val (buddies, buddyUserNames) = queryBuddies(resolver, filter)
+
+            buddies.forEach { buddy ->
+                buddy.playCount = (players.find { buddy.username.equals(it.username, true) }?.playCount ?: 0)
+            }
             resultList.addAll(buddies)
             players.filterTo(resultList) { player ->
                 player.username.isBlank() || buddyUserNames.asSequence().none { it.equals(player.username, true) }
             }
-            resultList.sortBy { it.username }
+            resultList.sortBy { -it.playCount }
 
             val filterResults = Filter.FilterResults()
             filterResults.values = resultList
@@ -87,16 +92,17 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
         private fun queryPlayerHistory(resolver: ContentResolver, input: String): List<Result> {
             val results = arrayListOf<Result>()
             val cursor = resolver.query(Plays.buildPlayersByUniquePlayerUri(),
-                    arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME),
+                    arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.COUNT),
                     if (input.isBlank()) null else "${PlayPlayers.NAME} LIKE ?",
                     if (input.isBlank()) null else arrayOf("$input%"),
-                    PlayPlayers.NAME)
+                    "${PlayPlayers.COUNT} DESC, ${PlayPlayers.NAME}")
             cursor?.use {
                 if (it.moveToFirst()) {
                     do {
                         val username = it.getString(1) ?: ""
                         val name = it.getString(2) ?: ""
-                        results.add(Result(name, username, username))
+                        val playCount = it.getInt(3)
+                        results.add(Result(name, username, username, playCount))
                     } while (it.moveToNext())
                 }
             }
@@ -125,7 +131,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                                 if (nickname.isBlank()) fullName else nickname,
                                 if (nickname.isBlank()) userName else "$fullName ($userName)",
                                 userName,
-                                avatarUrl))
+                                avatarUrl = avatarUrl))
                         userNames.add(userName)
                     } while (it.moveToNext())
                 }
