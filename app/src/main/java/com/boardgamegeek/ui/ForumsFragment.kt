@@ -41,7 +41,7 @@ class ForumsFragment : Fragment() {
         gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         gameName = arguments?.getString(KEY_GAME_NAME)
 
-        recyclerView?.layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
+        recyclerView?.layoutManager = LinearLayoutManager(ctx)
         recyclerView?.setHasFixedSize(true)
         recyclerView?.addItemDecoration(DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL))
         recyclerView?.adapter = adapter

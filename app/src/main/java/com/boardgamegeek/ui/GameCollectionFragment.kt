@@ -42,7 +42,7 @@ class GameCollectionFragment : Fragment() {
         swipeRefresh?.setBggColors()
         syncTimestamp?.timestamp = 0L
 
-        recyclerView?.layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
+        recyclerView?.layoutManager = LinearLayoutManager(ctx)
         recyclerView?.setHasFixedSize(true)
         recyclerView?.adapter = adapter
 
