@@ -19,11 +19,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val gameId: LiveData<Int>
         get() = _gameId
 
+    private val _producerType = MutableLiveData<Int>()
+
     private val gameRepository = GameRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
 
     fun setId(gameId: Int?) {
         if (_gameId.value != gameId) _gameId.value = gameId
+    }
+
+    fun setProducerType(type: Int?) {
+        if (_producerType.value != type) _producerType.value = type
     }
 
     val game: LiveData<RefreshableResource<Game>> = Transformations.switchMap(_gameId) { gameId ->
@@ -107,6 +113,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getBaseGames(gameId)
+        }
+    }
+
+    val producers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_producerType) { type ->
+        when (type) {
+            1 -> designers
+            2 -> artists
+            3 -> publishers
+            4 -> categories
+            5 -> mechanics
+            6 -> expansions
+            7 -> baseGames
+            else -> AbsentLiveData.create()
         }
     }
 
