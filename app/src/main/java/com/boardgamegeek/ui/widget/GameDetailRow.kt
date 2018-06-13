@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.annotation.ColorInt
@@ -15,10 +14,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.setOrClearColorFilter
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
+import com.boardgamegeek.ui.ProducerActivity
 import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 
 class GameDetailRow @JvmOverloads constructor(
@@ -33,7 +32,7 @@ class GameDetailRow @JvmOverloads constructor(
         context.getString(R.string.some_more)
     }
 
-    private var label: String? = null
+    private var label: String = ""
     private var icon: Drawable? = null
     private var queryToken: Int = 0
 
@@ -56,7 +55,7 @@ class GameDetailRow @JvmOverloads constructor(
         attrs?.let {
             val a = context.obtainStyledAttributes(it, R.styleable.GameDetailRow)
             try {
-                label = a.getString(R.styleable.GameDetailRow_label)
+                label = a.getString(R.styleable.GameDetailRow_label) ?: ""
                 icon = a.getDrawable(R.styleable.GameDetailRow_icon_res)
                 queryToken = a.getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID)
             } finally {
@@ -82,12 +81,15 @@ class GameDetailRow @JvmOverloads constructor(
             setOnClickListener {
                 if (list.size == 1) {
                     val id = list[0].first
+                    val title = list[0].second
                     when (queryToken) {
-                        resources.getInteger(R.integer.query_token_designers) -> context.startActivity(Intent(Intent.ACTION_VIEW, Designers.buildDesignerUri(id)))
-                        resources.getInteger(R.integer.query_token_artists) -> context.startActivity(Intent(Intent.ACTION_VIEW, Artists.buildArtistUri(id)))
-                        resources.getInteger(R.integer.query_token_publishers) -> context.startActivity(Intent(Intent.ACTION_VIEW, Publishers.buildPublisherUri(id)))
-                        resources.getInteger(R.integer.query_token_expansions), resources.getInteger(R.integer.query_token_base_games) ->
-                            GameActivity.start(context, id, list[0].second)
+                        resources.getInteger(R.integer.query_token_designers),
+                        resources.getInteger(R.integer.query_token_artists),
+                        resources.getInteger(R.integer.query_token_publishers) ->
+                            ProducerActivity.start(context, queryToken, id, title)
+                        resources.getInteger(R.integer.query_token_expansions), resources.getInteger(R.integer.query_token_base_games) -> {
+                            GameActivity.start(context, id, title)
+                        }
                         else -> GameDetailActivity.start(context, label, gameId, gameName, queryToken)
                     }
                 } else {

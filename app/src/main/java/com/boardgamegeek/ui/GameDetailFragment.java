@@ -1,10 +1,9 @@
 package com.boardgamegeek.ui;
 
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
@@ -29,9 +28,13 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.util.AnimationUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import kotlin.Pair;
 import timber.log.Timber;
 
 public class GameDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -58,11 +61,15 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_details, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_game_details, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 		setUpRecyclerView();
-		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -101,25 +108,34 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), query.getUri(), query.getProjection(), query.getSelection(), query.getSelectionArgs(), null);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (adapter == null) {
-			adapter = new GameDetailAdapter(getActivity(), cursor, query);
-			recyclerView.setAdapter(adapter);
-		}
-
 		int token = loader.getId();
 		if (token == queryToken) {
-			adapter.changeCursor(cursor);
+			List<Pair<Integer, String>> items = new ArrayList<>(cursor.getCount());
+			if (cursor.moveToFirst()) {
+				do {
+					int id = cursor.getInt(cursor.getColumnIndex(query.getIdColumnName()));
+					String name = cursor.getString(cursor.getColumnIndex(query.getTitleColumnName()));
+					items.add(new Pair<>(id, name));
+				} while (cursor.moveToNext());
+			}
+			if (adapter == null) {
+				adapter = new GameDetailAdapter(items, query);
+				recyclerView.setAdapter(adapter);
+			} else {
+				adapter.setItems(items);
+			}
 		} else {
 			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
@@ -130,96 +146,71 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 	}
 
 	public class GameDetailAdapter extends RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder> {
-		private final LayoutInflater inflater;
-		private Cursor cursor;
 		private final Query query;
+		private List<Pair<Integer, String>> items;
 
-		public GameDetailAdapter(Context context, Cursor cursor, Query query) {
-			this.cursor = cursor;
+		public GameDetailAdapter(List<Pair<Integer, String>> items, Query query) {
 			this.query = query;
-			inflater = LayoutInflater.from(context);
+			this.items = items;
 			setHasStableIds(true);
+			notifyDataSetChanged();
+		}
+
+		public void setItems(List<Pair<Integer, String>> items) {
+			this.items = items;
+			notifyDataSetChanged();
+		}
+
+		@NonNull
+		@Override
+		public DetailViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			return new DetailViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.row_text, parent, false));
 		}
 
 		@Override
-		public DetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			View view = inflater.inflate(R.layout.row_text, parent, false);
-			return new DetailViewHolder(view);
-		}
-
-		@Override
-		public void onBindViewHolder(DetailViewHolder holder, int position) {
-			if (cursor.moveToPosition(position)) {
-				holder.bind(cursor);
-			}
+		public void onBindViewHolder(@NonNull DetailViewHolder holder, int position) {
+			holder.bind(items.get(position));
 		}
 
 		@Override
 		public int getItemCount() {
-			return cursor.getCount();
+			return items.size();
 		}
 
 		@Override
 		public long getItemId(int position) {
-			if (cursor.moveToPosition(position)) {
-				return cursor.getInt(cursor.getColumnIndex(query.getIdColumnName()));
-			}
-			return RecyclerView.NO_ID;
+			return items.get(position).getFirst();
 		}
 
 		public class DetailViewHolder extends RecyclerView.ViewHolder {
 			@BindView(android.R.id.title) TextView titleView;
-			private Uri uri;
 
 			public DetailViewHolder(View itemView) {
 				super(itemView);
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(final Cursor cursor) {
-				final String title = cursor.getString(cursor.getColumnIndex(query.getTitleColumnName()));
+			public void bind(final Pair<Integer, String> pair) {
+				final String title = pair.getSecond();
 				titleView.setText(title);
-				uri = query.getUri(cursor);
 				if (query.isClickable()) {
 					itemView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							if (Games.isGameUri(uri)) {
-								GameActivity.start(getContext(), Games.getGameId(uri), title);
-							} else if (uri != null) {
-								getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+							if (queryToken == 6 || queryToken == 7) {
+								GameActivity.start(getContext(), pair.getFirst(), title);
+							} else {
+								ProducerActivity.start(getContext(), queryToken, pair.getFirst(), pair.getSecond());
 							}
 						}
 					});
 				}
 			}
 		}
-
-		public void changeCursor(Cursor cursor) {
-			Cursor old = swapCursor(cursor);
-			if (old != null) {
-				old.close();
-			}
-		}
-
-		public Cursor swapCursor(Cursor newCursor) {
-			if (newCursor == cursor) {
-				return null;
-			}
-			Cursor oldCursor = cursor;
-			cursor = newCursor;
-			if (newCursor != null) {
-				notifyDataSetChanged();
-			} else {
-				notifyItemRangeRemoved(0, oldCursor.getCount());
-			}
-			return oldCursor;
-		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		adapter.changeCursor(null);
+	public void onLoaderReset(@NonNull Loader<Cursor> arg0) {
 	}
 
 	private void makeQuery() {
@@ -257,10 +248,6 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 			return null;
 		}
 
-		public Uri getUri(Cursor cursor) {
-			return null;
-		}
-
 		public boolean isClickable() {
 			return true;
 		}
@@ -274,7 +261,7 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 
 		@Override
 		public String getIdColumnName() {
-			return Designers._ID;
+			return Designers.DESIGNER_ID;
 		}
 
 		@Override
@@ -286,11 +273,6 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		public Uri getUri() {
 			return Games.buildDesignersUri(gameId);
 		}
-
-		@Override
-		public Uri getUri(Cursor cursor) {
-			return Designers.buildDesignerUri(cursor.getInt(0));
-		}
 	}
 
 	private class ArtistQuery extends Query {
@@ -301,7 +283,7 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 
 		@Override
 		public String getIdColumnName() {
-			return Artists._ID;
+			return Artists.ARTIST_ID;
 		}
 
 		@Override
@@ -313,11 +295,6 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		public Uri getUri() {
 			return Games.buildArtistsUri(gameId);
 		}
-
-		@Override
-		public Uri getUri(Cursor cursor) {
-			return Artists.buildArtistUri(cursor.getInt(0));
-		}
 	}
 
 	private class PublisherQuery extends Query {
@@ -328,7 +305,7 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 
 		@Override
 		public String getIdColumnName() {
-			return Publishers._ID;
+			return Publishers.PUBLISHER_ID;
 		}
 
 		@Override
@@ -339,11 +316,6 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 		@Override
 		public Uri getUri() {
 			return Games.buildPublishersUri(gameId);
-		}
-
-		@Override
-		public Uri getUri(Cursor cursor) {
-			return Publishers.buildPublisherUri(cursor.getInt(0));
 		}
 	}
 
@@ -424,11 +396,6 @@ public class GameDetailFragment extends Fragment implements LoaderManager.Loader
 
 		public String getSelection() {
 			return GamesExpansions.INBOUND + "=?";
-		}
-
-		@Override
-		public Uri getUri(Cursor cursor) {
-			return Games.buildGameUri(cursor.getInt(0));
 		}
 	}
 
