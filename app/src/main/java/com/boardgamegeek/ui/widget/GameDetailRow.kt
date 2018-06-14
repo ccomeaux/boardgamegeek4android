@@ -18,6 +18,7 @@ import com.boardgamegeek.setOrClearColorFilter
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import com.boardgamegeek.ui.ProducerActivity
+import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 
 class GameDetailRow @JvmOverloads constructor(
@@ -35,6 +36,7 @@ class GameDetailRow @JvmOverloads constructor(
     private var label: String = ""
     private var icon: Drawable? = null
     private var queryToken: Int = 0
+    private var type: ProducerType = ProducerType.UNKNOWN
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true)
@@ -64,6 +66,8 @@ class GameDetailRow @JvmOverloads constructor(
         }
         iconView.visibility = if (icon == null) View.GONE else View.VISIBLE
         iconView.setImageDrawable(icon)
+
+        type = ProducerType.fromInt(queryToken) ?: ProducerType.UNKNOWN
     }
 
     fun clear() {
@@ -82,18 +86,19 @@ class GameDetailRow @JvmOverloads constructor(
                 if (list.size == 1) {
                     val id = list[0].first
                     val title = list[0].second
-                    when (queryToken) {
-                        resources.getInteger(R.integer.query_token_designers),
-                        resources.getInteger(R.integer.query_token_artists),
-                        resources.getInteger(R.integer.query_token_publishers) ->
-                            ProducerActivity.start(context, queryToken, id, title)
-                        resources.getInteger(R.integer.query_token_expansions), resources.getInteger(R.integer.query_token_base_games) -> {
+                    when (type) {
+                        ProducerType.DESIGNER,
+                        ProducerType.ARTIST,
+                        ProducerType.PUBLISHER ->
+                            ProducerActivity.start(context, type, id, title)
+                        ProducerType.EXPANSIONS,
+                        ProducerType.BASE_GAMES -> {
                             GameActivity.start(context, id, title)
                         }
-                        else -> GameDetailActivity.start(context, label, gameId, gameName, queryToken)
+                        else -> GameDetailActivity.start(context, label, gameId, gameName, type)
                     }
                 } else {
-                    GameDetailActivity.start(context, label, gameId, gameName, queryToken)
+                    GameDetailActivity.start(context, label, gameId, gameName, type)
                 }
             }
         }

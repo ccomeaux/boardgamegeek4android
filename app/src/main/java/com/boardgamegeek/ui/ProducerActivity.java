@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -19,16 +20,11 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_TITLE = "TITLE";
 
-	public static final int TYPE_UNKNOWN = 0;
-	public static final int TYPE_DESIGNER = 1;
-	public static final int TYPE_ARTIST = 2;
-	public static final int TYPE_PUBLISHER = 3;
-
-	private int type;
+	private ProducerType type;
 	private int id;
 	private String title;
 
-	public static void start(Context context, int type, int id, String title) {
+	public static void start(Context context, ProducerType type, int id, String title) {
 		Intent starter = new Intent(context, ProducerActivity.class);
 		starter.putExtra(KEY_TYPE, type);
 		starter.putExtra(KEY_ID, id);
@@ -63,18 +59,18 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void readIntent(Intent intent) {
 		super.readIntent(intent);
-		type = intent.getIntExtra(KEY_TYPE, TYPE_UNKNOWN);
+		type = (ProducerType) intent.getSerializableExtra(KEY_TYPE);
 		id = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID);
 		title = intent.getStringExtra(KEY_TITLE);
 	}
 
-	private String getContentType(int type) {
+	private String getContentType(ProducerType type) {
 		switch (type) {
-			case TYPE_DESIGNER:
+			case DESIGNER:
 				return getString(R.string.title_designer);
-			case TYPE_ARTIST:
+			case ARTIST:
 				return getString(R.string.title_artist);
-			case TYPE_PUBLISHER:
+			case PUBLISHER:
 				return getString(R.string.title_publisher);
 			default:
 				return "";

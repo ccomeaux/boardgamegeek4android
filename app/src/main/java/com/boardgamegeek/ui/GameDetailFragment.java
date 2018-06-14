@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.viewmodel.GameViewModel;
+import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.util.AnimationUtils;
 
@@ -29,10 +30,10 @@ import kotlin.Pair;
 
 public class GameDetailFragment extends Fragment {
 	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+	private static final String KEY_TYPE = "TYPE";
 	private GameDetailAdapter adapter;
 	private int gameId;
-	private int queryToken;
+	private ProducerType type;
 
 	Unbinder unbinder;
 	@BindView(R.id.root_container) CoordinatorLayout containerView;
@@ -42,10 +43,10 @@ public class GameDetailFragment extends Fragment {
 
 	GameViewModel viewModel;
 
-	public static GameDetailFragment newInstance(int gameId, int queryToken) {
+	public static GameDetailFragment newInstance(int gameId, ProducerType type) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_GAME_ID, gameId);
-		args.putInt(KEY_QUERY_TOKEN, queryToken);
+		args.putSerializable(KEY_TYPE, type);
 		GameDetailFragment fragment = new GameDetailFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -66,7 +67,7 @@ public class GameDetailFragment extends Fragment {
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		gameId = bundle.getInt(KEY_GAME_ID);
-		queryToken = bundle.getInt(KEY_QUERY_TOKEN);
+		type = (ProducerType) bundle.getSerializable(KEY_TYPE);
 	}
 
 	@Override
@@ -75,12 +76,12 @@ public class GameDetailFragment extends Fragment {
 
 		readBundle(getArguments());
 
-		adapter = new GameDetailAdapter(null, false);
+		adapter = new GameDetailAdapter();
 		recyclerView.setAdapter(adapter);
 
 		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
 		viewModel.setId(gameId);
-		viewModel.setProducerType(queryToken);
+		viewModel.setProducerType(type);
 		viewModel.getProducers().observe(this, new Observer<List<Pair<Integer, String>>>() {
 			@Override
 			public void onChanged(@Nullable List<Pair<Integer, String>> pairs) {
@@ -108,14 +109,10 @@ public class GameDetailFragment extends Fragment {
 	}
 
 	public class GameDetailAdapter extends RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder> {
-		private final boolean isClickable;
 		private List<Pair<Integer, String>> items;
 
-		public GameDetailAdapter(List<Pair<Integer, String>> items, boolean isClickable) {
-			this.isClickable = isClickable;
-			this.items = items;
+		public GameDetailAdapter() {
 			setHasStableIds(true);
-			notifyDataSetChanged();
 		}
 
 		public void setItems(List<Pair<Integer, String>> items) {
@@ -158,10 +155,12 @@ public class GameDetailFragment extends Fragment {
 				itemView.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (queryToken == 6 || queryToken == 7) {
+						if (type == ProducerType.EXPANSIONS || type == ProducerType.BASE_GAMES) {
 							GameActivity.start(itemView.getContext(), pair.getFirst(), title);
-						} else {
-							ProducerActivity.start(itemView.getContext(), queryToken, pair.getFirst(), pair.getSecond());
+						} else if (type == ProducerType.DESIGNER ||
+							type == ProducerType.ARTIST ||
+							type == ProducerType.PUBLISHER) {
+							ProducerActivity.start(itemView.getContext(), type, pair.getFirst(), pair.getSecond());
 						}
 					}
 				});

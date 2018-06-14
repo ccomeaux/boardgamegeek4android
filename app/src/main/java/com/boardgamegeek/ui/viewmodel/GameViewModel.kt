@@ -19,7 +19,23 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val gameId: LiveData<Int>
         get() = _gameId
 
-    private val _producerType = MutableLiveData<Int>()
+    private val _producerType = MutableLiveData<ProducerType>()
+
+    enum class ProducerType(val value: Int) {
+        UNKNOWN(0),
+        DESIGNER(1),
+        ARTIST(2),
+        PUBLISHER(3),
+        CATEGORIES(4),
+        MECHANICS(5),
+        EXPANSIONS(6),
+        BASE_GAMES(7);
+
+        companion object {
+            private val map = ProducerType.values().associateBy(ProducerType::value)
+            fun fromInt(value: Int) = map[value]
+        }
+    }
 
     private val gameRepository = GameRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
@@ -28,7 +44,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
-    fun setProducerType(type: Int?) {
+    fun setProducerType(type: ProducerType?) {
         if (_producerType.value != type) _producerType.value = type
     }
 
@@ -118,13 +134,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     val producers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_producerType) { type ->
         when (type) {
-            1 -> designers
-            2 -> artists
-            3 -> publishers
-            4 -> categories
-            5 -> mechanics
-            6 -> expansions
-            7 -> baseGames
+            ProducerType.DESIGNER -> designers
+            ProducerType.ARTIST -> artists
+            ProducerType.PUBLISHER -> publishers
+            ProducerType.CATEGORIES -> categories
+            ProducerType.MECHANICS -> mechanics
+            ProducerType.EXPANSIONS -> expansions
+            ProducerType.BASE_GAMES -> baseGames
             else -> AbsentLiveData.create()
         }
     }

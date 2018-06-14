@@ -22,6 +22,7 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.tasks.sync.SyncArtistTask;
 import com.boardgamegeek.tasks.sync.SyncDesignerTask;
 import com.boardgamegeek.tasks.sync.SyncPublisherTask;
+import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -44,7 +45,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
 	private boolean isRefreshing;
-	private int type;
+	private ProducerType type;
 	private int id;
 	private String title;
 
@@ -55,9 +56,9 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.description) TextView descriptionView;
 	@BindView(R.id.updated) TimestampView updatedView;
 
-	public static ProducerFragment newInstance(int type, int id, String title) {
+	public static ProducerFragment newInstance(ProducerType type, int id, String title) {
 		Bundle args = new Bundle();
-		args.putInt(KEY_TYPE, type);
+		args.putSerializable(KEY_TYPE, type);
 		args.putInt(KEY_ID, id);
 		args.putString(KEY_TITLE, title);
 		ProducerFragment fragment = new ProducerFragment();
@@ -74,7 +75,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
-		type = bundle.getInt(KEY_TYPE);
+		type = (ProducerType) bundle.getSerializable(KEY_TYPE);
 		id = bundle.getInt(KEY_ID);
 		title = bundle.getString(KEY_TITLE);
 	}
@@ -95,8 +96,8 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 		nameView.setText(title);
 
-		if (type != ProducerActivity.TYPE_UNKNOWN) {
-			getLoaderManager().restartLoader(type, null, this);
+		if (type != ProducerType.UNKNOWN) {
+			getLoaderManager().restartLoader(type.getValue(), null, this);
 		}
 	}
 
@@ -126,16 +127,13 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		switch (id) {
-			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Designers.buildDesignerUri(this.id), DesignerQuery.PROJECTION, null, null, null);
-				break;
-			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Artists.buildArtistUri(this.id), ArtistQuery.PROJECTION, null, null, null);
-				break;
-			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Publishers.buildPublisherUri(this.id), PublisherQuery.PROJECTION, null, null, null);
-				break;
+		if (id == ProducerType.DESIGNER.getValue()) {
+			loader = new CursorLoader(getContext(), Designers.buildDesignerUri(this.id), DesignerQuery.PROJECTION, null, null, null);
+		} else if (id == ProducerType.ARTIST.getValue()) {
+			loader = new CursorLoader(getContext(), Artists.buildArtistUri(this.id), ArtistQuery.PROJECTION, null, null, null);
+		} else if (id == ProducerType.PUBLISHER.getValue()) {
+			loader = new CursorLoader(getContext(), Publishers.buildPublisherUri(this.id), PublisherQuery.PROJECTION, null, null, null);
+
 		}
 		return loader;
 	}
@@ -147,7 +145,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 			return;
 		}
 
-		if (loader.getId() == type) {
+		if (loader.getId() == type.getValue()) {
 			if (cursor == null || !cursor.moveToFirst()) {
 				return;
 			}
@@ -174,15 +172,15 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private void requestRefresh() {
 		if (!isRefreshing) {
 			switch (type) {
-				case DesignerQuery._TOKEN:
+				case DESIGNER:
 					TaskUtils.executeAsyncTask(new SyncDesignerTask(getContext(), id));
 					updateRefreshStatus(true);
 					break;
-				case ArtistQuery._TOKEN:
+				case ARTIST:
 					TaskUtils.executeAsyncTask(new SyncArtistTask(getContext(), id));
 					updateRefreshStatus(true);
 					break;
-				case PublisherQuery._TOKEN:
+				case PUBLISHER:
 					TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
 					updateRefreshStatus(true);
 					break;
@@ -250,17 +248,14 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	}
 
 	private interface DesignerQuery extends Query {
-		int _TOKEN = ProducerActivity.TYPE_DESIGNER;
 		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers.DESIGNER_DESCRIPTION, Designers.UPDATED };
 	}
 
 	private interface ArtistQuery extends Query {
-		int _TOKEN = ProducerActivity.TYPE_ARTIST;
 		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists.ARTIST_DESCRIPTION, Artists.UPDATED };
 	}
 
 	private interface PublisherQuery extends Query {
-		int _TOKEN = ProducerActivity.TYPE_PUBLISHER;
 		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers.PUBLISHER_DESCRIPTION, Publishers.UPDATED };
 	}
 }
