@@ -261,6 +261,7 @@
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_geeklist">No list here.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
+	<string name="empty_generic">Nothing to see here. Move along.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
 	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website it up and you still see this message, please let us know about the error below. Otherwise, please check back here later.\n\n%s</string>

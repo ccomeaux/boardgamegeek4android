@@ -36,10 +36,10 @@ public class GameDetailFragment extends Fragment {
 	private ProducerType type;
 
 	Unbinder unbinder;
-	@BindView(R.id.root_container) CoordinatorLayout containerView;
-	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) TextView emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	@BindView(R.id.containerView) CoordinatorLayout containerView;
+	@BindView(R.id.progressView) ContentLoadingProgressBar progressView;
+	@BindView(R.id.emptyView) TextView emptyView;
+	@BindView(R.id.recyclerView) RecyclerView recyclerView;
 
 	GameViewModel viewModel;
 

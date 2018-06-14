@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
-	android:id="@+id/root_container"
+	android:id="@+id/containerView"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressView"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -15,15 +15,15 @@
 		android:padding="@dimen/material_margin_horizontal"/>
 
 	<TextView
-		android:id="@android:id/empty"
+		android:id="@+id/emptyMessage"
 		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:text="@string/empty_hotness"
+		android:text="@string/empty_generic"
 		android:visibility="gone"/>
 
 	<android.support.v7.widget.RecyclerView
-		android:id="@android:id/list"
+		android:id="@+id/recyclerView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:clipToPadding="false"
