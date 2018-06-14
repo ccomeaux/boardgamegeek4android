@@ -9,20 +9,20 @@
 			 android:paddingTop="@dimen/material_margin_vertical">
 
 	<android.support.v4.widget.ContentLoadingProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressView"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"/>
 
 	<ScrollView
-		android:id="@+id/poll_scroll"
+		android:id="@+id/scrollView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:visibility="gone">
 
 		<com.github.mikephil.charting.charts.PieChart
-			android:id="@+id/pie_chart"
+			android:id="@+id/chartView"
 			android:layout_width="wrap_content"
 			android:layout_height="300dp"
 			android:minHeight="300dp"/>

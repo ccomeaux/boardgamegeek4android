@@ -1,16 +1,13 @@
 package com.boardgamegeek.ui;
 
-import android.database.Cursor;
-import android.net.Uri;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -20,10 +17,10 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.GamePollEntity;
+import com.boardgamegeek.entities.GamePollResultEntity;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
-import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.IntegerValueFormatter;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -49,7 +46,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
-public class PollFragment extends DialogFragment implements LoaderCallbacks<Cursor>, OnChartValueSelectedListener {
+public class PollFragment extends DialogFragment {
 	private static final String KEY_TYPE = "TYPE";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
@@ -58,14 +55,15 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 	private int gameId = BggContract.INVALID_ID;
 	private String pollType;
-	private Uri pollResultUri;
 	private int[] chartColors;
 	private Snackbar snackbar;
 
+	GameViewModel viewModel;
+
 	private Unbinder unbinder;
-	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(R.id.poll_scroll) ScrollView scrollView;
-	@BindView(R.id.pie_chart) PieChart pieChart;
+	@BindView(R.id.progressView) ContentLoadingProgressBar progressView;
+	@BindView(R.id.scrollView) ScrollView scrollView;
+	@BindView(R.id.chartView) PieChart pieChart;
 
 	public static void launchLanguageDependence(Fragment host, int gameId) {
 		launch(host, gameId, PollFragment.LANGUAGE_DEPENDENCE);
@@ -93,7 +91,6 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 			Toast.makeText(getContext(), R.string.msg_invalid_game_id, Toast.LENGTH_SHORT).show();
 			dismiss();
 		}
-		pollResultUri = Games.buildPollResultsResultUri(gameId, pollType);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -104,8 +101,13 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_poll, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		pieChart.setDrawEntryLabels(false);
 		pieChart.setRotationEnabled(false);
@@ -114,14 +116,32 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		legend.setVerticalAlignment(LegendVerticalAlignment.BOTTOM);
 		legend.setWordWrapEnabled(true);
 		pieChart.setDescription(null);
-		pieChart.setOnChartValueSelectedListener(this);
+		pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+			@Override
+			public void onValueSelected(Entry e, Highlight h) {
+				PieEntry pe = (PieEntry) e;
+				if (pe == null || pieChart == null) {
+					if (snackbar != null) {
+						snackbar.dismiss();
+					}
+					return;
+				}
 
-		return rootView;
-	}
+				final View view = getView();
+				if (view != null) {
+					String message = getString(R.string.pie_chart_click_description, FORMAT.format(pe.getY()), pe.getLabel());
+					snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+					snackbar.show();
+				}
+			}
 
-	@Override
-	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+			@Override
+			public void onNothingSelected() {
+				if (snackbar != null) {
+					snackbar.dismiss();
+				}
+			}
+		});
 
 		// size the graph to be 80% of the screen width
 		DisplayMetrics display = this.getResources().getDisplayMetrics();
@@ -137,18 +157,32 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 			Timber.w("Missing type");
 			dismiss();
 		}
+
+		viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
+		viewModel.setId(gameId);
+
 		switch (pollType) {
 			case LANGUAGE_DEPENDENCE:
 				getDialog().setTitle(R.string.language_dependence);
 				chartColors = ColorUtils.FIVE_STAGE_COLORS;
+				viewModel.getLanguagePoll().observe(this, new Observer<GamePollEntity>() {
+					@Override
+					public void onChanged(@Nullable GamePollEntity gamePollEntity) {
+						createPieChart(gamePollEntity);
+					}
+				});
 				break;
 			case SUGGESTED_PLAYER_AGE:
 				getDialog().setTitle(R.string.suggested_playerage);
 				chartColors = ColorUtils.TWELVE_STAGE_COLORS;
+				viewModel.getAgePoll().observe(this, new Observer<GamePollEntity>() {
+					@Override
+					public void onChanged(@Nullable GamePollEntity gamePollEntity) {
+						createPieChart(gamePollEntity);
+					}
+				});
 				break;
 		}
-
-		getLoaderManager().restartLoader(Query._TOKEN, null, this);
 	}
 
 	@Override
@@ -157,87 +191,25 @@ public class PollFragment extends DialogFragment implements LoaderCallbacks<Curs
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getContext(), pollResultUri, Query.PROJECTION, null, null, Query.SORT);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-		if (!isAdded()) return;
-
-		int totalVoteCount = cursor != null && cursor.moveToFirst() ? cursor.getInt(Query.POLL_TOTAL_VOTES) : 0;
-
+	private void createPieChart(GamePollEntity gamePollEntity) {
+		int totalVoteCount = gamePollEntity == null ? 0 : gamePollEntity.getTotalVotes();
 		pieChart.setVisibility(totalVoteCount == 0 ? View.GONE : View.VISIBLE);
 		if (totalVoteCount > 0) {
-			createPieChart(cursor, totalVoteCount);
-		}
+			List<PieEntry> entries = new ArrayList<>();
+			for (GamePollResultEntity result : gamePollEntity.getResults()) {
+				entries.add(new PieEntry(result.getNumberOfVotes(), result.getValue()));
+			}
+			PieDataSet dataSet = new PieDataSet(entries, "");
+			dataSet.setValueFormatter(new IntegerValueFormatter(true));
+			if (chartColors != null) dataSet.setColors(chartColors);
 
+			PieData data = new PieData(dataSet);
+			pieChart.setData(data);
+			pieChart.setCenterText(getResources().getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount));
+
+			pieChart.animateY(1000, EasingOption.EaseOutCubic);
+		}
 		progressView.hide();
 		scrollView.setVisibility(View.VISIBLE);
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-	}
-
-	@Override
-	public void onValueSelected(Entry e, Highlight h) {
-		PieEntry pe = (PieEntry) e;
-		if (pe == null || pieChart == null) {
-			if (snackbar != null) {
-				snackbar.dismiss();
-			}
-			return;
-		}
-
-		final View view = getView();
-		if (view != null) {
-			String message = getString(R.string.pie_chart_click_description, FORMAT.format(pe.getY()), pe.getLabel());
-			snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
-			snackbar.show();
-		}
-	}
-
-	@Override
-	public void onNothingSelected() {
-		if (snackbar != null) {
-			snackbar.dismiss();
-		}
-	}
-
-	private void createPieChart(Cursor cursor, int voteCount) {
-		List<PieEntry> entries = new ArrayList<>();
-		do {
-			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
-			entries.add(new PieEntry(votes, value));
-		} while (cursor.moveToNext());
-
-		PieDataSet dataSet = new PieDataSet(entries, "");
-		dataSet.setValueFormatter(new IntegerValueFormatter(true));
-		if (chartColors != null) dataSet.setColors(chartColors);
-
-		PieData data = new PieData(dataSet);
-		pieChart.setData(data);
-		pieChart.setCenterText(getResources().getQuantityString(R.plurals.votes_suffix, voteCount, voteCount));
-
-		pieChart.animateY(1000, EasingOption.EaseOutCubic);
-	}
-
-	private interface Query {
-		int _TOKEN = 0x0;
-		String[] PROJECTION = {
-			GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
-			GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
-			GamePolls.POLL_TOTAL_VOTES
-		};
-		int POLL_RESULTS_RESULT_VALUE = 0;
-		int POLL_RESULTS_RESULT_VOTES = 1;
-		int POLL_TOTAL_VOTES = 2;
-
-		String SORT = GamePollResultsResult.POLL_RESULTS_SORT_INDEX + " ASC, "
-			+ GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX;
 	}
 }
