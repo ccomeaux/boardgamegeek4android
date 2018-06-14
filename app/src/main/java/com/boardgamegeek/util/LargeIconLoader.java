@@ -36,6 +36,7 @@ public class LargeIconLoader implements Target {
 	public void executeInBackground() {
 		if (imageUrls.size() == 0) {
 			if (callback != null) callback.onFailedIconLoad();
+			return;
 		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
@@ -52,11 +53,13 @@ public class LargeIconLoader implements Target {
 	}
 
 	public void executeOnMainThread() {
+		if (imageUrls.size() == 0) {
+			if (callback != null) callback.onFailedIconLoad();
+			return;
+		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
-			if (callback != null) {
-				callback.onFailedIconLoad();
-			}
+			executeOnMainThread();
 		} else {
 			getRequestCreator().into(this);
 		}

@@ -1009,7 +1009,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (playCount >= hIndex) {
 				return -1;
 			} else {
-				return hIndex - playCount + 1;
+				return hIndex - playCount;
 			}
 		}
 
