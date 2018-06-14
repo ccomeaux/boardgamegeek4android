@@ -1,11 +1,13 @@
 package com.boardgamegeek.ui
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.MenuItem
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
@@ -16,6 +18,10 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
     private var gameId: Int = 0
     private var gameName: String = ""
     private var type: ProducerType = ProducerType.UNKNOWN
+
+    private val viewModel: GameViewModel by lazy {
+        ViewModelProviders.of(this).get(GameViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +34,9 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
                     .putContentType("GameDetail")
                     .putContentName(title))
         }
+
+        viewModel.setId(gameId)
+        viewModel.setProducerType(type)
     }
 
     override fun readIntent(intent: Intent) {
@@ -38,7 +47,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
-        return GameDetailFragment.newInstance(gameId, type)
+        return GameDetailFragment()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -20,6 +20,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         get() = _gameId
 
     private val _producerType = MutableLiveData<ProducerType>()
+    val producerType: LiveData<ProducerType>
+        get() = _producerType
 
     enum class ProducerType(val value: Int) {
         UNKNOWN(0),
