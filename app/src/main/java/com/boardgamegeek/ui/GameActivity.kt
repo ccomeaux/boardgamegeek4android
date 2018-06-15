@@ -168,7 +168,7 @@ class GameActivity : HeroTabActivity() {
                 return true
             }
             R.id.menu_users -> {
-                GameUsersDialogFragment.launch(this, gameId)
+                GameUsersDialogFragment.launch(this)
                 return true
             }
         }

@@ -31,11 +31,6 @@ public class DialogUtils {
 		return new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert);
 	}
 
-	public static void showAndSurvive(FragmentActivity host, DialogFragment dialog) {
-		final FragmentManager fragmentManager = host.getSupportFragmentManager();
-		showAndSurvive(dialog, fragmentManager);
-	}
-
 	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
 		final FragmentManager fragmentManager = host.getFragmentManager();
 		showAndSurvive(dialog, fragmentManager);

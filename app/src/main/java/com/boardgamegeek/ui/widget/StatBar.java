@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,17 +52,7 @@ public class StatBar extends FrameLayout {
 		noValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, (int) ((max - progress) * 1000)));
 	}
 
-	public void setColor(int color) {
+	public void colorize(@ColorInt int color) {
 		valueView.setBackgroundColor(color);
 	}
-
-	public static final ButterKnife.Setter<StatBar, Integer> colorSetter =
-		new ButterKnife.Setter<StatBar, Integer>() {
-			@Override
-			public void set(@NonNull StatBar view, Integer value, int index) {
-				if (value != null) {
-					view.setColor(value);
-				}
-			}
-		};
 }

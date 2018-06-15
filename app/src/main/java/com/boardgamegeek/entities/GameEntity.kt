@@ -12,9 +12,9 @@ class GameEntity(
         val imageUrl: String = "",
         val description: String = "",
         val yearPublished: Int = YEAR_UNKNOWN,
-        val minPlayers : Int= 0,
-        val maxPlayers : Int= 0,
-        val playingTime : Int= 0,
+        val minPlayers: Int = 0,
+        val maxPlayers: Int = 0,
+        val playingTime: Int = 0,
         val minPlayingTime: Int = 0,
         val maxPlayingTime: Int = 0,
         val minimumAge: Int = 0
@@ -74,13 +74,14 @@ class GameEntity(
 
     val maxUsers: Int
         get() {
-            var max = Math.max(numberOfRatings, numberOfComments)
-            max = Math.max(max, numberOfUsersOwned)
-            max = Math.max(max, numberOfUsersTrading)
-            max = Math.max(max, numberOfUsersWanting)
-            max = Math.max(max, numberOfUsersWeighting)
-            max = Math.max(max, numberOfUsersWishListing)
-            return max
+            return listOf(numberOfRatings,
+                    numberOfComments,
+                    numberOfUsersOwned,
+                    numberOfUsersTrading,
+                    numberOfUsersWanting,
+                    numberOfUsersWeighting,
+                    numberOfUsersWishListing
+            ).max() ?: 0
         }
 
     override fun toString() = "$id: $name"
