@@ -17,7 +17,6 @@ import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.PlayerCountRecommendation
 import timber.log.Timber
 
 class GameDao(private val context: BggApplication) {
@@ -163,6 +162,9 @@ class GameDao(private val context: BggApplication) {
             val projection = arrayOf(
                     GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
                     GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT,
                     GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
@@ -170,7 +172,11 @@ class GameDao(private val context: BggApplication) {
                         results.add(GamePlayerPollResultsEntity(
                                 totalVotes = it.getInt(GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
                                 playerCount = it.getString(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT),
-                                recommendation = it.getInt(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)))
+                                bestVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT),
+                                recommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT),
+                                notRecommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT),
+                                recommendation = it.getIntOrNull(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)
+                                        ?: GamePlayerPollResultsEntity.UNKNOWN))
                     } while (it.moveToNext())
                 }
             }
@@ -324,12 +330,11 @@ class GameDao(private val context: BggApplication) {
             ContentProviderOperation.newInsert(Games.CONTENT_URI)
         }
 
+        batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build())
         batch.addAll(createRanksBatch(game))
-        batch.addAll(createPollsBatch(game, values))
+        batch.addAll(createPollsBatch(game))
+        batch.addAll(createPlayerPollBatch(game.id, game.playerPoll))
         batch.addAll(createExpansionsBatch(game.id, game.expansions))
-
-        // this needs to be after the polls batch is created
-        batch.add(0, cpoBuilder.withValues(values).withYieldAllowed(true).build())
 
         saveReference(game.designers, Designers.CONTENT_URI, Designers.DESIGNER_ID, Designers.DESIGNER_NAME)
         saveReference(game.artists, Artists.CONTENT_URI, Artists.ARTIST_ID, Artists.ARTIST_NAME)
@@ -384,6 +389,8 @@ class GameDao(private val context: BggApplication) {
             values.put(Games.STATS_AVERAGE_WEIGHT, game.averageWeight)
         }
         values.put(Games.GAME_RANK, game.overallRank)
+        if (game.playerPoll != null)
+            values.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, game.playerPoll!!.totalVotes)
         return values
     }
 
@@ -401,112 +408,99 @@ class GameDao(private val context: BggApplication) {
         return false
     }
 
-    private fun createPollsBatch(game: GameEntity, gameContentValues: ContentValues): ArrayList<ContentProviderOperation> {
+    private fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> {
         val batch = arrayListOf<ContentProviderOperation>()
         val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.POLL_NAME).toMutableList()
         for (poll in game.polls) {
-            if ("suggested_numplayers" == poll.name) {
-                gameContentValues.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, poll.totalVotes)
-                val existingResults = resolver.queryStrings(Games.buildSuggestedPlayerCountPollResultsUri(game.id), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT).toMutableList()
-                for ((sortIndex, results) in poll.results.withIndex()) {
-                    val values = ContentValues(6)
-                    val builder = PlayerCountRecommendation.Builder()
-                    values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, sortIndex + 1)
-                    for (result in results.result) {
-                        when (result.value) {
-                            "Best" -> {
-                                values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, result.numberOfVotes)
-                                builder.bestVoteCount(result.numberOfVotes)
-                            }
-                            "Recommended" -> {
-                                values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, result.numberOfVotes)
-                                builder.recommendedVoteCount(result.numberOfVotes)
-                            }
-                            "Not Recommended" -> {
-                                values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, result.numberOfVotes)
-                                builder.notRecommendVoteCount(result.numberOfVotes)
-                            }
-                            else -> Timber.i("Unexpected suggested player count result of '${result.value}'")
-                        }
-                    }
-                    values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, builder.build().calculate())
-                    if (existingResults.remove(results.key)) {
-                        val uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, results.key)
-                        batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build())
-                    } else {
-                        values.put(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, results.key)
-                        val uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id)
-                        batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build())
-                    }
-                }
-                for (result in existingResults) {
-                    val uri = Games.buildSuggestedPlayerCountPollResultsUri(game.id, result)
-                    batch.add(ContentProviderOperation.newDelete(uri).build())
-                }
+            val values = ContentValues()
+            values.put(GamePolls.POLL_TITLE, poll.title)
+            values.put(GamePolls.POLL_TOTAL_VOTES, poll.totalVotes)
+
+            var existingResultKeys = mutableListOf<String>()
+            if (existingPollNames.remove(poll.name)) {
+                batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name)).withValues(values).build())
+                existingResultKeys = resolver.queryStrings(Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS).toMutableList()
             } else {
-                val values = ContentValues()
-                values.put(GamePolls.POLL_TITLE, poll.title)
-                values.put(GamePolls.POLL_TOTAL_VOTES, poll.totalVotes)
+                values.put(GamePolls.POLL_NAME, poll.name)
+                batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.id)).withValues(values).build())
+            }
 
-                var existingResultKeys = mutableListOf<String>()
-                if (existingPollNames.remove(poll.name)) {
-                    batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name)).withValues(values).build())
-                    existingResultKeys = resolver.queryStrings(Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS).toMutableList()
+            for ((resultsIndex, results) in poll.results.withIndex()) {
+                values.clear()
+                values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, resultsIndex + 1)
+
+                var existingValues = mutableListOf<String>()
+                if (existingResultKeys.remove(results.key)) {
+                    batch.add(ContentProviderOperation
+                            .newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.key))
+                            .withValues(values).build())
+                    existingValues = resolver.queryStrings(
+                            Games.buildPollResultsResultUri(game.id, poll.name, results.key),
+                            GamePollResultsResult.POLL_RESULTS_RESULT_KEY).toMutableList()
                 } else {
-                    values.put(GamePolls.POLL_NAME, poll.name)
-                    batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.id)).withValues(values).build())
+                    values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.key)
+                    batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name)).withValues(values).build())
                 }
 
-                for ((resultsIndex, results) in poll.results.withIndex()) {
+                for ((resultSortIndex, result) in results.result.withIndex()) {
                     values.clear()
-                    values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, resultsIndex + 1)
+                    if (result.level > 0)
+                        values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.level)
+                    values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value)
+                    values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numberOfVotes)
+                    values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, resultSortIndex + 1)
 
-                    var existingValues = mutableListOf<String>()
-                    if (existingResultKeys.remove(results.key)) {
-                        batch.add(ContentProviderOperation
-                                .newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.key))
-                                .withValues(values).build())
-                        existingValues = resolver.queryStrings(
-                                Games.buildPollResultsResultUri(game.id, poll.name, results.key),
-                                GamePollResultsResult.POLL_RESULTS_RESULT_KEY).toMutableList()
+                    val key = DataUtils.generatePollResultsKey(result.level, result.value)
+                    if (existingValues.remove(key)) {
+                        batch.add(ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.id, poll.name, results.key, key))
+                                .withValues(values)
+                                .build())
                     } else {
-                        values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.key)
-                        batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name)).withValues(values).build())
-                    }
-
-                    for ((resultSortIndex, result) in results.result.withIndex()) {
-                        values.clear()
-                        if (result.level > 0)
-                            values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.level)
-                        values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value)
-                        values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numberOfVotes)
-                        values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, resultSortIndex + 1)
-
-                        val key = DataUtils.generatePollResultsKey(result.level, result.value)
-                        if (existingValues.remove(key)) {
-                            batch.add(ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.id, poll.name, results.key, key))
-                                    .withValues(values)
-                                    .build())
-                        } else {
-                            batch.add(ContentProviderOperation
-                                    .newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.key))
-                                    .withValues(values)
-                                    .build())
-                        }
-                    }
-
-                    for (value in existingValues) {
-                        batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.id, poll.name, results.key, value)).build())
+                        batch.add(ContentProviderOperation
+                                .newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.key))
+                                .withValues(values)
+                                .build())
                     }
                 }
 
-                for (player in existingResultKeys) {
-                    batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.id, poll.name, player)).build())
+                for (value in existingValues) {
+                    batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.id, poll.name, results.key, value)).build())
                 }
+            }
+
+            for (player in existingResultKeys) {
+                batch.add(ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.id, poll.name, player)).build())
             }
         }
         for (pollName in existingPollNames) {
             batch.add(ContentProviderOperation.newDelete(Games.buildPollsUri(game.id, pollName)).build())
+        }
+        return batch
+    }
+
+    private fun createPlayerPollBatch(gameId: Int, poll: GamePlayerPollEntity?): ArrayList<ContentProviderOperation> {
+        if (poll == null) return ArrayList()
+        val batch = arrayListOf<ContentProviderOperation>()
+        val existingResults = resolver.queryStrings(Games.buildSuggestedPlayerCountPollResultsUri(gameId), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT).toMutableList()
+        for ((sortIndex, results) in poll.results.withIndex()) {
+            val values = ContentValues(6)
+            values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, sortIndex + 1)
+            values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, results.bestVoteCount)
+            values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, results.recommendedVoteCount)
+            values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, results.notRecommendedVoteCount)
+            values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, results.calculateRecommendation())
+            if (existingResults.remove(results.playerCount)) {
+                val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId, results.playerCount)
+                batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build())
+            } else {
+                values.put(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, results.playerCount)
+                val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
+                batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build())
+            }
+        }
+        for (result in existingResults) {
+            val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId, result)
+            batch.add(ContentProviderOperation.newDelete(uri).build())
         }
         return batch
     }

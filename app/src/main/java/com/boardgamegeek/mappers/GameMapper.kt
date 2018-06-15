@@ -1,9 +1,6 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GamePollResultEntity
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.replaceHtmlLineFeeds
 import com.boardgamegeek.sortName
@@ -16,6 +13,7 @@ class GameMapper {
             val (primaryName, sortIndex) = findPrimaryName(from)
             name = primaryName
             sortName = primaryName.sortName(sortIndex)
+
             imageUrl = from.image ?: ""
             thumbnailUrl = from.thumbnail ?: ""
             description = from.description.replaceHtmlLineFeeds().trim()
@@ -46,6 +44,7 @@ class GameMapper {
             }
 
             polls.addAll(createPolls(from))
+            playerPoll = createPlayerPoll(from)
 
             from.links?.forEach {
                 when (it.type) {
@@ -82,9 +81,11 @@ class GameMapper {
         return ranks
     }
 
+    private val playerPollName = "suggested_numplayers"
+
     private fun createPolls(from: Game): List<GameEntity.Poll> {
         val polls = mutableListOf<GameEntity.Poll>()
-        from.polls?.mapTo(polls) {
+        from.polls?.filter { it.name != playerPollName }?.mapTo(polls) {
             GameEntity.Poll().apply {
                 name = it.name ?: ""
                 title = it.title ?: ""
@@ -100,5 +101,23 @@ class GameMapper {
             }
         }
         return polls
+    }
+
+    private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
+        from.polls.find { it.name == playerPollName }?.let { poll ->
+            val results = mutableListOf<GamePlayerPollResultsEntity>()
+            poll.results.forEach { playerCount ->
+                results.add(GamePlayerPollResultsEntity(
+                        totalVotes = poll.totalvotes,
+                        playerCount = playerCount.numplayers,
+                        bestVoteCount = playerCount.result.first { it.value == "Best" }.numvotes,
+                        recommendedVoteCount = playerCount.result.first { it.value == "Recommended" }.numvotes,
+                        notRecommendedVoteCount = playerCount.result.first { it.value == "Not Recommended" }.numvotes,
+                        recommendation = GamePlayerPollResultsEntity.UNKNOWN
+                ))
+            }
+            return GamePlayerPollEntity(results)
+        }
+        return null
     }
 }

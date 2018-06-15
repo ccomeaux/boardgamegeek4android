@@ -1,7 +1,5 @@
 package com.boardgamegeek.entities
 
-import com.boardgamegeek.util.PlayerCountRecommendation
-
 const val maxPlayerCount = 100
 
 data class GamePlayerPollEntity(
@@ -10,13 +8,13 @@ data class GamePlayerPollEntity(
     val totalVotes: Int = results.maxBy { it.totalVotes }?.totalVotes ?: 0
 
     val bestCounts: List<Int> by lazy {
-        results.filter { it.recommendation == PlayerCountRecommendation.BEST }.map {
+        results.filter { it.recommendation == GamePlayerPollResultsEntity.BEST }.map {
             it.playerCount.toIntOrNull() ?: maxPlayerCount
         }
     }
 
     val recommendedCounts: List<Int> by lazy {
-        results.filter { it.recommendation == PlayerCountRecommendation.BEST || it.recommendation == PlayerCountRecommendation.RECOMMENDED }.map {
+        results.filter { it.recommendation == GamePlayerPollResultsEntity.BEST || it.recommendation == GamePlayerPollResultsEntity.RECOMMENDED }.map {
             it.playerCount.toIntOrNull() ?: maxPlayerCount
         }
     }

@@ -42,6 +42,7 @@ class GameEntity {
     val families = arrayListOf<Pair<Int, String>>()
 
     var polls = arrayListOf<Poll>()
+    var playerPoll: GamePlayerPollEntity? = null
 
     class Poll {
         var name: String = ""
@@ -53,14 +54,8 @@ class GameEntity {
     class Results {
         var numberOfPlayers: String = ""
         var result = arrayListOf<GamePollResultEntity>()
-
-        val key: String
-            get() = if (numberOfPlayers.isBlank()) "X" else numberOfPlayers
-
-        override fun toString(): String {
-            return key
-        }
+        val key = "X"
     }
 
-    override fun toString(): String = "$id: $name"
+    override fun toString() = "$id: $name"
 }
