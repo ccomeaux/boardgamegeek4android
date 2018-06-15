@@ -9,7 +9,7 @@
 		android:orientation="horizontal">
 
 		<View
-			android:id="@+id/value"
+			android:id="@+id/valueView"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:background="@color/dark_blue"
@@ -17,14 +17,14 @@
 			tools:layout_weight="7.5"/>
 
 		<View
-			android:id="@+id/no_value"
+			android:id="@+id/noValueView"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			tools:layout_weight="2.5"/>
 	</LinearLayout>
 
 	<TextView
-		android:id="@android:id/text1"
+		android:id="@+id/textView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
