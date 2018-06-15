@@ -267,34 +267,6 @@ public class ColorUtils {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
 	}
 
-	public static final int[] FIVE_STAGE_COLORS = {
-		0xFF249563,
-		0xFF2FC482,
-		0xFF1D8ACD,
-		0xFF5369A2,
-		0xFFDF4751,
-		0x00ffffff
-		// 0xFFDB303B - alternate red color
-	};
-
-	/**
-	 * Create an array of random, but light, colors
-	 */
-	public static final int[] TWELVE_STAGE_COLORS = {
-		0xFFDFEBCC,
-		0xFFBBDCCD,
-		0xFF98CBCD,
-		0xFF78BCCF,
-		0xFF60A8CA,
-		0xFF5290BA,
-		0xFF4576A9,
-		0xFF385E99,
-		0xFF2B4489,
-		0xFF1E2C7A,
-		0xFF182161,
-		0xFF121848
-	};
-
 	@ColorInt
 	public static int getTextColor(int backgroundColor) {
 		return backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?

@@ -202,7 +202,7 @@ class GameFragment : Fragment() {
         val totalVotes = entity?.totalVotes ?: 0
         languageVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
         languageContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
-            PollFragment.launchLanguageDependence(this, gameId)
+            PollFragment.launchLanguageDependence(this)
         }
     }
 
@@ -211,7 +211,7 @@ class GameFragment : Fragment() {
         else ctx.getText(R.string.age_community, entity?.modalValue ?: "")
         playerAgePollView?.setTextOrHide(message)
         playerAgeContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
-            PollFragment.launchSuggestedPlayerAge(this, gameId)
+            PollFragment.launchSuggestedPlayerAge(this)
         }
     }
 
