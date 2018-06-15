@@ -11,12 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GamePollEntity
+import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.fadeIn
 import com.boardgamegeek.fiveStageColors
 import com.boardgamegeek.twelveStageColors
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.IntegerValueFormatter
-import com.boardgamegeek.util.DialogUtils
 import com.github.mikephil.charting.animation.Easing.EasingOption
 import com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment
 import com.github.mikephil.charting.components.Legend.LegendVerticalAlignment
@@ -145,7 +145,7 @@ class PollFragment : DialogFragment() {
             val dialog = PollFragment()
             dialog.arguments = arguments
             dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
-            DialogUtils.showAndSurvive(host, dialog)
+            host.showAndSurvive(dialog)
         }
     }
 }
