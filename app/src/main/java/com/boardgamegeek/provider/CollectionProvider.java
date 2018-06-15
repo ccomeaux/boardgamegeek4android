@@ -10,6 +10,8 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
+import static com.boardgamegeek.entities.ConstantsKt.RANK_UNKNOWN;
+
 public class CollectionProvider extends BasicProvider {
 
 	@Override
@@ -21,7 +23,7 @@ public class CollectionProvider extends BasicProvider {
 			.mapToTable(Collection.UPDATED, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
 			.mapToTable(Collection.PRIVATE_INFO_QUANTITY, Tables.COLLECTION)
-			.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
+			.mapIfNull(Games.GAME_RANK, String.valueOf(RANK_UNKNOWN))
 			.map(Plays.MAX_DATE, String.format("(SELECT MAX(%s) FROM %s WHERE %s.%s=%s.%s)", Plays.DATE, Tables.PLAYS, Tables.PLAYS, Plays.OBJECT_ID, Tables.GAMES, Games.GAME_ID));
 
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);

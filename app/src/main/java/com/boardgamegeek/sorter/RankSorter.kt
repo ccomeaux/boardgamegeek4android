@@ -6,6 +6,7 @@ import android.support.annotation.StringRes
 import android.util.SparseArray
 
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.getInt
 import com.boardgamegeek.provider.BggContract.Games
 import java.text.NumberFormat
@@ -26,7 +27,7 @@ class RankSorter(context: Context) : CollectionSorter(context) {
         get() = Games.GAME_RANK
 
     public override fun getHeaderText(cursor: Cursor): String {
-        val rank = cursor.getInt(Games.GAME_RANK, Integer.MAX_VALUE)
+        val rank = cursor.getInt(Games.GAME_RANK, RANK_UNKNOWN)
         return (0 until RANKS.size())
                 .map { RANKS.keyAt(it) }
                 .firstOrNull { rank <= it }
@@ -35,8 +36,8 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     }
 
     override fun getDisplayInfo(cursor: Cursor): String {
-        val rank = cursor.getInt(Games.GAME_RANK, Integer.MAX_VALUE)
-        return if (rank == Integer.MAX_VALUE) {
+        val rank = cursor.getInt(Games.GAME_RANK, RANK_UNKNOWN)
+        return if (rank == RANK_UNKNOWN) {
             defaultText
         } else NUMBER_FORMAT.format(rank)
     }

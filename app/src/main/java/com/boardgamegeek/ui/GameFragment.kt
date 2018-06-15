@@ -13,7 +13,6 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.RanksFragment
-import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
 import com.boardgamegeek.ui.widget.SafeViewTarget
@@ -142,7 +141,7 @@ class GameFragment : Fragment() {
                 .forEach { it?.colorize(iconColor) }
     }
 
-    private fun onGameContentChanged(game: Game) {
+    private fun onGameContentChanged(game: GameEntity) {
         colorize(game.iconColor)
 
         gameName = game.name
@@ -152,15 +151,15 @@ class GameFragment : Fragment() {
             viewModel.updateFavorite(!game.isFavorite)
         }
 
-        rankView?.text = game.rank.asRank(ctx, game.subtype)
+        rankView?.text = game.overallRank.asRank(ctx, game.subtype)
         rankContainer?.setOnClickListener { RanksFragment.launch(this, gameId) }
 
         ratingView?.text = game.rating.asRating(ctx)
         ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
-        val numberOfRatings = ctx.getQuantityText(R.plurals.ratings_suffix, game.usersRated, game.usersRated)
-        val numberOfComments = ctx.getQuantityText(R.plurals.comments_suffix, game.usersCommented, game.usersCommented)
+        val numberOfRatings = ctx.getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
+        val numberOfComments = ctx.getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
         ratingVotesView?.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
-        ratingContainer?.setOrClearOnClickListener(game.usersRated > 0 || game.usersCommented > 0) {
+        ratingContainer?.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
             CommentsActivity.startRating(ctx, Games.buildGameUri(gameId), gameName)
         }
 
@@ -175,7 +174,7 @@ class GameFragment : Fragment() {
         weightView?.text = game.averageWeight.toDescription(ctx, R.array.game_weight, R.string.unknown_weight)
         weightView?.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
         weightScoreView?.setTextOrHide(game.averageWeight.asScore(ctx))
-        weightVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, game.numberWeights, game.numberWeights))
+        weightVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
 
         gameIdView?.text = game.id.toString()
         lastModifiedView?.timestamp = game.updated

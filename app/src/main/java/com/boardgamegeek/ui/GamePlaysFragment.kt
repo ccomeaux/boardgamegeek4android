@@ -13,11 +13,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.boardgamegeek.*
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.events.PlaySelectedEvent
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ColorUtils
 import kotlinx.android.synthetic.main.fragment_game_plays.*
@@ -99,7 +99,7 @@ class GamePlaysFragment : Fragment() {
         return view
     }
 
-    private fun onGameQueryComplete(game: Game?) {
+    private fun onGameQueryComplete(game: GameEntity?) {
         if (game == null) return
         gameId = game.id
         gameName = game.name

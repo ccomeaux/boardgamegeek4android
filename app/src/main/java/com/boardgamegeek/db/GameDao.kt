@@ -14,7 +14,6 @@ import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.*
-import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
 import timber.log.Timber
@@ -22,7 +21,7 @@ import timber.log.Timber
 class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
 
-    fun load(gameId: Int): LiveData<Game> {
+    fun load(gameId: Int): LiveData<GameEntity> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildGameUri(gameId)
         return RegisteredLiveData(context, uri) {
@@ -68,43 +67,44 @@ class GameDao(private val context: BggApplication) {
             )
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
-                    return@RegisteredLiveData Game(
+                    return@RegisteredLiveData GameEntity(
                             id = it.getInt(Games.GAME_ID),
                             name = it.getStringOrEmpty(Games.GAME_NAME),
+                            description = it.getStringOrEmpty(Games.DESCRIPTION),
+                            subtype = it.getStringOrEmpty(Games.SUBTYPE),
                             thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
                             imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
-                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL),
-                            rating = it.getDoubleOrZero(Games.STATS_AVERAGE),
                             yearPublished = it.getIntOrNull(Games.YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
                             minPlayers = it.getIntOrZero(Games.MIN_PLAYERS),
                             maxPlayers = it.getIntOrZero(Games.MAX_PLAYERS),
                             playingTime = it.getIntOrZero(Games.PLAYING_TIME),
                             minPlayingTime = it.getIntOrZero(Games.MIN_PLAYING_TIME),
                             maxPlayingTime = it.getIntOrZero(Games.MAX_PLAYING_TIME),
-                            minimumAge = it.getIntOrZero(Games.MINIMUM_AGE),
-                            description = it.getStringOrEmpty(Games.DESCRIPTION),
-                            usersRated = it.getIntOrZero(Games.STATS_USERS_RATED),
-                            usersCommented = it.getIntOrZero(Games.STATS_NUMBER_COMMENTS),
-                            updated = it.getLongOrZero(Games.UPDATED),
-                            updatedPlays = it.getLongOrZero(Games.UPDATED_PLAYS),
-                            rank = it.getIntOrNull(Games.GAME_RANK) ?: RANK_UNKNOWN,
-                            averageWeight = it.getDoubleOrZero(Games.STATS_AVERAGE_WEIGHT),
-                            numberWeights = it.getIntOrZero(Games.STATS_NUMBER_WEIGHTS),
-                            numberOwned = it.getIntOrZero(Games.STATS_NUMBER_OWNED),
-                            numberTrading = it.getIntOrZero(Games.STATS_NUMBER_TRADING),
-                            numberWanting = it.getIntOrZero(Games.STATS_NUMBER_WANTING),
-                            numberWishing = it.getIntOrZero(Games.STATS_NUMBER_WISHING),
-                            subtype = it.getStringOrEmpty(Games.SUBTYPE),
-                            customPlayerSort = it.getBoolean(Games.CUSTOM_PLAYER_SORT),
-                            isFavorite = it.getBoolean(Games.STARRED),
-                            pollVoteTotal = it.getIntOrZero(Games.POLLS_COUNT),
-                            suggestedPlayerCountPollVoteTotal = it.getIntOrZero(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
-                            iconColor = it.getIntOrNull(Games.ICON_COLOR) ?: Color.TRANSPARENT,
-                            darkColor = it.getIntOrNull(Games.DARK_COLOR) ?: Color.TRANSPARENT,
-                            winsColor = it.getIntOrNull(Games.WINS_COLOR) ?: Color.TRANSPARENT,
-                            winnablePlaysColor = it.getIntOrNull(Games.WINNABLE_PLAYS_COLOR) ?: Color.TRANSPARENT,
-                            allPlaysColor = it.getIntOrNull(Games.ALL_PLAYS_COLOR) ?: Color.TRANSPARENT
-                    )
+                            minimumAge = it.getIntOrZero(Games.MINIMUM_AGE)
+                    ).apply {
+                        heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL)
+                        rating = it.getDoubleOrZero(Games.STATS_AVERAGE)
+                        numberOfRatings = it.getIntOrZero(Games.STATS_USERS_RATED)
+                        numberOfComments = it.getIntOrZero(Games.STATS_NUMBER_COMMENTS)
+                        updated = it.getLongOrZero(Games.UPDATED)
+                        updatedPlays = it.getLongOrZero(Games.UPDATED_PLAYS)
+                        overallRank = it.getIntOrNull(Games.GAME_RANK) ?: RANK_UNKNOWN
+                        averageWeight = it.getDoubleOrZero(Games.STATS_AVERAGE_WEIGHT)
+                        numberOfUsersWeighting = it.getIntOrZero(Games.STATS_NUMBER_WEIGHTS)
+                        numberOfUsersOwned = it.getIntOrZero(Games.STATS_NUMBER_OWNED)
+                        numberOfUsersTrading = it.getIntOrZero(Games.STATS_NUMBER_TRADING)
+                        numberOfUsersWanting = it.getIntOrZero(Games.STATS_NUMBER_WANTING)
+                        numberOfUsersWishListing = it.getIntOrZero(Games.STATS_NUMBER_WISHING)
+                        customPlayerSort = it.getBoolean(Games.CUSTOM_PLAYER_SORT)
+                        isFavorite = it.getBoolean(Games.STARRED)
+                        pollVoteTotal = it.getIntOrZero(Games.POLLS_COUNT)
+                        suggestedPlayerCountPollVoteTotal = it.getIntOrZero(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL)
+                        iconColor = it.getIntOrNull(Games.ICON_COLOR) ?: Color.TRANSPARENT
+                        darkColor = it.getIntOrNull(Games.DARK_COLOR) ?: Color.TRANSPARENT
+                        winsColor = it.getIntOrNull(Games.WINS_COLOR) ?: Color.TRANSPARENT
+                        winnablePlaysColor = it.getIntOrNull(Games.WINNABLE_PLAYS_COLOR) ?: Color.TRANSPARENT
+                        allPlaysColor = it.getIntOrNull(Games.ALL_PLAYS_COLOR) ?: Color.TRANSPARENT
+                    }
                 }
                 return@RegisteredLiveData null
             }
@@ -373,9 +373,9 @@ class GameDao(private val context: BggApplication) {
         values.put(Games.PLAYING_TIME, game.playingTime)
         values.put(Games.MIN_PLAYING_TIME, game.minPlayingTime)
         values.put(Games.MAX_PLAYING_TIME, game.maxPlayingTime)
-        values.put(Games.MINIMUM_AGE, game.minAge)
+        values.put(Games.MINIMUM_AGE, game.minimumAge)
         if (game.hasStatistics) {
-            values.put(Games.STATS_AVERAGE, game.average)
+            values.put(Games.STATS_AVERAGE, game.rating)
             values.put(Games.STATS_BAYES_AVERAGE, game.bayesAverage)
             values.put(Games.STATS_STANDARD_DEVIATION, game.standardDeviation)
             values.put(Games.STATS_MEDIAN, game.median)

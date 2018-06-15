@@ -1,25 +1,27 @@
 package com.boardgamegeek.entities
 
+import android.graphics.Color
 import com.boardgamegeek.provider.BggContract
 
-class GameEntity {
-    var id = BggContract.INVALID_ID
-    var name = ""
-    var sortName = ""
-    var subtype = ""
-    var thumbnailUrl = ""
-    var imageUrl = ""
-    var description = ""
-    var yearPublished = YEAR_UNKNOWN
-    var minPlayers = 0
-    var maxPlayers = 0
-    var playingTime = 0
-    var minPlayingTime = 0
-    var maxPlayingTime = 0
-    var minAge = 0
+class GameEntity(
+        val id: Int = BggContract.INVALID_ID,
+        val name: String = "",
+        val sortName: String = "",
+        val subtype: String = "",
+        val thumbnailUrl: String = "",
+        val imageUrl: String = "",
+        val description: String = "",
+        val yearPublished: Int = YEAR_UNKNOWN,
+        val minPlayers : Int= 0,
+        val maxPlayers : Int= 0,
+        val playingTime : Int= 0,
+        val minPlayingTime: Int = 0,
+        val maxPlayingTime: Int = 0,
+        val minimumAge: Int = 0
+) {
     var hasStatistics = false
     var numberOfRatings = 0
-    var average = 0.0
+    var rating = 0.0
     var bayesAverage = 0.0
     var standardDeviation = 0.0
     var median = 0.0
@@ -30,8 +32,21 @@ class GameEntity {
     var numberOfComments: Int = 0
     var numberOfUsersWeighting: Int = 0
     var averageWeight: Double = 0.0
-    var overallRank: Int = Int.MAX_VALUE
+    var overallRank: Int = RANK_UNKNOWN
     var ranks = arrayListOf<GameRankEntity>()
+
+    var heroImageUrl = ""
+    var updated: Long = 0
+    var updatedPlays: Long = 0
+    var customPlayerSort: Boolean = false
+    var isFavorite: Boolean = false
+    var pollVoteTotal: Int = 0
+    var suggestedPlayerCountPollVoteTotal: Int = 0
+    var iconColor: Int = Color.TRANSPARENT
+    var darkColor: Int = Color.TRANSPARENT
+    var winsColor: Int = Color.TRANSPARENT
+    var winnablePlaysColor: Int = Color.TRANSPARENT
+    var allPlaysColor: Int = Color.TRANSPARENT
 
     val designers = arrayListOf<Pair<Int, String>>()
     val artists = arrayListOf<Pair<Int, String>>()
@@ -56,6 +71,17 @@ class GameEntity {
         var result = arrayListOf<GamePollResultEntity>()
         val key = "X"
     }
+
+    val maxUsers: Int
+        get() {
+            var max = Math.max(numberOfRatings, numberOfComments)
+            max = Math.max(max, numberOfUsersOwned)
+            max = Math.max(max, numberOfUsersTrading)
+            max = Math.max(max, numberOfUsersWanting)
+            max = Math.max(max, numberOfUsersWeighting)
+            max = Math.max(max, numberOfUsersWishListing)
+            return max
+        }
 
     override fun toString() = "$id: $name"
 }

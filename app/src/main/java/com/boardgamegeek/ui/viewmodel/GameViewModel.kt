@@ -11,7 +11,6 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
-import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.util.PaletteUtils
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,7 +49,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (_producerType.value != type) _producerType.value = type
     }
 
-    val game: LiveData<RefreshableResource<Game>> = Transformations.switchMap(_gameId) { gameId ->
+    val game: LiveData<RefreshableResource<GameEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getGame(gameId)

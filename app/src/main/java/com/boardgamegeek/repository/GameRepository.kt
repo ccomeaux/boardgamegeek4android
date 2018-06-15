@@ -20,7 +20,6 @@ import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.TaskUtils
@@ -44,17 +43,17 @@ class GameRepository(val application: BggApplication) {
     /**
      * Get a game from the database and potentially refresh it from BGG.
      */
-    fun getGame(gameId: Int): LiveData<RefreshableResource<Game>> {
+    fun getGame(gameId: Int): LiveData<RefreshableResource<GameEntity>> {
         val started = AtomicBoolean()
-        val mediatorLiveData = MediatorLiveData<RefreshableResource<Game>>()
-        val liveData = object : RefreshableResourceLoader<Game, ThingResponse>(application) {
+        val mediatorLiveData = MediatorLiveData<RefreshableResource<GameEntity>>()
+        val liveData = object : RefreshableResourceLoader<GameEntity, ThingResponse>(application) {
             private var timestamp = 0L
 
             override val typeDescriptionResId = R.string.title_game
 
             override fun loadFromDatabase() = dao.load(gameId)
 
-            override fun shouldRefresh(data: Game?): Boolean {
+            override fun shouldRefresh(data: GameEntity?): Boolean {
                 if (gameId == BggContract.INVALID_ID) return false
                 return data == null || data.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)
             }
@@ -218,7 +217,7 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    private fun maybeRefreshHeroImageUrl(game: Game?, started: AtomicBoolean) {
+    private fun maybeRefreshHeroImageUrl(game: GameEntity?, started: AtomicBoolean) {
         if (game == null) return
         val heroImageId = ImageUtils.getImageId(game.heroImageUrl)
         val thumbnailId = ImageUtils.getImageId(game.thumbnailUrl)

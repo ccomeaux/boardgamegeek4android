@@ -7,28 +7,28 @@ import com.boardgamegeek.sortName
 
 class GameMapper {
     fun map(from: Game): GameEntity {
-        val game = GameEntity()
+        val (primaryName, sortIndex) = findPrimaryName(from)
+        val game = GameEntity(
+                id = from.id,
+                name = primaryName,
+                sortName = primaryName.sortName(sortIndex),
+                imageUrl = from.image ?: "",
+                thumbnailUrl = from.thumbnail ?: "",
+                description = from.description.replaceHtmlLineFeeds().trim(),
+                subtype = from.type ?: "",
+                yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+                minPlayers = from.minplayers?.toIntOrNull() ?: 0,
+                maxPlayers = from.maxplayers?.toIntOrNull() ?: 0,
+                playingTime = from.playingtime?.toIntOrNull() ?: 0,
+                maxPlayingTime = from.maxplaytime?.toIntOrNull() ?: 0,
+                minPlayingTime = from.minplaytime?.toIntOrNull() ?: 0,
+                minimumAge = from.minage?.toIntOrNull() ?: 0
+        )
         game.apply {
-            id = from.id
-            val (primaryName, sortIndex) = findPrimaryName(from)
-            name = primaryName
-            sortName = primaryName.sortName(sortIndex)
-
-            imageUrl = from.image ?: ""
-            thumbnailUrl = from.thumbnail ?: ""
-            description = from.description.replaceHtmlLineFeeds().trim()
-            subtype = from.type ?: ""
-            yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN
-            minPlayers = from.minplayers?.toIntOrNull() ?: 0
-            maxPlayers = from.maxplayers?.toIntOrNull() ?: 0
-            playingTime = from.playingtime?.toIntOrNull() ?: 0
-            maxPlayingTime = from.maxplaytime?.toIntOrNull() ?: 0
-            minPlayingTime = from.minplaytime?.toIntOrNull() ?: 0
-            minAge = from.minage?.toIntOrNull() ?: 0
             if (from.statistics != null) {
                 hasStatistics = true
                 numberOfRatings = from.statistics.usersrated?.toIntOrNull() ?: 0
-                average = from.statistics.average?.toDoubleOrNull() ?: 0.0
+                rating = from.statistics.average?.toDoubleOrNull() ?: 0.0
                 bayesAverage = from.statistics.bayesaverage?.toDoubleOrNull() ?: 0.0
                 standardDeviation = from.statistics.stddev?.toDoubleOrNull() ?: 0.0
                 median = from.statistics.median?.toDoubleOrNull() ?: 0.0
@@ -40,7 +40,7 @@ class GameMapper {
                 numberOfUsersWeighting = from.statistics.numweights?.toIntOrNull() ?: 0
                 averageWeight = from.statistics.averageweight?.toDoubleOrNull() ?: 0.0
                 ranks.addAll(createRanks(from))
-                overallRank = ranks.find { it.type == "subtype" }?.value ?: Int.MAX_VALUE
+                overallRank = ranks.find { it.type == "subtype" }?.value ?: RANK_UNKNOWN
             }
 
             polls.addAll(createPolls(from))
@@ -75,7 +75,7 @@ class GameMapper {
                     it.type,
                     it.name,
                     it.friendlyname,
-                    it.value.toIntOrNull() ?: Int.MAX_VALUE,
+                    it.value.toIntOrNull() ?: RANK_UNKNOWN,
                     it.bayesaverage.toDoubleOrNull() ?: 0.0)
         }
         return ranks

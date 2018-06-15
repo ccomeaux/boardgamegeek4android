@@ -8,9 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.*
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.model.Game
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_description.*
 import kotlinx.android.synthetic.main.include_game_footer.*
@@ -59,7 +59,7 @@ class GameDescriptionFragment : Fragment() {
         }
     }
 
-    private fun showData(game: Game) {
+    private fun showData(game: GameEntity) {
         emptyMessage.fadeOut()
 
         gameDescription?.setTextMaybeHtml(game.description)
