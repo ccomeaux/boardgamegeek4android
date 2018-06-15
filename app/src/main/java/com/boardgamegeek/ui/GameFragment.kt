@@ -152,7 +152,7 @@ class GameFragment : Fragment() {
         }
 
         rankView?.text = game.overallRank.asRank(ctx, game.subtype)
-        rankContainer?.setOnClickListener { RanksFragment.launch(this, gameId) }
+        rankContainer?.setOnClickListener { RanksFragment.launch(this) }
 
         ratingView?.text = game.rating.asRating(ctx)
         ratingView.setTextViewBackground(game.rating.toColor(ratingColors))

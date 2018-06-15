@@ -12,4 +12,7 @@ data class GameRankEntity(
 ) {
     val isFamilyType: Boolean
         get() = BggService.RANK_TYPE_FAMILY == type
+
+    val isSubType: Boolean
+        get() = BggService.RANK_TYPE_SUBTYPE == type
 }

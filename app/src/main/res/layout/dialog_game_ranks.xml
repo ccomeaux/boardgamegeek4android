@@ -10,16 +10,16 @@
 			  android:paddingTop="@dimen/material_margin_vertical">
 
 	<TextView
-		android:id="@+id/unranked"
+		android:id="@+id/unRankedView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/Text.Subtitle"
 		android:visibility="gone"
-		tools:text="Unranked Game"
+		tools:text="Un-ranked Game"
 		tools:visibility="visible"/>
 
 	<LinearLayout
-		android:id="@+id/subtypes"
+		android:id="@+id/subtypesView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
@@ -27,7 +27,7 @@
 		tools:visibility="visible"/>
 
 	<LinearLayout
-		android:id="@+id/families"
+		android:id="@+id/familiesView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
@@ -42,7 +42,7 @@
 		android:orientation="horizontal">
 
 		<TextView
-			android:id="@+id/standard_deviation"
+			android:id="@+id/standardDeviationView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
@@ -50,7 +50,7 @@
 			tools:text="Standard Deviation: 0.123"/>
 
 		<TextView
-			android:id="@+id/votes"
+			android:id="@+id/votesView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:gravity="end"

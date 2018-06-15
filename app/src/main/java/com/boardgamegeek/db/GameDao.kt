@@ -89,6 +89,8 @@ class GameDao(private val context: BggApplication) {
                         updated = it.getLongOrZero(Games.UPDATED)
                         updatedPlays = it.getLongOrZero(Games.UPDATED_PLAYS)
                         overallRank = it.getIntOrNull(Games.GAME_RANK) ?: RANK_UNKNOWN
+                        standardDeviation = it.getDoubleOrZero(Games.STATS_STANDARD_DEVIATION)
+                        bayesAverage = it.getDoubleOrZero(Games.STATS_BAYES_AVERAGE)
                         averageWeight = it.getDoubleOrZero(Games.STATS_AVERAGE_WEIGHT)
                         numberOfUsersWeighting = it.getIntOrZero(Games.STATS_NUMBER_WEIGHTS)
                         numberOfUsersOwned = it.getIntOrZero(Games.STATS_NUMBER_OWNED)

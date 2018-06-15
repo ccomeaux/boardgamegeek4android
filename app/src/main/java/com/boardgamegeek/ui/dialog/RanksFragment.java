@@ -1,180 +1,131 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.database.Cursor;
-import android.net.Uri;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.IntExtensionsKt;
 import com.boardgamegeek.R;
 import com.boardgamegeek.StringExtensionsKt;
+import com.boardgamegeek.entities.GameEntity;
+import com.boardgamegeek.entities.GameRankEntity;
+import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.GameRanks;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.viewmodel.GameViewModel;
 import com.boardgamegeek.ui.widget.GameRankRow;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
-public class RanksFragment extends DialogFragment implements LoaderCallbacks<Cursor> {
-	private static final String KEY_GAME_ID = "GAME_ID";
-	private int gameId = BggContract.INVALID_ID;
-	private Uri uri;
+public class RanksFragment extends DialogFragment {
 	private Unbinder unbinder;
-	@BindView(R.id.unranked) TextView unRankedView;
-	@BindView(R.id.subtypes) ViewGroup subtypesView;
-	@BindView(R.id.families) ViewGroup familiesView;
-	@BindView(R.id.standard_deviation) TextView standardDeviationView;
-	@BindView(R.id.votes) TextView votesView;
+	@BindView(R.id.unRankedView) TextView unRankedView;
+	@BindView(R.id.subtypesView) ViewGroup subtypesView;
+	@BindView(R.id.familiesView) ViewGroup familiesView;
+	@BindView(R.id.standardDeviationView) TextView standardDeviationView;
+	@BindView(R.id.votesView) TextView votesView;
 
-	public static void launch(Fragment fragment, int gameId) {
-		Bundle arguments = new Bundle(1);
-		arguments.putInt(KEY_GAME_ID, gameId);
+	public static void launch(Fragment fragment) {
 		final RanksFragment dialog = new RanksFragment();
 		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
-		dialog.setArguments(arguments);
 		DialogUtils.showAndSurvive(fragment, dialog);
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		readBundle(getArguments());
-		if (gameId == BggContract.INVALID_ID) {
-			Toast.makeText(getContext(), R.string.msg_invalid_game_id, Toast.LENGTH_SHORT).show();
-			dismiss();
-		}
-		uri = Games.buildRanksUri(gameId);
-	}
-
-	private void readBundle(@Nullable Bundle bundle) {
-		if (bundle == null) return;
-		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.dialog_game_ranks, container, false);
 	}
 
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		getDialog().setTitle(R.string.title_ranks_ratings);
-
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.dialog_game_ranks, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
-		return rootView;
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().restartLoader(Query._TOKEN, null, this);
+		getDialog().setTitle(R.string.title_ranks_ratings);
+
+		GameViewModel viewModel = ViewModelProviders.of(getActivity()).get(GameViewModel.class);
+
+		viewModel.getGame().observe(this, new Observer<RefreshableResource<GameEntity>>() {
+			@Override
+			public void onChanged(@Nullable RefreshableResource<GameEntity> gameRefreshableResource) {
+				int voteCount = gameRefreshableResource.getData().getNumberOfRatings();
+				double standardDeviation = gameRefreshableResource.getData().getStandardDeviation();
+				votesView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, voteCount, voteCount));
+				if (voteCount == 0) {
+					standardDeviationView.setVisibility(View.GONE);
+				} else {
+					standardDeviationView.setText(PresentationUtils.getText(getContext(), R.string.standard_deviation_prefix, standardDeviation));
+					standardDeviationView.setVisibility(View.VISIBLE);
+				}
+			}
+		});
+
+		viewModel.getRanks().observe(this, new Observer<List<GameRankEntity>>() {
+			@Override
+			public void onChanged(@Nullable List<GameRankEntity> gameRankEntities) {
+				subtypesView.removeAllViews();
+				familiesView.removeAllViews();
+
+				boolean hasRankedSubtype = false;
+				CharSequence unRankedSubtype = getString(R.string.game);
+
+				if (gameRankEntities != null || gameRankEntities.size() > 0) {
+					for (GameRankEntity rank : gameRankEntities) {
+						if (IntExtensionsKt.isRankValid(rank.getValue())) {
+							GameRankRow row = new GameRankRow(getContext(), rank.isFamilyType());
+							row.setRank(rank.getValue());
+							row.setName(StringExtensionsKt.asRankDescription(rank.getName(), getContext(), rank.getType()));
+							row.setRatingView(rank.getBayesAverage());
+							switch (rank.getType()) {
+								case BggService.RANK_TYPE_SUBTYPE:
+									subtypesView.addView(row);
+									subtypesView.setVisibility(View.VISIBLE);
+									unRankedView.setVisibility(View.GONE);
+									hasRankedSubtype = true;
+									break;
+								case BggService.RANK_TYPE_FAMILY:
+									familiesView.addView(row);
+									familiesView.setVisibility(View.VISIBLE);
+									break;
+								default:
+									Timber.i("Invalid rank type: %s", rank.getType());
+									break;
+							}
+						} else if (rank.isSubType()) {
+							unRankedSubtype = StringExtensionsKt.asRankDescription(rank.getName(), getContext(), rank.getType());
+						}
+					}
+				}
+				if (!hasRankedSubtype && !TextUtils.isEmpty(unRankedSubtype)) {
+					unRankedView.setText(PresentationUtils.getText(getContext(), R.string.unranked_prefix, unRankedSubtype));
+					unRankedView.setVisibility(View.VISIBLE);
+				}
+			}
+		});
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
-	}
-
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getContext(), uri, Query.PROJECTION, null, null, null);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-		if (!isAdded()) return;
-		if (cursor == null) return;
-
-		subtypesView.removeAllViews();
-		familiesView.removeAllViews();
-
-		boolean hasRankedSubtype = false;
-		CharSequence unRankedSubtype = getString(R.string.game);
-		if (cursor.moveToFirst()) {
-			double standardDeviation = cursor.getDouble(Query.STATS_STANDARD_DEVIATION);
-			int voteCount = cursor.getInt(Query.STATS_USERS_RATED);
-
-			votesView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.votes_suffix, voteCount, voteCount));
-			if (voteCount == 0) {
-				standardDeviationView.setVisibility(View.GONE);
-			} else {
-				standardDeviationView.setText(PresentationUtils.getText(getContext(), R.string.standard_deviation_prefix, standardDeviation));
-				standardDeviationView.setVisibility(View.VISIBLE);
-			}
-
-			do {
-				String type = cursor.getString(Query.GAME_RANK_TYPE);
-				CharSequence name = StringExtensionsKt.asRankDescription(cursor.getString(Query.GAME_RANK_NAME), getContext(), type);
-				int rank = cursor.getInt(Query.GAME_RANK_VALUE);
-				double average = cursor.getDouble(Query.GAME_RANK_BAYES_AVERAGE);
-				boolean isFamily = BggService.RANK_TYPE_FAMILY.equals(type);
-
-				if (IntExtensionsKt.isRankValid(rank)) {
-					GameRankRow row = new GameRankRow(getContext(), isFamily);
-					row.setRank(rank);
-					row.setName(name);
-					row.setRatingView(average);
-					switch (type) {
-						case BggService.RANK_TYPE_SUBTYPE:
-							subtypesView.addView(row);
-							subtypesView.setVisibility(View.VISIBLE);
-							unRankedView.setVisibility(View.GONE);
-							hasRankedSubtype = true;
-							break;
-						case BggService.RANK_TYPE_FAMILY:
-							familiesView.addView(row);
-							familiesView.setVisibility(View.VISIBLE);
-							break;
-						default:
-							Timber.i("Invalid rank type: %s", type);
-							break;
-					}
-				} else if (BggService.RANK_TYPE_SUBTYPE.equals(type)) {
-					unRankedSubtype = name;
-				}
-			} while (cursor.moveToNext());
-		}
-		if (!hasRankedSubtype && !TextUtils.isEmpty(unRankedSubtype)) {
-			unRankedView.setText(PresentationUtils.getText(getContext(), R.string.unranked_prefix, unRankedSubtype));
-			unRankedView.setVisibility(View.VISIBLE);
-		}
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-	}
-
-	private interface Query {
-		int _TOKEN = 0x0;
-		String[] PROJECTION = {
-			GameRanks.GAME_RANK_NAME,
-			GameRanks.GAME_RANK_VALUE,
-			GameRanks.GAME_RANK_TYPE,
-			GameRanks.GAME_RANK_BAYES_AVERAGE,
-			Games.STATS_USERS_RATED,
-			Games.STATS_STANDARD_DEVIATION
-		};
-		int GAME_RANK_NAME = 0;
-		int GAME_RANK_VALUE = 1;
-		int GAME_RANK_TYPE = 2;
-		int GAME_RANK_BAYES_AVERAGE = 3;
-		int STATS_USERS_RATED = 4;
-		int STATS_STANDARD_DEVIATION = 5;
 	}
 }
