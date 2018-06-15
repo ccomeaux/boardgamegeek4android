@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.MainThread;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.squareup.picasso.Picasso;
@@ -33,9 +35,11 @@ public class LargeIconLoader implements Target {
 		imageUrls.add(imageUrl);
 	}
 
+	@WorkerThread
 	public void executeInBackground() {
 		if (imageUrls.size() == 0) {
 			if (callback != null) callback.onFailedIconLoad();
+			return;
 		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
@@ -51,12 +55,15 @@ public class LargeIconLoader implements Target {
 		}
 	}
 
+	@MainThread
 	public void executeOnMainThread() {
+		if (imageUrls.size() == 0) {
+			if (callback != null) callback.onFailedIconLoad();
+			return;
+		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
-			if (callback != null) {
-				callback.onFailedIconLoad();
-			}
+			executeOnMainThread();
 		} else {
 			getRequestCreator().into(this);
 		}
@@ -78,7 +85,7 @@ public class LargeIconLoader implements Target {
 	@Override
 	public void onBitmapFailed(Drawable errorDrawable) {
 		Timber.i("Didn't find an image at %s", currentImageUrl);
-		executeOnMainThread();
+		if (callback != null) callback.onFailedIconLoad();
 	}
 
 	@Override

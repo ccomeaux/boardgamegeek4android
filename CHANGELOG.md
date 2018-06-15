@@ -5,6 +5,10 @@ Version 6.7
 -----------
  * Coming soon
 
+Version 6.6.4
+-------------
+ * Bug fixes
+
 Version 6.6.3
 -------------
  * Possible fix for inability to sign in
