@@ -33,10 +33,6 @@ public class DialogUtils {
 
 	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
 		final FragmentManager fragmentManager = host.getFragmentManager();
-		showAndSurvive(dialog, fragmentManager);
-	}
-
-	private static void showAndSurvive(DialogFragment dialog, FragmentManager fragmentManager) {
 		if (fragmentManager == null) return;
 		String tag = "dialog";
 

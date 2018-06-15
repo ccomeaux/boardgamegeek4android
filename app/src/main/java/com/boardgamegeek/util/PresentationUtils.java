@@ -34,7 +34,6 @@ import hugo.weaving.DebugLog;
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
-	private static final DecimalFormat AVERAGE_RATING_FORMAT = new DecimalFormat("#0.000");
 	private static final DecimalFormat PERSONAL_RATING_FORMAT = new DecimalFormat("#0.#");
 	private static final DecimalFormat MONEY_FORMAT = setUpMoneyFormatter();
 
@@ -77,11 +76,6 @@ public class PresentationUtils {
 		} else {
 			return context.getString(R.string.year_negative, String.valueOf(-year));
 		}
-	}
-
-	@DebugLog
-	public static String describeAverageRating(Context context, double rating) {
-		return describeRating(context, rating, AVERAGE_RATING_FORMAT);
 	}
 
 	@DebugLog

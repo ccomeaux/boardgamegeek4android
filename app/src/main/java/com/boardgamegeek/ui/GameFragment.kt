@@ -12,7 +12,7 @@ import com.boardgamegeek.*
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.ui.dialog.RanksFragment
+import com.boardgamegeek.ui.dialog.GameRanksFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
 import com.boardgamegeek.ui.widget.SafeViewTarget
@@ -152,7 +152,7 @@ class GameFragment : Fragment() {
         }
 
         rankView?.text = game.overallRank.asRank(ctx, game.subtype)
-        rankContainer?.setOnClickListener { RanksFragment.launch(this) }
+        rankContainer?.setOnClickListener { GameRanksFragment.launch(this) }
 
         ratingView?.text = game.rating.asRating(ctx)
         ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
