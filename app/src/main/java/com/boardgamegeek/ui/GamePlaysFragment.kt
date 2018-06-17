@@ -25,12 +25,12 @@ import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
 
 class GamePlaysFragment : Fragment() {
-    private var gameId: Int = BggContract.INVALID_ID
-    private var gameName: String? = null
-    private var imageUrl: String? = null
-    private var thumbnailUrl: String? = null
-    private var heroImageUrl: String? = null
-    private var arePlayersCustomSorted: Boolean = false
+    private var gameId = BggContract.INVALID_ID
+    private var gameName = ""
+    private var imageUrl = ""
+    private var thumbnailUrl = ""
+    private var heroImageUrl = ""
+    private var arePlayersCustomSorted = false
     @ColorInt
     private var iconColor = Color.TRANSPARENT
 
@@ -85,7 +85,7 @@ class GamePlaysFragment : Fragment() {
         colorsContainer?.fadeIn()
         colorsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
-                GameColorsActivity.start(context, gameId, gameName, iconColor)
+                GameColorsActivity.start(ctx, gameId, gameName, iconColor)
         }
     }
 
@@ -124,8 +124,7 @@ class GamePlaysFragment : Fragment() {
                         row.findViewById<TextView>(R.id.line1)?.text = title
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(ctx))
                         row.setOnClickListener {
-                            val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName,
-                                    thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+                            val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
                             PlayActivity.start(ctx, event)
                         }
                         inProgressPlaysList?.addView(row)
@@ -153,8 +152,7 @@ class GamePlaysFragment : Fragment() {
                 if (lastPlay != null) {
                     lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
                     lastPlayInfoView?.text = lastPlay.describe(ctx)
-                    val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName,
-                            thumbnailUrl ?: "", imageUrl ?: "", heroImageUrl ?: "")
+                    val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
                     lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
                     lastPlayContainer?.fadeIn()
                 } else {
