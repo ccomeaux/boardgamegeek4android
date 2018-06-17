@@ -228,7 +228,7 @@ class GameFragment : Fragment() {
         }
         playerCountCommunityView?.setTextOrHide(communityText)
         playerCountContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
-            SuggestedPlayerCountPollFragment.launch(this, gameId)
+            SuggestedPlayerCountPollFragment.launch(this)
         }
     }
 

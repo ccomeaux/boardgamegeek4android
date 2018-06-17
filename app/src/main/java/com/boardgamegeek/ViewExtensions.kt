@@ -1,6 +1,7 @@
 package com.boardgamegeek
 
 import android.graphics.drawable.GradientDrawable
+import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.util.TypedValue
@@ -58,7 +59,7 @@ fun View.applyDarkScrim() {
 /**
  * Set the background of a [View] o the specified color, with a darker version of the color as a 1dp border.
  */
-fun View.setViewBackground(color: Int) {
+fun View.setViewBackground(@ColorInt color: Int) {
     val r = this.resources
 
     val currentDrawable = background
