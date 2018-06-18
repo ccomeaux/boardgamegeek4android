@@ -104,15 +104,15 @@ class GameMapper {
     }
 
     private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
-        from.polls.find { it.name == playerPollName }?.let { poll ->
+        from.polls?.find { it.name == playerPollName }?.let { poll ->
             val results = mutableListOf<GamePlayerPollResultsEntity>()
             poll.results.forEach { playerCount ->
                 results.add(GamePlayerPollResultsEntity(
                         totalVotes = poll.totalvotes,
                         playerCount = playerCount.numplayers,
-                        bestVoteCount = playerCount.result.first { it.value == "Best" }.numvotes,
-                        recommendedVoteCount = playerCount.result.first { it.value == "Recommended" }.numvotes,
-                        notRecommendedVoteCount = playerCount.result.first { it.value == "Not Recommended" }.numvotes,
+                        bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
+                        recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
+                        notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
                         recommendation = GamePlayerPollResultsEntity.UNKNOWN
                 ))
             }
