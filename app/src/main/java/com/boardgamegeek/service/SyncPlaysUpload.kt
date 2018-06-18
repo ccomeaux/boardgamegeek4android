@@ -242,11 +242,11 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     .add(getMapKey(i, "name"), player.name)
                     .add(getMapKey(i, "username"), player.username)
                     .add(getMapKey(i, "color"), player.color)
-                    .add(getMapKey(i, "position"), player.startposition)
+                    .add(getMapKey(i, "position"), player.startingPosition)
                     .add(getMapKey(i, "score"), player.score)
                     .add(getMapKey(i, "rating"), player.rating.toString())
-                    .add(getMapKey(i, "new"), player.new_.toString())
-                    .add(getMapKey(i, "win"), player.win.toString())
+                    .add(getMapKey(i, "new"), if (player.isNew) "1" else "0")
+                    .add(getMapKey(i, "win"), if (player.isWin) "1" else "0")
         }
 
         val request = Builder()

@@ -90,15 +90,15 @@ public class PlayBuilder {
 
 	public static Player playerFromCursor(Cursor cursor) {
 		Player player = new Player();
-		player.userid = CursorUtils.getInt(cursor, PlayPlayers.USER_ID);
+		player.userId = CursorUtils.getInt(cursor, PlayPlayers.USER_ID);
 		player.username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
 		player.name = CursorUtils.getString(cursor, PlayPlayers.NAME);
 		player.color = CursorUtils.getString(cursor, PlayPlayers.COLOR);
 		player.setStartingPosition(CursorUtils.getString(cursor, PlayPlayers.START_POSITION));
 		player.score = CursorUtils.getString(cursor, PlayPlayers.SCORE);
 		player.rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING, Player.DEFAULT_RATING);
-		player.New(CursorUtils.getBoolean(cursor, PlayPlayers.NEW));
-		player.Win(CursorUtils.getBoolean(cursor, PlayPlayers.WIN));
+		player.isNew = CursorUtils.getBoolean(cursor, PlayPlayers.NEW);
+		player.isWin = CursorUtils.getBoolean(cursor, PlayPlayers.WIN);
 		return player;
 	}
 
@@ -152,8 +152,8 @@ public class PlayBuilder {
 			p.color = player.color;
 			p.rating = player.rating;
 			p.score = "";
-			p.Win(false);
-			p.New(false);
+			p.isWin = false;
+			p.isNew = false;
 			copy.addPlayer(p);
 		}
 		return copy;

@@ -1,6 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.io.model.Play
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,6 +20,11 @@ class PlayMapper {
     }
 
     fun map(from: Play): com.boardgamegeek.model.Play {
+        val p = mutableListOf<Player>()
+        from.players.forEach {
+            p += map(it)
+        }
+
         return com.boardgamegeek.model.Play().apply {
             playId = from.id
             dateInMillis = from.date.toMillis(FORMAT)
@@ -31,6 +37,21 @@ class PlayMapper {
             incomplete = from.incomplete == 1
             nowinstats = from.nowinstats == 1
             subtypes = from.subtypes.map { it.value }
+            players = p
+        }
+    }
+
+    fun map(from: com.boardgamegeek.io.model.Player): Player {
+        return Player().apply {
+            userId = from.userid
+            username = from.username
+            name = from.name
+            startingPosition = from.startposition
+            color = from.color
+            score = from.score
+            isNew = from.new_ == 1
+            rating = from.rating
+            isWin = from.win == 1
         }
     }
 }

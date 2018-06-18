@@ -167,14 +167,14 @@ public class PlayPersister {
 		sb.append(play.comments).append("\n");
 		for (Player player : play.getPlayers()) {
 			sb.append(player.username).append("\n");
-			sb.append(player.userid).append("\n");
+			sb.append(player.userId).append("\n");
 			sb.append(player.name).append("\n");
-			sb.append(player.startposition).append("\n");
+			sb.append(player.getStartingPosition()).append("\n");
 			sb.append(player.color).append("\n");
 			sb.append(player.score).append("\n");
-			sb.append(player.New()).append("\n");
+			sb.append(player.isNew).append("\n");
 			sb.append(player.rating).append("\n");
-			sb.append(player.Win()).append("\n");
+			sb.append(player.isWin).append("\n");
 		}
 		return sb.toString().hashCode();
 	}
@@ -246,15 +246,15 @@ public class PlayPersister {
 		for (Player player : play.getPlayers()) {
 			String userName = player.username;
 			ContentValues values = new ContentValues();
-			values.put(PlayPlayers.USER_ID, player.userid);
+			values.put(PlayPlayers.USER_ID, player.userId);
 			values.put(PlayPlayers.USER_NAME, userName);
 			values.put(PlayPlayers.NAME, player.name);
 			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
 			values.put(PlayPlayers.COLOR, player.color);
 			values.put(PlayPlayers.SCORE, player.score);
-			values.put(PlayPlayers.NEW, player.New());
+			values.put(PlayPlayers.NEW, player.isNew);
 			values.put(PlayPlayers.RATING, player.rating);
-			values.put(PlayPlayers.WIN, player.Win());
+			values.put(PlayPlayers.WIN, player.isWin);
 
 			if (playerUserNames != null && playerUserNames.remove(userName)) {
 				batch.add(ContentProviderOperation

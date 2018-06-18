@@ -1,7 +1,5 @@
 package com.boardgamegeek.io.model;
 
-import com.boardgamegeek.model.Player;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -22,14 +20,11 @@ public class Play {
 	@Path("item") @Attribute public String name;
 	@Path("item") @Attribute public int objectid;
 	@Path("item") @Attribute public String objecttype;
-
+	@Element(required = false) public String comments;
+	@ElementList(required = false) public List<Player> players;
 	@Path("item") @ElementList public List<Play.Subtype> subtypes;
-
 	@Root(name = "subtype")
 	public static class Subtype {
 		@Attribute public String value;
 	}
-
-	@Element(required = false) public String comments;
-	@ElementList(required = false) public List<Player> players;
 }

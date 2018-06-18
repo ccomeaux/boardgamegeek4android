@@ -1837,11 +1837,11 @@ public class LogPlayActivity extends AppCompatActivity {
 									final Player player = play.getPlayers().get(position);
 									switch (item.getItemId()) {
 										case newItemId:
-											player.New(!item.isChecked());
+											player.isNew = !item.isChecked();
 											bind(position);
 											return true;
 										case winItemId:
-											player.Win(!item.isChecked());
+											player.isWin = !item.isChecked();
 											bind(position);
 											return true;
 									}
@@ -1854,8 +1854,8 @@ public class LogPlayActivity extends AppCompatActivity {
 							});
 						}
 						final Player player = play.getPlayers().get(position);
-						moreMenu.findItem(newItemId).setChecked(player.New());
-						moreMenu.findItem(winItemId).setChecked(player.Win());
+						moreMenu.findItem(newItemId).setChecked(player.isNew);
+						moreMenu.findItem(winItemId).setChecked(player.isWin);
 						MenuPopupHelper popup = new MenuPopupHelper(LogPlayActivity.this, moreMenu, row.getMoreButton());
 						popup.show();
 					}
@@ -1931,7 +1931,7 @@ public class LogPlayActivity extends AppCompatActivity {
 									double highScore = play.getHighScore();
 									for (Player p : play.getPlayers()) {
 										double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
-										p.Win(score == highScore);
+										p.isWin = (score == highScore);
 									}
 									playAdapter.notifyPlayersChanged();
 								}

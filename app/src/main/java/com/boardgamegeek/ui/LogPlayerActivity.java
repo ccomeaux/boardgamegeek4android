@@ -362,8 +362,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 		}
 		scoreView.setTextKeepState(player.score);
 		ratingView.setTextKeepState((player.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(player.rating));
-		newView.setChecked(player.New());
-		winView.setChecked(player.Win());
+		newView.setChecked(player.isNew);
+		winView.setChecked(player.isWin);
 	}
 
 	@DebugLog
@@ -422,12 +422,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideNew() {
-		return !preferToShowNew && !userHasShownNew && !player.New();
+		return !preferToShowNew && !userHasShownNew && !player.isNew;
 	}
 
 	@DebugLog
 	private boolean shouldHideWin() {
-		return !preferToShowWin && !userHasShownWin && !player.Win();
+		return !preferToShowWin && !userHasShownWin && !player.isWin;
 	}
 
 	@DebugLog
@@ -549,7 +549,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		player.setStartingPosition(positionView.getText().toString().trim());
 		player.score = scoreView.getText().toString().trim();
 		player.rating = StringUtils.parseDouble(ratingView.getText().toString().trim());
-		player.New(newView.isChecked());
-		player.Win(winView.isChecked());
+		player.isNew = newView.isChecked();
+		player.isWin = winView.isChecked();
 	}
 }
