@@ -650,7 +650,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideNoWinStats() {
-		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.nowinstats;
+		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.noWinStats;
 	}
 
 	@DebugLog
@@ -820,7 +820,7 @@ public class LogPlayActivity extends AppCompatActivity {
 						playAdapter.insertRow(R.layout.row_log_play_incomplete);
 					} else if (selection.equals(r.getString(R.string.noWinStats))) {
 						isUserShowingNoWinStats = true;
-						play.nowinstats = true;
+						play.noWinStats = true;
 						playAdapter.insertRow(R.layout.row_log_play_no_win_stats);
 					} else if (selection.equals(r.getString(R.string.comments))) {
 						isUserShowingComments = true;
@@ -1618,13 +1618,13 @@ public class LogPlayActivity extends AppCompatActivity {
 			@Override
 			public void bind() {
 				if (play != null) {
-					noWinStatsView.setChecked(play.nowinstats);
+					noWinStatsView.setChecked(play.noWinStats);
 				}
 			}
 
 			@OnCheckedChanged(R.id.log_play_no_win_stats)
 			public void onIncompleteCheckedChanged() {
-				play.nowinstats = noWinStatsView.isChecked();
+				play.noWinStats = noWinStatsView.isChecked();
 			}
 		}
 

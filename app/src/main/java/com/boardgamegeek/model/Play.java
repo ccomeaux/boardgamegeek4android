@@ -2,6 +2,7 @@ package com.boardgamegeek.model;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -10,8 +11,6 @@ import com.boardgamegeek.StringExtensionsKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
-
-import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,12 +26,13 @@ public class Play {
 	public int quantity;
 	public int length;
 	public boolean incomplete;
-	public boolean nowinstats;
+	public boolean noWinStats;
 	public String location;
 	public String gameName;
 	public int gameId;
 	public List<String> subtypes;
 	public String comments;
+	@NonNull private List<Player> players = new ArrayList<>();
 
 	public long syncTimestamp;
 	public long startTime;
@@ -40,9 +40,6 @@ public class Play {
 	public long deleteTimestamp;
 	public long updateTimestamp;
 	public long dirtyTimestamp;
-
-	@ElementList(required = false)
-	private List<Player> players;
 
 	public Play() {
 		init(BggContract.INVALID_ID, "");
@@ -78,9 +75,11 @@ public class Play {
 	}
 
 	public void setDate(int year, int month, int day) {
-		// TODO find a better way that doesn't involve API format
-		String date = DateTimeUtils.formatDateForApi(year, month, day);
-		dateInMillis = StringExtensionsKt.toMillis(date, DateTimeUtils.FORMAT_API);
+		final Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_MONTH, day);
+		c.set(Calendar.MONTH, month);
+		c.set(Calendar.YEAR, year);
+		dateInMillis = c.getTimeInMillis();
 	}
 
 	public void setDateFromDatabase(String date) {
@@ -89,41 +88,28 @@ public class Play {
 
 	public void setCurrentDate() {
 		final Calendar c = Calendar.getInstance();
-		setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+		dateInMillis = c.getTimeInMillis();
 	}
 
 	// PLAYERS
-
+	@NonNull
 	public List<Player> getPlayers() {
-		if (players == null) {
-			return new ArrayList<>();
-		}
 		return players;
 	}
 
 	public int getPlayerCount() {
-		if (players == null) {
-			return 0;
-		}
 		return players.size();
 	}
 
 	public void setPlayers(List<Player> players) {
-		if (players != null) {
-			this.players.addAll(players);
-		}
+		this.players.addAll(players);
 	}
 
 	public void clearPlayers() {
-		if (players != null) {
-			players.clear();
-		}
+		players.clear();
 	}
 
 	public void addPlayer(Player player) {
-		if (players == null) {
-			players = new ArrayList<>();
-		}
 		// if player has seat, bump down other players
 		if (!arePlayersCustomSorted() && player.getSeat() != Player.SEAT_UNKNOWN) {
 			for (int i = players.size(); i >= player.getSeat(); i--) {
@@ -138,9 +124,7 @@ public class Play {
 	}
 
 	public void removePlayer(Player player, boolean resort) {
-		if (players == null || getPlayerCount() == 0) {
-			return;
-		}
+		if (players.size() == 0) return;
 		if (resort && !arePlayersCustomSorted()) {
 			for (int i = player.getSeat(); i < players.size(); i++) {
 				Player p = getPlayerAtSeat(i + 1);
@@ -164,9 +148,6 @@ public class Play {
 	}
 
 	public Player getPlayerAtSeat(int seat) {
-		if (players == null) {
-			return null;
-		}
 		for (Player player : players) {
 			if (player != null && player.getSeat() == seat) {
 				return player;
@@ -176,16 +157,10 @@ public class Play {
 	}
 
 	public boolean reorderPlayers(int fromSeat, int toSeat) {
-		if (players == null || getPlayerCount() == 0) {
-			return false;
-		}
-		if (arePlayersCustomSorted()) {
-			return false;
-		}
+		if (players.size() == 0) return false;
+		if (arePlayersCustomSorted()) return false;
 		Player player = getPlayerAtSeat(fromSeat);
-		if (player == null) {
-			return false;
-		}
+		if (player == null) return false;
 		player.setSeat(Player.SEAT_UNKNOWN);
 		try {
 			if (fromSeat > toSeat) {
@@ -211,7 +186,7 @@ public class Play {
 	 * @param startPlayerIndex The zero-based index of the new start player
 	 */
 	public void pickStartPlayer(int startPlayerIndex) {
-		int playerCount = getPlayerCount();
+		int playerCount = players.size();
 		for (int i = 0; i < playerCount; i++) {
 			Player p = players.get(i);
 			p.setSeat((i - startPlayerIndex + playerCount) % playerCount + 1);
@@ -223,9 +198,7 @@ public class Play {
 	 * Randomizes the order of players, assigning seats to the new order.
 	 */
 	public void randomizePlayerOrder() {
-		if (players == null || players.size() == 0) {
-			return;
-		}
+		if (players.size() == 0) return;
 		Collections.shuffle(players);
 		int playerCount = players.size();
 		for (int i = 0; i < playerCount; i++) {
@@ -239,7 +212,7 @@ public class Play {
 	 */
 	public void sortPlayers() {
 		int index = 0;
-		for (int i = 1; i <= getPlayerCount(); i++) {
+		for (int i = 1; i <= players.size(); i++) {
 			Player p = getPlayerAtSeat(i);
 			if (p != null) {
 				players.remove(p);
@@ -253,10 +226,8 @@ public class Play {
 	 * Determine if the starting positions indicate the players are custom sorted.
 	 */
 	public boolean arePlayersCustomSorted() {
-		if (!hasStartingPositions()) {
-			return true;
-		}
-
+		if (players.size() == 0) return false;
+		if (!hasStartingPositions()) return true;
 		int seat = 1;
 		do {
 			boolean foundSeat = false;
@@ -270,7 +241,7 @@ public class Play {
 				return true;
 			}
 			seat++;
-			if (seat > getPlayerCount()) {
+			if (seat > players.size()) {
 				return false;
 			}
 		} while (seat < 100);
@@ -281,16 +252,12 @@ public class Play {
 	 * Determine if any player has a starting position.
 	 */
 	public boolean hasStartingPositions() {
-		if (getPlayerCount() == 0) {
-			return false;
-		}
-
+		if (players.size() == 0) return false;
 		for (Player player : players) {
 			if (player != null && !TextUtils.isEmpty(player.getStartingPosition())) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -298,10 +265,7 @@ public class Play {
 	 * Remove the starting position for all players.
 	 */
 	public void clearPlayerPositions() {
-		if (getPlayerCount() == 0) {
-			return;
-		}
-
+		if (players.size() == 0) return;
 		for (Player player : players) {
 			if (player != null) {
 				player.setStartingPosition(null);
@@ -315,9 +279,7 @@ public class Play {
 	 * Determine if any player has a team/color.
 	 */
 	public boolean hasColors() {
-		if (getPlayerCount() == 0) {
-			return false;
-		}
+		if (players.size() == 0) return false;
 
 		for (Player player : players) {
 			if (player != null && !TextUtils.isEmpty(player.color)) {
@@ -329,7 +291,7 @@ public class Play {
 	}
 
 	public double getHighScore() {
-		if (getPlayerCount() == 0) return 0.0;
+		if (players.size() == 0) return 0.0;
 
 		double highScore = Double.MIN_VALUE;
 		for (Player player : players) {
@@ -388,12 +350,11 @@ public class Play {
 			&& (length == p.length)
 			&& ((location == null && p.location == null) || (location != null && location.equals(p.location)))
 			&& (incomplete == p.incomplete)
-			&& (nowinstats == p.nowinstats)
+			&& (noWinStats == p.noWinStats)
 			&& ((comments == null && p.comments == null) || (comments != null && comments.equals(p.comments)))
 			&& (startTime == p.startTime)
-			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
-			.size()));
-		if (eq && players != null) {
+			&& (players.size() == p.players.size());
+		if (eq) {
 			for (int i = 0; i < players.size(); i++) {
 				if (!players.get(i).equals(p.getPlayers().get(i))) {
 					return false;
@@ -415,7 +376,7 @@ public class Play {
 		result = prime * result + length;
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		result = prime * result + (incomplete ? 1 : 0);
-		result = prime * result + (nowinstats ? 1 : 0);
+		result = prime * result + (noWinStats ? 1 : 0);
 		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
 		long u = Double.doubleToLongBits(syncTimestamp);
 		result = prime * result + (int) (u ^ (u >>> 32));

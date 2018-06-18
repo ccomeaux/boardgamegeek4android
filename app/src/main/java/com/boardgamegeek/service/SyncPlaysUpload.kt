@@ -232,7 +232,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 .add("location", play.location)
                 .add("quantity", play.quantity.toString())
                 .add("incomplete", if (play.incomplete) "1" else "0")
-                .add("nowinstats", if (play.nowinstats) "1" else "0")
+                .add("nowinstats", if (play.noWinStats) "1" else "0")
                 .add("comments", play.comments)
         val players = play.players
         for (i in players.indices) {

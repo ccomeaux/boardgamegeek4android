@@ -35,7 +35,7 @@ class PlayMapper {
             length = from.length
             comments = from.comments
             incomplete = from.incomplete == 1
-            nowinstats = from.nowinstats == 1
+            noWinStats = from.nowinstats == 1
             subtypes = from.subtypes.map { it.value }
             players = p
         }

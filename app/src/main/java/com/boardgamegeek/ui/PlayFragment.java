@@ -452,7 +452,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		locationContainer.setVisibility(TextUtils.isEmpty(play.location) ? View.GONE : View.VISIBLE);
 
 		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
-		noWinStatsView.setVisibility(play.nowinstats ? View.VISIBLE : View.GONE);
+		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
 
 		commentsView.setText(play.comments);
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);

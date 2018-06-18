@@ -77,7 +77,7 @@ public class PlayBuilder {
 		play.length = CursorUtils.getInt(cursor, Plays.LENGTH, Play.LENGTH_DEFAULT);
 		play.location = CursorUtils.getString(cursor, Plays.LOCATION);
 		play.incomplete = CursorUtils.getBoolean(cursor, Plays.INCOMPLETE);
-		play.nowinstats = CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS);
+		play.noWinStats = CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS);
 		play.comments = CursorUtils.getString(cursor, Plays.COMMENTS);
 		play.syncTimestamp = CursorUtils.getLong(cursor, Plays.SYNC_TIMESTAMP);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
@@ -127,7 +127,7 @@ public class PlayBuilder {
 		copy.length = play.length;
 		copy.location = play.location;
 		copy.incomplete = play.incomplete;
-		copy.nowinstats = play.nowinstats;
+		copy.noWinStats = play.noWinStats;
 		copy.comments = play.comments;
 		copy.startTime = play.startTime;
 		for (Player player : play.getPlayers()) {
@@ -140,7 +140,7 @@ public class PlayBuilder {
 		Play copy = new Play(play.gameId, play.gameName);
 		copy.setCurrentDate();
 		copy.location = play.location;
-		copy.nowinstats = play.nowinstats;
+		copy.noWinStats = play.noWinStats;
 		boolean copyStartingPosition = !play.arePlayersCustomSorted();
 		for (Player player : play.getPlayers()) {
 			Player p = new Player();
@@ -171,7 +171,7 @@ public class PlayBuilder {
 		bundle.putInt(prefix + KEY_LENGTH, play.length);
 		bundle.putString(prefix + KEY_LOCATION, play.location);
 		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.incomplete);
-		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.nowinstats);
+		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.noWinStats);
 		bundle.putString(prefix + KEY_COMMENTS, play.comments);
 		bundle.putLong(prefix + KEY_SYNC_TIMESTAMP, play.syncTimestamp);
 		bundle.putLong(prefix + KEY_START_TIME, play.startTime);
@@ -191,7 +191,7 @@ public class PlayBuilder {
 		play.length = bundle.getInt(prefix + KEY_LENGTH);
 		play.location = getString(bundle, prefix + KEY_LOCATION);
 		play.incomplete = bundle.getBoolean(prefix + KEY_INCOMPLETE);
-		play.nowinstats = bundle.getBoolean(prefix + KEY_NOWINSTATS);
+		play.noWinStats = bundle.getBoolean(prefix + KEY_NOWINSTATS);
 		play.comments = getString(bundle, prefix + KEY_COMMENTS);
 		play.syncTimestamp = bundle.getLong(prefix + KEY_SYNC_TIMESTAMP);
 		play.startTime = bundle.getLong(prefix + KEY_START_TIME);

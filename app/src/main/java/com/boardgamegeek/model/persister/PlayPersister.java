@@ -162,7 +162,7 @@ public class PlayPersister {
 		sb.append(play.quantity).append("\n");
 		sb.append(play.length).append("\n");
 		sb.append(play.incomplete).append("\n");
-		sb.append(play.nowinstats).append("\n");
+		sb.append(play.noWinStats).append("\n");
 		sb.append(play.location).append("\n");
 		sb.append(play.comments).append("\n");
 		for (Player player : play.getPlayers()) {
@@ -188,7 +188,7 @@ public class PlayPersister {
 		values.put(Plays.QUANTITY, play.quantity);
 		values.put(Plays.LENGTH, play.length);
 		values.put(Plays.INCOMPLETE, play.incomplete);
-		values.put(Plays.NO_WIN_STATS, play.nowinstats);
+		values.put(Plays.NO_WIN_STATS, play.noWinStats);
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
