@@ -18,7 +18,8 @@ import timber.log.Timber;
 public class DateTimeUtils {
 	public static final long UNPARSED_DATE = -2;
 	public static final long UNKNOWN_DATE = -1;
-	private static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	public static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	public static final DateFormat FORMAT_DATABASE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private static final String FORMAT_MINUTES = "%d:%02d";
 
 	private DateTimeUtils() {
@@ -122,6 +123,12 @@ public class DateTimeUtils {
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(date);
 		return FORMAT_API.format(c.getTime());
+	}
+
+	public static String formatDateForDatabase(long date) {
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(date);
+		return FORMAT_DATABASE.format(c.getTime());
 	}
 
 	/**

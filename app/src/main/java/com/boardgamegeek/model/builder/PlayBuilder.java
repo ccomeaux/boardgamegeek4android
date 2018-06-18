@@ -72,12 +72,12 @@ public class PlayBuilder {
 		play.playId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
 		play.gameId = CursorUtils.getInt(cursor, Plays.OBJECT_ID, BggContract.INVALID_ID);
 		play.gameName = CursorUtils.getString(cursor, Plays.ITEM_NAME);
-		play.setDate(CursorUtils.getString(cursor, Plays.DATE));
+		play.setDateFromDatabase(CursorUtils.getString(cursor, Plays.DATE));
 		play.quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, Play.QUANTITY_DEFAULT);
 		play.length = CursorUtils.getInt(cursor, Plays.LENGTH, Play.LENGTH_DEFAULT);
 		play.location = CursorUtils.getString(cursor, Plays.LOCATION);
-		play.setIncomplete(CursorUtils.getBoolean(cursor, Plays.INCOMPLETE));
-		play.setNoWinStats(CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS));
+		play.incomplete = CursorUtils.getBoolean(cursor, Plays.INCOMPLETE);
+		play.nowinstats = CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS);
 		play.comments = CursorUtils.getString(cursor, Plays.COMMENTS);
 		play.syncTimestamp = CursorUtils.getLong(cursor, Plays.SYNC_TIMESTAMP);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
@@ -122,12 +122,12 @@ public class PlayBuilder {
 	public static Play copy(Play play) {
 		Play copy = new Play(play.gameId, play.gameName);
 		copy.playId = play.playId;
-		copy.setDate(play.getDate());
+		copy.dateInMillis = play.dateInMillis;
 		copy.quantity = play.quantity;
 		copy.length = play.length;
 		copy.location = play.location;
-		copy.setIncomplete(play.Incomplete());
-		copy.setNoWinStats(play.NoWinStats());
+		copy.incomplete = play.incomplete;
+		copy.nowinstats = play.nowinstats;
 		copy.comments = play.comments;
 		copy.startTime = play.startTime;
 		for (Player player : play.getPlayers()) {
@@ -140,7 +140,7 @@ public class PlayBuilder {
 		Play copy = new Play(play.gameId, play.gameName);
 		copy.setCurrentDate();
 		copy.location = play.location;
-		copy.setNoWinStats(play.NoWinStats());
+		copy.nowinstats = play.nowinstats;
 		boolean copyStartingPosition = !play.arePlayersCustomSorted();
 		for (Player player : play.getPlayers()) {
 			Player p = new Player();
@@ -166,12 +166,12 @@ public class PlayBuilder {
 		bundle.putInt(prefix + KEY_PLAY_ID, play.playId);
 		bundle.putInt(prefix + KEY_GAME_ID, play.gameId);
 		bundle.putString(prefix + KEY_GAME_NAME, play.gameName);
-		bundle.putString(prefix + KEY_DATE, play.getDate());
+		bundle.putLong(prefix + KEY_DATE, play.dateInMillis);
 		bundle.putInt(prefix + KEY_QUANTITY, play.quantity);
 		bundle.putInt(prefix + KEY_LENGTH, play.length);
 		bundle.putString(prefix + KEY_LOCATION, play.location);
-		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.Incomplete());
-		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.NoWinStats());
+		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.incomplete);
+		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.nowinstats);
 		bundle.putString(prefix + KEY_COMMENTS, play.comments);
 		bundle.putLong(prefix + KEY_SYNC_TIMESTAMP, play.syncTimestamp);
 		bundle.putLong(prefix + KEY_START_TIME, play.startTime);
@@ -186,12 +186,12 @@ public class PlayBuilder {
 		play.playId = bundle.getInt(prefix + KEY_PLAY_ID);
 		play.gameId = bundle.getInt(prefix + KEY_GAME_ID);
 		play.gameName = getString(bundle, prefix + KEY_GAME_NAME);
-		play.setDate(bundle.getString(prefix + KEY_DATE));
+		play.dateInMillis = bundle.getLong(prefix + KEY_DATE);
 		play.quantity = bundle.getInt(prefix + KEY_QUANTITY);
 		play.length = bundle.getInt(prefix + KEY_LENGTH);
 		play.location = getString(bundle, prefix + KEY_LOCATION);
-		play.setIncomplete(bundle.getBoolean(prefix + KEY_INCOMPLETE));
-		play.setNoWinStats(bundle.getBoolean(prefix + KEY_NOWINSTATS));
+		play.incomplete = bundle.getBoolean(prefix + KEY_INCOMPLETE);
+		play.nowinstats = bundle.getBoolean(prefix + KEY_NOWINSTATS);
 		play.comments = getString(bundle, prefix + KEY_COMMENTS);
 		play.syncTimestamp = bundle.getLong(prefix + KEY_SYNC_TIMESTAMP);
 		play.startTime = bundle.getLong(prefix + KEY_START_TIME);

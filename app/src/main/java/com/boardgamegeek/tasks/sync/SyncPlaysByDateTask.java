@@ -1,6 +1,5 @@
 package com.boardgamegeek.tasks.sync;
 
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -8,12 +7,16 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.model.PlaysResponse;
+import com.boardgamegeek.io.model.PlaysResponse;
+import com.boardgamegeek.mappers.PlayMapper;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
 import com.boardgamegeek.util.TaskUtils;
+
+import java.util.List;
 
 import retrofit2.Call;
 import timber.log.Timber;
@@ -49,7 +52,9 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 	@Override
 	protected void persistResponse(PlaysResponse body) {
 		PlayPersister persister = new PlayPersister(context);
-		persister.save(body.plays, startTime);
+		PlayMapper mapper = new PlayMapper();
+		List<Play> plays = mapper.map(body.plays);
+		persister.save(plays, startTime);
 		Timber.i("Synced plays for %s (page %,d)", date, getCurrentPage());
 	}
 

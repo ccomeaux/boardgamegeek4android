@@ -226,13 +226,13 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
             builder.add("playid", play.playId.toString())
         }
         builder.add("objectid", play.gameId.toString())
-                .add("playdate", play.date)
-                .add("dateinput", play.date)
+                .add("playdate", play.dateForApi)
+                .add("dateinput", play.dateForApi)
                 .add("length", play.length.toString())
                 .add("location", play.location)
                 .add("quantity", play.quantity.toString())
-                .add("incomplete", if (play.Incomplete()) "1" else "0")
-                .add("nowinstats", if (play.NoWinStats()) "1" else "0")
+                .add("incomplete", if (play.incomplete) "1" else "0")
+                .add("nowinstats", if (play.nowinstats) "1" else "0")
                 .add("comments", play.comments)
         val players = play.players
         for (i in players.indices) {

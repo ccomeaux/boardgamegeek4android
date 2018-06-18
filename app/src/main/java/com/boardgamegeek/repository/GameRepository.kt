@@ -11,11 +11,12 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image
+import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
-import com.boardgamegeek.model.PlaysResponse
+import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
@@ -155,7 +156,9 @@ class GameRepository(val application: BggApplication) {
             }
 
             override fun saveCallResult(result: PlaysResponse) {
-                persister.save(result.plays, timestamp)
+                val mapper = PlayMapper()
+                val plays = mapper.map(result.plays)
+                persister.save(plays, timestamp)
                 Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
             }
 

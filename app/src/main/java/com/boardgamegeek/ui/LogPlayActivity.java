@@ -645,12 +645,12 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideIncomplete() {
-		return play != null && !PreferencesUtils.showLogPlayIncomplete(this) && !isUserShowingIncomplete && !play.Incomplete();
+		return play != null && !PreferencesUtils.showLogPlayIncomplete(this) && !isUserShowingIncomplete && !play.incomplete;
 	}
 
 	@DebugLog
 	private boolean shouldHideNoWinStats() {
-		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.NoWinStats();
+		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.nowinstats;
 	}
 
 	@DebugLog
@@ -715,7 +715,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		play.deleteTimestamp = 0;
 		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
-			if (play.playId == 0 && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
+			if (play.playId == 0 && DateUtils.isToday(play.dateInMillis + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());
@@ -816,11 +816,11 @@ public class LogPlayActivity extends AppCompatActivity {
 						playAdapter.insertRow(R.layout.row_log_play_quantity);
 					} else if (selection.equals(r.getString(R.string.incomplete))) {
 						isUserShowingIncomplete = true;
-						play.setIncomplete(true);
+						play.incomplete = true;
 						playAdapter.insertRow(R.layout.row_log_play_incomplete);
 					} else if (selection.equals(r.getString(R.string.noWinStats))) {
 						isUserShowingNoWinStats = true;
-						play.setNoWinStats(true);
+						play.nowinstats = true;
 						playAdapter.insertRow(R.layout.row_log_play_no_win_stats);
 					} else if (selection.equals(r.getString(R.string.comments))) {
 						isUserShowingComments = true;
@@ -1416,7 +1416,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				}
 
 				fragmentManager.executePendingTransactions();
-				datePickerFragment.setCurrentDateInMillis(play.getDateInMillis());
+				datePickerFragment.setCurrentDateInMillis(play.dateInMillis);
 				datePickerFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 			}
 
@@ -1492,7 +1492,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					if (play.hasStarted()) {
 						timerToggleView.setEnabled(true);
 						timerToggleView.setImageResource(R.drawable.ic_timer_off);
-					} else if (DateUtils.isToday(play.getDateInMillis() + play.length * 60 * 1000)) {
+					} else if (DateUtils.isToday(play.dateInMillis + play.length * 60 * 1000)) {
 						timerToggleView.setEnabled(true);
 						timerToggleView.setImageResource(R.drawable.ic_timer);
 					} else {
@@ -1597,13 +1597,13 @@ public class LogPlayActivity extends AppCompatActivity {
 			@Override
 			public void bind() {
 				if (play != null) {
-					incompleteView.setChecked(play.Incomplete());
+					incompleteView.setChecked(play.incomplete);
 				}
 			}
 
 			@OnCheckedChanged(R.id.log_play_incomplete)
 			public void onIncompleteCheckedChanged() {
-				play.setIncomplete(incompleteView.isChecked());
+				play.incomplete = incompleteView.isChecked();
 			}
 		}
 
@@ -1618,13 +1618,13 @@ public class LogPlayActivity extends AppCompatActivity {
 			@Override
 			public void bind() {
 				if (play != null) {
-					noWinStatsView.setChecked(play.NoWinStats());
+					noWinStatsView.setChecked(play.nowinstats);
 				}
 			}
 
 			@OnCheckedChanged(R.id.log_play_no_win_stats)
 			public void onIncompleteCheckedChanged() {
-				play.setNoWinStats(noWinStatsView.isChecked());
+				play.nowinstats = noWinStatsView.isChecked();
 			}
 		}
 

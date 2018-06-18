@@ -6,91 +6,32 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.StringExtensionsKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Path;
-import org.simpleframework.xml.Root;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-@Root(name = "play")
 public class Play {
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
-	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
-	@Attribute(name = "id")
 	public int playId;
-
-	@Attribute
-	private String date;
-	private long playDate = DateTimeUtils.UNPARSED_DATE;
-
-	@Attribute
+	public long dateInMillis;
 	public int quantity;
-
-	@Attribute
 	public int length;
-
-	@Attribute
-	private int incomplete;
-
-	public boolean Incomplete() {
-		return incomplete == 1;
-	}
-
-	public void setIncomplete(boolean value) {
-		incomplete = value ? 1 : 0;
-	}
-
-	@Attribute
-	private int nowinstats;
-
-	public boolean NoWinStats() {
-		return nowinstats == 1;
-	}
-
-	public void setNoWinStats(boolean value) {
-		nowinstats = value ? 1 : 0;
-	}
-
-	@Attribute
+	public boolean incomplete;
+	public boolean nowinstats;
 	public String location;
-
-	@Path("item")
-	@Attribute(name = "name")
 	public String gameName;
-
-	@Path("item")
-	@Attribute(name = "objectid")
 	public int gameId;
-
-	@Path("item")
-	@Attribute
-	private String objecttype;
-
-	@Path("item")
-	@ElementList
-	public List<Subtype> subtypes;
-
-	@Root(name = "subtype")
-	public static class Subtype {
-		@Attribute
-		public String value;
-	}
-
-	@Element(required = false)
+	public List<String> subtypes;
 	public String comments;
 
 	public long syncTimestamp;
@@ -124,47 +65,26 @@ public class Play {
 
 	// DATE
 
-	/**
-	 * The date of the play in the yyyy-MM-dd format. This is the format the 'Geek uses and how it's stored in the
-	 * Content DB.
-	 *
-	 * @return The formatted date
-	 */
-	public String getDate() {
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
-		return DateTimeUtils.formatDateForApi(playDate);
+	public String getDateForApi() {
+		return DateTimeUtils.formatDateForApi(dateInMillis);
 	}
 
-	public long getDateInMillis() {
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
-		return playDate;
+	public String getDateForDatabase() {
+		return DateTimeUtils.formatDateForDatabase(dateInMillis);
 	}
 
-	/**
-	 * A text version of the date, formatted for display in the UI.
-	 *
-	 * @return a localized date.
-	 */
 	public CharSequence getDateForDisplay(Context context) {
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
-		return DateUtils.formatDateTime(context, playDate, DateUtils.FORMAT_SHOW_DATE);
+		return DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE);
 	}
 
 	public void setDate(int year, int month, int day) {
-		playDate = DateTimeUtils.UNPARSED_DATE;
-		date = DateTimeUtils.formatDateForApi(year, month, day);
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		// TODO find a better way that doesn't involve API format
+		String date = DateTimeUtils.formatDateForApi(year, month, day);
+		dateInMillis = StringExtensionsKt.toMillis(date, DateTimeUtils.FORMAT_API);
 	}
 
-	/**
-	 * Sets the play's date
-	 *
-	 * @param date in the yyyy-MM-dd format
-	 */
-	public void setDate(String date) {
-		playDate = DateTimeUtils.UNPARSED_DATE;
-		this.date = date;
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+	public void setDateFromDatabase(String date) {
+		dateInMillis = StringExtensionsKt.toMillis(date, DateTimeUtils.FORMAT_DATABASE);
 	}
 
 	public void setCurrentDate() {
@@ -463,7 +383,7 @@ public class Play {
 		Play p = (Play) o;
 		boolean eq = (playId == p.playId)
 			&& (gameId == p.gameId)
-			&& (playDate == p.playDate)
+			&& (dateInMillis == p.dateInMillis)
 			&& (quantity == p.quantity)
 			&& (length == p.length)
 			&& ((location == null && p.location == null) || (location != null && location.equals(p.location)))
@@ -490,12 +410,12 @@ public class Play {
 		result = prime * result + playId;
 		result = prime * result + gameId;
 		result = prime * result + ((gameName == null) ? 0 : gameName.hashCode());
-		result = prime * result + (int) (playDate ^ (playDate >>> 32));
+		result = prime * result + (int) (dateInMillis ^ (dateInMillis >>> 32));
 		result = prime * result + quantity;
 		result = prime * result + length;
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
-		result = prime * result + incomplete;
-		result = prime * result + nowinstats;
+		result = prime * result + (incomplete ? 1 : 0);
+		result = prime * result + (nowinstats ? 1 : 0);
 		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
 		long u = Double.doubleToLongBits(syncTimestamp);
 		result = prime * result + (int) (u ^ (u >>> 32));
@@ -507,7 +427,7 @@ public class Play {
 	public String toShortDescription(Context context) {
 		Resources r = context.getResources();
 		return r.getString(R.string.play_description_game_segment, gameName) +
-			r.getString(R.string.play_description_date_segment, getDate());
+			r.getString(R.string.play_description_date_segment, getDateForDisplay(context));
 	}
 
 	public String toLongDescription(Context context) {
@@ -552,7 +472,7 @@ public class Play {
 		if (length > 0) {
 			sb.append(resources.getString(R.string.play_description_length_segment, DateTimeUtils.describeMinutes(context, length)));
 		}
-		sb.append(resources.getString(R.string.play_description_date_segment, getDate()));
+		sb.append(resources.getString(R.string.play_description_date_segment, getDateForDisplay(context)));
 		if (!TextUtils.isEmpty(location)) {
 			sb.append(resources.getString(R.string.play_description_location_segment, location));
 		}

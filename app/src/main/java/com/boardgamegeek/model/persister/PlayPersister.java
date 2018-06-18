@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.model.Play.Subtype;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -149,8 +148,8 @@ public class PlayPersister {
 		if (play.subtypes == null || play.subtypes.isEmpty()) {
 			return true;
 		}
-		for (Subtype subtype : play.subtypes) {
-			if (subtype.value.startsWith("boardgame")) {
+		for (String subtype : play.subtypes) {
+			if (subtype.startsWith("boardgame")) {
 				return true;
 			}
 		}
@@ -159,11 +158,11 @@ public class PlayPersister {
 
 	private static int generateSyncHashCode(Play play) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(play.getDate()).append("\n");
+		sb.append(play.getDateForDatabase()).append("\n");
 		sb.append(play.quantity).append("\n");
 		sb.append(play.length).append("\n");
-		sb.append(play.Incomplete()).append("\n");
-		sb.append(play.NoWinStats()).append("\n");
+		sb.append(play.incomplete).append("\n");
+		sb.append(play.nowinstats).append("\n");
 		sb.append(play.location).append("\n");
 		sb.append(play.comments).append("\n");
 		for (Player player : play.getPlayers()) {
@@ -183,13 +182,13 @@ public class PlayPersister {
 	private static ContentValues createContentValues(Play play) {
 		ContentValues values = new ContentValues();
 		values.put(Plays.PLAY_ID, play.playId);
-		values.put(Plays.DATE, play.getDate());
+		values.put(Plays.DATE, play.getDateForDatabase());
 		values.put(Plays.ITEM_NAME, play.gameName);
 		values.put(Plays.OBJECT_ID, play.gameId);
 		values.put(Plays.QUANTITY, play.quantity);
 		values.put(Plays.LENGTH, play.length);
-		values.put(Plays.INCOMPLETE, play.Incomplete());
-		values.put(Plays.NO_WIN_STATS, play.NoWinStats());
+		values.put(Plays.INCOMPLETE, play.incomplete);
+		values.put(Plays.NO_WIN_STATS, play.nowinstats);
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
