@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.NavUtils
 import android.support.v4.app.TaskStackBuilder
 import android.support.v4.view.ViewPager.OnPageChangeListener
@@ -15,7 +14,6 @@ import android.view.MenuItem
 import com.boardgamegeek.R
 import com.boardgamegeek.applyDarkScrim
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.colorize
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.loadUrl
 import com.boardgamegeek.provider.BggContract
@@ -48,8 +46,7 @@ class GameActivity : HeroTabActivity() {
         GamePagerAdapter(supportFragmentManager, this, gameId, intent.getStringExtra(KEY_GAME_NAME))
     }
 
-    override val optionsMenuId: Int
-        get() = R.menu.game
+    override val optionsMenuId = R.menu.game
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,15 +77,6 @@ class GameActivity : HeroTabActivity() {
                         this@GameActivity.isFavorite = isFavorite
                         this@GameActivity.isUserMenuEnabled = maxUsers > 0
                         this@GameActivity.thumbnailUrl = thumbnailUrl
-
-                        adapter.gameName = name
-                        adapter.imageUrl = imageUrl
-                        adapter.thumbnailUrl = thumbnailUrl
-                        adapter.heroImageUrl = heroImageUrl
-                        adapter.arePlayersCustomSorted = customPlayerSort
-                        adapter.iconColor = iconColor
-
-                        if (fab.colorize(iconColor)) adapter.displayFab()
                     }
                 }
             }
@@ -111,12 +99,10 @@ class GameActivity : HeroTabActivity() {
 
             override fun onPageSelected(position: Int) {
                 adapter.currentPosition = position
-                adapter.displayFab()
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
         })
-        findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener { adapter.onFabClicked() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -199,12 +185,9 @@ class GameActivity : HeroTabActivity() {
         override fun onSuccessfulImageLoad(palette: Palette?) {
             viewModel.updateGameColors(palette)
             scrimView?.applyDarkScrim()
-            adapter.displayFab()
         }
 
-        override fun onFailedImageLoad() {
-            adapter.displayFab()
-        }
+        override fun onFailedImageLoad() {}
     }
 
     companion object {

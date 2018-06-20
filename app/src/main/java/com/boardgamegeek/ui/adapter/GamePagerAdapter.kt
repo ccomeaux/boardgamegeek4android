@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.adapter
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.graphics.Color
 import android.support.annotation.ColorInt
@@ -13,10 +14,12 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.colorize
+import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.PreferencesUtils
 
 const val INVALID_RES_ID = 0
@@ -24,22 +27,27 @@ const val INVALID_RES_ID = 0
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
         FragmentPagerAdapter(fragmentManager) {
     var currentPosition = 0
-    var thumbnailUrl = ""
-    var imageUrl = ""
-    var heroImageUrl = ""
-    var arePlayersCustomSorted = false
-    @ColorInt var iconColor = Color.TRANSPARENT
+        set(value) {
+            field = value
+            displayFab()
+        }
+
+    private var thumbnailUrl = ""
+    private var imageUrl = ""
+    private var heroImageUrl = ""
+    private var arePlayersCustomSorted = false
+    private var isFavorite = false
+    @ColorInt
+    private var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
-    private val fab = activity.findViewById<FloatingActionButton>(R.id.fab)
-    private val rootContainer = activity.findViewById<ViewGroup>(R.id.root_container)
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(activity).get(GameViewModel::class.java)
-    }
+    private val rootContainer: ViewGroup by lazy { activity.findViewById<ViewGroup>(R.id.root_container) }
+    private val fab: FloatingActionButton by lazy { activity.findViewById<FloatingActionButton>(R.id.fab) }
+    private val viewModel: GameViewModel by lazy { ViewModelProviders.of(activity).get(GameViewModel::class.java) }
 
-    private inner class Tab @JvmOverloads constructor(
+    private inner class Tab(
             @field:StringRes val titleResId: Int,
-            @field:DrawableRes val imageResId: Int = INVALID_RES_ID,
+            @field:DrawableRes var imageResId: Int = INVALID_RES_ID,
             val listener: () -> Unit = {})
 
     init {
@@ -72,25 +80,60 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
 
     private fun updateTabs() {
         tabs.clear()
-        tabs.add(Tab(R.string.title_description, R.drawable.fab_log_play, {
-            onPlayFabClicked()
-        }))
-        tabs.add(Tab(R.string.title_info, R.drawable.fab_log_play, {
-            onPlayFabClicked()
-        }))
+        tabs.add(Tab(R.string.title_description, R.drawable.fab_log_play) {
+            LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+        })
+        tabs.add(Tab(R.string.title_info, R.drawable.fab_favorite_off) {
+            if (updateFavIcon(!isFavorite)) displayFab()
+            viewModel.updateFavorite(!isFavorite)
+        })
         if (shouldShowCollection())
             tabs.add(Tab(R.string.title_collection, R.drawable.fab_add) {
-                onCollectionFabClicked()
+                val statusDialogFragment = CollectionStatusDialogFragment.newInstance(rootContainer) { selectedStatuses, wishListPriority ->
+                    viewModel.addCollectionItem(selectedStatuses, wishListPriority)
+                }
+                statusDialogFragment.setTitle(R.string.title_add_a_copy)
+                activity.showAndSurvive(statusDialogFragment)
             })
         if (shouldShowPlays())
             tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {
-                onPlayFabClicked()
+                LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
             })
         tabs.add(Tab(R.string.title_forums))
         tabs.add(Tab(R.string.links))
+
+        viewModel.game.observe(activity, Observer {
+            if (it?.status == Status.SUCCESS) {
+                it.data?.let {
+                    gameName = it.name
+                    imageUrl = it.imageUrl
+                    thumbnailUrl = it.thumbnailUrl
+                    heroImageUrl = it.heroImageUrl
+                    arePlayersCustomSorted = it.customPlayerSort
+                    iconColor = it.iconColor
+                    isFavorite = it.isFavorite
+                    updateFavIcon(isFavorite)
+                    fab.colorize(iconColor)
+                    fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
+                    displayFab()
+                }
+            }
+        })
     }
 
-    fun displayFab() {
+    private fun updateFavIcon(isFavorite: Boolean): Boolean {
+        tabs.find { it.titleResId == R.string.title_info }?.let {
+            val resId = if (isFavorite) R.drawable.fab_favorite_on else R.drawable.fab_favorite_off
+            if (resId != it.imageResId) {
+                it.imageResId = resId
+                if (it.titleResId == tabs.getOrNull(currentPosition)?.titleResId ?: INVALID_RES_ID)
+                    return true
+            }
+        }
+        return false
+    }
+
+    private fun displayFab() {
         @DrawableRes val resId = tabs.getOrNull(currentPosition)?.imageResId ?: INVALID_RES_ID
         if (resId != INVALID_RES_ID) {
             val existingResId = fab.getTag(R.id.res_id) as? Int? ?: INVALID_RES_ID
@@ -106,26 +149,11 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
                 fab.setImageResource(resId)
                 fab.show()
             }
-            fab?.setTag(R.id.res_id, resId)
+            fab.setTag(R.id.res_id, resId)
         } else {
             fab.hide()
+            fab.setTag(R.id.res_id, INVALID_RES_ID)
         }
-    }
-
-    fun onFabClicked() {
-        tabs.getOrNull(currentPosition)?.listener?.invoke()
-    }
-
-    private fun onCollectionFabClicked() {
-        val statusDialogFragment = CollectionStatusDialogFragment.newInstance(rootContainer) { selectedStatuses, wishListPriority ->
-            viewModel.addCollectionItem(selectedStatuses, wishListPriority)
-        }
-        statusDialogFragment.setTitle(R.string.title_add_a_copy)
-        DialogUtils.showFragment(activity, statusDialogFragment, "status_dialog")
-    }
-
-    private fun onPlayFabClicked() {
-        LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
     }
 
     private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && PreferencesUtils.getSyncPlays(activity)

@@ -15,7 +15,7 @@
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:clickable="true"
 		android:focusable="true"
-		android:src="@drawable/ic_favorite"/>
+		android:src="@drawable/ic_score"/>
 
 	<LinearLayout
 		android:id="@+id/rankContainer"

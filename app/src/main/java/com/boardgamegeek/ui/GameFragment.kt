@@ -135,7 +135,7 @@ class GameFragment : Fragment() {
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
 
-        listOf(favoriteIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
+        listOf(ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
                 .forEach { it?.setOrClearColorFilter(iconColor) }
         listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics, game_info_expansions, game_info_base_games)
                 .forEach { it?.colorize(iconColor) }
@@ -145,11 +145,6 @@ class GameFragment : Fragment() {
         colorize(game.iconColor)
 
         gameName = game.name
-
-        favoriteIcon?.setImageResource(if (game.isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
-        favoriteIcon?.setOnClickListener {
-            viewModel.updateFavorite(!game.isFavorite)
-        }
 
         rankView?.text = game.overallRank.asRank(ctx, game.subtype)
         rankContainer?.setOnClickListener { GameRanksFragment.launch(this) }
