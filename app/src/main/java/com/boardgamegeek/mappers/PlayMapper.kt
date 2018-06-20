@@ -21,7 +21,7 @@ class PlayMapper {
 
     fun map(from: Play): com.boardgamegeek.model.Play {
         val p = mutableListOf<Player>()
-        from.players.forEach {
+        from.players?.forEach {
             p += map(it)
         }
 
