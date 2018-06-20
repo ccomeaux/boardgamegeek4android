@@ -10,7 +10,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/favoriteIcon"
+		android:id="@+id/ranksIcon"
 		style="@style/Icon"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:clickable="true"
