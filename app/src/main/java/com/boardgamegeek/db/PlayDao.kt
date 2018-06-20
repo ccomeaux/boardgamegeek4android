@@ -51,10 +51,10 @@ class PlayDao(private val context: BggApplication) {
                                 gameName = it.getString(Plays.ITEM_NAME),
                                 quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,
                                 length = it.getIntOrNull(Plays.LENGTH) ?: 0,
-                                location = it.getStringOrNull(Plays.LOCATION) ?: "",
+                                location = it.getStringOrEmpty(Plays.LOCATION),
                                 incomplete = it.getInt(Plays.INCOMPLETE) == 1,
                                 noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
-                                comments = it.getString(Plays.COMMENTS),
+                                comments = it.getStringOrEmpty(Plays.COMMENTS),
                                 syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
                                 playerCount = it.getInt(Plays.PLAYER_COUNT),
                                 dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
@@ -67,4 +67,3 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 }
-
