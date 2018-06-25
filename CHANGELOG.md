@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.6.5
+-------------
+ * Bug fixes
+
 Version 6.6.4
 -------------
  * Bug fixes
