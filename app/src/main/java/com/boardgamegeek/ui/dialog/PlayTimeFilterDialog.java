@@ -60,12 +60,4 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 		}
 		return super.getPinText(value);
 	}
-
-	@Override
-	protected int getPinValue(String text) {
-		if (text.endsWith("+")) {
-			return PlayTimeFilterer.MAX_RANGE;
-		}
-		return super.getPinValue(text);
-	}
 }

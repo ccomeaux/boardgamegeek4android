@@ -59,12 +59,4 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 		}
 		return super.getPinText(value);
 	}
-
-	@Override
-	protected int getPinValue(String text) {
-		if (text.endsWith("+")) {
-			return PlayCountFilterer.MAX_RANGE;
-		}
-		return super.getPinValue(text);
-	}
 }
