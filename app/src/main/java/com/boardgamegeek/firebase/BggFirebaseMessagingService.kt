@@ -14,7 +14,7 @@ class BggFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
         remoteMessage?.notification?.let {
-            val urlString = remoteMessage.data["URL"]
+            val urlString = remoteMessage.data?.get("URL")
             val intent = if (urlString != null) {
                 Intent(Intent.ACTION_VIEW, Uri.parse(urlString))
             } else {
