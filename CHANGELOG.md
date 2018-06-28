@@ -4,6 +4,7 @@ Release Notes
 Version 6.6.5
 -------------
  * Enable remote messages to be sent from the developers
+ * Fix some collection filters, like average weight
  * Bug fixes
 
 Version 6.6.4
