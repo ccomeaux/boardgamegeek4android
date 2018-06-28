@@ -3,6 +3,7 @@ Release Notes
 
 Version 6.6.5
 -------------
+ * Enable remote messages to be sent from the developers
  * Bug fixes
 
 Version 6.6.4
