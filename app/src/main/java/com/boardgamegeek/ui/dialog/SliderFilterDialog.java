@@ -16,7 +16,6 @@ import com.appyvet.materialrangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.util.MathUtils;
-import com.boardgamegeek.util.StringUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -81,8 +80,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		rangeBar.setOnRangeBarChangeListener(new OnRangeBarChangeListener() {
 			@Override
 			public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
-				low = getPinValue(leftPinValue);
-				high = getPinValue(rightPinValue);
+				low = MathUtils.constrain(leftPinIndex + getAbsoluteMin(), getAbsoluteMin(), getAbsoluteMax());
+				high = MathUtils.constrain(rightPinIndex + getAbsoluteMin(), getAbsoluteMin(), getAbsoluteMax());
 			}
 		});
 	}
@@ -167,10 +166,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 	protected String getPinText(String value) {
 		return value;
-	}
-
-	protected int getPinValue(String text) {
-		return StringUtils.parseInt(text);
 	}
 
 	class InitialValues {

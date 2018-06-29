@@ -67,9 +67,4 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 	protected String getPinText(String value) {
 		return FORMAT.format((double) StringUtils.parseInt(value, 0) / FACTOR);
 	}
-
-	@Override
-	protected int getPinValue(String text) {
-		return (int) (StringUtils.parseDouble(text) * FACTOR);
-	}
 }

@@ -10,4 +10,6 @@
 	<string name="channel_description_playing">Display the current game being played including the elapsed time.</string>
 	<string name="channel_name_stats">Stats updates</string>
 	<string name="channel_description_stats">Let\'s you know whenever statistics are updated.</string>
+	<string name="channel_name_firebase_messages">Remote messages</string>
+	<string name="channel_description_firebase_messages">Messages sent by the app developers to keep you up to date on the app\'s status, especially sync issues.</string>
 </resources>

@@ -64,8 +64,8 @@ abstract class BaseActivity : AppCompatActivity() {
         return super.onPrepareOptionsMenu(menu)
     }
 
-    protected fun setSubtitle(text: String) {
-        supportActionBar?.subtitle = text
+    protected fun setSubtitle(text: String?) {
+        supportActionBar?.subtitle = text ?: ""
     }
 
     @DebugLog

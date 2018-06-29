@@ -75,6 +75,7 @@
 	<string name="title_location">Location</string>
 	<string name="title_locations">Locations</string>
 	<string name="title_player">Player</string>
+	<string name="title_firebase_message">Message from the App developers</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
 	<string name="delete">Delete</string>

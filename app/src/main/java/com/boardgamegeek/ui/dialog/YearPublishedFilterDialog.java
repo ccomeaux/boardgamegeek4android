@@ -62,15 +62,4 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 		}
 		return super.getPinText(value);
 	}
-
-	@Override
-	protected int getPinValue(String text) {
-		if (text.startsWith("<")) {
-			return YearPublishedFilterer.MIN_RANGE;
-		}
-		if (text.endsWith("+")) {
-			return YearPublishedFilterer.MAX_RANGE;
-		}
-		return super.getPinValue(text);
-	}
 }
