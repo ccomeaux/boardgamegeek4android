@@ -60,12 +60,4 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 		}
 		return super.getPinText(value);
 	}
-
-	@Override
-	protected int getPinValue(String text) {
-		if (text.endsWith("+")) {
-			return SuggestedAgeFilterer.MAX_RANGE;
-		}
-		return super.getPinValue(text);
-	}
 }

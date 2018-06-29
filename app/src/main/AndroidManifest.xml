@@ -345,6 +345,20 @@
 				android:resource="@xml/authenticator"/>
 		</service>
 
+		<!-- Firebase Cloud Messaging (FCM) -->
+		<service
+			android:name=".firebase.BggFirebaseMessagingService">
+			<intent-filter>
+				<action android:name="com.google.firebase.MESSAGING_EVENT"/>
+			</intent-filter>
+		</service>
+		<service
+			android:name=".firebase.BggFirebaseInstanceIDService">
+			<intent-filter>
+				<action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+			</intent-filter>
+		</service>
+
 		<provider
 			android:name=".provider.BggProvider"
 			android:authorities="com.boardgamegeek"
@@ -368,6 +382,17 @@
 		<meta-data
 			android:name="com.crashlytics.ApiKey"
 			android:value="ce3b2fdec1306105cd9f867446334e513aa09208"/>
+
+		<!-- Firebase Cloud Messaging (FCM) -->
+		<meta-data
+			android:name="com.google.firebase.messaging.default_notification_icon"
+			android:resource="@drawable/ic_stat_bgg"/>
+		<meta-data
+			android:name="com.google.firebase.messaging.default_notification_color"
+			android:resource="@color/primary"/>
+		<meta-data
+			android:name="com.google.firebase.messaging.default_notification_channel_id"
+			android:value="firebase_messages"/>
 	</application>
 
 </manifest>

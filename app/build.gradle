@@ -11,7 +11,7 @@ buildscript {
 
 def versionMajor = 6
 def versionMinor = 6
-def versionPatch = 4
+def versionPatch = 5
 def versionBuild = 1
 
 apply plugin: 'com.android.application'
@@ -126,8 +126,9 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
-    implementation 'com.google.firebase:firebase-core:12.0.1'
-    implementation 'com.google.firebase:firebase-config:12.0.1'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-config:16.0.0'
+    implementation 'com.google.firebase:firebase-messaging:17.0.0'
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
