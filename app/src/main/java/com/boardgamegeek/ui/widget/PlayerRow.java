@@ -122,17 +122,17 @@ public class PlayerRow extends LinearLayout {
 				String name = player.getSeat() == Player.SEAT_UNKNOWN ?
 					getResources().getString(R.string.title_player) :
 					getResources().getString(R.string.generic_player, player.getSeat());
-				setText(nameView, name, nameTypeface, player.New(), player.Win(), true);
+				setText(nameView, name, nameTypeface, player.isNew, player.isWin, true);
 				usernameView.setVisibility(GONE);
 			} else if (TextUtils.isEmpty(player.name)) {
-				setText(nameView, player.username, nameTypeface, player.New(), player.Win());
+				setText(nameView, player.username, nameTypeface, player.isNew, player.isWin);
 				usernameView.setVisibility(GONE);
 			} else {
-				setText(nameView, player.name, nameTypeface, player.New(), player.Win());
-				setText(usernameView, player.username, usernameTypeface, player.New(), player.Win());
+				setText(nameView, player.name, nameTypeface, player.isNew, player.isWin);
+				setText(usernameView, player.username, usernameTypeface, player.isNew, player.isWin);
 			}
 			PresentationUtils.setTextOrHide(teamColorView, player.color);
-			setText(scoreView, player.score, scoreTypeface, false, player.Win());
+			setText(scoreView, player.score, scoreTypeface, false, player.isWin);
 			scoreButton.setVisibility(TextUtils.isEmpty(player.score) ? GONE : VISIBLE);
 			PresentationUtils.setTextOrHide(ratingView, (player.rating > 0) ? ratingFormat.format(player.rating) : "");
 			ratingButton.setVisibility(player.rating > 0 ? VISIBLE : GONE);

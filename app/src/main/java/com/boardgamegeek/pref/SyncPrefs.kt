@@ -2,7 +2,6 @@ package com.boardgamegeek.pref
 
 import android.accounts.AccountManager
 import android.content.Context
-import android.text.TextUtils
 import com.boardgamegeek.PreferenceHelper
 import com.boardgamegeek.PreferenceHelper.get
 import com.boardgamegeek.PreferenceHelper.set
@@ -130,7 +129,7 @@ class SyncPrefs {
             val accountManager = AccountManager.get(context)
             val account = Authenticator.getAccount(accountManager) ?: return defaultValue
             val s = accountManager.getUserData(account, key)
-            return if (TextUtils.isEmpty(s)) defaultValue else java.lang.Long.parseLong(s)
+            return s?.toLongOrNull() ?: defaultValue
         }
     }
 }

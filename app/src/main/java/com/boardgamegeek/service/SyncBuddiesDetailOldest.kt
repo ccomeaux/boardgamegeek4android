@@ -1,19 +1,15 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
-import com.boardgamegeek.R
-import com.boardgamegeek.clamp
+import com.boardgamegeek.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.queryCount
-import com.boardgamegeek.queryStrings
 import com.boardgamegeek.util.RemoteConfig
 
 /**
  * Syncs a few buddies that haven't been updated in the longer while.
  */
-class SyncBuddiesDetailOldest(context: Context, service: BggService, syncResult: SyncResult) : SyncBuddiesDetail(context, service, syncResult) {
+class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncBuddiesDetail(application, service, syncResult) {
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 

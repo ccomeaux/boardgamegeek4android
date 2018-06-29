@@ -1,7 +1,10 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.boardgamegeek
 
 import android.database.Cursor
 import com.boardgamegeek.util.DateTimeUtils
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -76,6 +79,28 @@ fun Cursor.getApiTime(columnName: String): Long {
     return DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, getString(columnName), apiDateFormat)
 }
 
+fun Cursor.getDateInMillis(columnName: String): Long {
+    val date = getStringOrNull(columnName) ?: ""
+    if (date.isNotEmpty()) {
+        val calendar = getCalendar(date)
+        return calendar.timeInMillis
+    }
+    return 0L
+}
+
+private fun getCalendar(date: String): Calendar {
+    Timber.v("Getting date from string: %s", date)
+    val dateParts = date.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    val year = Integer.parseInt(dateParts[0])
+    val month = Integer.parseInt(dateParts[1]) - 1
+    val day = Integer.parseInt(dateParts[2])
+    val calendar = Calendar.getInstance()
+    calendar.set(year, month, day)
+    return calendar
+}
+
+fun String.whereZeroOrNull() = "(${this}=0 OR ${this} IS NULL)"
+
 /**
  * Fix for Cursor not implementing Closeable until API level 16.
  */
@@ -100,3 +125,72 @@ inline fun <T : Cursor?, R> T.use(block: (T) -> R): R {
         }
     }
 }
+
+inline fun Cursor.getDoubleOrZero(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0.0 else getDouble(it) }
+
+inline fun Cursor.getIntOrZero(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0 else getInt(it) }
+
+inline fun Cursor.getLongOrZero(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0L else getLong(it) }
+
+inline fun Cursor.getBoolean(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) false else getInt(it) == 1 }
+
+inline fun Cursor.getStringOrEmpty(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) "" else getString(it) ?: "" }
+
+// Below is copied from KTX. Replace with library once it's released
+
+inline fun Cursor.getBlob(columnName: String): ByteArray =
+        getBlob(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getDouble(columnName: String): Double =
+        getDouble(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getFloat(columnName: String): Float = getFloat(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getShort(columnName: String): Short = getShort(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getString(columnName: String): String =
+        getString(getColumnIndexOrThrow(columnName))
+
+inline fun Cursor.getBlobOrNull(index: Int) = if (isNull(index)) null else getBlob(index)
+
+inline fun Cursor.getDoubleOrNull(index: Int) = if (isNull(index)) null else getDouble(index)
+
+inline fun Cursor.getFloatOrNull(index: Int) = if (isNull(index)) null else getFloat(index)
+
+inline fun Cursor.getIntOrNull(index: Int) = if (isNull(index)) null else getInt(index)
+
+inline fun Cursor.getLongOrNull(index: Int) = if (isNull(index)) null else getLong(index)
+
+inline fun Cursor.getShortOrNull(index: Int) = if (isNull(index)) null else getShort(index)
+
+inline fun Cursor.getStringOrNull(index: Int) = if (isNull(index)) null else getString(index)
+
+inline fun Cursor.getBlobOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getBlob(it) }
+
+inline fun Cursor.getDoubleOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getDouble(it) }
+
+inline fun Cursor.getFloatOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getFloat(it) }
+
+inline fun Cursor.getIntOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getInt(it) }
+
+inline fun Cursor.getLongOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getLong(it) }
+
+inline fun Cursor.getShortOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getShort(it) }
+
+inline fun Cursor.getStringOrNull(columnName: String) =
+        getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getString(it) }

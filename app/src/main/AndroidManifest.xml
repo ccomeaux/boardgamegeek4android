@@ -83,15 +83,7 @@
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"
-			android:label="@string/title_game">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"/>
-
-				<category android:name="android.intent.category.DEFAULT"/>
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game"/>
-			</intent-filter>
-		</activity>
+			android:label="@string/title_game"/>
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
@@ -103,16 +95,6 @@
 			android:name=".ui.ProducerActivity"
 			android:exported="false"
 			android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"/>
-
-				<category android:name="android.intent.category.DEFAULT"/>
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.designer"/>
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.artist"/>
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.publisher"/>
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -254,9 +236,6 @@
 		<activity
 			android:name=".ui.GameColorsActivity"
 			android:label="@string/title_colors"/>
-		<activity
-			android:name=".ui.GameForumsActivity"
-			android:label="@string/title_forums"/>
 		<activity
 			android:name=".ui.CommentsActivity"
 			android:label="@string/title_comments"/>

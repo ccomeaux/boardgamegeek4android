@@ -5,7 +5,6 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -13,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.SyncCompleteEvent;
@@ -39,12 +39,14 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
+	private BggApplication application;
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
 	@DebugLog
-	public SyncAdapter(Context context) {
-		super(context, false);
+	public SyncAdapter(BggApplication context) {
+		super(context.getApplicationContext(), false);
+		application = context;
 
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -93,7 +95,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		toggleCancelReceiver(true);
-		List<SyncTask> tasks = createTasks(getContext(), type, uploadOnly, syncResult, account);
+		List<SyncTask> tasks = createTasks(application, type, uploadOnly, syncResult, account);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -181,32 +183,32 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	@NonNull
-	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
-		BggService service = Adapter.createForXmlWithAuth(context);
+	private List<SyncTask> createTasks(BggApplication application, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
+		BggService service = Adapter.createForXmlWithAuth(application);
 		List<SyncTask> tasks = new ArrayList<>();
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-			tasks.add(new SyncCollectionUpload(context, service, syncResult));
+			tasks.add(new SyncCollectionUpload(application, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-			tasks.add(new SyncCollectionComplete(context, service, syncResult, account));
-			tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
-			tasks.add(new SyncCollectionUnupdated(context, service, syncResult, account));
+			tasks.add(new SyncCollectionComplete(application, service, syncResult, account));
+			tasks.add(new SyncCollectionModifiedSince(application, service, syncResult, account));
+			tasks.add(new SyncCollectionUnupdated(application, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-			tasks.add(new SyncGamesRemove(context, service, syncResult));
-			tasks.add(new SyncGamesOldest(context, service, syncResult));
-			tasks.add(new SyncGamesUnupdated(context, service, syncResult));
+			tasks.add(new SyncGamesRemove(application, service, syncResult));
+			tasks.add(new SyncGamesOldest(application, service, syncResult));
+			tasks.add(new SyncGamesUnupdated(application, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-			tasks.add(new SyncPlaysUpload(context, service, syncResult));
+			tasks.add(new SyncPlaysUpload(application, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-			tasks.add(new SyncPlays(context, service, syncResult, account));
+			tasks.add(new SyncPlays(application, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-			tasks.add(new SyncBuddiesList(context, service, syncResult, account));
-			tasks.add(new SyncBuddiesDetailOldest(context, service, syncResult));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service, syncResult));
+			tasks.add(new SyncBuddiesList(application, service, syncResult, account));
+			tasks.add(new SyncBuddiesDetailOldest(application, service, syncResult));
+			tasks.add(new SyncBuddiesDetailUnupdated(application, service, syncResult));
 		}
 		return tasks;
 	}

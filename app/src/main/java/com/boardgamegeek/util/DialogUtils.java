@@ -34,7 +34,6 @@ public class DialogUtils {
 	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
 		final FragmentManager fragmentManager = host.getFragmentManager();
 		if (fragmentManager == null) return;
-
 		String tag = "dialog";
 
 		FragmentTransaction ft = fragmentManager.beginTransaction();

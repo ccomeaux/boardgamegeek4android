@@ -12,6 +12,10 @@
 		android:title="@string/menu_favorite"
 		app:showAsAction="never"/>
 	<item
+		android:id="@+id/menu_users"
+		android:title="@string/menu_users"
+		app:showAsAction="never"/>
+	<item
 		android:id="@+id/menu_view_image"
 		android:title="@string/menu_view_image"
 		app:showAsAction="never"/>

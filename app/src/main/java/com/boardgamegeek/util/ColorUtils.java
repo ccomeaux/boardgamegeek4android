@@ -51,6 +51,10 @@ public class ColorUtils {
 	private ColorUtils() {
 	}
 
+	public static boolean isKnownColor(String color) {
+		return colorNameMap.containsKey(formatKey(color));
+	}
+
 	/**
 	 * Determine the RGB value of a named color, or a string formatted as "#aarrggbb". Returns a transparent color if
 	 * the color can't be determined from the string.
@@ -87,14 +91,6 @@ public class ColorUtils {
 	public static int getRatingColor(double rating) {
 		int baseRating = MathUtils.constrain((int) rating, 0, 10);
 		return blendColors(RATING_COLORS[baseRating], RATING_COLORS[baseRating + 1], baseRating + 1 - rating);
-	}
-
-	/**
-	 * Returns a color based on the stage (1 - 5) using a proportional blend for any decimal places.
-	 */
-	public static int getFiveStageColor(double stage) {
-		int index = MathUtils.constrain((int) stage, 1, 5) - 1;
-		return blendColors(FIVE_STAGE_COLORS[index], FIVE_STAGE_COLORS[index + 1], index + 2 - stage);
 	}
 
 	/**
@@ -270,34 +266,6 @@ public class ColorUtils {
 	public static boolean isColorDark(int color) {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
 	}
-
-	public static final int[] FIVE_STAGE_COLORS = {
-		0xFF249563,
-		0xFF2FC482,
-		0xFF1D8ACD,
-		0xFF5369A2,
-		0xFFDF4751,
-		0x00ffffff
-		// 0xFFDB303B - alternate red color
-	};
-
-	/**
-	 * Create an array of random, but light, colors
-	 */
-	public static final int[] TWELVE_STAGE_COLORS = {
-		0xFFDFEBCC,
-		0xFFBBDCCD,
-		0xFF98CBCD,
-		0xFF78BCCF,
-		0xFF60A8CA,
-		0xFF5290BA,
-		0xFF4576A9,
-		0xFF385E99,
-		0xFF2B4489,
-		0xFF1E2C7A,
-		0xFF182161,
-		0xFF121848
-	};
 
 	@ColorInt
 	public static int getTextColor(int backgroundColor) {

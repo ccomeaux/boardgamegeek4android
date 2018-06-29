@@ -3,7 +3,8 @@ Release Notes
 
 Version 6.7
 -----------
- * Coming soon
+ * UI changes
+ * Lots of under the hood improvements
 
 Version 6.6.5
 -------------

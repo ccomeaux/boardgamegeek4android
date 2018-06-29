@@ -212,6 +212,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		public class ViewHolder extends RecyclerView.ViewHolder {
 			private int gameId;
 			private String gameName;
+			private String thumbnailUrl;
 			@BindView(R.id.name) TextView name;
 			@BindView(R.id.year) TextView year;
 			@BindView(R.id.rank) TextView rank;
@@ -226,6 +227,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				if (game == null) return;
 				gameId = game.getId();
 				gameName = game.getName();
+				thumbnailUrl = game.getThumbnailUrl();
 				name.setText(game.getName());
 				year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
 				rank.setText(String.valueOf(game.getRank()));
@@ -241,7 +243,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							GameActivity.start(getContext(), gameId, gameName);
+							GameActivity.start(getContext(), gameId, gameName, thumbnailUrl);
 						}
 					}
 				});

@@ -137,6 +137,10 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
+    implementation "android.arch.lifecycle:viewmodel:$arch_lifecycle_version"
+    implementation "android.arch.lifecycle:livedata:$arch_lifecycle_version"
+    implementation "android.arch.lifecycle:extensions:$arch_lifecycle_version"
+
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-config:16.0.0'
     implementation 'com.google.firebase:firebase-messaging:17.0.0'

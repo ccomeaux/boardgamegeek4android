@@ -3,6 +3,7 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -59,6 +60,11 @@ public class BggContract {
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
 		String HERO_IMAGE_URL = "hero_image_url";
+		String ICON_COLOR = "ICON_COLOR";
+		String DARK_COLOR = "DARK_COLOR";
+		String WINS_COLOR = "WINS_COLOR";
+		String WINNABLE_PLAYS_COLOR = "WINNABLE_PLAYS_COLOR";
+		String ALL_PLAYS_COLOR = "ALL_PLAYS_COLOR";
 	}
 
 	interface GameRanksColumns {
@@ -324,18 +330,18 @@ public class BggContract {
 
 		public static final String POLLS_COUNT = "polls_count";
 
-		public static boolean isGameUri(Uri uri) {
-			if (uri == null) {
-				return false;
-			}
+		public static boolean isGameUri(@Nullable Uri uri) {
+			if (uri == null) return false;
 			List<String> segments = uri.getPathSegments();
 			return segments != null && segments.size() > 0 && PATH_GAMES.equals(segments.get(0));
 		}
 
+		@NonNull
 		public static Uri buildGameUri(int gameId) {
 			return getUriBuilder(gameId).build();
 		}
 
+		@NonNull
 		public static Uri buildRanksUri(int gameId) {
 			return getUriBuilder(gameId, PATH_RANKS).build();
 		}
@@ -825,7 +831,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
 
-		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
+		public static final String DEFAULT_SORT = POLL_RESULTS_SORT_INDEX + " ASC, " + POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
 	}
 
 	public static final class GameColors implements GameColorsColumns, GamesColumns, BaseColumns {

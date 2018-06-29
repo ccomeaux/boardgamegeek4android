@@ -1,13 +1,12 @@
 package com.boardgamegeek.service
 
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.support.annotation.PluralsRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.BigTextStyle
-import android.text.TextUtils
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.NotificationUtils
@@ -18,7 +17,9 @@ import com.crashlytics.android.Crashlytics
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-abstract class SyncTask(protected val context: Context, protected val service: BggService, protected val syncResult: SyncResult) {
+abstract class SyncTask(protected val application: BggApplication, protected val service: BggService, protected val syncResult: SyncResult) {
+    protected val context = application.applicationContext!!
+
     /**
      * Returns whether this task has been cancelled. It may still be running, but will stop soon.
      */
@@ -51,7 +52,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
     }
 
     protected fun updateProgressNotificationAsPlural(@PluralsRes detailResId: Int, quantity: Int, vararg formatArgs: Any) {
-        updateProgressNotification(context.resources.getQuantityString(detailResId, quantity, *formatArgs))
+        updateProgressNotification(application.resources.getQuantityString(detailResId, quantity, *formatArgs))
     }
 
     /**
@@ -80,7 +81,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
                 .setOngoing(true)
                 .setProgress(1, 0, true)
                 .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi)
-        if (!TextUtils.isEmpty(detail)) {
+        if (!detail.isNullOrBlank()) {
             builder.setStyle(BigTextStyle().bigText(detail))
         }
         NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder)
@@ -122,7 +123,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
                 .setContentText(contentMessage)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
-        if (!TextUtils.isEmpty(bigText)) {
+        if (bigText.isNotBlank()) {
             builder.setStyle(BigTextStyle().bigText(bigText))
         }
 

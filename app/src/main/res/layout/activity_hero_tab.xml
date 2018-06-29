@@ -88,7 +88,7 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="bottom|right"
 			android:layout_margin="@dimen/padding_fab"
-			android:visibility="gone"
+			android:visibility="invisible"
 			app:elevation="@dimen/fab_elevation"
 			app:pressedTranslationZ="@dimen/fab_translation"
 			app:rippleColor="@color/medium_blue"

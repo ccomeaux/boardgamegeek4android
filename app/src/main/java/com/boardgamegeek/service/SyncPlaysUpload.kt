@@ -2,12 +2,12 @@ package com.boardgamegeek.service
 
 import android.app.PendingIntent
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
@@ -21,6 +21,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
+import com.boardgamegeek.toOrdinal
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
@@ -33,7 +34,7 @@ import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
 import java.util.concurrent.TimeUnit
 
-class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private val persister = PlayPersister(context)
     private var currentPlay = PlayForNotification()
@@ -225,13 +226,13 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
             builder.add("playid", play.playId.toString())
         }
         builder.add("objectid", play.gameId.toString())
-                .add("playdate", play.date)
-                .add("dateinput", play.date)
+                .add("playdate", play.dateForApi)
+                .add("dateinput", play.dateForApi)
                 .add("length", play.length.toString())
                 .add("location", play.location)
                 .add("quantity", play.quantity.toString())
-                .add("incomplete", if (play.Incomplete()) "1" else "0")
-                .add("nowinstats", if (play.NoWinStats()) "1" else "0")
+                .add("incomplete", if (play.incomplete) "1" else "0")
+                .add("nowinstats", if (play.noWinStats) "1" else "0")
                 .add("comments", play.comments)
         val players = play.players
         for (i in players.indices) {
@@ -241,11 +242,11 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                     .add(getMapKey(i, "name"), player.name)
                     .add(getMapKey(i, "username"), player.username)
                     .add(getMapKey(i, "color"), player.color)
-                    .add(getMapKey(i, "position"), player.startposition)
+                    .add(getMapKey(i, "position"), player.startingPosition)
                     .add(getMapKey(i, "score"), player.score)
                     .add(getMapKey(i, "rating"), player.rating.toString())
-                    .add(getMapKey(i, "new"), player.new_.toString())
-                    .add(getMapKey(i, "win"), player.win.toString())
+                    .add(getMapKey(i, "new"), if (player.isNew) "1" else "0")
+                    .add(getMapKey(i, "win"), if (player.isWin) "1" else "0")
         }
 
         val request = Builder()
@@ -279,9 +280,9 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
 
     private fun getPlayCountDescription(count: Int, quantity: Int): String {
         return when (quantity) {
-            1 -> StringUtils.getOrdinal(count)
-            2 -> StringUtils.getOrdinal(count - 1) + " & " + StringUtils.getOrdinal(count)
-            else -> StringUtils.getOrdinal(count - quantity + 1) + " - " + StringUtils.getOrdinal(count)
+            1 -> count.toOrdinal()
+            2 -> "${(count - 1).toOrdinal()} & ${count.toOrdinal()}"
+            else -> "${(count - quantity + 1).toOrdinal()} - ${count.toOrdinal()}"
         }
     }
 

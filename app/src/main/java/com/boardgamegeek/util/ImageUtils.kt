@@ -87,7 +87,8 @@ object ImageUtils {
         safelyLoadImage(queue, callback)
     }
 
-    private fun getImageId(imageUrl: String): Int {
+    fun getImageId(imageUrl: String): Int {
+        if (imageUrl.isBlank()) return 0
         var partialUrl = imageUrl
         val imageIdPrefix = "/pic"
         val lastSlashIndex = partialUrl.lastIndexOf(imageIdPrefix)
@@ -99,7 +100,7 @@ object ImageUtils {
         return try {
             partialUrl.toInt()
         } catch (e: NumberFormatException) {
-            Timber.w("Didn't find an image ID in the URL $imageUrl")
+            Timber.w("Didn't find an image ID in the URL [$imageUrl]")
             0
         }
     }

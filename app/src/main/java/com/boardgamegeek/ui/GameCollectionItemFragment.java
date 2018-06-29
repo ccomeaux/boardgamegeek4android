@@ -23,6 +23,8 @@ import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.IntExtensionsKt;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
@@ -360,7 +362,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	public void onEvent(CollectionItemResetEvent event) {
 		if (event.getInternalId() == internalId) {
 			needsUploading = false;
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask((BggApplication) getActivity().getApplication(), gameId));
 		}
 	}
 
@@ -374,7 +376,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void colorize(Palette palette) {
 		if (palette == null || !isAdded()) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
 		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
 	}
 
@@ -527,7 +529,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		mightNeedRefreshing = false;
 		if (!isRefreshing && gameId != BggContract.INVALID_ID) {
 			isRefreshing = true;
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask((BggApplication) getActivity().getApplication(), gameId));
 			return true;
 		}
 		return false;
@@ -579,7 +581,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindWishlist(CollectionItem item) {
 		// view
 		if (item.isWishlist()) {
-			PresentationUtils.setTextOrHide(wishlistStatusView, PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
+			PresentationUtils.setTextOrHide(wishlistStatusView, IntExtensionsKt.asWishListPriority(item.getWishlistPriority(), getContext()));
 		} else {
 			wishlistStatusView.setVisibility(View.GONE);
 		}

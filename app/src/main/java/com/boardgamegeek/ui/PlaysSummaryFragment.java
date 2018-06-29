@@ -172,7 +172,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			case PLAYS_IN_PROGRESS_TOKEN:
 				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getContext(),
-					Plays.CONTENT_URI,
+					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
 					PlayModel.getProjection(),
 					Plays.DIRTY_TIMESTAMP + ">0",
 					null,
@@ -321,7 +321,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 
 		view.setTag(R.id.id, internalId);
-		view.setTag(R.id.game_info_id, play.getGameId());
+		view.setTag(R.id.game_id, play.getGameId());
 		view.setTag(R.id.game_name, play.getName());
 		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
 		view.setTag(R.id.image, play.getImageUrl());
@@ -332,7 +332,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			public void onClick(View v) {
 				EventBus.getDefault().postSticky(new PlaySelectedEvent(
 					(long) v.getTag(R.id.id),
-					(int) v.getTag(R.id.game_info_id),
+					(int) v.getTag(R.id.game_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
 					(String) v.getTag(R.id.image),
@@ -406,11 +406,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
-	private View createRow(LinearLayout container, String title, String text) {
-		View view = LayoutInflater.from(getContext()).inflate(R.layout.row_player_summary, container, false);
+	private View createRow(ViewGroup container, String title, String text) {
+		View view = LayoutInflater.from(getContext()).inflate(R.layout.row_play_summary, container, false);
 		container.addView(view);
-		((TextView) view.findViewById(android.R.id.title)).setText(title);
-		((TextView) view.findViewById(android.R.id.text1)).setText(text);
+		((TextView) view.findViewById(R.id.line1)).setText(title);
+		((TextView) view.findViewById(R.id.line2)).setText(text);
 		return view;
 	}
 
@@ -430,7 +430,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			colorsCard.setVisibility(View.VISIBLE);
 		} else {
 			colorsCard.setVisibility(View.GONE);
-
 		}
 	}
 

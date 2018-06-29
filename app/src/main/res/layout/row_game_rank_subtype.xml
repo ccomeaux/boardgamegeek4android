@@ -11,19 +11,17 @@
 	android:padding="@dimen/padding_half">
 
 	<TextView
-		android:id="@+id/rank"
+		android:id="@+id/rankView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:textAppearance="@style/Text.Subtitle"
 		tools:text="#42"/>
 
 	<TextView
-		android:id="@+id/name"
+		android:id="@+id/nameView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="2"
-		android:textAppearance="@style/Text.Subtitle"
 		tools:text="Board Game"/>
 
 	<FrameLayout
@@ -32,12 +30,11 @@
 		android:layout_weight="1">
 
 		<TextView
-			android:id="@+id/rating"
+			android:id="@+id/ratingView"
 			style="@style/RatingSmall"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
-			android:textStyle="bold"
 			tools:background="#088"
 			tools:text="7.43"/>
 	</FrameLayout>

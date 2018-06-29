@@ -167,7 +167,7 @@ public class GameCollectionItemActivity extends HeroActivity {
 				if (gameId == BggContract.INVALID_ID) {
 					onBackPressed();
 				} else {
-					GameActivity.startUp(this, gameId, gameName);
+					GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl);
 				}
 				finish();
 				return true;

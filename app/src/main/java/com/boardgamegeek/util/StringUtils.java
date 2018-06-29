@@ -11,26 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import hugo.weaving.DebugLog;
-
 /**
  * Provides utility methods for dealing with strings.
  */
 public class StringUtils {
-	private static final int INVALID_RANGE = -1;
-	private static final String RANGE_COMMA = ", ";
-	private static final String RANGE_DASH = " - ";
 	public static final String TRUNCATED_TEXT_SUFFIX = "..";
 
 	private StringUtils() {
-	}
-
-	public static String createSortName(String name, int sortIndex) {
-		if (sortIndex <= 1 || sortIndex > name.length()) {
-			return name;
-		}
-		int i = sortIndex - 1;
-		return name.substring(i) + ", " + name.substring(0, i).trim();
 	}
 
 	/**
@@ -105,36 +92,6 @@ public class StringUtils {
 	}
 
 	/**
-	 * Gets the ordinal (1st) for the given cardinal (1)
-	 *
-	 * @param cardinal The cardinal number (1, 2, 3)
-	 * @return The ordinal number (1st, 2nd, 3rd)
-	 */
-	public static String getOrdinal(int cardinal) {
-		if (cardinal < 0) {
-			return "-th";
-		}
-
-		String c = String.valueOf(cardinal);
-		String n = "0";
-		if (c.length() > 1) {
-			n = c.substring(c.length() - 2, c.length() - 1);
-		}
-		String l = c.substring(c.length() - 1);
-		if (!n.equals("1")) {
-			switch (l) {
-				case "1":
-					return c + "st";
-				case "2":
-					return c + "nd";
-				case "3":
-					return c + "rd";
-			}
-		}
-		return c + "th";
-	}
-
-	/**
 	 * Concatenates 2 arrays of strings into 1.
 	 */
 	public static String[] concatenate(String[] array1, String[] array2) {
@@ -161,14 +118,6 @@ public class StringUtils {
 	/**
 	 * Formats a list of items with commas and ampersands where necessary.
 	 */
-	public static <E> String formatList(E[] list) {
-		if (list == null) return "";
-		return formatList(Arrays.asList(list), "&", ",");
-	}
-
-	/**
-	 * Formats a list of items with commas and ampersands where necessary.
-	 */
 	public static <E> String formatList(List<E> list) {
 		return formatList(list, "&", ",");
 	}
@@ -189,45 +138,6 @@ public class StringUtils {
 						sb.append(comma).append(" ");
 					}
 				}
-			}
-		}
-		return sb.toString();
-	}
-
-	@DebugLog
-	public static String formatRange(List<Integer> list) {
-		if (list == null) return "";
-		if (list.size() == 0) return "";
-		if (list.size() == 1) return String.valueOf(list.get(0));
-
-		int first = INVALID_RANGE;
-		int last = INVALID_RANGE;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < list.size(); i++) {
-			int current = list.get(i);
-			if (first == INVALID_RANGE) {
-				first = current;
-			} else if (current - 1 == list.get(i - 1)) {
-				last = current;
-			} else if (last != INVALID_RANGE) {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first).append(RANGE_DASH).append(last);
-				first = INVALID_RANGE;
-				last = INVALID_RANGE;
-			} else {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first);
-				first = current;
-				last = INVALID_RANGE;
-			}
-		}
-		if (first != INVALID_RANGE) {
-			if (last != INVALID_RANGE) {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first).append(RANGE_DASH).append(last);
-			} else {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first);
 			}
 		}
 		return sb.toString();

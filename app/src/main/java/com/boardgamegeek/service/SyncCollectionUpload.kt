@@ -1,12 +1,12 @@
 package com.boardgamegeek.service
 
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.database.Cursor
 import android.support.annotation.PluralsRes
 import android.support.annotation.StringRes
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.io.BggService
@@ -28,13 +28,15 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SyncCollectionUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val deleteTask: CollectionDeleteTask
     private val addTask: CollectionAddTask
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0
-    private var currentGameName: String? = null
+    private var currentGameName: String = ""
+    private var currentGameHeroImageUrl: String = ""
+    private var currentGameThumbnailUrl: String = ""
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
 
@@ -44,7 +46,7 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
 
     override val notificationIntent: Intent?
         get() = if (currentGameId != BggContract.INVALID_ID) {
-            GameActivity.createIntent(currentGameId, currentGameName)
+            GameActivity.createIntent(context, currentGameId, currentGameName, currentGameThumbnailUrl, currentGameHeroImageUrl)
         } else super.notificationIntent
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_COLLECTION
@@ -160,7 +162,7 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
         val contentValues = ContentValues()
         addTask.appendContentValues(contentValues)
         context.contentResolver.update(Collection.buildUri(item.internalId), contentValues, null, null)
-        TaskUtils.executeAsyncTask(SyncCollectionByGameTask(context, item.gameId))
+        TaskUtils.executeAsyncTask(SyncCollectionByGameTask(application, item.gameId))
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }
 
@@ -196,6 +198,8 @@ class SyncCollectionUpload(context: Context, service: BggService, syncResult: Sy
         syncResult.stats.numUpdates++
         currentGameId = item.gameId
         currentGameName = item.collectionName
+        currentGameHeroImageUrl = item.heroImageUrl
+        currentGameThumbnailUrl = item.thumbnailUrl
         notifyUser(item.collectionName, context.getString(messageResId), id, item.imageUrl, item.thumbnailUrl, item.heroImageUrl)
     }
 

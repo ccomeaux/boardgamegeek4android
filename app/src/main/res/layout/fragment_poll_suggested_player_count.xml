@@ -9,14 +9,14 @@
 			 android:paddingTop="@dimen/material_margin_vertical">
 
 	<android.support.v4.widget.ContentLoadingProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressView"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"/>
 
 	<ScrollView
-		android:id="@+id/poll_scroll"
+		android:id="@+id/scrollView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:visibility="gone">
@@ -27,27 +27,27 @@
 			android:orientation="vertical">
 
 			<TextView
-				android:id="@+id/poll_vote_total"
+				android:id="@+id/totalVoteView"
 				style="@style/Text.Primary"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center"/>
 
 			<LinearLayout
-				android:id="@+id/poll_list"
+				android:id="@+id/pollList"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
 				android:orientation="vertical"/>
 
 			<LinearLayout
-				android:id="@+id/poll_key_container"
+				android:id="@+id/keyContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="vertical"/>
 
 			<Switch
-				android:id="@+id/no_votes_switch"
+				android:id="@+id/noVotesSwitch"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal"
