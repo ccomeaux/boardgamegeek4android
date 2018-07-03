@@ -9,7 +9,7 @@ class AverageRatingFilterer(context: Context) : RatingFilterer(context) {
 
     override val columnName = Games.STATS_AVERAGE
 
-    override fun getDisplayText() = describe(R.string.average_rating_abbr, R.string.unrated_abbr)
+    override fun toShortDescription() = describe(R.string.average_rating_abbr, R.string.unrated_abbr)
 
-    override fun getDescription() = describe(R.string.average_rating, R.string.unrated)
+    override fun toLongDescription() = describe(R.string.average_rating, R.string.unrated)
 }

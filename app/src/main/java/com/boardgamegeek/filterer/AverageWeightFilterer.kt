@@ -15,18 +15,18 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
 
     val columnName = Games.STATS_AVERAGE_WEIGHT
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toDoubleOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toDoubleOrNull() ?: upperBound
         includeUndefined = d.getOrNull(2) == "1"
     }
 
-    override fun flatten() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
+    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
-    override fun getDisplayText() = describe(R.string.weight, R.string.undefined_abbr)
+    override fun toShortDescription() = describe(R.string.weight, R.string.undefined_abbr)
 
-    override fun getDescription() = describe(R.string.average_weight, R.string.undefined)
+    override fun toLongDescription() = describe(R.string.average_weight, R.string.undefined)
 
     private fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
         var text = when (min) {

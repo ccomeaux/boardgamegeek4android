@@ -14,20 +14,20 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_suggested_age
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MIN_RANGE
         max = d.getOrNull(1)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MAX_RANGE
         includeUndefined = d.getOrNull(2) == "1"
     }
 
-    override fun flatten(): String {
+    override fun deflate(): String {
         return "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
     }
 
-    override fun getDisplayText() = describe(R.string.and_up_suffix_abbr, R.string.unknown_abbr)
+    override fun toShortDescription() = describe(R.string.and_up_suffix_abbr, R.string.unknown_abbr)
 
-    override fun getDescription() = describe(R.string.and_up_suffix, R.string.unknown)
+    override fun toLongDescription() = describe(R.string.and_up_suffix, R.string.unknown)
 
     private fun describe(@StringRes andUpResId: Int, @StringRes unknownResId: Int): String {
         var text: String = when {

@@ -9,7 +9,7 @@ class GeekRatingFilterer(context: Context) : RatingFilterer(context) {
 
     override val columnName = Collection.STATS_BAYES_AVERAGE
 
-    override fun getDisplayText() = describe(R.string.rating, R.string.unrated_abbr)
+    override fun toShortDescription() = describe(R.string.rating, R.string.unrated_abbr)
 
-    override fun getDescription() = describe(R.string.geek_rating, R.string.unrated)
+    override fun toLongDescription() = describe(R.string.geek_rating, R.string.unrated)
 }

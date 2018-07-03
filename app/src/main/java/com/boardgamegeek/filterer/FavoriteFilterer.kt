@@ -11,13 +11,13 @@ class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_favorite
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         isFavorite = data == FAVORITE
     }
 
-    override fun flatten() = if (isFavorite) FAVORITE else NOT_FAVORITE
+    override fun deflate() = if (isFavorite) FAVORITE else NOT_FAVORITE
 
-    override fun getDisplayText() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)!!
+    override fun toShortDescription() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)!!
 
     override fun getSelection() = if (isFavorite)
         "${Collection.STARRED}=?"

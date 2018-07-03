@@ -12,9 +12,9 @@ abstract class CollectionFilterer(protected val context: Context) {
         get() = context.getString(typeResourceId, CollectionFiltererFactory.TYPE_UNKNOWN).toIntOrNull()
                 ?: CollectionFiltererFactory.TYPE_UNKNOWN
 
-    abstract fun getDisplayText(): String
+    abstract fun toShortDescription(): String
 
-    open fun getDescription(): String = getDisplayText()
+    open fun toLongDescription(): String = toShortDescription()
 
     open fun getColumns(): Array<String>? = null
 
@@ -25,12 +25,12 @@ abstract class CollectionFilterer(protected val context: Context) {
     open fun getHaving(): String? = null
 
     val isValid: Boolean
-        get() = getDisplayText().isNotEmpty() &&
+        get() = toShortDescription().isNotEmpty() &&
                 (getSelection().isNotEmpty() || !getHaving().isNullOrEmpty())
 
-    abstract fun setData(data: String)
+    abstract fun inflate(data: String)
 
-    abstract fun flatten(): String
+    abstract fun deflate(): String
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is CollectionFilterer) {

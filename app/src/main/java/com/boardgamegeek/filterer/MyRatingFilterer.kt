@@ -9,7 +9,7 @@ class MyRatingFilterer(context: Context) : RatingFilterer(context) {
 
     override val columnName = Collection.RATING
 
-    override fun getDisplayText() = describe(R.string.my_rating_abbr, R.string.unrated_abbr)
+    override fun toShortDescription() = describe(R.string.my_rating_abbr, R.string.unrated_abbr)
 
-    override fun getDescription() = describe(R.string.my_rating, R.string.unrated)
+    override fun toLongDescription() = describe(R.string.my_rating, R.string.unrated)
 }

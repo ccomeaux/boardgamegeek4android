@@ -11,7 +11,7 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_collection_name
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val lastIndex = data.lastIndexOf(DELIMITER)
         if (lastIndex == -1) {
             filterText = data
@@ -22,15 +22,15 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
         }
     }
 
-    override fun flatten(): String {
+    override fun deflate(): String {
         return "$filterText$DELIMITER${if (startsWith) "1" else "0"}"
     }
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         return if (startsWith) "$filterText*" else "*$filterText*"
     }
 
-    override fun getDescription(): String {
+    override fun toLongDescription(): String {
         return if (startsWith) context.getString(R.string.starts_with_prefix, filterText) else context.getString(R.string.named_prefix, filterText)
     }
 

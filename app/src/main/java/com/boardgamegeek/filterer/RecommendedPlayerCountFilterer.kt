@@ -12,15 +12,15 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
 
     override val typeResourceId = R.string.collection_filter_type_recommended_player_count
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         playerCount = d.getOrNull(0)?.toInt() ?: 4
         recommendation = d.getOrNull(1)?.toInt() ?: RECOMMENDED
     }
 
-    override fun flatten() = "$playerCount$DELIMITER$recommendation"
+    override fun deflate() = "$playerCount$DELIMITER$recommendation"
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         return context.getString(R.string.recommended_player_count_description_abbr,
                 when (recommendation) {
                     BEST -> context.getString(R.string.best)
@@ -29,7 +29,7 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
                 playerCount)
     }
 
-    override fun getDescription(): String {
+    override fun toLongDescription(): String {
         @StringRes val recommendationResId = if (recommendation == BEST) R.string.best else R.string.recommended
         return context.resources.getQuantityString(R.plurals.recommended_player_count_description, playerCount, context.getString(recommendationResId), playerCount)
     }

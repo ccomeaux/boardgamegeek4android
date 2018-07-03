@@ -10,7 +10,7 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_collection_status
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         shouldJoinWithOr = d.getOrNull(0) == "1"
         val ss = BooleanArray(d.size - 1)
@@ -20,7 +20,7 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         selectedStatuses = ss
     }
 
-    override fun flatten(): String {
+    override fun deflate(): String {
         val sb = StringBuilder(if (shouldJoinWithOr) "1" else "0")
         selectedStatuses.forEach { selected ->
             sb.append(DELIMITER).append(if (selected) "1" else "0")
@@ -28,7 +28,7 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         return sb.toString()
     }
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         val entries = context.resources.getStringArray(R.array.collection_status_filter_entries)
         val displayText = StringBuilder()
 
@@ -41,8 +41,8 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         return displayText.toString()
     }
 
-    override fun getDescription(): String {
-        return context.getString(R.string.status_of_prefix, super.getDescription())
+    override fun toLongDescription(): String {
+        return context.getString(R.string.status_of_prefix, super.toLongDescription())
     }
 
     override fun getSelection(): String {

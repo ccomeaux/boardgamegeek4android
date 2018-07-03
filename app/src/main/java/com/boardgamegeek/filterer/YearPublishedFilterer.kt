@@ -12,15 +12,15 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_year_published
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
     }
 
-    override fun flatten() = "$min$DELIMITER$max"
+    override fun deflate() = "$min$DELIMITER$max"
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         return when {
             min == lowerBound && max == upperBound -> ""
             min == lowerBound -> "$max-"
@@ -30,7 +30,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
         }
     }
 
-    override fun getDescription(): String {
+    override fun toLongDescription(): String {
         @StringRes val prepositionResId: Int
         val year: String
         when {

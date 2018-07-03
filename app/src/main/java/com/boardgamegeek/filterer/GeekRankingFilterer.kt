@@ -14,22 +14,22 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_geek_ranking
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MIN_RANGE
         max = d.getOrNull(1)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MAX_RANGE
         includeUnranked = d.getOrNull(2) == "1"
     }
 
-    override fun flatten(): String {
+    override fun deflate(): String {
         return "$min$DELIMITER$max$DELIMITER${if (includeUnranked) "1" else "0"}"
     }
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         return describeRange(R.string.unranked_abbr)
     }
 
-    override fun getDescription(): String {
+    override fun toLongDescription(): String {
         return context.getString(R.string.ranked) + " " + describeRange(R.string.unranked)
     }
 

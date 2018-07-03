@@ -11,15 +11,15 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_play_count
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MIN_RANGE
         max = d.getOrNull(1)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MAX_RANGE
     }
 
-    override fun flatten() = "$min$DELIMITER$max"
+    override fun deflate() = "$min$DELIMITER$max"
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         val text = when {
             max >= MAX_RANGE -> min.toString() + "+"
             min == max -> max.toString()

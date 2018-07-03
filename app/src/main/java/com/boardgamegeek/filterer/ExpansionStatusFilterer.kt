@@ -10,13 +10,13 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_subtype
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         selectedSubtype = StringUtils.parseInt(data)
     }
 
-    override fun flatten() = selectedSubtype.toString()
+    override fun deflate() = selectedSubtype.toString()
 
-    override fun getDisplayText() = getSelectedFromStringArray(R.array.expansion_status_filter)
+    override fun toShortDescription() = getSelectedFromStringArray(R.array.expansion_status_filter)
 
     override fun getSelection(): String {
         val value = getSelectedFromStringArray(R.array.expansion_status_filter_values)

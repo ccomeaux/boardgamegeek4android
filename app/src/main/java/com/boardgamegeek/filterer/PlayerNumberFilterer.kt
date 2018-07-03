@@ -13,16 +13,16 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_number_of_players
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MIN_RANGE
         max = d.getOrNull(1)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MAX_RANGE
         isExact = d.getOrNull(2) == "1"
     }
 
-    override fun flatten() = "$min$DELIMITER$max$DELIMITER${if (isExact) "1" else "0"}"
+    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (isExact) "1" else "0"}"
 
-    override fun getDisplayText(): String {
+    override fun toShortDescription(): String {
         var range = if (isExact) {
             context.getString(R.string.exactly) + " "
         } else {

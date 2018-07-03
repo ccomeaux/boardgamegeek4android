@@ -11,14 +11,14 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
 
     abstract val columnName: String
 
-    override fun setData(data: String) {
+    override fun inflate(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toDoubleOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toDoubleOrNull() ?: upperBound
         includeUndefined = d.getOrNull(2) == "1"
     }
 
-    override fun flatten() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
+    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
     protected fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
         var text = when (min) {
