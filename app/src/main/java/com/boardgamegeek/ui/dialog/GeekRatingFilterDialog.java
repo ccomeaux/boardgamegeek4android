@@ -26,12 +26,12 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (GeekRatingFilterer.MAX_RANGE * FACTOR);
+		return (int) (GeekRatingFilterer.upperBound * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (GeekRatingFilterer.MIN_RANGE * FACTOR);
+		return (int) (GeekRatingFilterer.lowerBound * FACTOR);
 	}
 
 	@Override
@@ -55,8 +55,8 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		double min = GeekRatingFilterer.MIN_RANGE;
-		double max = GeekRatingFilterer.MAX_RANGE;
+		double min = GeekRatingFilterer.lowerBound;
+		double max = GeekRatingFilterer.upperBound;
 		boolean unrated = true;
 		if (filter != null) {
 			GeekRatingFilterer data = (GeekRatingFilterer) filter;

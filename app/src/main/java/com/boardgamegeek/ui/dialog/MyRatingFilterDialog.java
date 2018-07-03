@@ -26,12 +26,12 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (MyRatingFilterer.MAX_RANGE * FACTOR);
+		return (int) (MyRatingFilterer.upperBound * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (MyRatingFilterer.MIN_RANGE * FACTOR);
+		return (int) (MyRatingFilterer.lowerBound * FACTOR);
 	}
 
 	@Override
@@ -55,8 +55,8 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		double min = MyRatingFilterer.MIN_RANGE;
-		double max = MyRatingFilterer.MAX_RANGE;
+		double min = MyRatingFilterer.lowerBound;
+		double max = MyRatingFilterer.upperBound;
 		boolean includeUnrated = true;
 		if (filter != null) {
 			MyRatingFilterer data = (MyRatingFilterer) filter;

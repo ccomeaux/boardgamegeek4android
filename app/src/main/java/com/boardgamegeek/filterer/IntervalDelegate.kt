@@ -8,6 +8,16 @@ class IntervalDelegate(var value: Int, private val minValue: Int, private val ma
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
-        value.coerceIn(minValue, maxValue)
+        this.value = value.coerceIn(minValue, maxValue)
+    }
+}
+
+class DoubleIntervalDelegate(var value: Double, private val minValue: Double, private val maxValue: Double) {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): Double {
+        return value
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Double) {
+        this.value = value.coerceIn(minValue, maxValue)
     }
 }

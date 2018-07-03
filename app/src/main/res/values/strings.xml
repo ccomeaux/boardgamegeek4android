@@ -81,6 +81,7 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="geek_rating">Geek rating</string>
 	<string name="my_rating">My rating</string>
 	<string name="my_rating_abbr">Me</string>
 	<string name="rating_hint">Rating</string>
