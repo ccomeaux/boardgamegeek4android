@@ -24,7 +24,11 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new GeekRankingFilterer(context, min, max, checkbox);
+		final GeekRankingFilterer filterer = new GeekRankingFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setIncludeUnranked(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -41,7 +45,7 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 			GeekRankingFilterer data = (GeekRankingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUnranked = data.includeUnranked();
+			includeUnranked = data.getIncludeUnranked();
 		}
 		return new InitialValues(min, max, includeUnranked);
 	}

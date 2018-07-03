@@ -17,7 +17,7 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 			SuggestedAgeFilterer data = (SuggestedAgeFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUndefined = data.includeUndefined();
+			includeUndefined = data.getIncludeUndefined();
 		}
 		return new InitialValues(min, max, includeUndefined);
 	}
@@ -39,7 +39,11 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new SuggestedAgeFilterer(context, min, max, checkbox);
+		final SuggestedAgeFilterer filterer = new SuggestedAgeFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override

@@ -25,7 +25,11 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new PlayTimeFilterer(context, min, max, checkbox);
+		final PlayTimeFilterer filterer = new PlayTimeFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 			PlayTimeFilterer data = (PlayTimeFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUndefined = data.includeUndefined();
+			includeUndefined = data.getIncludeUndefined();
 		}
 		return new InitialValues(min, max, includeUndefined);
 	}

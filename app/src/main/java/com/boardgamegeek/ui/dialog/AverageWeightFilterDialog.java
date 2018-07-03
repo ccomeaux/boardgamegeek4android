@@ -30,7 +30,11 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new AverageWeightFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
+		final AverageWeightFilterer filterer = new AverageWeightFilterer(context);
+		filterer.setMin((double) (min) / FACTOR);
+		filterer.setMax((double) (max) / FACTOR);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -52,7 +56,7 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 			AverageWeightFilterer data = (AverageWeightFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUndefined = data.includeUndefined();
+			includeUndefined = data.getIncludeUndefined();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), includeUndefined);
 	}

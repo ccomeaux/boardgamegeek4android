@@ -12,7 +12,7 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
 		int min = YearPublishedFilterer.MIN_RANGE;
-		int max = YearPublishedFilterer.MAX_RANGE;
+		int max = YearPublishedFilterer.getMAX_RANGE();
 		if (filter != null) {
 			YearPublishedFilterer data = (YearPublishedFilterer) filter;
 			min = data.getMin();
@@ -33,7 +33,11 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new YearPublishedFilterer(context, min, max);
+		final YearPublishedFilterer filterer = new YearPublishedFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		// ignore checkbox
+		return filterer;
 	}
 
 	@Override
@@ -48,7 +52,7 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return YearPublishedFilterer.MAX_RANGE;
+		return YearPublishedFilterer.getMAX_RANGE();
 	}
 
 	@Override
@@ -57,7 +61,7 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 		if (year == YearPublishedFilterer.MIN_RANGE) {
 			return "<" + value;
 		}
-		if (year == YearPublishedFilterer.MAX_RANGE) {
+		if (year == YearPublishedFilterer.getMAX_RANGE()) {
 			return value + "+";
 		}
 		return super.getPinText(value);

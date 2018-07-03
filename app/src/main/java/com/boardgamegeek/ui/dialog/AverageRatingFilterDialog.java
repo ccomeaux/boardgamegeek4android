@@ -41,7 +41,11 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new AverageRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
+		final AverageRatingFilterer filterer = new AverageRatingFilterer(context);
+		filterer.setMin( (double) (min) / FACTOR);
+		filterer.setMax((double) (max) / FACTOR);
+		filterer.setIncludeUnrated(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -58,7 +62,7 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 			AverageRatingFilterer data = (AverageRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			unrated = data.includeUnrated();
+			unrated = data.getIncludeUnrated();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}

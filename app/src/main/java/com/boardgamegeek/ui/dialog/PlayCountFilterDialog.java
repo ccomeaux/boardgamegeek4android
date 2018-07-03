@@ -31,7 +31,10 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new PlayCountFilterer(context, min, max);
+		final PlayCountFilterer filterer = new PlayCountFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		return filterer;
 	}
 
 	@Override

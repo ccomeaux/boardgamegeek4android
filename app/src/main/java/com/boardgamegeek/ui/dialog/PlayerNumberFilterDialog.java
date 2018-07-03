@@ -34,7 +34,11 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new PlayerNumberFilterer(context, min, max, checkbox);
+		final PlayerNumberFilterer filterer = new PlayerNumberFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setExact(checkbox);
+		return filterer;
 	}
 
 	@Override

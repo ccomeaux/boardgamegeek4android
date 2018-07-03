@@ -41,7 +41,11 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new MyRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
+		final MyRatingFilterer filterer = new MyRatingFilterer(context);
+		filterer.setMin((double) (min) / FACTOR);
+		filterer.setMax((double) (max) / FACTOR);
+		filterer.setIncludeUnrated(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -58,7 +62,7 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 			MyRatingFilterer data = (MyRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUnrated = data.includeUnrated();
+			includeUnrated = data.getIncludeUnrated();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), includeUnrated);
 	}
