@@ -3,29 +3,28 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import android.support.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.clamp
 import com.boardgamegeek.provider.BggContract.Games
 import java.util.*
 
 class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
-    var min = MIN_RANGE
-    var max = MAX_RANGE
+    var min by IntervalDelegate(lowerBound, lowerBound, upperBound)
+    var max by IntervalDelegate(upperBound, lowerBound, upperBound)
 
     override val typeResourceId = R.string.collection_filter_type_year_published
 
     override fun setData(data: String) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        min = d.getOrNull(0)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MIN_RANGE
-        max = d.getOrNull(1)?.toIntOrNull()?.clamp(MIN_RANGE, MAX_RANGE) ?: MAX_RANGE
+        min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
+        max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
     }
 
     override fun flatten() = "$min$DELIMITER$max"
 
     override fun getDisplayText(): String {
         return when {
-            min == MIN_RANGE && max == MAX_RANGE -> ""
-            min == MIN_RANGE -> "$max-"
-            max == MAX_RANGE -> "$min+"
+            min == lowerBound && max == upperBound -> ""
+            min == lowerBound -> "$max-"
+            max == upperBound -> "$min+"
             min == max -> max.toString()
             else -> "$min-$max"
         }
@@ -35,12 +34,12 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
         @StringRes val prepositionResId: Int
         val year: String
         when {
-            min == MIN_RANGE && max == MAX_RANGE -> return ""
-            min == MIN_RANGE -> {
+            min == lowerBound && max == upperBound -> return ""
+            min == lowerBound -> {
                 prepositionResId = R.string.before
                 year = (max + 1).toString()
             }
-            max == MAX_RANGE -> {
+            max == upperBound -> {
                 prepositionResId = R.string.after
                 year = (min - 1).toString()
             }
@@ -58,9 +57,9 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun getSelection(): String {
         val format = when {
-            min == MIN_RANGE && max == MAX_RANGE -> ""
-            min == MIN_RANGE -> "%1\$s<=?"
-            max == MAX_RANGE -> "%1\$s>=?"
+            min == lowerBound && max == upperBound -> ""
+            min == lowerBound -> "%1\$s<=?"
+            max == upperBound -> "%1\$s>=?"
             min == max -> "%1\$s=?"
             else -> "(%1\$s>=? AND %1\$s<=?)"
         }
@@ -69,18 +68,18 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun getSelectionArgs(): Array<String>? {
         return when {
-            min == MIN_RANGE && max == MAX_RANGE -> null
-            min == MIN_RANGE -> arrayOf(max.toString())
-            max == MAX_RANGE -> arrayOf(min.toString())
+            min == lowerBound && max == upperBound -> null
+            min == lowerBound -> arrayOf(max.toString())
+            max == upperBound -> arrayOf(min.toString())
             min == max -> arrayOf(min.toString())
             else -> arrayOf(min.toString(), max.toString())
         }
     }
 
     companion object {
-        const val MIN_RANGE = 1970
+        const val lowerBound = 1970
         @JvmStatic
-        val MAX_RANGE = Calendar.getInstance().get(Calendar.YEAR) + 1
+        val upperBound = Calendar.getInstance().get(Calendar.YEAR) + 1
     }
 }
 

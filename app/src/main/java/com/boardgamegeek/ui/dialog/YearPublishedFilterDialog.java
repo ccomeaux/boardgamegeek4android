@@ -11,8 +11,8 @@ import com.boardgamegeek.util.StringUtils;
 public class YearPublishedFilterDialog extends SliderFilterDialog {
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = YearPublishedFilterer.MIN_RANGE;
-		int max = YearPublishedFilterer.getMAX_RANGE();
+		int min = YearPublishedFilterer.lowerBound;
+		int max = YearPublishedFilterer.getUpperBound();
 		if (filter != null) {
 			YearPublishedFilterer data = (YearPublishedFilterer) filter;
 			min = data.getMin();
@@ -47,21 +47,21 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMin() {
-		return YearPublishedFilterer.MIN_RANGE;
+		return YearPublishedFilterer.lowerBound;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return YearPublishedFilterer.getMAX_RANGE();
+		return YearPublishedFilterer.getUpperBound();
 	}
 
 	@Override
 	protected String getPinText(String value) {
-		int year = StringUtils.parseInt(value, YearPublishedFilterer.MIN_RANGE);
-		if (year == YearPublishedFilterer.MIN_RANGE) {
+		int year = StringUtils.parseInt(value, YearPublishedFilterer.lowerBound);
+		if (year == YearPublishedFilterer.lowerBound) {
 			return "<" + value;
 		}
-		if (year == YearPublishedFilterer.getMAX_RANGE()) {
+		if (year == YearPublishedFilterer.getUpperBound()) {
 			return value + "+";
 		}
 		return super.getPinText(value);
