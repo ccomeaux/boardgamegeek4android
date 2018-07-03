@@ -15,12 +15,12 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (AverageWeightFilterer.MAX_RANGE * FACTOR);
+		return (int) (AverageWeightFilterer.upperBound * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (AverageWeightFilterer.MIN_RANGE * FACTOR);
+		return (int) (AverageWeightFilterer.lowerBound * FACTOR);
 	}
 
 	@Override
@@ -49,8 +49,8 @@ public class AverageWeightFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		double min = AverageWeightFilterer.MIN_RANGE;
-		double max = AverageWeightFilterer.MAX_RANGE;
+		double min = AverageWeightFilterer.lowerBound;
+		double max = AverageWeightFilterer.upperBound;
 		boolean includeUndefined = false;
 		if (filter != null) {
 			AverageWeightFilterer data = (AverageWeightFilterer) filter;

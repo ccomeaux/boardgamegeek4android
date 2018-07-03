@@ -44,7 +44,7 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 		final GeekRatingFilterer filterer = new GeekRatingFilterer(context);
 		filterer.setMin((double) (min) / FACTOR);
 		filterer.setMax((double) (max) / FACTOR);
-		filterer.setIncludeUnrated(checkbox);
+		filterer.setIncludeUndefined(checkbox);
 		return filterer;
 	}
 
@@ -62,7 +62,7 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 			GeekRatingFilterer data = (GeekRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			unrated = data.getIncludeUnrated();
+			unrated = data.getIncludeUndefined();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}

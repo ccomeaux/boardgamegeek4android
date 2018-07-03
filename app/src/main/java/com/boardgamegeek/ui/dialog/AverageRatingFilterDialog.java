@@ -44,7 +44,7 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 		final AverageRatingFilterer filterer = new AverageRatingFilterer(context);
 		filterer.setMin((double) (min) / FACTOR);
 		filterer.setMax((double) (max) / FACTOR);
-		filterer.setIncludeUnrated(checkbox);
+		filterer.setIncludeUndefined(checkbox);
 		return filterer;
 	}
 
@@ -62,7 +62,7 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 			AverageRatingFilterer data = (AverageRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			unrated = data.getIncludeUnrated();
+			unrated = data.getIncludeUndefined();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}

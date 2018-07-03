@@ -44,7 +44,7 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 		final MyRatingFilterer filterer = new MyRatingFilterer(context);
 		filterer.setMin((double) (min) / FACTOR);
 		filterer.setMax((double) (max) / FACTOR);
-		filterer.setIncludeUnrated(checkbox);
+		filterer.setIncludeUndefined(checkbox);
 		return filterer;
 	}
 
@@ -62,7 +62,7 @@ public class MyRatingFilterDialog extends SliderFilterDialog {
 			MyRatingFilterer data = (MyRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUnrated = data.getIncludeUnrated();
+			includeUnrated = data.getIncludeUndefined();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), includeUnrated);
 	}

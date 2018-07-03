@@ -7,7 +7,7 @@ import java.util.*
 abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
     var min by DoubleIntervalDelegate(lowerBound, lowerBound, upperBound)
     var max by DoubleIntervalDelegate(upperBound, lowerBound, upperBound)
-    var includeUnrated = false
+    var includeUndefined = false
 
     abstract val columnName: String
 
@@ -15,19 +15,17 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
         val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         min = d.getOrNull(0)?.toDoubleOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toDoubleOrNull() ?: upperBound
-        includeUnrated = d.getOrNull(2) == "1"
+        includeUndefined = d.getOrNull(2) == "1"
     }
 
-    override fun flatten(): String {
-        return "$min$DELIMITER$max$DELIMITER${if (includeUnrated) "1" else "0"}"
-    }
+    override fun flatten() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
     protected fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
         var text = when (min) {
             max -> String.format(Locale.getDefault(), "%.1f", max)
             else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
         }
-        if (includeUnrated) text += String.format(" (+%s)", context.getString(unratedResId))
+        if (includeUndefined) text += " (+${context.getString(unratedResId)})"
         return context.getString(prefixResId) + " " + text
     }
 
@@ -36,7 +34,7 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
             max -> "%1\$s=?"
             else -> "(%1\$s>=? AND %1\$s<=?)"
         }
-        if (includeUnrated) format += " OR %1\$s=0 OR %1\$s IS NULL"
+        if (includeUndefined) format += " OR %1\$s=0 OR %1\$s IS NULL"
         return String.format(format, columnName)
     }
 
