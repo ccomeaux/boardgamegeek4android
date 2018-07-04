@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getInt
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.Collection
 import java.text.NumberFormat
 

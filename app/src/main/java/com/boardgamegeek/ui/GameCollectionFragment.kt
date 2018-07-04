@@ -12,10 +12,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.entities.YEAR_UNKNOWN
-import com.boardgamegeek.fadeIn
-import com.boardgamegeek.fadeOut
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.setBggColors
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_collection.*

@@ -5,8 +5,8 @@ import android.database.Cursor
 import android.support.annotation.StringRes
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getFirstChar
-import com.boardgamegeek.getInt
+import com.boardgamegeek.extensions.getFirstChar
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.PlayPlayers
 import com.boardgamegeek.provider.BggContract.Plays
 

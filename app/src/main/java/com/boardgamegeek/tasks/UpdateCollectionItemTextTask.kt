@@ -3,8 +3,8 @@ package com.boardgamegeek.tasks
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.use
 import hugo.weaving.DebugLog
 import timber.log.Timber
 

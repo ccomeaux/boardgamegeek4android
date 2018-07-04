@@ -11,10 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GamePollEntity
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fiveStageColors
 import com.boardgamegeek.extensions.showAndSurvive
-import com.boardgamegeek.fadeIn
-import com.boardgamegeek.fiveStageColors
-import com.boardgamegeek.twelveStageColors
+import com.boardgamegeek.extensions.twelveStageColors
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.IntegerValueFormatter
 import com.github.mikephil.charting.animation.Easing.EasingOption

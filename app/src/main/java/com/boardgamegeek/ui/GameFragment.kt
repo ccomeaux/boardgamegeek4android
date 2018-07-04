@@ -10,6 +10,7 @@ import android.text.TextUtils
 import android.view.*
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.GameRanksFragment

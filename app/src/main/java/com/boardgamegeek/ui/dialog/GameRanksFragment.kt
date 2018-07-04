@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.*
-import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameRankRow
 import kotlinx.android.synthetic.main.dialog_game_ranks.*

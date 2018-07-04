@@ -1,4 +1,4 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.graphics.Color
 import android.support.annotation.ColorInt

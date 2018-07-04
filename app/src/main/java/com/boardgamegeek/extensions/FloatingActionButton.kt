@@ -1,4 +1,4 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.content.res.ColorStateList
 import android.graphics.Color

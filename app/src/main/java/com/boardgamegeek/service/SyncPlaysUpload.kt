@@ -10,6 +10,8 @@ import android.support.v4.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.toOrdinal
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayDeleteResponse
@@ -21,12 +23,10 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.toOrdinal
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
-import com.boardgamegeek.use
 import com.boardgamegeek.util.*
 import hugo.weaving.DebugLog
 import okhttp3.FormBody

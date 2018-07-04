@@ -6,7 +6,7 @@ import android.support.annotation.StringRes
 import android.text.format.DateUtils
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getLong
+import com.boardgamegeek.extensions.getLong
 import com.boardgamegeek.provider.BggContract.Games
 
 class LastViewedSorter(context: Context) : CollectionSorter(context) {

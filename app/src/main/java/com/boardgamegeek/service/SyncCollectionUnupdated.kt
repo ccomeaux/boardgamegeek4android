@@ -6,11 +6,11 @@ import android.support.v4.util.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.model.GameList
-import com.boardgamegeek.use
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber

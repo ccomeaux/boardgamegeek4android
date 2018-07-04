@@ -5,8 +5,8 @@ import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.sortName
-import com.boardgamegeek.toMillis
+import com.boardgamegeek.extensions.sortName
+import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 

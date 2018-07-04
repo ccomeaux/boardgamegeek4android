@@ -9,11 +9,11 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.io.model.ThingResponse
-import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.mappers.PlayMapper

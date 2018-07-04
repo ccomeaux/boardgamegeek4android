@@ -1,7 +1,8 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.support.annotation.StringRes
+import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import timber.log.Timber
 import java.text.DateFormat

@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.support.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.getInt
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.PresentationUtils
 

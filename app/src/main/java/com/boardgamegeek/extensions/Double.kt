@@ -1,10 +1,11 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.graphics.Color
 import android.support.annotation.ArrayRes
 import android.support.annotation.ColorInt
 import android.support.annotation.StringRes
+import com.boardgamegeek.R
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 

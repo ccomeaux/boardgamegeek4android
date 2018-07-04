@@ -1,4 +1,4 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.text.TextUtils
 

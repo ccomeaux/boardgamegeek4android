@@ -5,10 +5,10 @@ import android.text.format.DateUtils
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.extensions.queryInts
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.queryInts
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig

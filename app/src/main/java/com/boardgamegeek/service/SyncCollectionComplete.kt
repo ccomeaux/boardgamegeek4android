@@ -7,7 +7,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.formatList
+import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.SyncPrefs

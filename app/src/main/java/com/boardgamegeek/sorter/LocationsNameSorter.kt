@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.support.annotation.StringRes
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getFirstChar
+import com.boardgamegeek.extensions.getFirstChar
 import com.boardgamegeek.provider.BggContract.Plays
 
 class LocationsNameSorter(context: Context) : LocationsSorter(context) {

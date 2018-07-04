@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.support.annotation.StringRes
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getDoubleAsString
+import com.boardgamegeek.extensions.getDoubleAsString
 import com.boardgamegeek.provider.BggContract.Collection
 
 import java.text.DecimalFormat

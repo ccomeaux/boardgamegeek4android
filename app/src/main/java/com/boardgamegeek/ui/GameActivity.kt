@@ -12,10 +12,10 @@ import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
 import com.boardgamegeek.R
-import com.boardgamegeek.applyDarkScrim
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.loadUrl
+import com.boardgamegeek.extensions.applyDarkScrim
+import com.boardgamegeek.extensions.loadUrl
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment

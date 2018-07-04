@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getDoubleAsString
+import com.boardgamegeek.extensions.getDoubleAsString
 
 import java.text.DecimalFormat
 

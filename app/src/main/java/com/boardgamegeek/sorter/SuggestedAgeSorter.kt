@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.support.annotation.StringRes
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getIntAsString
+import com.boardgamegeek.extensions.getIntAsString
 import com.boardgamegeek.provider.BggContract.Collection
 
 abstract class SuggestedAgeSorter(context: Context) : CollectionSorter(context) {

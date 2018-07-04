@@ -9,12 +9,12 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.load
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
-import com.boardgamegeek.isOlderThan
 import com.boardgamegeek.livedata.RefreshableResourceLoader
-import com.boardgamegeek.load
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService

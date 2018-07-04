@@ -1,7 +1,8 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.text.format.DateUtils
+import com.boardgamegeek.R
 import java.util.concurrent.TimeUnit
 
 fun Long.isOlderThan(duration: Int, timeUnit: TimeUnit) = System.currentTimeMillis() - this > timeUnit.toMillis(duration.toLong())

@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.database.Cursor
 import com.boardgamegeek.util.DateTimeUtils

@@ -1,7 +1,8 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.graphics.Color
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService

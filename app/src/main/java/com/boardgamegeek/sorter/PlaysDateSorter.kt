@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.support.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.getApiTime
+import com.boardgamegeek.extensions.getApiTime
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.util.DateTimeUtils
 import java.text.SimpleDateFormat

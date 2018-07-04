@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
-import com.boardgamegeek.inflate
+import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.ProducerActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel

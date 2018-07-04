@@ -2,8 +2,8 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.io.model.Game
-import com.boardgamegeek.replaceHtmlLineFeeds
-import com.boardgamegeek.sortName
+import com.boardgamegeek.extensions.replaceHtmlLineFeeds
+import com.boardgamegeek.extensions.sortName
 
 class GameMapper {
     fun map(from: Game): GameEntity {

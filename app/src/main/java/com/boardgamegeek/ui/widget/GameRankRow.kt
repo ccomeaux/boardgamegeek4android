@@ -6,7 +6,8 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import com.boardgamegeek.*
+import com.boardgamegeek.R
+import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.row_game_rank_subtype.view.*
 import java.text.DecimalFormat
 

@@ -1,9 +1,10 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.support.annotation.ColorInt
 import android.widget.ImageView
+import com.boardgamegeek.R
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.PaletteTransformation

@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.setTextOrHide
-import com.boardgamegeek.use
+import com.boardgamegeek.extensions.setTextOrHide
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PresentationUtils
 import java.util.*

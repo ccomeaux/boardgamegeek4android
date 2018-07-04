@@ -2,8 +2,8 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import com.boardgamegeek.getDouble
-import com.boardgamegeek.getString
+import com.boardgamegeek.extensions.getDouble
+import com.boardgamegeek.extensions.getString
 import com.boardgamegeek.util.PresentationUtils
 
 abstract class MoneySorter(context: Context) : CollectionSorter(context) {

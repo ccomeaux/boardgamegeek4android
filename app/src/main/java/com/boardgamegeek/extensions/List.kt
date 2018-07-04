@@ -1,4 +1,4 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 fun <E> List<E>?.formatList(and: String = "&", comma: String = ","): String {
     when {

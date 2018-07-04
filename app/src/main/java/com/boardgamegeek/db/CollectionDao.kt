@@ -5,10 +5,11 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
-import com.boardgamegeek.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract

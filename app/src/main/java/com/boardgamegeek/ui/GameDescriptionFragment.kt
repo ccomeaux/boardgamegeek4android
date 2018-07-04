@@ -10,6 +10,10 @@ import android.view.ViewGroup
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.extensions.setBggColors
+import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_description.*

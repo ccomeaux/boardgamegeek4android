@@ -14,7 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.colorize
+import com.boardgamegeek.extensions.colorize
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.*

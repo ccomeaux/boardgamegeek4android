@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
 import kotlinx.android.synthetic.main.widget_collection_row.view.*

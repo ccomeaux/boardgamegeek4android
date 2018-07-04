@@ -13,9 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.showAndSurvive
-import com.boardgamegeek.fadeIn
-import com.boardgamegeek.setViewBackground
+import com.boardgamegeek.extensions.setViewBackground
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.PlayerNumberRow
 import kotlinx.android.synthetic.main.fragment_poll_suggested_player_count.*

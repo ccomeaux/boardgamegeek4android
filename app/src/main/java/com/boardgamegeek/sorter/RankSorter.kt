@@ -7,7 +7,7 @@ import android.util.SparseArray
 
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.RANK_UNKNOWN
-import com.boardgamegeek.getInt
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.Games
 import java.text.NumberFormat
 

@@ -11,7 +11,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.boardgamegeek.R
-import com.boardgamegeek.setColorViewValue
+import com.boardgamegeek.extensions.setColorViewValue
 import java.util.*
 
 internal class ColorGridAdapter(private val context: Context, private val disabledColors: ArrayList<String>?, private val choices: List<Pair<String, Int>>) : BaseAdapter() {

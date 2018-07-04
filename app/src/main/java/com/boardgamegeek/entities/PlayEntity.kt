@@ -2,8 +2,8 @@ package com.boardgamegeek.entities
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.asTime
-import com.boardgamegeek.toMillis
+import com.boardgamegeek.extensions.asTime
+import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 

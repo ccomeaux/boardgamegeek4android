@@ -1,4 +1,4 @@
-package com.boardgamegeek
+package com.boardgamegeek.extensions
 
 import android.graphics.drawable.GradientDrawable
 import android.support.annotation.ColorInt
@@ -11,6 +11,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import com.boardgamegeek.R
 import com.boardgamegeek.util.ColorUtils
 import com.boardgamegeek.util.ScrimUtils
 

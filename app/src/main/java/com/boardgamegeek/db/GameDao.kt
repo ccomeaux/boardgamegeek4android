@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.net.Uri
 import com.boardgamegeek.*
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract

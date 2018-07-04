@@ -11,8 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.fadeIn
-import com.boardgamegeek.fadeOut
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel

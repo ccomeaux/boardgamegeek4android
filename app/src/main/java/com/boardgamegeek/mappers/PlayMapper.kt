@@ -2,7 +2,7 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.io.model.Play
 import com.boardgamegeek.model.Player
-import com.boardgamegeek.toMillis
+import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 

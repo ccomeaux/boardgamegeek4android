@@ -13,8 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.setOrClearColorFilter
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.setOrClearColorFilter
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import com.boardgamegeek.ui.ProducerActivity
