@@ -9,12 +9,12 @@ import com.boardgamegeek.filterer.GeekRankingFilterer;
 public class GeekRankingFilterDialog extends SliderFilterDialog {
 	@Override
 	protected int getAbsoluteMax() {
-		return GeekRankingFilterer.MAX_RANGE;
+		return GeekRankingFilterer.upperBound;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return GeekRankingFilterer.MIN_RANGE;
+		return GeekRankingFilterer.lowerBound;
 	}
 
 	@Override
@@ -38,8 +38,8 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = GeekRankingFilterer.MIN_RANGE;
-		int max = GeekRankingFilterer.MAX_RANGE;
+		int min = GeekRankingFilterer.lowerBound;
+		int max = GeekRankingFilterer.upperBound;
 		boolean includeUnranked = false;
 		if (filter != null) {
 			GeekRankingFilterer data = (GeekRankingFilterer) filter;
