@@ -2,7 +2,6 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import java.util.*
 
 class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     var selectedStatuses: BooleanArray = BooleanArray(0)
@@ -33,16 +32,17 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         val displayText = StringBuilder()
 
         selectedStatuses
-                .filter { it }
-                .forEachIndexed { i, _ ->
-                    if (displayText.isNotEmpty()) displayText.append(if (shouldJoinWithOr) " | " else " & ")
-                    displayText.append(entries[i])
+                .forEachIndexed { i, selected ->
+                    if (selected) {
+                        if (displayText.isNotEmpty()) displayText.append(if (shouldJoinWithOr) " | " else " & ")
+                        displayText.append(entries[i])
+                    }
                 }
         return displayText.toString()
     }
 
     override fun toLongDescription(): String {
-        return context.getString(R.string.status_of_prefix, super.toLongDescription())
+        return context.getString(R.string.status_of_prefix, toShortDescription())
     }
 
     override fun getSelection(): String {
@@ -50,20 +50,16 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         val selection = StringBuilder()
 
         selectedStatuses
-                .filter { it }
-                .forEachIndexed { i, _ ->
-                    if (selection.isNotEmpty()) selection.append(if (shouldJoinWithOr) " OR " else " AND ")
-                    selection.append(values[i]).append("=?")
+                .forEachIndexed { i, selected ->
+                    if (selected) {
+                        if (selection.isNotEmpty()) selection.append(if (shouldJoinWithOr) " OR " else " AND ")
+                        selection.append(values[i]).append("=1")
+                    }
                 }
         return selection.toString()
     }
 
     override fun getSelectionArgs(): Array<String>? {
-        val selectionArgs = ArrayList<String>(selectedStatuses.size)
-
-        selectedStatuses
-                .filter { it }
-                .forEach { selectionArgs.add("1") }
-        return selectionArgs.toTypedArray()
+        return null
     }
 }
