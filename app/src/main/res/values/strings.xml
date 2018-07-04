@@ -451,7 +451,7 @@
 	<string name="player_range">Player Range</string>
 	<string name="best_prefix">Best w/<b>%s</b></string>
 	<string name="recommended_prefix">Good w/<b>%s</b></string>
-	<string name="recommended_player_count_description_abbr">%1%s with %2$,d</string>
+	<string name="recommended_player_count_description_abbr">%1$s with %2$,d</string>
 	<string name="mins_unknown"><b>\?</b> mins</string>
 	<string name="hrs_suffix"><b>%,d</b> hrs</string>
 	<string name="hrs_mins"><b>%1$d</b>h <b>%2$d</b>m</string>

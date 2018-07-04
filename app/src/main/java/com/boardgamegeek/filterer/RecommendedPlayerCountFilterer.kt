@@ -1,8 +1,6 @@
 package com.boardgamegeek.filterer
 
-
 import android.content.Context
-import android.support.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Games
 
@@ -30,8 +28,13 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
     }
 
     override fun toLongDescription(): String {
-        @StringRes val recommendationResId = if (recommendation == BEST) R.string.best else R.string.recommended
-        return context.resources.getQuantityString(R.plurals.recommended_player_count_description, playerCount, context.getString(recommendationResId), playerCount)
+        return context.resources.getQuantityString(R.plurals.recommended_player_count_description,
+                playerCount,
+                context.getString(when (recommendation) {
+                    BEST -> R.string.best
+                    else -> R.string.recommended
+                }),
+                playerCount)
     }
 
     override fun getColumns(): Array<String>? {
