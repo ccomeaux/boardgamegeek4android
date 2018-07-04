@@ -8,8 +8,6 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.PresentationUtils.getText
 
-fun Int.clamp(min: Int, max: Int) = Math.max(min, Math.min(max, this))
-
 /**
  * Gets the ordinal (1st) for the given cardinal (1)
  */

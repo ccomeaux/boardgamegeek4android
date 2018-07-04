@@ -9,8 +9,6 @@ import com.boardgamegeek.R
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
-fun Double.clamp(min: Double, max: Double) = Math.max(min, Math.min(max, this))
-
 fun Double.asRating(context: Context?): String {
     return asScore(context, R.string.unrated)
 }

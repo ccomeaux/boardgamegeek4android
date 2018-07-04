@@ -29,7 +29,7 @@ class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, 
         val count = context.contentResolver.queryCount(Buddies.CONTENT_URI)
         if (count == 0) return emptyList()
         // attempt to sync all buddies every "days" days but no more than "max" at a time
-        val limit = (count / days).clamp(1, max)
+        val limit = (count / days).coerceIn(1, max)
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
                 Buddies.BUDDY_NAME,
