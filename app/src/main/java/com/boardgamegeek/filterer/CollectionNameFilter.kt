@@ -22,23 +22,14 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
         }
     }
 
-    override fun deflate(): String {
-        return "$filterText$DELIMITER${if (startsWith) "1" else "0"}"
-    }
+    override fun deflate() = "$filterText$DELIMITER${if (startsWith) "1" else "0"}"
 
-    override fun toShortDescription(): String {
-        return if (startsWith) "$filterText*" else "*$filterText*"
-    }
+    override fun toShortDescription() = if (startsWith) "$filterText*" else "*$filterText*"
 
-    override fun toLongDescription(): String {
-        return if (startsWith) context.getString(R.string.starts_with_prefix, filterText) else context.getString(R.string.named_prefix, filterText)
-    }
+    override fun toLongDescription() = context.getString(if (startsWith) R.string.starts_with_prefix else R.string.named_prefix, filterText)
+            ?: ""
 
-    override fun getSelection(): String {
-        return "${Collection.COLLECTION_NAME} LIKE ?"
-    }
+    override fun getSelection() = "${Collection.COLLECTION_NAME} LIKE ?"
 
-    override fun getSelectionArgs(): Array<String>? {
-        return if (startsWith) arrayOf("$filterText%") else arrayOf("%$filterText%")
-    }
+    override fun getSelectionArgs() = if (startsWith) arrayOf("$filterText%") else arrayOf("%$filterText%")
 }
