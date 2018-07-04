@@ -1,10 +1,9 @@
 package com.boardgamegeek.filterer
 
 import android.content.Context
-
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.SelectionBuilder
+import com.boardgamegeek.whereZeroOrNull
 
 class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
     var isFavorite = false
@@ -17,12 +16,13 @@ class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = if (isFavorite) FAVORITE else NOT_FAVORITE
 
-    override fun toShortDescription() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)!!
+    override fun toShortDescription() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)
+            ?: ""
 
-    override fun getSelection() = if (isFavorite)
-        "${Collection.STARRED}=?"
-    else
-        SelectionBuilder.whereZeroOrNull(Collection.STARRED)
+    override fun getSelection() = when {
+        isFavorite -> "${Collection.STARRED}=?"
+        else -> Collection.STARRED.whereZeroOrNull()
+    }
 
     override fun getSelectionArgs() = if (isFavorite) arrayOf(FAVORITE) else null
 
