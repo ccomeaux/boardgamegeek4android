@@ -10,12 +10,12 @@ import com.boardgamegeek.util.StringUtils;
 public class PlayTimeFilterDialog extends SliderFilterDialog {
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayTimeFilterer.MAX_RANGE;
+		return PlayTimeFilterer.upperBound;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayTimeFilterer.MIN_RANGE;
+		return PlayTimeFilterer.lowerBound;
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = PlayTimeFilterer.MIN_RANGE;
-		int max = PlayTimeFilterer.MAX_RANGE;
+		int min = PlayTimeFilterer.lowerBound;
+		int max = PlayTimeFilterer.upperBound;
 		boolean includeUndefined = false;
 		if (filter != null) {
 			PlayTimeFilterer data = (PlayTimeFilterer) filter;
@@ -58,8 +58,8 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected String getPinText(String value) {
-		int year = StringUtils.parseInt(value, PlayTimeFilterer.MIN_RANGE);
-		if (year == PlayTimeFilterer.MAX_RANGE) {
+		int year = StringUtils.parseInt(value, PlayTimeFilterer.lowerBound);
+		if (year == PlayTimeFilterer.upperBound) {
 			return value + "+";
 		}
 		return super.getPinText(value);
