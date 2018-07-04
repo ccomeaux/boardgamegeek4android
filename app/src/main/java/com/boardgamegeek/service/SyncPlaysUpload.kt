@@ -52,6 +52,8 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
     override val notificationTitleResId = R.string.sync_notification_title_play_upload
 
+    override val summarySuffixResId = R.plurals.plays_suffix
+
     override val notificationSummaryIntent = context.intentFor<PlaysActivity>()
 
     override val notificationIntent: Intent

@@ -3,6 +3,7 @@ package com.boardgamegeek.service
 import android.content.Intent
 import android.content.SyncResult
 import android.graphics.Bitmap
+import android.support.annotation.PluralsRes
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.Action
@@ -32,6 +33,9 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     protected abstract val notificationMessageTag: String
 
     protected abstract val notificationErrorTag: String
+
+    @get:PluralsRes
+    protected abstract val summarySuffixResId: Int
 
     @DebugLog
     protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
@@ -91,7 +95,7 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
             0 -> return
             1 -> builder.setContentText(notificationMessages[0])
             else -> {
-                val message = context.resources.getQuantityString(R.plurals.plays_suffix, notificationMessages.size, notificationMessages.size)
+                val message = context.resources.getQuantityString(summarySuffixResId, notificationMessages.size, notificationMessages.size)
                 builder.setContentText(message)
                 val detail = NotificationCompat.InboxStyle(builder).setSummaryText(message)
                 for (i in messageCount - 1 downTo 0) {

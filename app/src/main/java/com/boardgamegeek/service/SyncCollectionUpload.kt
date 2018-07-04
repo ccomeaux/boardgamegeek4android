@@ -42,6 +42,8 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     override val notificationTitleResId = R.string.sync_notification_title_collection_upload
 
+    override val summarySuffixResId = R.plurals.collection_items_suffix
+
     override val notificationSummaryIntent = context.intentFor<CollectionActivity>()
 
     override val notificationIntent: Intent?
