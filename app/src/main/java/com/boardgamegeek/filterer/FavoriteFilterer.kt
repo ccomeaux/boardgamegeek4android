@@ -2,8 +2,8 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.whereZeroOrNull
 
 class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
     var isFavorite = false

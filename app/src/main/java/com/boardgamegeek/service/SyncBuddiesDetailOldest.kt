@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.clamp
 import com.boardgamegeek.extensions.queryCount
 import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.io.BggService
