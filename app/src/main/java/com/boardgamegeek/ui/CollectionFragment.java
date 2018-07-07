@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView.MultiChoiceModeListener;
@@ -43,6 +44,8 @@ import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
+import com.boardgamegeek.filterer.CollectionStatusFilterer;
+import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -84,6 +87,7 @@ import com.github.amlcurran.showcaseview.targets.Target;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -654,18 +658,74 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void setEmptyText() {
 		if (emptyButton == null) return;
-		@StringRes int resId = R.string.empty_collection;
-		if (SyncPrefs.getLastCompleteCollectionTimestamp(getContext()) == 0L) {
-			resId = R.string.empty_collection_sync_never;
-			emptyButton.setVisibility(View.GONE);
-		} else if (hasFiltersApplied()) {
-			resId = R.string.empty_collection_filter_on;
-			emptyButton.setVisibility(View.VISIBLE);
-		} else if (!PreferencesUtils.isCollectionSetToSync(getContext())) {
-			resId = R.string.empty_collection_sync_off;
-			emptyButton.setVisibility(View.VISIBLE);
+		final Set<String> syncedStatuses = PreferencesUtils.getSyncStatuses(getContext());
+		final boolean collectionSyncOn = syncedStatuses != null && syncedStatuses.size() != 0;
+		if (collectionSyncOn) {
+			final boolean noPreviousSync = SyncPrefs.getLastCompleteCollectionTimestamp(getContext()) == 0L;
+			final boolean filterApplied = hasFiltersApplied();
+			if (noPreviousSync) {
+				setEmptyStateForNoAction(R.string.empty_collection_sync_never);
+			} else if (filterApplied) {
+				if (isAtLeastOneSyncOff(syncedStatuses, getListOfVisibleStatuses())) {
+					setEmptyStateForSettingsAction(R.string.empty_collection_filter_on_sync_partial);
+				} else {
+					setEmptyStateForReSyncAction(R.string.empty_collection_filter_on);
+				}
+			} else {
+				setEmptyStateForReSyncAction(R.string.empty_collection);
+			}
+		} else {
+			setEmptyStateForSettingsAction(R.string.empty_collection_sync_off);
 		}
-		setEmptyText(getString(resId));
+	}
+
+	private Set<String> getListOfVisibleStatuses() {
+		final Set<String> visibleStatuses = new HashSet<>(10);
+		for (CollectionFilterer filter : filters) {
+			if (filter instanceof CollectionStatusFilterer) {
+				CollectionStatusFilterer statusFilter = (CollectionStatusFilterer) filter;
+				visibleStatuses.addAll(statusFilter.getSelectedStatusesSet());
+			}
+		}
+		return visibleStatuses;
+	}
+
+	private boolean isAtLeastOneSyncOff(Set<String> syncedStatuses, Set<String> statusesToCheck) {
+		for (String status : statusesToCheck) {
+			if (!syncedStatuses.contains(status)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void setEmptyStateForSettingsAction(@StringRes int textResId) {
+		setEmptyText(getString(textResId));
+		emptyButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(SettingsActivity.Companion.newIntent(getContext()));
+			}
+		});
+		emptyButton.setText(R.string.button_settings);
+		emptyButton.setVisibility(View.VISIBLE);
+	}
+
+	private void setEmptyStateForReSyncAction(@StringRes int textResId) {
+		setEmptyText(getString(textResId));
+		emptyButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				triggerRefresh();
+			}
+		});
+		emptyButton.setText(R.string.re_sync);
+		emptyButton.setVisibility(View.VISIBLE);
+	}
+
+	private void setEmptyStateForNoAction(@StringRes int textResId) {
+		setEmptyText(getString(textResId));
+		emptyButton.setVisibility(View.GONE);
 	}
 
 	private boolean hasFiltersApplied() {

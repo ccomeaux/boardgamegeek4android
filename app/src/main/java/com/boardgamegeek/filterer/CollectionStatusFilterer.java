@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import com.boardgamegeek.R;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CollectionStatusFilterer extends CollectionFilterer {
 	private boolean[] selectedStatuses;
@@ -101,4 +103,19 @@ public class CollectionStatusFilterer extends CollectionFilterer {
 		}
 		return selectionArgs.toArray(new String[selectionArgs.size()]);
 	}
+
+	/**
+	 * @return a set of status values representing the statuses currently selected within this filter.
+	 */
+	public Set<String> getSelectedStatusesSet() {
+		final Set<String> selectedStatusesSet = new HashSet<>(10);
+		final String[] values = context.getResources().getStringArray(R.array.pref_sync_status_values);
+		for (int i = 0; i < selectedStatuses.length; i++) {
+			if (selectedStatuses[i]) {
+				selectedStatusesSet.add(values[i]);
+			}
+		}
+		return selectedStatusesSet;
+	}
+
 }

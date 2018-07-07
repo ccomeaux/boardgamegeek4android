@@ -1,5 +1,7 @@
 package com.boardgamegeek.pref
 
+import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
@@ -205,6 +207,10 @@ class SettingsActivity : DrawerActivity() {
         private const val ACTION_ABOUT = ACTION_PREFIX + "ABOUT"
         private const val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
         private val FRAGMENT_MAP = buildFragmentMap()
+
+        fun newIntent(startContext: Context): Intent {
+            return Intent(startContext, SettingsActivity::class.java)
+        }
 
         private fun buildFragmentMap(): ArrayMap<String, Int> {
             val map = ArrayMap<String, Int>()
