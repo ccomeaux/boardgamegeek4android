@@ -9,8 +9,14 @@ import com.boardgamegeek.util.NotificationUtils
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.jetbrains.anko.intentFor
+import timber.log.Timber
 
 class BggFirebaseMessagingService : FirebaseMessagingService() {
+    override fun onNewToken(token: String?) {
+        super.onNewToken(token)
+        Timber.i("Refreshed Firebase token to $token")
+    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
         remoteMessage?.notification?.let {
