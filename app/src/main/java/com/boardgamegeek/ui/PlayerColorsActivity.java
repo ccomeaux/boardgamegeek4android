@@ -18,10 +18,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -348,7 +348,7 @@ public class PlayerColorsActivity extends BaseActivity {
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_clear:
 				DialogUtils.createThemedBuilder(this)
@@ -454,13 +454,14 @@ public class PlayerColorsActivity extends BaseActivity {
 			inflater = LayoutInflater.from(context);
 		}
 
+		@NonNull
 		@Override
-		public ColorViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public ColorViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			return new ColorViewHolder(inflater.inflate(R.layout.row_player_color, parent, false));
 		}
 
 		@Override
-		public void onBindViewHolder(ColorViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull ColorViewHolder holder, int position) {
 			PlayerColor color = getItem(position);
 			if (color == null) return;
 			holder.bind(color);
@@ -532,9 +533,12 @@ public class PlayerColorsActivity extends BaseActivity {
 				dragHandle.setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
-						if (itemTouchHelper != null &&
-							MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-							itemTouchHelper.startDrag(ColorViewHolder.this);
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							if (itemTouchHelper != null) {
+								itemTouchHelper.startDrag(ColorViewHolder.this);
+							}
+						} else if (event.getAction() == MotionEvent.ACTION_UP) {
+							v.performClick();
 						}
 						return false;
 					}
