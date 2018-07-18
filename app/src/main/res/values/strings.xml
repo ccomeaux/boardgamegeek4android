@@ -492,7 +492,7 @@
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
 	<string name="menu_random_start_player">Random start player</string>
 	<string name="menu_random_player_order">Random player order</string>
-	<string name="generic_player">Player #,%d</string>
+	<string name="generic_player">Player #%,d</string>
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
 	<string name="unrated_abbr">\?</string>
