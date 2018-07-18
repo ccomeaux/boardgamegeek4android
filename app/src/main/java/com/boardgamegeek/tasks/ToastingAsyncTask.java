@@ -32,7 +32,7 @@ public abstract class ToastingAsyncTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		@StringRes final int resId = result ? getSuccessMessageResource() : getFailureMessageResource();
-		if (resId > 0) {
+		if (resId != 0) {
 			Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
 		}
 	}
