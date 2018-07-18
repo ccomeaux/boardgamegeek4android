@@ -346,7 +346,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private void bindUi() {
 		if (hasAutoPosition()) {
 			titleView.setText(gameName);
-			subtitleView.setText(getString(R.string.title_player) + " #" + autoPosition);
+			subtitleView.setText(getString(R.string.generic_player, autoPosition));
 			headerView.setVisibility(View.GONE);
 			twoLineContainer.setVisibility(View.VISIBLE);
 		} else {
