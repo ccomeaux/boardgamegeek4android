@@ -46,6 +46,6 @@ abstract class MoneySorter(context: Context) : CollectionSorter(context) {
     }
 
     companion object {
-        val MISSING_DATA = "-"
+        private const val MISSING_DATA = "-"
     }
 }

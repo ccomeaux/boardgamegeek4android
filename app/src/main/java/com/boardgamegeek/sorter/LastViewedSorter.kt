@@ -42,6 +42,6 @@ class LastViewedSorter(context: Context) : CollectionSorter(context) {
     }
 
     companion object {
-        private val COLUMN_NAME = Games.LAST_VIEWED
+        private const val COLUMN_NAME = Games.LAST_VIEWED
     }
 }
