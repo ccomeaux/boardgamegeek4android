@@ -48,7 +48,7 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
 
                     val call = service.thing(gameList.ids, 1)
                     try {
-                        val timestamp = System.currentTimeMillis();
+                        val timestamp = System.currentTimeMillis()
                         val response = call.execute()
                         if (response.isSuccessful) {
                             val body = response.body()
@@ -113,7 +113,7 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
         var detail = ""
         val call = service.thing(id, 1)
         try {
-            val timestamp = System.currentTimeMillis();
+            val timestamp = System.currentTimeMillis()
             val response = call.execute()
             if (response.isSuccessful) {
                 val games = if (response.body() == null) ArrayList(0) else response.body()!!.games
