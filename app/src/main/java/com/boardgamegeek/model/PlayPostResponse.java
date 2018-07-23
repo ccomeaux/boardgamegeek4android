@@ -64,7 +64,8 @@ public abstract class PlayPostResponse {
 	 * Indicates the user attempted to modify a play that doesn't exist.
 	 */
 	public boolean hasInvalidIdError() {
-		return "Play does not exist.".equalsIgnoreCase(error);
+		return "Play does not exist.".equalsIgnoreCase(error) ||
+			"Invalid item. Play not saved.".equals(error);
 	}
 
 	public String getErrorMessage() {
