@@ -182,7 +182,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if (isCreatingShortcut) {
 			Snackbar.make(frameContainer, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();

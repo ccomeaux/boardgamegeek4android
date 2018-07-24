@@ -2,10 +2,8 @@ package com.boardgamegeek.ui;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
@@ -125,7 +123,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ensureList();
 		final StickyListHeadersListView listView = getListView();
@@ -265,12 +263,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			listView.setEmptyView(emptyContainer);
 		}
 		emptyText = text;
-	}
-
-	public void setEmptyButton(CharSequence text, OnClickListener l) {
-		emptyButton.setText(text);
-		emptyButton.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		emptyButton.setOnClickListener(l);
 	}
 
 	public void setListShown(boolean shown) {
