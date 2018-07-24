@@ -10,12 +10,12 @@ import com.boardgamegeek.util.StringUtils;
 public class PlayTimeFilterDialog extends SliderFilterDialog {
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayTimeFilterer.MAX_RANGE;
+		return PlayTimeFilterer.upperBound;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayTimeFilterer.MIN_RANGE;
+		return PlayTimeFilterer.lowerBound;
 	}
 
 	@Override
@@ -25,7 +25,11 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new PlayTimeFilterer(context, min, max, checkbox);
+		final PlayTimeFilterer filterer = new PlayTimeFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -40,22 +44,22 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = PlayTimeFilterer.MIN_RANGE;
-		int max = PlayTimeFilterer.MAX_RANGE;
+		int min = PlayTimeFilterer.lowerBound;
+		int max = PlayTimeFilterer.upperBound;
 		boolean includeUndefined = false;
 		if (filter != null) {
 			PlayTimeFilterer data = (PlayTimeFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUndefined = data.includeUndefined();
+			includeUndefined = data.getIncludeUndefined();
 		}
 		return new InitialValues(min, max, includeUndefined);
 	}
 
 	@Override
 	protected String getPinText(String value) {
-		int year = StringUtils.parseInt(value, PlayTimeFilterer.MIN_RANGE);
-		if (year == PlayTimeFilterer.MAX_RANGE) {
+		int year = StringUtils.parseInt(value, PlayTimeFilterer.lowerBound);
+		if (year == PlayTimeFilterer.upperBound) {
 			return value + "+";
 		}
 		return super.getPinText(value);

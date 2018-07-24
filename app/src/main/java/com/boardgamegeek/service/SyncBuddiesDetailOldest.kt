@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.clamp
 import com.boardgamegeek.extensions.queryCount
 import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.io.BggService
@@ -29,7 +28,7 @@ class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, 
         val count = context.contentResolver.queryCount(Buddies.CONTENT_URI)
         if (count == 0) return emptyList()
         // attempt to sync all buddies every "days" days but no more than "max" at a time
-        val limit = (count / days).clamp(1, max)
+        val limit = (count / days).coerceIn(1, max)
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
                 Buddies.BUDDY_NAME,

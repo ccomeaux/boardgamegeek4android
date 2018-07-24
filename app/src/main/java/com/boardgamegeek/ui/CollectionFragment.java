@@ -159,7 +159,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 						if (filterer == null) {
 							Timber.w("Couldn't create filterer with type %s", filterType);
 						} else {
-							filterer.setData(data.get(i));
+							filterer.inflate(data.get(i));
 							filters.add(filterer);
 						}
 					}
@@ -259,7 +259,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		data = new ArrayList<>();
 		for (CollectionFilterer filterer : filters) {
 			types.add(filterer.getType());
-			data.add(filterer.flatten());
+			data.add(filterer.deflate());
 		}
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -584,7 +584,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				do {
 					CollectionFilterer filter = new CollectionFiltererFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
 					if (filter != null) {
-						filter.setData(cursor.getString(ViewQuery.DATA));
+						filter.inflate(cursor.getString(ViewQuery.DATA));
 						filters.add(filter);
 					}
 				} while (cursor.moveToNext());
@@ -713,8 +713,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 		for (CollectionFilterer filter : filters) {
-			if (filter != null && !TextUtils.isEmpty(filter.getDisplayText())) {
-				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.getDisplayText()));
+			if (filter != null && !TextUtils.isEmpty(filter.toShortDescription())) {
+				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.toShortDescription()));
 			}
 		}
 
@@ -1023,7 +1023,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			for (CollectionFilterer filter : filters) {
 				if (filter != null) {
 					text.append("\n\u2022 ");
-					text.append(filter.getDescription());
+					text.append(filter.toLongDescription());
 				}
 			}
 			if (sortType != CollectionSorterFactory.TYPE_DEFAULT && text.length() > 0) text.append("\n\n");
@@ -1104,7 +1104,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (filter != null) {
 				ContentValues cv = new ContentValues();
 				cv.put(CollectionViewFilters.TYPE, filter.getType());
-				cv.put(CollectionViewFilters.DATA, filter.flatten());
+				cv.put(CollectionViewFilters.DATA, filter.deflate());
 				cvs.add(cv);
 			}
 		}

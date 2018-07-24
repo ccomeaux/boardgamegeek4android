@@ -14,7 +14,7 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 	private boolean[] selectedStatuses;
 
 	@Override
-	public void createDialog(final Context context, final OnFilterChangedListener listener, CollectionFilterer filter) {
+	public void createDialog(final Context context, final OnFilterChangedListener listener, final CollectionFilterer filter) {
 		init(context, (CollectionStatusFilterer) filter);
 
 		new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
@@ -28,15 +28,23 @@ public class CollectionStatusFilterDialog implements CollectionFilterDialog {
 			.setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					if (listener != null)
-						listener.addFilter(new CollectionStatusFilterer(context, selectedStatuses, true));
+					if (listener != null) {
+						final CollectionStatusFilterer filterer = new CollectionStatusFilterer(context);
+						filterer.setSelectedStatuses(selectedStatuses);
+						filterer.setShouldJoinWithOr(true);
+						listener.addFilter(filterer);
+					}
 				}
 			})
 			.setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					if (listener != null)
-						listener.addFilter(new CollectionStatusFilterer(context, selectedStatuses, false));
+					if (listener != null) {
+						final CollectionStatusFilterer filterer = new CollectionStatusFilterer(context);
+						filterer.setSelectedStatuses(selectedStatuses);
+						filterer.setShouldJoinWithOr(false);
+						listener.addFilter(filterer);
+					}
 				}
 			})
 			.setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {

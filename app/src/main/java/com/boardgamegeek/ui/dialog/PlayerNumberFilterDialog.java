@@ -19,12 +19,12 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayerNumberFilterer.MAX_RANGE;
+		return PlayerNumberFilterer.upperBound;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayerNumberFilterer.MIN_RANGE;
+		return PlayerNumberFilterer.lowerBound;
 	}
 
 	@Override
@@ -34,7 +34,11 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new PlayerNumberFilterer(context, min, max, checkbox);
+		final PlayerNumberFilterer filterer = new PlayerNumberFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setExact(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -44,8 +48,8 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = PlayerNumberFilterer.MIN_RANGE;
-		int max = PlayerNumberFilterer.MAX_RANGE;
+		int min = PlayerNumberFilterer.lowerBound;
+		int max = PlayerNumberFilterer.upperBound;
 		boolean isExact = false;
 		if (filter != null) {
 			PlayerNumberFilterer data = (PlayerNumberFilterer) filter;

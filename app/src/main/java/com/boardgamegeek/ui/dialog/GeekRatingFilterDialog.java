@@ -26,12 +26,12 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (GeekRatingFilterer.MAX_RANGE * FACTOR);
+		return (int) (GeekRatingFilterer.upperBound * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (GeekRatingFilterer.MIN_RANGE * FACTOR);
+		return (int) (GeekRatingFilterer.lowerBound * FACTOR);
 	}
 
 	@Override
@@ -41,7 +41,11 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new GeekRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
+		final GeekRatingFilterer filterer = new GeekRatingFilterer(context);
+		filterer.setMin((double) (min) / FACTOR);
+		filterer.setMax((double) (max) / FACTOR);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -51,14 +55,14 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		double min = GeekRatingFilterer.MIN_RANGE;
-		double max = GeekRatingFilterer.MAX_RANGE;
+		double min = GeekRatingFilterer.lowerBound;
+		double max = GeekRatingFilterer.upperBound;
 		boolean unrated = true;
 		if (filter != null) {
 			GeekRatingFilterer data = (GeekRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			unrated = data.includeUnrated();
+			unrated = data.getIncludeUndefined();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}

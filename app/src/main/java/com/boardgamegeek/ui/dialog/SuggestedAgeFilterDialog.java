@@ -10,14 +10,14 @@ import com.boardgamegeek.util.StringUtils;
 public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = SuggestedAgeFilterer.MIN_RANGE;
-		int max = SuggestedAgeFilterer.MAX_RANGE;
+		int min = SuggestedAgeFilterer.lowerBound;
+		int max = SuggestedAgeFilterer.upperBound;
 		boolean includeUndefined = false;
 		if (filter != null) {
 			SuggestedAgeFilterer data = (SuggestedAgeFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			includeUndefined = data.includeUndefined();
+			includeUndefined = data.getIncludeUndefined();
 		}
 		return new InitialValues(min, max, includeUndefined);
 	}
@@ -39,23 +39,27 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new SuggestedAgeFilterer(context, min, max, checkbox);
+		final SuggestedAgeFilterer filterer = new SuggestedAgeFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return SuggestedAgeFilterer.MIN_RANGE;
+		return SuggestedAgeFilterer.lowerBound;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return SuggestedAgeFilterer.MAX_RANGE;
+		return SuggestedAgeFilterer.upperBound;
 	}
 
 	@Override
 	protected String getPinText(String value) {
-		int year = StringUtils.parseInt(value, SuggestedAgeFilterer.MIN_RANGE);
-		if (year == SuggestedAgeFilterer.MAX_RANGE) {
+		int year = StringUtils.parseInt(value, SuggestedAgeFilterer.lowerBound);
+		if (year == SuggestedAgeFilterer.upperBound) {
 			return value + "+";
 		}
 		return super.getPinText(value);
