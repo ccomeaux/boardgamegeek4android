@@ -43,6 +43,7 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class LocationsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String STATE_SORT_TYPE = "sortType";
 	private static final int TOKEN = 0;
 	private LocationsAdapter adapter;
 	private LocationsSorter sorter;
@@ -52,13 +53,17 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 	Unbinder unbinder;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
-	@BindView(R.id.list_container) View listContainer;
 	@BindView(android.R.id.list) RecyclerView listView;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setSort(LocationsSorterFactory.TYPE_DEFAULT);
+
+		int sortType = LocationsSorterFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
+		}
+		setSort(sortType);
 	}
 
 	@Nullable
@@ -80,6 +85,12 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onDestroyView() {
 		super.onDestroyView();
 		if (unbinder != null) unbinder.unbind();
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(STATE_SORT_TYPE, sorter.getType());
 	}
 
 	@Override
@@ -108,13 +119,14 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getContext(), Plays.buildLocationsUri(), Location.PROJECTION, null, null, sorter.getOrderByClause());
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
 		int token = loader.getId();
@@ -149,8 +161,8 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.changeData(null);
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		if (adapter != null) adapter.changeData(null);
 	}
 
 	public void setListAdapter(LocationsAdapter adapter) {
@@ -169,19 +181,20 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 		emptyContainer.setVisibility(View.GONE);
 		if (isListShown) return;
 		isListShown = true;
-		AnimationUtils.fadeIn(listContainer, animate);
+		AnimationUtils.fadeIn(listView, animate);
 	}
 
 	public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder> {
 		private final LayoutInflater inflater;
-		private List<Location> locations;
+		private final List<Location> locations = new ArrayList<>();
 
 		public LocationsAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
 		}
 
 		public void changeData(List<Location> locations) {
-			this.locations = locations;
+			this.locations.clear();
+			this.locations.addAll(locations);
 			notifyDataSetChanged();
 		}
 
@@ -193,38 +206,39 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 		@NonNull
 		@Override
 		public LocationsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View row = inflater.inflate(R.layout.row_text_2, parent, false);
-			return new LocationsViewHolder(row);
+			return new LocationsViewHolder(inflater.inflate(R.layout.row_location, parent, false));
 		}
 
 		@Override
-		public void onBindViewHolder(LocationsViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull LocationsViewHolder holder, int position) {
 			if (locations == null) return;
-
 			final Location location = locations.get(position);
-
-			if (TextUtils.isEmpty(location.getName())) {
-				holder.name.setText(R.string.no_location);
-			} else {
-				holder.name.setText(location.getName());
-			}
-			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
-
-			holder.itemView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					EventBus.getDefault().postSticky(new LocationSelectedEvent(location.getName()));
-				}
-			});
+			holder.bind(location);
 		}
 
 		class LocationsViewHolder extends RecyclerView.ViewHolder {
-			@BindView(android.R.id.title) TextView name;
-			@BindView(android.R.id.text1) TextView quantity;
+			@BindView(R.id.nameView) TextView nameView;
+			@BindView(R.id.quantityView) TextView quantityView;
 
 			public LocationsViewHolder(View view) {
 				super(view);
 				ButterKnife.bind(this, view);
+			}
+
+			public void bind(final Location location) {
+				if (TextUtils.isEmpty(location.getName())) {
+					nameView.setText(R.string.no_location);
+				} else {
+					nameView.setText(location.getName());
+				}
+				quantityView.setText(getResources().getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						EventBus.getDefault().postSticky(new LocationSelectedEvent(location.getName()));
+					}
+				});
 			}
 		}
 	}
@@ -240,6 +254,7 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 				return !thisLetter.equals(lastLetter);
 			}
 
+			@NonNull
 			@Override
 			public CharSequence getSectionHeader(int position) {
 				if (locations == null || locations.size() == 0) return "-";
