@@ -1,3 +1,5 @@
+@file:JvmName("StringUtils")
+
 package com.boardgamegeek.extensions
 
 import android.content.Context

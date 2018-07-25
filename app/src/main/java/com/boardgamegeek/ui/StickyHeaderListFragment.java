@@ -265,14 +265,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		emptyText = text;
 	}
 
-	public void setListShown(boolean shown) {
-		setListShown(shown, true);
-	}
-
-	public void setListShownNoAnimation(boolean shown) {
-		setListShown(shown, false);
-	}
-
 	private void setListShown(boolean shown, boolean animate) {
 		ensureList();
 		if (isListShown == shown) return;
