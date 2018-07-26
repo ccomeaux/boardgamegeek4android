@@ -166,12 +166,10 @@ public class NumberPadDialogFragment extends DialogFragment {
 		maybeUpdateOutput(output, textView);
 	}
 
-	@OnClick({
-		R.id.num_plusminus
-	})
+	@OnClick(R.id.num_plus_minus)
 	void onPlusMinusClick(TextView textView) {
 		String output = outputView.getText().toString();
-		if(output.length() > 0 && output.charAt(0) == '-') {
+		if (output.length() > 0 && output.charAt(0) == '-') {
 			output = output.substring(1);
 		} else {
 			output = '-' + output;
@@ -260,7 +258,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 		if (text.startsWith(".")) {
 			return Double.parseDouble("0" + text);
 		}
-		if(text.startsWith("-") && text.charAt(1) == '.') {
+		if (text.startsWith("-") && text.charAt(1) == '.') {
 			return Double.parseDouble("-0" + text.substring(1));
 		}
 		return Double.parseDouble(text);

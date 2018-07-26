@@ -4,6 +4,7 @@ Release Notes
 Version 6.7
 -----------
  * UI changes
+ * Ability to specify negative scores more easily
  * Lots of under the hood improvements
 
 Version 6.6.6

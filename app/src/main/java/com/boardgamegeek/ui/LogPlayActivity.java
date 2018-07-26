@@ -1930,7 +1930,7 @@ public class LogPlayActivity extends AppCompatActivity {
 									player.score = output;
 									double highScore = play.getHighScore();
 									for (Player p : play.getPlayers()) {
-										double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
+										double score = StringUtils.parseDouble(p.score, Double.NaN);
 										p.isWin = (score == highScore);
 									}
 									playAdapter.notifyPlayersChanged();

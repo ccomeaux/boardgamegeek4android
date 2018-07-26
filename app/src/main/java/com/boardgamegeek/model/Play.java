@@ -296,13 +296,11 @@ public class Play {
 		double highScore = -Double.MAX_VALUE;
 		for (Player player : players) {
 			if (player == null) continue;
-			double score = StringUtils.parseDouble(player.score, -Double.MAX_VALUE);
+			double score = StringUtils.parseDouble(player.score, Double.NaN);
 			if (score > highScore) {
 				highScore = score;
 			}
 		}
-		// Can happen if we had un-parseable scores
-		if(highScore == -Double.MAX_VALUE) { return 0.0; }
 
 		return highScore;
 	}
