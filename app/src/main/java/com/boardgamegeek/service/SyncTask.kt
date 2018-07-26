@@ -106,7 +106,7 @@ abstract class SyncTask(protected val context: Context, protected val service: B
      * If the user's preferences are set, show a notification message with the error message. This will replace any
      * existing error notification.
      */
-    private fun showError(detailMessage: String, errorMessage: String) {
+    fun showError(detailMessage: String, errorMessage: String) {
         Timber.w("$detailMessage\n$errorMessage".trim())
 
         if (!PreferencesUtils.getSyncShowErrors(context)) return

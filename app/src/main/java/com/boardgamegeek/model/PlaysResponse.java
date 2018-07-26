@@ -11,13 +11,13 @@ public class PlaysResponse {
 	@Attribute(required = false)
 	private String username;
 
-	@Attribute
+	@Attribute(required = false)
 	private int userid;
 
-	@Attribute
+	@Attribute(required = false)
 	private int total;
 
-	@Attribute
+	@Attribute(required = false)
 	private int page;
 
 	@ElementList(inline = true, required = false)
