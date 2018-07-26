@@ -10,13 +10,12 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.appyvet.rangebar.RangeBar;
-import com.appyvet.rangebar.RangeBar.OnRangeBarChangeListener;
-import com.appyvet.rangebar.RangeBar.PinTextFormatter;
+import com.appyvet.materialrangebar.RangeBar;
+import com.appyvet.materialrangebar.RangeBar.OnRangeBarChangeListener;
+import com.appyvet.materialrangebar.RangeBar.PinTextFormatter;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.util.MathUtils;
-import com.boardgamegeek.util.StringUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -81,8 +80,8 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 		rangeBar.setOnRangeBarChangeListener(new OnRangeBarChangeListener() {
 			@Override
 			public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
-				low = getPinValue(leftPinValue);
-				high = getPinValue(rightPinValue);
+				low = MathUtils.constrain(leftPinIndex + getAbsoluteMin(), getAbsoluteMin(), getAbsoluteMax());
+				high = MathUtils.constrain(rightPinIndex + getAbsoluteMin(), getAbsoluteMin(), getAbsoluteMax());
 			}
 		});
 	}
@@ -124,7 +123,9 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 	}
 
 	private void updateRange(int leftPinIndex, int rightPinIndex) {
-		rangeBar.setRangePinsByIndices(leftPinIndex, rightPinIndex);
+		int left = MathUtils.constrain(leftPinIndex, 0, rangeBar.getTickCount() - 1);
+		int right = MathUtils.constrain(rightPinIndex, 0, rangeBar.getTickCount() - 1);
+		rangeBar.setRangePinsByIndices(left, right);
 		// HACK to make the pins remain visible
 		rangeBar.setLeft(rangeBar.getLeft() + 1);
 	}
@@ -165,10 +166,6 @@ public abstract class SliderFilterDialog implements CollectionFilterDialog {
 
 	protected String getPinText(String value) {
 		return value;
-	}
-
-	protected int getPinValue(String text) {
-		return StringUtils.parseInt(text);
 	}
 
 	class InitialValues {

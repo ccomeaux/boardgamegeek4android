@@ -63,7 +63,7 @@ public class PlayStatView extends TableRow {
 		infoImageView.setVisibility(View.VISIBLE);
 		setClickBackground();
 		final SpannableString s = new SpannableString(text);
-		Linkify.addLinks(s, Linkify.ALL);
+		Linkify.addLinks(s, Linkify.WEB_URLS);
 		builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(labelView.getText()).setMessage(s);
 	}
@@ -72,7 +72,7 @@ public class PlayStatView extends TableRow {
 	public void onInfoClick() {
 		if (builder != null) {
 			AlertDialog dialog = builder.show();
-			TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+			TextView textView = dialog.findViewById(android.R.id.message);
 			if (textView != null) {
 				textView.setMovementMethod(LinkMovementMethod.getInstance());
 			}

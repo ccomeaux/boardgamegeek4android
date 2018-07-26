@@ -3,7 +3,6 @@ package com.boardgamegeek.tasks.sync;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
@@ -43,8 +42,8 @@ public class SyncDesignerTask extends SyncTask<Person, CompletedEvent> {
 
 	@Override
 	protected void persistResponse(Person designer) {
-		Uri uri = Designers.buildDesignerUri(designerId);
-		context.getContentResolver().update(uri, toValues(designer), null, null);
+		if (context == null) return;
+		context.getContentResolver().update(Designers.buildDesignerUri(designerId), toValues(designer), null, null);
 		Timber.i("Synced designer '%s'", designerId);
 	}
 

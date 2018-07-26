@@ -1,17 +1,17 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentValues;
-import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -37,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -45,11 +46,10 @@ import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter.Callback;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +63,11 @@ import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_ICON_COLOR = "ICON_COLOR";
 	private static final int TOKEN = 0x20;
 	private int gameId;
+	@ColorInt private int iconColor;
 	private GameColorRecyclerViewAdapter adapter;
 	private EditTextDialogFragment editTextDialogFragment;
 	private ActionMode actionMode;
@@ -78,7 +81,15 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
 	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
-	private int iconColor;
+
+	public static ColorsFragment newInstance(int gameId, @ColorInt int iconColor) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putInt(KEY_ICON_COLOR, iconColor);
+		ColorsFragment fragment = new ColorsFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
 
 	@DebugLog
 	@Override
@@ -93,7 +104,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
-		colorFab();
+		PresentationUtils.colorFab(fab, iconColor);
 		setUpRecyclerView();
 		return rootView;
 	}
@@ -172,13 +183,15 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameId = Games.getGameId(intent.getData());
-		iconColor = intent.getIntExtra(ActivityUtils.KEY_ICON_COLOR, 0);
-		colorFab();
-
+		readBundle(getArguments());
+		PresentationUtils.colorFab(fab, iconColor);
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
 	@DebugLog
@@ -324,13 +337,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			});
 		}
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
-	}
-
-	@DebugLog
-	private void colorFab() {
-		if (fab != null && iconColor != 0) {
-			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
-		}
 	}
 
 	@DebugLog

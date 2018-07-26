@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.MainThread;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.squareup.picasso.Picasso;
@@ -10,7 +12,6 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -25,44 +26,44 @@ public class LargeIconLoader implements Target {
 	private final Queue<String> imageUrls;
 	private String currentImageUrl;
 
-	public LargeIconLoader(Context context, String imageUrl, String thumbnailUrl, Callback callback) {
+	public LargeIconLoader(Context context, String imageUrl, String thumbnailUrl, String heroImageUrl, Callback callback) {
 		this.context = context;
 		this.imageUrls = new LinkedList<>();
 		this.callback = callback;
-		if (!TextUtils.isEmpty(imageUrl)) {
-			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-			imageUrls.add(imageUrl);
-			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_SMALL));
-			imageUrls.add(TextUtils.isEmpty(thumbnailUrl) ?
-				ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_THUMBNAIL) :
-				thumbnailUrl);
-			imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
-		}
+		imageUrls.add(heroImageUrl);
+		imageUrls.add(thumbnailUrl);
+		imageUrls.add(imageUrl);
 	}
 
+	@WorkerThread
 	public void executeInBackground() {
+		if (imageUrls.size() == 0) {
+			if (callback != null) callback.onFailedIconLoad();
+			return;
+		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
-			if (callback != null) {
-				callback.onFailedIconLoad();
-			}
+			executeInBackground();
 		} else {
 			try {
 				final Bitmap bitmap = getRequestCreator().get();
 				onBitmapLoaded(bitmap, null);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Timber.i("Didn't find an image at %s", currentImageUrl);
 				executeInBackground();
 			}
 		}
 	}
 
+	@MainThread
 	public void executeOnMainThread() {
+		if (imageUrls.size() == 0) {
+			if (callback != null) callback.onFailedIconLoad();
+			return;
+		}
 		currentImageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(currentImageUrl)) {
-			if (callback != null) {
-				callback.onFailedIconLoad();
-			}
+			executeOnMainThread();
 		} else {
 			getRequestCreator().into(this);
 		}
@@ -78,15 +79,13 @@ public class LargeIconLoader implements Target {
 	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
 		Timber.i("Found an image at %s", currentImageUrl);
-		if (callback != null) {
-			callback.onSuccessfulIconLoad(bitmap);
-		}
+		if (callback != null) callback.onSuccessfulIconLoad(bitmap);
 	}
 
 	@Override
 	public void onBitmapFailed(Drawable errorDrawable) {
 		Timber.i("Didn't find an image at %s", currentImageUrl);
-		executeOnMainThread();
+		if (callback != null) callback.onFailedIconLoad();
 	}
 
 	@Override

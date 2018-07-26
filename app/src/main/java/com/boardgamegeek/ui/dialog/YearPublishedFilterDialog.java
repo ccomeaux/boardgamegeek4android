@@ -11,8 +11,8 @@ import com.boardgamegeek.util.StringUtils;
 public class YearPublishedFilterDialog extends SliderFilterDialog {
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = YearPublishedFilterer.MIN_RANGE;
-		int max = YearPublishedFilterer.MAX_RANGE;
+		int min = YearPublishedFilterer.lowerBound;
+		int max = YearPublishedFilterer.getUpperBound();
 		if (filter != null) {
 			YearPublishedFilterer data = (YearPublishedFilterer) filter;
 			min = data.getMin();
@@ -33,7 +33,11 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new YearPublishedFilterer(context, min, max);
+		final YearPublishedFilterer filterer = new YearPublishedFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		// ignore checkbox
+		return filterer;
 	}
 
 	@Override
@@ -43,34 +47,23 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMin() {
-		return YearPublishedFilterer.MIN_RANGE;
+		return YearPublishedFilterer.lowerBound;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return YearPublishedFilterer.MAX_RANGE;
+		return YearPublishedFilterer.getUpperBound();
 	}
 
 	@Override
 	protected String getPinText(String value) {
-		int year = StringUtils.parseInt(value, YearPublishedFilterer.MIN_RANGE);
-		if (year == YearPublishedFilterer.MIN_RANGE) {
+		int year = StringUtils.parseInt(value, YearPublishedFilterer.lowerBound);
+		if (year == YearPublishedFilterer.lowerBound) {
 			return "<" + value;
 		}
-		if (year == YearPublishedFilterer.MAX_RANGE) {
+		if (year == YearPublishedFilterer.getUpperBound()) {
 			return value + "+";
 		}
 		return super.getPinText(value);
-	}
-
-	@Override
-	protected int getPinValue(String text) {
-		if (text.startsWith("<")) {
-			return YearPublishedFilterer.MIN_RANGE;
-		}
-		if (text.endsWith("+")) {
-			return YearPublishedFilterer.MAX_RANGE;
-		}
-		return super.getPinValue(text);
 	}
 }

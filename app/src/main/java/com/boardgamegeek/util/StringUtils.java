@@ -11,25 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import hugo.weaving.DebugLog;
-
 /**
  * Provides utility methods for dealing with strings.
  */
 public class StringUtils {
-	private static final int INVALID_RANGE = -1;
-	private static final String RANGE_COMMA = ", ";
-	private static final String RANGE_DASH = " - ";
+	public static final String TRUNCATED_TEXT_SUFFIX = "..";
 
 	private StringUtils() {
-	}
-
-	public static String createSortName(String name, int sortIndex) {
-		if (sortIndex <= 1 || sortIndex > name.length()) {
-			return name;
-		}
-		int i = sortIndex - 1;
-		return name.substring(i) + ", " + name.substring(0, i).trim();
 	}
 
 	/**
@@ -43,6 +31,7 @@ public class StringUtils {
 	 * Parse a string to an int, returning the default value if it's not parsable.
 	 */
 	public static int parseInt(String text, int defaultValue) {
+		if (TextUtils.isEmpty(text)) return defaultValue;
 		try {
 			return Integer.parseInt(text);
 		} catch (NumberFormatException | NullPointerException ex) {
@@ -61,6 +50,7 @@ public class StringUtils {
 	 * Parse a string to an long, returning the default value if it's not parsable.
 	 */
 	public static long parseLong(String text, int defaultValue) {
+		if (TextUtils.isEmpty(text)) return defaultValue;
 		try {
 			return Long.parseLong(text);
 		} catch (NumberFormatException | NullPointerException ex) {
@@ -79,6 +69,7 @@ public class StringUtils {
 	 * Parse a string to an double, returning the default value if it's not parsable.
 	 */
 	public static double parseDouble(String text, double defaultValue) {
+		if (TextUtils.isEmpty(text)) return defaultValue;
 		try {
 			return Double.parseDouble(text);
 		} catch (NumberFormatException | NullPointerException ex) {
@@ -90,6 +81,7 @@ public class StringUtils {
 	 * Determines if the string can be converted to a number.
 	 */
 	public static boolean isNumeric(String text) {
+		if (TextUtils.isEmpty(text)) return false;
 		try {
 			//noinspection ResultOfMethodCallIgnored
 			Double.parseDouble(text);
@@ -97,36 +89,6 @@ public class StringUtils {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Gets the ordinal (1st) for the given cardinal (1)
-	 *
-	 * @param cardinal The cardinal number (1, 2, 3)
-	 * @return The ordinal number (1st, 2nd, 3rd)
-	 */
-	public static String getOrdinal(int cardinal) {
-		if (cardinal < 0) {
-			return "-th";
-		}
-
-		String c = String.valueOf(cardinal);
-		String n = "0";
-		if (c.length() > 1) {
-			n = c.substring(c.length() - 2, c.length() - 1);
-		}
-		String l = c.substring(c.length() - 1);
-		if (!n.equals("1")) {
-			switch (l) {
-				case "1":
-					return c + "st";
-				case "2":
-					return c + "nd";
-				case "3":
-					return c + "rd";
-			}
-		}
-		return c + "th";
 	}
 
 	/**
@@ -181,50 +143,12 @@ public class StringUtils {
 		return sb.toString();
 	}
 
-	@DebugLog
-	public static String formatRange(List<Integer> list) {
-		if (list == null) return "";
-		if (list.size() == 0) return "";
-		if (list.size() == 1) return String.valueOf(list.get(0));
-
-		int first = INVALID_RANGE;
-		int last = INVALID_RANGE;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < list.size(); i++) {
-			int current = list.get(i);
-			if (first == INVALID_RANGE) {
-				first = current;
-			} else if (current - 1 == list.get(i - 1)) {
-				last = current;
-			} else if (last != INVALID_RANGE) {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first).append(RANGE_DASH).append(last);
-				first = INVALID_RANGE;
-				last = INVALID_RANGE;
-			} else {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first);
-				first = current;
-				last = INVALID_RANGE;
-			}
-		}
-		if (first != INVALID_RANGE) {
-			if (last != INVALID_RANGE) {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first).append(RANGE_DASH).append(last);
-			} else {
-				if (sb.length() > 0) sb.append(RANGE_COMMA);
-				sb.append(first);
-			}
-		}
-		return sb.toString();
-	}
-
 	/**
 	 * Append bold text to a {@link android.text.SpannableStringBuilder}
 	 */
 	public static void appendBold(SpannableStringBuilder sb, String boldText) {
 		sb.append(boldText);
+		if (TextUtils.isEmpty(boldText)) return;
 		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
@@ -232,6 +156,25 @@ public class StringUtils {
 	public static String limitText(String text, int length) {
 		if (TextUtils.isEmpty(text)) return "";
 		if (text.length() <= length) return text;
+		if (length > TRUNCATED_TEXT_SUFFIX.length())
+			return text.substring(0, length - TRUNCATED_TEXT_SUFFIX.length()) + TRUNCATED_TEXT_SUFFIX;
 		return text.substring(0, length);
+	}
+
+	public static String repeat(String string, int count) {
+		if (TextUtils.isEmpty(string)) return "";
+		if (count < 0) return string;
+
+		final int len = string.length();
+		final int size = len * count;
+
+		final char[] array = new char[size];
+		string.getChars(0, len, array, 0);
+		int n;
+		for (n = len; n < size - n; n <<= 1) {
+			System.arraycopy(array, 0, array, n, n);
+		}
+		System.arraycopy(array, 0, array, n, size - n);
+		return new String(array);
 	}
 }

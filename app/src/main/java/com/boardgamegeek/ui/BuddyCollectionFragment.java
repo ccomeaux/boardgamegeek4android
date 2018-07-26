@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
@@ -20,14 +19,15 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.CollectionItemEntity;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.CollectionItem;
-import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.io.model.CollectionItem;
+import com.boardgamegeek.io.model.CollectionResponse;
+import com.boardgamegeek.mappers.CollectionItemMapper;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
@@ -44,6 +44,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 
 	private BuddyCollectionAdapter adapter;
@@ -54,12 +55,19 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private String[] statusValues;
 	private String[] statusEntries;
 
+	public static BuddyCollectionFragment newInstance(String username) {
+		Bundle args = new Bundle();
+		args.putString(KEY_BUDDY_NAME, username);
+		BuddyCollectionFragment fragment = new BuddyCollectionFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
+		buddyName = getArguments().getString(KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Missing buddy name.");
@@ -91,7 +99,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		super.onListItemClick(convertView, position, id);
 		int gameId = (int) convertView.getTag(R.id.id);
 		String gameName = (String) convertView.getTag(R.id.game_name);
-		ActivityUtils.launchGame(getActivity(), gameId, gameName);
+		GameActivity.start(getContext(), gameId, gameName);
 	}
 
 	@Override
@@ -142,9 +150,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		} else if (id == R.id.menu_collection_random_game) {
 			final int index = RandomUtils.getRandom().nextInt(adapter.getCount());
 			if (index < adapter.getCount()) {
-				CollectionItem ci = adapter.getItem(index);
+				CollectionItemEntity ci = adapter.getItem(index);
 				if (ci != null) {
-					ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
+					GameActivity.start(getContext(), ci.getGameId(), ci.getGameName(), ci.getThumbnailUrl());
 					return true;
 				}
 				return false;
@@ -168,7 +176,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (adapter != null) {
 			adapter.clear();
 		}
-		getActivity().supportInvalidateOptionsMenu();
+		getActivity().invalidateOptionsMenu();
 		setListShown(false);
 		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
@@ -180,14 +188,16 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onLoadFinished(Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
-		if (getActivity() == null) {
-			return;
+		if (getActivity() == null) return;
+		ArrayList<CollectionItemEntity> list = new ArrayList<>();
+		if (data != null &&
+			data.getBody() != null &&
+			data.getBody().items != null) {
+			CollectionItemMapper mapper = new CollectionItemMapper();
+			for (CollectionItem item : data.getBody().items) {
+				list.add(mapper.map(item).getFirst());
+			}
 		}
-
-		List<CollectionItem> list = (data == null || data.getBody() == null) ?
-			new ArrayList<CollectionItem>() :
-			data.getBody().items;
-		if (list == null) list = new ArrayList<>();
 
 		if (adapter == null) {
 			adapter = new BuddyCollectionAdapter(getActivity(), list);
@@ -196,12 +206,14 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			adapter.setCollection(list);
 		}
 		adapter.notifyDataSetChanged();
-		getActivity().supportInvalidateOptionsMenu();
+		getActivity().invalidateOptionsMenu();
 
 		if (data == null) {
 			setEmptyText(getString(R.string.empty_buddy_collection));
 		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
+		} else if (data.getBody().totalitems == 0) {
+			setEmptyText(getString(R.string.empty_buddy_collection));
 		} else {
 			if (isResumed()) {
 				setListShown(true);
@@ -236,15 +248,15 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 	}
 
-	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
+	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItemEntity> implements StickyListHeadersAdapter {
 		private final LayoutInflater inflater;
 
-		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
+		public BuddyCollectionAdapter(Activity activity, List<CollectionItemEntity> collection) {
 			super(activity, R.layout.row_text_2, collection);
 			inflater = activity.getLayoutInflater();
 		}
 
-		public void setCollection(List<CollectionItem> games) {
+		public void setCollection(List<CollectionItemEntity> games) {
 			clear();
 			addAll(games);
 			notifyDataSetChanged();
@@ -262,18 +274,18 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 				holder = (BuddyGameViewHolder) convertView.getTag();
 			}
 
-			CollectionItem game;
+			CollectionItemEntity item;
 			try {
-				game = getItem(position);
+				item = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
-			if (game != null) {
-				holder.title.setText(game.gameName());
-				holder.text.setText(String.valueOf(game.gameId));
+			if (item != null) {
+				holder.title.setText(item.getGameName());
+				holder.text.setText(String.valueOf(item.getGameId()));
 
-				convertView.setTag(R.id.id, game.gameId);
-				convertView.setTag(R.id.game_name, game.gameName());
+				convertView.setTag(R.id.id, item.getGameId());
+				convertView.setTag(R.id.game_name, item.getGameName());
 			}
 			return convertView;
 		}
@@ -284,7 +296,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -300,9 +312,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 		private String getHeaderText(int position) {
 			if (position < getCount()) {
-				CollectionItem game = getItem(position);
-				if (game != null) {
-					return game.gameSortName().substring(0, 1);
+				CollectionItemEntity item = getItem(position);
+				if (item != null) {
+					return item.getSortName().substring(0, 1);
 				}
 			}
 			return "-";
@@ -313,8 +325,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			public final TextView text;
 
 			public BuddyGameViewHolder(View view) {
-				title = (TextView) view.findViewById(android.R.id.title);
-				text = (TextView) view.findViewById(android.R.id.text1);
+				title = view.findViewById(android.R.id.title);
+				text = view.findViewById(android.R.id.text1);
 			}
 		}
 

@@ -116,8 +116,8 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	}
 
 	private void bindCollectionStatusMessage() {
-		isOwnedSynced = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
-		isPlayedSynced = PreferencesUtils.isSyncStatus(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		isOwnedSynced = PreferencesUtils.isStatusSetToSync(getContext(), BggService.COLLECTION_QUERY_STATUS_OWN);
+		isPlayedSynced = PreferencesUtils.isStatusSetToSync(getContext(), BggService.COLLECTION_QUERY_STATUS_PLAYED);
 		collectionStatusContainer.setVisibility(isOwnedSynced && isPlayedSynced ? View.GONE : View.VISIBLE);
 	}
 
@@ -147,9 +147,16 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		playCountTable.removeAllViews();
 		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
 		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
+		if (stats.getNumberOfDollars()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dollars).value(stats.getNumberOfDollars()));
+		if (stats.getNumberOfHalfDollars()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_half_dollars).value(stats.getNumberOfHalfDollars()));
+		if (stats.getNumberOfQuarters()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
+		if (stats.getNumberOfDimes()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
+		if (stats.getNumberOfNickels()>0)
+			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
 
 		if (isPlayedSynced)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
@@ -252,12 +259,12 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 
 	private void showAlertDialog(@StringRes int titleResId, @StringRes int messageResId, Object... formatArgs) {
 		SpannableString spannableMessage = new SpannableString(getString(messageResId, formatArgs));
-		Linkify.addLinks(spannableMessage, Linkify.ALL);
+		Linkify.addLinks(spannableMessage, Linkify.WEB_URLS);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
 			.setTitle(titleResId)
 			.setMessage(spannableMessage);
 		AlertDialog dialog = builder.show();
-		TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+		TextView textView = dialog.findViewById(android.R.id.message);
 		if (textView != null) {
 			textView.setMovementMethod(LinkMovementMethod.getInstance());
 		}

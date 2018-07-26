@@ -4,10 +4,12 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:focusable="false">
 
 	<ImageView
 		style="@style/Icon"
+		android:focusable="false"
 		android:src="@drawable/ic_today"/>
 
 	<TextView
@@ -17,6 +19,7 @@
 		android:layout_weight="1"
 		android:background="?attr/selectableItemBackground"
 		android:clickable="true"
+		android:focusable="true"
 		android:gravity="left|center_vertical"
 		android:textAppearance="@style/Text.Big"
 		tools:text="January 1, 1970"/>

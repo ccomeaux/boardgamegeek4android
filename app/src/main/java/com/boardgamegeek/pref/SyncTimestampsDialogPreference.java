@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.service.SyncService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,19 +43,19 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		super.onBindDialogView(view);
 		ButterKnife.bind(this, view);
 
-		setDateTime(collectionFull, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_COMPLETE), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-		setDateTime(collectionPartial, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_COLLECTION_PARTIAL), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(collectionFull, SyncPrefs.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(collectionPartial, SyncPrefs.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
-		setDateTime(buddies, Authenticator.getLong(getContext(), SyncService.TIMESTAMP_BUDDIES), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+		setDateTime(buddies, SyncPrefs.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
-		long oldestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_OLDEST_DATE);
-		long newestDate = Authenticator.getLong(getContext(), SyncService.TIMESTAMP_PLAYS_NEWEST_DATE);
-		if (oldestDate == 0 && newestDate == 0) {
+		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
+		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
+		if (oldestDate == Long.MAX_VALUE && newestDate == 0L) {
 			playsView.setText(R.string.plays_sync_status_none);
-		} else if (oldestDate == 0) {
+		} else if (oldestDate == 0L) {
 			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
 				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else if (newestDate == 0) {
+		} else if (newestDate == 0L) {
 			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_old),
 				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
 		} else {

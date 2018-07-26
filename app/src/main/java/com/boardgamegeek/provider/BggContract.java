@@ -3,6 +3,7 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -58,6 +59,12 @@ public class BggContract {
 		String GAME_RANK = "game_rank";
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
+		String HERO_IMAGE_URL = "hero_image_url";
+		String ICON_COLOR = "ICON_COLOR";
+		String DARK_COLOR = "DARK_COLOR";
+		String WINS_COLOR = "WINS_COLOR";
+		String WINNABLE_PLAYS_COLOR = "WINNABLE_PLAYS_COLOR";
+		String ALL_PLAYS_COLOR = "ALL_PLAYS_COLOR";
 	}
 
 	interface GameRanksColumns {
@@ -144,6 +151,7 @@ public class BggContract {
 		String TRADE_CONDITION_DIRTY_TIMESTAMP = "trade_condition_dirty_timestamp";
 		String WANT_PARTS_DIRTY_TIMESTAMP = "want_parts_dirty_timestamp";
 		String HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp";
+		String COLLECTION_HERO_IMAGE_URL = "collection_hero_image_url";
 	}
 
 	interface BuddiesColumns {
@@ -278,6 +286,7 @@ public class BggContract {
 	public static final String PATH_PLAYS = "plays";
 	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
+	public static final String PATH_AQUIRED_FROM = "acquiredfrom";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
@@ -291,6 +300,8 @@ public class BggContract {
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_PLAYS = "plays";
 	public static final String QUERY_KEY_LIMIT = "limit";
+	public static final String POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence";
+	public static final String POLL_TYPE_SUGGESTED_PLAYER_AGE = "suggested_playerage";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -319,18 +330,18 @@ public class BggContract {
 
 		public static final String POLLS_COUNT = "polls_count";
 
-		public static boolean isGameUri(Uri uri) {
-			if (uri == null) {
-				return false;
-			}
+		public static boolean isGameUri(@Nullable Uri uri) {
+			if (uri == null) return false;
 			List<String> segments = uri.getPathSegments();
 			return segments != null && segments.size() > 0 && PATH_GAMES.equals(segments.get(0));
 		}
 
+		@NonNull
 		public static Uri buildGameUri(int gameId) {
 			return getUriBuilder(gameId).build();
 		}
 
+		@NonNull
 		public static Uri buildRanksUri(int gameId) {
 			return getUriBuilder(gameId, PATH_RANKS).build();
 		}
@@ -688,6 +699,7 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
 
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC";
+		public static final String SORT_ACQUIRED_FROM = CollectionColumns.PRIVATE_INFO_ACQUIRED_FROM + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
@@ -696,6 +708,10 @@ public class BggContract {
 		public static Uri buildUri(String having) {
 			if (TextUtils.isEmpty(having)) return CONTENT_URI;
 			return CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_HAVING, having).build();
+		}
+
+		public static Uri buildAcquiredFromUri() {
+			return CONTENT_URI.buildUpon().appendPath(PATH_AQUIRED_FROM).build();
 		}
 
 		public static long getId(Uri uri) {
@@ -720,14 +736,6 @@ public class BggContract {
 
 		public static String getBuddyName(Uri uri) {
 			return uri.getPathSegments().get(1);
-		}
-
-		public static boolean isBuddyUri(Uri uri) {
-			if (uri == null) {
-				return false;
-			}
-			List<String> segments = uri.getPathSegments();
-			return segments != null && segments.size() > 0 && PATH_BUDDIES.equals(segments.get(0));
 		}
 	}
 
@@ -823,7 +831,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
 
-		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
+		public static final String DEFAULT_SORT = POLL_RESULTS_SORT_INDEX + " ASC, " + POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
 	}
 
 	public static final class GameColors implements GameColorsColumns, GamesColumns, BaseColumns {

@@ -18,7 +18,8 @@ import timber.log.Timber;
 public class DateTimeUtils {
 	public static final long UNPARSED_DATE = -2;
 	public static final long UNKNOWN_DATE = -1;
-	private static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	public static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	public static final DateFormat FORMAT_DATABASE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private static final String FORMAT_MINUTES = "%d:%02d";
 
 	private DateTimeUtils() {
@@ -124,18 +125,25 @@ public class DateTimeUtils {
 		return FORMAT_API.format(c.getTime());
 	}
 
+	public static String formatDateForDatabase(long date) {
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(date);
+		return FORMAT_DATABASE.format(c.getTime());
+	}
+
 	/**
 	 * Attempt to parse the string date according to the given format. Will use the time parameter if it was already
 	 * parsed.
 	 */
 	public static long tryParseDate(long time, String date, DateFormat format) {
-		if (TextUtils.isEmpty(date)) {
-			time = UNKNOWN_DATE;
-		} else {
-			if (time == UNPARSED_DATE) {
+		if (time == UNPARSED_DATE) {
+			if (TextUtils.isEmpty(date)) {
+				time = UNKNOWN_DATE;
+			} else {
 				try {
 					time = format.parse(date).getTime();
-				} catch (ParseException e) {
+				} catch (ParseException | ArrayIndexOutOfBoundsException e) {
+					Timber.w(e, "Unable to parse %s as %s", date, format);
 					time = UNKNOWN_DATE;
 				}
 			}

@@ -8,23 +8,27 @@ public class PlayStats {
 	public static final double INVALID_UTILIZATION = -1.0;
 	public static final double INVALID_CFM = -1.0;
 
-	private int numberOfPlays = 0;
-	private int numberOfPlayedGames = 0;
-	private int numberOfQuarters = 0;
-	private int numberOfDimes = 0;
-	private int numberOfNickels = 0;
-	private int gameHIndex = 0;
-	private List<HIndexEntry> hIndexGames = new ArrayList<>();
-	private int playerHIndex = 0;
-	private List<HIndexEntry> hIndexPlayers = new ArrayList<>();
-	private int friendless = INVALID_FRIENDLESS;
-	private double utilization = INVALID_UTILIZATION;
-	private double cfm = 0.0;
-	private int top100count = 0;
+	private int numberOfPlays;
+	private int numberOfPlayedGames;
+	private int numberOfQuarters;
+	private int numberOfDollars;
+	private int numberOfHalfDollars;
+	private int numberOfDimes;
+	private int numberOfNickels;
+	private int gameHIndex;
+	private List<HIndexEntry> hIndexGames;
+	private int playerHIndex;
+	private List<HIndexEntry> hIndexPlayers;
+	private int friendless;
+	private double utilization;
+	private double cfm;
+	private int top100count;
 
 	private PlayStats(Builder builder) {
 		numberOfPlays = builder.numberOfPlays;
 		numberOfPlayedGames = builder.numberOfPlayedGames;
+		numberOfDollars = builder.numberOfDollars;
+		numberOfHalfDollars = builder.numberOfHalfDollars;
 		numberOfQuarters = builder.numberOfQuarters;
 		numberOfDimes = builder.numberOfDimes;
 		numberOfNickels = builder.numberOfNickels;
@@ -44,6 +48,14 @@ public class PlayStats {
 
 	public int getNumberOfGames() {
 		return numberOfPlayedGames;
+	}
+
+	public int getNumberOfDollars() {
+		return numberOfDollars;
+	}
+
+	public int getNumberOfHalfDollars() {
+		return numberOfHalfDollars;
 	}
 
 	public int getNumberOfQuarters() {
@@ -91,19 +103,21 @@ public class PlayStats {
 	}
 
 	public static final class Builder {
-		private int numberOfPlays;
-		private int numberOfPlayedGames;
-		private int numberOfQuarters;
-		private int numberOfDimes;
-		private int numberOfNickels;
+		private int numberOfPlays = 0;
+		private int numberOfPlayedGames = 0;
+		private int numberOfDollars = 0;
+		private int numberOfHalfDollars = 0;
+		private int numberOfQuarters = 0;
+		private int numberOfDimes = 0;
+		private int numberOfNickels = 0;
 		private int gameHIndex;
 		private List<HIndexEntry> hIndexGames = new ArrayList<>();
-		private int playerHIndex;
+		private int playerHIndex = 0;
 		private List<HIndexEntry> hIndexPlayers = new ArrayList<>();
-		private int friendless;
-		private double utilization;
-		private double cfm;
-		private int top100count;
+		private int friendless = INVALID_FRIENDLESS;
+		private double utilization = INVALID_UTILIZATION;
+		private double cfm = INVALID_CFM;
+		private int top100count = 0;
 
 		public Builder() {
 		}
@@ -115,6 +129,16 @@ public class PlayStats {
 
 		public Builder numberOfPlayedGames(int val) {
 			numberOfPlayedGames = val;
+			return this;
+		}
+
+		public Builder numberOfDollars(int val) {
+			numberOfDollars = val;
+			return this;
+		}
+
+		public Builder numberOfHalfDollars(int val) {
+			numberOfHalfDollars = val;
 			return this;
 		}
 

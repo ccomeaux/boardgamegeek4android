@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-												  xmlns:tools="http://schemas.android.com/tools"
-												  android:layout_width="match_parent"
-												  android:layout_height="wrap_content"
-												  android:background="@drawable/checkable_background">
+<com.boardgamegeek.ui.widget.CheckableFrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/checkable_background">
 
 	<LinearLayout
 		style="@style/RowContainer.VeryTall"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_gravity="left|center_vertical"
+		android:layout_gravity="start|center_vertical"
 		android:orientation="vertical">
 
 		<LinearLayout
@@ -30,7 +31,8 @@
 				android:id="@android:id/message"
 				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				tools:text="Draft"/>
 		</LinearLayout>
 
 		<TextView
@@ -39,7 +41,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="marquee"
-			android:maxLines="1"
+			android:singleLine="true"
 			tools:text="at Home for 3.5 hours"/>
 
 		<TextView
@@ -50,7 +52,5 @@
 			android:ellipsize="end"
 			android:maxLines="1"
 			tools:text="That was a fun time. A REAL fun time."/>
-
 	</LinearLayout>
-
 </com.boardgamegeek.ui.widget.CheckableFrameLayout>

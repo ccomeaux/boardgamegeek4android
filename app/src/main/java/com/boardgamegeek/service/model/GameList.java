@@ -36,4 +36,12 @@ public class GameList {
 	public List<Integer> getIdList() {
 		return gameIds;
 	}
+
+	public Integer getId(int i) {
+		return gameIds.get(i);
+	}
+
+	public String getName(int i) {
+		return gameNames.get(i);
+	}
 }

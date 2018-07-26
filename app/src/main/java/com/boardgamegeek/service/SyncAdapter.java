@@ -5,7 +5,6 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -13,39 +12,41 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.BatteryUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.util.BatteryUtils;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.RemoteConfig;
+import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.fabric.CrashKeys;
+import com.crashlytics.android.Crashlytics;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-	private final Context context;
-	private boolean shouldShowNotifications = true;
+	private BggApplication application;
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
 	@DebugLog
-	public SyncAdapter(Context context) {
-		super(context, false);
-		this.context = context;
-		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(this.context);
+	public SyncAdapter(BggApplication context) {
+		super(context.getApplicationContext(), false);
+		application = context;
 
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -57,17 +58,29 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 	}
 
+	/**
+	 * Perform a sync. This builds a list of sync tasks from the types specified in the {@code extras bundle}, iterating
+	 * over each. It posts and removes a {@code SyncEvent} with the type of sync task. As well as showing the progress
+	 * in a notification.
+	 */
 	@DebugLog
 	@Override
 	public void onPerformSync(@NonNull Account account, @NonNull Bundle extras, String authority, ContentProviderClient provider, @NonNull SyncResult syncResult) {
+		RemoteConfig.fetch();
+
 		isCancelled = false;
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
 		final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
 		final boolean initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false);
 		final int type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL);
 
-		Timber.i("Beginning sync for account " + account.name + "," + " uploadOnly=" + uploadOnly + " manualSync="
-			+ manualSync + " initialize=" + initialize + ", type=" + type);
+		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
+		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
+
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(getContext())));
+		if (PreferencesUtils.getSyncPlays(getContext())) statuses += " | plays";
+		if (PreferencesUtils.getSyncBuddies(getContext())) statuses += " | buddies";
+		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {
 			ContentResolver.setIsSyncable(account, authority, 1);
@@ -76,13 +89,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.addPeriodicSync(account, authority, b, 24 * 60 * 60); // 24 hours
 		}
 
-		if (!shouldContinueSync(uploadOnly)) {
+		if (!shouldContinueSync()) {
+			finishSync();
 			return;
 		}
 
-		toggleReceiver(true);
-		shouldShowNotifications = PreferencesUtils.getSyncShowNotifications(context);
-		List<SyncTask> tasks = createTasks(context, type);
+		toggleCancelReceiver(true);
+		List<SyncTask> tasks = createTasks(application, type, uploadOnly, syncResult, account);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -94,117 +107,135 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			currentTask = tasks.get(i);
 			try {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
+				Crashlytics.setInt(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
 				currentTask.updateProgressNotification();
-				currentTask.execute(account, syncResult);
-				EventBus.getDefault().post(new SyncCompleteEvent());
+				currentTask.execute();
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
+				if (currentTask.isCancelled()) {
+					Timber.i("Sync task %s has requested the sync operation to be cancelled", currentTask);
+					break;
+				}
 			} catch (Exception e) {
-				Timber.e(e, "Syncing " + currentTask);
+				Timber.e(e, "Syncing %s", currentTask);
 				syncResult.stats.numIoExceptions += 10;
-				showError(currentTask, e);
+				showException(currentTask, e);
 				if (e.getCause() instanceof SocketTimeoutException) {
 					break;
 				}
 			}
 		}
-		toggleReceiver(false);
-		NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS);
+		finishSync();
 	}
 
+	private void finishSync() {
+		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
+		toggleCancelReceiver(false);
+		EventBus.getDefault().post(new SyncCompleteEvent());
+	}
+
+	/**
+	 * Indicates that a sync operation has been canceled.
+	 */
 	@DebugLog
 	@Override
 	public void onSyncCanceled() {
 		super.onSyncCanceled();
 		Timber.i("Sync cancel requested.");
 		isCancelled = true;
-		if (currentTask != null) {
-			currentTask.cancel();
-		}
+		if (currentTask != null) currentTask.cancel();
 	}
 
+	/**
+	 * Determine if the sync should continue based on the current state of the device.
+	 */
 	@DebugLog
-	private boolean shouldContinueSync(boolean uploadOnly) {
-		if (uploadOnly) {
-			Timber.w("Upload only, returning.");
-			return false;
-		}
-
-		if (NetworkUtils.isOffline(context)) {
+	private boolean shouldContinueSync() {
+		if (NetworkUtils.isOffline(getContext())) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyCharging(context) && !BatteryUtils.isCharging(context)) {
+		if (PreferencesUtils.getSyncOnlyCharging(getContext()) && !BatteryUtils.isCharging(getContext())) {
 			Timber.i("Skipping sync; not charging");
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyWifi(context) && !NetworkUtils.isOnWiFi(context)) {
+		if (PreferencesUtils.getSyncOnlyWifi(getContext()) && !NetworkUtils.isOnWiFi(getContext())) {
 			Timber.i("Skipping sync; not on wifi");
 			return false;
 		}
 
-		if (BatteryUtils.isBatteryLow(context)) {
+		if (BatteryUtils.isBatteryLow(getContext())) {
 			Timber.i("Skipping sync; battery low");
+			return false;
+		}
+
+		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)) {
+			Timber.i("Sync disabled remotely");
 			return false;
 		}
 
 		return true;
 	}
 
+	/**
+	 * Create a list of sync tasks based on the specified type.
+	 */
 	@DebugLog
 	@NonNull
-	private List<SyncTask> createTasks(Context context, final int type) {
-		BggService service = Adapter.createForXmlWithAuth(context);
+	private List<SyncTask> createTasks(BggApplication application, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
+		BggService service = Adapter.createForXmlWithAuth(application);
 		List<SyncTask> tasks = new ArrayList<>();
-		if ((type & SyncService.FLAG_SYNC_COLLECTION_UPLOAD) == SyncService.FLAG_SYNC_COLLECTION_UPLOAD) {
-			tasks.add(new SyncCollectionUpload(context, service));
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
+			tasks.add(new SyncCollectionUpload(application, service, syncResult));
 		}
-		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
-			if (PreferencesUtils.isSyncStatus(context)) {
-				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
-				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionModifiedSince(context, service));
-				} else {
-					tasks.add(new SyncCollectionComplete(context, service));
-				}
-			} else {
-				Timber.i("...no statuses set to sync");
-			}
-
-			tasks.add(new SyncCollectionUnupdated(context, service));
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
+			tasks.add(new SyncCollectionComplete(application, service, syncResult, account));
+			tasks.add(new SyncCollectionModifiedSince(application, service, syncResult, account));
+			tasks.add(new SyncCollectionUnupdated(application, service, syncResult, account));
 		}
-		if ((type & SyncService.FLAG_SYNC_GAMES) == SyncService.FLAG_SYNC_GAMES) {
-			tasks.add(new SyncGamesRemove(context, service));
-			tasks.add(new SyncGamesOldest(context, service));
-			tasks.add(new SyncGamesUnupdated(context, service));
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
+			tasks.add(new SyncGamesRemove(application, service, syncResult));
+			tasks.add(new SyncGamesOldest(application, service, syncResult));
+			tasks.add(new SyncGamesUnupdated(application, service, syncResult));
 		}
-		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
-			tasks.add(new SyncPlaysUpload(context, service));
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
+			tasks.add(new SyncPlaysUpload(application, service, syncResult));
 		}
-		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
-			tasks.add(new SyncPlays(context, service));
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
+			tasks.add(new SyncPlays(application, service, syncResult, account));
 		}
-		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
-			tasks.add(new SyncBuddiesList(context, service));
-			tasks.add(new SyncBuddiesDetailOldest(context, service));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
+		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
+			tasks.add(new SyncBuddiesList(application, service, syncResult, account));
+			tasks.add(new SyncBuddiesDetailOldest(application, service, syncResult));
+			tasks.add(new SyncBuddiesDetailUnupdated(application, service, syncResult));
 		}
 		return tasks;
 	}
 
+	private boolean shouldCreateTask(int typeList, int type) {
+		return (typeList & type) == type;
+	}
+
+	/**
+	 * Enable or disable the cancel receiver. (There's no reason for the receiver to be enabled when the sync isn't running.
+	 */
 	@DebugLog
-	private void toggleReceiver(boolean enable) {
-		ComponentName receiver = new ComponentName(context, CancelReceiver.class);
-		PackageManager pm = context.getPackageManager();
+	private void toggleCancelReceiver(boolean enable) {
+		ComponentName receiver = new ComponentName(getContext(), CancelReceiver.class);
+		PackageManager pm = getContext().getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ?
 				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
 				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 			PackageManager.DONT_KILL_APP);
 	}
 
+	/**
+	 * Show a notification of any exception thrown by a sync task that isn't caught by the task.
+	 * ]
+	 */
 	@DebugLog
-	private void showError(@NonNull SyncTask task, @NonNull Throwable t) {
+	private void showException(@NonNull SyncTask task, @NonNull Throwable t) {
 		String message = t.getMessage();
 		if (TextUtils.isEmpty(message)) {
 			Throwable t1 = t.getCause();
@@ -215,38 +246,37 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		Timber.w(message);
 
-		if (!PreferencesUtils.getSyncShowErrors(context)) return;
+		if (!PreferencesUtils.getSyncShowErrors(getContext())) return;
 
 		final int messageId = task.getNotificationSummaryMessageId();
-		if (messageId != ServiceTask.NO_NOTIFICATION) {
-			CharSequence text = context.getText(messageId);
+		if (messageId != SyncTask.NO_NOTIFICATION) {
+			CharSequence text = getContext().getText(messageId);
 			NotificationCompat.Builder builder = NotificationUtils
-				.createNotificationBuilder(context, R.string.sync_notification_title_error)
+				.createNotificationBuilder(getContext(), R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
 				.setContentText(text)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			if (!TextUtils.isEmpty(message)) {
 				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 			}
-			NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder);
+			NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_ERROR, 0, builder);
 		}
 	}
 
+	/**
+	 * Show that the sync was cancelled in a notification. This may be useless since the notification is cancelled
+	 * almost immediately after this is shown.
+	 */
 	@DebugLog
 	private void notifySyncIsCancelled(int messageId) {
-		if (!shouldShowNotifications) {
-			return;
-		}
+		if (!PreferencesUtils.getSyncShowNotifications(getContext())) return;
 
-		CharSequence contextText = "";
-		if (messageId != SyncTask.NO_NOTIFICATION) {
-			contextText = context.getText(messageId);
-		}
+		CharSequence contextText = messageId == SyncTask.NO_NOTIFICATION ? "" : getContext().getText(messageId);
 
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.sync_notification_title_cancel)
+			.createNotificationBuilder(getContext(), R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
 			.setContentText(contextText)
 			.setCategory(NotificationCompat.CATEGORY_SERVICE);
-		NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
+		NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_PROGRESS, 0, builder);
 	}
 }

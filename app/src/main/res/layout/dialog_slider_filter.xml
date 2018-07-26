@@ -18,17 +18,17 @@
 		android:gravity="center_vertical"
 		android:orientation="vertical">
 
-		<com.appyvet.rangebar.RangeBar
+		<com.appyvet.materialrangebar.RangeBar
 			android:id="@+id/range_bar"
 			android:layout_width="match_parent"
 			android:layout_height="72dp"
-			app:barWeight="1dp"
-			app:pinMaxFont="14sp"
-			app:pinRadius="16dp"
-			app:temporaryPins="false"
-			app:tickEnd="100000000"
-			app:tickInterval="1"
-			app:tickStart="1"/>
+			app:mrb_barWeight="1dp"
+			app:mrb_pinMaxFont="14sp"
+			app:mrb_pinRadius="16dp"
+			app:mrb_temporaryPins="false"
+			app:mrb_tickEnd="100000000"
+			app:mrb_tickInterval="1"
+			app:mrb_tickStart="1"/>
 
 		<LinearLayout
 			android:layout_width="match_parent"

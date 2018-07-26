@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.ActivityUtils;
 
 import icepick.Icepick;
 import icepick.State;
@@ -37,7 +35,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onNewIntent(@NonNull Intent intent) {
 		super.onNewIntent(intent);
-		parseIntent(intent);
+		readIntent(intent);
 		if (searchView != null) {
 			String query = searchView.getQuery().toString();
 			if (!query.equals(searchText)) {
@@ -62,12 +60,13 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 		super.onCreateOptionsMenu(menu);
 		final MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
-			searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+			searchView = (SearchView) searchItem.getActionView();
 			if (searchView == null) {
 				Timber.w("Could not set up search view, view is null.");
 			} else {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+				if (searchManager != null)
+					searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 				searchView.setIconified(false);
 				searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 					@Override
@@ -112,11 +111,11 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 	@NonNull
 	@Override
 	protected Fragment onCreatePane(@NonNull Intent intent) {
-		parseIntent(intent);
-		return new SearchResultsFragment();
+		return SearchResultsFragment.newInstance();
 	}
 
-	private void parseIntent(@NonNull Intent intent) {
+	@Override
+	protected void readIntent(Intent intent) {
 		String action = intent.getAction();
 		if (action != null && Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();
@@ -124,13 +123,13 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity {
 				Toast.makeText(this, R.string.search_error_no_data, Toast.LENGTH_LONG).show();
 				finish();
 			} else {
-				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
+				GameActivity.start(this, Games.getGameId(uri), intent.getStringExtra(SearchManager.EXTRA_DATA_KEY));
 			}
 		} else if (action != null &&
 			(Intent.ACTION_SEARCH.equals(action) || "com.google.android.gms.actions.SEARCH_ACTION".equals(action))) {
 			searchText = "";
 			if (intent.hasExtra(SearchManager.QUERY)) {
-				searchText = intent.getExtras().getString(SearchManager.QUERY);
+				searchText = intent.getStringExtra(SearchManager.QUERY);
 			}
 			final ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {

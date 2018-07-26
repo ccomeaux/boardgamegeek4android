@@ -5,17 +5,35 @@
 			  android:layout_height="wrap_content"
 			  android:orientation="vertical">
 
-	<TextView
-		android:id="@+id/title"
+	<LinearLayout
+		android:id="@+id/header"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:orientation="vertical"
 		android:paddingBottom="@dimen/padding_standard"
 		android:paddingLeft="@dimen/padding_extra"
 		android:paddingRight="@dimen/padding_extra"
 		android:paddingTop="@dimen/padding_standard"
-		android:textAppearance="@style/Text.Title"
-		tools:background="#0f0"
-		tools:text="Chris (ccomeaux)"/>
+		tools:background="#0f0">
+
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textAppearance="@style/Text.Title"
+			tools:text="Score"/>
+
+		<TextView
+			android:id="@+id/subtitle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textAppearance="@style/Text.Subtitle"
+			android:visibility="gone"
+			tools:text="Chris (ccomeaux)"
+			tools:visibility="visible"/>
+	</LinearLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"

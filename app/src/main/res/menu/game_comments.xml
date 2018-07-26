@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/menu_list_count"
+		android:title=""
+		app:actionLayout="@layout/actionbar_text"
+		app:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/menu_view"
+		android:icon="@drawable/menu_sort"
+		android:title="@string/menu_sort"
+		app:showAsAction="ifRoom">
+		<menu>
+			<group android:checkableBehavior="single">
+				<item
+					android:id="@+id/menu_sort_comments"
+					android:title="@string/menu_sort_comments"/>
+				<item
+					android:id="@+id/menu_sort_rating"
+					android:title="@string/menu_sort_rating"/>
+			</group>
+		</menu>
+	</item>
+</menu>

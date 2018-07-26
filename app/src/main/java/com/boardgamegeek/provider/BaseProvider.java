@@ -83,14 +83,14 @@ public abstract class BaseProvider {
 	@DebugLog
 	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
-		notifyChange(context, uri);
+		if (rowCount > 0) notifyChange(context, uri);
 		return rowCount;
 	}
 
 	@DebugLog
 	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).delete(db);
-		notifyChange(context, uri);
+		if (rowCount > 0) notifyChange(context, uri);
 		return rowCount;
 	}
 
@@ -132,7 +132,7 @@ public abstract class BaseProvider {
 	protected void notifyException(Context context, SQLException e) {
 		if (PreferencesUtils.getSyncShowNotifications(context)) {
 			NotificationCompat.Builder builder = NotificationUtils
-				.createNotificationBuilder(context, R.string.title_error)
+				.createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
 				.setContentText(e.getLocalizedMessage())
 				.setCategory(NotificationCompat.CATEGORY_ERROR);
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getLocalizedMessage()));

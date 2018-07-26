@@ -1,6 +1,7 @@
 package com.boardgamegeek.export;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 
 import com.boardgamegeek.R;
@@ -34,12 +36,12 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 	private static final int PROGRESS_TOTAL = 0;
 	private static final int PROGRESS_CURRENT = 1;
 
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final String type;
 	private final Uri uri;
 
-	public JsonExportTask(Context context, String type, Uri uri) {
-		this.context = context.getApplicationContext();
+	public JsonExportTask(@Nullable Context context, String type, Uri uri) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.type = type;
 		this.uri = uri;
 	}
@@ -54,6 +56,8 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 
 	@Override
 	protected String doInBackground(Void... params) {
+		if (context == null) return "Error.";
+
 		if (uri == null) {
 			int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck == PackageManager.PERMISSION_DENIED) {

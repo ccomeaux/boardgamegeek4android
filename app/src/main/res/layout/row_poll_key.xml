@@ -9,14 +9,14 @@
 			  android:orientation="horizontal">
 
 	<View
-		android:id="@+id/row_poll_key_view"
+		android:id="@+id/colorView"
 		android:layout_width="@dimen/poll_key_height"
 		android:layout_height="match_parent"
 		android:layout_marginRight="@dimen/padding_extra"
 		tools:background="@color/best"/>
 
 	<TextView
-		android:id="@+id/row_poll_key_text"
+		android:id="@+id/textView"
 		style="@style/Text"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
 		tools:text="Best"/>
 
 	<TextView
-		android:id="@+id/row_poll_key_info"
+		android:id="@+id/infoView"
 		style="@style/Text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

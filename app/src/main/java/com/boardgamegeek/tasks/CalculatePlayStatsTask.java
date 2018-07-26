@@ -1,11 +1,14 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArraySet;
+import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.PlayStatsUpdatedEvent;
@@ -42,16 +45,19 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private static final int RANK = 2;
 	private static final int GAME_ID = 3;
 
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private static final int MIN_H_INDEX_ENTRIES = 3;
 	private static final int MAX_H_INDEX_ENTRIES = 6;
 	private int numberOfPlays;
 	private int numberOfPlayedGames;
+	private int numberOfDollars;
+	private int numberOfHalfDollars;
 	private int numberOfQuarters;
 	private int numberOfDimes;
 	private int numberOfNickels;
-	private int numberOfZeroes;
-	private final List<Integer> ownedPlayCounts = new ArrayList<>();
+	private final List<Integer> ownedGamePlayCountsSorted = new ArrayList<>();
+	private int numberOfOwnedGamesThatHaveEarnedTheirKeep;
+	private int numberOfOwnedUnplayedGames;
 	private int gameHIndex = 0;
 	private final List<HIndexEntry> hIndexGames = new ArrayList<>();
 	private int playerHIndex;
@@ -61,8 +67,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	private boolean isOwnedSynced;
 	private final double lambda;
 
-	public CalculatePlayStatsTask(Context context) {
-		this.context = context.getApplicationContext();
+	public CalculatePlayStatsTask(@Nullable Context context) {
+		this.context = context == null ? null : context.getApplicationContext();
 		lambda = Math.log(0.1) / -10;
 	}
 
@@ -70,35 +76,37 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	protected PlayStats doInBackground(Void... params) {
 		reset();
 
-		isOwnedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN);
-		boolean isPlayedSynced = PreferencesUtils.isSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
+		if (context != null) {
+			isOwnedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_OWN);
+			boolean isPlayedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED);
 
-		Set<Integer> ownedGameIds = getOwnedGameIds();
+			Set<Integer> ownedGameIds = getOwnedGameIds();
 
-		Cursor cursor = context.getContentResolver().query(
-			getUri(isOwnedSynced && isPlayedSynced),
-			PROJECTION,
-			getGameSelection(),
-			getGameSelectionArgs(),
-			getGameSortOrder());
+			Cursor cursor = context.getContentResolver().query(
+				getUri(isOwnedSynced && isPlayedSynced),
+				PROJECTION,
+				getGameSelection(),
+				getGameSelectionArgs(),
+				getGameSortOrder());
 
-		try {
-			if (cursor != null) calculateGameStats(cursor, ownedGameIds);
-		} finally {
-			if (cursor != null) cursor.close();
-		}
+			try {
+				if (cursor != null) calculateGameStats(cursor, ownedGameIds);
+			} finally {
+				if (cursor != null) cursor.close();
+			}
 
-		Cursor playerCursor = context.getContentResolver().query(
-			Plays.buildPlayersByUniquePlayerUri(),
-			Player.PROJECTION,
-			getPlayerSelection(context),
-			getPlayerSelectionArgs(context),
-			getPlayerSortOrder());
+			Cursor playerCursor = context.getContentResolver().query(
+				Plays.buildPlayersByUniquePlayerUri(),
+				Player.PROJECTION,
+				getPlayerSelection(context),
+				getPlayerSelectionArgs(context),
+				getPlayerSortOrder());
 
-		try {
-			if (playerCursor != null) calculatePlayerStats(playerCursor);
-		} finally {
-			if (playerCursor != null) playerCursor.close();
+			try {
+				if (playerCursor != null) calculatePlayerStats(playerCursor);
+			} finally {
+				if (playerCursor != null) playerCursor.close();
+			}
 		}
 
 		PlayStats playStats = new Builder()
@@ -106,6 +114,8 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			.numberOfPlayedGames(numberOfPlayedGames)
 			.numberOfNickels(numberOfNickels)
 			.numberOfDimes(numberOfDimes)
+			.numberOfDollars(numberOfDollars)
+			.numberOfHalfDollars(numberOfHalfDollars)
 			.numberOfQuarters(numberOfQuarters)
 			.gameHIndex(gameHIndex)
 			.hIndexGames(getHIndexGames())
@@ -128,8 +138,9 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		numberOfQuarters = 0;
 		numberOfDimes = 0;
 		numberOfNickels = 0;
-		numberOfZeroes = 0;
-		ownedPlayCounts.clear();
+		ownedGamePlayCountsSorted.clear();
+		numberOfOwnedGamesThatHaveEarnedTheirKeep = 0;
+		numberOfOwnedUnplayedGames = 0;
 		gameHIndex = 0;
 		hIndexGames.clear();
 		playerHIndex = 0;
@@ -139,6 +150,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	}
 
 	private void calculateGameStats(Cursor cursor, Set<Integer> ownedGameIds) {
+		final int PLAY_COUNT_TO_EARN_KEEP = 10;
 		int hIndexCounter = 0;
 		while (cursor.moveToNext()) {
 			int playCount = cursor.getInt(SUM_QUANTITY);
@@ -147,16 +159,20 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 			int gameId = cursor.getInt(GAME_ID);
 
 			numberOfPlays += playCount;
-			if (ownedGameIds.contains(gameId)) {
-				ownedPlayCounts.add(playCount);
-				totalCdf += MathUtils.cdf(playCount, lambda);
-			}
 			if (playCount > 0) numberOfPlayedGames++;
-
-			if (playCount >= 25) numberOfQuarters++;
+			if (playCount >= 100) numberOfDollars++;
+			else if (playCount >= 50) numberOfHalfDollars++;
+			else if (playCount >= 25) numberOfQuarters++;
 			else if (playCount >= 10) numberOfDimes++;
 			else if (playCount >= 5) numberOfNickels++;
-			else if (playCount == 0) numberOfZeroes++;
+
+			if (ownedGameIds.contains(gameId)) {
+				ownedGamePlayCountsSorted.add(playCount);
+				totalCdf += MathUtils.cdf(playCount, lambda);
+				if (playCount == 0) numberOfOwnedUnplayedGames++;
+				if (playCount >= PLAY_COUNT_TO_EARN_KEEP)
+					numberOfOwnedGamesThatHaveEarnedTheirKeep++;
+			}
 
 			if (playCount > 0 && rank >= 1 && rank <= 100) top100count++;
 
@@ -201,7 +217,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	@NonNull
 	private Set<Integer> getOwnedGameIds() {
 		Set<Integer> ownedGameIds = new ArraySet<>();
-		if (isOwnedSynced) {
+		if (isOwnedSynced && context != null) {
 			Cursor collectionCursor = context.getContentResolver().query(
 				Collection.CONTENT_URI,
 				new String[] { Collection.GAME_ID },
@@ -227,7 +243,7 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 	@NonNull
 	private static Uri getUri(boolean byGames) {
 		return byGames ?
-			Games.CONTENT_PLAYS_URI.buildUpon().build() :
+			Games.CONTENT_PLAYS_URI :
 			Plays.CONTENT_URI.buildUpon()
 				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, Plays.OBJECT_ID)
 				.build();
@@ -235,21 +251,21 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 	@NonNull
 	private String getGameSelection() {
-		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
+		StringBuilder selection = new StringBuilder(SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
 
 		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			selection += " AND " + SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE);
+			selection.append(" AND ").append(SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE));
 		}
 
 		if (!PreferencesUtils.logPlayStatsExpansions(context) &&
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
-			selection += " AND (" + Games.SUBTYPE + "=? OR " + Games.SUBTYPE + " IS NULL)";
+			selection.append(" AND (").append(Games.SUBTYPE).append("=? OR ").append(Games.SUBTYPE).append(" IS NULL)");
 		} else if (!PreferencesUtils.logPlayStatsExpansions(context) ||
 			!PreferencesUtils.logPlayStatsAccessories(context)) {
-			selection += " AND (" + Games.SUBTYPE + "!=? OR " + Games.SUBTYPE + " IS NULL)";
+			selection.append(" AND (").append(Games.SUBTYPE).append("!=? OR ").append(Games.SUBTYPE).append(" IS NULL)");
 		}
 
-		return selection;
+		return selection.toString();
 	}
 
 	@NonNull
@@ -275,20 +291,28 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 
 	@NonNull
 	private static String getPlayerSelection(Context context) {
-		String selection = SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
-			PlayPlayers.USER_NAME + "!=?";
+		StringBuilder sb = new StringBuilder(SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP));
 
-		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-			selection += " AND " + SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE);
+		if (!TextUtils.isEmpty(AccountUtils.getUsername(context))) {
+			sb
+				.append(" AND ")
+				.append(PlayPlayers.USER_NAME)
+				.append("!=?");
 		}
 
-		return selection;
+		if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
+			sb.append(" AND ").append(SelectionBuilder.whereZeroOrNull(Plays.INCOMPLETE));
+		}
+
+		return sb.toString();
 	}
 
-	@NonNull
+	@Nullable
 	private static String[] getPlayerSelectionArgs(Context context) {
+		final String username = AccountUtils.getUsername(context);
+		if (TextUtils.isEmpty(username)) return null;
 		List<String> args = new ArrayList<>();
-		args.add(AccountUtils.getUsername(context));
+		args.add(username);
 		return args.toArray(new String[args.size()]);
 	}
 
@@ -366,29 +390,32 @@ public class CalculatePlayStatsTask extends AsyncTask<Void, Void, PlayStats> {
 		return entries;
 	}
 
+	private int getNumberOfOwnedPlayedGames() {
+		return ownedGamePlayCountsSorted == null ? 0 : ownedGamePlayCountsSorted.size();
+	}
+
 	private int getFriendless() {
 		if (!isOwnedSynced) return PlayStats.INVALID_FRIENDLESS;
-		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
-		int numberOfTens = numberOfDimes + numberOfQuarters;
-		if (numberOfTens == ownedPlayCounts.size()) {
-			return ownedPlayCounts.get(ownedPlayCounts.size() - 1);
+		if (getNumberOfOwnedPlayedGames() == 0) return 0;
+		if (numberOfOwnedGamesThatHaveEarnedTheirKeep >= ownedGamePlayCountsSorted.size()) {
+			return ownedGamePlayCountsSorted.get(ownedGamePlayCountsSorted.size() - 1);
 		} else {
-			int friendless = ownedPlayCounts.get(ownedPlayCounts.size() - numberOfTens - 1);
+			int friendless = ownedGamePlayCountsSorted.get(ownedGamePlayCountsSorted.size() - numberOfOwnedGamesThatHaveEarnedTheirKeep - 1);
 			if (friendless == 0)
-				return numberOfTens - numberOfZeroes;
+				return numberOfOwnedGamesThatHaveEarnedTheirKeep - numberOfOwnedUnplayedGames;
 			return friendless;
 		}
 	}
 
 	private double getUtilization() {
 		if (!isOwnedSynced) return PlayStats.INVALID_UTILIZATION;
-		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
-		return totalCdf / ownedPlayCounts.size();
+		if (getNumberOfOwnedPlayedGames() == 0) return 0;
+		return totalCdf / getNumberOfOwnedPlayedGames();
 	}
 
 	private double getCfm() {
 		if (!isOwnedSynced) return PlayStats.INVALID_CFM;
-		if (ownedPlayCounts == null || ownedPlayCounts.size() == 0) return 0;
-		return MathUtils.invcdf(totalCdf / ownedPlayCounts.size(), lambda);
+		if (getNumberOfOwnedPlayedGames() == 0) return 0;
+		return MathUtils.invcdf(totalCdf / getNumberOfOwnedPlayedGames(), lambda);
 	}
 }

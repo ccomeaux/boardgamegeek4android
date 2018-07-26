@@ -23,8 +23,7 @@ public class SearchRefreshProvider extends BaseProvider {
 	}
 
 	@Override
-	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
-			String[] selectionArgs, String sortOrder) {
+	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		String shortcutId = null;
 		if (uri.getPathSegments().size() > 1) {
 			shortcutId = uri.getLastPathSegment();

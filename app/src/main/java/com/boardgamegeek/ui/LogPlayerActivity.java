@@ -5,7 +5,6 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -41,6 +40,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -63,6 +63,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	public static final String KEY_USED_COLORS = "USED_COLORS";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
@@ -182,6 +184,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		ButterKnife.bind(this);
 
 		nameView.setOnItemClickListener(nameClickListener());
+		usernameView.setOnItemClickListener(userNameClickListener());
 
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 
@@ -190,14 +193,21 @@ public class LogPlayerActivity extends AppCompatActivity {
 		position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION);
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		String thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		String heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 		autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		String[] usedColors = intent.getStringArrayExtra(KEY_USED_COLORS);
+
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (imageUrl == null) imageUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
+
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
 			userHasShownScore = true;
 			scoreView.requestFocus();
 		}
 		isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false);
-		fab.setBackgroundTintList(ColorStateList.valueOf(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent))));
+		PresentationUtils.colorFab(fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
 
 		if (savedInstanceState == null) {
 			player = intent.getParcelableExtra(KEY_PLAYER);
@@ -217,7 +227,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 			new ArrayList<>(Arrays.asList(usedColors));
 		this.usedColors.remove(player.color);
 
-		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl, thumbnailUrl, heroImageUrl);
 		bindUi();
 
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),
@@ -263,6 +273,16 @@ public class LogPlayerActivity extends AppCompatActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				usernameView.setText((String) view.getTag());
+			}
+		};
+	}
+
+	@DebugLog
+	private OnItemClickListener userNameClickListener() {
+		return new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				nameView.setText((String) view.getTag());
 			}
 		};
 	}
@@ -342,8 +362,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 		}
 		scoreView.setTextKeepState(player.score);
 		ratingView.setTextKeepState((player.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(player.rating));
-		newView.setChecked(player.New());
-		winView.setChecked(player.Win());
+		newView.setChecked(player.isNew);
+		winView.setChecked(player.isWin);
 	}
 
 	@DebugLog
@@ -402,12 +422,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideNew() {
-		return !preferToShowNew && !userHasShownNew && !player.New();
+		return !preferToShowNew && !userHasShownNew && !player.isNew;
 	}
 
 	@DebugLog
 	private boolean shouldHideWin() {
-		return !preferToShowWin && !userHasShownWin && !player.Win();
+		return !preferToShowWin && !userHasShownWin && !player.isWin;
 	}
 
 	@DebugLog
@@ -529,7 +549,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		player.setStartingPosition(positionView.getText().toString().trim());
 		player.score = scoreView.getText().toString().trim();
 		player.rating = StringUtils.parseDouble(ratingView.getText().toString().trim());
-		player.New(newView.isChecked());
-		player.Win(winView.isChecked());
+		player.isNew = newView.isChecked();
+		player.isWin = winView.isChecked();
 	}
 }

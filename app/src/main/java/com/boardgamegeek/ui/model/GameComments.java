@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui.model;
 
-import com.boardgamegeek.model.Game.Comment;
-import com.boardgamegeek.model.Game.Comments;
+import com.boardgamegeek.io.model.Game.Comment;
+import com.boardgamegeek.io.model.Game.Comments;
 
 public class GameComments extends PaginatedData<Comment> {
 	public static final int PAGE_SIZE = 100;

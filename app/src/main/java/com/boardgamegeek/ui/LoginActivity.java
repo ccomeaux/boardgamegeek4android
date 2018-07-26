@@ -2,13 +2,18 @@ package com.boardgamegeek.ui;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog.Builder;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,9 +25,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
+import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,10 +41,14 @@ import timber.log.Timber;
  * Activity which displays a login screen to the user, offering registration as well.
  */
 public class LoginActivity extends AccountAuthenticatorActivity {
+	private static final String KEY_USERNAME = "USERNAME";
+
 	private String username;
 	private String password;
 
+	@BindView(R.id.username_container) TextInputLayout usernameContainer;
 	@BindView(R.id.username) EditText usernameView;
+	@BindView(R.id.password_container) TextInputLayout passwordContainer;
 	@BindView(R.id.password) EditText passwordView;
 	@BindView(R.id.login_form) View loginFormView;
 	@BindView(R.id.login_status) View loginStatusView;
@@ -46,6 +57,18 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private UserLoginTask userLoginTask = null;
 	private AccountManager accountManager;
 	private boolean isRequestingNewAccount;
+
+	@NonNull
+	public static Bundle createIntentBundle(Context context, AccountAuthenticatorResponse response, String accountName) {
+		final Intent intent = new Intent(context, LoginActivity.class);
+		if (!TextUtils.isEmpty(accountName)) {
+			intent.putExtra(KEY_USERNAME, accountName);
+		}
+		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+		final Bundle bundle = new Bundle();
+		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+		return bundle;
+	}
 
 	@DebugLog
 	@Override
@@ -57,7 +80,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		ButterKnife.bind(this);
 
 		accountManager = AccountManager.get(this);
-		username = getIntent().getStringExtra(ActivityUtils.KEY_USER);
+		username = getIntent().getStringExtra(KEY_USERNAME);
 
 		isRequestingNewAccount = username == null;
 
@@ -70,7 +93,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-				if (actionId == R.id.login || actionId == EditorInfo.IME_NULL) {
+				if (actionId == R.integer.login_action_id || actionId == EditorInfo.IME_NULL) {
 					attemptLogin();
 					return true;
 				}
@@ -106,24 +129,24 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 
 		// Reset errors.
-		usernameView.setError(null);
-		passwordView.setError(null);
+		usernameContainer.setError(null);
+		passwordContainer.setError(null);
 
 		// Store values at the time of the login attempt.
 		if (isRequestingNewAccount) {
-			username = usernameView.getText().toString();
+			username = usernameView.getText().toString().trim();
 		}
 		password = passwordView.getText().toString();
 
 		View focusView = null;
 
 		if (TextUtils.isEmpty(password)) {
-			passwordView.setError(getString(R.string.error_field_required));
+			passwordContainer.setError(getString(R.string.error_field_required));
 			focusView = passwordView;
 		}
 
 		if (TextUtils.isEmpty(username)) {
-			usernameView.setError(getString(R.string.error_field_required));
+			usernameContainer.setError(getString(R.string.error_field_required));
 			focusView = usernameView;
 		}
 
@@ -182,7 +205,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			if (bggCookieJar != null) {
 				createAccount(bggCookieJar);
 			} else {
-				passwordView.setError(getString(R.string.error_incorrect_password));
+				passwordContainer.setError(getString(R.string.error_incorrect_password));
 				passwordView.requestFocus();
 			}
 		}
@@ -202,26 +225,52 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		try {
 			accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, bggCookieJar.getAuthToken());
 		} catch (SecurityException e) {
-			showError("Uh-oh! This isn't an error we expect to see. If you have ScorePal installed, there's a known problem that one prevents the other from signing in. We're working to resolve the issue.");
+			showError(R.string.error_account_set_auth_token_security_exception);
 			return;
 		}
 		Bundle userData = new Bundle();
 		userData.putString(Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(bggCookieJar.getAuthTokenExpiry()));
 
 		if (isRequestingNewAccount) {
-			if (!accountManager.addAccountExplicitly(account, password, userData)) {
-				Account existingAccount = Authenticator.getAccount(accountManager);
-				if (existingAccount != null && existingAccount.name.equals(account.name)) {
-					accountManager.setPassword(account, password);
-				} else {
-					passwordView.setError(getString(R.string.error_account_not_added));
-					return;
+			try {
+				boolean success = accountManager.addAccountExplicitly(account, password, userData);
+				if (!success) {
+					Authenticator.removeAccounts(getApplicationContext());
+					success = accountManager.addAccountExplicitly(account, password, userData);
 				}
+				if (!success) {
+					Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
+					if (accounts.length == 0) {
+						Timber.v("no account!");
+						passwordContainer.setError(getString(R.string.error_account_list_zero));
+						return;
+					} else if (accounts.length != 1) {
+						Timber.w("multiple accounts!");
+						passwordContainer.setError(getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE));
+						return;
+					} else {
+						Account existingAccount = accounts[0];
+						if (existingAccount == null) {
+							passwordContainer.setError(getString(R.string.error_account_list_zero));
+							return;
+						} else if (!existingAccount.name.equals(account.name)) {
+							passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
+							return;
+						} else {
+							accountManager.setPassword(account, password);
+						}
+					}
+				}
+			} catch (Exception e) {
+				passwordContainer.setError(e.getLocalizedMessage());
+				return;
 			}
 		} else {
 			accountManager.setPassword(account, password);
 		}
 		TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
+
+		EventBus.getDefault().post(new SignInEvent(username));
 
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, username);
@@ -233,8 +282,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	@DebugLog
-	private void showError(String message) {
-		new Builder(this)
+	private void showError(@StringRes int message) {
+		new AlertDialog.Builder(this)
 			.setTitle(R.string.title_error)
 			.setMessage(message)
 			.show();

@@ -3,7 +3,6 @@ package com.boardgamegeek.tasks.sync;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
@@ -43,8 +42,8 @@ public class SyncArtistTask extends SyncTask<Person, CompletedEvent> {
 
 	@Override
 	protected void persistResponse(Person artist) {
-		Uri uri = Artists.buildArtistUri(artistId);
-		context.getContentResolver().update(uri, toValues(artist), null, null);
+		if (context == null) return;
+		context.getContentResolver().update(Artists.buildArtistUri(artistId), toValues(artist), null, null);
 		Timber.i("Synced artist '%s'", artistId);
 	}
 

@@ -3,7 +3,6 @@ package com.boardgamegeek.tasks.sync;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
@@ -43,8 +42,8 @@ public class SyncPublisherTask extends SyncTask<Company, CompletedEvent> {
 
 	@Override
 	protected void persistResponse(Company company) {
-		Uri uri = Publishers.buildPublisherUri(publisherId);
-		context.getContentResolver().update(uri, toValues(company), null, null);
+		if (context == null) return;
+		context.getContentResolver().update(Publishers.buildPublisherUri(publisherId), toValues(company), null, null);
 		Timber.i("Synced publisher '%s'", publisherId);
 	}
 

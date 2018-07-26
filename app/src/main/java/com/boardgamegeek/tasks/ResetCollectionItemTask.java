@@ -1,29 +1,32 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
-import com.boardgamegeek.util.TaskUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final long internalId;
-	private final int gameId;
 
-	public ResetCollectionItemTask(Context context, long internalId, int gameId) {
-		this.context = context.getApplicationContext();
+	public ResetCollectionItemTask(@Nullable Context context, long internalId) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.internalId = internalId;
-		this.gameId = gameId;
 	}
 
 	@NonNull
 	@Override
 	protected Boolean doInBackground(Void... params) {
+		if (context == null) return false;
+
 		ContentValues values = new ContentValues(9);
 		values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, 0);
 		values.put(Collection.STATUS_DIRTY_TIMESTAMP, 0);
@@ -43,7 +46,7 @@ public class ResetCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if (result) {
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(context, gameId));
+			EventBus.getDefault().post(new CollectionItemResetEvent(internalId));
 		}
 	}
 }

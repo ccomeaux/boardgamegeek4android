@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.provider.BggContract;
 
@@ -32,8 +33,8 @@ public class ResolverUtils {
 	}
 
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch, String debugMessage) {
-		ContentResolver resolver = context.getContentResolver();
 		if (batch != null && batch.size() > 0) {
+			ContentResolver resolver = context.getContentResolver();
 			if (PreferencesUtils.getAvoidBatching(context)) {
 				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
 				for (int i = 0; i < batch.size(); i++) {
@@ -126,22 +127,6 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns 0 if there's not
-	 * exactly one row at the URI.
-	 */
-	public static long queryLong(ContentResolver resolver, Uri uri, String columnName) {
-		return queryLong(resolver, uri, columnName, 0);
-	}
-
-	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns defaultValue if there's not
-	 * exactly one row at the URI.
-	 */
-	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue) {
-		return queryLong(resolver, uri, columnName, defaultValue, null, null);
-	}
-
-	/*
 	 * Use the content resolver to get a long from the specified column at the URI with the selection applied. Returns
 	 * defaultValue if there's not exactly one row at the URI.
 	 */
@@ -158,13 +143,6 @@ public class ResolverUtils {
 		} finally {
 			closeCursor(cursor);
 		}
-	}
-
-	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI.
-	 */
-	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName) {
-		return queryInts(resolver, uri, columnName, null, null);
 	}
 
 	/*
@@ -188,13 +166,6 @@ public class ResolverUtils {
 			closeCursor(cursor);
 		}
 		return list;
-	}
-
-	/*
-	 * Use the content resolver to get a list of longs from the specified column at the URI.
-	 */
-	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName) {
-		return queryLongs(resolver, uri, columnName, null, null);
 	}
 
 	/*
@@ -254,6 +225,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a string from the specified column at the URI. Returns null if there's not
 	 * exactly one row at the URI.
 	 */
+	@Nullable
 	public static String queryString(ContentResolver resolver, Uri uri, String columnName) {
 		String value;
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);

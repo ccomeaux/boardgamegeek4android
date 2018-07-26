@@ -8,9 +8,9 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class ThreadResponse {
-	@Attribute(required = false) private int id;
+	@Attribute(required = false) public int id;
 	@Attribute(required = false) private int numarticles;
 	@Attribute(required = false) private String link;
-	@Element(required = false) private String subject;
+	@Element(required = false) public String subject;
 	@ElementList(required = false) public List<ArticleElement> articles;
 }

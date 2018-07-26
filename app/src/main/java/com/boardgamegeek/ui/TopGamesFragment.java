@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,19 +36,29 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class TopGamesFragment extends Fragment {
-	Unbinder unbinder;
-	TopGamesAdapter adapter;
+	private Unbinder unbinder;
+	private TopGamesAdapter adapter;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_top_games, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_top_games, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 		setUpRecyclerView();
 		loadTopGames();
-		return rootView;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private void setUpRecyclerView() {
@@ -72,46 +84,55 @@ public class TopGamesFragment extends Fragment {
 			.subscribe(new SingleSubscriber<List<TopGame>>() {
 				@Override
 				public void onSuccess(List<TopGame> topGames) {
+					if (!isAdded()) return;
 					if (topGames.isEmpty()) {
 						AnimationUtils.fadeIn(emptyView);
 					} else {
 						adapter = new TopGamesAdapter(topGames);
-						recyclerView.setAdapter(adapter);
-						AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+						if (recyclerView != null) {
+							recyclerView.setAdapter(adapter);
+							AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+							AnimationUtils.fadeOut(emptyView);
+						}
 					}
-					progressView.hide();
+					if (progressView != null) progressView.hide();
 				}
 
 				@Override
 				public void onError(Throwable error) {
-					Timber.e(error, "Error loading top games");
-					if (isAdded()) {
+					Timber.w(error, "Error loading top games");
+					if (!isAdded()) return;
+					if (emptyView != null) {
 						emptyView.setText(getString(R.string.empty_http_error, error.getLocalizedMessage()));
+						AnimationUtils.fadeIn(emptyView);
+						AnimationUtils.fadeOut(recyclerView);
 					}
-					AnimationUtils.fadeIn(emptyView);
-					progressView.hide();
+					if (progressView != null) progressView.hide();
 				}
 			});
 	}
 
 	private List<TopGame> findTopGames() throws IOException {
-		List<TopGame> topGames = new ArrayList<>();
+		List<TopGame> topGames = new ArrayList<>(100);
 
 		int rank = 1;
-		Document doc = Jsoup.connect("https://www.boardgamegeek.com/browse/boardgame").get();
+		Document doc = Jsoup
+			.connect("https://www.boardgamegeek.com/browse/boardgame")
+			.timeout(10000)
+			.get();
 		Elements gameElements = doc.select("td.collection_thumbnail");
 		for (Element element : gameElements) {
 			TopGame game = new TopGame();
 			Element link = element.getElementsByTag("a").first();
-			game.id = getGameIdFromLink(link.attr("href"));
-			game.rank = rank;
-			game.yearPublished = 0;
-			game.thumbnailUrl = link.child(0).attr("src").replaceAll("_mt\\.", "_t.");
+			game.setId(getGameIdFromLink(link.attr("href")));
+			game.setRank(rank);
+			game.setYearPublished(0);
+			game.setThumbnailUrl(link.child(0).attr("src"));
 
 			Element gameNameElement = element.parent().select(".collection_objectname").get(0).child(1);
-			game.name = gameNameElement.child(0).text();
+			game.setName(gameNameElement.child(0).text());
 			String yearPublishedText = gameNameElement.child(1).text();
-			game.yearPublished = Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1));
+			game.setYearPublished(Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length() - 1)));
 
 			topGames.add(game);
 			rank++;

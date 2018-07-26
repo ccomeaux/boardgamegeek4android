@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.TopGame;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 
@@ -20,7 +20,7 @@ import butterknife.ButterKnife;
 
 public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHolder> {
 
-	List<TopGame> topGames;
+	private final List<TopGame> topGames;
 
 	public TopGamesAdapter(List<TopGame> topGames) {
 		this.topGames = topGames;
@@ -63,15 +63,18 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 
 		public void bind(TopGame game) {
 			this.game = game;
-			name.setText(game.name);
-			year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
-			rank.setText(String.valueOf(game.rank));
-			ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+			name.setText(game.getName());
+			year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
+			rank.setText(String.valueOf(game.getRank()));
+			ImageUtils.loadThumbnail(thumbnail, game.getThumbnailUrl());
 
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ActivityUtils.launchGame(itemView.getContext(), getGame().id, getGame().name);
+					GameActivity.start(itemView.getContext(),
+						getGame().getId(),
+						getGame().getName(),
+						getGame().getThumbnailUrl());
 				}
 			});
 		}

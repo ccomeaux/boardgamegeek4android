@@ -1,14 +1,108 @@
 Release Notes
 =============
 
-Coming Soon...
+Version 6.7
+-----------
+ * UI changes
+ * Lots of under the hood improvements
+
+Version 6.6.6
+-------------
+ * Bug fixes
+
+Version 6.6.5
+-------------
+ * Enable remote messages to be sent from the developers
+ * Fix some collection filters, like average weight
+ * Bug fixes
+
+Version 6.6.4
+-------------
+ * Bug fixes
+
+Version 6.6.3
+-------------
+ * Possible fix for inability to sign in
+ * Bug fixes
+
+Version 6.6.2
+-------------
+ * Bug fixes
+
+Version 6.6.1
+-------------
+ * Restore missing checkboxes for collection statuses
+ * Improved sync notifications
+ * Bug fixes
+
+Version 6.6
+-----------
+ * More UI polish
+ * Support for BGG's new image system
+ * More sync improvements
+ * Share your collection
+ * You can now disable notifications of uploaded plays or collection items
+ * Rearrange settings
+ * Allow changing of sync logic remotely (without needing a new release)
+
+Version 6.5.11
 --------------
+ * Prevent crash when applying some collection filters
+
+Version 6.5.10
+--------------
+ * Bug fixes
+
+Version 6.5.9
+-------------
+ * Fix a couple of syncing bugs
+
+Version 6.5.8
+-------------
+ * Bug fixes
+
+Version 6.5.7
+-------------
+ * Bug fixes
+
+Version 6.5.6
+-------------
+ * Bug fixes
+
+Version 6.5.5
+-------------
+ * Bug fixes
+
+Version 6.5.4
+-------------
+ * Restore the log play button to the first tab of the game screen
+ * Don't crash when changing focus while logging a play
+ * Bug fixes
+
+Version 6.5.3
+-------------
+ * Correct Friendless calculation (and prevent crash)
+
+Version 6.5.2
+-------------
+ * Bug fixes
+
+Version 6.5.1
+-------------
+ * Bug fixes
+
+Version 6.5
+-----------
  * Filter collection by recommended player counts
  * UI changes (improvements?)
+ * Support Android Oreo
+   * App shortcuts
+   * Notifications
+   * Adaptive icon
  * More play stats
- * App shortcuts for collection views
  * Corrected and improved backup/restore
  * Sync improvements
+ * Link to BoardGamePrices.co.uk
  * Bug fixes
 
 Version 6.4.2

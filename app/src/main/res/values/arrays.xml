@@ -90,5 +90,18 @@
 		<item>YEN</item>
 		<item>Other</item>
 	</string-array>
-
+	<string-array name="game_weight">
+		<item>Light</item>
+		<item>Medium Light</item>
+		<item>Medium</item>
+		<item>Medium Heavy</item>
+		<item>Heavy</item>
+	</string-array>
+	<string-array name="language_poll">
+		<item>No necessary in-game text</item>
+		<item>Some necessary text</item>
+		<item>Moderate in-game text</item>
+		<item>Extensive use of text</item>
+		<item>Unplayable in another language</item>
+	</string-array>
 </resources>

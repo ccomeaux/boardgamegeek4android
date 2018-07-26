@@ -21,7 +21,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.SortEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -80,7 +79,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	public void setSort(int sortType) {
 		if (sorter == null || sorter.getType() != sortType) {
 			SortEvent.log("Locations", String.valueOf(sortType));
-			sorter = LocationsSorterFactory.create(getActivity(), sortType);
+			sorter = LocationsSorterFactory.create(getContext(), sortType);
 			requery();
 		}
 	}
@@ -152,7 +151,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 				.getQuantityString(R.plurals.plays_suffix, location.getPlayCount(), location.getPlayCount()));
 
 			view.setTag(R.id.name, location.getName());
-			UIUtils.setActivatedCompat(view, location.getName().equals(selectedName));
+			view.setActivated(location.getName().equals(selectedName));
 		}
 
 		@DebugLog
@@ -168,7 +167,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

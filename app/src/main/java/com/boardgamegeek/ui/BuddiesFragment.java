@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -11,6 +10,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,8 +23,8 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -45,12 +45,13 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (PreferencesUtils.getSyncBuddies(getActivity())) {
-			setEmptyText(getString(R.string.empty_buddies));
-		} else {
-			setEmptyText(getString(R.string.empty_buddies_sync_off));
-		}
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setEmptyText();
 	}
 
 	@DebugLog
@@ -75,7 +76,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	protected void triggerRefresh() {
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_BUDDIES);
+		SyncService.sync(getContext(), SyncService.FLAG_SYNC_BUDDIES);
 	}
 
 	@DebugLog
@@ -87,15 +88,11 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		Uri buddiesUri = UIUtils.fragmentArgumentsToIntent(data).getData();
-		if (buddiesUri == null) {
-			buddiesUri = Buddies.CONTENT_URI;
-		}
-
-		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri,
+		CursorLoader loader = new CursorLoader(getContext(),
+			Buddies.CONTENT_URI,
 			Buddy.PROJECTION,
-			Buddies.BUDDY_ID + "!=? AND " + Buddies.BUDDY_FLAG + "=1",
-			new String[] { Authenticator.getUserId(getActivity()) },
+			String.format("%s!=? AND %s=1", Buddies.BUDDY_ID, Buddies.BUDDY_FLAG),
+			new String[] { Authenticator.getUserId(getContext()) },
 			null);
 		loader.setUpdateThrottle(2000);
 		return loader;
@@ -104,9 +101,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		int token = loader.getId();
 		if (token == TOKEN) {
@@ -127,6 +122,23 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.changeCursor(null);
+	}
+
+	private void setEmptyText() {
+		if (PreferencesUtils.getSyncBuddies(getActivity())) {
+			setEmptyText(getString(R.string.empty_buddies));
+			setEmptyButton("", null);
+		} else {
+			setEmptyText(getString(R.string.empty_buddies_sync_off));
+			setEmptyButton(getText(R.string.sync), new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					PreferencesUtils.setSyncBuddies(getContext());
+					setEmptyText();
+					triggerRefresh();
+				}
+			});
+		}
 	}
 
 	public class BuddiesAdapter extends CursorAdapter implements StickyListHeadersAdapter {
@@ -151,9 +163,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 			Buddy buddy = Buddy.fromCursor(cursor);
 
-			UIUtils.setActivatedCompat(view, buddy.getId() == selectedBuddyId);
+			view.setActivated(buddy.getId() == selectedBuddyId);
 
-			loadThumbnail(buddy.getAvatarUrl(), holder.avatar, R.drawable.person_image_empty);
+			ImageUtils.loadThumbnail(holder.avatar, buddy.getAvatarUrl(), R.drawable.person_image_empty);
 
 			if (TextUtils.isEmpty(buddy.getFullName())) {
 				holder.fullName.setText(buddy.getUserName());
@@ -183,7 +195,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(android.R.id.title);
+				holder.text = convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

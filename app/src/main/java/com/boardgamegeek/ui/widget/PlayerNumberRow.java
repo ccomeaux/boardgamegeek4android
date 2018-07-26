@@ -58,23 +58,11 @@ public class PlayerNumberRow extends LinearLayout {
 		labelView.setText(text);
 	}
 
-	public void setTotal(int voteCount) {
-		totalVoteCount = voteCount;
-		adjustSegments();
-	}
-
-	public void setBest(int voteCount) {
-		bestVoteCount = voteCount;
-		adjustSegments();
-	}
-
-	public void setRecommended(int voteCount) {
-		recommendedVoteCount = voteCount;
-		adjustSegments();
-	}
-
-	public void setNotRecommended(int voteCount) {
-		notRecommendedVoteCount = voteCount;
+	public void setVotes(int bestVoteCount, int recommendedVoteCount, int notRecommendedVoteCount, int totalVoteCount) {
+		this.bestVoteCount = bestVoteCount;
+		this.recommendedVoteCount = recommendedVoteCount;
+		this.notRecommendedVoteCount = notRecommendedVoteCount;
+		this.totalVoteCount = totalVoteCount;
 		adjustSegments();
 	}
 

@@ -1,5 +1,6 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -40,7 +41,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private static final int TYPE_PLAYER_NON_USER = 2;
 
 	@NonNull private final Random random;
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final Play play;
 	private List<String> colorsAvailable;
 	private List<PlayerColorChoices> playersNeedingColor;
@@ -48,8 +49,8 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private int round;
 
 	@DebugLog
-	public ColorAssignerTask(Context context, Play play) {
-		this.context = context;
+	public ColorAssignerTask(@Nullable Context context, Play play) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.play = play;
 		results = new Results();
 		random = new Random();
@@ -285,6 +286,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 	@DebugLog
 	private void populateColorsAvailable() {
+		if (context == null) return;
 		colorsAvailable = ResolverUtils.queryStrings(context.getContentResolver(), Games.buildColorsUri(play.gameId), GameColors.COLOR);
 		for (Player player : play.getPlayers()) {
 			if (!TextUtils.isEmpty(player.color)) {
@@ -298,6 +300,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 */
 	@DebugLog
 	private void populatePlayerColorChoices() {
+		if (context == null) return;
 		for (PlayerColorChoices player : playersNeedingColor) {
 			Cursor cursor = null;
 			try {
@@ -463,20 +466,18 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 		@Override
 		public String toString() {
-			String s = name + " (" + type + ")";
+			StringBuilder sb = new StringBuilder(name).append(" (").append(type).append(")");
 			if (colors.size() > 0) {
-				s += " [ ";
+				sb.append(" [");
 				boolean prependComma = false;
 				for (ColorChoice color : colors) {
-					if (prependComma) {
-						s += ", ";
-					}
-					s += color;
+					if (prependComma) sb.append(", ");
+					sb.append(color);
 					prependComma = true;
 				}
-				s += " ]";
+				sb.append("] ");
 			}
-			return s;
+			return sb.toString();
 		}
 	}
 

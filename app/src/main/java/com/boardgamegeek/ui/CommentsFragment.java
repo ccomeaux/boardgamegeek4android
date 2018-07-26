@@ -1,8 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -17,16 +17,14 @@ import android.view.ViewGroup;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Game.Comment;
-import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.io.model.Game.Comment;
+import com.boardgamegeek.io.model.ThingResponse;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
@@ -39,6 +37,8 @@ import icepick.State;
 import retrofit2.Call;
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_SORT_BY_RATING = "SORT";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 5;
 	private GameCommentsRecyclerViewAdapter adapter;
@@ -50,33 +50,40 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		gameId = Games.getGameId(intent.getData());
-		isSortedByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
+	public static CommentsFragment newInstance(int gameId, boolean isSortedByRating) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putBoolean(KEY_SORT_BY_RATING, isSortedByRating);
+		CommentsFragment fragment = new CommentsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		readBundle(getArguments());
+		Icepick.restoreInstanceState(this, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
 		return rootView;
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		isSortedByRating = bundle.getBoolean(KEY_SORT_BY_RATING);
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onResume() {
+		super.onResume();
+		requery();
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
@@ -88,12 +95,12 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	private void setUpRecyclerView() {
-		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+		final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -133,32 +140,44 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public Loader<PaginatedData<Comment>> onCreateLoader(int id, Bundle data) {
-		return new CommentsLoader(getActivity(), gameId, isSortedByRating);
+		return new CommentsLoader(getContext(), gameId, isSortedByRating);
 	}
 
 	@Override
 	public void onLoadFinished(Loader<PaginatedData<Comment>> loader, PaginatedData<Comment> data) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		if (adapter == null) {
-			adapter = new GameCommentsRecyclerViewAdapter(getActivity(), data);
+			adapter = new GameCommentsRecyclerViewAdapter(getContext(), data);
 			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
 
 		if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+			AnimationUtils.fadeIn(recyclerView, isResumed());
 		}
 		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<PaginatedData<Comment>> loader) {
+	}
+
+	@DebugLog
+	private void requery() {
+		if (adapter != null) adapter.clear();
+		AnimationUtils.fadeIn(progressView);
+		getLoaderManager().restartLoader(LOADER_ID, null, this);
+	}
+
+	@DebugLog
+	public void setSort(int sortType) {
+		boolean oldSort = isSortedByRating;
+		isSortedByRating = sortType == CommentsActivity.SORT_TYPE_RATING;
+		if (isSortedByRating != oldSort) requery();
 	}
 
 	private static class CommentsLoader extends PaginatedLoader<Comment> {

@@ -40,8 +40,12 @@ public class CollectionNameFilterDialog implements CollectionFilterDialog {
 			.setPositiveButton(R.string.set, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					if (listener != null)
-						listener.addFilter(new CollectionNameFilter(context, filterTextView.getText(), startWithCheckBox.isChecked()));
+					if (listener != null) {
+						final CollectionNameFilter filterer = new CollectionNameFilter(context);
+						filterer.setFilterText(filterTextView.getText().toString());
+						filterer.setStartsWith(startWithCheckBox.isChecked());
+						listener.addFilter(filterer);
+					}
 				}
 			})
 			.setNegativeButton(R.string.clear, new OnClickListener() {
@@ -60,7 +64,7 @@ public class CollectionNameFilterDialog implements CollectionFilterDialog {
 			filterTextView.setText(collectionNameFilter.getFilterText());
 			filterTextView.setSelection(0, filterTextView.getText().length());
 
-			startWithCheckBox.setChecked(collectionNameFilter.startsWith());
+			startWithCheckBox.setChecked(collectionNameFilter.getStartsWith());
 		}
 	}
 

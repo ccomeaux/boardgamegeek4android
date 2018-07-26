@@ -26,12 +26,12 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (AverageRatingFilterer.MAX_RANGE * FACTOR);
+		return (int) (AverageRatingFilterer.upperBound * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (AverageRatingFilterer.MIN_RANGE * FACTOR);
+		return (int) (AverageRatingFilterer.lowerBound * FACTOR);
 	}
 
 	@Override
@@ -41,7 +41,11 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new AverageRatingFilterer(context, (double) (min) / FACTOR, (double) (max) / FACTOR, checkbox);
+		final AverageRatingFilterer filterer = new AverageRatingFilterer(context);
+		filterer.setMin((double) (min) / FACTOR);
+		filterer.setMax((double) (max) / FACTOR);
+		filterer.setIncludeUndefined(checkbox);
+		return filterer;
 	}
 
 	@Override
@@ -51,14 +55,14 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		double min = AverageRatingFilterer.MIN_RANGE;
-		double max = AverageRatingFilterer.MAX_RANGE;
+		double min = AverageRatingFilterer.lowerBound;
+		double max = AverageRatingFilterer.upperBound;
 		boolean unrated = true;
 		if (filter != null) {
 			AverageRatingFilterer data = (AverageRatingFilterer) filter;
 			min = data.getMin();
 			max = data.getMax();
-			unrated = data.includeUnrated();
+			unrated = data.getIncludeUndefined();
 		}
 		return new InitialValues((int) (min * FACTOR), (int) (max * FACTOR), unrated);
 	}
@@ -66,10 +70,5 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	@Override
 	protected String getPinText(String value) {
 		return FORMAT.format((double) StringUtils.parseInt(value, 0) / FACTOR);
-	}
-
-	@Override
-	protected int getPinValue(String text) {
-		return (int) (StringUtils.parseDouble(text) * FACTOR);
 	}
 }

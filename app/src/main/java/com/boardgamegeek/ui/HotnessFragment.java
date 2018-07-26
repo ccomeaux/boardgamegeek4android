@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
@@ -100,19 +101,16 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				new Callback() {
 					@Override
 					public boolean onItemClick(int position) {
-						if (actionMode == null) {
-							return false;
-						}
+						if (actionMode == null) return false;
 						toggleSelection(position);
 						return true;
 					}
 
 					@Override
 					public boolean onItemLongClick(int position) {
-						if (actionMode != null) {
-							return false;
-						}
+						if (actionMode != null) return false;
 						actionMode = getActivity().startActionMode(HotnessFragment.this);
+						if (actionMode == null) return false;
 						toggleSelection(position);
 						return true;
 					}
@@ -214,6 +212,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		public class ViewHolder extends RecyclerView.ViewHolder {
 			private int gameId;
 			private String gameName;
+			private String thumbnailUrl;
 			@BindView(R.id.name) TextView name;
 			@BindView(R.id.year) TextView year;
 			@BindView(R.id.rank) TextView rank;
@@ -226,12 +225,13 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 
 			public void bind(HotGame game, final int position) {
 				if (game == null) return;
-				gameId = game.id;
-				gameName = game.name;
-				name.setText(game.name);
-				year.setText(PresentationUtils.describeYear(name.getContext(), game.yearPublished));
-				rank.setText(String.valueOf(game.rank));
-				ImageUtils.loadThumbnail(game.thumbnailUrl, thumbnail);
+				gameId = game.getId();
+				gameName = game.getName();
+				thumbnailUrl = game.getThumbnailUrl();
+				name.setText(game.getName());
+				year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
+				rank.setText(String.valueOf(game.getRank()));
+				ImageUtils.loadThumbnail(thumbnail, game.getThumbnailUrl());
 
 				itemView.setActivated(selectedItems.get(position, false));
 
@@ -243,7 +243,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							ActivityUtils.launchGame(itemView.getContext(), gameId, gameName);
+							GameActivity.start(getContext(), gameId, gameName, thumbnailUrl);
 						}
 					}
 				});
@@ -295,8 +295,8 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		int count = adapter.getSelectedItemCount();
-		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play).setVisible(Authenticator.isSignedIn(getContext()) && count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(Authenticator.isSignedIn(getContext()) && PreferencesUtils.showQuickLogPlay(getActivity()));
 		menu.findItem(R.id.menu_link).setVisible(count == 1);
 		return true;
 	}
@@ -315,7 +315,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, false);
+				LogPlayActivity.logPlay(getContext(), game.getId(), game.getName(), game.getThumbnailUrl(), game.getThumbnailUrl(), "", false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
@@ -323,26 +323,26 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				Snackbar.make(containerView, text, Snackbar.LENGTH_SHORT).show();
 				for (int position : selectedItems) {
 					HotGame g = adapter.getItem(position);
-					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
+					ActivityUtils.logQuickPlay(getActivity(), g.getId(), g.getName());
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
 				final String shareMethod = "Hotness";
 				if (adapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name, shareMethod);
+					ActivityUtils.shareGame(getActivity(), game.getId(), game.getName(), shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
 					for (int position : selectedItems) {
 						HotGame g = adapter.getItem(position);
-						games.add(Pair.create(g.id, g.name));
+						games.add(Pair.create(g.getId(), g.getName()));
 					}
 					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
 				return true;
 			case R.id.menu_link:
 				mode.finish();
-				ActivityUtils.linkBgg(getActivity(), game.id);
+				ActivityUtils.linkBgg(getActivity(), game.getId());
 				return true;
 		}
 		return false;

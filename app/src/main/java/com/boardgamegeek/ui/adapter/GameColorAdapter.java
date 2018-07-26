@@ -63,8 +63,8 @@ public class GameColorAdapter extends CursorAdapter {
 		final ImageView color;
 
 		public ViewHolder(View view) {
-			colorName = (TextView) view.findViewById(R.id.color_name);
-			color = (ImageView) view.findViewById(R.id.color_view);
+			colorName = view.findViewById(R.id.color_name);
+			color = view.findViewById(R.id.color_view);
 		}
 	}
 

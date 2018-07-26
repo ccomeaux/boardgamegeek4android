@@ -2,96 +2,37 @@ package com.boardgamegeek.model;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.StringKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Path;
-import org.simpleframework.xml.Root;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-@Root(name = "play")
 public class Play {
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
-	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
-	@Attribute(name = "id")
 	public int playId;
-
-	@Attribute
-	private String date;
-	private long playDate = DateTimeUtils.UNPARSED_DATE;
-
-	@Attribute
+	public long dateInMillis;
 	public int quantity;
-
-	@Attribute
 	public int length;
-
-	@Attribute
-	private int incomplete;
-
-	public boolean Incomplete() {
-		return incomplete == 1;
-	}
-
-	public void setIncomplete(boolean value) {
-		incomplete = value ? 1 : 0;
-	}
-
-	@Attribute
-	private int nowinstats;
-
-	public boolean NoWinStats() {
-		return nowinstats == 1;
-	}
-
-	public void setNoWinStats(boolean value) {
-		nowinstats = value ? 1 : 0;
-	}
-
-	@Attribute
+	public boolean incomplete;
+	public boolean noWinStats;
 	public String location;
-
-	@Path("item")
-	@Attribute(name = "name")
 	public String gameName;
-
-	@Path("item")
-	@Attribute(name = "objectid")
 	public int gameId;
-
-	@Path("item")
-	@Attribute
-	private String objecttype;
-
-	@Path("item")
-	@ElementList
-	public List<Subtype> subtypes;
-
-	@Root(name = "subtype")
-	public static class Subtype {
-		@Attribute
-		public String value;
-	}
-
-	@Element(required = false)
+	public List<String> subtypes;
 	public String comments;
+	@NonNull private List<Player> players = new ArrayList<>();
 
 	public long syncTimestamp;
 	public long startTime;
@@ -99,9 +40,6 @@ public class Play {
 	public long deleteTimestamp;
 	public long updateTimestamp;
 	public long dirtyTimestamp;
-
-	@ElementList(required = false)
-	private List<Player> players;
 
 	public Play() {
 		init(BggContract.INVALID_ID, "");
@@ -124,86 +62,54 @@ public class Play {
 
 	// DATE
 
-	/**
-	 * The date of the play in the yyyy-MM-dd format. This is the format the 'Geek uses and how it's stored in the
-	 * Content DB.
-	 *
-	 * @return The formatted date
-	 */
-	public String getDate() {
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
-		return DateTimeUtils.formatDateForApi(playDate);
+	public String getDateForApi() {
+		return DateTimeUtils.formatDateForApi(dateInMillis);
 	}
 
-	public long getDateInMillis() {
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
-		return playDate;
+	public String getDateForDatabase() {
+		return DateTimeUtils.formatDateForDatabase(dateInMillis);
 	}
 
-	/**
-	 * A text version of the date, formatted for display in the UI.
-	 *
-	 * @return a localized date.
-	 */
 	public CharSequence getDateForDisplay(Context context) {
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
-		return DateUtils.formatDateTime(context, playDate, DateUtils.FORMAT_SHOW_DATE);
+		return DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE);
 	}
 
 	public void setDate(int year, int month, int day) {
-		playDate = DateTimeUtils.UNPARSED_DATE;
-		date = DateTimeUtils.formatDateForApi(year, month, day);
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		final Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_MONTH, day);
+		c.set(Calendar.MONTH, month);
+		c.set(Calendar.YEAR, year);
+		dateInMillis = c.getTimeInMillis();
 	}
 
-	/**
-	 * Sets the play's date
-	 *
-	 * @param date in the yyyy-MM-dd format
-	 */
-	public void setDate(String date) {
-		playDate = DateTimeUtils.UNPARSED_DATE;
-		this.date = date;
-		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+	public void setDateFromDatabase(String date) {
+		dateInMillis = StringKt.toMillis(date, DateTimeUtils.FORMAT_DATABASE);
 	}
 
 	public void setCurrentDate() {
 		final Calendar c = Calendar.getInstance();
-		setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+		dateInMillis = c.getTimeInMillis();
 	}
 
 	// PLAYERS
-
+	@NonNull
 	public List<Player> getPlayers() {
-		if (players == null) {
-			return new ArrayList<>();
-		}
 		return players;
 	}
 
 	public int getPlayerCount() {
-		if (players == null) {
-			return 0;
-		}
 		return players.size();
 	}
 
 	public void setPlayers(List<Player> players) {
-		if (players != null) {
-			this.players.addAll(players);
-		}
+		this.players.addAll(players);
 	}
 
 	public void clearPlayers() {
-		if (players != null) {
-			players.clear();
-		}
+		players.clear();
 	}
 
 	public void addPlayer(Player player) {
-		if (players == null) {
-			players = new ArrayList<>();
-		}
 		// if player has seat, bump down other players
 		if (!arePlayersCustomSorted() && player.getSeat() != Player.SEAT_UNKNOWN) {
 			for (int i = players.size(); i >= player.getSeat(); i--) {
@@ -218,9 +124,7 @@ public class Play {
 	}
 
 	public void removePlayer(Player player, boolean resort) {
-		if (players == null || getPlayerCount() == 0) {
-			return;
-		}
+		if (players.size() == 0) return;
 		if (resort && !arePlayersCustomSorted()) {
 			for (int i = player.getSeat(); i < players.size(); i++) {
 				Player p = getPlayerAtSeat(i + 1);
@@ -244,9 +148,6 @@ public class Play {
 	}
 
 	public Player getPlayerAtSeat(int seat) {
-		if (players == null) {
-			return null;
-		}
 		for (Player player : players) {
 			if (player != null && player.getSeat() == seat) {
 				return player;
@@ -256,16 +157,10 @@ public class Play {
 	}
 
 	public boolean reorderPlayers(int fromSeat, int toSeat) {
-		if (players == null || getPlayerCount() == 0) {
-			return false;
-		}
-		if (arePlayersCustomSorted()) {
-			return false;
-		}
+		if (players.size() == 0) return false;
+		if (arePlayersCustomSorted()) return false;
 		Player player = getPlayerAtSeat(fromSeat);
-		if (player == null) {
-			return false;
-		}
+		if (player == null) return false;
 		player.setSeat(Player.SEAT_UNKNOWN);
 		try {
 			if (fromSeat > toSeat) {
@@ -291,7 +186,7 @@ public class Play {
 	 * @param startPlayerIndex The zero-based index of the new start player
 	 */
 	public void pickStartPlayer(int startPlayerIndex) {
-		int playerCount = getPlayerCount();
+		int playerCount = players.size();
 		for (int i = 0; i < playerCount; i++) {
 			Player p = players.get(i);
 			p.setSeat((i - startPlayerIndex + playerCount) % playerCount + 1);
@@ -303,9 +198,7 @@ public class Play {
 	 * Randomizes the order of players, assigning seats to the new order.
 	 */
 	public void randomizePlayerOrder() {
-		if (players == null || players.size() == 0) {
-			return;
-		}
+		if (players.size() == 0) return;
 		Collections.shuffle(players);
 		int playerCount = players.size();
 		for (int i = 0; i < playerCount; i++) {
@@ -319,7 +212,7 @@ public class Play {
 	 */
 	public void sortPlayers() {
 		int index = 0;
-		for (int i = 1; i <= getPlayerCount(); i++) {
+		for (int i = 1; i <= players.size(); i++) {
 			Player p = getPlayerAtSeat(i);
 			if (p != null) {
 				players.remove(p);
@@ -333,10 +226,8 @@ public class Play {
 	 * Determine if the starting positions indicate the players are custom sorted.
 	 */
 	public boolean arePlayersCustomSorted() {
-		if (!hasStartingPositions()) {
-			return true;
-		}
-
+		if (players.size() == 0) return false;
+		if (!hasStartingPositions()) return true;
 		int seat = 1;
 		do {
 			boolean foundSeat = false;
@@ -350,7 +241,7 @@ public class Play {
 				return true;
 			}
 			seat++;
-			if (seat > getPlayerCount()) {
+			if (seat > players.size()) {
 				return false;
 			}
 		} while (seat < 100);
@@ -361,16 +252,12 @@ public class Play {
 	 * Determine if any player has a starting position.
 	 */
 	public boolean hasStartingPositions() {
-		if (getPlayerCount() == 0) {
-			return false;
-		}
-
+		if (players.size() == 0) return false;
 		for (Player player : players) {
 			if (player != null && !TextUtils.isEmpty(player.getStartingPosition())) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -378,10 +265,7 @@ public class Play {
 	 * Remove the starting position for all players.
 	 */
 	public void clearPlayerPositions() {
-		if (getPlayerCount() == 0) {
-			return;
-		}
-
+		if (players.size() == 0) return;
 		for (Player player : players) {
 			if (player != null) {
 				player.setStartingPosition(null);
@@ -395,9 +279,7 @@ public class Play {
 	 * Determine if any player has a team/color.
 	 */
 	public boolean hasColors() {
-		if (getPlayerCount() == 0) {
-			return false;
-		}
+		if (players.size() == 0) return false;
 
 		for (Player player : players) {
 			if (player != null && !TextUtils.isEmpty(player.color)) {
@@ -409,7 +291,7 @@ public class Play {
 	}
 
 	public double getHighScore() {
-		if (getPlayerCount() == 0) return 0.0;
+		if (players.size() == 0) return 0.0;
 
 		double highScore = -Double.MAX_VALUE;
 		for (Player player : players) {
@@ -465,17 +347,16 @@ public class Play {
 		Play p = (Play) o;
 		boolean eq = (playId == p.playId)
 			&& (gameId == p.gameId)
-			&& (playDate == p.playDate)
+			&& (dateInMillis == p.dateInMillis)
 			&& (quantity == p.quantity)
 			&& (length == p.length)
 			&& ((location == null && p.location == null) || (location != null && location.equals(p.location)))
 			&& (incomplete == p.incomplete)
-			&& (nowinstats == p.nowinstats)
+			&& (noWinStats == p.noWinStats)
 			&& ((comments == null && p.comments == null) || (comments != null && comments.equals(p.comments)))
 			&& (startTime == p.startTime)
-			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
-			.size()));
-		if (eq && players != null) {
+			&& (players.size() == p.players.size());
+		if (eq) {
 			for (int i = 0; i < players.size(); i++) {
 				if (!players.get(i).equals(p.getPlayers().get(i))) {
 					return false;
@@ -492,12 +373,12 @@ public class Play {
 		result = prime * result + playId;
 		result = prime * result + gameId;
 		result = prime * result + ((gameName == null) ? 0 : gameName.hashCode());
-		result = prime * result + (int) (playDate ^ (playDate >>> 32));
+		result = prime * result + (int) (dateInMillis ^ (dateInMillis >>> 32));
 		result = prime * result + quantity;
 		result = prime * result + length;
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
-		result = prime * result + incomplete;
-		result = prime * result + nowinstats;
+		result = prime * result + (incomplete ? 1 : 0);
+		result = prime * result + (noWinStats ? 1 : 0);
 		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
 		long u = Double.doubleToLongBits(syncTimestamp);
 		result = prime * result + (int) (u ^ (u >>> 32));
@@ -509,7 +390,7 @@ public class Play {
 	public String toShortDescription(Context context) {
 		Resources r = context.getResources();
 		return r.getString(R.string.play_description_game_segment, gameName) +
-			r.getString(R.string.play_description_date_segment, getDate());
+			r.getString(R.string.play_description_date_segment, getDateForDisplay(context));
 	}
 
 	public String toLongDescription(Context context) {
@@ -554,7 +435,7 @@ public class Play {
 		if (length > 0) {
 			sb.append(resources.getString(R.string.play_description_length_segment, DateTimeUtils.describeMinutes(context, length)));
 		}
-		sb.append(resources.getString(R.string.play_description_date_segment, getDate()));
+		sb.append(resources.getString(R.string.play_description_date_segment, getDateForDisplay(context)));
 		if (!TextUtils.isEmpty(location)) {
 			sb.append(resources.getString(R.string.play_description_location_segment, location));
 		}

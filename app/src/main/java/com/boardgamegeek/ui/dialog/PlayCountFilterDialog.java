@@ -16,12 +16,12 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayCountFilterer.MIN_RANGE;
+		return PlayCountFilterer.lowerBound;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayCountFilterer.MAX_RANGE;
+		return PlayCountFilterer.upperBound;
 	}
 
 	@Override
@@ -31,7 +31,10 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected CollectionFilterer getPositiveData(Context context, int min, int max, boolean checkbox) {
-		return new PlayCountFilterer(context, min, max);
+		final PlayCountFilterer filterer = new PlayCountFilterer(context);
+		filterer.setMin(min);
+		filterer.setMax(max);
+		return filterer;
 	}
 
 	@Override
@@ -41,8 +44,8 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected InitialValues initValues(CollectionFilterer filter) {
-		int min = PlayCountFilterer.MIN_RANGE;
-		int max = PlayCountFilterer.MAX_RANGE;
+		int min = PlayCountFilterer.lowerBound;
+		int max = PlayCountFilterer.upperBound;
 		if (filter != null) {
 			PlayCountFilterer data = (PlayCountFilterer) filter;
 			min = data.getMin();
@@ -53,18 +56,10 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 
 	@Override
 	protected String getPinText(String value) {
-		int year = StringUtils.parseInt(value, PlayCountFilterer.MIN_RANGE);
-		if (year == PlayCountFilterer.MAX_RANGE) {
+		int year = StringUtils.parseInt(value, PlayCountFilterer.lowerBound);
+		if (year == PlayCountFilterer.upperBound) {
 			return value + "+";
 		}
 		return super.getPinText(value);
-	}
-
-	@Override
-	protected int getPinValue(String text) {
-		if (text.endsWith("+")) {
-			return PlayCountFilterer.MAX_RANGE;
-		}
-		return super.getPinValue(text);
 	}
 }

@@ -1,7 +1,9 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.widget.Toast;
 
@@ -10,12 +12,13 @@ import android.widget.Toast;
  * when complete.
  */
 public abstract class ToastingAsyncTask extends AsyncTask<Void, Void, Boolean> {
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 
-	public ToastingAsyncTask(Context context) {
-		this.context = context;
+	public ToastingAsyncTask(@Nullable Context context) {
+		this.context = context == null ? null : context.getApplicationContext();
 	}
 
+	@Nullable
 	protected Context getContext() {
 		return context;
 	}

@@ -11,18 +11,17 @@ import android.accounts.NetworkErrorException;
 import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.widget.Toast;
 
-import com.boardgamegeek.R;
+import com.boardgamegeek.events.SignOutEvent;
 import com.boardgamegeek.ui.LoginActivity;
-import com.boardgamegeek.util.ActivityUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -32,8 +31,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static final String ACCOUNT_TYPE = "com.boardgamegeek";
 	public static final String AUTH_TOKEN_TYPE = "com.boardgamegeek";
 	public static final String KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
-	public static final String KEY_USER_ID = "com.boardgamegeek.USER_ID";
 	public static final String INVALID_USER_ID = "0";
+	private static final String KEY_USER_ID = "com.boardgamegeek.USER_ID";
 
 	private final Context context;
 
@@ -46,7 +45,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	@Override
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
 		Timber.v("Adding account: accountType=%s, authTokenType=%s", accountType, authTokenType);
-		return createLoginIntent(response, null);
+		return LoginActivity.createIntentBundle(context, response, null);
 	}
 
 	@Nullable
@@ -102,7 +101,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
 		// credentials. We do that by creating an intent to display our AuthenticatorActivity panel.
 		Timber.i("Expired credentials...");
-		return createLoginIntent(response, account.name);
+		return LoginActivity.createIntentBundle(context, response, account.name);
 	}
 
 	@Nullable
@@ -162,14 +161,18 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static String getUserId(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		if (account == null) {
-			return INVALID_USER_ID;
-		}
+		if (account == null) return INVALID_USER_ID;
 		String userId = accountManager.getUserData(account, KEY_USER_ID);
-		if (userId == null) {
-			return INVALID_USER_ID;
-		}
+		if (userId == null) return INVALID_USER_ID;
 		return userId;
+	}
+
+	public static void putUserId(Context context, int value) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		if (account != null) {
+			accountManager.setUserData(account, KEY_USER_ID, String.valueOf(value));
+		}
 	}
 
 	/**
@@ -199,59 +202,23 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return data != null;
 	}
 
-	public static long getLong(Context context, String key) {
-		return getLong(context, key, 0);
-	}
-
-	public static long getLong(Context context, String key, long defaultValue) {
-		if (context == null) {
-			return defaultValue;
-		}
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		if (account == null) {
-			return defaultValue;
-		}
-		return getLong(accountManager, account, key, defaultValue);
-	}
-
-	public static long getLong(@NonNull AccountManager accountManager, Account account, String key) {
-		String s = accountManager.getUserData(account, key);
-		return TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
-	}
-
-	public static long getLong(@NonNull AccountManager accountManager, Account account, String key, long defaultValue) {
-		String s = accountManager.getUserData(account, key);
-		return TextUtils.isEmpty(s) ? defaultValue : Long.parseLong(s);
-	}
-
-	public static void putLong(Context context, String key, long value) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		if (account != null) {
-			accountManager.setUserData(account, key, String.valueOf(value));
-		}
-	}
-
-	public static void putInt(Context context, String key, int value) {
-		AccountManager accountManager = AccountManager.get(context);
-		Account account = getAccount(accountManager);
-		if (account != null) {
-			accountManager.setUserData(account, key, String.valueOf(value));
-		}
-	}
-
 	public static void signOut(final Context context) {
 		AccountManager am = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(am);
 		if (account != null) {
-			if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
-				removeAccountWithActivity(context, am, account);
-			} else {
-				removeAccount(context, am, account);
-			}
+			removeAccountCompat(am, account, true);
+			am.setUserData(account, KEY_USER_ID, INVALID_USER_ID);
 		}
 		AccountUtils.clearFields(context);
+	}
+
+	public static void removeAccounts(final Context context) {
+		AccountManager am = AccountManager.get(context);
+		Account[] accounts = am.getAccountsByType(Authenticator.ACCOUNT_TYPE);
+		for (Account account : accounts) {
+			removeAccountCompat(am, account, false);
+			am.setUserData(account, KEY_USER_ID, INVALID_USER_ID);
+		}
 	}
 
 	@NonNull
@@ -263,33 +230,27 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return result;
 	}
 
-	@NonNull
-	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
-		final Intent intent = new Intent(context, LoginActivity.class);
-		if (!TextUtils.isEmpty(accountName)) {
-			intent.putExtra(ActivityUtils.KEY_USERNAME, accountName);
-		}
-		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-		final Bundle bundle = new Bundle();
-		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-		return bundle;
-	}
-
 	private boolean isKeyExpired(@NonNull final AccountManager am, Account account, @SuppressWarnings("SameParameterValue") String key) {
 		String expiration = am.getUserData(account, key);
 		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
 
+	private static void removeAccountCompat(AccountManager am, Account account, boolean postEvent) {
+		if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
+			removeAccountWithActivity(am, account, postEvent);
+		} else {
+			removeAccount(am, account, postEvent);
+		}
+	}
+
 	@SuppressWarnings("deprecation")
-	private static void removeAccount(final Context context, @NonNull AccountManager am, Account account) {
+	private static void removeAccount(@NonNull AccountManager am, Account account, final boolean postEvent) {
 		am.removeAccount(account, new AccountManagerCallback<Boolean>() {
 			@Override
 			public void run(@NonNull AccountManagerFuture<Boolean> future) {
 				if (future.isDone()) {
 					try {
-						if (future.getResult()) {
-							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
-						}
+						if (postEvent && future.getResult()) EventBus.getDefault().post(new SignOutEvent());
 					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");
 					}
@@ -299,14 +260,14 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	@TargetApi(VERSION_CODES.LOLLIPOP_MR1)
-	private static void removeAccountWithActivity(final Context context, @NonNull AccountManager am, Account account) {
+	private static void removeAccountWithActivity(@NonNull AccountManager am, Account account, final boolean postEvent) {
 		am.removeAccount(account, null, new AccountManagerCallback<Bundle>() {
 			@Override
 			public void run(@NonNull AccountManagerFuture<Bundle> future) {
 				if (future.isDone()) {
 					try {
-						if (future.getResult().getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
-							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
+						if (postEvent && future.getResult().getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
+							EventBus.getDefault().post(new SignOutEvent());
 						}
 					} catch (@NonNull OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e(e, "removeAccount");

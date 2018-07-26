@@ -28,7 +28,9 @@ public class ExpansionStatusFilterDialog implements CollectionFilterDialog {
 						if (selectedSubtype == 0) {
 							listener.removeFilter(getType(context));
 						} else {
-							listener.addFilter(new ExpansionStatusFilterer(context, selectedSubtype));
+							final ExpansionStatusFilterer filterer = new ExpansionStatusFilterer(context);
+							filterer.setSelectedSubtype(selectedSubtype);
+							listener.addFilter(filterer);
 						}
 					}
 				}

@@ -9,10 +9,6 @@
 		<attr name="icon_res" format="reference"/>
 		<attr name="query_token" format="integer"/>
 	</declare-styleable>
-	<declare-styleable name="MultiSelectListPreference">
-		<attr name="android:entries"/>
-		<attr name="android:entryValues"/>
-	</declare-styleable>
 	<declare-styleable name="BezelImageView">
 		<attr name="maskDrawable" format="reference"/>
 		<attr name="borderDrawable" format="reference"/>
@@ -20,12 +16,12 @@
 	</declare-styleable>
 	<declare-styleable name="BggForegroundLinearLayout">
 		<attr name="android:foreground"/>
-		<attr name="android:foregroundInsidePadding"/>
+		<attr name="foregroundInsidePadding"/>
 		<attr name="android:foregroundGravity"/>
 	</declare-styleable>
 	<declare-styleable name="ForegroundImageView">
 		<attr name="android:foreground"/>
-		<attr name="android:foregroundInsidePadding"/>
+		<attr name="foregroundInsidePadding"/>
 		<attr name="android:foregroundGravity"/>
 	</declare-styleable>
 	<declare-styleable name="TimestampView">
@@ -35,7 +31,10 @@
 		<attr name="emptyMessage" format="string"/>
 		<attr name="hideWhenEmpty" format="boolean"/>
 	</declare-styleable>
-	<declare-styleable name="TextEditorCard">
+	<declare-styleable name="TextEditorView">
 		<attr name="headerText" format="string"/>
+	</declare-styleable>
+	<declare-styleable name="RatingView">
+		<attr name="hideWhenZero" format="boolean"/>
 	</declare-styleable>
 </resources>

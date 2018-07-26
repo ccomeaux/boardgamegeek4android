@@ -1,10 +1,12 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -25,18 +27,19 @@ import java.util.List;
 
 import timber.log.Timber;
 
+
 public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	private static final String SELECTION = "play_players." + PlayPlayers.NAME + "=? AND (" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL)";
 
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final String playerName;
 	private final String username;
 	private final long startTime;
 	private boolean wasSuccessful;
 	private final ArrayList<ContentProviderOperation> batch;
 
-	public AddUsernameToPlayerTask(Context context, String playerName, String username) {
-		this.context = context.getApplicationContext();
+	public AddUsernameToPlayerTask(@Nullable Context context, String playerName, String username) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.playerName = playerName;
 		this.username = username;
 		startTime = System.currentTimeMillis();
@@ -65,6 +68,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private void updatePlays() {
+		if (context == null) return;
 		List<Long> internalIds = ResolverUtils.queryLongs(context.getContentResolver(),
 			Plays.buildPlayersByPlayUri(),
 			Plays._ID,
@@ -94,6 +98,7 @@ public class AddUsernameToPlayerTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private void updateColors() {
+		if (context == null) return;
 		Cursor cursor = context.getContentResolver().query(PlayerColors.buildPlayerUri(playerName),
 			new String[] { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER },
 			null, null, null);

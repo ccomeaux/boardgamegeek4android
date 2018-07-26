@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
@@ -32,24 +31,17 @@ public class DialogUtils {
 		return new AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert);
 	}
 
-	public static void show(DialogFragment fragment, FragmentManager manager, String tag) {
-		FragmentTransaction ft = manager.beginTransaction();
-		ft.add(fragment, tag);
-		ft.commitAllowingStateLoss();
-	}
+	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
+		final FragmentManager fragmentManager = host.getFragmentManager();
+		if (fragmentManager == null) return;
+		String tag = "dialog";
 
-	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
-		FragmentTransaction ft = host.getFragmentManager().beginTransaction();
-		Fragment prev = host.getFragmentManager().findFragmentByTag(tag);
-		if (prev != null) {
-			ft.remove(prev);
-		}
+		FragmentTransaction ft = fragmentManager.beginTransaction();
+		Fragment prev = fragmentManager.findFragmentByTag(tag);
+		if (prev != null) ft.remove(prev);
 		ft.addToBackStack(null);
 
-		dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog);
-		dialog.setArguments(arguments);
-		ft.add(dialog, tag);
-		ft.commitAllowingStateLoss();
+		dialog.show(ft, tag);
 	}
 
 	public interface OnDiscardListener {

@@ -1,10 +1,12 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -22,14 +24,14 @@ import hugo.weaving.DebugLog;
  * Renames a location in all plays, then triggers an update.
  */
 public class RenameLocationTask extends AsyncTask<String, Void, String> {
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final String oldLocationName;
 	private final String newLocationName;
 	private final long startTime;
 
 	@DebugLog
-	public RenameLocationTask(Context context, String oldLocation, String newLocation) {
-		this.context = (context == null ? null : context.getApplicationContext());
+	public RenameLocationTask(@Nullable Context context, String oldLocation, String newLocation) {
+		this.context = context == null ? null : context.getApplicationContext();
 		oldLocationName = oldLocation;
 		newLocationName = newLocation;
 		startTime = System.currentTimeMillis();
@@ -38,9 +40,7 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	@DebugLog
 	@Override
 	protected String doInBackground(String... params) {
-		if (context == null) {
-			return "";
-		}
+		if (context == null) return "Error.";
 
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 

@@ -69,7 +69,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="preordered"
-			android:text="@string/collection_status_want_preordered"/>
+			android:text="@string/collection_status_preordered"/>
 
 		<CheckBox
 			android:id="@+id/wishlist"

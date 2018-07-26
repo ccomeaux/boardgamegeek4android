@@ -38,14 +38,18 @@
 	<string name="pref_sync_statuses">Collection</string>
 	<string name="pref_sync_buddies">GeekBuddies</string>
 	<string name="pref_sync_plays">Plays</string>
+	<string name="pref_sync_upload">Show upload notifications</string>
 	<string name="pref_sync_notifications">Show progress notifications</string>
 	<string name="pref_sync_errors">Show error notifications</string>
 	<string name="pref_sync_only_charging">Only while charging</string>
 	<string name="pref_sync_only_wifi">Only on WiFi</string>
-	<string name="pref_sync_accounts">Accounts</string>
+	<string name="pref_account">Account</string>
+	<string name="pref_sync_accounts">System Account</string>
+	<string name="pref_sync_sign_in">Sign in</string>
 	<string name="pref_sync_sign_out">Sign out</string>
 	<string name="pref_sync_sign_out_pos">Sign out</string>
-	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out?</string>
+	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out? Data you have synced to this device will be deleted.</string>
+	<string name="pref_data">Data</string>
 	<string name="pref_sync_clear">Clear local data</string>
 	<string name="pref_sync_clear_pos">Clear</string>
 	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed, but you can always re-sync.</string>
@@ -95,16 +99,6 @@
 	<string name="pref_about_google_plus_community">Google+ Community</string>
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_thread">BoardGameGeek Thread</string>
-
-	<string name="define_int_AutoValue"></string>
-	<string name="library_AutoValue_author">Google</string>
-	<string name="library_AutoValue_authorWebsite">https://github.com/google</string>
-	<string name="library_AutoValue_libraryName">AutoValue</string>
-	<string name="library_AutoValue_libraryDescription">Generated immutable value classes for Java 1.6+.</string>
-	<string name="library_AutoValue_libraryVersion">1.4</string>
-	<string name="library_AutoValue_licenseId">apache_2_0</string>
-	<string name="library_AutoValue_isOpenSource">true</string>
-	<string name="library_AutoValue_repositoryLink">https://github.com/google/auto</string>
 
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>

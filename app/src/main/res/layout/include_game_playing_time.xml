@@ -9,12 +9,12 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_play_time"
+		android:id="@+id/playTimeIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_time"/>
 
 	<TextView
-		android:id="@+id/play_time"
+		android:id="@+id/playTimeView"
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
 		android:gravity="center_vertical"

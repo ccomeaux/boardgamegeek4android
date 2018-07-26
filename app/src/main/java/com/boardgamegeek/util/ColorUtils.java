@@ -14,10 +14,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.lzyzsd.randomcolor.RandomColor;
-import com.github.lzyzsd.randomcolor.RandomColor.Luminosity;
-import com.github.lzyzsd.randomcolor.RandomColor.SaturationType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -53,6 +49,10 @@ public class ColorUtils {
 	private static final int GOLD = 0xFFFFD700;
 
 	private ColorUtils() {
+	}
+
+	public static boolean isKnownColor(String color) {
+		return colorNameMap.containsKey(formatKey(color));
 	}
 
 	/**
@@ -91,14 +91,6 @@ public class ColorUtils {
 	public static int getRatingColor(double rating) {
 		int baseRating = MathUtils.constrain((int) rating, 0, 10);
 		return blendColors(RATING_COLORS[baseRating], RATING_COLORS[baseRating + 1], baseRating + 1 - rating);
-	}
-
-	/**
-	 * Returns a color based on the stage (1 - 5) using a proportional blend for any decimal places.
-	 */
-	public static int getFiveStageColor(double stage) {
-		int baseStage = MathUtils.constrain((int) stage, 1, 5);
-		return blendColors(FIVE_STAGE_COLORS[baseStage], FIVE_STAGE_COLORS[baseStage + 1], baseStage + 1 - stage);
 	}
 
 	/**
@@ -275,38 +267,10 @@ public class ColorUtils {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
 	}
 
-	public static final int[] FIVE_STAGE_COLORS = {
-		0xFF249563,
-		0xFF2FC482,
-		0xFF1D8ACD,
-		0xFF5369A2,
-		0xFFDF4751,
-		0x00ffffff
-		// 0xFFDB303B - alternate red color
-	};
-
-	/**
-	 * Create an array of random, but light, colors
-	 */
-	public static int[] createColors(int count) {
-		RandomColor r = new RandomColor();
-		int[] colors = new int[count];
-
-		for (int i = 0; i < count; ++i) {
-			colors[i] = r.randomColor(0, SaturationType.RANDOM, Luminosity.LIGHT);
-		}
-
-		return colors;
-	}
-
 	@ColorInt
 	public static int getTextColor(int backgroundColor) {
-		if (backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor)) {
-			return Color.WHITE;
-		} else {
-			return Color.BLACK;
-		}
+		return backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
+			Color.WHITE :
+			Color.BLACK;
 	}
-
-
 }

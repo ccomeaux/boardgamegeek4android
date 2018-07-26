@@ -6,8 +6,9 @@
 	<dimen name="padding_half">4dp</dimen>
 	<dimen name="padding_standard">8dp</dimen>
 	<dimen name="padding_extra">16dp</dimen>
+	<dimen name="padding_mid_wide">32dp</dimen>
 	<dimen name="padding_fab">16dp</dimen>
-	<dimen name="fab_buffer">72dp</dimen>
+	<dimen name="fab_buffer">80dp</dimen>
 	<dimen name="fab_elevation">6dp</dimen>
 	<dimen name="fab_translation">12dp</dimen>
 	<dimen name="poll_row_height">24dp</dimen>
@@ -58,5 +59,7 @@
 	<dimen name="pad_button_size">48dp</dimen>
 	<dimen name="dialog_width">320dp</dimen>
 	<dimen name="progress_bar_height">8dp</dimen>
+	<dimen name="material_progress_bar_height">4dp</dimen>
+	<dimen name="material_progress_bar_unclipped_height">24dp</dimen>
 
 </resources>

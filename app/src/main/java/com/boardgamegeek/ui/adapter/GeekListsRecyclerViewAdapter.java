@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,7 +10,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.ui.GeekListActivity;
 import com.boardgamegeek.ui.model.PaginatedData;
-import com.boardgamegeek.util.ActivityUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,11 +45,7 @@ public class GeekListsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<G
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Context context = v.getContext();
-					Intent intent = new Intent(context, GeekListActivity.class);
-					intent.putExtra(ActivityUtils.KEY_ID, geekListEntry.getId());
-					intent.putExtra(ActivityUtils.KEY_TITLE, geekListEntry.getTitle());
-					context.startActivity(intent);
+					GeekListActivity.start(v.getContext(), geekListEntry.getId(), geekListEntry.getTitle());
 				}
 			});
 		}

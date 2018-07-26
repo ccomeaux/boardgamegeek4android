@@ -1,10 +1,12 @@
 package com.boardgamegeek.tasks;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -28,14 +30,14 @@ import timber.log.Timber;
 public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	private static final String SELECTION = "play_players." + PlayPlayers.NAME + "=? AND (" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL)";
 
-	private final Context context;
+	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final String oldName;
 	private final String newName;
 	private final long startTime;
 	private final ArrayList<ContentProviderOperation> batch;
 
-	public RenamePlayerTask(Context context, String oldName, String newName) {
-		this.context = (context == null ? null : context.getApplicationContext());
+	public RenamePlayerTask(@Nullable Context context, String oldName, String newName) {
+		this.context = context == null ? null : context.getApplicationContext();
 		this.oldName = oldName;
 		this.newName = newName;
 		startTime = System.currentTimeMillis();
@@ -59,6 +61,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private void updatePlays() {
+		if (context == null) return;
 		List<Long> internalIds = ResolverUtils.queryLongs(context.getContentResolver(),
 			Plays.buildPlayersByPlayUri(),
 			Plays._ID,
@@ -88,6 +91,7 @@ public class RenamePlayerTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private void updateColors() {
+		if (context == null) return;
 		Cursor cursor = context.getContentResolver().query(PlayerColors.buildPlayerUri(oldName),
 			new String[] { PlayerColors.PLAYER_COLOR, PlayerColors.PLAYER_COLOR_SORT_ORDER },
 			null, null, null);

@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.model.Play.Subtype;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -64,14 +63,8 @@ public class PlayPersister {
 						save(play, BggContract.INVALID_ID, true);
 						insertCount++;
 					} else {
-						if (candidate.getDirtyTimestamp() > 0) {
-							Timber.i("Not saving during the sync; modification in progress.");
-							dirtyCount++;
-						} else if (candidate.getDeleteTimestamp() > 0) {
-							Timber.i("Not saving during the sync; set to delete.");
-							dirtyCount++;
-						} else if (candidate.getUpdateTimestamp() > 0) {
-							Timber.i("Not saving during the sync; set to update.");
+						if (candidate.isDirty()) {
+							Timber.i("Not saving during the sync; local play is modified.");
 							dirtyCount++;
 						} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
 							updateSyncTimestamp(candidate.getInternalId(), startTime);
@@ -141,25 +134,22 @@ public class PlayPersister {
 		if (insertedId == BggContract.INVALID_ID && results != null && results.length > 0) {
 			insertedId = StringUtils.parseLong(results[0].uri.getLastPathSegment(), BggContract.INVALID_ID);
 		}
-		Timber.i("Saved play ID=%s", insertedId);
+		Timber.i("Saved play _ID=%s", insertedId);
 		return insertedId;
 	}
 
 	private void updateSyncTimestamp(long internalId, long startTime) {
-		batch.clear();
-		ContentProviderOperation.Builder builder = ContentProviderOperation
-			.newUpdate(Plays.buildPlayUri(internalId))
-			.withValue(Plays.SYNC_TIMESTAMP, startTime);
-		batch.add(builder.build());
-		ResolverUtils.applyBatch(context, batch);
+		ContentValues values = new ContentValues(1);
+		values.put(Plays.SYNC_TIMESTAMP, startTime);
+		resolver.update(Plays.buildPlayUri(internalId), values, null, null);
 	}
 
 	private boolean isBoardgameSubtype(Play play) {
 		if (play.subtypes == null || play.subtypes.isEmpty()) {
 			return true;
 		}
-		for (Subtype subtype : play.subtypes) {
-			if (subtype.value.startsWith("boardgame")) {
+		for (String subtype : play.subtypes) {
+			if (subtype.startsWith("boardgame")) {
 				return true;
 			}
 		}
@@ -168,23 +158,23 @@ public class PlayPersister {
 
 	private static int generateSyncHashCode(Play play) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(play.getDate()).append("\n");
+		sb.append(play.getDateForDatabase()).append("\n");
 		sb.append(play.quantity).append("\n");
 		sb.append(play.length).append("\n");
-		sb.append(play.Incomplete()).append("\n");
-		sb.append(play.NoWinStats()).append("\n");
+		sb.append(play.incomplete).append("\n");
+		sb.append(play.noWinStats).append("\n");
 		sb.append(play.location).append("\n");
 		sb.append(play.comments).append("\n");
 		for (Player player : play.getPlayers()) {
 			sb.append(player.username).append("\n");
-			sb.append(player.userid).append("\n");
+			sb.append(player.userId).append("\n");
 			sb.append(player.name).append("\n");
-			sb.append(player.startposition).append("\n");
+			sb.append(player.getStartingPosition()).append("\n");
 			sb.append(player.color).append("\n");
 			sb.append(player.score).append("\n");
-			sb.append(player.New()).append("\n");
+			sb.append(player.isNew).append("\n");
 			sb.append(player.rating).append("\n");
-			sb.append(player.Win()).append("\n");
+			sb.append(player.isWin).append("\n");
 		}
 		return sb.toString().hashCode();
 	}
@@ -192,13 +182,13 @@ public class PlayPersister {
 	private static ContentValues createContentValues(Play play) {
 		ContentValues values = new ContentValues();
 		values.put(Plays.PLAY_ID, play.playId);
-		values.put(Plays.DATE, play.getDate());
+		values.put(Plays.DATE, play.getDateForDatabase());
 		values.put(Plays.ITEM_NAME, play.gameName);
 		values.put(Plays.OBJECT_ID, play.gameId);
 		values.put(Plays.QUANTITY, play.quantity);
 		values.put(Plays.LENGTH, play.length);
-		values.put(Plays.INCOMPLETE, play.Incomplete());
-		values.put(Plays.NO_WIN_STATS, play.NoWinStats());
+		values.put(Plays.INCOMPLETE, play.incomplete);
+		values.put(Plays.NO_WIN_STATS, play.noWinStats);
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
 		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
@@ -256,15 +246,15 @@ public class PlayPersister {
 		for (Player player : play.getPlayers()) {
 			String userName = player.username;
 			ContentValues values = new ContentValues();
-			values.put(PlayPlayers.USER_ID, player.userid);
+			values.put(PlayPlayers.USER_ID, player.userId);
 			values.put(PlayPlayers.USER_NAME, userName);
 			values.put(PlayPlayers.NAME, player.name);
 			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
 			values.put(PlayPlayers.COLOR, player.color);
 			values.put(PlayPlayers.SCORE, player.score);
-			values.put(PlayPlayers.NEW, player.New());
+			values.put(PlayPlayers.NEW, player.isNew);
 			values.put(PlayPlayers.RATING, player.rating);
-			values.put(PlayPlayers.WIN, player.Win());
+			values.put(PlayPlayers.WIN, player.isWin);
 
 			if (playerUserNames != null && playerUserNames.remove(userName)) {
 				batch.add(ContentProviderOperation
@@ -375,18 +365,8 @@ public class PlayPersister {
 			}
 
 			@Override
-			public long getDeleteTimestamp() {
-				return 0;
-			}
-
-			@Override
-			public long getDirtyTimestamp() {
-				return 0;
-			}
-
-			@Override
-			public long getUpdateTimestamp() {
-				return 0;
+			public boolean isDirty() {
+				return false;
 			}
 		};
 
@@ -439,16 +419,8 @@ public class PlayPersister {
 			return syncHashCode;
 		}
 
-		public long getDeleteTimestamp() {
-			return deleteTimestamp;
-		}
-
-		public long getUpdateTimestamp() {
-			return updateTimestamp;
-		}
-
-		public long getDirtyTimestamp() {
-			return dirtyTimestamp;
+		public boolean isDirty() {
+			return dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0;
 		}
 	}
 }

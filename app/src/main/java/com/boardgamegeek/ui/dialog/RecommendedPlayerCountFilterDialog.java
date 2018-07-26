@@ -83,9 +83,10 @@ public class RecommendedPlayerCountFilterDialog implements CollectionFilterDialo
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (listener != null) {
-						int playerCount = seekBar.getProgress() + 1;
-						int recommendation = bestButton.isChecked() ? RecommendedPlayerCountFilterer.BEST : RecommendedPlayerCountFilterer.RECOMMENDED;
-						listener.addFilter(new RecommendedPlayerCountFilterer(context, playerCount, recommendation));
+						final RecommendedPlayerCountFilterer filterer = new RecommendedPlayerCountFilterer(context);
+						filterer.setPlayerCount(seekBar.getProgress() + 1);
+						filterer.setRecommendation(bestButton.isChecked() ? RecommendedPlayerCountFilterer.BEST : RecommendedPlayerCountFilterer.RECOMMENDED);
+						listener.addFilter(filterer);
 					}
 				}
 			})

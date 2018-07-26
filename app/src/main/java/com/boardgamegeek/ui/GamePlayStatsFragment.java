@@ -1,12 +1,14 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -32,16 +34,15 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.widget.IntegerYAxisValueFormatter;
 import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.MathUtils;
@@ -49,9 +50,10 @@ import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.github.mikephil.charting.animation.Easing.EasingOption;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -83,6 +85,8 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int gameId;
@@ -126,31 +130,49 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}) List<ImageView> colorizedIcons;
 
 	private Transition playerTransition;
-	private int headerColor;
+	@ColorInt private int headerColor;
+	@ColorInt private int[] playCountColors;
+	private int[] bggColors;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		Uri uri = intent.getData();
-		gameId = Games.getGameId(uri);
-		headerColor = intent.getIntExtra(ActivityUtils.KEY_HEADER_COLOR, R.color.accent);
+	public static GamePlayStatsFragment newInstance(int gameId, @ColorInt int headerColor) {
+		Bundle args = new Bundle();
+		args.putInt(KEY_GAME_ID, gameId);
+		args.putInt(KEY_HEADER_COLOR, headerColor);
+		GamePlayStatsFragment fragment = new GamePlayStatsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		readBundle(getArguments());
+
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.rgbTextViewSetter, headerColor);
-		ButterKnife.apply(colorizedIcons, PaletteUtils.rgbIconSetter, headerColor);
+		if (headerColor != Color.TRANSPARENT) {
+			ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), headerColor);
+			ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), headerColor);
+		}
 
-		playCountChart.setDrawGridBackground(false);
-		playCountChart.getAxisRight().setValueFormatter(new IntegerYAxisValueFormatter());
-		playCountChart.getAxisLeft().setEnabled(false);
-		playCountChart.getXAxis().setDrawGridLines(false);
+		if (getContext() != null) {
+			bggColors = new int[] {
+				ContextCompat.getColor(getContext(), R.color.orange),
+				ContextCompat.getColor(getContext(), R.color.dark_blue),
+				ContextCompat.getColor(getContext(), R.color.light_blue)
+			};
+		}
+
 		playCountChart.setDescription(null);
+		playCountChart.setDrawGridBackground(false);
+		playCountChart.getAxisLeft().setEnabled(false);
+
+		YAxis yAxis = playCountChart.getAxisRight();
+		yAxis.setGranularity(1.0f);
+
+		XAxis xAxis = playCountChart.getXAxis();
+		xAxis.setGranularity(1.0f);
+		xAxis.setDrawGridLines(false);
 
 		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
 			playerTransition = new AutoTransition();
@@ -159,6 +181,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		return rootView;
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		headerColor = bundle.getInt(KEY_HEADER_COLOR, getResources().getColor(R.color.accent));
 	}
 
 	@Override
@@ -175,20 +203,21 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		if (getContext() == null) return null;
 		CursorLoader loader = null;
 		String playSelection = Plays.OBJECT_ID + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
 		String[] selectionArgs = { String.valueOf(gameId) };
 		switch (id) {
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", selectionArgs, null);
+				loader = new CursorLoader(getContext(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", selectionArgs, null);
 				loader.setUpdateThrottle(5000);
 				break;
 			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlayQuery.PROJECTION, playSelection, selectionArgs, Plays.DATE + " ASC");
+				loader = new CursorLoader(getContext(), Plays.CONTENT_URI, PlayQuery.PROJECTION, playSelection, selectionArgs, Plays.DATE + " ASC");
 				loader.setUpdateThrottle(5000);
 				break;
 			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayersUri(), PlayerQuery.PROJECTION, playSelection, selectionArgs, null);
+				loader = new CursorLoader(getContext(), Plays.buildPlayersUri(), PlayerQuery.PROJECTION, playSelection, selectionArgs, null);
 				loader.setUpdateThrottle(5000);
 				break;
 		}
@@ -202,11 +231,21 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		int token = loader.getId();
 		switch (token) {
 			case GameQuery._TOKEN:
+				playCountColors = bggColors;
 				if (cursor == null || !cursor.moveToFirst()) {
 					playingTime = 0;
 					personalRating = 0.0;
 					gameOwned = false;
 				} else {
+					final int winsColor = cursor.getInt(GameQuery.WINS_COLOR);
+					final int winnablePlaysColor = cursor.getInt(GameQuery.WINNABLE_PLAYS_COLOR);
+					final int allPlaysColor = cursor.getInt(GameQuery.ALL_PLAYS_COLOR);
+					playCountColors = new int[] {
+						winsColor == Color.TRANSPARENT ? bggColors[0] : winsColor,
+						winnablePlaysColor,
+						allPlaysColor
+					};
+
 					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
 					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
 					double ratingSum = 0;
@@ -275,34 +314,30 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
 		}
 
-		ArrayList<String> playersLabels = new ArrayList<>();
 		ArrayList<BarEntry> playCountValues = new ArrayList<>();
-		ArrayList<BarEntry> winValues = new ArrayList<>();
-		int index = 0;
 		for (int i = stats.getMinPlayerCount(); i <= stats.getMaxPlayerCount(); i++) {
-			playersLabels.add(String.valueOf(i));
-			playCountValues.add(new BarEntry(new float[] { stats.getWinnablePlayCount(i), stats.getPlayCount(i) - stats.getWinnablePlayCount(i) }, index));
-			winValues.add(new BarEntry(stats.getWinCount(i), index));
-			index++;
+			final int winnablePlayCount = stats.getWinnablePlayCount(i);
+			final int wins = stats.getWinCount(i);
+			final int playCount = stats.getPlayCount(i);
+			playCountValues.add(new BarEntry(i, new float[] { wins, winnablePlayCount - wins, playCount - winnablePlayCount }));
 		}
-		ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+		if (playCountValues.size() > 0) {
+			BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
+			playCountDataSet.setDrawValues(false);
+			playCountDataSet.setHighlightEnabled(false);
+			playCountDataSet.setColors(playCountColors == null ? bggColors : playCountColors);
+			playCountDataSet.setStackLabels(new String[] { getString(R.string.title_wins), getString(R.string.winnable), getString(R.string.all) });
 
-		BarDataSet playCountDataSet = new BarDataSet(playCountValues, getString(R.string.title_plays));
-		playCountDataSet.setDrawValues(false);
-		playCountDataSet.setHighlightEnabled(false);
-		playCountDataSet.setColors(new int[] { ContextCompat.getColor(getContext(), R.color.dark_blue), ContextCompat.getColor(getContext(), R.color.light_blue) });
-		playCountDataSet.setStackLabels(new String[] { getString(R.string.winnable), getString(R.string.all) });
-		dataSets.add(playCountDataSet);
+			ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+			dataSets.add(playCountDataSet);
 
-		BarDataSet winsDataSet = new BarDataSet(winValues, getString(R.string.title_wins));
-		winsDataSet.setDrawValues(false);
-		winsDataSet.setHighlightEnabled(false);
-		winsDataSet.setColor(ContextCompat.getColor(getContext(), R.color.orange));
-		dataSets.add(winsDataSet);
-
-		BarData data = new BarData(playersLabels, dataSets);
-		playCountChart.setData(data);
-		playCountChart.animateY(1000, EasingOption.EaseInOutBack);
+			BarData data = new BarData(dataSets);
+			playCountChart.setData(data);
+			playCountChart.animateY(1000, EasingOption.EaseInOutBack);
+			playCountChart.setVisibility(View.VISIBLE);
+		} else {
+			playCountChart.setVisibility(View.GONE);
+		}
 
 		if (stats.hasScores()) {
 			lowScoreView.setText(SCORE_FORMAT.format(stats.getLowScore()));
@@ -445,6 +480,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.score_help)
 	public void onScoreHelpClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_scores).setView(R.layout.dialog_help_score);
 		builder.show();
@@ -452,6 +488,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.low_score)
 	public void onLowScoreClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_low_scorers).setMessage(stats.getLowScorers());
 		builder.show();
@@ -459,6 +496,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.high_score)
 	public void onHighScoreClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_high_scorers).setMessage(stats.getHighScorers());
 		builder.show();
@@ -466,6 +504,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@OnClick(R.id.players_skill_help)
 	public void onPlayersClick() {
+		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(R.string.title_players_skill).setMessage(R.string.player_skill_info);
 		builder.show();
@@ -713,9 +752,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				for (PlayerModel player : play.getPlayers()) {
 					if (!TextUtils.isEmpty(player.getUniqueName())) {
 						PlayerStats playerStats = this.playerStats.get(player.getUniqueName());
-						if (playerStats == null) {
-							playerStats = new PlayerStats();
-						}
+						if (playerStats == null) playerStats = new PlayerStats();
 						playerStats.add(play, player);
 						this.playerStats.put(player.getUniqueName(), playerStats);
 					}
@@ -859,11 +896,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getPlayCount(int playerCount) {
-			PlayerStats ps = getPersonalStats();
-			if (ps != null) {
-				return ps.getPlayCountByPlayerCount(playerCount);
+			if (playCountPerPlayerCount.containsKey(playerCount)) {
+				return playCountPerPlayerCount.get(playerCount);
+			} else {
+				return 0;
 			}
-			return 0;
 		}
 
 		private PlayerStats getPersonalStats() {
@@ -979,7 +1016,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			if (playCount >= hIndex) {
 				return -1;
 			} else {
-				return hIndex - playCount + 1;
+				return hIndex - playCount;
 			}
 		}
 
@@ -1166,9 +1203,20 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	private interface GameQuery {
 		int _TOKEN = 0x02;
-		String[] PROJECTION = { Games._ID, Collection.RATING, Games.PLAYING_TIME, Collection.STATUS_OWN };
+		String[] PROJECTION = {
+			Games._ID,
+			Collection.RATING,
+			Games.PLAYING_TIME,
+			Collection.STATUS_OWN,
+			Games.WINS_COLOR,
+			Games.WINNABLE_PLAYS_COLOR,
+			Games.ALL_PLAYS_COLOR
+		};
 		int RATING = 1;
 		int PLAYING_TIME = 2;
 		int STATUS_OWN = 3;
+		int WINS_COLOR = 4;
+		int WINNABLE_PLAYS_COLOR = 5;
+		int ALL_PLAYS_COLOR = 6;
 	}
 }

@@ -1,22 +1,21 @@
 package com.boardgamegeek.model;
 
+import android.support.annotation.NonNull;
+
 import com.boardgamegeek.provider.BggContract;
-import com.google.gson.Gson;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 public class PlaySaveResponse extends PlayPostResponse {
-
 	private PlaySave playSave;
 
-	public PlaySaveResponse(OkHttpClient client, Request request) {
+	public PlaySaveResponse(@NonNull OkHttpClient client, @NonNull Request request) {
 		super(client, request);
 	}
 
 	@Override
 	protected void saveContent(String content) {
-		Gson gson = new Gson();
 		playSave = gson.fromJson(content, PlaySave.class);
 		error = playSave.error;
 	}

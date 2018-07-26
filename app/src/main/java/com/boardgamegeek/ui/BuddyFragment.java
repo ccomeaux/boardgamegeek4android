@@ -1,8 +1,10 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
@@ -36,15 +38,13 @@ import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,6 +60,9 @@ import icepick.State;
 import timber.log.Timber;
 
 public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+
 	private static final int PLAYS_TOKEN = 1;
 	private static final int COLORS_TOKEN = 2;
 	private static final int TOKEN = 0;
@@ -86,24 +89,32 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private int defaultTextColor;
 	private int lightTextColor;
 
+	public static BuddyFragment newInstance(String username, String playerName) {
+		Bundle args = new Bundle();
+		args.putString(KEY_BUDDY_NAME, username);
+		args.putString(KEY_PLAYER_NAME, playerName);
+
+		BuddyFragment fragment = new BuddyFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		buddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
-		playerName = intent.getStringExtra(ActivityUtils.KEY_PLAYER_NAME);
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		readBundle(getArguments());
+
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
 		unbinder = ButterKnife.bind(this, rootView);
@@ -134,6 +145,12 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
+	}
+
+	private void readBundle(@Nullable Bundle bundle) {
+		if (bundle == null) return;
+		buddyName = bundle.getString(KEY_BUDDY_NAME);
+		playerName = bundle.getString(KEY_PLAYER_NAME);
 	}
 
 	private boolean isUser() {
@@ -176,22 +193,23 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		if (getContext() == null) return null;
 		CursorLoader loader = null;
 		switch (id) {
 			case TOKEN:
-				loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
+				loader = new CursorLoader(getContext(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
 				break;
 			case PLAYS_TOKEN:
 				if (isUser()) {
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						Plays.buildPlayersByUniqueUserUri(),
 						Player.PROJECTION,
-						PlayPlayers.USER_NAME + "=?",
+						PlayPlayers.USER_NAME + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.NO_WIN_STATS),
 						new String[] { buddyName },
 						null);
 
 				} else {
-					loader = new CursorLoader(getActivity(),
+					loader = new CursorLoader(getContext(),
 						Plays.buildPlayersByUniquePlayerUri(),
 						Player.PROJECTION,
 						"(" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL) AND play_players." + PlayPlayers.NAME + "=?",
@@ -200,10 +218,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				}
 				break;
 			case COLORS_TOKEN:
-				loader = new CursorLoader(getActivity(),
-					isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName),
-					PlayerColor.PROJECTION,
-					null, null, null);
+				if (!TextUtils.isEmpty(buddyName) || !TextUtils.isEmpty(playerName)) {
+					Uri uri = isUser() ? PlayerColors.buildUserUri(buddyName) : PlayerColors.buildPlayerUri(playerName);
+					loader = new CursorLoader(getContext(),
+						uri,
+						PlayerColor.PROJECTION,
+						null, null, null);
+				}
 				break;
 		}
 		return loader;
@@ -212,9 +233,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@Override
 	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
 			case TOKEN:
@@ -250,32 +269,23 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@DebugLog
 	@OnClick(R.id.collection_root)
 	public void onCollectionClick() {
-		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		startActivity(intent);
+		BuddyCollectionActivity.start(getContext(), buddyName);
 	}
 
 	@DebugLog
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick() {
 		if (isUser()) {
-			Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
-			intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-			startActivity(intent);
+			BuddyPlaysActivity.start(getContext(), buddyName);
 		} else {
-			Intent intent = new Intent(getActivity(), PlayerPlaysActivity.class);
-			intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-			startActivity(intent);
+			PlayerPlaysActivity.start(getContext(), playerName);
 		}
 	}
 
 	@DebugLog
 	@OnClick(R.id.colors_root)
 	public void onColorsClick() {
-		Intent intent = new Intent(getActivity(), PlayerColorsActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
-		intent.putExtra(ActivityUtils.KEY_PLAYER_NAME, playerName);
-		startActivity(intent);
+		PlayerColorsActivity.start(getContext(), buddyName, playerName);
 	}
 
 	private void onBuddyQueryComplete(Cursor cursor) {
@@ -286,11 +296,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 		Buddy buddy = Buddy.fromCursor(cursor);
 
-		Picasso.with(getActivity())
-			.load(HttpUtils.ensureScheme(buddy.getAvatarUrl()))
-			.placeholder(R.drawable.person_image_empty)
-			.error(R.drawable.person_image_empty)
-			.fit().into(avatarView);
+		ImageUtils.loadThumbnail(avatarView, buddy.getAvatarUrl(), R.drawable.person_image_empty);
 		fullNameView.setText(buddy.getFullName());
 		usernameView.setText(buddyName);
 		if (TextUtils.isEmpty(buddy.getNickName())) {
@@ -314,7 +320,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		final int winCount = player.getWinCount();
 		if (playCount > 0 || winCount > 0) {
 			playsCard.setVisibility(View.VISIBLE);
-			playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.plays_suffix, playCount, playCount));
+			playsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.winnable_plays_suffix, playCount, playCount));
 			winsView.setText(PresentationUtils.getQuantityText(getContext(), R.plurals.wins_suffix, winCount, winCount));
 			winPercentageView.setText(getString(R.string.percentage, (int) ((double) winCount / playCount * 100)));
 		} else {
@@ -389,7 +395,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			@Override
 			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
 				if (!TextUtils.isEmpty(newNickname)) {
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(), username, newNickname, updatePlays);
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getContext(), username, newNickname, updatePlays);
 					TaskUtils.executeAsyncTask(task);
 					DataManipulationEvent.log("BuddyNickname", "Edit");
 				}

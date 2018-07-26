@@ -9,16 +9,20 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.model.PlaysResponse;
+import com.boardgamegeek.io.model.PlaysResponse;
+import com.boardgamegeek.mappers.PlayMapper;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask.CompletedEvent;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.TaskUtils;
+
+import java.util.List;
 
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
@@ -55,7 +59,9 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 	@Override
 	protected void persistResponse(PlaysResponse body) {
 		PlayPersister persister = new PlayPersister(context);
-		persister.save(body.plays, startTime);
+		PlayMapper mapper = new PlayMapper();
+		List<Play> plays = mapper.map(body.plays);
+		persister.save(plays, startTime);
 		Timber.i("Synced plays for game ID %s (page %,d)", gameId, getCurrentPage());
 	}
 
@@ -66,9 +72,10 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected void finishSync() {
+		if (context == null) return;
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
-		if (SyncService.isPlaysSyncUpToDate(context)) {
+		if (SyncPrefs.isPlaysSyncUpToDate(context)) {
 			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
 		}
 	}
