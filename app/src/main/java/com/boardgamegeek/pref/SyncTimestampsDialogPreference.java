@@ -50,12 +50,12 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 
 		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
 		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
-		if (oldestDate == 0 && newestDate == 0) {
+		if (oldestDate == Long.MAX_VALUE && newestDate == 0L) {
 			playsView.setText(R.string.plays_sync_status_none);
-		} else if (oldestDate == 0) {
+		} else if (oldestDate == 0L) {
 			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
 				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else if (newestDate == 0) {
+		} else if (newestDate == 0L) {
 			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_old),
 				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
 		} else {

@@ -6,6 +6,10 @@ Version 6.7
  * UI changes
  * Lots of under the hood improvements
 
+Version 6.6.6
+-------------
+ * Bug fixes
+
 Version 6.6.5
 -------------
  * Enable remote messages to be sent from the developers

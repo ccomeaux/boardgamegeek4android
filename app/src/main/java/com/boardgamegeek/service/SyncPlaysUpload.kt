@@ -107,44 +107,49 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
-                val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
-                val play = PlayBuilder.fromCursor(it)
-                val playerCursor = PlayBuilder.queryPlayers(context, internalId)
-                playerCursor?.use {
-                    PlayBuilder.addPlayers(it, play)
-                }
+                try {
+                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val play = PlayBuilder.fromCursor(it)
+                    val playerCursor = PlayBuilder.queryPlayers(context, internalId)
+                    playerCursor?.use {
+                        PlayBuilder.addPlayers(it, play)
+                    }
 
-                val response = postPlayUpdate(play)
-                if (response.hasAuthError()) {
-                    syncResult.stats.numAuthExceptions++
-                    Authenticator.clearPassword(context)
-                    break
-                } else if (response.hasInvalidIdError()) {
-                    syncResult.stats.numConflictDetectedExceptions++
-                    notifyUploadError(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId))
-                } else if (response.hasError()) {
-                    syncResult.stats.numIoExceptions++
-                    notifyUploadError(response.errorMessage)
-                } else if (response.playCount <= 0) {
-                    syncResult.stats.numIoExceptions++
-                    notifyUploadError(context.getString(R.string.msg_play_update_null_response))
-                } else {
-                    syncResult.stats.numUpdates++
-                    val message = if (play.playId > 0)
-                        PresentationUtils.getText(context, R.string.msg_play_updated)
-                    else
-                        PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.playCount, play.quantity))
+                    val response = postPlayUpdate(play)
+                    if (response.hasAuthError()) {
+                        syncResult.stats.numAuthExceptions++
+                        Authenticator.clearPassword(context)
+                        break
+                    } else if (response.hasInvalidIdError()) {
+                        syncResult.stats.numConflictDetectedExceptions++
+                        notifyUploadError(PresentationUtils.getText(context, R.string.msg_play_update_bad_id, play.playId))
+                    } else if (response.hasError()) {
+                        syncResult.stats.numIoExceptions++
+                        notifyUploadError(response.errorMessage)
+                    } else if (response.playCount <= 0) {
+                        syncResult.stats.numIoExceptions++
+                        notifyUploadError(context.getString(R.string.msg_play_update_null_response))
+                    } else {
+                        syncResult.stats.numUpdates++
+                        val message = if (play.playId > 0)
+                            PresentationUtils.getText(context, R.string.msg_play_updated)
+                        else
+                            PresentationUtils.getText(context, R.string.msg_play_added, getPlayCountDescription(response.playCount, play.quantity))
 
-                    play.playId = response.playId
-                    play.dirtyTimestamp = 0
-                    play.updateTimestamp = 0
-                    play.deleteTimestamp = 0
-                    currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
+                        play.playId = response.playId
+                        play.dirtyTimestamp = 0
+                        play.updateTimestamp = 0
+                        play.deleteTimestamp = 0
+                        currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
 
-                    notifyUser(play, message)
-                    persister.save(play, internalId, false)
+                        notifyUser(play, message)
+                        persister.save(play, internalId, false)
 
-                    updateGamePlayCount(play)
+                        updateGamePlayCount(play)
+                    }
+                } catch (e: Exception) {
+                    syncResult.stats.numParseExceptions++
+                    notifyUploadError(e.localizedMessage)
                 }
             }
         }
@@ -168,32 +173,37 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
-                val play = PlayBuilder.fromCursor(it)
-                val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
-                currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
-                if (play.playId > 0) {
-                    val response = postPlayDelete(play.playId)
-                    if (response.isSuccessful) {
+                try {
+                    val play = PlayBuilder.fromCursor(it)
+                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
+                    if (play.playId > 0) {
+                        val response = postPlayDelete(play.playId)
+                        if (response.isSuccessful) {
+                            syncResult.stats.numDeletes++
+                            deletePlay(internalId)
+                            updateGamePlayCount(play)
+                            notifyUserOfDelete(R.string.msg_play_deleted, play)
+                        } else if (response.hasInvalidIdError()) {
+                            syncResult.stats.numConflictDetectedExceptions++
+                            deletePlay(internalId)
+                            notifyUserOfDelete(R.string.msg_play_deleted, play)
+                        } else if (response.hasAuthError()) {
+                            syncResult.stats.numAuthExceptions++
+                            Authenticator.clearPassword(context)
+                            break
+                        } else {
+                            syncResult.stats.numIoExceptions++
+                            notifyUploadError(response.errorMessage)
+                        }
+                    } else {
                         syncResult.stats.numDeletes++
                         deletePlay(internalId)
-                        updateGamePlayCount(play)
-                        notifyUserOfDelete(R.string.msg_play_deleted, play)
-                    } else if (response.hasInvalidIdError()) {
-                        syncResult.stats.numConflictDetectedExceptions++
-                        deletePlay(internalId)
-                        notifyUserOfDelete(R.string.msg_play_deleted, play)
-                    } else if (response.hasAuthError()) {
-                        syncResult.stats.numAuthExceptions++
-                        Authenticator.clearPassword(context)
-                        break
-                    } else {
-                        syncResult.stats.numIoExceptions++
-                        notifyUploadError(response.errorMessage)
+                        notifyUserOfDelete(R.string.msg_play_deleted_draft, play)
                     }
-                } else {
-                    syncResult.stats.numDeletes++
-                    deletePlay(internalId)
-                    notifyUserOfDelete(R.string.msg_play_deleted_draft, play)
+                } catch (e: Exception) {
+                    syncResult.stats.numParseExceptions++
+                    notifyUploadError(e.localizedMessage)
                 }
             }
         }

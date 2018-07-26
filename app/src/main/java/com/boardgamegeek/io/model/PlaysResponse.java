@@ -9,9 +9,9 @@ public class PlaysResponse {
 	private static final int PAGE_SIZE = 100;
 
 	@Attribute(required = false) private String username;
-	@Attribute private int userid;
-	@Attribute private int total;
-	@Attribute private int page;
+	@Attribute(required = false) private int userid;
+	@Attribute(required = false) private int total;
+	@Attribute(required = false) private int page;
 	@ElementList(inline = true, required = false) public List<Play> plays;
 
 	public boolean hasMorePages() {
