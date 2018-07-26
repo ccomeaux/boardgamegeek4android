@@ -96,8 +96,7 @@ class SyncPlays(context: Context, service: BggService, syncResult: SyncResult, p
                     return true
                 }
             } catch (e: Exception) {
-                Timber.e(e, call.request().url().toString())
-                showError(message, (call.request()?.url()?.toString() ?: "") + "\n" + e.localizedMessage)
+                showError(message, e)
                 syncResult.stats.numIoExceptions++
                 return true
             }
