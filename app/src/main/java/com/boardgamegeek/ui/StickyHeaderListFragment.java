@@ -297,12 +297,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		}
 	}
 
-	protected void restoreScrollState() {
-		if (listViewStatePosition >= 0 && isAdded()) {
-			listView.getWrappedList().setSelectionFromTop(listViewStatePosition, listViewStateTop);
-		}
-	}
-
 	protected void resetScrollState() {
 		listViewStatePosition = 0;
 		listViewStateTop = -1;
@@ -354,20 +348,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 			}
 		}
 		focusHandler.post(listViewFocusRunnable);
-	}
-
-	protected void showFab(boolean show) {
-		ensureList();
-		if (show) {
-			fabView.show();
-		} else {
-			fabView.hide();
-		}
-	}
-
-	@OnClick(R.id.fab)
-	protected void onFabClicked() {
-		// convenience for overriding
 	}
 
 	protected boolean shouldPadForFab() {
