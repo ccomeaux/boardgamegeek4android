@@ -18,13 +18,14 @@ import com.boardgamegeek.events.BuddiesCountChangedEvent;
 import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.StringUtils;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
+import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -32,6 +33,9 @@ import com.boardgamegeek.util.PresentationUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,14 +50,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import timber.log.Timber;
 
 public class BuddiesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final int TOKEN = 0;
-	private static final String SORT_COLUMN = Buddies.BUDDY_LASTNAME;
 	private BuddiesAdapter adapter = null;
 	private boolean isSyncing = false;
-
 	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
@@ -66,7 +66,7 @@ public class BuddiesFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(0, getArguments(), this);
 	}
 
 	@Nullable
@@ -148,53 +148,44 @@ public class BuddiesFragment extends Fragment implements LoaderManager.LoaderCal
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
-		int token = loader.getId();
-		if (token == TOKEN) {
-			if (adapter == null) {
-				setListAdapter(new BuddiesAdapter(getActivity()));
-			}
-			adapter.changeCursor(cursor);
-			if (listView.getItemDecorationCount() != 0) {
-				listView.removeItemDecorationAt(0);
-			}
+		List<Buddy> buddies = new ArrayList<>();
+		if (cursor.moveToFirst()) {
+			do {
+				buddies.add(Buddy.fromCursor(cursor));
+			} while (cursor.moveToNext());
+		}
+
+		if (adapter == null) {
+			adapter = new BuddiesAdapter(getContext());
+			listView.setAdapter(adapter);
 			RecyclerSectionItemDecoration sectionItemDecoration =
 				new RecyclerSectionItemDecoration(
 					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
 					true,
-					getSectionCallback(adapter));
+					adapter);
 			listView.addItemDecoration(sectionItemDecoration);
-			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(cursor.getCount()));
-		} else {
-			Timber.d("Query complete, Not Actionable: %s", token);
-			cursor.close();
 		}
-	}
+		adapter.changeData(buddies);
 
-	private boolean isListShown = false;
+		EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(cursor.getCount()));
 
-	public void setListAdapter(BuddiesAdapter adapter) {
-		boolean hadAdapter = this.adapter != null;
-		this.adapter = adapter;
-		if (listView != null) {
-			listView.setAdapter(adapter);
-			if (!isListShown && !hadAdapter) {
-				// The list was hidden, and previously didn't have an adapter. It is now time to show it.
-				setListShown(listView.getWindowToken() != null);
-			}
-		}
+		progressBar.hide();
+		setListShown(listView.getWindowToken() != null);
 	}
 
 	private void setListShown(boolean animate) {
-		emptyContainer.setVisibility(View.GONE);
-		if (isListShown) return;
-		isListShown = true;
-		AnimationUtils.fadeIn(listContainer, animate);
-		progressBar.hide();
+		if (adapter.getItemCount() == 0) {
+			AnimationUtils.fadeOut(listContainer);
+			AnimationUtils.fadeIn(emptyContainer);
+		} else {
+			AnimationUtils.fadeOut(emptyContainer);
+			AnimationUtils.fadeIn(listContainer, animate);
+		}
 	}
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		adapter.changeCursor(null);
+		adapter.clear();
 	}
 
 	private void setEmptyText() {
@@ -215,55 +206,56 @@ public class BuddiesFragment extends Fragment implements LoaderManager.LoaderCal
 		}
 	}
 
-	public class BuddiesAdapter extends RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder> {
+	public class BuddiesAdapter extends RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder> implements SectionCallback {
 		private final LayoutInflater inflater;
-		private Cursor cursor;
+		private final List<Buddy> buddies = new ArrayList<>();
 
 		public BuddiesAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
 		}
 
-		public void changeCursor(Cursor cursor) {
-			this.cursor = cursor;
+		public void clear() {
+			this.buddies.clear();
+			notifyDataSetChanged();
+		}
+
+		public void changeData(@NonNull List<Buddy> buddies) {
+			this.buddies.clear();
+			this.buddies.addAll(buddies);
 			notifyDataSetChanged();
 		}
 
 		@Override
 		public int getItemCount() {
-			return cursor == null ? 0 : cursor.getCount();
+			return buddies == null ? 0 : buddies.size();
 		}
 
 		@NonNull
 		@Override
 		public BuddyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View row = inflater.inflate(R.layout.row_buddy, parent, false);
-			return new BuddyViewHolder(row);
+			return new BuddyViewHolder(inflater.inflate(R.layout.row_buddy, parent, false));
 		}
 
 		@Override
 		public void onBindViewHolder(@NonNull BuddyViewHolder holder, int position) {
-			if (cursor == null) return;
-			if (!cursor.moveToPosition(position)) return;
+			holder.bind(buddies.get(position));
 
-			final Buddy buddy = Buddy.fromCursor(cursor);
+		}
 
-			ImageUtils.loadThumbnail(holder.avatar, buddy.getAvatarUrl(), R.drawable.person_image_empty);
+		@Override
+		public boolean isSection(int position) {
+			if (buddies.size() == 0) return false;
+			if (position == 0) return true;
+			String thisLetter = StringUtils.firstChar(buddies.get(position).getLastName());
+			String lastLetter = StringUtils.firstChar(buddies.get(position - 1).getLastName());
+			return !thisLetter.equals(lastLetter);
+		}
 
-			if (TextUtils.isEmpty(buddy.getFullName())) {
-				holder.fullName.setText(buddy.getUserName());
-				holder.name.setVisibility(View.GONE);
-			} else {
-				holder.fullName.setText(buddy.getFullName());
-				holder.name.setVisibility(View.VISIBLE);
-				holder.name.setText(buddy.getUserName());
-			}
-
-			holder.itemView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					EventBus.getDefault().postSticky(new BuddySelectedEvent(buddy.getId(), buddy.getUserName(), buddy.getFullName()));
-				}
-			});
+		@NonNull
+		@Override
+		public CharSequence getSectionHeader(int position) {
+			if (buddies.size() == 0) return "-";
+			return StringUtils.firstChar(buddies.get(position).getLastName());
 		}
 
 		class BuddyViewHolder extends RecyclerView.ViewHolder {
@@ -275,25 +267,26 @@ public class BuddiesFragment extends Fragment implements LoaderManager.LoaderCal
 				super(view);
 				ButterKnife.bind(this, view);
 			}
+
+			public void bind(final Buddy buddy) {
+				ImageUtils.loadThumbnail(avatar, buddy.getAvatarUrl(), R.drawable.person_image_empty);
+
+				if (TextUtils.isEmpty(buddy.getFullName())) {
+					fullName.setText(buddy.getUserName());
+					name.setVisibility(View.GONE);
+				} else {
+					fullName.setText(buddy.getFullName());
+					name.setVisibility(View.VISIBLE);
+					name.setText(buddy.getUserName());
+				}
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						EventBus.getDefault().postSticky(new BuddySelectedEvent(buddy.getId(), buddy.getUserName(), buddy.getFullName()));
+					}
+				});
+			}
 		}
-	}
-
-	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final BuddiesAdapter adapter) {
-		return new RecyclerSectionItemDecoration.SectionCallback() {
-			@Override
-			public boolean isSection(int position) {
-				if (adapter == null || adapter.cursor == null) return false;
-				if (position == 0) return true;
-				Character thisLetter = CursorUtils.getFirstCharacter(adapter.cursor, position, SORT_COLUMN, "-").charAt(0);
-				Character lastLetter = CursorUtils.getFirstCharacter(adapter.cursor, position - 1, SORT_COLUMN, "-").charAt(0);
-				return thisLetter != lastLetter;
-			}
-
-			@Override
-			public CharSequence getSectionHeader(int position) {
-				if (adapter == null || adapter.cursor == null) return "-";
-				return CursorUtils.getFirstCharacter(adapter.cursor, position, SORT_COLUMN, "-").subSequence(0, 1);
-			}
-		};
 	}
 }

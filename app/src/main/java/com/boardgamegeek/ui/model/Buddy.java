@@ -64,6 +64,10 @@ public class Buddy {
 		return firstName;
 	}
 
+	public String getLastName() {
+		return lastName;
+	}
+
 	public String getFullName() {
 		return fullName;
 	}

@@ -20,6 +20,7 @@ import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
+import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.fabric.SortEvent;
 
@@ -40,17 +41,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import timber.log.Timber;
 
 public class LocationsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SORT_TYPE = "sortType";
-	private static final int TOKEN = 0;
 	private LocationsAdapter adapter;
 	private LocationsSorter sorter;
-	private boolean isListShown = false;
-	private final List<Location> locations = new ArrayList<>();
-
-	Unbinder unbinder;
+	private Unbinder unbinder;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
 	@BindView(android.R.id.list) RecyclerView listView;
@@ -115,7 +111,7 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 		if (sorter == null || sorter.getType() != sortType) {
 			SortEvent.log("Locations", String.valueOf(sortType));
 			sorter = LocationsSorterFactory.create(getContext(), sortType);
-			LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
+			LoaderManager.getInstance(this).restartLoader(0, getArguments(), this);
 		}
 	}
 
@@ -129,72 +125,64 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
-		int token = loader.getId();
-		if (token == TOKEN) {
-			setListAdapter(new LocationsAdapter(getActivity()));
+		List<Location> locations = new ArrayList<>();
+		if (cursor.moveToFirst()) {
+			do {
+				locations.add(Location.fromCursor(cursor));
+			} while (cursor.moveToNext());
+		}
 
-			locations.clear();
-			if (cursor.moveToFirst()) {
-				do {
-					locations.add(Location.fromCursor(cursor));
-				} while (cursor.moveToNext());
-			}
-
-			adapter.changeData(locations);
-
+		if (adapter == null) {
+			adapter = new LocationsAdapter(getContext());
+			listView.setAdapter(adapter);
 			RecyclerSectionItemDecoration sectionItemDecoration =
 				new RecyclerSectionItemDecoration(
 					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
 					true,
-					getSectionCallback(locations, sorter));
-			while (listView.getItemDecorationCount() > 0) {
-				listView.removeItemDecorationAt(0);
-			}
+					adapter);
 			listView.addItemDecoration(sectionItemDecoration);
-
-			EventBus.getDefault().postSticky(new LocationsCountChangedEvent(cursor.getCount()));
-			progressBar.hide();
-		} else {
-			Timber.d("Query complete, Not Actionable: %s", token);
-			cursor.close();
 		}
+		adapter.changeData(locations, sorter);
+
+		EventBus.getDefault().postSticky(new LocationsCountChangedEvent(cursor.getCount()));
+
+		progressBar.hide();
+		setListShown(listView.getWindowToken() != null);
 	}
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		if (adapter != null) adapter.changeData(null);
-	}
-
-	public void setListAdapter(LocationsAdapter adapter) {
-		boolean hadAdapter = this.adapter != null;
-		this.adapter = adapter;
-		if (listView != null) {
-			listView.setAdapter(adapter);
-			if (!isListShown && !hadAdapter) {
-				// The list was hidden, and previously didn't have an adapter. It is now time to show it.
-				setListShown(listView.getWindowToken() != null);
-			}
-		}
+		if (adapter != null) adapter.clear();
 	}
 
 	private void setListShown(boolean animate) {
-		emptyContainer.setVisibility(View.GONE);
-		if (isListShown) return;
-		isListShown = true;
-		AnimationUtils.fadeIn(listView, animate);
+		if (adapter.getItemCount() == 0) {
+			AnimationUtils.fadeOut(listView);
+			AnimationUtils.fadeIn(emptyContainer);
+		} else {
+			AnimationUtils.fadeOut(emptyContainer);
+			AnimationUtils.fadeIn(listView, animate);
+		}
 	}
 
-	public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder> {
+	public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder> implements SectionCallback {
 		private final LayoutInflater inflater;
 		private final List<Location> locations = new ArrayList<>();
+		private LocationsSorter sorter;
 
 		public LocationsAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
 		}
 
-		public void changeData(List<Location> locations) {
+		public void clear() {
+			this.locations.clear();
+			notifyDataSetChanged();
+		}
+
+		public void changeData(@NonNull List<Location> locations, LocationsSorter sorter) {
 			this.locations.clear();
 			this.locations.addAll(locations);
+			this.sorter = sorter;
 			notifyDataSetChanged();
 		}
 
@@ -211,9 +199,23 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 
 		@Override
 		public void onBindViewHolder(@NonNull LocationsViewHolder holder, int position) {
-			if (locations == null) return;
-			final Location location = locations.get(position);
-			holder.bind(location);
+			holder.bind(locations.get(position));
+		}
+
+		@Override
+		public boolean isSection(int position) {
+			if (locations.size() == 0) return false;
+			if (position == 0) return true;
+			String thisLetter = sorter.getSectionText(locations.get(position));
+			String lastLetter = sorter.getSectionText(locations.get(position - 1));
+			return !thisLetter.equals(lastLetter);
+		}
+
+		@NonNull
+		@Override
+		public CharSequence getSectionHeader(int position) {
+			if (locations.size() == 0) return "-";
+			return sorter.getSectionText(locations.get(position));
 		}
 
 		class LocationsViewHolder extends RecyclerView.ViewHolder {
@@ -241,25 +243,5 @@ public class LocationsFragment extends Fragment implements LoaderManager.LoaderC
 				});
 			}
 		}
-	}
-
-	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<Location> locations, final LocationsSorter sorter) {
-		return new RecyclerSectionItemDecoration.SectionCallback() {
-			@Override
-			public boolean isSection(int position) {
-				if (locations == null || locations.size() == 0) return false;
-				if (position == 0) return true;
-				String thisLetter = sorter.getSectionText(locations.get(position));
-				String lastLetter = sorter.getSectionText(locations.get(position - 1));
-				return !thisLetter.equals(lastLetter);
-			}
-
-			@NonNull
-			@Override
-			public CharSequence getSectionHeader(int position) {
-				if (locations == null || locations.size() == 0) return "-";
-				return sorter.getSectionText(locations.get(position));
-			}
-		};
 	}
 }

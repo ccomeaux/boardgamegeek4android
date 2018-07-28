@@ -18,6 +18,7 @@ import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
+import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -40,21 +41,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import timber.log.Timber;
 
 public class PlayersFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SORT_TYPE = "sortType";
-	private static final int TOKEN = 0;
 	private PlayersAdapter adapter;
 	private PlayersSorter sorter;
-
-	private boolean isListShown = false;
-	private final List<Player> players = new ArrayList<>();
-
-	Unbinder unbinder;
+	private Unbinder unbinder;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
-	@BindView(R.id.list_container) View listContainer;
 	@BindView(android.R.id.list) RecyclerView listView;
 
 	@Nullable
@@ -103,10 +97,11 @@ public class PlayersFragment extends Fragment implements LoaderManager.LoaderCal
 		if (sorter == null || sorter.getType() != sortType) {
 			SortEvent.log("Players", String.valueOf(sortType));
 			sorter = PlayersSorterFactory.create(getContext(), sortType);
-			LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
+			LoaderManager.getInstance(this).restartLoader(0, getArguments(), this);
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getContext(),
@@ -118,75 +113,69 @@ public class PlayersFragment extends Fragment implements LoaderManager.LoaderCal
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
-		int token = loader.getId();
-		if (token == TOKEN) {
-			setListAdapter(new PlayersAdapter(getContext()));
+		List<Player> players = new ArrayList<>();
+		if (cursor.moveToFirst()) {
+			do {
+				players.add(Player.fromCursor(cursor));
+			} while (cursor.moveToNext());
+		}
 
-			players.clear();
-			if (cursor.moveToFirst()) {
-				do {
-					players.add(Player.fromCursor(cursor));
-				} while (cursor.moveToNext());
-			}
-
-			adapter.changeData(players);
-
+		if (adapter == null) {
+			adapter = new PlayersAdapter(getContext());
+			listView.setAdapter(adapter);
 			RecyclerSectionItemDecoration sectionItemDecoration =
 				new RecyclerSectionItemDecoration(
 					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
 					true,
-					getSectionCallback(players, sorter));
-			while (listView.getItemDecorationCount() > 0) {
-				listView.removeItemDecorationAt(0);
-			}
+					adapter);
 			listView.addItemDecoration(sectionItemDecoration);
-
-			EventBus.getDefault().postSticky(new PlayersCountChangedEvent(cursor.getCount()));
-			progressBar.hide();
-		} else {
-			Timber.d("Query complete, Not Actionable: %s", token);
-			cursor.close();
 		}
+
+		adapter.changeData(players, sorter);
+
+		EventBus.getDefault().postSticky(new PlayersCountChangedEvent(cursor.getCount()));
+
+		progressBar.hide();
+		setListShown(listView.getWindowToken() != null);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.changeData(null);
-	}
-
-	public void setListAdapter(PlayersAdapter adapter) {
-		boolean hadAdapter = this.adapter != null;
-		this.adapter = adapter;
-		if (listView != null) {
-			listView.setAdapter(adapter);
-			if (!isListShown && !hadAdapter) {
-				// The list was hidden, and previously didn't have an adapter. It is now time to show it.
-				setListShown(listView.getWindowToken() != null);
-			}
-		}
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		if (adapter != null) adapter.clear();
 	}
 
 	private void setListShown(boolean animate) {
-		emptyContainer.setVisibility(View.GONE);
-		if (isListShown) return;
-		isListShown = true;
-		AnimationUtils.fadeIn(listContainer, animate);
+		if (adapter.getItemCount() == 0) {
+			AnimationUtils.fadeOut(listView);
+			AnimationUtils.fadeIn(emptyContainer);
+		} else {
+			AnimationUtils.fadeOut(emptyContainer);
+			AnimationUtils.fadeIn(listView, animate);
+		}
 	}
 
-	public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHolder> {
+	public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHolder> implements SectionCallback {
 		private final LayoutInflater inflater;
-		private List<Player> players;
+		private final List<Player> players = new ArrayList<>();
+		private PlayersSorter sorter;
 
 		@DebugLog
 		public PlayersAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
 		}
 
-		public void changeData(List<Player> players) {
-			this.players = players;
+		public void clear() {
+			this.players.clear();
+			notifyDataSetChanged();
+		}
+
+		public void changeData(@NonNull List<Player> players, PlayersSorter sorter) {
+			this.players.clear();
+			this.players.addAll(players);
+			this.sorter = sorter;
 			notifyDataSetChanged();
 		}
 
@@ -195,16 +184,31 @@ public class PlayersFragment extends Fragment implements LoaderManager.LoaderCal
 			return players == null ? 0 : players.size();
 		}
 
+		@NonNull
 		@Override
-		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			return new ViewHolder(inflater.inflate(R.layout.row_players_player, parent, false));
 		}
 
 		@Override
-		public void onBindViewHolder(ViewHolder holder, int position) {
-			if (players == null) return;
-			final Player player = players.get(position);
-			holder.bind(player);
+		public boolean isSection(int position) {
+			if (players.size() == 0) return false;
+			if (position == 0) return true;
+			String thisLetter = sorter.getSectionText(players.get(position));
+			String lastLetter = sorter.getSectionText(players.get(position - 1));
+			return !thisLetter.equals(lastLetter);
+		}
+
+		@NonNull
+		@Override
+		public CharSequence getSectionHeader(int position) {
+			if (players.size() == 0) return "-";
+			return sorter.getSectionText(players.get(position));
+		}
+
+		@Override
+		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+			holder.bind(players.get(position));
 		}
 
 		class ViewHolder extends RecyclerView.ViewHolder {
@@ -232,24 +236,5 @@ public class PlayersFragment extends Fragment implements LoaderManager.LoaderCal
 				});
 			}
 		}
-	}
-
-	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<Player> players, final PlayersSorter sorter) {
-		return new RecyclerSectionItemDecoration.SectionCallback() {
-			@Override
-			public boolean isSection(int position) {
-				if (players == null || players.size() == 0) return false;
-				if (position == 0) return true;
-				String thisLetter = sorter.getSectionText(players.get(position));
-				String lastLetter = sorter.getSectionText(players.get(position - 1));
-				return !thisLetter.equals(lastLetter);
-			}
-
-			@Override
-			public CharSequence getSectionHeader(int position) {
-				if (players == null || players.size() == 0) return "-";
-				return sorter.getSectionText(players.get(position));
-			}
-		};
 	}
 }
