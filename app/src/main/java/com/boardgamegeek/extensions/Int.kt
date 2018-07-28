@@ -183,13 +183,13 @@ fun Int.significantDigits(digits: Int): Int {
 }
 
 fun Int.orderOfMagnitude(): String {
-    val prefix = toString().substring(0, 1)
+    val digit = toString().substring(0, 1)
     val suffix = when {
-        this >= 10000 -> "0000+"
-        this >= 1000 -> "000+"
-        this >= 100 -> "00+"
-        this >= 10 -> "0+"
+        this >= 1000000000 -> "B"
+        this >= 1000000 -> "M"
+        this > 1000 -> "K"
         else -> ""
     }
-    return prefix + suffix
+    val zeros = (toString().length - 1) % 3
+    return digit + ("0".repeat(zeros)) + suffix + "+"
 }
