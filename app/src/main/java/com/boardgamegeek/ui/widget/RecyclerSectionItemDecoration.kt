@@ -1,3 +1,6 @@
+/**
+ * From: http://www.timothypaetz.com/recycler-view-headers/
+ */
 package com.boardgamegeek.ui.widget
 
 import android.graphics.Canvas
@@ -33,23 +36,25 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
 
         var previousHeader: CharSequence = ""
         for (i in 0 until parent.childCount) {
-            val child = parent.getChildAt(i)
+            val child = parent.getChildAt(i) ?: continue
+            val nextChild = parent.getChildAt(i + 1)
             val position = parent.getChildAdapterPosition(child)
+            val nextPosition = parent.getChildAdapterPosition(nextChild)
 
             val title = sectionCallback.getSectionHeader(position)
             header?.text = title
             if (previousHeader != title || sectionCallback.isSection(position)) {
-                drawHeader(c, child, headerView)
+                drawHeader(c, child, headerView, if (nextPosition != RecyclerView.NO_POSITION && sectionCallback.isSection(nextPosition)) nextChild else null)
                 previousHeader = title
             }
         }
     }
 
-    private fun drawHeader(c: Canvas, child: View, headerView: View?) {
+    private fun drawHeader(c: Canvas, child: View, headerView: View?, nextChild: View?) {
         if (headerView == null) return
         c.save()
         if (sticky) {
-            c.translate(0f, Math.max(0, child.top - headerView.height).toFloat())
+            c.translate(0f, Math.max(if (nextChild == null) 0 else Math.min(0, nextChild.top - headerView.height * 2), child.top - headerView.height).toFloat())
         } else {
             c.translate(0f, (child.top - headerView.height).toFloat())
         }
