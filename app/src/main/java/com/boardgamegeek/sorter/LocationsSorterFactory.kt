@@ -4,6 +4,7 @@ import android.content.Context
 
 class LocationsSorterFactory {
     companion object {
+        const val TYPE_UNKNOWN = 0
         const val TYPE_NAME = 1
         const val TYPE_QUANTITY = 2
         const val TYPE_DEFAULT = TYPE_NAME

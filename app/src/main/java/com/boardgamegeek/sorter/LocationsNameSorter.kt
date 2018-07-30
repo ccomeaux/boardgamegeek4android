@@ -19,7 +19,7 @@ class LocationsNameSorter(context: Context) : LocationsSorter(context) {
     override val columns: Array<String>
         get() = arrayOf(Plays.LOCATION)
 
-    override fun getSectionText(location: Location): String {
-        return location.name.firstChar()
+    override fun getSectionText(location: Location?): String {
+        return location?.name.firstChar()
     }
 }

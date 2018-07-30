@@ -33,7 +33,6 @@ public class LocationsActivity extends SimpleSinglePaneActivity {
 		}
 	}
 
-	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new LocationsFragment();

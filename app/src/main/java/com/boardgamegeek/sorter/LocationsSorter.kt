@@ -11,5 +11,5 @@ abstract class LocationsSorter(context: Context) : Sorter(context) {
     override val defaultSort: String
         get() = Plays.LOCATION + BggContract.COLLATE_NOCASE
 
-    abstract fun getSectionText(location: Location): String
+    abstract fun getSectionText(location: Location?): String
 }

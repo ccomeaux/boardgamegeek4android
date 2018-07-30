@@ -22,7 +22,7 @@ class LocationsQuantitySorter(context: Context) : LocationsSorter(context) {
     override val isSortDescending: Boolean
         get() = true
 
-    override fun getSectionText(location: Location): String {
-        return location.playCount.orderOfMagnitude()
+    override fun getSectionText(location: Location?): String {
+        return (location?.playCount ?: 0).orderOfMagnitude()
     }
 }
