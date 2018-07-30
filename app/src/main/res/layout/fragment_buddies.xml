@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+	android:id="@+id/swipeRefresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -10,26 +10,26 @@
 		android:layout_height="match_parent">
 
 		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-			android:id="@+id/progress"
+			android:id="@+id/progressBar"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
 			android:gravity="center"/>
 
-		<android.support.design.widget.CoordinatorLayout
-			android:id="@+id/list_container"
+		<androidx.coordinatorlayout.widget.CoordinatorLayout
+			android:id="@+id/listContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<android.support.v7.widget.RecyclerView
-				android:id="@android:id/list"
+			<androidx.recyclerview.widget.RecyclerView
+				android:id="@+id/recyclerView"
 				style="@style/RecyclerViewVerticalList.StickyHeader"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"/>
 
 			<LinearLayout
-				android:id="@+id/empty_container"
+				android:id="@+id/emptyContainer"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
@@ -40,7 +40,7 @@
 				android:paddingTop="@dimen/material_margin_vertical">
 
 				<TextView
-					android:id="@android:id/empty"
+					android:id="@+id/emptyTextView"
 					style="@style/Text.Empty"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 					android:text="@string/empty_buddies"/>
 
 				<Button
-					android:id="@+id/empty_button"
+					android:id="@+id/emptyButton"
 					style="@style/ColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -56,6 +56,6 @@
 					android:text="@string/sync"
 					android:visibility="gone"/>
 			</LinearLayout>
-		</android.support.design.widget.CoordinatorLayout>
+		</androidx.coordinatorlayout.widget.CoordinatorLayout>
 	</FrameLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
