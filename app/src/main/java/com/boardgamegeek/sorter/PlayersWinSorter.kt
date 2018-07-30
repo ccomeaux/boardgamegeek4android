@@ -22,8 +22,8 @@ class PlayersWinSorter(context: Context) : PlayersSorter(context) {
     override val isSortDescending: Boolean
         get() = true
 
-    override fun getSectionText(player: Player): String {
-        return player.winCount.orderOfMagnitude()
+    override fun getSectionText(player: Player?): String {
+        return (player?.winCount ?: 0).orderOfMagnitude()
     }
 
     override fun getDisplayText(player: Player): String? = context.resources.getQuantityString(R.plurals.wins_suffix, player.winCount, player.winCount)

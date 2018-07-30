@@ -10,7 +10,7 @@ abstract class PlayersSorter(context: Context) : Sorter(context) {
     override val defaultSort: String
         get() = PlayPlayers.NAME + BggContract.COLLATE_NOCASE
 
-    abstract fun getSectionText(player: Player): String
+    abstract fun getSectionText(player: Player?): String
 
     open fun getDisplayText(player: Player): String? = null
 }
