@@ -587,6 +587,14 @@
 		<item name="android:paddingTop">0dp</item>
 	</style>
 
+	<style name="RecyclerViewVerticalList.StickyHeader.FastScroll">
+		<item name="fastScrollEnabled">true</item>
+		<item name="fastScrollHorizontalThumbDrawable">@drawable/fast_scroll_thumb</item>
+		<item name="fastScrollHorizontalTrackDrawable">@color/fast_scroll_track</item>
+		<item name="fastScrollVerticalThumbDrawable">@drawable/fast_scroll_thumb</item>
+		<item name="fastScrollVerticalTrackDrawable">@color/fast_scroll_track</item>
+	</style>
+
 	<style name="RecyclerViewVerticalList.Edit">
 		<item name="android:paddingBottom">@dimen/fab_buffer</item>
 		<item name="android:paddingTop">0dp</item>

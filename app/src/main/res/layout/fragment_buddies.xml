@@ -24,7 +24,7 @@
 
 			<androidx.recyclerview.widget.RecyclerView
 				android:id="@+id/recyclerView"
-				style="@style/RecyclerViewVerticalList.StickyHeader"
+				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"/>
 
