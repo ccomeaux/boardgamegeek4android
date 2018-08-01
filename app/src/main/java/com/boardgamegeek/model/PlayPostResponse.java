@@ -34,7 +34,7 @@ public abstract class PlayPostResponse {
 						saveContent(content);
 					} catch (IllegalStateException e) {
 						Timber.w("Couldn't parse JSON - %s", content);
-						throw e;
+						throw new IllegalStateException(content, e);
 					}
 				}
 			} else {
@@ -70,7 +70,9 @@ public abstract class PlayPostResponse {
 
 	public String getErrorMessage() {
 		if (exception != null) {
-			return exception.getMessage();
+			if (error != null) {
+				return error + "\n" + exception.toString();
+			} else return exception.toString();
 		}
 		return error;
 	}
