@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.ProducerActivity
@@ -20,7 +21,7 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
         if (old != new) notifyDataSetChanged()
     }
 
-    var items: List<Pair<Int, String>> by Delegates.observable(emptyList()) { _, old, new ->
+    var items: List<GameDetailEntity> by Delegates.observable(emptyList()) { _, old, new ->
         if (old != new) notifyDataSetChanged()
     }
 
@@ -34,18 +35,18 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
 
     override fun getItemCount(): Int = items.size
 
-    override fun getItemId(position: Int): Long = items.getOrNull(position)?.first?.toLong() ?: RecyclerView.NO_ID
+    override fun getItemId(position: Int): Long = items.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(pair: Pair<Int, String>?) {
+        fun bind(pair: GameDetailEntity?) {
             if (pair == null) return
-            itemView.titleView?.text = pair.second
+            itemView.titleView?.text = pair.name
             when (type) {
                 GameViewModel.ProducerType.EXPANSIONS,
-                GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, pair.first, pair.second) }
+                GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, pair.id, pair.name) }
                 GameViewModel.ProducerType.DESIGNER,
                 GameViewModel.ProducerType.ARTIST,
-                GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, pair.first, pair.second) }
+                GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, pair.id, pair.name) }
                 else -> {
                     itemView.setOnClickListener { }
                     itemView.isClickable = false

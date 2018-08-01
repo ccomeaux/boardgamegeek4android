@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment
 import android.text.Html
 import android.text.TextUtils
 import android.view.*
-import com.boardgamegeek.*
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -179,7 +179,7 @@ class GameFragment : Fragment() {
         dataContainer?.fadeIn()
     }
 
-    private fun onListQueryComplete(list: List<Pair<Int, String>>?, view: GameDetailRow?) {
+    private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
         view?.bindData(gameId, gameName, list)
     }
 

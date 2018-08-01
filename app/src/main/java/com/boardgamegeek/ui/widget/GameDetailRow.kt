@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.setOrClearColorFilter
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
@@ -75,17 +76,17 @@ class GameDetailRow @JvmOverloads constructor(
         setOnClickListener { }
     }
 
-    fun bindData(gameId: Int, gameName: String, list: List<Pair<Int, String>>?) {
+    fun bindData(gameId: Int, gameName: String, list: List<GameDetailEntity>?) {
         if (list == null || list.isEmpty()) {
             visibility = View.GONE
         } else {
             visibility = View.VISIBLE
             clear()
-            dataView.text = setDescription(list.map { it.second })
+            dataView.text = setDescription(list.map { it.name })
             setOnClickListener {
                 if (list.size == 1) {
-                    val id = list[0].first
-                    val title = list[0].second
+                    val id = list[0].id
+                    val title = list[0].name
                     when (type) {
                         ProducerType.DESIGNER,
                         ProducerType.ARTIST,

@@ -94,31 +94,31 @@ class GameRepository(val application: BggApplication) {
         return dao.loadPlayerPoll(gameId)
     }
 
-    fun getDesigners(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getDesigners(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadDesigners(gameId)
     }
 
-    fun getArtists(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getArtists(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadArtists(gameId)
     }
 
-    fun getPublishers(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getPublishers(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadPublishers(gameId)
     }
 
-    fun getCategories(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getCategories(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadCategories(gameId)
     }
 
-    fun getMechanics(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getMechanics(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadMechanics(gameId)
     }
 
-    fun getExpansions(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getExpansions(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadExpansions(gameId)
     }
 
-    fun getBaseGames(gameId: Int): LiveData<List<Pair<Int, String>>> {
+    fun getBaseGames(gameId: Int): LiveData<List<GameDetailEntity>> {
         return dao.loadExpansions(gameId, true)
     }
 
