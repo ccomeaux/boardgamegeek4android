@@ -12,7 +12,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.row_text.view.*
 import kotlin.properties.Delegates
 
-class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder>() {
+class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder>(), AutoUpdatableAdapter {
     init {
         setHasStableIds(true)
     }
@@ -22,7 +22,9 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
     }
 
     var items: List<GameDetailEntity> by Delegates.observable(emptyList()) { _, old, new ->
-        if (old != new) notifyDataSetChanged()
+        autoNotify(old, new) { o, n ->
+            o.id == n.id
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailViewHolder {
@@ -38,18 +40,19 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
     override fun getItemId(position: Int): Long = items.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(pair: GameDetailEntity?) {
-            if (pair == null) return
-            itemView.titleView?.text = pair.name
-            when (type) {
-                GameViewModel.ProducerType.EXPANSIONS,
-                GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, pair.id, pair.name) }
-                GameViewModel.ProducerType.DESIGNER,
-                GameViewModel.ProducerType.ARTIST,
-                GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, pair.id, pair.name) }
-                else -> {
-                    itemView.setOnClickListener { }
-                    itemView.isClickable = false
+        fun bind(gameDetail: GameDetailEntity?) {
+            gameDetail?.let { game ->
+                itemView.titleView?.text = game.name
+                when (type) {
+                    GameViewModel.ProducerType.EXPANSIONS,
+                    GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, game.id, game.name) }
+                    GameViewModel.ProducerType.DESIGNER,
+                    GameViewModel.ProducerType.ARTIST,
+                    GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, game.id, game.name) }
+                    else -> {
+                        itemView.setOnClickListener { }
+                        itemView.isClickable = false
+                    }
                 }
             }
         }

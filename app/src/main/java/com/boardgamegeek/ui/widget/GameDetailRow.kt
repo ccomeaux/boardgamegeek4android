@@ -77,11 +77,11 @@ class GameDetailRow @JvmOverloads constructor(
     }
 
     fun bindData(gameId: Int, gameName: String, list: List<GameDetailEntity>?) {
+        clear()
         if (list == null || list.isEmpty()) {
             visibility = View.GONE
         } else {
             visibility = View.VISIBLE
-            clear()
             dataView.text = setDescription(list.map { it.name })
             setOnClickListener {
                 if (list.size == 1) {
