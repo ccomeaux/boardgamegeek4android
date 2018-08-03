@@ -50,7 +50,7 @@ constructor(context: Context?,
 
     private fun putWishList(values: ContentValues, item: Item) {
         val futureValue = statuses.contains(Collection.STATUS_WISHLIST)
-        if (futureValue != item.wishList && wishListPriority != item.wishListPriority) {
+        if (futureValue != item.wishList || wishListPriority != item.wishListPriority) {
             if (statuses.contains(Collection.STATUS_WISHLIST)) {
                 values.put(Collection.STATUS_WISHLIST, 1)
                 values.put(Collection.STATUS_WISHLIST_PRIORITY, wishListPriority)
