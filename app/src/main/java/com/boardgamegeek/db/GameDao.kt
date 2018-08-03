@@ -173,8 +173,8 @@ class GameDao(private val context: BggApplication) {
                 if (it.moveToFirst()) {
                     do {
                         results.add(GamePlayerPollResultsEntity(
-                                totalVotes = it.getInt(GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
-                                playerCount = it.getString(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT),
+                                totalVotes = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL),
+                                playerCount = it.getStringOrEmpty(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT),
                                 bestVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT),
                                 recommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT),
                                 notRecommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT),
