@@ -5,6 +5,8 @@ import android.text.Html;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 
@@ -32,6 +34,12 @@ public abstract class PlayPostResponse {
 				} else {
 					try {
 						saveContent(content);
+					} catch (JsonSyntaxException e) {
+						Timber.w("Couldn't parse JSON - %s", content);
+						throw new JsonSyntaxException(content, e);
+					} catch (JsonParseException e) {
+						Timber.w("Couldn't parse JSON - %s", content);
+						throw new JsonParseException(content, e);
 					} catch (IllegalStateException e) {
 						Timber.w("Couldn't parse JSON - %s", content);
 						throw new IllegalStateException(content, e);
