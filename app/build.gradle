@@ -11,8 +11,8 @@ buildscript {
 
 def versionMajor = 6
 def versionMinor = 6
-def versionPatch = 6
-def versionBuild = 3
+def versionPatch = 7
+def versionBuild = 6
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -156,7 +156,7 @@ dependencies {
 
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true
     }
 

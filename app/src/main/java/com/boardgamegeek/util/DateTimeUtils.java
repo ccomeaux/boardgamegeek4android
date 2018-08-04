@@ -54,6 +54,10 @@ public class DateTimeUtils {
 		return "0:00";
 	}
 
+	public static int howManyWeeksOld(long time) {
+		return (int) ((System.currentTimeMillis() - time) / DateUtils.WEEK_IN_MILLIS);
+	}
+
 	/**
 	 * Determines how many days ago time was (rounded down).
 	 */
