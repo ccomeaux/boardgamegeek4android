@@ -1,16 +1,20 @@
 package com.boardgamegeek.service;
 
 import android.accounts.Account;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
@@ -20,6 +24,8 @@ import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.BatteryUtils;
+import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -30,12 +36,17 @@ import com.crashlytics.android.Crashlytics;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -173,7 +184,49 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 
+		if (hasPrivacyError()) {
+			Timber.i("User still hasn't accepted the new privacy policy.");
+			return false;
+		}
+
 		return true;
+	}
+
+	private boolean hasPrivacyError() {
+		int weeksToCompare = RemoteConfig.getInt(RemoteConfig.KEY_PRIVACY_CHECK_WEEKS);
+		int weeks = DateTimeUtils.howManyWeeksOld(PreferencesUtils.getLastPrivacyCheckTimestamp(getContext()));
+		if (weeks < weeksToCompare) {
+			Timber.i("We checked the privacy statement less than %,d weeks ago; skipping", weeksToCompare);
+			return false;
+		}
+		OkHttpClient httpClient = HttpUtils.getHttpClientWithAuth(getContext());
+		final String url = "https://www.boardgamegeek.com";
+		Request request = new Request.Builder().url(url).build();
+		try {
+			Response response = httpClient.newCall(request).execute();
+			final ResponseBody body = response.body();
+			final String content = body == null ? "" : body.string().trim();
+			if (content.contains("Please update your privacy and marketing preferences")) {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				PendingIntent pi = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				final String message = getContext().getString(R.string.sync_notification_message_privacy_error);
+				NotificationCompat.Builder builder = NotificationUtils
+					.createNotificationBuilder(getContext(), R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
+					.setContentText(message)
+					.setStyle(new BigTextStyle().bigText(message))
+					.setContentIntent(pi)
+					.setCategory(NotificationCompat.CATEGORY_ERROR)
+					.setPriority(NotificationCompat.PRIORITY_HIGH);
+				NotificationUtils.notify(getContext(), NotificationUtils.TAG_SYNC_ERROR, Integer.MAX_VALUE, builder);
+				return true;
+			} else {
+				PreferencesUtils.setLastPrivacyCheckTimestamp(getContext());
+				return false;
+			}
+		} catch (IOException e) {
+			Timber.w(e);
+			return true;
+		}
 	}
 
 	/**

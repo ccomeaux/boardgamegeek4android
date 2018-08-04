@@ -6,6 +6,7 @@
 	<string name="sync_notification_title_error">Sync Error</string>
 	<string name="sync_notification_title_play_upload">Upload Plays</string>
 	<string name="sync_notification_title_collection_upload">Upload Collection</string>
+	<string name="sync_notification_message_privacy_error">Please go to BoardGameGeek.com and accept their new privacy policy. This app will be unable to sync until this has been completed.</string>
 	<string name="sync_notification_collection_full">Syncing your entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Filling in some gaps in your collection</string>
