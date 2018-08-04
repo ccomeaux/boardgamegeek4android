@@ -37,7 +37,7 @@ public abstract class PlayPostResponse {
 			} else {
 				error = "Unsuccessful post: " + response.code();
 			}
-		} catch (IOException e) {
+		} catch (IOException | IllegalStateException e) {
 			exception = e;
 		}
 	}
