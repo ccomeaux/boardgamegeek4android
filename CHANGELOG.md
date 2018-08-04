@@ -7,6 +7,10 @@ Version 6.7
  * Ability to specify negative scores more easily
  * Lots of under the hood improvements
 
+Version 6.6.7
+-------------
+ * Bug fixes
+
 Version 6.6.6
 -------------
  * Bug fixes

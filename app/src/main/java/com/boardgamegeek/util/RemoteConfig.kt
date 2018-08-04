@@ -41,6 +41,8 @@ class RemoteConfig {
 
         const val KEY_FETCH_IMAGE_WITH_API = "fetch_image_with_api"
 
+        const val KEY_PRIVACY_CHECK_WEEKS = "privacy_check_weeks"
+
         @JvmStatic
         fun init() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()

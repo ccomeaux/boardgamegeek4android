@@ -106,4 +106,8 @@
 		<key>fetch_image_with_api</key>
 		<value>true</value>
 	</entry>
+	<entry>
+		<key>privacy_check_weeks</key>
+		<value>3</value>
+	</entry>
 </defaultsMap>

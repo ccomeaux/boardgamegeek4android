@@ -3,7 +3,9 @@ package com.boardgamegeek.model;
 import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -12,7 +14,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import timber.log.Timber;
 
 public abstract class PlayPostResponse {
 	protected final Gson gson = new Gson();
@@ -26,16 +27,12 @@ public abstract class PlayPostResponse {
 			if (response.isSuccessful()) {
 				final ResponseBody body = response.body();
 				final String content = body == null ? "" : body.string().trim();
+				Crashlytics.log(Log.WARN, "PlaysUpload", content);
 				if (content.startsWith(ERROR_DIV)) {
 					//noinspection deprecation
 					error = Html.fromHtml(content).toString().trim();
 				} else {
-					try {
-						saveContent(content);
-					} catch (IllegalStateException e) {
-						Timber.w("Couldn't parse JSON - %s", content);
-						throw e;
-					}
+					saveContent(content);
 				}
 			} else {
 				error = "Unsuccessful post: " + response.code();
@@ -70,7 +67,9 @@ public abstract class PlayPostResponse {
 
 	public String getErrorMessage() {
 		if (exception != null) {
-			return exception.getMessage();
+			if (error != null) {
+				return error + "\n" + exception.toString();
+			} else return exception.toString();
 		}
 		return error;
 	}

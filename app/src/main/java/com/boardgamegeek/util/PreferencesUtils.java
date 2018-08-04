@@ -39,6 +39,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
 	private static final String KEY_GAME_H_INDEX = "hIndex";
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
+	private static final String KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	public static final String KEY_LOGIN = "login";
@@ -252,6 +253,14 @@ public class PreferencesUtils {
 
 	public static boolean getSyncOnlyWifi(Context context) {
 		return getBoolean(context, "sync_only_wifi", false);
+	}
+
+	public static Long getLastPrivacyCheckTimestamp(Context context) {
+		return getLong(context, KEY_PRIVACY_CHECK_TIMESTAMP, 0L);
+	}
+
+	public static boolean setLastPrivacyCheckTimestamp(Context context) {
+		return putLong(context, KEY_PRIVACY_CHECK_TIMESTAMP, System.currentTimeMillis());
 	}
 
 	public static boolean getForumDates(Context context) {
