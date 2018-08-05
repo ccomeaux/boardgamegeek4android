@@ -51,6 +51,8 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.wishlist_priority,
 		R.id.play_count_asc,
 		R.id.play_count_desc,
+		R.id.total_played_time_asc,
+		R.id.total_played_time_desc,
 		R.id.play_date_max,
 		R.id.play_date_min,
 		R.id.year_published_asc,

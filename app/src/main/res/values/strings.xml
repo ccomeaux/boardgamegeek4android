@@ -329,6 +329,7 @@
 	<string name="collection_sort_play_date_max">Most Recently Played</string>
 	<string name="collection_sort_play_date_min">Least Recently Played</string>
 	<string name="collection_sort_play_time">Play Time</string>
+	<string name="collection_sort_total_time_played">Total Time Played</string>
 	<string name="collection_sort_rank">Rank</string>
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
 	<string name="collection_sort_wishlist_priority">Wishlist Priority</string>

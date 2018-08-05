@@ -21,6 +21,8 @@ class CollectionSorterFactory(context: Context) {
             add(AverageWeightDescendingSorter(context))
             add(PlayCountAscendingSorter(context))
             add(PlayCountDescendingSorter(context))
+            add(TotalTimePlayedAscendingSorter(context))
+            add(TotalTimePlayedDescendingSorter(context))
             add(LastPlayDateDescendingSorter(context))
             add(LastPlayDateAscendingSorter(context))
             add(WishlistPrioritySorter(context))
