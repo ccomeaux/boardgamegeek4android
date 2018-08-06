@@ -104,13 +104,9 @@ class GameRepository(val application: BggApplication) {
 
     fun getMechanics(gameId: Int) = dao.loadMechanics(gameId)
 
-    fun getExpansions(gameId: Int): LiveData<List<GameDetailEntity>> {
-        return dao.loadExpansions(gameId)
-    }
+    fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
 
-    fun getBaseGames(gameId: Int): LiveData<List<GameDetailEntity>> {
-        return dao.loadExpansions(gameId, true)
-    }
+    fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
     fun getPlays(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {

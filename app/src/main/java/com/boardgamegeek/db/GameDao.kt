@@ -14,6 +14,7 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
@@ -282,22 +283,63 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
-    fun loadExpansions(gameId: Int, inbound: Boolean = false): LiveData<List<GameDetailEntity>> {
+    fun loadExpansions(gameId: Int, inbound: Boolean = false): LiveData<List<GameExpansionsEntity>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildExpansionsUri(gameId)
         return RegisteredLiveData(context, uri) {
-            val results = arrayListOf<GameDetailEntity>()
+            val results = arrayListOf<GameExpansionsEntity>()
             context.contentResolver.load(uri,
                     selection = "${GamesExpansions.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0"))?.use {
                 if (it.moveToFirst()) {
                     do {
-                        results.add(GameDetailEntity(
+                        results.add(GameExpansionsEntity(
                                 it.getInt(GamesExpansions.EXPANSION_ID),
                                 it.getString(GamesExpansions.EXPANSION_NAME)
                         ))
                     } while (it.moveToNext())
                 }
+            }
+            val projection = arrayOf(
+                    Collection.STATUS_OWN,
+                    Collection.STATUS_PREVIOUSLY_OWNED,
+                    Collection.STATUS_FOR_TRADE,
+                    Collection.STATUS_WANT,
+                    Collection.STATUS_WANT_TO_BUY,
+                    Collection.STATUS_WISHLIST,
+                    Collection.STATUS_WANT_TO_PLAY,
+                    Collection.STATUS_PREORDERED,
+                    Collection.STATUS_WISHLIST_PRIORITY,
+                    Collection.NUM_PLAYS,
+                    Collection.RATING,
+                    Collection.COMMENT
+            )
+            for (result in results) {
+                context.contentResolver.load(Collection.CONTENT_URI,
+                        projection = projection,
+                        selection = "collection.${Collection.GAME_ID}=?",
+                        selectionArgs = arrayOf(result.id.toString()))?.use {
+                    if (it.moveToFirst()) {
+                        do {
+                            result.apply {
+                                own = it.getBoolean(Collection.STATUS_OWN)
+                                previouslyOwned = it.getBoolean(Collection.STATUS_PREVIOUSLY_OWNED)
+                                preOrdered = it.getBoolean(Collection.STATUS_PREORDERED)
+                                forTrade = it.getBoolean(Collection.STATUS_FOR_TRADE)
+                                wantInTrade = it.getBoolean(Collection.STATUS_WANT)
+                                wantToPlay = it.getBoolean(Collection.STATUS_WANT_TO_PLAY)
+                                wantToBuy = it.getBoolean(Collection.STATUS_WANT_TO_BUY)
+                                wishList = it.getBoolean(Collection.STATUS_WISHLIST)
+                                wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3
+                                numberOfPlays = it.getIntOrZero(Collection.NUM_PLAYS)
+                                rating = it.getDoubleOrZero(Collection.RATING)
+                                comment = it.getString(Collection.COMMENT)
+                            }
+
+                        } while (it.moveToNext())
+                    }
+                }
+                result.id
             }
             return@RegisteredLiveData results
         }
