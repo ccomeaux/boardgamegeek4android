@@ -171,6 +171,8 @@ dependencies {
 
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'
 
+    compile 'com.github.rhlff:NestedScrollWebView:v1.0.2'
+
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true
     }
