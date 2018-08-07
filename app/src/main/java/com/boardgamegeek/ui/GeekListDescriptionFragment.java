@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.view.LayoutInflater;
@@ -45,7 +46,7 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	@Override
 	@DebugLog
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		//noinspection deprecation
