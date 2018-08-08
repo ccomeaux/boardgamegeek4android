@@ -169,7 +169,7 @@ dependencies {
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    implementation 'com.github.chrisbanes.photoview:library:1.2.4'
+    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
 
     compile 'com.github.rhlff:NestedScrollWebView:v1.0.2'
 
