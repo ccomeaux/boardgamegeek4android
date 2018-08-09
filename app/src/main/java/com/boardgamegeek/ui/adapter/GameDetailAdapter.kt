@@ -4,14 +4,16 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.ProducerActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import kotlinx.android.synthetic.main.row_text.view.*
+import kotlinx.android.synthetic.main.row_game_detail.view.*
 import kotlin.properties.Delegates
 
-class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder>() {
+class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder>(), AutoUpdatableAdapter {
     init {
         setHasStableIds(true)
     }
@@ -20,12 +22,14 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
         if (old != new) notifyDataSetChanged()
     }
 
-    var items: List<Pair<Int, String>> by Delegates.observable(emptyList()) { _, old, new ->
-        if (old != new) notifyDataSetChanged()
+    var items: List<GameDetailEntity> by Delegates.observable(emptyList()) { _, old, new ->
+        autoNotify(old, new) { o, n ->
+            o.id == n.id
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailViewHolder {
-        return DetailViewHolder(parent.inflate(R.layout.row_text))
+        return DetailViewHolder(parent.inflate(R.layout.row_game_detail))
     }
 
     override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {
@@ -34,21 +38,23 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
 
     override fun getItemCount(): Int = items.size
 
-    override fun getItemId(position: Int): Long = items.getOrNull(position)?.first?.toLong() ?: RecyclerView.NO_ID
+    override fun getItemId(position: Int): Long = items.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(pair: Pair<Int, String>?) {
-            if (pair == null) return
-            itemView.titleView?.text = pair.second
-            when (type) {
-                GameViewModel.ProducerType.EXPANSIONS,
-                GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, pair.first, pair.second) }
-                GameViewModel.ProducerType.DESIGNER,
-                GameViewModel.ProducerType.ARTIST,
-                GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, pair.first, pair.second) }
-                else -> {
-                    itemView.setOnClickListener { }
-                    itemView.isClickable = false
+        fun bind(gameDetail: GameDetailEntity?) {
+            gameDetail?.let { entity ->
+                itemView.nameView?.text = entity.name
+                itemView.descriptionView.setTextOrHide(entity.description)
+                when (type) {
+                    GameViewModel.ProducerType.EXPANSIONS,
+                    GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, entity.id, entity.name) }
+                    GameViewModel.ProducerType.DESIGNER,
+                    GameViewModel.ProducerType.ARTIST,
+                    GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, entity.id, entity.name) }
+                    else -> {
+                        itemView.setOnClickListener { }
+                        itemView.isClickable = false
+                    }
                 }
             }
         }

@@ -5,6 +5,7 @@ Version 6.7
 -----------
  * UI changes
  * Ability to specify negative scores more easily
+ * Show collection status of expansion and base games
  * Lots of under the hood improvements
 
 Version 6.6.7

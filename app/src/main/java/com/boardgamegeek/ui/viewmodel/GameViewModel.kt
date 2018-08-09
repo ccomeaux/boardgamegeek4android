@@ -6,7 +6,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.support.v7.graphics.Palette
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.asWishListPriority
+import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -84,56 +87,85 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val designers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val designers: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getDesigners(gameId)
         }
     }
 
-    val artists: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val artists: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getArtists(gameId)
         }
     }
 
-    val publishers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val publishers: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getPublishers(gameId)
         }
     }
 
-    val categories: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val categories: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getCategories(gameId)
         }
     }
 
-    val mechanics: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val mechanics: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.getMechanics(gameId)
         }
     }
 
-    val expansions: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val expansions: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getExpansions(gameId)
+            else -> Transformations.map(gameRepository.getExpansions(gameId)) { items ->
+                val list = arrayListOf<GameDetailEntity>()
+                items.forEach {
+                    list += GameDetailEntity(it.id, it.name, describeStatuses(it, application))
+                }
+                return@map list.toList()
+            }
         }
     }
 
-    val baseGames: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_gameId) { gameId ->
+    val baseGames: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
         when (gameId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getBaseGames(gameId)
+            else -> Transformations.map(gameRepository.getBaseGames(gameId)) { items ->
+                val list = arrayListOf<GameDetailEntity>()
+                items.forEach {
+                    list += GameDetailEntity(it.id, it.name, describeStatuses(it, application))
+                }
+                return@map list.toList()
+            }
         }
     }
 
-    val producers: LiveData<List<Pair<Int, String>>> = Transformations.switchMap(_producerType) { type ->
+    private fun describeStatuses(entity: GameExpansionsEntity, application: Application): String {
+        val ctx = application.applicationContext
+        val statuses = mutableListOf<String>()
+        if (entity.own) statuses.add(ctx.getString(R.string.collection_status_own))
+        if (entity.previouslyOwned) statuses.add(ctx.getString(R.string.collection_status_prev_owned))
+        if (entity.forTrade) statuses.add(ctx.getString(R.string.collection_status_for_trade))
+        if (entity.wantInTrade) statuses.add(ctx.getString(R.string.collection_status_want_in_trade))
+        if (entity.wantToBuy) statuses.add(ctx.getString(R.string.collection_status_want_to_buy))
+        if (entity.wantToPlay) statuses.add(ctx.getString(R.string.collection_status_want_to_play))
+        if (entity.preOrdered) statuses.add(ctx.getString(R.string.collection_status_preordered))
+        if (entity.wishList) statuses.add(entity.wishListPriority.asWishListPriority(ctx))
+        if (entity.numberOfPlays > 0) statuses.add(ctx.getString(R.string.played))
+        if (entity.rating > 0.0) statuses.add(ctx.getString(R.string.rated))
+        if (entity.comment.isNotBlank()) statuses.add(ctx.getString(R.string.commented))
+        return statuses.formatList()
+    }
+
+    val producers: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_producerType) { type ->
         when (type) {
             ProducerType.DESIGNER -> designers
             ProducerType.ARTIST -> artists

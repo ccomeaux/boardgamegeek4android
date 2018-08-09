@@ -13,7 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.setOrClearColorFilter
+import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
@@ -75,29 +77,36 @@ class GameDetailRow @JvmOverloads constructor(
         setOnClickListener { }
     }
 
-    fun bindData(gameId: Int, gameName: String, list: List<Pair<Int, String>>?) {
+    fun bindData(gameId: Int, gameName: String, list: List<GameDetailEntity>?) {
+        clear()
         if (list == null || list.isEmpty()) {
             visibility = View.GONE
         } else {
             visibility = View.VISIBLE
-            clear()
-            dataView.text = setDescription(list.map { it.second })
-            setOnClickListener {
-                if (list.size == 1) {
-                    val id = list[0].first
-                    val title = list[0].second
-                    when (type) {
-                        ProducerType.DESIGNER,
-                        ProducerType.ARTIST,
-                        ProducerType.PUBLISHER ->
-                            ProducerActivity.start(context, type, id, title)
-                        ProducerType.EXPANSIONS,
-                        ProducerType.BASE_GAMES -> {
-                            GameActivity.start(context, id, title)
+            if (list.size == 1) {
+                list[0].apply {
+                    dataView.maxLines = 1
+                    dataView.text = name
+                    descriptionView.setTextOrHide(description)
+                    setOnClickListener {
+                        when (type) {
+                            ProducerType.DESIGNER,
+                            ProducerType.ARTIST,
+                            ProducerType.PUBLISHER ->
+                                ProducerActivity.start(context, type, id, name)
+                            ProducerType.EXPANSIONS,
+                            ProducerType.BASE_GAMES -> {
+                                GameActivity.start(context, id, name)
+                            }
+                            else -> GameDetailActivity.start(context, label, gameId, gameName, type)
                         }
-                        else -> GameDetailActivity.start(context, label, gameId, gameName, type)
                     }
-                } else {
+                }
+            } else {
+                dataView.maxLines = 2
+                dataView.text = generateName(list.map { it.name })
+                descriptionView.visibility = View.GONE
+                setOnClickListener {
                     GameDetailActivity.start(context, label, gameId, gameName, type)
                 }
             }
@@ -108,7 +117,7 @@ class GameDetailRow @JvmOverloads constructor(
         iconView.setOrClearColorFilter(color)
     }
 
-    private fun setDescription(names: List<String>): CharSequence {
+    private fun generateName(names: List<String>): CharSequence {
         return when (names.size) {
             1 -> names[0]
             2 -> "${names[0]} & ${names[1]}"
