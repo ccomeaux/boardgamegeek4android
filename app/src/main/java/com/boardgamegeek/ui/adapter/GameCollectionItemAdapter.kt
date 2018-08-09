@@ -2,9 +2,10 @@ package com.boardgamegeek.ui.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.RecyclerView.NO_ID
 import android.view.View
 import android.view.ViewGroup
-import com.boardgamegeek.*
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
@@ -37,6 +38,8 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
             }
         }
     }
+
+    override fun getItemId(position: Int) = items.getOrNull(position)?.collectionId?.toLong() ?: NO_ID
 
     override fun getItemCount() = items.size
 
