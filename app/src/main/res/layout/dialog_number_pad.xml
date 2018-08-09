@@ -51,7 +51,8 @@
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:paddingLeft="@dimen/padding_extra"
 			android:text="±"
-			android:textColor="@color/dialog_text"/>
+			android:textColor="@color/dialog_text"
+			tools:ignore="HardcodedText"/>
 
 		<TextView
 			android:id="@+id/output"
