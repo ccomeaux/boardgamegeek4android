@@ -35,8 +35,9 @@
 
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
-			<meta-data android:name="android.app.shortcuts"
-					   android:resource="@xml/shortcuts" />
+			<meta-data
+				android:name="android.app.shortcuts"
+				android:resource="@xml/shortcuts"/>
 		</activity>
 		<activity
 			android:name=".ui.CollectionActivity"
@@ -290,6 +291,18 @@
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="@string/intent_action_account"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="@string/intent_action_sync"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="@string/intent_action_data"/>
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 		</activity>

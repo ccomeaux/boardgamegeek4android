@@ -106,6 +106,10 @@
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_thread">BoardGameGeek Thread</string>
 
+	<string name="intent_action_account">com.boardgamegeek.intent.action.ACCOUNT</string>
+	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
+	<string name="intent_action_data">com.boardgamegeek.intent.action.DATA</string>
+
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>

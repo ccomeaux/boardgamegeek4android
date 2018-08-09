@@ -28,7 +28,15 @@ class SettingsActivity : DrawerActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         if (savedInstanceState == null) {
-            fragmentManager.beginTransaction().add(R.id.root_container, PrefFragment(), TAG_SINGLE_PANE).commit()
+            val prefFragment = PrefFragment()
+            val args = Bundle()
+            when (intent.action) {
+                getString(R.string.intent_action_account) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_ACCOUNT)
+                getString(R.string.intent_action_sync) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_SYNC)
+                getString(R.string.intent_action_data) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_DATA)
+            }
+            prefFragment.arguments = args
+            fragmentManager.beginTransaction().add(R.id.root_container, prefFragment, TAG_SINGLE_PANE).commit()
         }
     }
 
