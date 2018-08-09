@@ -21,9 +21,9 @@ fun Double.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: 
     }
 }
 
-fun Double.toDescription(context: Context, @ArrayRes arrayResIs: Int, @StringRes zeroStringResId: Int = R.string.unknown): CharSequence {
+fun Double.toDescription(context: Context, @ArrayRes arrayResId: Int, @StringRes zeroStringResId: Int = R.string.unknown): CharSequence {
     if (this == 0.0) return context.getString(zeroStringResId)
-    val array = context.resources.getStringArray(arrayResIs)
+    val array = context.resources.getStringArray(arrayResId)
     val index = this.roundToInt() - 1
     return array.getOrElse(index) { context.getString(zeroStringResId) }
 }
