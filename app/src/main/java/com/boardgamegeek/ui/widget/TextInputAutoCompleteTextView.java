@@ -11,7 +11,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 /**
- * A special sub-class of {@link android.widget.EditText} designed for use as a child of
+ * A special sub-class of AppCompatAutoCompleteTextView designed for use as a child of
  * {@link TextInputLayout}.
  * <p>
  * <p>Using this class allows us to display a hint in the IME when in 'extract' mode.</p>
