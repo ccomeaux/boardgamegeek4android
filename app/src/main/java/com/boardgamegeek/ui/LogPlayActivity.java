@@ -35,9 +35,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuBuilder.Callback;
-import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -61,6 +58,8 @@ import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -587,20 +586,24 @@ public class LogPlayActivity extends AppCompatActivity {
 		if (resultCode == RESULT_OK) {
 			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
 			int position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION);
-			if (requestCode == REQUEST_ADD_PLAYER) {
-				play.addPlayer(player);
-				maybeShowNotification();
-				addNewPlayer();
-			} else if (requestCode == REQUEST_EDIT_PLAYER) {
-				if (position == LogPlayerActivity.INVALID_POSITION) {
-					Timber.w("Invalid player position after edit");
-				} else {
-					play.replaceOrAddPlayer(player, position);
-					playAdapter.notifyPlayerChanged(position);
-					recyclerView.smoothScrollToPosition(position);
-				}
-			} else {
-				Timber.w("Received invalid request code: %d", requestCode);
+			switch (requestCode) {
+				case REQUEST_ADD_PLAYER:
+					play.addPlayer(player);
+					maybeShowNotification();
+					addNewPlayer();
+					break;
+				case REQUEST_EDIT_PLAYER:
+					if (position == LogPlayerActivity.INVALID_POSITION) {
+						Timber.w("Invalid player position after edit");
+					} else {
+						play.replaceOrAddPlayer(player, position);
+						playAdapter.notifyPlayerChanged(position);
+						recyclerView.smoothScrollToPosition(position);
+					}
+					break;
+				default:
+					Timber.w("Received invalid request code: %d", requestCode);
+					break;
 			}
 		} else if (resultCode == RESULT_CANCELED) {
 			playAdapter.notifyPlayersChanged();
@@ -945,80 +948,6 @@ public class LogPlayActivity extends AppCompatActivity {
 				if (which == DialogInterface.BUTTON_NEUTRAL) {
 					addNewPlayer();
 				}
-			}
-		};
-	}
-
-	private Callback popupMenuCallback() {
-		return new MenuBuilder.Callback() {
-			@Override
-			public void onMenuModeChange(MenuBuilder menu) {
-			}
-
-			@Override
-			public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.menu_custom_player_order:
-						if (arePlayersCustomSorted) {
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
-							if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
-								DialogUtils.createConfirmationDialog(LogPlayActivity.this,
-									R.string.are_you_sure_player_sort_custom_off,
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											autoSortPlayers();
-										}
-									},
-									R.string.sort)
-									.show();
-							} else {
-								autoSortPlayers();
-							}
-						} else {
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
-							if (play.hasStartingPositions()) {
-								AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
-									.setMessage(R.string.message_custom_player_order)
-									.setPositiveButton(R.string.keep, new OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											arePlayersCustomSorted = true;
-											playAdapter.notifyPlayersChanged();
-										}
-									})
-									.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											arePlayersCustomSorted = true;
-											play.clearPlayerPositions();
-											playAdapter.notifyPlayersChanged();
-										}
-									})
-									.setCancelable(true);
-								builder.show();
-							}
-						}
-						return true;
-					case R.id.menu_pick_start_player:
-						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
-						promptPickStartPlayer();
-						return true;
-					case R.id.menu_random_start_player:
-						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
-						int newSeat = new Random().nextInt(play.getPlayerCount());
-						play.pickStartPlayer(newSeat);
-						playAdapter.notifyPlayersChanged();
-						notifyStartPlayer();
-						return true;
-					case R.id.menu_random_player_order:
-						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
-						play.randomizePlayerOrder();
-						playAdapter.notifyPlayersChanged();
-						notifyStartPlayer();
-						return true;
-				}
-				return false;
 			}
 		};
 	}
@@ -1717,8 +1646,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		public class PlayerHeaderViewHolder extends PlayViewHolder {
 			@BindView(R.id.assign_colors) View assignColorsButton;
 			@BindView(R.id.log_play_players_label) TextView playerLabelView;
-			private MenuBuilder fullSortMenu;
-			private MenuBuilder shortSortMenu;
 
 			public PlayerHeaderViewHolder(ViewGroup parent) {
 				super(inflater.inflate(R.layout.row_log_play_player_header, parent, false));
@@ -1737,29 +1664,75 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@OnClick(R.id.player_sort)
 			public void onPlayerSort(View view) {
-				MenuPopupHelper popup;
-				if (!arePlayersCustomSorted && play.getPlayerCount() > 1) {
-					if (fullSortMenu == null) {
-						fullSortMenu = new MenuBuilder(LogPlayActivity.this);
-						MenuItem mi = fullSortMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
-						mi.setCheckable(true);
-						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_pick_start_player, 2, R.string.menu_pick_start_player);
-						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_random_start_player, 3, R.string.menu_random_start_player);
-						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_random_player_order, 4, R.string.menu_random_player_order);
-						fullSortMenu.setCallback(popupMenuCallback());
+				PopupMenu popup = new PopupMenu(LogPlayActivity.this, view);
+				popup.inflate(!arePlayersCustomSorted && play.getPlayerCount() > 1 ? R.menu.log_play_player_sort : R.menu.log_play_player_sort_short);
+				popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						switch (item.getItemId()) {
+							case R.id.menu_custom_player_order:
+								if (arePlayersCustomSorted) {
+									Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
+									if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
+										DialogUtils.createConfirmationDialog(LogPlayActivity.this,
+											R.string.are_you_sure_player_sort_custom_off,
+											new DialogInterface.OnClickListener() {
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													autoSortPlayers();
+												}
+											},
+											R.string.sort)
+											.show();
+									} else {
+										autoSortPlayers();
+									}
+								} else {
+									Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
+									if (play.hasStartingPositions()) {
+										AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
+											.setMessage(R.string.message_custom_player_order)
+											.setPositiveButton(R.string.keep, new OnClickListener() {
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													arePlayersCustomSorted = true;
+													playAdapter.notifyPlayersChanged();
+												}
+											})
+											.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													arePlayersCustomSorted = true;
+													play.clearPlayerPositions();
+													playAdapter.notifyPlayersChanged();
+												}
+											})
+											.setCancelable(true);
+										builder.show();
+									}
+								}
+								return true;
+							case R.id.menu_pick_start_player:
+								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+								promptPickStartPlayer();
+								return true;
+							case R.id.menu_random_start_player:
+								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
+								int newSeat = new Random().nextInt(play.getPlayerCount());
+								play.pickStartPlayer(newSeat);
+								playAdapter.notifyPlayersChanged();
+								notifyStartPlayer();
+								return true;
+							case R.id.menu_random_player_order:
+								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+								play.randomizePlayerOrder();
+								playAdapter.notifyPlayersChanged();
+								notifyStartPlayer();
+								return true;
+						}
+						return false;
 					}
-					fullSortMenu.getItem(0).setChecked(arePlayersCustomSorted);
-					popup = new MenuPopupHelper(LogPlayActivity.this, fullSortMenu, view);
-				} else {
-					if (shortSortMenu == null) {
-						shortSortMenu = new MenuBuilder(LogPlayActivity.this);
-						MenuItem mi = shortSortMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
-						mi.setCheckable(true);
-						shortSortMenu.setCallback(popupMenuCallback());
-					}
-					shortSortMenu.getItem(0).setChecked(arePlayersCustomSorted);
-					popup = new MenuPopupHelper(LogPlayActivity.this, shortSortMenu, view);
-				}
+				});
 				popup.show();
 			}
 
@@ -1794,7 +1767,6 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		class PlayerViewHolder extends PlayViewHolder {
 			private final PlayerRow row;
-			private MenuBuilder moreMenu;
 
 			public PlayerViewHolder() {
 				super(new PlayerRow(LogPlayActivity.this));
@@ -1819,44 +1791,31 @@ public class LogPlayActivity extends AppCompatActivity {
 				row.setOnMoreListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						final int groupId = MenuBuilder.FIRST;
-						final int newItemId = MenuBuilder.FIRST;
-						final int winItemId = MenuBuilder.FIRST + 1;
-						if (moreMenu == null) {
-							moreMenu = new MenuBuilder(LogPlayActivity.this);
-							moreMenu.add(groupId, newItemId, MenuBuilder.NONE, R.string.new_label);
-							moreMenu.add(groupId, winItemId, MenuBuilder.NONE, R.string.win);
-							moreMenu.setGroupCheckable(groupId, true, false);
-							moreMenu.setCallback(new Callback() {
-								@Override
-								public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-									if (play.getPlayers() == null || play.getPlayers().size() <= position) {
-										Timber.w("Unable to set new/win on selected player");
-										return false;
-									}
-									final Player player = play.getPlayers().get(position);
-									switch (item.getItemId()) {
-										case newItemId:
-											player.isNew = !item.isChecked();
-											bind(position);
-											return true;
-										case winItemId:
-											player.isWin = !item.isChecked();
-											bind(position);
-											return true;
-									}
-									return false;
-								}
-
-								@Override
-								public void onMenuModeChange(MenuBuilder menu) {
-								}
-							});
-						}
+						if (position < 0 ||
+							position > play.getPlayers().size())
+							return;
 						final Player player = play.getPlayers().get(position);
-						moreMenu.findItem(newItemId).setChecked(player.isNew);
-						moreMenu.findItem(winItemId).setChecked(player.isWin);
-						MenuPopupHelper popup = new MenuPopupHelper(LogPlayActivity.this, moreMenu, row.getMoreButton());
+
+						PopupMenu popup = new PopupMenu(LogPlayActivity.this, row.getMoreButton());
+						popup.inflate(R.menu.log_play_player);
+						popup.getMenu().findItem(R.id.new_).setChecked(player.isNew);
+						popup.getMenu().findItem(R.id.win).setChecked(player.isWin);
+						popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								switch (item.getItemId()) {
+									case R.id.new_:
+										player.isNew = !item.isChecked();
+										bind(position);
+										return true;
+									case R.id.win:
+										player.isWin = !item.isChecked();
+										bind(position);
+										return true;
+								}
+								return false;
+							}
+						});
 						popup.show();
 					}
 				});

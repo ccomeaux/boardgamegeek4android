@@ -28,6 +28,6 @@ class AcquiredFromSorter(context: Context) : CollectionSorter(context) {
     public override fun getHeaderText(cursor: Cursor) = cursor.getString(COLUMN_NAME, nowhere)
 
     companion object {
-        private val COLUMN_NAME = Collection.PRIVATE_INFO_ACQUIRED_FROM
+        private const val COLUMN_NAME = Collection.PRIVATE_INFO_ACQUIRED_FROM
     }
 }

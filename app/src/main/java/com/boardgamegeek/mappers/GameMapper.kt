@@ -1,9 +1,9 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.extensions.replaceHtmlLineFeeds
 import com.boardgamegeek.extensions.sortName
+import com.boardgamegeek.io.model.Game
 
 class GameMapper {
     fun map(from: Game): GameEntity {
@@ -55,7 +55,7 @@ class GameMapper {
                     "boardgamemechanic" -> mechanics.add(it.id to it.value)
                     "boardgameexpansion" -> expansions.add(Triple(it.id, it.value, "true" == it.inbound))
                     "boardgamefamily" -> families.add(it.id to it.value)
-                // "boardgameimplementation"
+                    // "boardgameimplementation"
                 }
             }
         }
@@ -85,16 +85,16 @@ class GameMapper {
 
     private fun createPolls(from: Game): List<GameEntity.Poll> {
         val polls = mutableListOf<GameEntity.Poll>()
-        from.polls?.filter { it.name != playerPollName }?.mapTo(polls) {
+        from.polls?.filter { it.name != playerPollName }?.mapTo(polls) { poll ->
             GameEntity.Poll().apply {
-                name = it.name ?: ""
-                title = it.title ?: ""
-                totalVotes = it.totalvotes
-                it.results.forEach {
+                name = poll.name ?: ""
+                title = poll.title ?: ""
+                totalVotes = poll.totalvotes
+                poll.results.forEach {
                     results.add(GameEntity.Results().apply {
                         numberOfPlayers = if (it.numplayers.isNullOrEmpty()) "X" else it.numplayers
-                        it.result.forEach {
-                            result.add(GamePollResultEntity(it.level, it.value, it.numvotes))
+                        it.result.forEach { gr ->
+                            result.add(GamePollResultEntity(gr.level, gr.value, gr.numvotes))
                         }
                     })
                 }

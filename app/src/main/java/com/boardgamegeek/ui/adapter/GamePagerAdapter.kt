@@ -14,8 +14,8 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.colorize
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.colorize
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
@@ -102,16 +102,16 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         tabs.add(Tab(R.string.title_forums))
         tabs.add(Tab(R.string.links))
 
-        viewModel.game.observe(activity, Observer {
-            if (it?.status == Status.SUCCESS) {
-                it.data?.let {
-                    gameName = it.name
-                    imageUrl = it.imageUrl
-                    thumbnailUrl = it.thumbnailUrl
-                    heroImageUrl = it.heroImageUrl
-                    arePlayersCustomSorted = it.customPlayerSort
-                    iconColor = it.iconColor
-                    isFavorite = it.isFavorite
+        viewModel.game.observe(activity, Observer { resource ->
+            if (resource?.status == Status.SUCCESS) {
+                resource.data?.let { entity ->
+                    gameName = entity.name
+                    imageUrl = entity.imageUrl
+                    thumbnailUrl = entity.thumbnailUrl
+                    heroImageUrl = entity.heroImageUrl
+                    arePlayersCustomSorted = entity.customPlayerSort
+                    iconColor = entity.iconColor
+                    isFavorite = entity.isFavorite
                     updateFavIcon(isFavorite)
                     fab.colorize(iconColor)
                     fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }

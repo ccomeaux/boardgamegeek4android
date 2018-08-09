@@ -21,8 +21,6 @@
 	<dimen name="player_row_height">56dp</dimen>
 	<dimen name="drawer_item_height">48dp</dimen>
 	<dimen name="thumbnail_list_size">56dp</dimen>
-	<dimen name="thumbnail_list_size_small">40dp</dimen>
-	<dimen name="thumbnail_list_size_small_margin">16dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
 	<dimen name="icon_width">32dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>

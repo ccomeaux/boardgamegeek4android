@@ -23,6 +23,6 @@ abstract class PlayCountSorter(context: Context) : CollectionSorter(context) {
 
     companion object {
         private val NUMBER_FORMAT = NumberFormat.getIntegerInstance()
-        private val COLUMN_NAME = Collection.NUM_PLAYS
+        private const val COLUMN_NAME = Collection.NUM_PLAYS
     }
 }
