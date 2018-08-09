@@ -35,18 +35,31 @@ public class TimestampView extends TextView {
 	@State String formatArg;
 
 	public TimestampView(Context context) {
-		super(context);
-		init(context, null, 0);
+		this(context, null);
 	}
 
 	public TimestampView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init(context, attrs, 0);
+		this(context, attrs, android.R.attr.textViewStyle);
 	}
 
 	public TimestampView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		init(context, attrs, defStyleAttr);
+		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0);
+		try {
+			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
+			includeTime = a.getBoolean(R.styleable.TimestampView_includeTime, false);
+			format = a.getText(R.styleable.TimestampView_format);
+			defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage);
+			hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false);
+		} finally {
+			a.recycle();
+		}
+		if (VERSION.SDK_INT >= JELLY_BEAN) {
+			int maxLines = getMaxLines();
+			if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
+				setMaxLines(1);
+			}
+		}
 	}
 
 	@Override
@@ -69,25 +82,6 @@ public class TimestampView extends TextView {
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
 		super.onRestoreInstanceState(Icepick.restoreInstanceState(this, state));
-	}
-
-	private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0);
-		try {
-			isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false);
-			includeTime = a.getBoolean(R.styleable.TimestampView_includeTime, false);
-			format = a.getText(R.styleable.TimestampView_format);
-			defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage);
-			hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false);
-		} finally {
-			a.recycle();
-		}
-		if (VERSION.SDK_INT >= JELLY_BEAN) {
-			int maxLines = getMaxLines();
-			if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
-				setMaxLines(1);
-			}
-		}
 	}
 
 	public void setFormat(@StringRes int formatResId) {

@@ -41,11 +41,11 @@ public class ContentLoadingProgressBar extends ProgressBar {
 	};
 
 	public ContentLoadingProgressBar(Context context) {
-		this(context, null, 0);
+		this(context, null);
 	}
 
 	public ContentLoadingProgressBar(Context context, AttributeSet attrs) {
-		this(context, attrs, 0);
+		this(context, attrs, android.R.attr.progressBarStyle);
 	}
 
 	public ContentLoadingProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
