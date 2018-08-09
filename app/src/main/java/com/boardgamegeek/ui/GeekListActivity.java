@@ -91,9 +91,10 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_view:
+				//noinspection SpellCheckingInspection
 				ActivityUtils.linkToBgg(this, "geeklist", geekListId);
 				return true;
 			case R.id.menu_share:
@@ -169,6 +170,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		}
 
 		@Override
+		@NonNull
 		public Object instantiateItem(ViewGroup container, int position) {
 			Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
 			TabInfo tabInfo = tabs.get(position);
@@ -185,12 +187,13 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
+	@NonNull
 	public Loader<SafeResponse<GeekListResponse>> onCreateLoader(int id, Bundle data) {
 		return new GeekListLoader(this, geekListId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
+	public void onLoadFinished(@NonNull Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
 		GeekListResponse body = data.getBody();
 		if (body == null) {
 			errorMessage = getString(R.string.empty_geeklist);
@@ -248,7 +251,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onLoaderReset(Loader<SafeResponse<GeekListResponse>> loader) {
+	public void onLoaderReset(@NonNull Loader<SafeResponse<GeekListResponse>> loader) {
 	}
 
 	private static class GeekListLoader extends BggLoader<SafeResponse<GeekListResponse>> {

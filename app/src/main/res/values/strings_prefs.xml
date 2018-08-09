@@ -120,16 +120,6 @@
 	<string name="library_Hugo_isOpenSource">true</string>
 	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
 
-	<string name="define_int_PhotoView"></string>
-	<string name="library_PhotoView_author">Chris Banes</string>
-	<string name="library_PhotoView_authorWebsite">https://chris.banes.me</string>
-	<string name="library_PhotoView_libraryName">PhotoView</string>
-	<string name="library_PhotoView_libraryDescription">Implementation of ImageView for Android that supports zooming, by various touch gestures.</string>
-	<string name="library_PhotoView_libraryVersion">1.2.4</string>
-	<string name="library_PhotoView_licenseId">apache_2_0</string>
-	<string name="library_PhotoView_isOpenSource">true</string>
-	<string name="library_PhotoView_repositoryLink">https://github.com/chrisbanes/PhotoView</string>
-
 	<string name="define_int_AndroidIcons"></string>
 	<string name="library_AndroidIcons_author">Opoloo</string>
 	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
@@ -140,6 +130,16 @@
 	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
 	<string name="library_AndroidIcons_isOpenSource">true</string>
 	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
+
+	<string name="define_int_NestedScrollWebView"></string>
+	<string name="library_NestedScrollWebView_author">Tobias Rohloff</string>
+	<string name="library_NestedScrollWebView_authorWebsite">https://github.com/tobiasrohloff</string>
+	<string name="library_NestedScrollWebView_libraryName">NestedScrollWebView for Android</string>
+	<string name="library_NestedScrollWebView_libraryDescription">An Android WebView that implements NestedScrollingChild, in order to use it with CoordinatorLayout and AppBarLayout.</string>
+	<string name="library_NestedScrollWebView_libraryVersion">1.0.2</string>
+	<string name="library_NestedScrollWebView_licenseId">apache_2_0</string>
+	<string name="library_NestedScrollWebView_isOpenSource">true</string>
+	<string name="library_NestedScrollWebView_repositoryLink">https://github.com/tobiasrohloff/NestedScrollWebView</string>
 
 	<string name="define_license_CCBYSA_4_0"></string>
 	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>

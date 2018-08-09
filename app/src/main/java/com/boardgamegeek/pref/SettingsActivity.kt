@@ -100,7 +100,9 @@ class SettingsActivity : DrawerActivity() {
                                         "LeakCanary",
                                         "MaterialRangeBar",
                                         "MPAndroidChart",
-                                        "PhotoView")
+                                        "NestedScrollWebView",
+                                        "PhotoView"
+                                )
                                 .withAutoDetect(true)
                                 .withLicenseShown(true)
                                 .withActivityTitle(getString(R.string.pref_about_licenses))
