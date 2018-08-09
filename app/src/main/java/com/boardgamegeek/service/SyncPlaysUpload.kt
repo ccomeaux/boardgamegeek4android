@@ -111,8 +111,8 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
                     val play = PlayBuilder.fromCursor(it)
                     val playerCursor = PlayBuilder.queryPlayers(context, internalId)
-                    playerCursor?.use {
-                        PlayBuilder.addPlayers(it, play)
+                    playerCursor?.use { cursor ->
+                        PlayBuilder.addPlayers(cursor, play)
                     }
 
                     val response = postPlayUpdate(play)
