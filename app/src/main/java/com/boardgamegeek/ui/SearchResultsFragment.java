@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +19,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +26,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +37,8 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
+import com.boardgamegeek.ui.adapter.Callback;
+import com.boardgamegeek.ui.adapter.SearchResultsAdapter;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
@@ -48,7 +46,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.SearchEvent;
@@ -223,7 +220,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		boolean isExactMatch = data != null && data.isExactMatch();
 
 		if (data != null) {
-			searchResultsAdapter = new SearchResultsAdapter(getActivity(), data.getList(),
+			searchResultsAdapter = new SearchResultsAdapter(
 				new Callback() {
 					@Override
 					public boolean onItemClick(int position) {
@@ -252,6 +249,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 						}
 					}
 				});
+			searchResultsAdapter.setResults(data.getList());
 			recyclerView.setAdapter(searchResultsAdapter);
 		} else if (searchResultsAdapter != null) {
 			searchResultsAdapter.clear();
@@ -414,134 +412,6 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		}
 	}
 
-	public interface Callback {
-		boolean onItemClick(int position);
-
-		boolean onItemLongClick(int position);
-	}
-
-	public static class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.SearchResultViewHolder> {
-		private final LayoutInflater inflater;
-		private final List<SearchResult> results;
-		private final Callback callback;
-		private final SparseBooleanArray selectedItems;
-
-		public SearchResultsAdapter(Activity activity, List<SearchResult> results, Callback callback) {
-			this.results = results;
-			this.callback = callback;
-			inflater = activity.getLayoutInflater();
-			selectedItems = new SparseBooleanArray();
-			setHasStableIds(true);
-		}
-
-		@Override
-		public SearchResultViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			View view = inflater.inflate(R.layout.row_search, parent, false);
-			return new SearchResultViewHolder(view);
-		}
-
-		@Override
-		public void onBindViewHolder(SearchResultViewHolder holder, int position) {
-			holder.bind(getItem(position), position);
-		}
-
-		@Override
-		public int getItemCount() {
-			return results == null ? 0 : results.size();
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		public SearchResult getItem(int position) {
-			return results.get(position);
-		}
-
-		public void clear() {
-			results.clear();
-		}
-
-		public class SearchResultViewHolder extends RecyclerView.ViewHolder {
-			@BindView(R.id.name) TextView nameView;
-			@BindView(R.id.year) TextView yearView;
-			@BindView(R.id.game_id) TextView gameIdView;
-
-			public SearchResultViewHolder(View itemView) {
-				super(itemView);
-				ButterKnife.bind(this, itemView);
-			}
-
-			public void bind(final SearchResult game, final int position) {
-				if (game == null) return;
-				nameView.setText(game.name);
-				int style;
-				switch (game.getNameType()) {
-					case SearchResult.NAME_TYPE_ALTERNATE:
-						style = Typeface.ITALIC;
-						break;
-					case SearchResult.NAME_TYPE_PRIMARY:
-					case SearchResult.NAME_TYPE_UNKNOWN:
-					default:
-						style = Typeface.NORMAL;
-						break;
-				}
-				nameView.setTypeface(nameView.getTypeface(), style);
-				yearView.setText(PresentationUtils.describeYear(yearView.getContext(), game.getYearPublished()));
-				gameIdView.setText(gameIdView.getContext().getString(R.string.id_list_text, String.valueOf(game.id)));
-
-				itemView.setActivated(selectedItems.get(position, false));
-
-				itemView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						boolean handled = false;
-						if (callback != null) {
-							handled = callback.onItemClick(position);
-						}
-						if (!handled) {
-							GameActivity.start(itemView.getContext(), game.id, game.name);
-						}
-					}
-				});
-
-				itemView.setOnLongClickListener(new OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View v) {
-						return callback != null && callback.onItemLongClick(position);
-					}
-				});
-			}
-		}
-
-		public void toggleSelection(int position) {
-			if (selectedItems.get(position, false)) {
-				selectedItems.delete(position);
-			} else {
-				selectedItems.put(position, true);
-			}
-			notifyItemChanged(position);
-		}
-
-		public void clearSelections() {
-			selectedItems.clear();
-			notifyDataSetChanged();
-		}
-
-		public int getSelectedItemCount() {
-			return selectedItems.size();
-		}
-
-		public List<Integer> getSelectedItems() {
-			List<Integer> items = new ArrayList<>(selectedItems.size());
-			for (int i = 0; i < selectedItems.size(); i++) {
-				items.add(selectedItems.keyAt(i));
-			}
-			return items;
-		}
-	}
-
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		MenuInflater inflater = mode.getMenuInflater();
@@ -565,9 +435,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (searchResultsAdapter == null ||
-			searchResultsAdapter.getSelectedItems() == null ||
-			searchResultsAdapter.getSelectedItems().size() == 0) {
+		if (searchResultsAdapter == null || searchResultsAdapter.getSelectedItems().size() == 0) {
 			return false;
 		}
 		SearchResult game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems().get(0));

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<com.boardgamegeek.ui.widget.ForegroundLinearLayout style="@style/RowContainer.Tall"
-													xmlns:android="http://schemas.android.com/apk/res/android"
-													xmlns:tools="http://schemas.android.com/tools"
-													android:layout_width="match_parent"
-													android:layout_height="wrap_content"
-													android:background="@drawable/activatable_background"
-													android:foreground="?android:attr/selectableItemBackground">
+<com.boardgamegeek.ui.widget.ForegroundLinearLayout
+	style="@style/RowContainer.Tall"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/activatable_background"
+	android:foreground="?android:attr/selectableItemBackground">
 
 	<RelativeLayout
 		android:layout_width="match_parent"
@@ -13,7 +14,7 @@
 		android:layout_gravity="center_vertical">
 
 		<TextView
-			android:id="@+id/name"
+			android:id="@+id/nameView"
 			style="@style/Text.Primary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -22,20 +23,20 @@
 			tools:text="Ticket to Ride"/>
 
 		<TextView
-			android:id="@+id/year"
+			android:id="@+id/yearView"
 			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
-			android:layout_below="@+id/name"
+			android:layout_below="@+id/nameView"
 			tools:text="2004"/>
 
 		<TextView
-			android:id="@+id/game_id"
+			android:id="@+id/gameIdView"
 			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignBaseline="@+id/year"
+			android:layout_alignBaseline="@+id/yearView"
 			android:layout_alignParentRight="true"
 			tools:text="ID: 13"/>
 	</RelativeLayout>
