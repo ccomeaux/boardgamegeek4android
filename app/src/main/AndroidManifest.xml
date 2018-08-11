@@ -196,16 +196,14 @@
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:exported="true"
-			android:label="@string/search_label"
+			android:label=""
 			android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH"/>
-
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 			<intent-filter>
 				<action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
-
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 
