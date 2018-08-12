@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
-import com.boardgamegeek.model.SearchResult
+import com.boardgamegeek.entities.SearchResultEntity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.SearchResultViewHolder
 import com.boardgamegeek.util.PresentationUtils
@@ -26,7 +26,7 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
         setHasStableIds(true)
     }
 
-    var results: List<SearchResult> by Delegates.observable(emptyList()) { _, old, new ->
+    var results: List<SearchResultEntity> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
             o.id == n.id
         }
@@ -52,12 +52,12 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
     }
 
     inner class SearchResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(game: SearchResult?, position: Int) {
+        fun bind(game: SearchResultEntity?, position: Int) {
             game?.let {
                 itemView.nameView.text = it.name
                 val style = when (it.nameType) {
-                    SearchResult.NAME_TYPE_ALTERNATE -> Typeface.ITALIC
-                    SearchResult.NAME_TYPE_PRIMARY, SearchResult.NAME_TYPE_UNKNOWN -> Typeface.NORMAL
+                    SearchResultEntity.NAME_TYPE_ALTERNATE -> Typeface.ITALIC
+                    SearchResultEntity.NAME_TYPE_PRIMARY, SearchResultEntity.NAME_TYPE_UNKNOWN -> Typeface.NORMAL
                     else -> Typeface.NORMAL
                 }
                 itemView.nameView.setTypeface(itemView.nameView.typeface, style)

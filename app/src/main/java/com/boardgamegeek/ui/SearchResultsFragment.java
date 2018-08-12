@@ -32,10 +32,12 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.entities.SearchResultEntity;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.SearchResponse;
-import com.boardgamegeek.model.SearchResult;
+import com.boardgamegeek.io.model.SearchResponse;
+import com.boardgamegeek.io.model.SearchResult;
+import com.boardgamegeek.mappers.SearchResultMapper;
 import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
 import com.boardgamegeek.ui.adapter.Callback;
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter;
@@ -113,7 +115,9 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_search_results, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
-		setUpRecyclerView();
+		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 		return rootView;
 	}
 
@@ -157,13 +161,6 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void setUpRecyclerView() {
-		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-	}
-
-	@DebugLog
 	private void showHelp() {
 		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
 		if (builder != null) {
@@ -183,13 +180,11 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		}
 	}
 
-	@DebugLog
 	private Target getTarget() {
 		final View child = HelpUtils.getRecyclerViewVisibleChild(recyclerView);
 		return child == null ? null : new SafeViewTarget(child);
 	}
 
-	@DebugLog
 	private void maybeShowHelp() {
 		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
 			new Handler().postDelayed(new Runnable() {
@@ -249,7 +244,12 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 						}
 					}
 				});
-			searchResultsAdapter.setResults(data.getList());
+			List<SearchResultEntity> list = new ArrayList<>(data.getList().size());
+			SearchResultMapper mapper = new SearchResultMapper();
+			for (SearchResult result : data.getList()) {
+				list.add(mapper.map(result));
+			}
+			searchResultsAdapter.setResults(list);
 			recyclerView.setAdapter(searchResultsAdapter);
 		} else if (searchResultsAdapter != null) {
 			searchResultsAdapter.clear();
@@ -374,7 +374,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 			if (shouldSearchExact) {
 				response = new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1), searchText, true);
 			}
-			if (response == null || response.getBody() == null || response.getBody().games == null || response.getBody().games.isEmpty()) {
+			if (response == null || response.getBody() == null || response.getBody().items == null || response.getBody().items.isEmpty()) {
 				return new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0), searchText, false);
 			} else {
 				return response;
@@ -402,13 +402,13 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		}
 
 		public int getCount() {
-			if (getBody() == null || getBody().games == null) return 0;
-			return getBody().games.size();
+			if (getBody() == null || getBody().items == null) return 0;
+			return getBody().items.size();
 		}
 
 		public List<SearchResult> getList() {
-			if (getBody() == null || getBody().games == null) return new ArrayList<>();
-			return getBody().games;
+			if (getBody() == null || getBody().items == null) return new ArrayList<>();
+			return getBody().items;
 		}
 	}
 
@@ -438,38 +438,38 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		if (searchResultsAdapter == null || searchResultsAdapter.getSelectedItems().size() == 0) {
 			return false;
 		}
-		SearchResult game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems().get(0));
+		SearchResultEntity game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems().get(0));
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				LogPlayActivity.logPlay(getContext(), game.id, game.name, null, null, null, false);
+				LogPlayActivity.logPlay(getContext(), game.getId(), game.getName(), null, null, null, false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
 				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.getSelectedItemCount());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 				for (int position : searchResultsAdapter.getSelectedItems()) {
-					SearchResult g = searchResultsAdapter.getItem(position);
-					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
+					SearchResultEntity g = searchResultsAdapter.getItem(position);
+					ActivityUtils.logQuickPlay(getActivity(), g.getId(), g.getName());
 				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
 				final String shareMethod = "Search";
 				if (searchResultsAdapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.id, game.name, shareMethod);
+					ActivityUtils.shareGame(getActivity(), game.getId(), game.getName(), shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(searchResultsAdapter.getSelectedItemCount());
 					for (int position : searchResultsAdapter.getSelectedItems()) {
-						SearchResult g = searchResultsAdapter.getItem(position);
-						games.add(Pair.create(g.id, g.name));
+						SearchResultEntity g = searchResultsAdapter.getItem(position);
+						games.add(Pair.create(g.getId(), g.getName()));
 					}
 					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
 				return true;
 			case R.id.menu_link:
 				mode.finish();
-				ActivityUtils.linkBgg(getActivity(), game.id);
+				ActivityUtils.linkBgg(getActivity(), game.getId());
 				return true;
 		}
 		return false;
