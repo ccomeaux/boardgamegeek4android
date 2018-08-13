@@ -4,7 +4,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.PluralsRes;
@@ -69,8 +68,6 @@ import retrofit2.Call;
 public class SearchResultsFragment extends Fragment implements LoaderCallbacks<SearchData>, ActionMode.Callback {
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 0;
-	private static final int MESSAGE_QUERY_UPDATE = 1;
-	private static final int QUERY_UPDATE_DELAY_MILLIS = 2000;
 	private static final String KEY_SEARCH_TEXT = "SEARCH_TEXT";
 	private static final String KEY_SEARCH_EXACT = "SEARCH_EXACT";
 
@@ -86,16 +83,6 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
-
-	private final Handler requeryHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			if (msg.what == MESSAGE_QUERY_UPDATE) {
-				@SuppressWarnings("unchecked") Pair<String, Boolean> pair = (Pair<String, Boolean>) msg.obj;
-				requery(pair.first, pair.second);
-			}
-		}
-	};
 
 	public static SearchResultsFragment newInstance() {
 		Bundle args = new Bundle();
@@ -301,7 +288,6 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 				snackbar.setAction(R.string.more, new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
 						requery(searchText, false);
 						Answers.getInstance().logCustom(new CustomEvent("SearchMore"));
 					}
@@ -317,19 +303,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	public void onLoaderReset(Loader<SearchData> results) {
 	}
 
-	public void requestQueryUpdate(String query) {
-		AnimationUtils.fadeIn(progressView);
-		if (TextUtils.isEmpty(query)) {
-			requery(query, true);
-		} else {
-			requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-			requeryHandler.sendMessageDelayed(Message.obtain(requeryHandler, MESSAGE_QUERY_UPDATE, new Pair<>(query, true)), QUERY_UPDATE_DELAY_MILLIS);
-		}
-	}
-
-	public void forceQueryUpdate(String query) {
-		requeryHandler.removeMessages(MESSAGE_QUERY_UPDATE);
-		AnimationUtils.fadeIn(progressView);
+	public void requery(@Nullable String query) {
 		requery(query, true);
 	}
 
@@ -339,6 +313,7 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact)
 			return;
 
+		AnimationUtils.fadeIn(progressView);
 		Answers.getInstance().logSearch(new SearchEvent().putQuery(query));
 		getLoaderManager().restartLoader(LOADER_ID, getLoaderBundle(query, shouldSearchExact), SearchResultsFragment.this);
 	}

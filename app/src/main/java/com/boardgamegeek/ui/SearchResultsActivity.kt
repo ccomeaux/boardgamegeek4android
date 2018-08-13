@@ -66,7 +66,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null && query.length > 1) {
-                    (fragment as SearchResultsFragment).forceQueryUpdate(query)
+                    (fragment as SearchResultsFragment).requery(query)
                 }
                 // close the auto-complete list; don't pass to a different activity
                 searchView.clearFocus()
@@ -75,11 +75,6 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 searchText = newText // save text to be restored in case of a configuration change
-                if (newText != null && newText.length > 2) {
-                    (fragment as SearchResultsFragment).requestQueryUpdate(newText)
-                } else {
-                    (fragment as SearchResultsFragment).requestQueryUpdate("")
-                }
                 return true
             }
         })
