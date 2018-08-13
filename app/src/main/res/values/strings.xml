@@ -33,6 +33,7 @@
 	<string name="length_hint">Length in minutes</string>
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
+	<string name="current_location">Use Current Location</string>
 	<string name="location_hint">Location</string>
 	<string name="no_location">&lt;No location&gt;</string>
 	<string name="nowhere_in_angle_brackets">&lt;Nowhere&gt;</string>

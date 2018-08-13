@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog.OnDateSetListener;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -18,6 +20,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
@@ -27,6 +32,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -101,13 +107,18 @@ import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import butterknife.BindDimen;
@@ -139,6 +150,8 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_COLORS = 1 << 2;
 	private static final int TOKEN_UNINITIALIZED = 1 << 15;
+	private static final int REQUEST_PERMISSIONS = 3000;
+
 
 	@State long internalId = BggContract.INVALID_ID;
 	private int gameId;
@@ -174,6 +187,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private Bitmap editIcon;
 	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
 	private ItemTouchHelper itemTouchHelper;
+	private FusedLocationProviderClient currentLocationListener;
 
 	@State boolean isUserShowingLocation;
 	@State boolean isUserShowingLength;
@@ -501,6 +515,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
+		currentLocationListener = LocationServices.getFusedLocationProviderClient(this);
 
 		if (thumbnailUrl == null) thumbnailUrl = "";
 		if (imageUrl == null) imageUrl = "";
@@ -1462,6 +1477,34 @@ public class LogPlayActivity extends AppCompatActivity {
 					locationView.setTextKeepState(play.location);
 					canEdit = true;
 				}
+			}
+
+			@OnClick(R.id.log_play_location_get_current)
+			public void getCurrentLocation()  {
+				if (ActivityCompat.checkSelfPermission(getApplicationContext(), permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+					Timber.w("No location permission");
+					if (ActivityCompat.shouldShowRequestPermissionRationale(getParent(),
+						permission.ACCESS_COARSE_LOCATION)) {
+						// TODO: Don't really know what to do here.
+						// ActivityCompat.requestPermissions(getParent(), new String[]{permission.ACCESS_COARSE_LOCATION}, REQUEST_PERMISSIONS);
+					}
+					return;
+				}
+				currentLocationListener.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+					@Override
+					public void onSuccess(Location currentLocation) {
+						Geocoder geoCoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+						try {
+							List<Address> addresses = geoCoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
+							if (!addresses.isEmpty()) {
+								// Only the city should be enough for most people
+								locationView.setText(addresses.get(0).getLocality());
+							}
+						} catch (IOException e) {
+							Timber.w("Unable to get location");
+						}
+					}
+				});
 			}
 		}
 

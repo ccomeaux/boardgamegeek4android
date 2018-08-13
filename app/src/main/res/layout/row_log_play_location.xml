@@ -24,4 +24,11 @@
 		android:inputType="textCapWords"
 		android:textAppearance="@style/Text.Big"
 		android:textColor="#000"/>
+
+	<ImageView
+		android:id="@+id/log_play_location_get_current"
+		style="@style/Icon"
+		android:contentDescription="@string/current_location"
+		android:clickable="true"
+		android:src="@drawable/ic_location"/>
 </LinearLayout>
