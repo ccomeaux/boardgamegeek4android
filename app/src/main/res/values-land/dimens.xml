@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<item name="hero_aspect_ratio" type="string">H,38:9</item>
+	<item name="hero_aspect_ratio" type="string">H,32:9</item>
 </resources>
