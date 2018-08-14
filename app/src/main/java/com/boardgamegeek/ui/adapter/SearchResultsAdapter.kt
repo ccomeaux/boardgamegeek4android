@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.adapter
 
 import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.RecyclerView.NO_ID
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +44,7 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
 
     override fun getItemCount() = results.size
 
-    override fun getItemId(position: Int) = position.toLong()
+    override fun getItemId(position: Int) = getItem(position)?.id?.toLong() ?: NO_ID
 
     fun getItem(position: Int) = results.getOrNull(position)
 
