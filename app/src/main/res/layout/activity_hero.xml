@@ -52,7 +52,8 @@
 						app:layout_constraintEnd_toEndOf="parent"
 						app:layout_constraintStart_toStartOf="parent"
 						app:layout_constraintTop_toTopOf="parent"
-						app:layout_constraintDimensionRatio="@fraction/hero_aspect_ratio"
+						app:layout_constraintDimensionRatio="@string/hero_aspect_ratio"
+						app:layout_constraintWidth_default="percent"
 						app:layout_constraintHeight_default="percent"/>
 				</android.support.constraint.ConstraintLayout>
 

@@ -61,5 +61,6 @@
 	<dimen name="progress_bar_height">8dp</dimen>
 	<dimen name="material_progress_bar_height">4dp</dimen>
 	<dimen name="material_progress_bar_unclipped_height">24dp</dimen>
+	<item name="hero_aspect_ratio" type="string">H,16:9</item>
 
 </resources>
