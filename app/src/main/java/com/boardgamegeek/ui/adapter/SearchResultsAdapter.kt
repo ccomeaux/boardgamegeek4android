@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.SearchResultEntity
+import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.SearchResultViewHolder
-import com.boardgamegeek.util.PresentationUtils
 import kotlinx.android.synthetic.main.row_search.view.*
 import java.util.*
 import kotlin.properties.Delegates
@@ -62,8 +62,8 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
                     else -> Typeface.NORMAL
                 }
                 itemView.nameView.setTypeface(itemView.nameView.typeface, style)
-                itemView.yearView.text = PresentationUtils.describeYear(itemView.context, it.yearPublished)
-                itemView.gameIdView.text = itemView.gameIdView.context.getString(R.string.id_list_text, it.id.toString())
+                itemView.yearView.text = it.yearPublished.asYear(itemView.context)
+                itemView.gameIdView.text = itemView.context.getString(R.string.id_list_text, it.id.toString())
 
                 itemView.isActivated = selectedItems.get(position, false)
 

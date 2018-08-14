@@ -10,11 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.ActivityUtils
 import kotlinx.android.synthetic.main.fragment_game_links.*
 import org.jetbrains.anko.support.v4.act
+import org.jetbrains.anko.support.v4.ctx
 
 class GameLinksFragment : Fragment() {
     @ColorInt
@@ -34,16 +35,16 @@ class GameLinksFragment : Fragment() {
         val gameName = arguments?.getString(KEY_GAME_NAME)
 
         if (gameId != BggContract.INVALID_ID) {
-            geekbuddyAnalysisLink.setOnClickListener { ActivityUtils.linkToBgg(context, "geekbuddy/analyze/thing", gameId) }
-            bggLink.setOnClickListener { ActivityUtils.linkBgg(context, gameId) }
+            geekbuddyAnalysisLink.setOnClickListener { ctx.linkToBgg("geekbuddy/analyze/thing", gameId) }
+            bggLink.setOnClickListener { ctx.linkBgg(gameId) }
         }
-        if (!gameName.isNullOrBlank()) {
-            bgPricesLink.setOnClickListener { ActivityUtils.linkBgPrices(context, gameName) }
-            bgPricesUkLink.setOnClickListener { ActivityUtils.linkBgPricesUk(context, gameName) }
-            amazonLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_COM) }
-            amazonUkLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_UK) }
-            amazonDeLink.setOnClickListener { ActivityUtils.linkAmazon(context, gameName, ActivityUtils.LINK_AMAZON_DE) }
-            ebayLink.setOnClickListener { ActivityUtils.linkEbay(context, gameName) }
+        if (gameName != null && gameName.isNotBlank()) {
+            bgPricesLink.setOnClickListener { ctx.linkBgPrices(gameName) }
+            bgPricesUkLink.setOnClickListener { ctx.linkBgPricesUk(gameName) }
+            amazonLink.setOnClickListener { ctx.linkAmazon(gameName, LINK_AMAZON_COM) }
+            amazonUkLink.setOnClickListener { ctx.linkAmazon(gameName, LINK_AMAZON_UK) }
+            amazonDeLink.setOnClickListener { ctx.linkAmazon(gameName, LINK_AMAZON_DE) }
+            ebayLink.setOnClickListener { ctx.linkEbay(gameName) }
         }
 
         colorize(arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) ?: Color.TRANSPARENT)

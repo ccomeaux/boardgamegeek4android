@@ -15,13 +15,11 @@ import android.view.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.Callback
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
-import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.crashlytics.android.answers.Answers
@@ -223,7 +221,10 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         return true
     }
 
-    override fun onDestroyActionMode(mode: ActionMode) {}
+    override fun onDestroyActionMode(mode: ActionMode) {
+        actionMode = null
+        searchResultsAdapter.clearSelections()
+    }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         if (searchResultsAdapter.getSelectedItems().isEmpty()) {
@@ -232,29 +233,26 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         val game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems()[0])
         when (item.itemId) {
             R.id.menu_log_play -> {
-                mode.finish()
                 game?.let {
                     LogPlayActivity.logPlay(ctx, it.id, it.name, null, null, null, false)
                 }
+                mode.finish()
                 return true
             }
             R.id.menu_log_play_quick -> {
-                mode.finish()
                 toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
-                        ActivityUtils.logQuickPlay(ctx, it.id, it.name)
+                        ctx.logQuickPlay(it.id, it.name)
                     }
                 }
+                mode.finish()
                 return true
             }
             R.id.menu_share -> {
-                mode.finish()
                 val shareMethod = "Search"
                 if (searchResultsAdapter.selectedItemCount == 1) {
-                    game?.let {
-                        ActivityUtils.shareGame(act, it.id, it.name, shareMethod)
-                    }
+                    game?.let { act.shareGame(it.id, it.name, shareMethod) }
                 } else {
                     val games = ArrayList<Pair<Int, String>>(searchResultsAdapter.selectedItemCount)
                     for (position in searchResultsAdapter.getSelectedItems()) {
@@ -262,15 +260,14 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                             games.add(Pair.create(it.id, it.name))
                         }
                     }
-                    ActivityUtils.shareGames(act, games, shareMethod)
+                    act.shareGames(games, shareMethod)
                 }
+                mode.finish()
                 return true
             }
             R.id.menu_link -> {
+                game?.let { ctx.linkBgg(it.id) }
                 mode.finish()
-                game?.let {
-                    ActivityUtils.linkBgg(ctx, it.id)
-                }
                 return true
             }
         }
