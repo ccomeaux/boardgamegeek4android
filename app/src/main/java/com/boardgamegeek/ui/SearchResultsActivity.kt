@@ -66,7 +66,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null && query.length > 1) {
-                    (fragment as SearchResultsFragment).requery(query)
+                    (fragment as SearchResultsFragment).search(query)
                 }
                 // close the auto-complete list; don't pass to a different activity
                 searchView.clearFocus()
