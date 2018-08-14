@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui;
 
-import android.app.SearchManager;
-import android.content.Context;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -10,9 +10,7 @@ import android.support.annotation.PluralsRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,17 +29,11 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.entities.SearchResultEntity;
-import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.model.SearchResponse;
-import com.boardgamegeek.io.model.SearchResult;
-import com.boardgamegeek.mappers.SearchResultMapper;
-import com.boardgamegeek.ui.SearchResultsFragment.SearchData;
 import com.boardgamegeek.ui.adapter.Callback;
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter;
-import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.viewmodel.SearchViewModel;
 import com.boardgamegeek.ui.widget.SafeViewTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -60,19 +52,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
-import retrofit2.Call;
 
-public class SearchResultsFragment extends Fragment implements LoaderCallbacks<SearchData>, ActionMode.Callback {
+public class SearchResultsFragment extends Fragment implements ActionMode.Callback {
 	private static final int HELP_VERSION = 2;
-	private static final int LOADER_ID = 0;
-	private static final String KEY_SEARCH_TEXT = "SEARCH_TEXT";
-	private static final String KEY_SEARCH_EXACT = "SEARCH_EXACT";
 
-	@State String previousSearchText;
-	@State boolean previousShouldSearchExact;
 	private SearchResultsAdapter searchResultsAdapter;
 	private Snackbar snackbar;
 	private ShowcaseView showcaseView;
@@ -83,6 +66,8 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	@BindView(android.R.id.progress) View progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
+
+	private SearchViewModel viewModel;
 
 	public static SearchResultsFragment newInstance() {
 		Bundle args = new Bundle();
@@ -95,36 +80,132 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+
+		viewModel = ViewModelProviders.of(getActivity()).get(SearchViewModel.class);
+		viewModel.getSearchResults().observe(this, new Observer<RefreshableResource<List<SearchResultEntity>>>() {
+			@Override
+			public void onChanged(@Nullable RefreshableResource<List<SearchResultEntity>> resource) {
+				if (resource == null) return;
+
+				switch (resource.getStatus()) {
+					case REFRESHING:
+						AnimationUtils.fadeIn(progressView);
+						break;
+					case ERROR:
+						if (TextUtils.isEmpty(resource.getMessage())) {
+							emptyView.setText(R.string.empty_http_error); // TODO better message?
+						} else {
+							emptyView.setText(getString(R.string.empty_http_error, resource.getMessage()));
+						}
+						AnimationUtils.fadeIn(emptyView);
+						AnimationUtils.fadeOut(recyclerView);
+						AnimationUtils.fadeOut(progressView);
+						break;
+					case SUCCESS:
+						List<SearchResultEntity> data = resource.getData();
+						final kotlin.Pair<String, Boolean> query = viewModel.getQuery().getValue();
+						if (data == null || data.size() == 0) {
+							if (query != null && query.getSecond())
+								viewModel.searchInexact(query.getFirst());
+							if (query == null || TextUtils.isEmpty(query.getFirst())) {
+								emptyView.setText(R.string.search_initial_help);
+							} else {
+								emptyView.setText(R.string.empty_search);
+							}
+							searchResultsAdapter.clear();
+							AnimationUtils.fadeIn(emptyView);
+							AnimationUtils.fadeOut(recyclerView);
+						} else {
+							searchResultsAdapter.setResults(data);
+							AnimationUtils.fadeOut(emptyView);
+							AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
+						}
+						if (query != null) {
+							showSnackBar(query.getFirst(), query.getSecond(),
+								resource.getData() == null ? 0 : resource.getData().size());
+						}
+						AnimationUtils.fadeOut(progressView);
+						break;
+				}
+
+				maybeShowHelp();
+			}
+		});
+	}
+
+	private void showSnackBar(final String searchText, boolean isExactMatch, int count) {
+		if (TextUtils.isEmpty(searchText)) {
+			if (snackbar != null) snackbar.dismiss();
+		} else {
+			@PluralsRes final int messageId = isExactMatch ? R.plurals.search_results_exact : R.plurals.search_results;
+			if (snackbar == null || !snackbar.isShown()) {
+				snackbar = Snackbar.make(containerView,
+					getResources().getQuantityString(messageId, count, count, searchText),
+					Snackbar.LENGTH_INDEFINITE);
+				snackbar.getView().setBackgroundResource(R.color.dark_blue);
+				snackbar.setActionTextColor(ContextCompat.getColor(getActivity(), R.color.accent));
+			} else {
+				snackbar.setText(getResources().getQuantityString(messageId, count, count, searchText));
+			}
+			if (isExactMatch) {
+				snackbar.setAction(R.string.more, new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						requery(searchText, false);
+						Answers.getInstance().logCustom(new CustomEvent("SearchMore"));
+					}
+				});
+			} else {
+				snackbar.setAction("", null);
+			}
+			snackbar.show();
+		}
 	}
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_search_results, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_search_results, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 		recyclerView.setHasFixedSize(true);
 		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-		return rootView;
-	}
+		searchResultsAdapter = new SearchResultsAdapter(
+			new Callback() {
+				@Override
+				public boolean onItemClick(int position) {
+					if (actionMode == null) return false;
+					toggleSelection(position);
+					return true;
+				}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+				@Override
+				public boolean onItemLongClick(int position) {
+					if (actionMode != null) return false;
+					actionMode = getActivity().startActionMode(SearchResultsFragment.this);
+					if (actionMode == null) return false;
+					toggleSelection(position);
+					return true;
+				}
 
-		Bundle arguments = getArguments();
-		if (arguments != null && arguments.containsKey(SearchManager.QUERY)) {
-			previousSearchText = arguments.getString(SearchManager.QUERY);
-		}
-
-		getLoaderManager().initLoader(LOADER_ID, getLoaderBundle(previousSearchText, previousShouldSearchExact), SearchResultsFragment.this);
-	}
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+				private void toggleSelection(int position) {
+					searchResultsAdapter.toggleSelection(position);
+					int count = searchResultsAdapter.getSelectedItemCount();
+					if (count == 0) {
+						actionMode.finish();
+					} else {
+						actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+						actionMode.invalidate();
+					}
+				}
+			});
+		recyclerView.setAdapter(searchResultsAdapter);
 	}
 
 	@Override
@@ -183,207 +264,18 @@ public class SearchResultsFragment extends Fragment implements LoaderCallbacks<S
 		}
 	}
 
-	@Override
-	public Loader<SearchData> onCreateLoader(int id, Bundle data) {
-		return new SearchLoader(getActivity(),
-			data.getString(KEY_SEARCH_TEXT),
-			data.getBoolean(KEY_SEARCH_EXACT, true));
-	}
-
-	@DebugLog
-	@Override
-	public void onLoadFinished(Loader<SearchData> loader, SearchData data) {
-		AnimationUtils.fadeOut(progressView);
-
-		if (getActivity() == null) return;
-
-		int count = data == null ? 0 : data.getCount();
-		final String searchText = data == null ? "" : data.getSearchText();
-		boolean isExactMatch = data != null && data.isExactMatch();
-
-		if (data != null) {
-			searchResultsAdapter = new SearchResultsAdapter(
-				new Callback() {
-					@Override
-					public boolean onItemClick(int position) {
-						if (actionMode == null) return false;
-						toggleSelection(position);
-						return true;
-					}
-
-					@Override
-					public boolean onItemLongClick(int position) {
-						if (actionMode != null) return false;
-						actionMode = getActivity().startActionMode(SearchResultsFragment.this);
-						if (actionMode == null) return false;
-						toggleSelection(position);
-						return true;
-					}
-
-					private void toggleSelection(int position) {
-						searchResultsAdapter.toggleSelection(position);
-						int count = searchResultsAdapter.getSelectedItemCount();
-						if (count == 0) {
-							actionMode.finish();
-						} else {
-							actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-							actionMode.invalidate();
-						}
-					}
-				});
-			List<SearchResultEntity> list = new ArrayList<>(data.getList().size());
-			SearchResultMapper mapper = new SearchResultMapper();
-			for (SearchResult result : data.getList()) {
-				list.add(mapper.map(result));
-			}
-			searchResultsAdapter.setResults(list);
-			recyclerView.setAdapter(searchResultsAdapter);
-		} else if (searchResultsAdapter != null) {
-			searchResultsAdapter.clear();
-		}
-
-		if (data == null) {
-			if (TextUtils.isEmpty(searchText)) {
-				emptyView.setText(R.string.search_initial_help);
-			} else {
-				emptyView.setText(R.string.empty_search);
-			}
-			AnimationUtils.fadeIn(emptyView);
-			AnimationUtils.fadeOut(recyclerView);
-		} else if (data.hasError()) {
-			emptyView.setText(getString(R.string.empty_http_error, data.getErrorMessage()));
-			AnimationUtils.fadeIn(emptyView);
-			AnimationUtils.fadeOut(recyclerView);
-		} else if (data.getCount() == 0) {
-			if (TextUtils.isEmpty(searchText)) {
-				emptyView.setText(R.string.search_initial_help);
-			} else {
-				emptyView.setText(R.string.empty_search);
-			}
-			AnimationUtils.fadeIn(emptyView);
-			AnimationUtils.fadeOut(recyclerView);
-		} else {
-			AnimationUtils.fadeOut(emptyView);
-			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
-		}
-
-		maybeShowHelp();
-
-		if (TextUtils.isEmpty(searchText)) {
-			if (snackbar != null) {
-				snackbar.dismiss();
-			}
-		} else {
-			@PluralsRes final int messageId = isExactMatch ? R.plurals.search_results_exact : R.plurals.search_results;
-			if (snackbar == null || !snackbar.isShown()) {
-				snackbar = Snackbar.make(containerView,
-					getResources().getQuantityString(messageId, count, count, searchText),
-					Snackbar.LENGTH_INDEFINITE);
-				snackbar.getView().setBackgroundResource(R.color.dark_blue);
-				snackbar.setActionTextColor(ContextCompat.getColor(getActivity(), R.color.inverse_text));
-			} else {
-				snackbar.setText(getResources().getQuantityString(messageId, count, count, searchText));
-			}
-			if (isExactMatch) {
-				snackbar.setAction(R.string.more, new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						requery(searchText, false);
-						Answers.getInstance().logCustom(new CustomEvent("SearchMore"));
-					}
-				});
-			} else {
-				snackbar.setAction("", null);
-			}
-			snackbar.show();
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<SearchData> results) {
-	}
-
 	public void requery(@Nullable String query) {
 		requery(query, true);
 	}
 
-	private void requery(@Nullable String query, boolean shouldSearchExact) {
+	private void requery(@NonNull String query, boolean shouldSearchExact) {
 		if (!isAdded()) return;
-		if (query == null && previousSearchText == null) return;
-		if (previousSearchText != null && previousSearchText.equals(query) && shouldSearchExact == previousShouldSearchExact)
-			return;
-
 		AnimationUtils.fadeIn(progressView);
 		Answers.getInstance().logSearch(new SearchEvent().putQuery(query));
-		getLoaderManager().restartLoader(LOADER_ID, getLoaderBundle(query, shouldSearchExact), SearchResultsFragment.this);
-	}
-
-	@NonNull
-	private Bundle getLoaderBundle(String query, boolean shouldSearchExact) {
-		previousSearchText = query;
-		previousShouldSearchExact = shouldSearchExact;
-		Bundle args = new Bundle();
-		args.putString(KEY_SEARCH_TEXT, query);
-		args.putBoolean(KEY_SEARCH_EXACT, shouldSearchExact);
-		return args;
-	}
-
-	private static class SearchLoader extends BggLoader<SearchData> {
-		private final BggService bggService;
-		private final String searchText;
-		private final boolean shouldSearchExact;
-
-		public SearchLoader(Context context, String searchText, boolean shouldSearchExact) {
-			super(context);
-			bggService = Adapter.createForXml();
-			this.searchText = searchText;
-			this.shouldSearchExact = shouldSearchExact;
-		}
-
-		@Override
-		public SearchData loadInBackground() {
-			if (TextUtils.isEmpty(searchText)) {
-				return null;
-			}
-			SearchData response = null;
-			if (shouldSearchExact) {
-				response = new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 1), searchText, true);
-			}
-			if (response == null || response.getBody() == null || response.getBody().items == null || response.getBody().items.isEmpty()) {
-				return new SearchData(bggService.search(searchText, BggService.SEARCH_TYPE_BOARD_GAME, 0), searchText, false);
-			} else {
-				return response;
-			}
-		}
-	}
-
-	static class SearchData extends SafeResponse<SearchResponse> {
-		private final String searchText;
-		private final boolean isExactMatch;
-
-		public SearchData(Call<SearchResponse> call, String searchText, boolean isExactMatch) {
-			super(call);
-			this.searchText = searchText;
-			this.isExactMatch = isExactMatch;
-		}
-
-		public String getSearchText() {
-			return searchText;
-		}
-
-
-		public boolean isExactMatch() {
-			return isExactMatch;
-		}
-
-		public int getCount() {
-			if (getBody() == null || getBody().items == null) return 0;
-			return getBody().items.size();
-		}
-
-		public List<SearchResult> getList() {
-			if (getBody() == null || getBody().items == null) return new ArrayList<>();
-			return getBody().items;
+		if (shouldSearchExact) {
+			viewModel.search(query);
+		} else {
+			viewModel.searchInexact(query);
 		}
 	}
 
