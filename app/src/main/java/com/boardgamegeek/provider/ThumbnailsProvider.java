@@ -1,12 +1,12 @@
 package com.boardgamegeek.provider;
 
-import java.io.IOException;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 import com.boardgamegeek.util.FileUtils;
+
+import java.io.IOException;
 
 import timber.log.Timber;
 
@@ -20,7 +20,7 @@ public class ThumbnailsProvider extends BaseProvider {
 		try {
 			return FileUtils.deleteContents(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS));
 		} catch (IOException e) {
-			Timber.e(e, "Couldn't delete avatars");
+			Timber.e(e, "Couldn't delete thumbnails");
 			return 0;
 		}
 	}

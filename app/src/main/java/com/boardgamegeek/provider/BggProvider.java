@@ -101,7 +101,6 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new GamesIdThumbnailProvider());
 		addProvider(map, new CollectionIdThumbnailProvider());
 		addProvider(map, new AvatarsProvider());
-		addProvider(map, new AvatarsIdProvider());
 		addProvider(map, new BuddiesIdAvatarProvider());
 
 		addProvider(map, new SearchSuggestProvider());

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
-	android:id="@+id/root_container"
+	android:id="@+id/containerView"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<FrameLayout
+		android:id="@+id/progressView"
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/material_progress_bar_height">
+		android:layout_height="@dimen/material_progress_bar_height"
+		android:visibility="gone"
+		tools:visibility="visible">
 
-		<!-- External FrameLayout required to clip
-		ProgressBar top and bottom asset spacing. -->
+		<!-- External FrameLayout required to clip ProgressBar top and bottom asset spacing. -->
 
 		<ProgressBar
-			android:id="@android:id/progress"
 			style="?android:attr/progressBarStyleHorizontal"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/material_progress_bar_unclipped_height"
@@ -23,17 +25,18 @@
 	</FrameLayout>
 
 	<TextView
-		android:id="@android:id/empty"
+		android:id="@+id/emptyView"
 		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:text="@string/search_initial_help"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		tools:visibility="visible"/>
 
 	<android.support.v7.widget.RecyclerView
-		android:id="@android:id/list"
+		android:id="@+id/recyclerView"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:clipToPadding="false"
 		android:paddingBottom="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_standard"
