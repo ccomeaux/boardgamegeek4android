@@ -333,7 +333,7 @@ class GameDao(private val context: BggApplication) {
                                 wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3
                                 numberOfPlays = it.getIntOrZero(Collection.NUM_PLAYS)
                                 rating = it.getDoubleOrZero(Collection.RATING)
-                                comment = it.getString(Collection.COMMENT)
+                                comment = it.getStringOrEmpty(Collection.COMMENT)
                             }
 
                         } while (it.moveToNext())
