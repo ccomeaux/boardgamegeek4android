@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical">
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical">
 
 	<RadioGroup
 		android:layout_width="wrap_content"
@@ -23,7 +24,7 @@
 			android:id="@+id/recommended"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/recommended"/>
+			android:text="@string/good"/>
 	</RadioGroup>
 
 	<TextView
@@ -31,20 +32,26 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_horizontal"
-		android:text="@string/for_"/>
+		android:text="@string/_with_"/>
 
-	<SeekBar
+	<com.appyvet.materialrangebar.RangeBar
 		android:id="@+id/range_bar"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:max="9"
-		android:minHeight="40dp"/>
+		android:layout_height="72dp"
+		android:paddingTop="@dimen/padding_standard"
+		app:mrb_barWeight="1dp"
+		app:mrb_pinMaxFont="14sp"
+		app:mrb_pinRadius="16dp"
+		app:mrb_rangeBar="false"
+		app:mrb_temporaryPins="false"
+		app:mrb_tickEnd="10"
+		app:mrb_tickInterval="1"
+		app:mrb_tickStart="1"/>
 
 	<TextView
-		android:id="@+id/description"
 		style="@style/Text.Dialog"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_horizontal"
-		tools:text="4 players"/>
+		android:text="@string/_players"/>
 </LinearLayout>

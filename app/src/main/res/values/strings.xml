@@ -433,8 +433,10 @@
 	<string name="from">from</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
+	<string name="_players">…players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
+	<string name="_with_">…with…</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>

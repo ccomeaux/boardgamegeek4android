@@ -9,10 +9,8 @@ import android.support.v7.app.AlertDialog.Builder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 
+import com.appyvet.materialrangebar.RangeBar;
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.RecommendedPlayerCountFilterer;
@@ -22,32 +20,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecommendedPlayerCountFilterDialog implements CollectionFilterDialog {
-	private Context context;
 	@BindView(R.id.best) RadioButton bestButton;
 	@BindView(R.id.recommended) RadioButton recommendedButton;
-	@BindView(R.id.range_bar) SeekBar seekBar;
-	@BindView(R.id.description) TextView descriptionView;
+	@BindView(R.id.range_bar) RangeBar rangeBar;
 
 	@Override
 	public void createDialog(Context context, OnFilterChangedListener listener, CollectionFilterer filter) {
-		this.context = context;
 		View layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter_recommended_player_count, null);
 
 		ButterKnife.bind(this, layout);
-		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				updateDescription(seekBar.getProgress() + 1);
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-			}
-		});
 		initializeUi(filter);
 
 		AlertDialog alertDialog = createAlertDialog(context, listener, layout);
@@ -59,7 +40,7 @@ public class RecommendedPlayerCountFilterDialog implements CollectionFilterDialo
 		int playerCount = 4;
 		int recommendation = 1;
 		if (rpcFilter != null) {
-			playerCount = MathUtils.constrain(rpcFilter.getPlayerCount(), 1, seekBar.getMax() + 1);
+			playerCount = MathUtils.constrain(rpcFilter.getPlayerCount(), (int) rangeBar.getTickStart(), (int) rangeBar.getTickEnd());
 			recommendation = rpcFilter.getRecommendation();
 		}
 
@@ -68,12 +49,7 @@ public class RecommendedPlayerCountFilterDialog implements CollectionFilterDialo
 		} else {
 			recommendedButton.toggle();
 		}
-		seekBar.setProgress(playerCount - 1);
-		updateDescription(playerCount);
-	}
-
-	private void updateDescription(int playerCount) {
-		descriptionView.setText(context.getResources().getQuantityString(R.plurals.players_suffix, playerCount, playerCount));
+		rangeBar.setSeekPinByIndex(playerCount - 1);
 	}
 
 	private AlertDialog createAlertDialog(final Context context, final OnFilterChangedListener listener, View layout) {
@@ -84,7 +60,7 @@ public class RecommendedPlayerCountFilterDialog implements CollectionFilterDialo
 				public void onClick(DialogInterface dialog, int which) {
 					if (listener != null) {
 						final RecommendedPlayerCountFilterer filterer = new RecommendedPlayerCountFilterer(context);
-						filterer.setPlayerCount(seekBar.getProgress() + 1);
+						filterer.setPlayerCount(rangeBar.getRightIndex() + 1);
 						filterer.setRecommendation(bestButton.isChecked() ? RecommendedPlayerCountFilterer.BEST : RecommendedPlayerCountFilterer.RECOMMENDED);
 						listener.addFilter(filterer);
 					}
