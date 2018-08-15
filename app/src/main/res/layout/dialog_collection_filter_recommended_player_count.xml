@@ -1,44 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:orientation="vertical"
 	android:paddingBottom="@dimen/material_margin_vertical"
 	android:paddingLeft="@dimen/material_margin_horizontal"
 	android:paddingRight="@dimen/material_margin_horizontal"
 	android:paddingTop="@dimen/material_margin_vertical">
 
 	<RadioGroup
+		android:id="@+id/radio_group"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintEnd_toStartOf="@+id/with"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
 
 		<RadioButton
 			android:id="@+id/best"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/padding_standard"
+			android:layout_marginRight="@dimen/padding_standard"
 			android:text="@string/best"/>
 
 		<RadioButton
 			android:id="@+id/recommended"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/padding_standard"
+			android:layout_marginRight="@dimen/padding_standard"
 			android:text="@string/good"/>
 	</RadioGroup>
 
 	<TextView
+		android:id="@+id/with"
 		style="@style/Text.Dialog"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		android:text="@string/_with_"/>
+		android:text="@string/_with_"
+		app:layout_constraintBottom_toBottomOf="@id/radio_group"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@id/radio_group"
+		app:layout_constraintTop_toTopOf="@id/radio_group"/>
 
 	<com.appyvet.materialrangebar.RangeBar
 		android:id="@+id/range_bar"
-		android:layout_width="match_parent"
-		android:layout_height="72dp"
-		android:paddingTop="@dimen/padding_standard"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/padding_standard"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/radio_group"
 		app:mrb_barWeight="1dp"
 		app:mrb_pinMaxFont="14sp"
 		app:mrb_pinRadius="16dp"
@@ -50,8 +66,10 @@
 
 	<TextView
 		style="@style/Text.Dialog"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		android:text="@string/_players"/>
-</LinearLayout>
+		android:text="@string/_players"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/range_bar"/>
+</android.support.constraint.ConstraintLayout>
