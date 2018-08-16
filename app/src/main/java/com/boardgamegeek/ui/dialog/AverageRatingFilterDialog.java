@@ -20,7 +20,7 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getCheckboxTextId() {
+	protected int getCheckboxTextResId() {
 		return R.string.unrated;
 	}
 
@@ -49,7 +49,7 @@ public class AverageRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_average_rating;
 	}
 

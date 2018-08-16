@@ -22,7 +22,7 @@ public class YearPublishedFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_year_published;
 	}
 

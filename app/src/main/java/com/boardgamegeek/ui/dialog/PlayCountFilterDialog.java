@@ -38,7 +38,7 @@ public class PlayCountFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_play_count;
 	}
 

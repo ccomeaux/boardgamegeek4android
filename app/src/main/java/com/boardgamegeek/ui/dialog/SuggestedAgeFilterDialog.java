@@ -23,12 +23,12 @@ public class SuggestedAgeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_suggested_age;
 	}
 
 	@Override
-	protected int getDescriptionId() {
+	protected int getDescriptionResId() {
 		return R.string.filter_description_include_missing_suggested_age;
 	}
 

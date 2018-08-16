@@ -33,12 +33,12 @@ public class PlayTimeFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getDescriptionId() {
+	protected int getDescriptionResId() {
 		return R.string.filter_description_include_missing_play_time;
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_play_time;
 	}
 

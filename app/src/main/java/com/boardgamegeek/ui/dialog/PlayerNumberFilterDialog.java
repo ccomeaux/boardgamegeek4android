@@ -8,12 +8,12 @@ import com.boardgamegeek.filterer.PlayerNumberFilterer;
 
 public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	@Override
-	protected int getCheckboxTextId() {
+	protected int getCheckboxTextResId() {
 		return R.string.exact;
 	}
 
 	@Override
-	protected int getDescriptionId() {
+	protected int getDescriptionResId() {
 		return R.string.filter_description_player_number;
 	}
 
@@ -42,7 +42,7 @@ public class PlayerNumberFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_number_of_players;
 	}
 

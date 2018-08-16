@@ -20,7 +20,7 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getCheckboxTextId() {
+	protected int getCheckboxTextResId() {
 		return R.string.unrated;
 	}
 
@@ -49,7 +49,7 @@ public class GeekRatingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_geek_rating;
 	}
 

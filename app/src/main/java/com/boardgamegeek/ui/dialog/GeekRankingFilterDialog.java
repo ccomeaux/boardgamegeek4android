@@ -32,7 +32,7 @@ public class GeekRankingFilterDialog extends SliderFilterDialog {
 	}
 
 	@Override
-	protected int getTitleId() {
+	protected int getTitleResId() {
 		return R.string.menu_geek_ranking;
 	}
 
