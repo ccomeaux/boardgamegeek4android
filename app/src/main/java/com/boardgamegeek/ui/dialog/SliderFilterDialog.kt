@@ -18,8 +18,7 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
     @get:StringRes
     protected abstract val titleResId: Int
 
-    protected open val checkboxVisibility: Int
-        get() = View.VISIBLE
+    protected open val checkboxVisibility: Int = View.VISIBLE
 
     protected open val checkboxTextResId: Int
         @StringRes
