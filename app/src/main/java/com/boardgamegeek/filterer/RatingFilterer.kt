@@ -2,6 +2,8 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import android.support.annotation.StringRes
+import com.boardgamegeek.extensions.andLess
+import com.boardgamegeek.extensions.andMore
 import java.util.*
 
 abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
@@ -21,13 +23,17 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
     protected fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
-        var text = when (min) {
-            max -> String.format(Locale.getDefault(), "%.1f", max)
+        var text = when {
+            min == lowerBound -> formatRating(max).andLess()
+            max == upperBound -> formatRating(min).andMore()
+            min == max -> formatRating(max)
             else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
         }
         if (includeUndefined) text += " (+${context.getString(unratedResId)})"
         return context.getString(prefixResId) + " " + text
     }
+
+    private fun formatRating(rating: Double) = String.format(Locale.getDefault(), "%.1f", rating)
 
     override fun getSelection(): String {
         var format = when (min) {

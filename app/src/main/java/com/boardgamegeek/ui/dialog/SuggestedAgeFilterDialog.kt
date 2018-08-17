@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.dialog
 
 import android.content.Context
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.andMore
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.SuggestedAgeFilterer
 
@@ -31,11 +32,11 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
         }
     }
 
-    override fun getPinText(value: String): String {
+    override fun getPinText(context: Context, value: String): String {
         val age = value.toIntOrNull() ?: SuggestedAgeFilterer.lowerBound
         return when (age) {
-            SuggestedAgeFilterer.upperBound -> "$age+"
-            else -> super.getPinText(value)
+            SuggestedAgeFilterer.upperBound -> value.andMore()
+            else -> value
         }
     }
 }

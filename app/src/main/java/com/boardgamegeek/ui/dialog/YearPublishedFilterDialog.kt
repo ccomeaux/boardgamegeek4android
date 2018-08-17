@@ -3,6 +3,9 @@ package com.boardgamegeek.ui.dialog
 import android.content.Context
 import android.view.View
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.andLess
+import com.boardgamegeek.extensions.andMore
+import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.YearPublishedFilterer
 
@@ -30,12 +33,13 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
         }
     }
 
-    override fun getPinText(value: String): String {
+    override fun getPinText(context: Context, value: String): String {
         val year = value.toIntOrNull() ?: YearPublishedFilterer.lowerBound
+
         return when (year) {
-            YearPublishedFilterer.lowerBound -> "<$value"
-            YearPublishedFilterer.upperBound -> "$value+"
-            else -> super.getPinText(value)
+            YearPublishedFilterer.lowerBound -> year.asYear(context).andLess()
+            YearPublishedFilterer.upperBound -> year.asYear(context).andMore()
+            else -> year.asYear(context)
         }
     }
 }

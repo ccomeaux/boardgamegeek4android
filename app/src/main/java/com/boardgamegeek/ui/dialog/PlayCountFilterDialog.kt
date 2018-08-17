@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.dialog
 import android.content.Context
 import android.view.View
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.andMore
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.PlayCountFilterer
 
@@ -23,21 +24,18 @@ class PlayCountFilterDialog : SliderFilterDialog() {
     }
 
     override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
-        var min = PlayCountFilterer.lowerBound
-        var max = PlayCountFilterer.upperBound
-        if (filter != null) {
-            val data = filter as PlayCountFilterer?
-            min = data!!.min
-            max = data.max
-        }
-        return SliderFilterDialog.InitialValues(min, max)
+        val f = filter as PlayCountFilterer?
+        return SliderFilterDialog.InitialValues(
+                f?.min ?: PlayCountFilterer.lowerBound,
+                f?.max ?: PlayCountFilterer.upperBound
+        )
     }
 
-    override fun getPinText(value: String): String {
+    override fun getPinText(context: Context, value: String): String {
         val count = value.toIntOrNull() ?: PlayCountFilterer.lowerBound
         return when (count) {
-            PlayCountFilterer.upperBound -> "$count+"
-            else -> super.getPinText(value)
+            PlayCountFilterer.upperBound -> value.andMore()
+            else -> value
         }
     }
 }

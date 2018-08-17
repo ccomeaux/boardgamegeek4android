@@ -3,6 +3,8 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import android.support.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.andLess
+import com.boardgamegeek.extensions.andMore
 import com.boardgamegeek.provider.BggContract.Games
 import java.util.*
 
@@ -23,8 +25,8 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
     override fun toShortDescription(): String {
         return when {
             min == lowerBound && max == upperBound -> ""
-            min == lowerBound -> "$max-"
-            max == upperBound -> "$min+"
+            min == lowerBound -> max.toString().andLess()
+            max == upperBound -> min.toString().andMore()
             min == max -> max.toString()
             else -> "$min-$max"
         }

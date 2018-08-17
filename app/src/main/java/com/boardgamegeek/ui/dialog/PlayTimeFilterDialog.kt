@@ -2,6 +2,8 @@ package com.boardgamegeek.ui.dialog
 
 import android.content.Context
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.andMore
+import com.boardgamegeek.extensions.asTime
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.PlayTimeFilterer
 
@@ -31,11 +33,11 @@ class PlayTimeFilterDialog : SliderFilterDialog() {
         )
     }
 
-    override fun getPinText(value: String): String {
+    override fun getPinText(context: Context, value: String): String {
         val time = value.toIntOrNull() ?: PlayTimeFilterer.lowerBound
         return when (time) {
-            PlayTimeFilterer.upperBound -> "$time+"
-            else -> super.getPinText(value)
+            PlayTimeFilterer.upperBound -> time.asTime().andMore()
+            else -> time.asTime()
         }
     }
 }

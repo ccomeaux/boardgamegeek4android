@@ -62,3 +62,9 @@ fun String.toMillis(format: DateFormat): Long {
         }
     }
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun String.andMore() = "${this}+"
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun String.andLess() = "<${this}"

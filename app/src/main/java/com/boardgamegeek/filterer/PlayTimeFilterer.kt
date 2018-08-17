@@ -3,8 +3,10 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import android.support.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.andLess
+import com.boardgamegeek.extensions.andMore
+import com.boardgamegeek.extensions.asTime
 import com.boardgamegeek.provider.BggContract.Games
-import java.util.*
 
 class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
     var min by IntervalDelegate(lowerBound, lowerBound, upperBound)
@@ -28,12 +30,13 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
 
     private fun describe(@StringRes unknownResId: Int): String {
         val range = when {
-            max == upperBound -> context.getString(R.string.and_up_suffix_abbr, min)
-            min == max -> String.format(Locale.getDefault(), "%,d", max)
-            else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
+            min == lowerBound -> max.asTime().andLess()
+            max == upperBound -> min.asTime().andMore()
+            min == max -> max.asTime()
+            else -> "${min.asTime()}-${max.asTime()}"
         }
         val unknown = if (includeUndefined) " (+${context.getString(unknownResId)})" else ""
-        return range + " " + context.getString(R.string.minutes_abbr) + unknown
+        return range + unknown
     }
 
     override fun getSelection(): String {

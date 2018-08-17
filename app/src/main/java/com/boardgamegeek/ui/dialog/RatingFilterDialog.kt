@@ -35,7 +35,7 @@ abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
         )
     }
 
-    override fun getPinText(value: String): String {
+    override fun getPinText(context: Context, value: String): String {
         return FORMAT.format((value.toIntOrNull() ?: 0).toDouble() / FACTOR)
     }
 

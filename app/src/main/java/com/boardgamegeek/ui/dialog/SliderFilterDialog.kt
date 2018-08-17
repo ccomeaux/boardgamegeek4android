@@ -44,7 +44,7 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             tickStart = absoluteMin.toFloat()
             tickEnd = absoluteMax.toFloat()
             setRangePinsByValue(low.toFloat(), high.toFloat())
-            setPinTextFormatter { value -> getPinText(value) }
+            setPinTextFormatter { value -> getPinText(context, value) }
             setOnRangeBarChangeListener { _, leftPinIndex, rightPinIndex, _, _ ->
                 low = (leftPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
                 high = (rightPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
@@ -128,7 +128,7 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
 
     protected abstract fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer
 
-    protected open fun getPinText(value: String) = value
+    protected open fun getPinText(context: Context, value: String) = value
 
     data class InitialValues @JvmOverloads constructor(val min: Int, val max: Int, val isChecked: Boolean = false)
 
