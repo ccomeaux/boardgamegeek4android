@@ -24,6 +24,8 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
         @StringRes
         get() = R.string.include_missing_values
 
+    protected open val supportsSlider = true
+
     protected open val descriptionResId: Int
         @StringRes
         get() = INVALID_STRING_RES_ID
@@ -44,10 +46,15 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             tickStart = absoluteMin.toFloat()
             tickEnd = absoluteMax.toFloat()
             setRangePinsByValue(low.toFloat(), high.toFloat())
+            if (low == high && supportsSlider) setRangeBarEnabled(false)
             setPinTextFormatter { value -> getPinText(context, value) }
             setOnRangeBarChangeListener { _, leftPinIndex, rightPinIndex, _, _ ->
-                low = (leftPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
                 high = (rightPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
+                low = if (isRangeBar) {
+                    (leftPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
+                } else {
+                    high
+                }
             }
         }
 
@@ -87,6 +94,32 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
                     } else {
                         updateRange(this, leftIndex, rightIndex - 1)
                     }
+                }
+            }
+        }
+
+        layout.rangeCheckBox.apply {
+            visibility = if (supportsSlider) View.VISIBLE else View.GONE
+            isChecked = (low != high)
+            setOnCheckedChangeListener { _, isChecked ->
+                layout.rangeBar.setRangeBarEnabled(isChecked)
+                layout.minDownButton.visibility = if (isChecked) View.VISIBLE else View.GONE
+                layout.minUpButton.visibility = if (isChecked) View.VISIBLE else View.GONE
+                layout.buttonSpace.visibility = if (isChecked) View.VISIBLE else View.GONE
+                if (isChecked) {
+                    layout.rangeBar.apply {
+                        if (leftIndex == rightIndex) {
+                            if (leftIndex > 0) {
+                                updateRange(this, leftIndex - 1, rightIndex)
+                            } else {
+                                updateRange(this, leftIndex, rightIndex + 1)
+                            }
+                        } else {
+                            updateRange(this, leftIndex, rightIndex)
+                        }
+                    }
+                } else {
+                    layout.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
                 }
             }
         }
