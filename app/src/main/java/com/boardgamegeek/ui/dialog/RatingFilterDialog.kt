@@ -14,6 +14,8 @@ abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
 
     override fun getType(context: Context) = createFilterer(context).type
 
+    override val rangeInterval = 10
+
     override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
         val x = createFilterer(context)
         return x.apply {

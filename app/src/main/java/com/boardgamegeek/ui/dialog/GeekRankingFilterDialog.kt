@@ -14,6 +14,8 @@ class GeekRankingFilterDialog : SliderFilterDialog() {
 
     override fun getType(context: Context) = GeekRankingFilterer(context).type
 
+    override val supportsSlider = false
+
     override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
         return GeekRankingFilterer(context).apply {
             this.min = min

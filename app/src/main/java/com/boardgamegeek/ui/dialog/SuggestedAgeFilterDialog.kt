@@ -13,6 +13,8 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
     override val absoluteMin = SuggestedAgeFilterer.lowerBound
     override val absoluteMax = SuggestedAgeFilterer.upperBound
 
+    override fun getType(context: Context) = SuggestedAgeFilterer(context).type
+
     override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
         val f = filter as SuggestedAgeFilterer?
         return SliderFilterDialog.InitialValues(
@@ -21,8 +23,6 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
                 f?.includeUndefined ?: false
         )
     }
-
-    override fun getType(context: Context) = SuggestedAgeFilterer(context).type
 
     override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
         return SuggestedAgeFilterer(context).apply {

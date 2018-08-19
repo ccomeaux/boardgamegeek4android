@@ -27,8 +27,8 @@ class PlayerNumberFilterDialog : SliderFilterDialog() {
     override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
         val f = filter as PlayerNumberFilterer?
         return SliderFilterDialog.InitialValues(
-                f?.min ?: PlayerNumberFilterer.lowerBound,
-                f?.max ?: PlayerNumberFilterer.upperBound,
+                f?.min ?: 4,
+                f?.max ?: 4,
                 f?.isExact ?: false
         )
     }

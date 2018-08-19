@@ -16,6 +16,8 @@ class PlayCountFilterDialog : SliderFilterDialog() {
 
     override fun getType(context: Context) = PlayCountFilterer(context).type
 
+    override val rangeInterval = 3
+
     override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
         val filterer = PlayCountFilterer(context)
         filterer.min = min

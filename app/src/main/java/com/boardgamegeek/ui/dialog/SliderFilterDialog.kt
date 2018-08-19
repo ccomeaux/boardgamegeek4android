@@ -26,6 +26,8 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
 
     protected open val supportsSlider = true
 
+    protected open val rangeInterval = 1
+
     protected open val descriptionResId: Int
         @StringRes
         get() = INVALID_STRING_RES_ID
@@ -110,9 +112,9 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
                     layout.rangeBar.apply {
                         if (leftIndex == rightIndex) {
                             if (leftIndex > 0) {
-                                updateRange(this, leftIndex - 1, rightIndex)
+                                updateRange(this, leftIndex - rangeInterval, rightIndex)
                             } else {
-                                updateRange(this, leftIndex, rightIndex + 1)
+                                updateRange(this, leftIndex, rightIndex + rangeInterval)
                             }
                         } else {
                             updateRange(this, leftIndex, rightIndex)

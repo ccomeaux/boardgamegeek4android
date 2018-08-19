@@ -16,6 +16,10 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
     override val absoluteMin = YearPublishedFilterer.lowerBound
     override val absoluteMax = YearPublishedFilterer.upperBound
 
+    override fun getType(context: Context) = YearPublishedFilterer(context).type
+
+    override val rangeInterval = 5
+
     override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
         val f = filter as YearPublishedFilterer?
         return SliderFilterDialog.InitialValues(
@@ -23,8 +27,6 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
                 f?.max ?: YearPublishedFilterer.upperBound
         )
     }
-
-    override fun getType(context: Context) = YearPublishedFilterer(context).type
 
     override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
         return YearPublishedFilterer(context).apply {

@@ -15,6 +15,8 @@ class AverageWeightFilterDialog : SliderFilterDialog() {
 
     override fun getType(context: Context) = AverageWeightFilterer(context).type
 
+    override val rangeInterval = 5
+
     override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
         return AverageWeightFilterer(context).apply {
             this.min = min.toDouble() / FACTOR
