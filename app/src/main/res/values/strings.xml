@@ -52,6 +52,7 @@
 	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
+	<string name="select_range">Select a range</string>
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
@@ -433,8 +434,10 @@
 	<string name="from">from</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
+	<string name="_players">…players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
+	<string name="_with_">…with…</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
