@@ -701,10 +701,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getCurrentValueCurrency(), item.getCurrentValue()));
 			sb.append(")");
 		}
+		if (!TextUtils.isEmpty(item.getInventoryLocation())) {
+			if (sb.toString().equals(initialText)) {
+				sb.clear();
+			} else {
+				sb.append(". ");
+			}
+			sb.append(getString(R.string.stored_in)).append(" ");
+			StringUtils.appendBold(sb, item.getInventoryLocation());
+		}
 
 		if (sb.toString().equals(initialText)) {
 			// shouldn't happen
-			return null;
+			return "";
 		}
 		return sb;
 	}
@@ -714,7 +723,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			!TextUtils.isEmpty(item.getAcquisitionDate()) ||
 			!TextUtils.isEmpty(item.getAcquiredFrom()) ||
 			item.getPrice() > 0.0 ||
-			item.getCurrentValue() > 0.0;
+			item.getCurrentValue() > 0.0 ||
+			!TextUtils.isEmpty(item.getInventoryLocation());
 	}
 
 	private static class WishlistPriorityAdapter extends ArrayAdapter<String> {

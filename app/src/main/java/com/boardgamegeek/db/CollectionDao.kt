@@ -239,6 +239,7 @@ class CollectionDao(private val context: BggApplication) {
                 values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate)
                 values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom)
                 values.put(Collection.PRIVATE_INFO_COMMENT, item.privateComment)
+                values.put(Collection.PRIVATE_INFO_INVENTORY_LOCATION, item.inventoryLocation)
             }
         }
         if (includeStats) {
@@ -281,7 +282,8 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
                 Collection.PRIVATE_INFO_PRICE_PAID,
                 Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-                Collection.PRIVATE_INFO_QUANTITY)
+                Collection.PRIVATE_INFO_QUANTITY,
+                Collection.PRIVATE_INFO_INVENTORY_LOCATION)
         removeValuesIfDirty(values, candidate.wishListCommentDirtyTimestamp, Collection.WISHLIST_COMMENT)
         removeValuesIfDirty(values, candidate.tradeConditionDirtyTimestamp, Collection.CONDITION)
         removeValuesIfDirty(values, candidate.wantPartsDirtyTimestamp, Collection.WANTPARTS_LIST)

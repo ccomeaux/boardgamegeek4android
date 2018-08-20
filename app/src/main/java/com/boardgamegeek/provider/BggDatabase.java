@@ -96,7 +96,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAME_HERO_IMAGE_URL = 48;
 	private static final int VER_COLLECTION_HERO_IMAGE_URL = 49;
 	private static final int VER_GAME_PALETTE_COLORS = 50;
-	private static final int DATABASE_VERSION = VER_GAME_PALETTE_COLORS;
+	private static final int VER_PRIVATE_INFO_INVENTORY_LOCATION = 51;
+	private static final int DATABASE_VERSION = VER_PRIVATE_INFO_INVENTORY_LOCATION;
 
 	private final Context context;
 
@@ -414,6 +415,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.PRIVATE_INFO_INVENTORY_LOCATION, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -805,6 +807,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.GAMES, Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER);
 					version = VER_GAME_PALETTE_COLORS;
+				case VER_GAME_PALETTE_COLORS:
+					addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_INVENTORY_LOCATION, COLUMN_TYPE.TEXT);
+					version = VER_PRIVATE_INFO_INVENTORY_LOCATION;
 			}
 
 			if (version != DATABASE_VERSION) {

@@ -47,7 +47,8 @@ class CollectionItemMapper {
                 quantity = from.quantity?.toIntOrNull() ?: 1,
                 acquisitionDate = from.acquisitiondate ?: "",
                 acquiredFrom = from.acquiredfrom ?: "",
-                privateComment = from.privatecomment ?: ""
+                privateComment = from.privatecomment ?: "",
+                inventoryLocation = from.inventorylocation ?: ""
         )
 
         val game = CollectionItemGameEntity(

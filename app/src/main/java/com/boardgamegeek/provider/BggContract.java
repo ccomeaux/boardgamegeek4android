@@ -152,6 +152,7 @@ public class BggContract {
 		String WANT_PARTS_DIRTY_TIMESTAMP = "want_parts_dirty_timestamp";
 		String HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp";
 		String COLLECTION_HERO_IMAGE_URL = "collection_hero_image_url";
+		String PRIVATE_INFO_INVENTORY_LOCATION = "inventory_location";
 	}
 
 	interface BuddiesColumns {

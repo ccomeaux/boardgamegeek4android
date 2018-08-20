@@ -51,6 +51,7 @@ public class CollectionItem {
 	@Path("privateinfo") @Attribute(required = false) public String quantity;
 	@Path("privateinfo") @Attribute(required = false) public String acquisitiondate; // "2000-12-08"
 	@Path("privateinfo") @Attribute(required = false) public String acquiredfrom;
+	@Path("privateinfo") @Attribute(required = false) public String inventorylocation;
 	@Path("privateinfo") @Element(required = false) public String privatecomment;
 
 	// non-brief

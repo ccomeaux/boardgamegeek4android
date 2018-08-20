@@ -32,6 +32,7 @@ data class CollectionItemEntity(
         val acquisitionDate: String = "", // Long?
         val acquiredFrom: String = "",
         val privateComment: String = "",
+        val inventoryLocation: String = "",
         val comment: String = "",
         val conditionText: String = "",
         val wantPartsList: String = "",

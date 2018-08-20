@@ -537,6 +537,7 @@
 	<string name="private_comment">Private Comment</string>
 	<string name="acquired">Acquired</string>
 	<string name="currently_worth">currently worth</string>
+	<string name="located_in">Located in</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="wishlist_comment">Wishlist Comment</string>
 	<string name="title_trade">Trade</string>
