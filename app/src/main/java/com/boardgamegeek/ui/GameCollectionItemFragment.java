@@ -707,7 +707,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			} else {
 				sb.append(". ");
 			}
-			sb.append(getString(R.string.stored_in)).append(" ");
+			sb.append(getString(R.string.located_in)).append(" ");
 			StringUtils.appendBold(sb, item.getInventoryLocation());
 		}
 
