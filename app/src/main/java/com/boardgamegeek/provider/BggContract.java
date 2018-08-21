@@ -926,6 +926,7 @@ public class BggContract {
 
 	public static final class PlayLocations {
 		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + COLLATE_NOCASE + " ASC";
+		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY +  " DESC, " + DEFAULT_SORT;
 	}
 
 	public static final class CollectionViews implements CollectionViewsColumns, BaseColumns {
