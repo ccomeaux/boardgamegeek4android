@@ -13,7 +13,7 @@ import java.util.*
 class PlaysDateSorter(context: Context) : PlaysSorter(context) {
     private val defaultValue = context.getString(R.string.text_unknown)
 
-    override val descriptionId: Int
+    override val descriptionResId: Int
         @StringRes
         get() = R.string.menu_plays_sort_date
 

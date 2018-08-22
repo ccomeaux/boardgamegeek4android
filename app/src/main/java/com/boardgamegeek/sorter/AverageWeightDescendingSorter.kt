@@ -6,15 +6,11 @@ import android.support.annotation.StringRes
 import com.boardgamegeek.R
 
 class AverageWeightDescendingSorter(context: Context) : AverageWeightSorter(context) {
+    @StringRes
+    public override val typeResId = R.string.collection_sort_type_average_weight_desc
 
-    public override val typeResource: Int
-        @StringRes
-        get() = R.string.collection_sort_type_average_weight_desc
+    @StringRes
+    public override val subDescriptionResId = R.string.heaviest
 
-    override val isSortDescending: Boolean
-        get() = true
-
-    public override val subDescriptionId: Int
-        @StringRes
-        get() = R.string.heaviest
+    override val isSortDescending = true
 }

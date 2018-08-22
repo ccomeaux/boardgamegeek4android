@@ -15,7 +15,7 @@ class PlaysLengthSorter(context: Context) : PlaysSorter(context) {
     private val hoursSuffix = context.getString(R.string.hours_abbr)
     private val minutesSuffix = context.getString(R.string.minutes_abbr)
 
-    override val descriptionId: Int
+    override val descriptionResId: Int
         @StringRes
         get() = R.string.menu_plays_sort_length
 

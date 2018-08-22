@@ -63,6 +63,16 @@ fun String.toMillis(format: DateFormat): Long {
     }
 }
 
+fun String?.asCurrency(): String {
+    return when (this) {
+        null, "USD", "CAD", "AUD" -> "$"
+        "EUR" -> "\u20AC"
+        "GBP" -> "\u00A3"
+        "YEN" -> "\u00A5"
+        else -> ""
+    }
+}
+
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andMore() = "${this}+"
 

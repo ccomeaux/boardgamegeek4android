@@ -11,8 +11,7 @@ import java.text.DecimalFormat
 abstract class RatingSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue: String = context.getString(R.string.text_unknown)
 
-    override val isSortDescending: Boolean
-        get() = true
+    override val isSortDescending = true
 
     protected abstract val displayFormat: DecimalFormat
 

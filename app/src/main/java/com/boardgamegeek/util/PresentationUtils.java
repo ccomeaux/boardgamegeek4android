@@ -92,34 +92,10 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
-	public static CharSequence describeMinutes(Context context, int minutes) {
-		if (minutes == 0) return context.getString(R.string.mins_unknown);
-
-		if (minutes >= 120) {
-			int hours = minutes / 60;
-			int remainingMinutes = minutes % 60;
-
-			if (remainingMinutes == 0) {
-				return getText(context, R.string.hrs_suffix, hours);
-			} else {
-				return getText(context, R.string.hrs_mins, hours, remainingMinutes);
-			}
-		} else {
-			return getQuantityText(context, R.plurals.mins_suffix, minutes, minutes);
-		}
-	}
-
 	@NonNull
 	public static String describeMoney(String currency, double amount) {
 		if (TextUtils.isEmpty(currency) && amount == 0.0) return "";
 		return describeCurrency(currency) + MONEY_FORMAT.format(amount);
-	}
-
-	@NonNull
-	public static String describeMoneyWithoutDecimals(String currency, double amount) {
-		if (TextUtils.isEmpty(currency) && amount == 0.0) return "";
-		return describeCurrency(currency) + (int) amount;
 	}
 
 	private static String describeCurrency(@Nullable String currency) {
@@ -273,13 +249,6 @@ public class PresentationUtils {
 		view.setClickable(true);
 		view.setVisibility(View.VISIBLE);
 	}
-
-	public static final ButterKnife.Action<View> setVisible = new ButterKnife.Action<View>() {
-		@Override
-		public void apply(@NonNull View view, int index) {
-			view.setVisibility(View.VISIBLE);
-		}
-	};
 
 	public static final ButterKnife.Action<View> setGone = new ButterKnife.Action<View>() {
 		@Override

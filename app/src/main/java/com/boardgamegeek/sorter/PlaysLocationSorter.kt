@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggContract.Plays
 class PlaysLocationSorter(context: Context) : PlaysSorter(context) {
     private val noLocation = context.getString(R.string.no_location)
 
-    override val descriptionId: Int
+    override val descriptionResId: Int
         @StringRes
         get() = R.string.menu_plays_sort_location
 

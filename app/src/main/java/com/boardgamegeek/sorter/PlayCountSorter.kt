@@ -10,19 +10,13 @@ import java.text.NumberFormat
 
 abstract class PlayCountSorter(context: Context) : CollectionSorter(context) {
 
-    override val sortColumn: String
-        get() = COLUMN_NAME
+    override val sortColumn = Collection.NUM_PLAYS
 
-    public override fun getHeaderText(cursor: Cursor): String {
-        return NUMBER_FORMAT.format(cursor.getInt(COLUMN_NAME))
-    }
+    public override fun getHeaderText(cursor: Cursor) = NUMBER_FORMAT.format(cursor.getInt(sortColumn))!!
 
-    override fun getDisplayInfo(cursor: Cursor): String {
-        return "${getHeaderText(cursor)} ${context.getString(R.string.plays)}"
-    }
+    override fun getDisplayInfo(cursor: Cursor) = "${getHeaderText(cursor)} ${context.getString(R.string.plays)}"
 
     companion object {
         private val NUMBER_FORMAT = NumberFormat.getIntegerInstance()
-        private const val COLUMN_NAME = Collection.NUM_PLAYS
     }
 }
