@@ -6,13 +6,9 @@ import android.content.Context
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.model.PrivateInfo
-import hugo.weaving.DebugLog
 import timber.log.Timber
 
-class UpdateCollectionItemPrivateInfoTask @DebugLog
-constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val privateInfo: PrivateInfo) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
-
-    @DebugLog
+class UpdateCollectionItemPrivateInfoTask(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val privateInfo: PrivateInfo) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
     override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {
         val item = Item.fromResolver(resolver, internalId) ?: return false
         val values = updateValues(item)
@@ -54,7 +50,6 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
         }
     }
 
-    @DebugLog
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
         if (result == true) {

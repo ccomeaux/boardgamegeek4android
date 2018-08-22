@@ -8,14 +8,12 @@ import com.boardgamegeek.events.CollectionItemUpdatedEvent
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.ResolverUtils
-import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 
 abstract class UpdateCollectionItemTask(context: Context?, protected val gameId: Int, protected val collectionId: Int, protected var internalId: Long) : AsyncTask<Void, Void, Boolean>() {
     @SuppressLint("StaticFieldLeak")
     private val context: Context? = context?.applicationContext
 
-    @DebugLog
     override fun doInBackground(vararg params: Void): Boolean? {
         if (context == null) return null
         val resolver = context.contentResolver
@@ -32,7 +30,6 @@ abstract class UpdateCollectionItemTask(context: Context?, protected val gameId:
             EventBus.getDefault().post(CollectionItemUpdatedEvent(internalId))
     }
 
-    @DebugLog
     private fun getCollectionItemInternalId(resolver: ContentResolver, collectionId: Int, gameId: Int): Long {
         return if (collectionId == BggContract.INVALID_ID) {
             ResolverUtils.queryLong(resolver,
