@@ -191,10 +191,10 @@ class GameCollectionItemActivity : HeroActivity() {
     }
 
     override fun onRefresh() {
-        if (isInEditMode) {
-            updateRefreshStatus(false)
-        } else if ((fragment as GameCollectionItemFragment?)?.triggerRefresh() == true) {
-            updateRefreshStatus(true)
+        when {
+            isInEditMode -> updateRefreshStatus(false)
+            (fragment as GameCollectionItemFragment?)?.triggerRefresh() == true -> updateRefreshStatus(true)
+            else -> updateRefreshStatus(false)
         }
     }
 
