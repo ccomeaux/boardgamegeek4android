@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
-import butterknife.OnClick
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.YEAR_UNKNOWN
@@ -64,6 +63,12 @@ class GameCollectionItemActivity : HeroActivity() {
                     .putContentId(collectionId.toString())
                     .putContentName(collectionName))
         }
+
+        fab.setOnClickListener {
+            if (isInEditMode) (fragment as GameCollectionItemFragment?)?.syncChanges()
+            toggleEditMode()
+        }
+
         fab.ensureShown()
     }
 
@@ -217,12 +222,6 @@ class GameCollectionItemActivity : HeroActivity() {
         if (internalId == event.internalId) {
             isItemUpdated = true
         }
-    }
-
-    @OnClick(R.id.fab)
-    fun onFabClicked() {
-        if (isInEditMode) (fragment as GameCollectionItemFragment?)?.syncChanges()
-        toggleEditMode()
     }
 
     private fun toggleEditMode() {
