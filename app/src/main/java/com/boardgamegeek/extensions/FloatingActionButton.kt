@@ -12,3 +12,7 @@ fun FloatingActionButton.colorize(color: Int): Boolean {
     }
     return false
 }
+
+fun FloatingActionButton.ensureShown() {
+    postDelayed({ show() }, 2000)
+}

@@ -1,29 +1,29 @@
 package com.boardgamegeek.ui
 
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
 import butterknife.OnClick
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.events.CollectionItemChangedEvent
 import com.boardgamegeek.events.CollectionItemDeletedEvent
 import com.boardgamegeek.events.CollectionItemUpdatedEvent
-import com.boardgamegeek.extensions.loadUrl
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.DeleteCollectionItemTask
 import com.boardgamegeek.tasks.ResetCollectionItemTask
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils.Callback
+import com.boardgamegeek.util.TaskUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
@@ -32,52 +32,22 @@ import org.jetbrains.anko.act
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
+import java.util.concurrent.atomic.AtomicBoolean
 
 class GameCollectionItemActivity : HeroActivity() {
-    private var internalId: Long = BggContract.INVALID_ID.toLong()
-    private var gameId: Int = BggContract.INVALID_ID
-    private var gameName: String = ""
-    private var collectionId: Int = BggContract.INVALID_ID
-    private var collectionName: String = ""
-    private var imageUrl: String = ""
-    private var thumbnailUrl: String = ""
-    private var heroImageUrl: String = ""
-    private var yearPublished: Int = 0
-    private var collectionYearPublished: Int = YEAR_UNKNOWN
-    private var isInEditMode: Boolean = false
-    private var isItemUpdated: Boolean = false
-
-    override val optionsMenuId = R.menu.game_collection
-
-    private val imageLoadCallback = object : Callback {
-        override fun onSuccessfulImageLoad(palette: Palette?) {
-            ScrimUtils.applyDarkScrim(scrimView)
-            if (palette != null) {
-                (fragment as GameCollectionItemFragment).onPaletteGenerated(palette)
-                PresentationUtils.colorFab(fab, PaletteUtils.getIconSwatch(palette).rgb)
-                fab.show()
-            }
-
-            Handler().post {
-                val url = toolbarImage.getTag(R.id.url) as String?
-                if (!url.isNullOrEmpty() &&
-                        url != imageUrl &&
-                        url != thumbnailUrl &&
-                        url != heroImageUrl) {
-                    val values = ContentValues()
-                    values.put(Collection.COLLECTION_HERO_IMAGE_URL, url)
-                    contentResolver.update(Collection.CONTENT_URI,
-                            values,
-                            "${Collection.COLLECTION_ID}=?",
-                            arrayOf(collectionId.toString()))
-                }
-            }
-        }
-
-        override fun onFailedImageLoad() {
-            fab.show()
-        }
-    }
+    private var internalId = BggContract.INVALID_ID.toLong()
+    private var gameId = BggContract.INVALID_ID
+    private var gameName = ""
+    private var collectionId = BggContract.INVALID_ID
+    private var collectionName = ""
+    private var thumbnailUrl = ""
+    private var heroImageUrl = ""
+    private var yearPublished = YEAR_UNKNOWN
+    private var collectionYearPublished = YEAR_UNKNOWN
+    private var isInEditMode = false
+    private var isItemUpdated = false
+    private val isLoadingHeroImage = AtomicBoolean()
+    private var imageUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +56,7 @@ class GameCollectionItemActivity : HeroActivity() {
         }
 
         safelySetTitle()
+        changeImage()
 
         if (savedInstanceState == null) {
             Answers.getInstance().logContentView(ContentViewEvent()
@@ -93,7 +64,7 @@ class GameCollectionItemActivity : HeroActivity() {
                     .putContentId(collectionId.toString())
                     .putContentName(collectionName))
         }
-        PresentationUtils.ensureFabIsShown(fab)
+        fab.ensureShown()
     }
 
     override fun readIntent(intent: Intent) {
@@ -102,7 +73,8 @@ class GameCollectionItemActivity : HeroActivity() {
         gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
         collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID)
         collectionName = intent.getStringExtra(KEY_COLLECTION_NAME) ?: ""
-        imageUrl = intent.getStringExtra(KEY_IMAGE_URL)
+        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL)
+        heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL)
         yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, YEAR_UNKNOWN)
         collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, YEAR_UNKNOWN)
     }
@@ -136,8 +108,10 @@ class GameCollectionItemActivity : HeroActivity() {
         return GameCollectionItemFragment.newInstance(gameId, collectionId)
     }
 
+    override val optionsMenuId = R.menu.game_collection
+
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.menu_view_image)?.isEnabled = imageUrl.isNotBlank()
+        menu.findItem(R.id.menu_view_image)?.isEnabled = !imageUrl.isNullOrBlank()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -172,6 +146,17 @@ class GameCollectionItemActivity : HeroActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onEvent(event: CollectionItemChangedEvent) {
+        collectionName = event.collectionName
+        collectionYearPublished = event.yearPublished
+        thumbnailUrl = event.thumbnailUrl
+        heroImageUrl = event.heroImageUrl
+        safelySetTitle()
+        changeImage()
+        GameCollectionRepository(application as BggApplication).maybeRefreshHeroImageUrl(internalId, thumbnailUrl, heroImageUrl, isLoadingHeroImage)
+    }
+
     private fun safelySetTitle() {
         if (collectionYearPublished == YEAR_UNKNOWN || collectionYearPublished == yearPublished)
             safelySetTitle(collectionName)
@@ -179,23 +164,25 @@ class GameCollectionItemActivity : HeroActivity() {
             safelySetTitle("$collectionName ($collectionYearPublished)")
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: CollectionItemChangedEvent) {
-        collectionName = event.collectionName
-        collectionYearPublished = event.yearPublished
-        if (event.imageUrl != imageUrl ||
-                event.thumbnailUrl != thumbnailUrl ||
-                event.heroImageUrl != heroImageUrl) {
-            imageUrl = event.imageUrl
-            thumbnailUrl = event.thumbnailUrl
-            heroImageUrl = event.heroImageUrl
-            toolbarImage.loadUrl(imageUrl, imageLoadCallback)
-        } else {
-            imageUrl = event.imageUrl
-            thumbnailUrl = event.thumbnailUrl
-            heroImageUrl = event.heroImageUrl
+    private fun changeImage() {
+        val url = if (heroImageUrl.isBlank()) thumbnailUrl else heroImageUrl
+        if (url != imageUrl) {
+            imageUrl = url
+            toolbarImage?.loadUrl(url, object : Callback {
+                override fun onSuccessfulImageLoad(palette: Palette?) {
+                    scrimView.applyDarkScrim()
+                    if (palette != null) {
+                        (fragment as GameCollectionItemFragment?)?.onPaletteGenerated(palette)
+                        fab.colorize(palette.getIconSwatch().rgb)
+                    }
+                    fab.show()
+                }
+
+                override fun onFailedImageLoad() {
+                    fab.show()
+                }
+            })
         }
-        safelySetTitle()
     }
 
     override fun onRefresh() {
@@ -255,12 +242,22 @@ class GameCollectionItemActivity : HeroActivity() {
         private const val KEY_GAME_NAME = "GAME_NAME"
         private const val KEY_COLLECTION_ID = "COLLECTION_ID"
         private const val KEY_COLLECTION_NAME = "COLLECTION_NAME"
-        private const val KEY_IMAGE_URL = "IMAGE_URL"
+        private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
+        private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_YEAR_PUBLISHED = "YEAR_PUBLISHED"
         private const val KEY_COLLECTION_YEAR_PUBLISHED = "COLLECTION_YEAR_PUBLISHED"
-        private const val KEY_STATE_IS_IN_EDIT_MODE = "KEY_STATE_IS_IN_EDIT_MODE"
+        private const val KEY_STATE_IS_IN_EDIT_MODE = "STATE_IS_IN_EDIT_MODE"
 
-        fun start(context: Context, internalId: Long, gameId: Int, gameName: String, collectionId: Int, collectionName: String, imageUrl: String, yearPublished: Int, collectionYearPublished: Int) {
+        fun start(context: Context,
+                  internalId: Long,
+                  gameId: Int,
+                  gameName: String,
+                  collectionId: Int,
+                  collectionName: String,
+                  thumbnailUrl: String,
+                  heroImageUrl: String,
+                  yearPublished: Int,
+                  collectionYearPublished: Int) {
             if (internalId == BggContract.INVALID_ID.toLong()) return
             return context.startActivity<GameCollectionItemActivity>(
                     KEY_INTERNAL_ID to internalId,
@@ -268,7 +265,8 @@ class GameCollectionItemActivity : HeroActivity() {
                     KEY_GAME_NAME to gameName,
                     KEY_COLLECTION_ID to collectionId,
                     KEY_COLLECTION_NAME to collectionName,
-                    KEY_IMAGE_URL to imageUrl,
+                    KEY_THUMBNAIL_URL to thumbnailUrl,
+                    KEY_HERO_IMAGE_URL to heroImageUrl,
                     KEY_YEAR_PUBLISHED to yearPublished,
                     KEY_COLLECTION_YEAR_PUBLISHED to collectionYearPublished
             )

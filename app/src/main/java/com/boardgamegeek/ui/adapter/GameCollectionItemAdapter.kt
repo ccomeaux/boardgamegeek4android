@@ -85,7 +85,8 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
                             item.gameName,
                             item.collectionId,
                             item.collectionName,
-                            item.imageUrl,
+                            item.thumbnailUrl,
+                            item.heroImageUrl,
                             gameYearPublished,
                             item.yearPublished)
             }

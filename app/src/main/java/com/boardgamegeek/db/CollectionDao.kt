@@ -37,6 +37,7 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.COLLECTION_YEAR_PUBLISHED,
                 Collection.COLLECTION_THUMBNAIL_URL,
                 Collection.COLLECTION_IMAGE_URL,
+                Collection.COLLECTION_HERO_IMAGE_URL,
                 Collection.STATUS_OWN,
                 Collection.STATUS_PREVIOUSLY_OWNED,
                 Collection.STATUS_FOR_TRADE,
@@ -81,6 +82,7 @@ class CollectionDao(private val context: BggApplication) {
                                 yearPublished = it.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
                                 imageUrl = it.getStringOrEmpty(Collection.COLLECTION_IMAGE_URL),
                                 thumbnailUrl = it.getStringOrEmpty(Collection.COLLECTION_THUMBNAIL_URL),
+                                heroImageUrl = it.getStringOrEmpty(Collection.COLLECTION_HERO_IMAGE_URL),
                                 comment = it.getStringOrEmpty(Collection.COMMENT),
                                 numberOfPlays = it.getIntOrZero(Games.NUM_PLAYS),
                                 rating = it.getDoubleOrZero(Collection.RATING),
@@ -112,6 +114,10 @@ class CollectionDao(private val context: BggApplication) {
             }
             return@RegisteredLiveData list
         }
+    }
+
+    fun update(internalId: Long, values: ContentValues): Int {
+        return resolver.update(BggContract.Collection.buildUri(internalId), values, null, null)
     }
 
     /**

@@ -12,6 +12,7 @@ data class CollectionItemEntity(
         val yearPublished: Int = YEAR_UNKNOWN,
         val imageUrl: String = "",
         val thumbnailUrl: String = "",
+        val heroImageUrl: String = "",
         val rating: Double = 0.0,
         val own: Boolean = false,
         val previouslyOwned: Boolean = false,

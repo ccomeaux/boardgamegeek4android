@@ -14,15 +14,19 @@ import com.boardgamegeek.extensions.load
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
+import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.StringUtils
 import retrofit2.Call
+import retrofit2.Response
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
@@ -133,6 +137,44 @@ class GameCollectionRepository(val application: BggApplication) {
             return
         } else {
             values.put(BggContract.Collection.STATUS_WISHLIST, 0)
+        }
+    }
+
+    /**
+     * If the hero image is different from the thumbnail, attempt to update it. This will be true if the hero image has
+     * never been fetched, or if the collection's image has changed.
+     */
+    fun maybeRefreshHeroImageUrl(internalId: Long, thumbnailUrl: String?, heroImageUrl: String?, started: AtomicBoolean) {
+        val heroImageId = if (heroImageUrl == null) 0 else ImageUtils.getImageId(heroImageUrl)
+        val thumbnailId = if (thumbnailUrl == null) 0 else ImageUtils.getImageId(thumbnailUrl)
+        if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
+            val call = Adapter.createGeekdoApi().image(thumbnailId)
+            call.enqueue(object : retrofit2.Callback<Image> {
+                override fun onResponse(call: Call<Image>?, response: Response<Image>?) {
+                    if (response?.isSuccessful == true) {
+                        val body = response.body()
+                        if (body != null) {
+                            application.appExecutors.diskIO.execute {
+                                val values = ContentValues()
+                                values.put(BggContract.Collection.COLLECTION_HERO_IMAGE_URL, body.images.medium.url)
+                                dao.update(internalId, values)
+                            }
+                        } else {
+                            Timber.w("Empty body while fetching image $thumbnailId for collection $internalId")
+                        }
+                    } else {
+                        val message = response?.message() ?: response?.code().toString()
+                        Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for collection $internalId")
+                    }
+                    started.set(false)
+                }
+
+                override fun onFailure(call: Call<Image>?, t: Throwable?) {
+                    val message = t?.localizedMessage ?: "Unknown error"
+                    Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for collection $internalId")
+                    started.set(false)
+                }
+            })
         }
     }
 }
