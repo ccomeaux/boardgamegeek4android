@@ -206,11 +206,15 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		collectionId = bundle.getInt(KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_game_collection_item, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		ratingView.setOnChangeListener(getActivity(), new Listener() {
 			@Override
@@ -225,7 +229,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		mightNeedRefreshing = true;
 		getLoaderManager().restartLoader(_TOKEN, getArguments(), this);
 
-		return rootView;
 	}
 
 	@DebugLog
@@ -375,6 +378,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	private void colorize(Palette palette) {
 		if (palette == null || !isAdded()) return;
+		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
 		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
