@@ -287,7 +287,8 @@ public class BggContract {
 	public static final String PATH_PLAYS = "plays";
 	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
-	public static final String PATH_AQUIRED_FROM = "acquiredfrom";
+	public static final String PATH_ACQUIRED_FROM = "acquiredfrom";
+	public static final String PATH_INVENTORY_LOCATION = "inventorylocation";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
@@ -701,6 +702,7 @@ public class BggContract {
 
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC";
 		public static final String SORT_ACQUIRED_FROM = CollectionColumns.PRIVATE_INFO_ACQUIRED_FROM + COLLATE_NOCASE + " ASC";
+		public static final String SORT_INVENTORY_LOCATION = CollectionColumns.PRIVATE_INFO_INVENTORY_LOCATION + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
@@ -712,7 +714,11 @@ public class BggContract {
 		}
 
 		public static Uri buildAcquiredFromUri() {
-			return CONTENT_URI.buildUpon().appendPath(PATH_AQUIRED_FROM).build();
+			return CONTENT_URI.buildUpon().appendPath(PATH_ACQUIRED_FROM).build();
+		}
+
+		public static Uri buildInventoryLocationUri() {
+			return CONTENT_URI.buildUpon().appendPath(PATH_INVENTORY_LOCATION).build();
 		}
 
 		public static long getId(Uri uri) {

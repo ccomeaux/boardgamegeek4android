@@ -3,7 +3,7 @@ package com.boardgamegeek.tasks
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-import com.boardgamegeek.extensions.use
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.model.PrivateInfo
 import timber.log.Timber
@@ -29,6 +29,7 @@ class UpdateCollectionItemPrivateInfoTask(context: Context?, gameId: Int, collec
         putInt(values, Collection.PRIVATE_INFO_QUANTITY, privateInfo.quantity, item.quantity)
         putString(values, Collection.PRIVATE_INFO_ACQUISITION_DATE, privateInfo.acquisitionDate, item.acquisitionDate)
         putString(values, Collection.PRIVATE_INFO_ACQUIRED_FROM, privateInfo.acquiredFrom, item.acquiredFrom)
+        putString(values, Collection.PRIVATE_INFO_INVENTORY_LOCATION, privateInfo.inventoryLocation, item.inventoryLocation)
         return values
     }
 
@@ -66,39 +67,32 @@ class UpdateCollectionItemPrivateInfoTask(context: Context?, gameId: Int, collec
             val currentValue: Double?,
             val quantity: Int?,
             val acquisitionDate: String,
-            val acquiredFrom: String
+            val acquiredFrom: String,
+            val inventoryLocation: String
     ) {
         companion object {
-            val projection = arrayOf(
-                    Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-                    Collection.PRIVATE_INFO_PRICE_PAID,
-                    Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-                    Collection.PRIVATE_INFO_CURRENT_VALUE,
-                    Collection.PRIVATE_INFO_QUANTITY,
-                    Collection.PRIVATE_INFO_ACQUISITION_DATE,
-                    Collection.PRIVATE_INFO_ACQUIRED_FROM
-            )
-
-            private const val PRIVATE_INFO_PRICE_PAID_CURRENCY = 0
-            private const val PRIVATE_INFO_PRICE_PAID = 1
-            private const val PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 2
-            private const val PRIVATE_INFO_CURRENT_VALUE = 3
-            private const val PRIVATE_INFO_QUANTITY = 4
-            private const val PRIVATE_INFO_ACQUISITION_DATE = 5
-            private const val PRIVATE_INFO_ACQUIRED_FROM = 6
-
             fun fromResolver(contentResolver: ContentResolver, internalId: Long): Item? {
-                val cursor = contentResolver.query(Collection.buildUri(internalId), projection, null, null, null)
+                val cursor = contentResolver.load(Collection.buildUri(internalId), arrayOf(
+                        Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+                        Collection.PRIVATE_INFO_PRICE_PAID,
+                        Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+                        Collection.PRIVATE_INFO_CURRENT_VALUE,
+                        Collection.PRIVATE_INFO_QUANTITY,
+                        Collection.PRIVATE_INFO_ACQUISITION_DATE,
+                        Collection.PRIVATE_INFO_ACQUIRED_FROM,
+                        Collection.PRIVATE_INFO_INVENTORY_LOCATION
+                ))
                 cursor?.use {
                     if (it.moveToFirst()) {
                         return Item(
-                                it.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY) ?: "",
-                                it.getDouble(PRIVATE_INFO_PRICE_PAID),
-                                it.getString(PRIVATE_INFO_CURRENT_VALUE_CURRENCY) ?: "",
-                                it.getDouble(PRIVATE_INFO_CURRENT_VALUE),
-                                it.getInt(PRIVATE_INFO_QUANTITY),
-                                it.getString(PRIVATE_INFO_ACQUISITION_DATE) ?: "",
-                                it.getString(PRIVATE_INFO_ACQUIRED_FROM) ?: ""
+                                it.getStringOrEmpty(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY),
+                                it.getDoubleOrZero(Collection.PRIVATE_INFO_PRICE_PAID),
+                                it.getStringOrEmpty(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY),
+                                it.getDoubleOrZero(Collection.PRIVATE_INFO_CURRENT_VALUE),
+                                it.getIntOrNull(Collection.PRIVATE_INFO_QUANTITY) ?: 1,
+                                it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUISITION_DATE),
+                                it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUIRED_FROM),
+                                it.getStringOrEmpty(Collection.PRIVATE_INFO_INVENTORY_LOCATION)
                         )
                     }
                 }

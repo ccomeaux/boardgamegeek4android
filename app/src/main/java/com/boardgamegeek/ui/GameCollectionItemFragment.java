@@ -496,6 +496,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
 		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
 		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
+		privateInfoDialogFragment.setInventoryLocation(String.valueOf(editPrivateInfoView.getTag(R.id.inventory_location)));
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
 
@@ -635,6 +636,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
 		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
 		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
+		editPrivateInfoView.setTag(R.id.inventory_location, item.getInventoryLocation());
 
 		// both
 		privateInfoCommentView.setContent(item.getPrivateComment(), item.getPrivateInfoTimestamp());

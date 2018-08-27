@@ -535,6 +535,7 @@
 	<string name="current_value">Current Price</string>
 	<string name="acquisition_date">Acquisition Date</string>
 	<string name="acquired_from">Acquired From</string>
+	<string name="inventory_location">Inventory Location</string>
 	<string name="private_comment">Private Comment</string>
 	<string name="acquired">Acquired</string>
 	<string name="currently_worth">currently worth</string>
