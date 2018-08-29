@@ -6,12 +6,9 @@ import android.support.annotation.StringRes
 import com.boardgamegeek.R
 
 class AverageWeightAscendingSorter(context: Context) : AverageWeightSorter(context) {
+    @StringRes
+    public override val typeResId = R.string.collection_sort_type_average_weight_asc
 
-    public override val typeResource: Int
-        @StringRes
-        get() = R.string.collection_sort_type_average_weight_asc
-
-    public override val subDescriptionId: Int
-        @StringRes
-        get() = R.string.lightest
+    @StringRes
+    public override val subDescriptionResId = R.string.lightest
 }

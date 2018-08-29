@@ -11,17 +11,13 @@ import java.text.DecimalFormat
 class MyRatingSorter(context: Context) : RatingSorter(context) {
     private val format = DecimalFormat("0.0")
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_my_rating
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_my_rating
 
-    public override val typeResource: Int
-        @StringRes
-        get() = R.string.collection_sort_type_my_rating
+    @StringRes
+    public override val typeResId = R.string.collection_sort_type_my_rating
 
-    override val sortColumn: String
-        get() = Collection.RATING
+    override val sortColumn = Collection.RATING
 
-    override val displayFormat: DecimalFormat
-        get() = format
+    override val displayFormat = format
 }

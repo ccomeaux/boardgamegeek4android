@@ -14,6 +14,19 @@
 		android:paddingRight="@dimen/material_margin_horizontal"
 		android:paddingTop="@dimen/material_margin_vertical">
 
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/padding_extra"
+			android:background="@drawable/warning"
+			android:drawableLeft="@drawable/ic_action_warning"
+			android:drawableStart="@drawable/ic_action_warning"
+			android:gravity="center"
+			android:padding="@dimen/padding_standard"
+			android:text="@string/msg_warning_private_info"
+			android:textAppearance="@style/Text"
+			android:textColor="@color/inverse_text"/>
+
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -130,6 +143,23 @@
 
 			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/acquired_from"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:completionThreshold="1"
+				android:imeOptions="actionNext"
+				android:inputType="textCapWords"
+				android:textAppearance="@style/Text.Big"
+				android:textColor="#000"/>
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/input_inventory_location"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/inventory_location">
+
+			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+				android:id="@+id/inventory_location"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:completionThreshold="1"

@@ -5,11 +5,9 @@ import android.content.ContentValues
 import android.content.Context
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.Collection
-import hugo.weaving.DebugLog
 import timber.log.Timber
 
-class UpdateCollectionItemStatusTask @DebugLog
-constructor(context: Context?,
+class UpdateCollectionItemStatusTask(context: Context?,
             gameId: Int,
             collectionId: Int,
             internalId: Long,
@@ -60,7 +58,6 @@ constructor(context: Context?,
         }
     }
 
-    @DebugLog
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
         if (result == true) {

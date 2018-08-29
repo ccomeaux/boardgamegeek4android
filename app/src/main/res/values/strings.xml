@@ -340,10 +340,12 @@
 	<string name="collection_sort_stats">Info</string>
 	<string name="collection_sort_community">Community</string>
 	<string name="collection_sort_personal">Collection</string>
+	<string name="collection_sort_private_info">Private Info</string>
 	<string name="collection_sort_local">Local</string>
 	<string name="collection_sort_acquired_from">Acquired From</string>
 	<string name="collection_sort_price_paid">Price Paid</string>
 	<string name="collection_sort_current_value">Current Value</string>
+	<string name="collection_sort_inventory_location">Inventory Location</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
@@ -410,6 +412,7 @@
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
+	<string name="msg_warning_private_info">Warning! Making any changes here will remove the inventory date.</string>
 	<string name="title_share">Share</string>
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
@@ -455,9 +458,9 @@
 	<string name="best_prefix">Best w/<b>%s</b></string>
 	<string name="recommended_prefix">Good w/<b>%s</b></string>
 	<string name="recommended_player_count_description_abbr">%1$s with %2$,d</string>
-	<string name="mins_unknown"><b>\?</b> mins</string>
-	<string name="hrs_suffix"><b>%,d</b> hrs</string>
-	<string name="hrs_mins"><b>%1$d</b>h <b>%2$d</b>m</string>
+	<string name="mins_unknown">\? mins</string>
+	<string name="hrs_suffix">%,d hrs</string>
+	<string name="hrs_mins">%1$,dh %2$dm</string>
 	<string name="rank_description"><b>#%,d</b> %s</string>
 	<string name="rank_prefix">#%,d</string>
 	<string name="play_description_game_segment">Played %s</string>
@@ -534,9 +537,11 @@
 	<string name="current_value">Current Price</string>
 	<string name="acquisition_date">Acquisition Date</string>
 	<string name="acquired_from">Acquired From</string>
+	<string name="inventory_location">Inventory Location</string>
 	<string name="private_comment">Private Comment</string>
 	<string name="acquired">Acquired</string>
 	<string name="currently_worth">currently worth</string>
+	<string name="located_in">Located in</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="wishlist_comment">Wishlist Comment</string>
 	<string name="title_trade">Trade</string>

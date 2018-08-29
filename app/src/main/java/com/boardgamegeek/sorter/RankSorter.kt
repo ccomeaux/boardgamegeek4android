@@ -15,16 +15,13 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     private val defaultHeaderText = context.resources.getString(R.string.unranked)
     private val defaultText = context.resources.getString(R.string.text_not_available)
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_rank
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_rank
 
-    public override val typeResource: Int
-        @StringRes
-        get() = R.string.collection_sort_type_rank
+    @StringRes
+    public override val typeResId = R.string.collection_sort_type_rank
 
-    override val sortColumn: String
-        get() = Games.GAME_RANK
+    override val sortColumn = Games.GAME_RANK
 
     public override fun getHeaderText(cursor: Cursor): String {
         val rank = cursor.getInt(Games.GAME_RANK, RANK_UNKNOWN)

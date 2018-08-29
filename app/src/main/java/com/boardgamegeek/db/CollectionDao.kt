@@ -37,6 +37,7 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.COLLECTION_YEAR_PUBLISHED,
                 Collection.COLLECTION_THUMBNAIL_URL,
                 Collection.COLLECTION_IMAGE_URL,
+                Collection.COLLECTION_HERO_IMAGE_URL,
                 Collection.STATUS_OWN,
                 Collection.STATUS_PREVIOUSLY_OWNED,
                 Collection.STATUS_FOR_TRADE,
@@ -81,6 +82,7 @@ class CollectionDao(private val context: BggApplication) {
                                 yearPublished = it.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
                                 imageUrl = it.getStringOrEmpty(Collection.COLLECTION_IMAGE_URL),
                                 thumbnailUrl = it.getStringOrEmpty(Collection.COLLECTION_THUMBNAIL_URL),
+                                heroImageUrl = it.getStringOrEmpty(Collection.COLLECTION_HERO_IMAGE_URL),
                                 comment = it.getStringOrEmpty(Collection.COMMENT),
                                 numberOfPlays = it.getIntOrZero(Games.NUM_PLAYS),
                                 rating = it.getDoubleOrZero(Collection.RATING),
@@ -112,6 +114,10 @@ class CollectionDao(private val context: BggApplication) {
             }
             return@RegisteredLiveData list
         }
+    }
+
+    fun update(internalId: Long, values: ContentValues): Int {
+        return resolver.update(BggContract.Collection.buildUri(internalId), values, null, null)
     }
 
     /**
@@ -239,6 +245,7 @@ class CollectionDao(private val context: BggApplication) {
                 values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate)
                 values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom)
                 values.put(Collection.PRIVATE_INFO_COMMENT, item.privateComment)
+                values.put(Collection.PRIVATE_INFO_INVENTORY_LOCATION, item.inventoryLocation)
             }
         }
         if (includeStats) {
@@ -281,7 +288,8 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
                 Collection.PRIVATE_INFO_PRICE_PAID,
                 Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-                Collection.PRIVATE_INFO_QUANTITY)
+                Collection.PRIVATE_INFO_QUANTITY,
+                Collection.PRIVATE_INFO_INVENTORY_LOCATION)
         removeValuesIfDirty(values, candidate.wishListCommentDirtyTimestamp, Collection.WISHLIST_COMMENT)
         removeValuesIfDirty(values, candidate.tradeConditionDirtyTimestamp, Collection.CONDITION)
         removeValuesIfDirty(values, candidate.wantPartsDirtyTimestamp, Collection.WANTPARTS_LIST)

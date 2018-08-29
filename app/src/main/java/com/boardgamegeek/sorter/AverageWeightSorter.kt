@@ -14,19 +14,18 @@ abstract class AverageWeightSorter(context: Context) : CollectionSorter(context)
     private val displayFormat = DecimalFormat("0.000")
     private val defaultValue = context.getString(R.string.text_unknown)
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_average_weight
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_average_weight
 
-    override val sortColumn: String
-        get() = Collection.STATS_AVERAGE_WEIGHT
+    @StringRes
+    override val sortColumn = Collection.STATS_AVERAGE_WEIGHT
 
     override fun getDisplayInfo(cursor: Cursor): String {
-        val info = cursor.getDoubleAsString(Collection.STATS_AVERAGE_WEIGHT, defaultValue, format = displayFormat)
+        val info = cursor.getDoubleAsString(sortColumn, defaultValue, format = displayFormat)
         return "${context.getString(R.string.weight)} $info"
     }
 
     public override fun getHeaderText(cursor: Cursor): String {
-        return cursor.getDoubleAsString(Collection.STATS_AVERAGE_WEIGHT, defaultValue)
+        return cursor.getDoubleAsString(sortColumn, defaultValue)
     }
 }

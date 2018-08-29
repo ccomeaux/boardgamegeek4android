@@ -40,6 +40,7 @@ public class CollectionPrivateInfoUploadTask extends CollectionUploadTask {
 			.add("acquisitiondate", collectionItem.getAcquisitionDate())
 			.add("acquiredfrom", collectionItem.getAcquiredFrom())
 			.add("privatecomment", collectionItem.getPrivateComment())
+			.add("invlocation", collectionItem.getInventoryLocation())
 			.build();
 	}
 

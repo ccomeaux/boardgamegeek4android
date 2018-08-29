@@ -62,6 +62,12 @@
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_play_date_min"/>
 
+		<TextView
+			style="@style/Text.Header.Section.Dialog"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/collection_sort_private_info"/>
+
 		<RadioButton
 			android:id="@+id/acquisition_date"
 			style="@style/DialogRadioButton"
@@ -75,6 +81,13 @@
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_acquired_from"/>
+
+		<RadioButton
+			android:id="@+id/inventory_location"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_inventory_location"/>
 
 		<RadioButton
 			android:id="@+id/price_paid"

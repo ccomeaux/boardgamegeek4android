@@ -3,11 +3,8 @@
 package com.boardgamegeek.extensions
 
 import android.database.Cursor
-import com.boardgamegeek.util.DateTimeUtils
 import timber.log.Timber
-import java.text.DecimalFormat
-import java.text.NumberFormat
-import java.text.SimpleDateFormat
+import java.text.*
 import java.util.*
 
 private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -76,7 +73,7 @@ fun Cursor.getFirstChar(columnName: String): String {
  * Get a date time as an epoch when stored as date from the API.
  */
 fun Cursor.getApiTime(columnName: String): Long {
-    return DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, getString(columnName), apiDateFormat)
+    return parseDate(getStringOrNull(columnName), apiDateFormat)
 }
 
 fun Cursor.getDateInMillis(columnName: String): Long {
@@ -97,6 +94,22 @@ private fun getCalendar(date: String): Calendar {
     val calendar = Calendar.getInstance()
     calendar.set(year, month, day)
     return calendar
+}
+
+private fun parseDate(date: String?, format: DateFormat): Long {
+    return if (date.isNullOrBlank()) {
+        0L
+    } else {
+        try {
+            format.parse(date).time
+        } catch (e: ParseException) {
+            Timber.w(e, "Unable to parse %s as %s", date, format)
+            0L
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            Timber.w(e, "Unable to parse %s as %s", date, format)
+            0L
+        }
+    }
 }
 
 fun String.whereZeroOrNull() = "(${this}=0 OR ${this} IS NULL)"

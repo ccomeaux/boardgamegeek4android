@@ -38,3 +38,8 @@ fun Double.toColor(colors: IntArray): Int {
         low.blendWith(high, index + 1 - this)
     }
 }
+
+fun Double.asMoney(currency: String): String {
+    return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + this.toInt()
+
+}

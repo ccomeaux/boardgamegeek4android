@@ -59,8 +59,10 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@BindView(R.id.acquisition_date_label) TextView acquisitionDateLabelView;
 	@BindView(R.id.acquisition_date) TextView acquisitionDateView;
 	@BindView(R.id.acquired_from) TextInputAutoCompleteTextView acquiredFromView;
+	@BindView(R.id.inventory_location) TextInputAutoCompleteTextView inventoryLocationView;
 
 	private AutoCompleteAdapter acquiredFromAdapter;
+	private AutoCompleteAdapter inventoryLocationAdapter;
 
 	@State String priceCurrency;
 	@State double price;
@@ -69,6 +71,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@State String quantity;
 	@State String acquisitionDate;
 	@State String acquiredFrom;
+	@State String inventoryLocation;
 
 	@NonNull
 	public static PrivateInfoDialogFragment newInstance(@Nullable ViewGroup root, PrivateInfoDialogListener listener) {
@@ -100,14 +103,15 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (listener != null) {
-						PrivateInfo privateInfo = new PrivateInfo();
-						privateInfo.setPriceCurrency(priceCurrencyView.getSelectedItem().toString());
-						privateInfo.setPrice(StringUtils.parseDouble(priceView.getText().toString().trim()));
-						privateInfo.setCurrentValueCurrency(currentValueCurrencyView.getSelectedItem().toString());
-						privateInfo.setCurrentValue(StringUtils.parseDouble(currentValueView.getText().toString().trim()));
-						privateInfo.setQuantity(StringUtils.parseInt(quantityView.getText().toString().trim(), 1));
-						privateInfo.setAcquisitionDate(acquisitionDate);
-						privateInfo.setAcquiredFrom(acquiredFromView.getText().toString().trim());
+						PrivateInfo privateInfo = new PrivateInfo(
+							priceCurrencyView.getSelectedItem().toString(),
+							StringUtils.parseDouble(priceView.getText().toString().trim()),
+							currentValueCurrencyView.getSelectedItem().toString(),
+							StringUtils.parseDouble(currentValueView.getText().toString().trim()),
+							StringUtils.parseInt(quantityView.getText().toString().trim(), 1),
+							acquisitionDate,
+							acquiredFromView.getText().toString().trim(),
+							inventoryLocationView.getText().toString().trim());
 						listener.onFinishEditDialog(privateInfo);
 					}
 				}
@@ -121,14 +125,19 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
 		acquiredFromAdapter = new AutoCompleteAdapter(getContext(), Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri());
 		acquiredFromView.setAdapter(acquiredFromAdapter);
+
+		inventoryLocationAdapter = new AutoCompleteAdapter(getContext(), Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri());
+		inventoryLocationView.setAdapter(inventoryLocationAdapter);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		if (acquiredFromAdapter != null) acquiredFromAdapter.changeCursor(null);
+		if (inventoryLocationAdapter != null) inventoryLocationAdapter.changeCursor(null);
 	}
 
 	@Override
@@ -146,6 +155,7 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 		showOrHideAcquisitionDateLabel();
 		acquisitionDateView.setText(DateTimeUtils.formatDateFromApi(getContext(), acquisitionDate));
 		PresentationUtils.setAndSelectExistingText(acquiredFromView, acquiredFrom);
+		PresentationUtils.setAndSelectExistingText(inventoryLocationView, inventoryLocation);
 	}
 
 	private void setUpCurrencyView(Spinner spinner, String item) {
@@ -225,5 +235,9 @@ public class PrivateInfoDialogFragment extends DialogFragment {
 
 	public void setAcquiredFrom(String acquiredFrom) {
 		this.acquiredFrom = acquiredFrom;
+	}
+
+	public void setInventoryLocation(String inventoryLocation) {
+		this.inventoryLocation = inventoryLocation;
 	}
 }

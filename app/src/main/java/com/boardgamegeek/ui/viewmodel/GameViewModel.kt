@@ -8,13 +8,11 @@ import android.arch.lifecycle.Transformations
 import android.support.v7.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.asWishListPriority
-import com.boardgamegeek.extensions.formatList
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
-import com.boardgamegeek.util.PaletteUtils
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _gameId = MutableLiveData<Int>()
@@ -209,11 +207,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateGameColors(palette: Palette?) {
         if (palette != null) {
-            val iconColor = PaletteUtils.getIconSwatch(palette).rgb
-            val darkColor = PaletteUtils.getDarkSwatch(palette).rgb
-            val playCountColors = PaletteUtils.getPlayCountColors(palette, getApplication())
-            gameRepository.updateGameColors(gameId.value
-                    ?: BggContract.INVALID_ID, iconColor, darkColor, playCountColors[0], playCountColors[1], playCountColors[2])
+            val iconColor = palette.getIconSwatch().rgb
+            val darkColor = palette.getDarkSwatch().rgb
+            val (wins, winnablePlays, allPlays) = palette.getPlayCountColors(getApplication())
+            gameRepository.updateGameColors(gameId.value ?: BggContract.INVALID_ID,
+                    iconColor,
+                    darkColor,
+                    wins,
+                    winnablePlays,
+                    allPlays)
         }
     }
 

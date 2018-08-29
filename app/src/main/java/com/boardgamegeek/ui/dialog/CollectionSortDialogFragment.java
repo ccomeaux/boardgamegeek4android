@@ -64,7 +64,8 @@ public class CollectionSortDialogFragment extends DialogFragment implements OnCh
 		R.id.acquisition_date,
 		R.id.acquired_from,
 		R.id.price_paid,
-		R.id.current_value
+		R.id.current_value,
+		R.id.inventory_location
 	}) List<RadioButton> radioButtons;
 	@BindView(R.id.play_date_max) RadioButton playDateMaxRadioButton;
 	@BindView(R.id.play_date_min) RadioButton playDateMinRadioButton;

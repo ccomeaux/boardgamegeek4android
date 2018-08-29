@@ -12,7 +12,7 @@ import com.boardgamegeek.provider.BggContract.Plays
 
 class PlayersNameSorter(context: Context) : PlayersSorter(context) {
 
-    override val descriptionId: Int
+    override val descriptionResId: Int
         @StringRes
         get() = R.string.menu_sort_name
 

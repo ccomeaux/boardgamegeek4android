@@ -44,7 +44,8 @@ public class CollectionItem {
 		Collection.HAS_PARTS_DIRTY_TIMESTAMP,
 		Collection.COLLECTION_IMAGE_URL,
 		Collection.COLLECTION_THUMBNAIL_URL,
-		Collection.COLLECTION_HERO_IMAGE_URL
+		Collection.COLLECTION_HERO_IMAGE_URL,
+		Collection.PRIVATE_INFO_INVENTORY_LOCATION
 	};
 
 	private static final int _ID = 0;
@@ -85,6 +86,7 @@ public class CollectionItem {
 	private static final int IMAGE_URL = 35;
 	private static final int THUMBNAIL_URL = 36;
 	private static final int HERO_IMAGE_URL = 37;
+	private static final int PRIVATE_INFO_INVENTORY_LOCATION = 38;
 
 	private long internalId;
 	private int collectionId;
@@ -102,6 +104,7 @@ public class CollectionItem {
 	private double pricePaid;
 	private String pricePaidCurrency;
 	private int quantity;
+	private String inventoryLocation;
 	private long privateInfoTimestamp;
 	private boolean owned;
 	private boolean previouslyOwned;
@@ -149,6 +152,7 @@ public class CollectionItem {
 		collectionItem.pricePaid = cursor.getDouble(PRIVATE_INFO_PRICE_PAID);
 		collectionItem.pricePaidCurrency = cursor.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY);
 		collectionItem.quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
+		collectionItem.inventoryLocation = cursor.getString(PRIVATE_INFO_INVENTORY_LOCATION);
 		collectionItem.privateInfoTimestamp = cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP);
 
 		collectionItem.owned = cursor.getInt(STATUS_OWN) == 1;
@@ -236,6 +240,10 @@ public class CollectionItem {
 
 	public int getQuantity() {
 		return quantity;
+	}
+
+	public String getInventoryLocation() {
+		return inventoryLocation == null ? "" : inventoryLocation;
 	}
 
 	public long getPrivateInfoTimestamp() {

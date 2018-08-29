@@ -206,11 +206,15 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		collectionId = bundle.getInt(KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_game_collection_item, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		ratingView.setOnChangeListener(getActivity(), new Listener() {
 			@Override
@@ -225,7 +229,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		mightNeedRefreshing = true;
 		getLoaderManager().restartLoader(_TOKEN, getArguments(), this);
 
-		return rootView;
 	}
 
 	@DebugLog
@@ -375,6 +378,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	private void colorize(Palette palette) {
 		if (palette == null || !isAdded()) return;
+		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
 		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
@@ -492,6 +496,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
 		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
 		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
+		privateInfoDialogFragment.setInventoryLocation(String.valueOf(editPrivateInfoView.getTag(R.id.inventory_location)));
 		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
 	}
 
@@ -558,7 +563,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void notifyChange(CollectionItem item) {
-		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getThumbnailUrl(), item.getHeroImageUrl(), item.getYear());
+		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getThumbnailUrl(), item.getHeroImageUrl(), item.getYear());
 		EventBus.getDefault().post(event);
 	}
 
@@ -631,6 +636,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
 		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
 		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
+		editPrivateInfoView.setTag(R.id.inventory_location, item.getInventoryLocation());
 
 		// both
 		privateInfoCommentView.setContent(item.getPrivateComment(), item.getPrivateInfoTimestamp());
@@ -701,10 +707,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getCurrentValueCurrency(), item.getCurrentValue()));
 			sb.append(")");
 		}
+		if (!TextUtils.isEmpty(item.getInventoryLocation())) {
+			if (sb.toString().equals(initialText)) {
+				sb.clear();
+			} else {
+				sb.append(". ");
+			}
+			sb.append(getString(R.string.located_in)).append(" ");
+			StringUtils.appendBold(sb, item.getInventoryLocation());
+		}
 
 		if (sb.toString().equals(initialText)) {
 			// shouldn't happen
-			return null;
+			return "";
 		}
 		return sb;
 	}
@@ -714,7 +729,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			!TextUtils.isEmpty(item.getAcquisitionDate()) ||
 			!TextUtils.isEmpty(item.getAcquiredFrom()) ||
 			item.getPrice() > 0.0 ||
-			item.getCurrentValue() > 0.0;
+			item.getCurrentValue() > 0.0 ||
+			!TextUtils.isEmpty(item.getInventoryLocation());
 	}
 
 	private static class WishlistPriorityAdapter extends ArrayAdapter<String> {

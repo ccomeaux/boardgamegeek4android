@@ -12,6 +12,7 @@ data class CollectionItemEntity(
         val yearPublished: Int = YEAR_UNKNOWN,
         val imageUrl: String = "",
         val thumbnailUrl: String = "",
+        val heroImageUrl: String = "",
         val rating: Double = 0.0,
         val own: Boolean = false,
         val previouslyOwned: Boolean = false,
@@ -32,6 +33,7 @@ data class CollectionItemEntity(
         val acquisitionDate: String = "", // Long?
         val acquiredFrom: String = "",
         val privateComment: String = "",
+        val inventoryLocation: String = "",
         val comment: String = "",
         val conditionText: String = "",
         val wantPartsList: String = "",

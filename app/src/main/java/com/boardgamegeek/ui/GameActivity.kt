@@ -173,21 +173,19 @@ class GameActivity : HeroTabActivity() {
         }
     }
 
-    private fun changeImage(heroImageUrl: String?, thumbnailUrl: String?) {
-        val url = if (heroImageUrl.isNullOrBlank()) thumbnailUrl else heroImageUrl
+    private fun changeImage(heroImageUrl: String, thumbnailUrl: String) {
+        val url = if (heroImageUrl.isBlank()) thumbnailUrl else heroImageUrl
         if (this.heroImageUrl != url) {
-            this.heroImageUrl = url ?: ""
-            toolbarImage?.loadUrl(this.heroImageUrl, imageLoadCallback)
-        }
-    }
+            this.heroImageUrl = url
+            toolbarImage?.loadUrl(this.heroImageUrl, object : Callback {
+                override fun onSuccessfulImageLoad(palette: Palette?) {
+                    viewModel.updateGameColors(palette)
+                    scrimView?.applyDarkScrim()
+                }
 
-    private val imageLoadCallback = object : Callback {
-        override fun onSuccessfulImageLoad(palette: Palette?) {
-            viewModel.updateGameColors(palette)
-            scrimView?.applyDarkScrim()
+                override fun onFailedImageLoad() {}
+            })
         }
-
-        override fun onFailedImageLoad() {}
     }
 
     companion object {

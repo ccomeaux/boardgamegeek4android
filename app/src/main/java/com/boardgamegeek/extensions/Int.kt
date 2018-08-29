@@ -103,6 +103,26 @@ fun Int.asTime(): String {
 }
 
 /**
+ * Format minutes as 90 mins or 2 hrs or 2h 15m
+ */
+fun Int.asMinutes(context: Context): String {
+    if (this == 0) return context.getString(R.string.mins_unknown)
+
+    return if (this >= 120) {
+        val hours = this / 60
+        val remainingMinutes = this % 60
+
+        if (remainingMinutes == 0) {
+            context.getString(R.string.hrs_suffix, hours)
+        } else {
+            context.getString(R.string.hrs_mins, hours, remainingMinutes)
+        }
+    } else {
+        context.resources.getQuantityString(R.plurals.mins_suffix, this, this)
+    }
+}
+
+/**
  * Format a list of integers as a range.
  * E.g. [1,3,4,5] would return "1, 3 - 5"
  * Assumes list is already sorted
