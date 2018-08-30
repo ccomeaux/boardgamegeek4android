@@ -20,11 +20,13 @@ class AutoCompleteAdapter @JvmOverloads constructor(
         context,
         R.layout.autocomplete_item,
         null,
-        arrayOf(BaseColumns._ID, columnName, extraColumnName),
+        arrayOf(BaseColumns._ID, columnName),
         intArrayOf(0, R.id.autocomplete_item),
         0) {
 
-    override fun getStringConversionColumn() = 1
+    init {
+        stringConversionColumn = 1
+    }
 
     override fun runQueryOnBackgroundThread(constraint: CharSequence): Cursor? {
         return context.contentResolver.query(uri,
