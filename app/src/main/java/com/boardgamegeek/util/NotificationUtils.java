@@ -33,12 +33,14 @@ public class NotificationUtils {
 	public static final String TAG_UPLOAD_PLAY_ERROR = TAG_PREFIX + "UPLOAD_PLAY_ERROR";
 	public static final String TAG_UPLOAD_COLLECTION = TAG_PREFIX + "UPLOAD_COLLECTION";
 	public static final String TAG_UPLOAD_COLLECTION_ERROR = TAG_PREFIX + "UPLOAD_COLLECTION_ERROR";
+	public static final String TAG_FIREBASE_MESSAGE = TAG_PREFIX + "FIREBASE_MESSAGE";
 
 	public static final String CHANNEL_ID_SYNC_PROGRESS = "sync";
 	public static final String CHANNEL_ID_ERROR = "sync_error";
 	public static final String CHANNEL_ID_SYNC_UPLOAD = "sync_upload";
 	public static final String CHANNEL_ID_PLAYING = "playing";
 	public static final String CHANNEL_ID_STATS = "stats";
+	public static final String CHANNEL_ID_FIREBASE_MESSAGES = "firebase_messages";
 
 	@TargetApi(VERSION_CODES.O)
 	public static void createNotificationChannels(Context context) {
@@ -81,6 +83,13 @@ public class NotificationUtils {
 			context.getString(R.string.channel_name_stats),
 			NotificationManager.IMPORTANCE_DEFAULT);
 		channel.setDescription(context.getString(R.string.channel_description_stats));
+		notificationManager.createNotificationChannel(channel);
+
+		channel = new NotificationChannel(
+			NotificationUtils.CHANNEL_ID_FIREBASE_MESSAGES,
+			context.getString(R.string.channel_name_firebase_messages),
+			NotificationManager.IMPORTANCE_HIGH);
+		channel.setDescription(context.getString(R.string.channel_description_firebase_messages));
 		notificationManager.createNotificationChannel(channel);
 	}
 

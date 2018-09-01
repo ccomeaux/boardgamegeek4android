@@ -20,6 +20,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
@@ -76,6 +77,9 @@ public class BggApplication extends MultiDexApplication {
 
 		migrateCollectionStatusSettings();
 		SyncPrefs.migrate(this);
+
+		String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+		Timber.i("Refreshed Firebase token to %s", refreshedToken);
 	}
 
 	private void initializeFabric() {

@@ -1,3 +1,3 @@
 package com.boardgamegeek.events
 
-class CollectionStatusChangedEvent(val description: String)
+class CollectionStatusChangedEvent(val description: String?)

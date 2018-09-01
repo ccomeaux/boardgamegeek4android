@@ -5,6 +5,16 @@ Version 6.7
 -----------
  * Coming soon
 
+Version 6.6.5
+-------------
+ * Enable remote messages to be sent from the developers
+ * Fix some collection filters, like average weight
+ * Bug fixes
+
+Version 6.6.4
+-------------
+ * Bug fixes
+
 Version 6.6.3
 -------------
  * Possible fix for inability to sign in

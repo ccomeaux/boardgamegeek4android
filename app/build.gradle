@@ -129,7 +129,7 @@ dependencies {
     implementation "com.android.support:percent:$support_version"
     implementation "com.android.support:recyclerview-v7:$support_version"
     implementation "com.android.support:support-annotations:$support_version"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
     implementation 'com.android.support:multidex:1.0.3'
 
@@ -137,8 +137,9 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
-    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-config:16.0.0'
+    implementation 'com.google.firebase:firebase-messaging:17.0.0'
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
@@ -166,7 +167,7 @@ dependencies {
 
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true
     }
 
@@ -179,7 +180,7 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
 
-    implementation 'com.appyvet:materialrangebar:1.4.1'
+    implementation 'com.appyvet:materialrangebar:1.4.2'
 
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
