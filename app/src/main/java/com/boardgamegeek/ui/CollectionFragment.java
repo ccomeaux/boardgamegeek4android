@@ -658,9 +658,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void setEmptyText() {
 		if (emptyButton == null) return;
-		final Set<String> syncedStatuses = PreferencesUtils.getSyncStatuses(getContext());
-		final boolean collectionSyncOn = syncedStatuses != null && syncedStatuses.size() != 0;
-		if (collectionSyncOn) {
+		if (PreferencesUtils.isCollectionSetToSync(getContext())) {
+			final Set<String> syncedStatuses = PreferencesUtils.getSyncStatuses(getContext());
 			final boolean noPreviousSync = SyncPrefs.getLastCompleteCollectionTimestamp(getContext()) == 0L;
 			final boolean filterApplied = hasFiltersApplied();
 			if (noPreviousSync) {
@@ -669,10 +668,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				if (isAtLeastOneSyncOff(syncedStatuses, getListOfVisibleStatuses())) {
 					setEmptyStateForSettingsAction(R.string.empty_collection_filter_on_sync_partial);
 				} else {
-					setEmptyStateForReSyncAction(R.string.empty_collection_filter_on);
+					setEmptyStateForNoAction(R.string.empty_collection_filter_on);
 				}
 			} else {
-				setEmptyStateForReSyncAction(R.string.empty_collection);
+				setEmptyStateForSettingsAction(R.string.empty_collection);
 			}
 		} else {
 			setEmptyStateForSettingsAction(R.string.empty_collection_sync_off);
@@ -707,19 +706,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				startActivity(SettingsActivity.Companion.newIntent(getContext()));
 			}
 		});
-		emptyButton.setText(R.string.button_settings);
-		emptyButton.setVisibility(View.VISIBLE);
-	}
-
-	private void setEmptyStateForReSyncAction(@StringRes int textResId) {
-		setEmptyText(getString(textResId));
-		emptyButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				triggerRefresh();
-			}
-		});
-		emptyButton.setText(R.string.re_sync);
+		emptyButton.setText(R.string.title_settings);
 		emptyButton.setVisibility(View.VISIBLE);
 	}
 
