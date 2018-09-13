@@ -13,6 +13,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.dialog_game_users.*
+import org.jetbrains.anko.support.v4.act
 
 class GameUsersDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -23,7 +24,7 @@ class GameUsersDialogFragment : DialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel = ViewModelProviders.of(activity!!).get(GameViewModel::class.java)
+        val viewModel = ViewModelProviders.of(act).get(GameViewModel::class.java)
         viewModel.game.observe(this, Observer { gameEntityRefreshableResource ->
             gameEntityRefreshableResource?.data?.let {
                 val game = gameEntityRefreshableResource.data
@@ -31,17 +32,16 @@ class GameUsersDialogFragment : DialogFragment() {
 
                 val maxUsers = game.maxUsers.toDouble()
 
-                numberOwningBar?.setBar(R.string.owning_meter_text, game.numberOfUsersOwned.toDouble(), maxUsers)
-                numberTradingBar?.setBar(R.string.trading_meter_text, game.numberOfUsersTrading.toDouble(), maxUsers)
-                numberWantingBar?.setBar(R.string.wanting_meter_text, game.numberOfUsersWanting.toDouble(), maxUsers)
-                numberWishingBar?.setBar(R.string.wishing_meter_text, game.numberOfUsersWishListing.toDouble(), maxUsers)
+                numberOwningBar.setBar(R.string.owning_meter_text, game.numberOfUsersOwned.toDouble(), maxUsers)
+                numberTradingBar.setBar(R.string.trading_meter_text, game.numberOfUsersTrading.toDouble(), maxUsers)
+                numberWantingBar.setBar(R.string.wanting_meter_text, game.numberOfUsersWanting.toDouble(), maxUsers)
+                numberWishingBar.setBar(R.string.wishing_meter_text, game.numberOfUsersWishListing.toDouble(), maxUsers)
             }
         })
     }
 
     private fun colorize(@ColorInt color: Int) {
-        listOf(numberOwningBar, numberTradingBar, numberWantingBar, numberWishingBar)
-                .forEach { it?.colorize(color) }
+        listOf(numberOwningBar, numberTradingBar, numberWantingBar, numberWishingBar).forEach { it?.colorize(color) }
     }
 
     companion object {
