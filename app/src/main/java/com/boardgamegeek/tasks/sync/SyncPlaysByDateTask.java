@@ -1,17 +1,16 @@
 package com.boardgamegeek.tasks.sync;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.io.model.PlaysResponse;
 import com.boardgamegeek.mappers.PlayMapper;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
-import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
 import com.boardgamegeek.util.TaskUtils;
@@ -22,11 +21,13 @@ import retrofit2.Call;
 import timber.log.Timber;
 
 public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent> {
+	private final BggApplication application;
 	private final String date;
 	private final String username;
 
-	public SyncPlaysByDateTask(Context context, String date) {
-		super(context);
+	public SyncPlaysByDateTask(BggApplication application, String date) {
+		super(application.getApplicationContext());
+		this.application = application;
 		this.date = date;
 		username = AccountUtils.getUsername(context);
 	}
@@ -65,9 +66,7 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected void finishSync() {
-		if (SyncPrefs.isPlaysSyncUpToDate(context)) {
-			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
-		}
+		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(application));
 	}
 
 	@NonNull

@@ -1,10 +1,14 @@
 package com.boardgamegeek.ui;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -19,22 +23,17 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlayStatsUpdatedEvent;
+import com.boardgamegeek.entities.PlayStatsEntity;
+import com.boardgamegeek.entities.PlayerStatsEntity;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment;
 import com.boardgamegeek.ui.model.HIndexEntry;
-import com.boardgamegeek.ui.model.PlayStats;
+import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel;
 import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +43,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class PlayStatsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private Unbinder unbinder;
@@ -63,25 +61,42 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	@BindView(R.id.accuracy_container) ViewGroup accuracyContainer;
 	@BindView(R.id.accuracy_message) TextView accuracyMessage;
 	@BindString(R.string.this_many) String nullMessageChunk;
-	private PlayStats playStats;
+	private PlayStatsEntity playStats;
+	private PlayerStatsEntity playerStats;
 	private boolean isOwnedSynced;
 	private boolean isPlayedSynced;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
-		bindCollectionStatusMessage();
-		bindAccuracyMessage();
-		return rootView;
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_play_stats, container, false);
 	}
 
-	@DebugLog
 	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().register(this);
-		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(getContext()));
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
+
+		PlayStatsViewModel viewModel = ViewModelProviders.of(getActivity()).get(PlayStatsViewModel.class);
+		viewModel.getPlays().observe(this, new Observer<PlayStatsEntity>() {
+			@Override
+			public void onChanged(@Nullable PlayStatsEntity entity) {
+				if (entity == null) {
+					showEmpty();
+				} else {
+					bindUi(entity);
+				}
+			}
+		});
+		viewModel.getPlayers().observe(this, new Observer<PlayerStatsEntity>() {
+			@Override
+			public void onChanged(@Nullable PlayerStatsEntity entity) {
+				if (entity == null) return;
+				updatePlayer(entity);
+			}
+		});
+
+		bindCollectionStatusMessage();
+		bindAccuracyMessage();
 	}
 
 	@Override
@@ -96,23 +111,10 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 		PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
-	@DebugLog
-	@Override
-	public void onStop() {
-		super.onStop();
-		EventBus.getDefault().unregister(this);
-	}
-
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		unbinder.unbind();
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(PlayStatsUpdatedEvent event) {
-		bindUi(event.getPlayStats());
 	}
 
 	private void bindCollectionStatusMessage() {
@@ -137,38 +139,31 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 			StringUtils.formatList(things, getString(R.string.or).toLowerCase(), ",")));
 	}
 
-	private void bindUi(PlayStats stats) {
+	private void bindUi(PlayStatsEntity stats) {
 		playStats = stats;
-		if (stats == null) {
-			showEmpty();
-			return;
-		}
 
 		playCountTable.removeAllViews();
 		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.getNumberOfPlays()));
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfGames()));
-		if (stats.getNumberOfDollars()>0)
+		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_distinct_games).value(stats.getNumberOfPlayedGames()));
+		if (stats.getNumberOfDollars() > 0)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dollars).value(stats.getNumberOfDollars()));
-		if (stats.getNumberOfHalfDollars()>0)
+		if (stats.getNumberOfHalfDollars() > 0)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_half_dollars).value(stats.getNumberOfHalfDollars()));
-		if (stats.getNumberOfQuarters()>0)
+		if (stats.getNumberOfQuarters() > 0)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_quarters).value(stats.getNumberOfQuarters()));
-		if (stats.getNumberOfDimes()>0)
+		if (stats.getNumberOfDimes() > 0)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_dimes).value(stats.getNumberOfDimes()));
-		if (stats.getNumberOfNickels()>0)
+		if (stats.getNumberOfNickels() > 0)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_nickels).value(stats.getNumberOfNickels()));
 
 		if (isPlayedSynced)
 			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_top_100).value(stats.getTop100Count() + "%"));
 
-		gameHIndexView.setText(String.valueOf(stats.getGameHIndex()));
-		bindHIndexTable(gameHIndexTable, stats.getGameHIndex(), stats.getHIndexGames());
-
-		playerHIndexView.setText(String.valueOf(stats.getPlayerHIndex()));
-		bindHIndexTable(playerHIndexTable, stats.getPlayerHIndex(), stats.getHIndexPlayers());
+		gameHIndexView.setText(String.valueOf(stats.getHIndex()));
+		bindHIndexTable(gameHIndexTable, stats.getHIndex(), stats.getHIndexGames());
 
 		advancedTable.removeAllViews();
-		if (stats.getFriendless() != PlayStats.INVALID_FRIENDLESS) {
+		if (stats.getFriendless() != PlayStatsEntity.INVALID_FRIENDLESS) {
 			advancedHeader.setVisibility(View.VISIBLE);
 			advancedCard.setVisibility(View.VISIBLE);
 			addStatRow(advancedTable, new Builder()
@@ -176,7 +171,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 				.value(stats.getFriendless())
 				.infoId(R.string.play_stat_friendless_info));
 		}
-		if (stats.getUtilization() != PlayStats.INVALID_UTILIZATION) {
+		if (stats.getUtilization() != PlayStatsEntity.INVALID_UTILIZATION) {
 			advancedHeader.setVisibility(View.VISIBLE);
 			advancedCard.setVisibility(View.VISIBLE);
 			addStatRow(advancedTable, new Builder()
@@ -184,7 +179,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 				.valueAsPercentage(stats.getUtilization())
 				.infoId(R.string.play_stat_utilization_info));
 		}
-		if (stats.getCfm() != PlayStats.INVALID_CFM) {
+		if (stats.getCfm() != PlayStatsEntity.INVALID_CFM) {
 			advancedHeader.setVisibility(View.VISIBLE);
 			advancedCard.setVisibility(View.VISIBLE);
 			addStatRow(advancedTable, new Builder()
@@ -193,6 +188,12 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 				.infoId(R.string.play_stat_cfm_info));
 		}
 		showData();
+	}
+
+	private void updatePlayer(PlayerStatsEntity stats) {
+		playerStats = stats;
+		playerHIndexView.setText(String.valueOf(stats.getHIndex()));
+		bindHIndexTable(playerHIndexTable, stats.getHIndex(), stats.getHIndexPlayers());
 	}
 
 	private void bindHIndexTable(TableLayout table, int hIndex, List<HIndexEntry> entries) {
@@ -247,14 +248,14 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	void onGameHIndexInfoClick() {
 		showAlertDialog(R.string.play_stat_game_h_index,
 			R.string.play_stat_game_h_index_info,
-			playStats == null ? nullMessageChunk : playStats.getGameHIndex());
+			playStats == null ? nullMessageChunk : playStats.getHIndex());
 	}
 
 	@OnClick(R.id.player_h_index_info)
 	void onPlayerHIndexInfoClick() {
 		showAlertDialog(R.string.play_stat_player_h_index,
 			R.string.play_stat_player_h_index_info,
-			playStats == null ? nullMessageChunk : playStats.getPlayerHIndex());
+			playerStats == null ? nullMessageChunk : playerStats.getHIndex());
 	}
 
 	private void showAlertDialog(@StringRes int titleResId, @StringRes int messageResId, Object... formatArgs) {
@@ -299,7 +300,7 @@ public class PlayStatsFragment extends Fragment implements SharedPreferences.OnS
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX)) {
 			bindAccuracyMessage();
-			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(getContext()));
+			// TODO refresh view model
 		}
 	}
 }

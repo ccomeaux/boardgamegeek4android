@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
@@ -512,7 +513,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void triggerRefresh() {
 		if (!isRefreshing) {
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), play.gameId));
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) getActivity().getApplication(), play.gameId));
 			updateRefreshStatus(true);
 		}
 	}

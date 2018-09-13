@@ -18,7 +18,6 @@ import com.boardgamegeek.model.PlayDeleteResponse
 import com.boardgamegeek.model.PlaySaveResponse
 import com.boardgamegeek.model.builder.PlayBuilder
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -83,9 +82,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
-        if (SyncPrefs.isPlaysSyncUpToDate(context)) {
-            TaskUtils.executeAsyncTask(CalculatePlayStatsTask(context))
-        }
+        TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
     }
 
     @DebugLog

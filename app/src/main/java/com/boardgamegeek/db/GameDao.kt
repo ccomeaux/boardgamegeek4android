@@ -10,6 +10,7 @@ import android.net.Uri
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
@@ -354,6 +355,56 @@ class GameDao(private val context: BggApplication) {
                 if (it.moveToFirst()) {
                     do {
                         results.add(it.getString(GameColors.COLOR))
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
+        }
+    }
+
+    fun loadPlayInfo(includeIncompletePlays: Boolean, includeExpansions: Boolean, includeAccessories: Boolean): LiveData<List<GameForPlayStatEntity>> {
+        val uri = Games.CONTENT_PLAYS_URI
+        return RegisteredLiveData(context, uri) {
+            val selection = arrayListOf<String>().apply {
+                add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
+
+                if (!includeIncompletePlays) {
+                    add(Plays.INCOMPLETE.whereZeroOrNull())
+                }
+
+                if (!includeExpansions && !includeAccessories) {
+                    add(Games.SUBTYPE.whereEqualsOrNull())
+                } else if (!includeExpansions || !includeAccessories) {
+                    add(Games.SUBTYPE.whereNotEqualsOrNull())
+                }
+            }.joinTo(" AND ").toString()
+            val selectionArgs = arrayListOf<String>().apply {
+                if (!includeExpansions && !includeAccessories) {
+                    add(BggService.THING_SUBTYPE_BOARDGAME)
+                } else if (!includeExpansions) {
+                    add(BggService.THING_SUBTYPE_BOARDGAME_EXPANSION)
+                } else if (!includeAccessories) {
+                    add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
+                }
+            }.toTypedArray()
+            val results = arrayListOf<GameForPlayStatEntity>()
+            context.contentResolver.load(uri,
+                    arrayOf(
+                            Plays.SUM_QUANTITY,
+                            Plays.ITEM_NAME,
+                            Games.GAME_RANK,
+                            Games.GAME_ID),
+                    selection = selection,
+                    selectionArgs = selectionArgs,
+                    sortOrder = "${Plays.SUM_QUANTITY} DESC, ${Games.GAME_SORT_NAME} ASC")?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results += GameForPlayStatEntity(
+                                it.getIntOrNull(Games.GAME_ID) ?: BggContract.INVALID_ID,
+                                it.getStringOrEmpty(Plays.ITEM_NAME),
+                                it.getIntOrZero(Plays.SUM_QUANTITY),
+                                it.getIntOrZero(Games.GAME_RANK)
+                        )
                     } while (it.moveToNext())
                 }
             }

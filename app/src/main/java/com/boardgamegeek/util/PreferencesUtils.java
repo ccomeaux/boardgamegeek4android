@@ -15,7 +15,6 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.ui.PlayStatsActivity;
-import com.boardgamegeek.ui.model.PlayStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -275,13 +274,19 @@ public class PreferencesUtils {
 		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updatePlayStats(@Nullable Context context, PlayStats playStats) {
+	public static void updateGameHIndex(@Nullable Context context, int gameHIndex) {
 		if (context == null) return;
-		if (playStats == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateHIndex(context, editor, playStats.getGameHIndex(), KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
-		updateHIndex(context, editor, playStats.getPlayerHIndex(), KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
+		updateHIndex(context, editor, gameHIndex, KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
+		editor.apply();
+	}
+
+	public static void updatePlayerHIndex(@Nullable Context context, int playerHIndex) {
+		if (context == null) return;
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		updateHIndex(context, editor, playerHIndex, KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
 		editor.apply();
 	}
 
@@ -300,7 +305,7 @@ public class PreferencesUtils {
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStats.class)
+			.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStatsActivity.class)
 			.setContentText(message)
 			.setContentIntent(pi);
 		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, id, builder);
