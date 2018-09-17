@@ -77,6 +77,18 @@ fun View.setViewBackground(@ColorInt color: Int) {
     ViewCompat.setBackground(this, backgroundDrawable)
 }
 
+fun View.setSelectableBackground() {
+    setSelectableBackground(android.R.attr.selectableItemBackground)
+}
+
+private fun View.setSelectableBackground(backgroundResId: Int) {
+    val outValue = TypedValue()
+    context.theme.resolveAttribute(backgroundResId, outValue, true)
+    setBackgroundResource(outValue.resourceId)
+    isClickable = true
+    visibility = View.VISIBLE
+}
+
 fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {
     if (clickable) {
         setOnClickListener(l)

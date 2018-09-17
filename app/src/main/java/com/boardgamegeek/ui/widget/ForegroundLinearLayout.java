@@ -43,13 +43,17 @@ public class ForegroundLinearLayout extends LinearLayout {
 	private boolean foregroundBoundsChanged = false;
 
 	public ForegroundLinearLayout(Context context) {
-		super(context);
+		this(context, null);
 	}
 
 	public ForegroundLinearLayout(Context context, AttributeSet attrs) {
-		super(context, attrs);
+		this(context, attrs, 0);
+	}
 
-		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundLinearLayout, 0, 0);
+	public ForegroundLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+
+		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundLinearLayout, defStyleAttr, 0);
 		try {
 			foregroundGravity = a.getInt(R.styleable.BggForegroundLinearLayout_android_foregroundGravity, foregroundGravity);
 
