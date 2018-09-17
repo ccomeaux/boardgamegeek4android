@@ -397,13 +397,29 @@ public class LogPlayActivity extends AppCompatActivity {
 						if (dX > 0) {
 							swipePaint.setColor(ContextCompat.getColor(LogPlayActivity.this, R.color.delete));
 							background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-							iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), icon.getHeight());
-							iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + icon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+							iconSrc = new Rect(
+								0,
+								0,
+								Math.min((int) (dX - itemView.getLeft() - horizontalPadding), icon.getWidth()),
+								icon.getHeight());
+							iconDst = new RectF(
+								(float) itemView.getLeft() + horizontalPadding,
+								(float) itemView.getTop() + verticalPadding,
+								Math.min(itemView.getLeft() + horizontalPadding + icon.getWidth(), dX),
+								(float) itemView.getBottom() - verticalPadding);
 						} else {
 							swipePaint.setColor(ContextCompat.getColor(LogPlayActivity.this, R.color.edit));
 							background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
-							iconSrc = new Rect(Math.max(icon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, icon.getWidth(), icon.getHeight());
-							iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - icon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+							iconSrc = new Rect(
+								Math.max(icon.getWidth() + (int) horizontalPadding + (int) dX, 0),
+								0,
+								icon.getWidth(),
+								icon.getHeight());
+							iconDst = new RectF(
+								Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - icon.getWidth()),
+								(float) itemView.getTop() + verticalPadding,
+								(float) itemView.getRight() - horizontalPadding,
+								(float) itemView.getBottom() - verticalPadding);
 						}
 						c.drawRect(background, swipePaint);
 						c.drawBitmap(icon, iconSrc, iconDst, swipePaint);

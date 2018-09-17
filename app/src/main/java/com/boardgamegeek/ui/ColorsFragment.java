@@ -101,7 +101,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@Nullable
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		PresentationUtils.colorFab(fab, iconColor);
@@ -157,12 +157,28 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 					if (dX > 0) {
 						background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-						iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getHeight());
-						iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+						iconSrc = new Rect(
+							0,
+							0,
+							Math.min((int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getWidth()),
+							deleteIcon.getHeight());
+						iconDst = new RectF(
+							(float) itemView.getLeft() + horizontalPadding,
+							(float) itemView.getTop() + verticalPadding,
+							Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX),
+							(float) itemView.getBottom() - verticalPadding);
 					} else {
 						background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
-						iconSrc = new Rect(Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, deleteIcon.getWidth(), deleteIcon.getHeight());
-						iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+						iconSrc = new Rect(
+							Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0),
+							0,
+							deleteIcon.getWidth(),
+							deleteIcon.getHeight());
+						iconDst = new RectF(
+							Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()),
+							(float) itemView.getTop() + verticalPadding,
+							(float) itemView.getRight() - horizontalPadding,
+							(float) itemView.getBottom() - verticalPadding);
 					}
 					c.drawRect(background, swipePaint);
 					c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
@@ -212,7 +228,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Nullable
+	@NonNull
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -318,10 +334,8 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 	@DebugLog
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		if (adapter != null) {
-			adapter.changeCursor(null);
-		}
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		if (adapter != null) adapter.changeCursor(null);
 	}
 
 	@OnClick(R.id.fab)
