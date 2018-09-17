@@ -1,6 +1,5 @@
 package com.boardgamegeek.entities
 
-import com.boardgamegeek.ui.model.HIndexEntry
 import com.boardgamegeek.util.MathUtils
 
 class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private val isOwnedSynced: Boolean) {
@@ -57,16 +56,9 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         if (hIndex == 0) hIndexCounter else hIndex
     }
 
-    fun getHIndexGames(): List<HIndexEntry> {
+    fun getHIndexGames(): List<Pair<String, Int>> {
         if (hIndex == 0) return emptyList()
-
-        val fromIndex = maxOf(0, games.indexOfFirst { it.playCount <= hIndex } - 1)
-        val toIndex = minOf(games.lastIndex, games.indexOfLast { it.playCount >= hIndex } + 1)
-
-        return games.mapIndexed { index, game -> HIndexEntry(game.playCount, index + 1, game.name) }.subList(
-                games.indexOfFirst { it.playCount == games[fromIndex].playCount },
-                games.indexOfLast { it.playCount == games[toIndex].playCount } + 1
-        )
+        return games.map { it.name to it.playCount }
     }
 
     val friendless: Int by lazy {
@@ -114,6 +106,6 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
     }
 
     private val totalCdf: Double by lazy {
-        games.filter { it.isOwned }.sumByDouble { MathUtils.cdf(it.playCount.toDouble(), lambda) }
+        games.asSequence().filter { it.isOwned }.sumByDouble { MathUtils.cdf(it.playCount.toDouble(), lambda) }
     }
 }

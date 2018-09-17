@@ -25,7 +25,6 @@ import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
-import com.boardgamegeek.ui.model.HIndexEntry
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatView.Builder
 import com.boardgamegeek.util.DialogUtils
@@ -186,23 +185,28 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         bindHIndexTable(playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
     }
 
-    private fun bindHIndexTable(table: TableLayout, hIndex: Int, entries: List<HIndexEntry>?) {
+    private fun bindHIndexTable(table: TableLayout, hIndex: Int, entries: List<Pair<String, Int>>?) {
         table.removeAllViews()
         if (entries == null || entries.isEmpty()) {
             table.visibility = View.GONE
         } else {
-            var addDivider = true
-            for (entry in entries) {
-                val builder = Builder().labelText(entry.description).value(entry.playCount)
-                if (entry.playCount == hIndex) {
-                    builder.backgroundResource(R.color.light_blue_transparent)
-                    addDivider = false
-                } else if (entry.playCount < hIndex && addDivider) {
-                    addDivider(table)
-                    addDivider = false
-                }
-                addStatRow(table, builder)
+            val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#$index)" to pair.second }
+
+            val nextHighestHIndex = entries.findLast { it.second > hIndex }?.second ?: hIndex+1
+            val nextLowestHIndex = entries.find { it.second < hIndex }?.second ?: hIndex-1
+
+            val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
+            prefix.forEach { addStatRow(table, Builder().labelText(it.first).value(it.second)) }
+
+            val list = rankedEntries.filter { it.second == hIndex }
+            if (list.isEmpty()) {
+                addDivider(table)
+            } else {
+                list.forEach { addStatRow(table, Builder().labelText(it.first).value(it.second).backgroundResource(R.color.light_blue)) }
             }
+
+            val suffix = rankedEntries.filter { it.second == nextLowestHIndex }
+            suffix.forEach { addStatRow(table, Builder().labelText(it.first).value(it.second)) }
             table.visibility = View.VISIBLE
         }
     }
