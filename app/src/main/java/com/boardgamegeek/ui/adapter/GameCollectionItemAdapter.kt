@@ -12,10 +12,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
 import kotlinx.android.synthetic.main.widget_collection_row.view.*
-import java.text.DecimalFormat
 import kotlin.properties.Delegates
-
-private val PERSONAL_RATING_FORMAT = DecimalFormat("#0.#")
 
 class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
     init {
@@ -71,7 +68,7 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
             if (item.rating == 0.0) {
                 itemView.rating.visibility = View.GONE
             } else {
-                itemView.rating.text = item.rating.asScore(itemView.context, R.string.unrated, PERSONAL_RATING_FORMAT)
+                itemView.rating.text = item.rating.asPersonalRating(itemView.context)
                 itemView.rating.setTextViewBackground(item.rating.toColor(ratingColors))
                 itemView.rating.visibility = View.VISIBLE
             }

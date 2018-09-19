@@ -78,20 +78,6 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
-	public static String describePersonalRating(Context context, double rating) {
-		return describeRating(context, rating, PERSONAL_RATING_FORMAT);
-	}
-
-	@DebugLog
-	private static String describeRating(@NonNull Context context, double rating, DecimalFormat format) {
-		if (rating > 0.0) {
-			return format.format(rating);
-		} else {
-			return context.getString(R.string.unrated);
-		}
-	}
-
 	@NonNull
 	public static String describeMoney(String currency, double amount) {
 		if (TextUtils.isEmpty(currency) && amount == 0.0) return "";

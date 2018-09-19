@@ -9,6 +9,10 @@ import com.boardgamegeek.R
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
+fun Double.asPersonalRating(context: Context?): String {
+    return asScore(context, R.string.unrated, DecimalFormat("#0.#"))
+}
+
 fun Double.asRating(context: Context?): String {
     return asScore(context, R.string.unrated)
 }

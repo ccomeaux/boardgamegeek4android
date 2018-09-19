@@ -34,8 +34,8 @@ import com.boardgamegeek.R
  * flexible enough for use with other desired aesthetics.
  */
 class BezelImageView @JvmOverloads constructor(
-        context: Context, attrs:
-        AttributeSet? = null,
+        context: Context,
+        attrs: AttributeSet? = null,
         defStyle: Int = 0)
     : AppCompatImageView(context, attrs, defStyle) {
     private val blackPaint: Paint
