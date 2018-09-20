@@ -132,8 +132,9 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
+	@NonNull
 	public static String describePlayer(String name, String username) {
+		if (name == null) return "";
 		if (TextUtils.isEmpty(username)) return name;
 		return name + " (" + username + ")";
 	}

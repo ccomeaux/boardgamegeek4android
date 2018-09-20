@@ -27,6 +27,90 @@ private const val NOT_DIRTY = 0L
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
 
+    fun load(includeDeletedItems: Boolean = false): List<CollectionItemEntity> {
+        val uri = Collection.CONTENT_URI
+        val projection = arrayOf(
+                Collection._ID,
+                Collection.GAME_ID,
+                Collection.COLLECTION_ID,
+                Collection.COLLECTION_NAME,
+                Collection.COLLECTION_YEAR_PUBLISHED,
+                Collection.COLLECTION_THUMBNAIL_URL,
+                Collection.COLLECTION_IMAGE_URL,
+                Collection.COLLECTION_HERO_IMAGE_URL,
+                Collection.STATUS_OWN,
+                Collection.STATUS_PREVIOUSLY_OWNED,
+                Collection.STATUS_FOR_TRADE,
+                Collection.STATUS_WANT,
+                Collection.STATUS_WANT_TO_BUY,
+                Collection.STATUS_WISHLIST,
+                Collection.STATUS_WANT_TO_PLAY,
+                Collection.STATUS_PREORDERED,
+                Collection.STATUS_WISHLIST_PRIORITY,
+                Collection.NUM_PLAYS,
+                Collection.COMMENT,
+                Collection.YEAR_PUBLISHED,
+                Collection.RATING,
+                Collection.IMAGE_URL,
+                Collection.UPDATED,
+                Collection.GAME_NAME,
+                Collection.COLLECTION_DELETE_TIMESTAMP,
+                Collection.COLLECTION_DIRTY_TIMESTAMP,
+                Collection.STATUS_DIRTY_TIMESTAMP,
+                Collection.RATING_DIRTY_TIMESTAMP,
+                Collection.COMMENT_DIRTY_TIMESTAMP,
+                Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+                Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+                Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
+                Collection.HAS_PARTS_DIRTY_TIMESTAMP,
+                Collection.WANT_PARTS_DIRTY_TIMESTAMP
+        )
+        val list = arrayListOf<CollectionItemEntity>()
+        resolver.load(uri, projection)?.use {
+            if (it.moveToFirst()) {
+                do {
+                    val item = CollectionItemEntity(
+                            internalId = it.getLong(Collection._ID),
+                            gameId = it.getInt(Collection.GAME_ID),
+                            collectionId = it.getInt(Collection.COLLECTION_ID),
+                            collectionName = it.getStringOrEmpty(Collection.COLLECTION_NAME),
+                            gameName = it.getStringOrEmpty(Collection.GAME_NAME),
+                            yearPublished = it.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
+                            imageUrl = it.getStringOrEmpty(Collection.COLLECTION_IMAGE_URL),
+                            thumbnailUrl = it.getStringOrEmpty(Collection.COLLECTION_THUMBNAIL_URL),
+                            heroImageUrl = it.getStringOrEmpty(Collection.COLLECTION_HERO_IMAGE_URL),
+                            comment = it.getStringOrEmpty(Collection.COMMENT),
+                            numberOfPlays = it.getIntOrZero(Games.NUM_PLAYS),
+                            rating = it.getDoubleOrZero(Collection.RATING),
+                            syncTimestamp = it.getLongOrZero(Collection.UPDATED),
+                            deleteTimestamp = it.getLongOrZero(Collection.COLLECTION_DELETE_TIMESTAMP),
+                            own = it.getBoolean(Collection.STATUS_OWN),
+                            previouslyOwned = it.getBoolean(Collection.STATUS_PREVIOUSLY_OWNED),
+                            preOrdered = it.getBoolean(Collection.STATUS_PREORDERED),
+                            forTrade = it.getBoolean(Collection.STATUS_FOR_TRADE),
+                            wantInTrade = it.getBoolean(Collection.STATUS_WANT),
+                            wantToPlay = it.getBoolean(Collection.STATUS_WANT_TO_PLAY),
+                            wantToBuy = it.getBoolean(Collection.STATUS_WANT_TO_BUY),
+                            wishList = it.getBoolean(Collection.STATUS_WISHLIST),
+                            wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3,
+                            dirtyTimestamp = it.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
+                            statusDirtyTimestamp = it.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
+                            ratingDirtyTimestamp = it.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),
+                            commentDirtyTimestamp = it.getLongOrZero(Collection.COMMENT_DIRTY_TIMESTAMP),
+                            privateInfoDirtyTimestamp = it.getLongOrZero(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP),
+                            wishListDirtyTimestamp = it.getLongOrZero(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP),
+                            tradeConditionDirtyTimestamp = it.getLongOrZero(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP),
+                            hasPartsDirtyTimestamp = it.getLongOrZero(Collection.HAS_PARTS_DIRTY_TIMESTAMP),
+                            wantPartsDirtyTimestamp = it.getLongOrZero(Collection.WANT_PARTS_DIRTY_TIMESTAMP)
+                    )
+                    if (includeDeletedItems || item.deleteTimestamp == 0L)
+                        list.add(item)
+                } while (it.moveToNext())
+            }
+        }
+        return list
+    }
+
     fun load(gameId: Int, includeDeletedItems: Boolean = false): LiveData<List<CollectionItemEntity>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Collection.CONTENT_URI

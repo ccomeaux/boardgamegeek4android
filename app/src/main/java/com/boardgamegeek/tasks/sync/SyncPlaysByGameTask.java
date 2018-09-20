@@ -7,13 +7,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.io.model.PlaysResponse;
 import com.boardgamegeek.mappers.PlayMapper;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
-import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -29,11 +29,13 @@ import retrofit2.Call;
 import timber.log.Timber;
 
 public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent> {
+	private final BggApplication application;
 	private final int gameId;
 	private final String username;
 
-	public SyncPlaysByGameTask(Context context, int gameId) {
-		super(context);
+	public SyncPlaysByGameTask(BggApplication application, int gameId) {
+		super(application.getApplicationContext());
+		this.application = application;
 		this.gameId = gameId;
 		username = AccountUtils.getUsername(context);
 	}
@@ -75,9 +77,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		if (context == null) return;
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
-		if (SyncPrefs.isPlaysSyncUpToDate(context)) {
-			TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(context));
-		}
+		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(application));
 	}
 
 	@NonNull

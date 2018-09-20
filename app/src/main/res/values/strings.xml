@@ -643,7 +643,6 @@
 	<string name="msg_sync_error_http_code">Problem communicating with BoardGameGeek (HTTP code: %s)</string>
 	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
 	<string name="profile_updated">Profile updated</string>
-	<string name="this_many">this many</string>
 	<string name="game">game</string>
 	<string name="play">play</string>
 	<string name="player">player</string>
@@ -662,6 +661,7 @@
 	<string name="error_account_name_mismatch">The existing account for %s doesn\'t match the one requested for %s.</string>
 	<string name="error_account_set_auth_token_security_exception">Uh-oh! This isn\'t an error we expect to see. If you have ScorePal installed, there\'s a known problem that one prevents the other from signing in. We\'re working to resolve the issue.</string>
 	<string name="error_field_required">This field is required</string>
+	<string name="information">Information</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

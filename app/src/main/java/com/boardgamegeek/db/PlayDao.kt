@@ -1,12 +1,15 @@
 package com.boardgamegeek.db
 
 import android.arch.lifecycle.LiveData
-import com.boardgamegeek.*
+import com.boardgamegeek.BggApplication
+import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.PlayPlayers
 import com.boardgamegeek.provider.BggContract.Plays
 import timber.log.Timber
 
@@ -65,6 +68,52 @@ class PlayDao(private val context: BggApplication) {
                 }
             }
             return@RegisteredLiveData list
+        }
+    }
+
+    fun loadPlayers(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
+        val uri = Plays.buildPlayersByUniquePlayerUri()
+        return RegisteredLiveData(context, uri, true) {
+            val selection = arrayListOf<String>().apply {
+                add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
+                if (!AccountUtils.getUsername(context).isNullOrBlank()) {
+                    add(BggContract.PlayPlayers.USER_NAME + "!=?")
+                }
+                if (!includeIncompletePlays) {
+                    add(Plays.INCOMPLETE.whereZeroOrNull())
+                }
+            }.joinTo(" AND ").toString()
+            val selectionArgs = AccountUtils.getUsername(context)?.let { username ->
+                when {
+                    username.isBlank() -> null
+                    else -> arrayOf(username)
+                }
+            }
+            val results = arrayListOf<PlayerEntity>()
+            context.contentResolver.load(uri,
+                    arrayOf(
+                            PlayPlayers._ID,
+                            PlayPlayers.NAME,
+                            PlayPlayers.USER_NAME,
+                            PlayPlayers.SUM_QUANTITY,
+                            PlayPlayers.SUM_WINS),
+                    selection,
+                    selectionArgs,
+                    "${PlayPlayers.SUM_QUANTITY} DESC, ${PlayPlayers.NAME}${BggContract.COLLATE_NOCASE}"
+            )?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results += PlayerEntity(
+                                it.getInt(PlayPlayers._ID),
+                                it.getStringOrEmpty(PlayPlayers.NAME),
+                                it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                                it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
+                                it.getIntOrZero(PlayPlayers.SUM_WINS)
+                        )
+                    } while (it.moveToNext())
+                }
+            }
+            return@RegisteredLiveData results
         }
     }
 }

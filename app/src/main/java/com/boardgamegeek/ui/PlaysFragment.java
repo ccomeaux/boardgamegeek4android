@@ -34,6 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
@@ -435,7 +436,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	public void onDateSet(DatePicker view, int year, int month, int day) {
 		isSyncing(true);
 		String date = DateTimeUtils.formatDateForApi(year, month, day);
-		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask(getContext(), date));
+		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask((BggApplication) getActivity().getApplication(), date));
 	}
 
 	private int getEmptyStringResource() {
@@ -470,6 +471,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
@@ -535,7 +537,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
 		}
@@ -582,7 +584,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		if (loader.getId() == PLAY_QUERY_TOKEN) {
 			adapter.changeCursor(null);
 		}
@@ -607,7 +609,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 			case MODE_GAME:
 				isSyncing(true);
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
+				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) getActivity().getApplication(), gameId));
 				break;
 		}
 	}

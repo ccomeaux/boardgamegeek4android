@@ -61,7 +61,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 deleteUnupdatedPlaysBefore(oldestDate)
                 SyncPrefs.setPlaysOldestTimestamp(context, 0L)
             }
-            TaskUtils.executeAsyncTask(CalculatePlayStatsTask(context))
+            TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
         } finally {
             Timber.i("...complete!")
         }
