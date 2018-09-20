@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.util.AnimationUtils
+import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.util.FileUtils
 import kotlinx.android.synthetic.main.widget_data_step_row.view.*
 
@@ -78,7 +78,7 @@ class DataStepRow(context: Context) : LinearLayout(context) {
     }
 
     fun hideProgressBar() {
-        AnimationUtils.fadeOutToInvisible(progressBar)
+        progressBar.fadeOut()
         importButton?.isEnabled = true
         exportButton?.isEnabled = true
     }

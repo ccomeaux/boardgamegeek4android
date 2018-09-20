@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.boardgamegeek.*
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
@@ -20,7 +20,6 @@ import com.boardgamegeek.events.PlaySelectedEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.ColorUtils
 import kotlinx.android.synthetic.main.fragment_game_plays.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
@@ -69,11 +68,11 @@ class GamePlaysFragment : Fragment() {
 
     private fun updateColors(colors: List<String>?) {
         val count = colors?.size ?: 0
-        if (colors != null && count > 0 && colors.all { ColorUtils.isKnownColor(it) }) {
+        if (colors != null && count > 0 && colors.all { it.isKnownColor() }) {
             colorsList.removeAllViews()
             colors.forEach {
                 val view = createViewToBeColored()
-                view.setColorViewValue(ColorUtils.parseColor(it))
+                view.setColorViewValue(it.asColorRgb())
                 colorsList.addView(view)
             }
             colorsList?.fadeIn()
@@ -149,7 +148,7 @@ class GamePlaysFragment : Fragment() {
             playCountContainer?.fadeIn()
 
             if (plays.isNotEmpty()) {
-                val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
+                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
                 if (lastPlay != null) {
                     lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
                     lastPlayInfoView?.text = lastPlay.describe(ctx)

@@ -129,7 +129,7 @@ public class NumberPadDialogFragment extends DialogFragment {
 			if (args.containsKey(KEY_COLOR)) {
 				int color = args.getInt(KEY_COLOR);
 				headerView.setBackgroundColor(color);
-				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
+				if (color != Color.TRANSPARENT && ColorUtils.isColorDark(color)) {
 					titleView.setTextColor(Color.WHITE);
 					subtitleView.setTextColor(Color.WHITE);
 				} else {

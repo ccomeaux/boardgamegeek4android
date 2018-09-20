@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.provider.BaseColumns;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
@@ -91,7 +92,7 @@ public class GameColorRecyclerViewAdapter extends RecyclerView.Adapter<GameColor
 
 			colorNameView.setText(colorName);
 			int color = ColorUtils.parseColor(colorName);
-			if (color != ColorUtils.TRANSPARENT) {
+			if (color != Color.TRANSPARENT) {
 				ColorUtils.setColorViewValue(colorView, color);
 			} else {
 				colorView.setImageDrawable(null);
