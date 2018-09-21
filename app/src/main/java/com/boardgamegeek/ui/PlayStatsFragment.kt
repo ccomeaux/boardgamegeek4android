@@ -19,6 +19,7 @@ import android.widget.TextView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
+import com.boardgamegeek.extensions.asPercentage
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.formatList
@@ -26,7 +27,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
-import com.boardgamegeek.ui.widget.PlayStatView.Builder
+import com.boardgamegeek.ui.widget.PlayStatView
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_play_stats.*
@@ -133,21 +134,21 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
     private fun bindUi(stats: PlayStatsEntity) {
         playCountTable.removeAllViews()
-        addStatRow(playCountTable, Builder().labelId(R.string.play_stat_play_count).value(stats.numberOfPlays))
-        addStatRow(playCountTable, Builder().labelId(R.string.play_stat_distinct_games).value(stats.numberOfPlayedGames))
-        if (stats.numberOfDollars > 0)
-            addStatRow(playCountTable, Builder().labelId(R.string.play_stat_dollars).value(stats.numberOfDollars))
-        if (stats.numberOfHalfDollars > 0)
-            addStatRow(playCountTable, Builder().labelId(R.string.play_stat_half_dollars).value(stats.numberOfHalfDollars))
-        if (stats.numberOfQuarters > 0)
-            addStatRow(playCountTable, Builder().labelId(R.string.play_stat_quarters).value(stats.numberOfQuarters))
-        if (stats.numberOfDimes > 0)
-            addStatRow(playCountTable, Builder().labelId(R.string.play_stat_dimes).value(stats.numberOfDimes))
-        if (stats.numberOfNickels > 0)
-            addStatRow(playCountTable, Builder().labelId(R.string.play_stat_nickels).value(stats.numberOfNickels))
+        maybeAddPlayCountStat(R.string.play_stat_play_count, stats.numberOfPlays)
+        maybeAddPlayCountStat(R.string.play_stat_distinct_games, stats.numberOfPlayedGames)
+        maybeAddPlayCountStat(R.string.play_stat_dollars, stats.numberOfDollars)
+        maybeAddPlayCountStat(R.string.play_stat_half_dollars, stats.numberOfHalfDollars)
+        maybeAddPlayCountStat(R.string.play_stat_quarters, stats.numberOfQuarters)
+        maybeAddPlayCountStat(R.string.play_stat_dimes, stats.numberOfDimes)
+        maybeAddPlayCountStat(R.string.play_stat_nickels, stats.numberOfNickels)
 
-        if (isPlayedSynced)
-            addStatRow(playCountTable, Builder().labelId(R.string.play_stat_top_100).value(stats.top100Count.toString() + "%"))
+        if (isPlayedSynced) {
+            PlayStatView(ctx).apply {
+                playCountTable.addView(this)
+                setLabel(R.string.play_stat_top_100)
+                setValue("${stats.top100Count}%")
+            }
+        }
 
         gameHIndexView.text = stats.hIndex.toString()
         bindHIndexTable(gameHIndexTable, stats.hIndex, stats.getHIndexGames())
@@ -156,28 +157,42 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.friendless != PlayStatsEntity.INVALID_FRIENDLESS) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            addStatRow(advancedTable, Builder()
-                    .labelId(R.string.play_stat_friendless)
-                    .value(stats.friendless)
-                    .infoId(R.string.play_stat_friendless_info))
+            PlayStatView(ctx).apply {
+                advancedTable.addView(this)
+                setLabel(R.string.play_stat_friendless)
+                setValue(stats.friendless)
+                setInfoText(R.string.play_stat_friendless_info)
+            }
         }
         if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            addStatRow(advancedTable, Builder()
-                    .labelId(R.string.play_stat_utilization)
-                    .valueAsPercentage(stats.utilization)
-                    .infoId(R.string.play_stat_utilization_info))
+            PlayStatView(ctx).apply {
+                setLabel(R.string.play_stat_utilization)
+                setInfoText(R.string.play_stat_utilization_info)
+                setValue(stats.utilization.asPercentage())
+            }
         }
         if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            addStatRow(advancedTable, Builder()
-                    .labelId(R.string.play_stat_cfm)
-                    .value(stats.cfm)
-                    .infoId(R.string.play_stat_cfm_info))
+            PlayStatView(ctx).apply {
+                setLabel(R.string.play_stat_cfm)
+                setInfoText(R.string.play_stat_cfm_info)
+                setValue(stats.cfm)
+            }
         }
         showData()
+    }
+
+    private fun maybeAddPlayCountStat(@StringRes labelResId: Int, value: Int) {
+        if (value > 0) {
+            PlayStatView(ctx).apply {
+                playCountTable.addView(this)
+                setLabel(labelResId)
+                setValue(value)
+            }
+        }
     }
 
     private fun bindPlayerUi(stats: PlayerStatsEntity) {
@@ -196,17 +211,33 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             val nextLowestHIndex = entries.find { it.second < hIndex }?.second ?: hIndex-1
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
-            prefix.forEach { addStatRow(table, Builder().labelText(it.first).value(it.second)) }
+            prefix.forEach {
+                PlayStatView(ctx).apply {
+                    setLabel(it.first)
+                    setValue(it.second)
+                }
+            }
 
             val list = rankedEntries.filter { it.second == hIndex }
             if (list.isEmpty()) {
                 addDivider(table)
             } else {
-                list.forEach { addStatRow(table, Builder().labelText(it.first).value(it.second).backgroundResource(R.color.light_blue)) }
+                list.forEach {
+                    PlayStatView(ctx).apply {
+                        setLabel(it.first)
+                        setValue(it.second)
+                        setBackgroundResource(R.color.light_blue)
+                    }
+                }
             }
 
             val suffix = rankedEntries.filter { it.second == nextLowestHIndex }
-            suffix.forEach { addStatRow(table, Builder().labelText(it.first).value(it.second)) }
+            suffix.forEach {
+                PlayStatView(ctx).apply {
+                    setLabel(it.first)
+                    setValue(it.second)
+                }
+            }
             table.visibility = View.VISIBLE
         }
     }
@@ -223,12 +254,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         scrollContainer.fadeIn()
     }
 
-    private fun addStatRow(container: ViewGroup, builder: Builder) {
-        container.addView(builder.build(act))
-    }
-
     private fun addDivider(container: ViewGroup) {
-        View(act).apply {
+        View(ctx).apply {
             this.layoutParams = TableLayout.LayoutParams(0, 1)
             this.setBackgroundResource(R.color.dark_blue)
             container.addView(this)

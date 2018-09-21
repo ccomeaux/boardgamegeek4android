@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -34,17 +35,18 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.extensions.DoubleUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayStatView;
-import com.boardgamegeek.ui.widget.PlayStatView.Builder;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -89,8 +91,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-	private int gameId;
 
+	private int gameId;
 	private int playingTime;
 	private double personalRating;
 	private boolean gameOwned;
@@ -201,9 +203,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		if (unbinder != null) unbinder.unbind();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (getContext() == null) return null;
 		CursorLoader loader = null;
 		String playSelection = Plays.OBJECT_ID + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
 		String[] selectionArgs = { String.valueOf(gameId) };
@@ -225,7 +227,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
 		int token = loader.getId();
@@ -293,25 +295,28 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		playTimeTable.removeAllViews();
 		advancedTable.removeAllViews();
 
+		final PlayStatView playStatView = new PlayStatView(getContext());
 		if (!TextUtils.isEmpty(stats.getDollarDate())) {
-			addStatRow(playCountTable, new Builder().value(getString(R.string.play_stat_dollar)));
+			playStatView.setValue(getString(R.string.play_stat_dollar));
 		} else if (!TextUtils.isEmpty(stats.getHalfDollarDate())) {
-			addStatRow(playCountTable, new Builder().value(getString(R.string.play_stat_half_dollar)));
+			playStatView.setValue(getString(R.string.play_stat_half_dollar));
 		} else if (!TextUtils.isEmpty(stats.getQuarterDate())) {
-			addStatRow(playCountTable, new Builder().value(getString(R.string.play_stat_quarter)));
+			playStatView.setValue(getString(R.string.play_stat_quarter));
 		} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
-			addStatRow(playCountTable, new Builder().value(getString(R.string.play_stat_dime)));
+			playStatView.setValue(getString(R.string.play_stat_dime));
 		} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
-			addStatRow(playCountTable, new Builder().value(getString(R.string.play_stat_nickel)));
+			playStatView.setValue(getString(R.string.play_stat_nickel));
 		}
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_count).value(stats.getPlayCount()));
-		if (stats.getPlayCountIncomplete() > 0) {
-			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_count_incomplete).value(stats.getPlayCountIncomplete()));
+		playCountTable.addView(playStatView);
 
+		addPlayStat(playCountTable, stats.getPlayCount(), R.string.play_stat_play_count);
+
+		if (stats.getPlayCountIncomplete() > 0) {
+			addPlayStat(playCountTable, stats.getPlayCountIncomplete(), R.string.play_stat_play_count_incomplete);
 		}
-		addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_months_played).value(stats.getMonthsPlayed()));
-		if (stats.getPlayRate() > 0) {
-			addStatRow(playCountTable, new Builder().labelId(R.string.play_stat_play_rate).value(stats.getPlayRate()));
+		addPlayStat(playCountTable, stats.getMonthsPlayed(), R.string.play_stat_months_played);
+		if (stats.getPlayRate() > 0.0) {
+			addPlayStat(playCountTable, stats.getPlayRate(), R.string.play_stat_play_rate);
 		}
 
 		ArrayList<BarEntry> playCountValues = new ArrayList<>();
@@ -356,36 +361,39 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			scoresCard.setVisibility(View.GONE);
 		}
 
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_first_play).valueAsDate(stats.getFirstPlayDate(), getActivity()));
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_nickel).valueAsDate(stats.getNickelDate(), getActivity()));
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_dime).valueAsDate(stats.getDimeDate(), getActivity()));
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_quarter).valueAsDate(stats.getQuarterDate(), getActivity()));
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_half_dollar).valueAsDate(stats.getHalfDollarDate(), getActivity()));
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_dollar).valueAsDate(stats.getDollarDate(), getActivity()));
-		addStatRowMaybe(datesTable, new Builder().labelId(R.string.play_stat_last_play).valueAsDate(stats.getLastPlayDate(), getActivity()));
+		addStatRowMaybe(datesTable, stats.getFirstPlayDate()).setLabel(R.string.play_stat_first_play);
+		addStatRowMaybe(datesTable, stats.getNickelDate()).setLabel(R.string.play_stat_nickel);
+		addStatRowMaybe(datesTable, stats.getDimeDate()).setLabel(R.string.play_stat_dime);
+		addStatRowMaybe(datesTable, stats.getQuarterDate()).setLabel(R.string.play_stat_quarter);
+		addStatRowMaybe(datesTable, stats.getHalfDollarDate()).setLabel(R.string.play_stat_half_dollar);
+		addStatRowMaybe(datesTable, stats.getDollarDate()).setLabel(R.string.play_stat_dollar);
+		addStatRowMaybe(datesTable, stats.getLastPlayDate()).setLabel(R.string.play_stat_last_play);
 
-		addStatRow(playTimeTable, new Builder().labelId(R.string.play_stat_hours_played).value((int) stats.getHoursPlayed()));
+		final PlayStatView playTimeView = addStatRow(playTimeTable);
+		playTimeView.setLabel(R.string.play_stat_hours_played);
+		playTimeView.setValue((int) stats.getHoursPlayed());
+
 		int average = stats.getAveragePlayTime();
 		if (average > 0) {
-			addStatRow(playTimeTable, new Builder().labelId(R.string.play_stat_average_play_time).valueInMinutes(average));
+			addPlayStatMinutes(playTimeTable, average, R.string.play_stat_average_play_time);
 			if (playingTime > 0) {
 				if (average > playingTime) {
-					addStatRow(playTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_slower).valueInMinutes(average - playingTime));
+					addPlayStatMinutes(playTimeTable, average - playingTime, R.string.play_stat_average_play_time_slower);
 				} else if (playingTime > average) {
-					addStatRow(playTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_faster).valueInMinutes(playingTime - average));
+					addPlayStatMinutes(playTimeTable, playingTime - average, R.string.play_stat_average_play_time_faster);
 				}
 				// don't display anything if the average is exactly as expected
 			}
 		}
 		int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
 		if (averagePerPlayer > 0) {
-			addStatRow(playTimeTable, new Builder().labelId(R.string.play_stat_average_play_time_per_player).valueInMinutes(averagePerPlayer));
+			addPlayStatMinutes(playTimeTable, averagePerPlayer, R.string.play_stat_average_play_time_per_player);
 		}
 
 		locationsTable.removeAllViews();
 		for (Entry<String, Integer> location : stats.getPlaysPerLocation()) {
 			locationsCard.setVisibility(View.VISIBLE);
-			addStatRow(locationsTable, new Builder().labelText(location.getKey()).value(location.getValue()));
+			addPlayStat(locationsTable, location.getValue(), location.getKey());
 		}
 
 		playersList.removeAllViews();
@@ -433,21 +441,69 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		if (personalRating > 0) {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_fhm).value(stats.calculateFhm()).infoId(R.string.play_stat_fhm_info));
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_hhm).value(stats.calculateHhm()).infoId(R.string.play_stat_hhm_info));
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_ruhm).value(stats.calculateRuhm()).infoId(R.string.play_stat_ruhm_info));
+			PlayStatView view = addPlayStat(advancedTable, stats.calculateFhm(), R.string.play_stat_fhm);
+			view.setInfoText(R.string.play_stat_fhm_info);
+
+			view = addPlayStat(advancedTable, stats.calculateHhm(), R.string.play_stat_hhm);
+			view.setInfoText(R.string.play_stat_hhm_info);
+
+			view = addPlayStat(advancedTable, stats.calculateRuhm(), R.string.play_stat_ruhm);
+			view.setInfoText(R.string.play_stat_ruhm_info);
 		}
 
 		if (gameOwned) {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_utilization).valueAsPercentage(stats.calculateUtilization()).infoId(R.string.play_stat_utilization_info));
+			PlayStatView view = addPlayStat(advancedTable, DoubleUtils.asPercentage(stats.calculateUtilization()), R.string.play_stat_utilization);
+			view.setInfoText(R.string.play_stat_utilization_info);
 		}
 
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_in));
+			addStatRow(advancedTable).setLabel(R.string.play_stat_game_h_index_offset_in);
 		} else {
-			addStatRow(advancedTable, new Builder().labelId(R.string.play_stat_game_h_index_offset_out).value(hIndexOffset));
+			final PlayStatView hIndexView = addStatRow(advancedTable);
+			hIndexView.setLabel(R.string.play_stat_game_h_index_offset_out);
+			hIndexView.setValue(hIndexOffset);
 		}
+	}
+
+	private PlayStatView addPlayStat(TableLayout table, int value, @StringRes int label) {
+		final PlayStatView view = new PlayStatView(getContext());
+		table.addView(view);
+		view.setValue(value);
+		view.setLabel(label);
+		return view;
+	}
+
+	private PlayStatView addPlayStat(TableLayout table, int value, String label) {
+		final PlayStatView view = new PlayStatView(getContext());
+		table.addView(view);
+		view.setValue(value);
+		view.setLabel(label);
+		return view;
+	}
+
+	private PlayStatView addPlayStat(TableLayout table, Double value, @StringRes int label) {
+		final PlayStatView view = new PlayStatView(getContext());
+		table.addView(view);
+		view.setValue(value);
+		view.setLabel(label);
+		return view;
+	}
+
+	private PlayStatView addPlayStat(TableLayout table, String value, @StringRes int label) {
+		final PlayStatView view = new PlayStatView(getContext());
+		table.addView(view);
+		view.setValue(value);
+		view.setLabel(label);
+		return view;
+	}
+
+	private PlayStatView addPlayStatMinutes(TableLayout table, int minutes, @StringRes int label) {
+		final PlayStatView view = new PlayStatView(getContext());
+		table.addView(view);
+		view.setValue(DateTimeUtils.formatMinutes(minutes));
+		view.setLabel(label);
+		return view;
 	}
 
 	private void showEmpty() {
@@ -462,20 +518,23 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		AnimationUtils.fadeIn(dataView);
 	}
 
-	private void addStatRowMaybe(ViewGroup container, Builder builder) {
-		if (builder.hasValue()) {
-			PlayStatView view = builder.build(getActivity());
+	private PlayStatView addStatRowMaybe(ViewGroup container, String date) {
+		PlayStatView view = new PlayStatView(getContext());
+		if (!TextUtils.isEmpty(date)) {
 			container.addView(view);
+			view.setValueAsDate(date, getContext());
 		}
+		return view;
 	}
 
-	private void addStatRow(ViewGroup container, Builder builder) {
-		PlayStatView view = builder.build(getActivity());
+	private PlayStatView addStatRow(ViewGroup container) {
+		PlayStatView view = new PlayStatView(getContext());
 		container.addView(view);
+		return view;
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	@OnClick(R.id.score_help)
