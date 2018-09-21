@@ -47,7 +47,7 @@ class TextEditorView @JvmOverloads constructor(
 
     fun setContent(text: CharSequence, timestamp: Long) {
         contentView.setTextOrHide(text)
-        timestampView.setTimestamp(timestamp)
+        timestampView.timestamp = timestamp
         setEditMode()
     }
 
@@ -67,7 +67,7 @@ class TextEditorView @JvmOverloads constructor(
             isClickable = true
         } else {
             imageView.visibility = View.GONE
-            visibility = if (contentView.text.isNullOrBlank() && timestampView.getTimestamp() == 0L) View.GONE else View.VISIBLE
+            visibility = if (contentView.text.isNullOrBlank() && timestampView.timestamp == 0L) View.GONE else View.VISIBLE
             isClickable = false
         }
     }

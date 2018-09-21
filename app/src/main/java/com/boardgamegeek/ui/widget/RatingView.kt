@@ -76,7 +76,7 @@ class RatingView @JvmOverloads constructor(
 
     fun setContent(rating: Double, timestamp: Long) {
         this.rating = rating
-        timestampView.setTimestamp(timestamp)
+        timestampView.timestamp = timestamp
         setEditMode()
     }
 
