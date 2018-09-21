@@ -41,7 +41,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.widget.PlayStatView;
+import com.boardgamegeek.ui.widget.PlayStatRow;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.AnimationUtils;
@@ -295,19 +295,19 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		playTimeTable.removeAllViews();
 		advancedTable.removeAllViews();
 
-		final PlayStatView playStatView = new PlayStatView(getContext());
+		final PlayStatRow playStatRow = new PlayStatRow(getContext());
 		if (!TextUtils.isEmpty(stats.getDollarDate())) {
-			playStatView.setValue(getString(R.string.play_stat_dollar));
+			playStatRow.setValue(getString(R.string.play_stat_dollar));
 		} else if (!TextUtils.isEmpty(stats.getHalfDollarDate())) {
-			playStatView.setValue(getString(R.string.play_stat_half_dollar));
+			playStatRow.setValue(getString(R.string.play_stat_half_dollar));
 		} else if (!TextUtils.isEmpty(stats.getQuarterDate())) {
-			playStatView.setValue(getString(R.string.play_stat_quarter));
+			playStatRow.setValue(getString(R.string.play_stat_quarter));
 		} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
-			playStatView.setValue(getString(R.string.play_stat_dime));
+			playStatRow.setValue(getString(R.string.play_stat_dime));
 		} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
-			playStatView.setValue(getString(R.string.play_stat_nickel));
+			playStatRow.setValue(getString(R.string.play_stat_nickel));
 		}
-		playCountTable.addView(playStatView);
+		playCountTable.addView(playStatRow);
 
 		addPlayStat(playCountTable, stats.getPlayCount(), R.string.play_stat_play_count);
 
@@ -369,7 +369,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		addStatRowMaybe(datesTable, stats.getDollarDate()).setLabel(R.string.play_stat_dollar);
 		addStatRowMaybe(datesTable, stats.getLastPlayDate()).setLabel(R.string.play_stat_last_play);
 
-		final PlayStatView playTimeView = addStatRow(playTimeTable);
+		final PlayStatRow playTimeView = addStatRow(playTimeTable);
 		playTimeView.setLabel(R.string.play_stat_hours_played);
 		playTimeView.setValue((int) stats.getHoursPlayed());
 
@@ -441,7 +441,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		if (personalRating > 0) {
-			PlayStatView view = addPlayStat(advancedTable, stats.calculateFhm(), R.string.play_stat_fhm);
+			PlayStatRow view = addPlayStat(advancedTable, stats.calculateFhm(), R.string.play_stat_fhm);
 			view.setInfoText(R.string.play_stat_fhm_info);
 
 			view = addPlayStat(advancedTable, stats.calculateHhm(), R.string.play_stat_hhm);
@@ -452,7 +452,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		if (gameOwned) {
-			PlayStatView view = addPlayStat(advancedTable, DoubleUtils.asPercentage(stats.calculateUtilization()), R.string.play_stat_utilization);
+			PlayStatRow view = addPlayStat(advancedTable, DoubleUtils.asPercentage(stats.calculateUtilization()), R.string.play_stat_utilization);
 			view.setInfoText(R.string.play_stat_utilization_info);
 		}
 
@@ -460,46 +460,46 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		if (hIndexOffset == -1) {
 			addStatRow(advancedTable).setLabel(R.string.play_stat_game_h_index_offset_in);
 		} else {
-			final PlayStatView hIndexView = addStatRow(advancedTable);
+			final PlayStatRow hIndexView = addStatRow(advancedTable);
 			hIndexView.setLabel(R.string.play_stat_game_h_index_offset_out);
 			hIndexView.setValue(hIndexOffset);
 		}
 	}
 
-	private PlayStatView addPlayStat(TableLayout table, int value, @StringRes int label) {
-		final PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addPlayStat(TableLayout table, int value, @StringRes int label) {
+		final PlayStatRow view = new PlayStatRow(getContext());
 		table.addView(view);
 		view.setValue(value);
 		view.setLabel(label);
 		return view;
 	}
 
-	private PlayStatView addPlayStat(TableLayout table, int value, String label) {
-		final PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addPlayStat(TableLayout table, int value, String label) {
+		final PlayStatRow view = new PlayStatRow(getContext());
 		table.addView(view);
 		view.setValue(value);
 		view.setLabel(label);
 		return view;
 	}
 
-	private PlayStatView addPlayStat(TableLayout table, Double value, @StringRes int label) {
-		final PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addPlayStat(TableLayout table, Double value, @StringRes int label) {
+		final PlayStatRow view = new PlayStatRow(getContext());
 		table.addView(view);
 		view.setValue(value);
 		view.setLabel(label);
 		return view;
 	}
 
-	private PlayStatView addPlayStat(TableLayout table, String value, @StringRes int label) {
-		final PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addPlayStat(TableLayout table, String value, @StringRes int label) {
+		final PlayStatRow view = new PlayStatRow(getContext());
 		table.addView(view);
 		view.setValue(value);
 		view.setLabel(label);
 		return view;
 	}
 
-	private PlayStatView addPlayStatMinutes(TableLayout table, int minutes, @StringRes int label) {
-		final PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addPlayStatMinutes(TableLayout table, int minutes, @StringRes int label) {
+		final PlayStatRow view = new PlayStatRow(getContext());
 		table.addView(view);
 		view.setValue(DateTimeUtils.formatMinutes(minutes));
 		view.setLabel(label);
@@ -518,8 +518,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		AnimationUtils.fadeIn(dataView);
 	}
 
-	private PlayStatView addStatRowMaybe(ViewGroup container, String date) {
-		PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addStatRowMaybe(ViewGroup container, String date) {
+		PlayStatRow view = new PlayStatRow(getContext());
 		if (!TextUtils.isEmpty(date)) {
 			container.addView(view);
 			view.setValueAsDate(date, getContext());
@@ -527,8 +527,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		return view;
 	}
 
-	private PlayStatView addStatRow(ViewGroup container) {
-		PlayStatView view = new PlayStatView(getContext());
+	private PlayStatRow addStatRow(ViewGroup container) {
+		PlayStatRow view = new PlayStatRow(getContext());
 		container.addView(view);
 		return view;
 	}

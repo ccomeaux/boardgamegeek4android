@@ -27,7 +27,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
-import com.boardgamegeek.ui.widget.PlayStatView
+import com.boardgamegeek.ui.widget.PlayStatRow
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_play_stats.*
@@ -143,7 +143,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         maybeAddPlayCountStat(R.string.play_stat_nickels, stats.numberOfNickels)
 
         if (isPlayedSynced) {
-            PlayStatView(ctx).apply {
+            PlayStatRow(ctx).apply {
                 playCountTable.addView(this)
                 setLabel(R.string.play_stat_top_100)
                 setValue("${stats.top100Count}%")
@@ -157,7 +157,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.friendless != PlayStatsEntity.INVALID_FRIENDLESS) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            PlayStatView(ctx).apply {
+            PlayStatRow(ctx).apply {
                 advancedTable.addView(this)
                 setLabel(R.string.play_stat_friendless)
                 setValue(stats.friendless)
@@ -167,7 +167,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            PlayStatView(ctx).apply {
+            PlayStatRow(ctx).apply {
                 setLabel(R.string.play_stat_utilization)
                 setInfoText(R.string.play_stat_utilization_info)
                 setValue(stats.utilization.asPercentage())
@@ -176,7 +176,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            PlayStatView(ctx).apply {
+            PlayStatRow(ctx).apply {
                 setLabel(R.string.play_stat_cfm)
                 setInfoText(R.string.play_stat_cfm_info)
                 setValue(stats.cfm)
@@ -187,7 +187,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
     private fun maybeAddPlayCountStat(@StringRes labelResId: Int, value: Int) {
         if (value > 0) {
-            PlayStatView(ctx).apply {
+            PlayStatRow(ctx).apply {
                 playCountTable.addView(this)
                 setLabel(labelResId)
                 setValue(value)
@@ -212,7 +212,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
             prefix.forEach {
-                PlayStatView(ctx).apply {
+                PlayStatRow(ctx).apply {
                     setLabel(it.first)
                     setValue(it.second)
                 }
@@ -223,7 +223,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 addDivider(table)
             } else {
                 list.forEach {
-                    PlayStatView(ctx).apply {
+                    PlayStatRow(ctx).apply {
                         setLabel(it.first)
                         setValue(it.second)
                         setBackgroundResource(R.color.light_blue)
@@ -233,7 +233,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
             val suffix = rankedEntries.filter { it.second == nextLowestHIndex }
             suffix.forEach {
-                PlayStatView(ctx).apply {
+                PlayStatRow(ctx).apply {
                     setLabel(it.first)
                     setValue(it.second)
                 }
