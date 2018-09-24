@@ -10,13 +10,16 @@ import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
-
 import com.boardgamegeek.R
-import com.boardgamegeek.util.MathUtils
-
+import com.boardgamegeek.extensions.significantDigits
 import java.text.DecimalFormat
+import kotlin.math.ceil
 
-class ScoreGraphView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
+class ScoreGraphView @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val scorePaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -97,7 +100,7 @@ class ScoreGraphView @JvmOverloads constructor(context: Context, attrs: Attribut
             scoreSpread <= 50 -> 5
             scoreSpread <= 200 -> 10
             scoreSpread <= 500 -> 20
-            else -> MathUtils.significantDigits((Math.ceil(scoreSpread / 100) * 10).toInt(), 2)
+            else -> (ceil(scoreSpread / 100) * 10).toInt().significantDigits(2)
         }
         var tickScore = Math.ceil(lowScore / tickSpacing) * tickSpacing
         while (tickScore <= highScore) {
@@ -107,7 +110,7 @@ class ScoreGraphView @JvmOverloads constructor(context: Context, attrs: Attribut
                 tickHeight = largeTickHeight
                 val label = SCORE_FORMAT.format(tickScore)
                 val labelWidth = textPaint.measureText(label)
-                val labelLeft = MathUtils.constrain(x - labelWidth / 2, 0f, canvas.width - labelWidth)
+                val labelLeft = (x - labelWidth / 2).coerceIn(0f, canvas.width - labelWidth)
                 canvas.drawText(label, labelLeft, canvas.height.toFloat(), textPaint)
             } else {
                 tickHeight = smallTickHeight

@@ -4,7 +4,6 @@ import android.content.Context
 import android.support.annotation.StringRes
 import android.support.v7.app.AlertDialog
 import android.text.SpannableString
-import android.text.TextUtils
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -42,15 +41,14 @@ class PlayStatRow(context: Context) : TableRow(context) {
     }
 
     fun setValueAsDate(date: String, context: Context) {
-        if (!TextUtils.isEmpty(date)) {
+        if (date.isNotEmpty()) {
             try {
-                val millis = FORMAT.parse(date).time
-                setValue(DateUtils.formatDateTime(context, millis,
+                setValue(DateUtils.formatDateTime(context,
+                        FORMAT.parse(date).time,
                         DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH))
             } catch (e: ParseException) {
                 setValue(date)
             }
-
         }
     }
 

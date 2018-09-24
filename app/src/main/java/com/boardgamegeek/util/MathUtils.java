@@ -15,10 +15,6 @@ public class MathUtils {
 		return Math.max(min, Math.min(max, number));
 	}
 
-	public static double constrain(double number, double min, double max) {
-		return Math.max(min, Math.min(max, number));
-	}
-
 	public static int significantDigits(int number, int digits) {
 		BigDecimal bd = new BigDecimal(number);
 		bd = bd.round(new MathContext(digits));
