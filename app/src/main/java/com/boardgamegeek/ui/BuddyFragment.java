@@ -78,6 +78,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@BindView(R.id.full_name) TextView fullNameView;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.avatar) ImageView avatarView;
+	@BindView(R.id.nicknameContainer) ViewGroup nicknameContainer;
 	@BindView(R.id.nickname) TextView nicknameView;
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.plays_card) View playsCard;
@@ -391,7 +392,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@DebugLog
 	private void showNicknameDialog(final String nickname, final String username) {
-		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(R.string.title_edit_nickname, null, new UpdateBuddyNicknameDialogListener() {
+		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nicknameContainer, new UpdateBuddyNicknameDialogListener() {
 			@Override
 			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
 				if (!TextUtils.isEmpty(newNickname)) {
