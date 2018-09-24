@@ -348,8 +348,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					}
 					break;
 				case R.id.menu_collection_view_save:
-					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
-					dialog.setOnViewSavedListener(CollectionFragment.this);
+					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(footerToolbar, CollectionFragment.this, viewName, createViewDescription(sorter, filters));
 					DialogUtils.showAndSurvive(CollectionFragment.this, dialog);
 					return true;
 				case R.id.menu_collection_view_delete:

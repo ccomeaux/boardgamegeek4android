@@ -117,6 +117,21 @@ fun ContentResolver.queryInt(
     return defaultValue
 }
 
+fun ContentResolver.queryLong(
+        uri: Uri,
+        columnName: String,
+        defaultValue: Long = 0,
+        selection: String? = null,
+        selectionArgs: Array<String>? = null,
+        sortOrder: String? = null
+): Long {
+    query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
+        if (it.count != 1) return defaultValue
+        if (it.moveToFirst()) return it.getLong(0)
+    }
+    return defaultValue
+}
+
 fun ContentResolver.queryCount(uri: Uri): Int {
     return queryInt(uri, "count(*) AS count")
 }
