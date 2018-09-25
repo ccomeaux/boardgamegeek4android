@@ -352,8 +352,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					DialogUtils.showAndSurvive(CollectionFragment.this, dialog);
 					return true;
 				case R.id.menu_collection_view_delete:
-					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
-					ddf.setOnViewDeletedListener(CollectionFragment.this);
+					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(CollectionFragment.this);
 					DialogUtils.showAndSurvive(CollectionFragment.this, ddf);
 					return true;
 				case R.id.menu_share:
