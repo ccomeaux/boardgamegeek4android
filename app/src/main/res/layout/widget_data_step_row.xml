@@ -2,10 +2,18 @@
 <merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:gravity="center_vertical"
+	tools:minHeight="@dimen/view_row_height"
+	tools:orientation="vertical"
+	tools:paddingBottom="@dimen/padding_half"
+	tools:paddingTop="@dimen/padding_half"
+	tools:parentTag="android.widget.LinearLayout">
 
 	<TextView
-		android:id="@+id/type"
+		android:id="@+id/typeView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
@@ -14,14 +22,14 @@
 		tools:text="Game"/>
 
 	<TextView
-		android:id="@+id/description"
+		android:id="@+id/descriptionView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/Text"
 		tools:text="All kinds of stuff goes here."/>
 
 	<TextView
-		android:id="@+id/file_name"
+		android:id="@+id/fileNameView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
@@ -31,7 +39,7 @@
 		tools:text="bgg4a-games.json"/>
 
 	<ProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressBar"
 		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/progress_bar_height"
@@ -47,7 +55,7 @@
 		android:paddingTop="@dimen/padding_standard">
 
 		<Button
-			android:id="@+id/export_button"
+			android:id="@+id/exportButton"
 			style="@style/Widget.AppCompat.Button.Colored"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -59,7 +67,7 @@
 			android:layout_height="match_parent"/>
 
 		<Button
-			android:id="@+id/import_button"
+			android:id="@+id/importButton"
 			style="@style/Widget.AppCompat.Button.Colored"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

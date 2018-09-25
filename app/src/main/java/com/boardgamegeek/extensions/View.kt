@@ -1,6 +1,7 @@
 package com.boardgamegeek.extensions
 
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
@@ -75,6 +76,26 @@ fun View.setViewBackground(@ColorInt color: Int) {
     backgroundDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(), color.darkenColor())
 
     ViewCompat.setBackground(this, backgroundDrawable)
+}
+
+fun View.setSelectableBackgroundBorderless() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        setSelectableBackground(android.R.attr.selectableItemBackgroundBorderless)
+    } else {
+        setSelectableBackground()
+    }
+}
+
+fun View.setSelectableBackground() {
+    setSelectableBackground(android.R.attr.selectableItemBackground)
+}
+
+private fun View.setSelectableBackground(backgroundResId: Int) {
+    val outValue = TypedValue()
+    context.theme.resolveAttribute(backgroundResId, outValue, true)
+    setBackgroundResource(outValue.resourceId)
+    isClickable = true
+    visibility = View.VISIBLE
 }
 
 fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {

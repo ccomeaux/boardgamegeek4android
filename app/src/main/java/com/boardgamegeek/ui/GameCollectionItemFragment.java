@@ -381,7 +381,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
-		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
+		for (TextEditorView textEditorView: textEditorViews) {
+			textEditorView.setHeaderColor(swatch);
+		}
 	}
 
 	@OnCheckedChanged({

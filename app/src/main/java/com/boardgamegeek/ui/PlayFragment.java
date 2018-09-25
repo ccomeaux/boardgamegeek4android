@@ -461,11 +461,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		if (play.deleteTimestamp > 0) {
 			pendingTimestampView.setVisibility(View.VISIBLE);
-			pendingTimestampView.setFormat(R.string.delete_pending_prefix);
+			pendingTimestampView.setFormat(getString(R.string.delete_pending_prefix));
 			pendingTimestampView.setTimestamp(play.deleteTimestamp);
 		} else if (play.updateTimestamp > 0) {
 			pendingTimestampView.setVisibility(View.VISIBLE);
-			pendingTimestampView.setFormat(R.string.update_pending_prefix);
+			pendingTimestampView.setFormat(getString(R.string.update_pending_prefix));
 			pendingTimestampView.setTimestamp(play.updateTimestamp);
 		} else {
 			pendingTimestampView.setVisibility(View.GONE);

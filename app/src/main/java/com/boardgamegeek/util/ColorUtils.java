@@ -22,7 +22,6 @@ import java.util.Locale;
  * Static methods for modifying and applying colors to views.
  */
 public class ColorUtils {
-	public static final int TRANSPARENT = 0;
 	private static final int BLACK = 0xFF000000;
 	// private static final int DKGRAY = 0xFF444444;
 	private static final int GRAY = 0xFF888888;
@@ -51,17 +50,13 @@ public class ColorUtils {
 	private ColorUtils() {
 	}
 
-	public static boolean isKnownColor(String color) {
-		return colorNameMap.containsKey(formatKey(color));
-	}
-
 	/**
 	 * Determine the RGB value of a named color, or a string formatted as "#aarrggbb". Returns a transparent color if
 	 * the color can't be determined from the string.
 	 */
 	public static int parseColor(String colorString) {
 		if (TextUtils.isEmpty(colorString)) {
-			return TRANSPARENT;
+			return Color.TRANSPARENT;
 		}
 		if (colorString.charAt(0) == '#') {
 			if (colorString.length() == 7 || colorString.length() == 9) {
@@ -73,7 +68,7 @@ public class ColorUtils {
 				}
 				return (int) color;
 			} else {
-				return TRANSPARENT;
+				return Color.TRANSPARENT;
 			}
 		} else {
 			Integer color = colorNameMap.get(formatKey(colorString));
@@ -81,7 +76,7 @@ public class ColorUtils {
 				return color;
 			}
 		}
-		return TRANSPARENT;
+		return Color.TRANSPARENT;
 	}
 
 	/**
@@ -125,7 +120,7 @@ public class ColorUtils {
 		0x00ffffff
 	};
 
-	private static final ArrayMap<String, Integer> colorNameMap;
+	public static final ArrayMap<String, Integer> colorNameMap;
 	private static final ArrayList<Pair<String, Integer>> limitedColorNameList;
 	private static final ArrayList<Pair<String, Integer>> colorNameList;
 
@@ -242,7 +237,7 @@ public class ColorUtils {
 
 			imageView.setImageDrawable(colorChoiceDrawable);
 		} else if (view instanceof TextView) {
-			if (color != ColorUtils.TRANSPARENT) {
+			if (color != Color.TRANSPARENT) {
 				((TextView) view).setTextColor(color);
 			}
 		}
@@ -252,7 +247,7 @@ public class ColorUtils {
 	 * Returns a darker version of the specified color. Returns a translucent gray for transparent colors.
 	 */
 	private static int darkenColor(int color) {
-		if (color == TRANSPARENT) {
+		if (color == Color.TRANSPARENT) {
 			return Color.argb(127, 127, 127, 127);
 		}
 		return Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256, Color.blue(color) * 192 / 256);
@@ -269,7 +264,7 @@ public class ColorUtils {
 
 	@ColorInt
 	public static int getTextColor(int backgroundColor) {
-		return backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
+		return backgroundColor != Color.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
 			Color.WHITE :
 			Color.BLACK;
 	}

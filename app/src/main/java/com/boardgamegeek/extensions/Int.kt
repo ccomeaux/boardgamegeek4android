@@ -7,6 +7,8 @@ import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.PresentationUtils.getText
+import java.math.BigDecimal
+import java.math.MathContext
 
 /**
  * Gets the ordinal (1st) for the given cardinal (1)
@@ -174,4 +176,8 @@ fun List<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = In
             return sb.toString()
         }
     }
+}
+
+fun Int.significantDigits(digits: Int): Int {
+    return BigDecimal(this).round(MathContext(digits)).toInt()
 }

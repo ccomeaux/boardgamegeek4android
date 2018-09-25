@@ -1,3 +1,5 @@
+@file:JvmName("DoubleUtils")
+
 package com.boardgamegeek.extensions
 
 import android.content.Context
@@ -9,6 +11,10 @@ import com.boardgamegeek.R
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
+fun Double.asPersonalRating(context: Context?): String {
+    return asScore(context, R.string.unrated, DecimalFormat("#0.#"))
+}
+
 fun Double.asRating(context: Context?): String {
     return asScore(context, R.string.unrated)
 }
@@ -19,6 +25,11 @@ fun Double.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: 
         defaultResId != 0 && context != null -> context.getString(defaultResId)
         else -> ""
     }
+}
+
+@JvmOverloads
+fun Double.asPercentage(format: DecimalFormat = DecimalFormat("0.0")): String {
+    return format.format(this * 100) + "%"
 }
 
 fun Double.toDescription(context: Context, @ArrayRes arrayResId: Int, @StringRes zeroStringResId: Int = R.string.unknown): CharSequence {
