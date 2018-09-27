@@ -100,7 +100,6 @@ class BezelImageView @JvmOverloads constructor(
     }
 
     @Suppress("DEPRECATION")
-    @SuppressLint("WrongConstant")
     override fun onDraw(canvas: Canvas) {
         val width = bounds.width()
         val height = bounds.height()
@@ -129,16 +128,16 @@ class BezelImageView @JvmOverloads constructor(
                 val savedCanvas = cacheCanvas.save()
                 maskDrawable.draw(cacheCanvas)
                 maskedPaint.colorFilter = if (shouldDesaturateOnPress && isPressed) desaturateColorFilter else null
-                cacheCanvas.saveLayer(boundsF, maskedPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG or Canvas.FULL_COLOR_LAYER_SAVE_FLAG)
+                cacheCanvas.saveLayer(boundsF, maskedPaint, Canvas.ALL_SAVE_FLAG)
                 super.onDraw(cacheCanvas)
                 cacheCanvas.restoreToCount(savedCanvas)
             } else if (shouldDesaturateOnPress && isPressed) {
-                val sc = cacheCanvas.save()
+                val savedCanvas = cacheCanvas.save()
                 cacheCanvas.drawRect(0f, 0f, cachedWidth.toFloat(), cachedHeight.toFloat(), blackPaint)
                 maskedPaint.colorFilter = desaturateColorFilter
-                cacheCanvas.saveLayer(boundsF, maskedPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG or Canvas.FULL_COLOR_LAYER_SAVE_FLAG)
+                cacheCanvas.saveLayer(boundsF, maskedPaint, Canvas.ALL_SAVE_FLAG)
                 super.onDraw(cacheCanvas)
-                cacheCanvas.restoreToCount(sc)
+                cacheCanvas.restoreToCount(savedCanvas)
             } else {
                 super.onDraw(cacheCanvas)
             }
