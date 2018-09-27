@@ -205,7 +205,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (entries == null || entries.isEmpty()) {
             table.visibility = View.GONE
         } else {
-            val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#$index)" to pair.second }
+            val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
             val nextHighestHIndex = entries.findLast { it.second > hIndex }?.second ?: hIndex+1
             val nextLowestHIndex = entries.find { it.second < hIndex }?.second ?: hIndex-1
@@ -215,6 +215,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 PlayStatRow(ctx).apply {
                     setLabel(it.first)
                     setValue(it.second)
+                    table.addView(this)
                 }
             }
 
@@ -227,6 +228,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                         setLabel(it.first)
                         setValue(it.second)
                         setBackgroundResource(R.color.light_blue)
+                        table.addView(this)
                     }
                 }
             }
@@ -236,6 +238,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 PlayStatRow(ctx).apply {
                     setLabel(it.first)
                     setValue(it.second)
+                    table.addView(this)
                 }
             }
             table.visibility = View.VISIBLE
