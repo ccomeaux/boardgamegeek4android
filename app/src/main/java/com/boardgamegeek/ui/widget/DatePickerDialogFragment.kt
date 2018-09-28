@@ -22,7 +22,7 @@ class DatePickerDialogFragment : DialogFragment() {
                 calendar.get(Calendar.DAY_OF_MONTH))
     }
 
-    fun setOnDateSetListener(listener: DatePickerDialog.OnDateSetListener) {
+    fun setOnDateSetListener(listener: OnDateSetListener) {
         this.listener = listener
     }
 

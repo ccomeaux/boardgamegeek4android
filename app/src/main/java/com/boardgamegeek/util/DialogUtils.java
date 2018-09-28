@@ -97,10 +97,6 @@ public class DialogUtils {
 		fragment.show(ft, tag);
 	}
 
-	public static void requestFocus(@NonNull AlertDialog dialog) {
-		requestFocus(dialog, null);
-	}
-
 	public static void requestFocus(@NonNull AlertDialog dialog, View view) {
 		if (view != null) view.requestFocus();
 		Window window = dialog.getWindow();

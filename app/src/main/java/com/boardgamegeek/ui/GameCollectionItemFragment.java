@@ -171,7 +171,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.for_trade,
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
-	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
@@ -381,7 +380,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
-		for (TextEditorView textEditorView: textEditorViews) {
+		for (TextEditorView textEditorView : textEditorViews) {
 			textEditorView.setHeaderColor(swatch);
 		}
 	}
@@ -490,16 +489,30 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
-		ensurePrivateInfoDialogFragment();
-		privateInfoDialogFragment.setPriceCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.price_currency)));
-		privateInfoDialogFragment.setPrice(getDoubleFromTag(editPrivateInfoView, R.id.price));
-		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.current_value_currency)));
-		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(editPrivateInfoView, R.id.current_value));
-		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
-		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
-		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
-		privateInfoDialogFragment.setInventoryLocation(String.valueOf(editPrivateInfoView.getTag(R.id.inventory_location)));
-		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
+		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
+			privateInfoEditContainer,
+			new PrivateInfoDialogListener() {
+				@Override
+				public void onFinishEditDialog(@NonNull PrivateInfo privateInfo) {
+					UpdateCollectionItemPrivateInfoTask task =
+						new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
+					TaskUtils.executeAsyncTask(task);
+				}
+			}
+		);
+
+		privateInfoDialogFragment.setPrivateInfo(new PrivateInfo(
+			String.valueOf(editPrivateInfoView.getTag(R.id.priceCurrencyView)),
+			getDoubleFromTag(editPrivateInfoView, R.id.priceView),
+			String.valueOf(editPrivateInfoView.getTag(R.id.currentValueCurrencyView)),
+			getDoubleFromTag(editPrivateInfoView, R.id.currentValueView),
+			getIntFromTag(editPrivateInfoView, R.id.quantityView),
+			String.valueOf(editPrivateInfoView.getTag(R.id.acquisitionDateView)),
+			String.valueOf(editPrivateInfoView.getTag(R.id.acquiredFromView)),
+			String.valueOf(editPrivateInfoView.getTag(R.id.inventoryLocationView))
+		));
+
+		DialogUtils.showAndSurvive(this, privateInfoDialogFragment);
 	}
 
 	private double getDoubleFromTag(View textView, @IdRes int key) {
@@ -512,23 +525,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		final Object tag = textView.getTag(key);
 		if (tag == null) return 1;
 		return (int) tag;
-	}
-
-	@DebugLog
-	private void ensurePrivateInfoDialogFragment() {
-		if (privateInfoDialogFragment == null) {
-			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-				privateInfoEditContainer,
-				new PrivateInfoDialogListener() {
-					@Override
-					public void onFinishEditDialog(PrivateInfo privateInfo) {
-						UpdateCollectionItemPrivateInfoTask task =
-							new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-		}
 	}
 
 	@DebugLog
@@ -631,14 +627,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		privateInfoHintView.setVisibility(hasPrivateInfo(item) ? View.GONE : View.VISIBLE);
 		editPrivateInfoView.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
 		editPrivateInfoView.setText(getPrivateInfo(item));
-		editPrivateInfoView.setTag(R.id.price_currency, item.getPriceCurrency());
-		editPrivateInfoView.setTag(R.id.price, item.getPrice());
-		editPrivateInfoView.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
-		editPrivateInfoView.setTag(R.id.current_value, item.getCurrentValue());
-		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
-		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
-		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
-		editPrivateInfoView.setTag(R.id.inventory_location, item.getInventoryLocation());
+		editPrivateInfoView.setTag(R.id.priceCurrencyView, item.getPriceCurrency());
+		editPrivateInfoView.setTag(R.id.priceView, item.getPrice());
+		editPrivateInfoView.setTag(R.id.currentValueCurrencyView, item.getCurrentValueCurrency());
+		editPrivateInfoView.setTag(R.id.currentValueView, item.getCurrentValue());
+		editPrivateInfoView.setTag(R.id.quantityView, item.getQuantity());
+		editPrivateInfoView.setTag(R.id.acquisitionDateView, item.getAcquisitionDate());
+		editPrivateInfoView.setTag(R.id.acquiredFromView, item.getAcquiredFrom());
+		editPrivateInfoView.setTag(R.id.inventoryLocationView, item.getInventoryLocation());
 
 		// both
 		privateInfoCommentView.setContent(item.getPrivateComment(), item.getPrivateInfoTimestamp());
