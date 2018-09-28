@@ -26,14 +26,12 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
-import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.ui.model.PlayerColor;
@@ -44,7 +42,6 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.TaskUtils;
-import com.boardgamegeek.util.fabric.DataManipulationEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -78,7 +75,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@BindView(R.id.full_name) TextView fullNameView;
 	@BindView(R.id.username) TextView usernameView;
 	@BindView(R.id.avatar) ImageView avatarView;
-	@BindView(R.id.nicknameContainer) ViewGroup nicknameContainer;
 	@BindView(R.id.nickname) TextView nicknameView;
 	@BindView(R.id.collection_card) View collectionCard;
 	@BindView(R.id.plays_card) View playsCard;
@@ -261,7 +257,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@OnClick(R.id.nickname)
 	public void onEditNicknameClick() {
 		if (isUser()) {
-			showNicknameDialog(nicknameView.getText().toString(), buddyName);
+			showNicknameDialog(nicknameView.getText().toString());
 		} else {
 			showPlayerNameDialog(nicknameView.getText().toString());
 		}
@@ -391,18 +387,8 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@DebugLog
-	private void showNicknameDialog(final String nickname, final String username) {
-		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nicknameContainer, new UpdateBuddyNicknameDialogListener() {
-			@Override
-			public void onFinishEditDialog(String newNickname, boolean updatePlays) {
-				if (!TextUtils.isEmpty(newNickname)) {
-					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getContext(), username, newNickname, updatePlays);
-					TaskUtils.executeAsyncTask(task);
-					DataManipulationEvent.log("BuddyNickname", "Edit");
-				}
-			}
-		});
-		dialogFragment.setNickname(nickname);
+	private void showNicknameDialog(final String nickname) {
+		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nickname);
 		DialogUtils.showFragment(getActivity(), dialogFragment, "edit_nickname");
 	}
 

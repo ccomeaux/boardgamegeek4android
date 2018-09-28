@@ -20,11 +20,13 @@ import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
@@ -35,7 +37,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class BuddyActivity extends SimpleSinglePaneActivity {
+public class BuddyActivity extends SimpleSinglePaneActivity implements UpdateBuddyNicknameDialogListener {
 	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 
@@ -113,7 +115,6 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
 		switch (item.getItemId()) {
 			case R.id.menu_view:
 				ActivityUtils.linkToBgg(this, "user/" + username);
@@ -132,6 +133,15 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void buddyNicknameUpdated(String newNickname, boolean updatePlays) {
+		if (!TextUtils.isEmpty(newNickname)) {
+			BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(this, username, newNickname, updatePlays);
+			TaskUtils.executeAsyncTask(task);
+			DataManipulationEvent.log("BuddyNickname", "Edit");
+		}
 	}
 
 	@SuppressWarnings("unused")
