@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui.dialog
 
+import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
@@ -22,7 +24,6 @@ import org.jetbrains.anko.support.v4.ctx
 
 class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
-    private var root: ViewGroup? = null
     private var listener: OnViewSavedListener? = null
     private var name: String = ""
     private var description: String? = null
@@ -33,17 +34,15 @@ class SaveViewDialogFragment : DialogFragment() {
         fun onUpdateRequested(name: String, isDefault: Boolean, viewId: Long)
     }
 
-    fun initialize(root: ViewGroup?, listener: OnViewSavedListener, name: String, description: String) {
-        this.root = root
-        this.listener = listener
-        arguments = Bundle().apply {
-            putString(KEY_NAME, name)
-            putString(KEY_DESCRIPTION, description)
-        }
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        listener = context as? OnViewSavedListener
+        if (listener == null) throw ClassCastException("$context must implement OnViewSavedListener")
     }
 
+    @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_save_view, root, false)
+        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_save_view, null)
 
         arguments?.let {
             name = it.getString(KEY_NAME)
@@ -82,10 +81,9 @@ class SaveViewDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         nameView.setAndSelectExistingText(name)
         val viewDefaultId = PreferencesUtils.getViewDefaultId(ctx)
-        defaultViewCheckBox.isChecked = viewDefaultId != -1L && findViewId(name) == viewDefaultId
+        defaultViewCheckBox.isChecked = viewDefaultId != PreferencesUtils.VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
         descriptionView.text = description
     }
 
@@ -106,14 +104,12 @@ class SaveViewDialogFragment : DialogFragment() {
         private const val KEY_DESCRIPTION = "color_count"
 
         @JvmStatic
-        fun newInstance(
-                root: ViewGroup?,
-                listener: OnViewSavedListener,
-                name: String,
-                description: String
-        ): SaveViewDialogFragment {
+        fun newInstance(name: String, description: String): SaveViewDialogFragment {
             return SaveViewDialogFragment().apply {
-                initialize(root, listener, name, description)
+                arguments = Bundle().apply {
+                    putString(KEY_NAME, name)
+                    putString(KEY_DESCRIPTION, description)
+                }
             }
         }
 

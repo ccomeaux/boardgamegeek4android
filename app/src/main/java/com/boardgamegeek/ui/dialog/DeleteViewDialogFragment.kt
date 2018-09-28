@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.dialog
 
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog.Builder
@@ -13,7 +14,13 @@ class DeleteViewDialogFragment : DialogFragment() {
     private var listener: OnViewDeletedListener? = null
 
     interface OnViewDeletedListener {
-        fun onDeleteRequested(viewId: Long)
+        fun onViewDeleted(viewId: Long)
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        listener = context as? OnViewDeletedListener
+        if (listener == null) throw ClassCastException("$context must implement OnViewSavedListener")
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -32,7 +39,7 @@ class DeleteViewDialogFragment : DialogFragment() {
                                     val viewId = cursor.getLong(0)
                                     val count = contentResolver.delete(CollectionViews.buildViewUri(viewId), null, null)
                                     if (count == 1) {
-                                        listener?.onDeleteRequested(viewId)
+                                        listener?.onViewDeleted(viewId)
                                     }
                                 }
                             }
@@ -45,10 +52,8 @@ class DeleteViewDialogFragment : DialogFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(listener: OnViewDeletedListener): DeleteViewDialogFragment {
-            val dialogFragment = DeleteViewDialogFragment()
-            dialogFragment.listener = listener
-            return dialogFragment
+        fun newInstance(): DeleteViewDialogFragment {
+            return DeleteViewDialogFragment()
         }
     }
 }
