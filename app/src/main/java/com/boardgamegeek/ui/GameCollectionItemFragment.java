@@ -32,7 +32,6 @@ import com.boardgamegeek.extensions.IntKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
@@ -41,7 +40,6 @@ import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
-import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.RatingView;
@@ -117,7 +115,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info_hint) TextView privateInfoHintView;
 	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
-	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
 	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
 	@BindView(R.id.private_comment) TextEditorView privateInfoCommentView;
 
@@ -470,7 +467,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
 		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
 			view.getHeaderText(),
-			view,
 			new EditTextDialogListener() {
 				@Override
 				public void onFinishEditDialog(String inputText) {
@@ -489,18 +485,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
-		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-			privateInfoEditContainer,
-			new PrivateInfoDialogListener() {
-				@Override
-				public void onFinishEditDialog(@NonNull PrivateInfo privateInfo) {
-					UpdateCollectionItemPrivateInfoTask task =
-						new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-
+		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance();
 		privateInfoDialogFragment.setPrivateInfo(new PrivateInfo(
 			String.valueOf(editPrivateInfoView.getTag(R.id.priceCurrencyView)),
 			getDoubleFromTag(editPrivateInfoView, R.id.priceView),
@@ -511,7 +496,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			String.valueOf(editPrivateInfoView.getTag(R.id.acquiredFromView)),
 			String.valueOf(editPrivateInfoView.getTag(R.id.inventoryLocationView))
 		));
-
 		DialogUtils.showAndSurvive(this, privateInfoDialogFragment);
 	}
 

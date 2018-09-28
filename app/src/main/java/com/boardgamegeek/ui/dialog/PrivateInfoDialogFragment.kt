@@ -1,7 +1,9 @@
 package com.boardgamegeek.ui.dialog
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog.OnDateSetListener
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
@@ -27,11 +29,10 @@ class PrivateInfoDialogFragment : DialogFragment() {
     var privateInfo = PrivateInfo()
 
     interface PrivateInfoDialogListener {
-        fun onFinishEditDialog(privateInfo: PrivateInfo)
+        fun onPrivateInfoChanged(privateInfo: PrivateInfo)
     }
 
     private lateinit var layout: View
-    private var root: ViewGroup? = null
     private var listener: PrivateInfoDialogListener? = null
     private var acquisitionDate = ""
 
@@ -43,13 +44,15 @@ class PrivateInfoDialogFragment : DialogFragment() {
         AutoCompleteAdapter(ctx, Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri())
     }
 
-    private fun initialize(root: ViewGroup?, listener: PrivateInfoDialogListener) {
-        this.root = root
-        this.listener = listener
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        listener = context as? PrivateInfoDialogListener
+        if (listener == null) throw ClassCastException("$context must implement PrivateInfoDialogListener")
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_private_info, root, false)
+        @SuppressLint("InflateParams")
+        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_private_info, null)
         return AlertDialog.Builder(ctx, R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_private_info)
                 .setView(layout)
@@ -57,7 +60,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 .setPositiveButton(R.string.ok) { _, _ ->
                     if (listener != null) {
                         val privateInfo = captureForm()
-                        listener?.onFinishEditDialog(privateInfo)
+                        listener?.onPrivateInfoChanged(privateInfo)
                     }
                 }
                 .create().apply {
@@ -194,10 +197,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
         private const val KEY_INVENTORY_LOCATION = "INVENTORY_LOCATION"
 
         @JvmStatic
-        fun newInstance(root: ViewGroup?, listener: PrivateInfoDialogListener): PrivateInfoDialogFragment {
-            val fragment = PrivateInfoDialogFragment()
-            fragment.initialize(root, listener)
-            return fragment
+        fun newInstance(): PrivateInfoDialogFragment {
+            return PrivateInfoDialogFragment()
         }
     }
 }
