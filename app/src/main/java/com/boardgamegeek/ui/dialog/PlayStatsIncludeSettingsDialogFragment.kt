@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.dialog
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -14,10 +15,10 @@ import org.jetbrains.anko.support.v4.ctx
 
 class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
     lateinit var layout: View
-    private var root: ViewGroup? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_play_stats_settings_include, root, false)
+        @SuppressLint("InflateParams")
+        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_play_stats_settings_include, null)
 
         return AlertDialog.Builder(ctx, R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_settings)
@@ -42,10 +43,8 @@ class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
     }
 
     companion object {
-        fun newInstance(root: ViewGroup?): PlayStatsIncludeSettingsDialogFragment {
-            val fragment = PlayStatsIncludeSettingsDialogFragment()
-            fragment.root = root
-            return fragment
+        fun newInstance(): PlayStatsIncludeSettingsDialogFragment {
+            return PlayStatsIncludeSettingsDialogFragment()
         }
     }
 }
