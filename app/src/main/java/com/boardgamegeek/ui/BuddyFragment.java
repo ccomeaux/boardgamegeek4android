@@ -26,11 +26,9 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.Player;
@@ -187,6 +185,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
+	@NonNull
 	@Override
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -229,7 +228,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
 		switch (loader.getId()) {
@@ -250,7 +249,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	@DebugLog
@@ -394,16 +393,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@DebugLog
 	private void showPlayerNameDialog(final String oldName) {
-		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, null, new EditTextDialogListener() {
-			@Override
-			public void onFinishEditDialog(String inputText) {
-				if (!TextUtils.isEmpty(inputText)) {
-					RenamePlayerTask task = new RenamePlayerTask(getContext(), oldName, inputText);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		});
-		editTextDialogFragment.setText(oldName);
+		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, oldName);
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
 	}
 

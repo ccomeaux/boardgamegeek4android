@@ -20,7 +20,9 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.DeleteCollectionItemTask
 import com.boardgamegeek.tasks.ResetCollectionItemTask
 import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask
+import com.boardgamegeek.tasks.UpdateCollectionItemTextTask
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
+import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.util.DialogUtils
@@ -36,7 +38,9 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
 import java.util.concurrent.atomic.AtomicBoolean
 
-class GameCollectionItemActivity : HeroActivity(), PrivateInfoDialogFragment.PrivateInfoDialogListener {
+class GameCollectionItemActivity : HeroActivity(),
+        PrivateInfoDialogFragment.PrivateInfoDialogListener,
+        EditCollectionTextDialogFragment.EditCollectionTextDialogListener {
     private var internalId = BggContract.INVALID_ID.toLong()
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
@@ -240,6 +244,11 @@ class GameCollectionItemActivity : HeroActivity(), PrivateInfoDialogFragment.Pri
 
     override fun onPrivateInfoChanged(privateInfo: PrivateInfo) {
         TaskUtils.executeAsyncTask(UpdateCollectionItemPrivateInfoTask(ctx, gameId, collectionId, internalId, privateInfo))
+    }
+
+    override fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String) {
+        val task = UpdateCollectionItemTextTask(ctx, gameId, collectionId, internalId, text, textColumn, timestampColumn)
+        TaskUtils.executeAsyncTask(task)
     }
 
     companion object {

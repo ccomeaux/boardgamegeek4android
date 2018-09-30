@@ -34,11 +34,9 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
-import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
@@ -256,6 +254,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		unbinder.unbind();
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -273,7 +272,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
 		if (loader.getId() == _TOKEN) {
@@ -300,7 +299,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	public void enableEditMode(boolean enable) {
@@ -465,20 +464,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
-		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
+		EditCollectionTextDialogFragment dialogFragment = EditCollectionTextDialogFragment.newInstance(
 			view.getHeaderText(),
-			new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					UpdateCollectionItemTextTask task =
-						new UpdateCollectionItemTextTask(getContext(),
-							gameId, collectionId, internalId, inputText,
-							textColumn, timestampColumn);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-		dialogFragment.setText(view.getContentText());
+			view.getContentText(),
+			textColumn,
+			timestampColumn);
 		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 

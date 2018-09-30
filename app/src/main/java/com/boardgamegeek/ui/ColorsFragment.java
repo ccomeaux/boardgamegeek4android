@@ -45,7 +45,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter.Callback;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -69,7 +68,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	private int gameId;
 	@ColorInt private int iconColor;
 	private GameColorRecyclerViewAdapter adapter;
-	private EditTextDialogFragment editTextDialogFragment;
 	private ActionMode actionMode;
 
 	private Unbinder unbinder;
@@ -340,21 +338,12 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
-		if (editTextDialogFragment == null) {
-			editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_add_color, null, new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					if (!TextUtils.isEmpty(inputText)) {
-						addColor(inputText);
-					}
-				}
-			});
-		}
+		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_add_color, "");
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
 	}
 
 	@DebugLog
-	private void addColor(String color) {
+	public void addColor(String color) {
 		ContentValues values = new ContentValues();
 		values.put(GameColors.COLOR, color);
 		getActivity().getContentResolver().insert(Games.buildColorsUri(gameId), values);
