@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-	android:id="@+id/scroll_container"
+	android:id="@+id/scrollContainer"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -10,7 +10,7 @@
 	android:paddingTop="@dimen/material_margin_vertical">
 
 	<RadioGroup
-		android:id="@+id/radio_group"
+		android:id="@+id/radioGroup"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
@@ -49,14 +49,14 @@
 			android:tag="@string/collection_sort_type_play_count_asc"/>
 
 		<RadioButton
-			android:id="@+id/play_date_max"
+			android:id="@+id/playDateMaxRadioButton"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_play_date_max"/>
 
 		<RadioButton
-			android:id="@+id/play_date_min"
+			android:id="@+id/playDateMinRadioButton"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"

@@ -356,14 +356,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					shareCollection();
 					return true;
 				case R.id.menu_collection_sort:
-					final CollectionSortDialogFragment sortFragment =
-						CollectionSortDialogFragment.newInstance(swipeRefreshLayout, new CollectionSortDialogFragment.Listener() {
-							@Override
-							public void onSortSelected(int sortType) {
-								setSort(sortType);
-							}
-						});
-					sortFragment.setSelection(sorter.getType());
+					final CollectionSortDialogFragment sortFragment = CollectionSortDialogFragment.Companion.newInstance(sorter.getType());
 					DialogUtils.showAndSurvive(CollectionFragment.this, sortFragment);
 					return true;
 				case R.id.menu_collection_filter:
@@ -675,7 +668,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private void setSort(int sortType) {
+	public void setSort(int sortType) {
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}

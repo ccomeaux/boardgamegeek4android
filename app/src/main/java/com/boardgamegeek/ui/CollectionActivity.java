@@ -32,6 +32,7 @@ import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -54,7 +55,8 @@ import icepick.State;
 public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	LoaderCallbacks<Cursor>,
 	SaveViewDialogFragment.OnViewSavedListener,
-	DeleteViewDialogFragment.OnViewDeletedListener {
+	DeleteViewDialogFragment.OnViewDeletedListener,
+	CollectionSortDialogFragment.Listener {
 	private static final String KEY_VIEW_ID = "VIEW_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
@@ -316,6 +318,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 			}
 		}
 		return index;
+	}
+
+	@Override
+	public void onSortSelected(int sortType) {
+		((CollectionFragment) getFragment()).setSort(sortType);
 	}
 
 	private interface Query {
