@@ -11,7 +11,7 @@ class SafeViewTarget : Target {
     private val viewId: Int
     private val activity: Activity?
 
-    constructor(view: View) {
+    constructor(view: View?) {
         this.view = view
         this.viewId = 0
         this.activity = null
