@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
@@ -41,7 +40,6 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
 
-    private val rootContainer: ViewGroup by lazy { activity.findViewById<ViewGroup>(R.id.root_container) }
     private val fab: FloatingActionButton by lazy { activity.findViewById<FloatingActionButton>(R.id.fab) }
     private val viewModel: GameViewModel by lazy { ViewModelProviders.of(activity).get(GameViewModel::class.java) }
 
@@ -89,11 +87,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         })
         if (shouldShowCollection())
             tabs.add(Tab(R.string.title_collection, R.drawable.fab_add) {
-                val statusDialogFragment = CollectionStatusDialogFragment.newInstance(rootContainer) { selectedStatuses, wishListPriority ->
-                    viewModel.addCollectionItem(selectedStatuses, wishListPriority)
-                }
-                statusDialogFragment.setTitle(R.string.title_add_a_copy)
-                activity.showAndSurvive(statusDialogFragment)
+                activity.showAndSurvive(CollectionStatusDialogFragment.newInstance())
             })
         if (shouldShowPlays())
             tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {
