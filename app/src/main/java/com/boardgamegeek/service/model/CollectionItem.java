@@ -2,6 +2,7 @@ package com.boardgamegeek.service.model;
 
 import android.database.Cursor;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.CursorUtils;
 
@@ -131,7 +132,7 @@ public class CollectionItem {
 	public static CollectionItem fromCursor(Cursor cursor) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.internalId = cursor.getLong(_ID);
-		collectionItem.collectionId = cursor.getInt(COLLECTION_ID);
+		collectionItem.collectionId = cursor.isNull(COLLECTION_ID) ? BggContract.INVALID_ID : cursor.getInt(COLLECTION_ID);
 		collectionItem.gameId = cursor.getInt(GAME_ID);
 		collectionItem.collectionName = cursor.getString(COLLECTION_NAME);
 		collectionItem.imageUrl = CursorUtils.getString(cursor, IMAGE_URL);
