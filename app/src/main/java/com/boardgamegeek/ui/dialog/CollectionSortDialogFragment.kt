@@ -91,6 +91,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_SORT_TYPE = "sort_type"
 
+        @JvmStatic
         fun newInstance(sortType: Int): CollectionSortDialogFragment {
             return CollectionSortDialogFragment().apply {
                 arguments = Bundle().apply {

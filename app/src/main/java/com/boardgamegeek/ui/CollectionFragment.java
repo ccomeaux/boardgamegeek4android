@@ -356,21 +356,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					shareCollection();
 					return true;
 				case R.id.menu_collection_sort:
-					final CollectionSortDialogFragment sortFragment = CollectionSortDialogFragment.Companion.newInstance(sorter.getType());
-					DialogUtils.showAndSurvive(CollectionFragment.this, sortFragment);
+					DialogUtils.showAndSurvive(CollectionFragment.this, CollectionSortDialogFragment.newInstance(sorter.getType()));
 					return true;
 				case R.id.menu_collection_filter:
-					final CollectionFilterDialogFragment filterFragment =
-						CollectionFilterDialogFragment.newInstance(swipeRefreshLayout, new CollectionFilterDialogFragment.Listener() {
-							@Override
-							public void onFilterSelected(int filterType) {
-								launchFilterDialog(filterType);
-							}
-						});
+					ArrayList<Integer> filterTypes = new ArrayList<>();
 					for (CollectionFilterer filter : filters) {
-						filterFragment.addEnabledFilter(filter.getType());
+						filterTypes.add(filter.getType());
 					}
-					DialogUtils.showAndSurvive(CollectionFragment.this, filterFragment);
+					DialogUtils.showAndSurvive(CollectionFragment.this, CollectionFilterDialogFragment.newInstance(filterTypes));
 					return true;
 			}
 			return launchFilterDialog(item.getItemId());
@@ -729,7 +722,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private boolean launchFilterDialog(int filterType) {
+	public boolean launchFilterDialog(int filterType) {
 		CollectionFilterDialogFactory factory = new CollectionFilterDialogFactory();
 		CollectionFilterDialog dialog = factory.create(getActivity(), filterType);
 		if (dialog != null) {

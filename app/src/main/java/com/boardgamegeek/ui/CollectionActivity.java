@@ -32,6 +32,7 @@ import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
@@ -56,7 +57,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	LoaderCallbacks<Cursor>,
 	SaveViewDialogFragment.OnViewSavedListener,
 	DeleteViewDialogFragment.OnViewDeletedListener,
-	CollectionSortDialogFragment.Listener {
+	CollectionSortDialogFragment.Listener,
+	CollectionFilterDialogFragment.Listener {
 	private static final String KEY_VIEW_ID = "VIEW_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
@@ -323,6 +325,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	@Override
 	public void onSortSelected(int sortType) {
 		((CollectionFragment) getFragment()).setSort(sortType);
+	}
+
+	@Override
+	public void onFilterSelected(int filterType) {
+		((CollectionFragment) getFragment()).launchFilterDialog(filterType);
 	}
 
 	private interface Query {
