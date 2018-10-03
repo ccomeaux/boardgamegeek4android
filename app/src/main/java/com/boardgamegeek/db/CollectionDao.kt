@@ -116,8 +116,10 @@ class CollectionDao(private val context: BggApplication) {
         val uri = Collection.CONTENT_URI
         val projection = arrayOf(
                 Collection._ID,
+                Collection.GAME_ID,
                 Collection.COLLECTION_ID,
                 Collection.COLLECTION_NAME,
+                Collection.COLLECTION_SORT_NAME,
                 Collection.COLLECTION_YEAR_PUBLISHED,
                 Collection.COLLECTION_THUMBNAIL_URL,
                 Collection.COLLECTION_IMAGE_URL,
@@ -160,8 +162,10 @@ class CollectionDao(private val context: BggApplication) {
                     do {
                         val item = CollectionItemEntity(
                                 internalId = it.getLong(Collection._ID),
-                                collectionId = it.getInt(Collection.COLLECTION_ID),
+                                gameId = it.getInt(Collection.GAME_ID),
+                                collectionId = it.getIntOrNull(Collection.COLLECTION_ID) ?: BggContract.INVALID_ID,
                                 collectionName = it.getStringOrEmpty(Collection.COLLECTION_NAME),
+                                sortName = it.getStringOrEmpty(Collection.COLLECTION_SORT_NAME),
                                 gameName = it.getStringOrEmpty(Collection.GAME_NAME),
                                 yearPublished = it.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
                                 imageUrl = it.getStringOrEmpty(Collection.COLLECTION_IMAGE_URL),
