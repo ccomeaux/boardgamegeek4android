@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -59,7 +60,7 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class LogPlayerActivity extends AppCompatActivity {
+public class LogPlayerActivity extends AppCompatActivity implements ColorPickerDialogFragment.Listener {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
@@ -291,17 +292,13 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@OnClick(R.id.color_view)
 	public void onColorClick() {
 		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), colors, teamColorView.getText().toString(), usedColors, null, 4);
-
-		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
-			@Override
-			public void onColorSelected(String description, int color) {
-				teamColorView.setText(description);
-			}
-
-		});
-
+			ColorUtils.getColorList(), colors, teamColorView.getText().toString(), usedColors, 4);
 		fragment.show(getSupportFragmentManager(), "color_picker");
+	}
+
+	@Override
+	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+		teamColorView.setText(description);
 	}
 
 	@DebugLog

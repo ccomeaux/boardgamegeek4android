@@ -64,7 +64,7 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class PlayerColorsActivity extends BaseActivity {
+public class PlayerColorsActivity extends BaseActivity implements ColorPickerDialogFragment.Listener {
 	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 
@@ -447,20 +447,18 @@ public class PlayerColorsActivity extends BaseActivity {
 		}
 
 		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(R.string.title_add_color,
-			ColorUtils.getColorList(), null, null, null, usedColors, 4);
-		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
-			@Override
-			public void onColorSelected(String description, int color) {
-				if (colors != null) {
-					PlayerColorsManipulationEvent.log("Add", description);
-					colors.add(new PlayerColor(description, colors.size() + 1));
-					showData();
-					adapter.notifyItemInserted(colors.size());
-				}
-			}
-		});
-
+			ColorUtils.getColorList(), null, null, null, 4, 0, usedColors);
 		fragment.show(getSupportFragmentManager(), "color_picker");
+	}
+
+	@Override
+	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+		if (colors != null) {
+			PlayerColorsManipulationEvent.log("Add", description);
+			colors.add(new PlayerColor(description, colors.size() + 1));
+			showData();
+			adapter.notifyItemInserted(colors.size());
+		}
 	}
 
 	public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ColorViewHolder> {

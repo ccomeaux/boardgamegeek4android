@@ -121,7 +121,7 @@ import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
 
-public class LogPlayActivity extends AppCompatActivity {
+public class LogPlayActivity extends AppCompatActivity implements ColorPickerDialogFragment.Listener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -1074,6 +1074,14 @@ public class LogPlayActivity extends AppCompatActivity {
 		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
 
+	@Override
+	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+		Player player = play.getPlayers().get(requestCode);
+		player.color = description;
+		playAdapter.notifyPlayerChanged(requestCode);
+	}
+
+
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
 		private final LayoutInflater inflater;
 		private final List<Integer> headerResources = new ArrayList<>();
@@ -1857,14 +1865,7 @@ public class LogPlayActivity extends AppCompatActivity {
 							if (p != player) usedColors.add(p.color);
 						}
 						ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-							ColorUtils.getColorList(), gameColors, player.color, usedColors, null, 4);
-						fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
-							@Override
-							public void onColorSelected(String description, int color) {
-								player.color = description;
-								playAdapter.notifyPlayerChanged(position);
-							}
-						});
+							ColorUtils.getColorList(), gameColors, player.color, usedColors, 4, position);
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});

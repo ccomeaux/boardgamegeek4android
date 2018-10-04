@@ -8,19 +8,19 @@
 			  android:paddingTop="@dimen/material_margin_vertical">
 
 	<GridView
-		android:id="@+id/featured_color_grid"
+		android:id="@+id/featuredColorGrid"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:stretchMode="columnWidth"/>
 
 	<View
-		android:id="@+id/hr"
+		android:id="@+id/dividerView"
 		android:layout_width="match_parent"
 		android:layout_height="1px"
 		android:background="@color/dark_blue"/>
 
 	<GridView
-		android:id="@+id/color_grid"
+		android:id="@+id/colorGrid"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:stretchMode="columnWidth"/>
