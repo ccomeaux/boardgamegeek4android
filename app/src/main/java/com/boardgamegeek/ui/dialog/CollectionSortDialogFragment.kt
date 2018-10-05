@@ -11,10 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.children
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
+import org.jetbrains.anko.childrenSequence
 import org.jetbrains.anko.support.v4.ctx
 import timber.log.Timber
 
@@ -71,7 +71,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     private fun createNames() {
         val factory = CollectionSorterFactory(ctx)
 
-        radioGroup.children().filterIsInstance<RadioButton>().forEach {
+        radioGroup.childrenSequence().filterIsInstance<RadioButton>().forEach {
             val sortType = getTypeFromView(it)
             val sorter = factory.create(sortType)
             if (sorter != null) it.text = sorter.description
@@ -79,7 +79,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     }
 
     private fun findRadioButtonByType(type: Int): RadioButton? {
-        return radioGroup.children().filterIsInstance<RadioButton>().find {
+        return radioGroup.childrenSequence().filterIsInstance<RadioButton>().find {
             getTypeFromView(it) == type
         }
     }

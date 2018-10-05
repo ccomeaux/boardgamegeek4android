@@ -12,8 +12,8 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.children
 import kotlinx.android.synthetic.main.dialog_collection_status.*
+import org.jetbrains.anko.childrenSequence
 import org.jetbrains.anko.support.v4.ctx
 
 class CollectionStatusDialogFragment : DialogFragment() {
@@ -39,9 +39,9 @@ class CollectionStatusDialogFragment : DialogFragment() {
                 .setView(layout)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     if (listener != null) {
-                        val statuses = container.children().filterIsInstance<CheckBox>().filter {
+                        val statuses = container.childrenSequence().filterIsInstance<CheckBox>().filter {
                             it.isChecked
-                        }.map { it.tag as String }
+                        }.map { it.tag as String }.toList()
                         val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0
                         listener?.onSelectStatuses(statuses, wishlistPriority)
                     }

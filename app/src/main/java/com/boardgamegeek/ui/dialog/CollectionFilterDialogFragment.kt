@@ -11,9 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.children
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import kotlinx.android.synthetic.main.dialog_collection_filter.*
+import org.jetbrains.anko.childrenSequence
 import org.jetbrains.anko.support.v4.ctx
 import timber.log.Timber
 import java.util.*
@@ -47,7 +47,7 @@ class CollectionFilterDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         for (filterType in arguments?.getIntegerArrayList(KEY_FILTER_TYPES) ?: arrayListOf<Int>()) {
-            statusContainer.children()
+            statusContainer.childrenSequence()
                     .filterIsInstance<CheckBox>()
                     .find { filterType == getTypeFromViewTag(it) }
                     ?.let {
@@ -55,7 +55,7 @@ class CollectionFilterDialogFragment : DialogFragment() {
                     }
         }
 
-        statusContainer.children().filterIsInstance<CheckBox>().forEach {
+        statusContainer.childrenSequence().filterIsInstance<CheckBox>().forEach {
             it.setOnClickListener { view ->
                 val type = getTypeFromViewTag(view)
                 if (type != CollectionFiltererFactory.TYPE_UNKNOWN) {
