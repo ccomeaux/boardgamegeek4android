@@ -1084,11 +1084,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	public void onNumberPadDone(String output, int requestCode) {
+	public void onNumberPadDone(double output, int requestCode) {
 		int position = requestCode / 2;
 		Player player = play.getPlayers().get(position);
 		if (requestCode % 2 == 0) {
-			player.score = output;
+			player.score = String.valueOf(output);
 			double highScore = play.getHighScore();
 			for (Player p : play.getPlayers()) {
 				double score = StringUtils.parseDouble(p.score, Double.NaN);
@@ -1096,7 +1096,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 			}
 			playAdapter.notifyPlayersChanged();
 		} else {
-			player.rating = StringUtils.parseDouble(output);
+			player.rating = output;
 			playAdapter.notifyPlayerChanged(position);
 		}
 	}
@@ -1892,15 +1892,13 @@ public class LogPlayActivity extends AppCompatActivity implements
 					@Override
 					public void onClick(View v) {
 						final Player player = play.getPlayers().get(position);
-						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-							getString(R.string.rating),
+						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstanceForRating(
+							position * 2 + 1,
+							R.string.rating,
 							player.getRatingDescription(),
 							player.color,
-							player.getDescription(),
-							position * 2 + 1,
-							1.0,
-							10.0,
-							6);
+							player.getDescription()
+						);
 						DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
 					}
 				});
@@ -1910,11 +1908,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 						public void onClick(View v) {
 							final Player player = play.getPlayers().get(position);
 							final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-								getString(R.string.score),
+								position * 2,
+								R.string.score,
 								player.score,
 								player.color,
-								player.getDescription(),
-								position * 2);
+								player.getDescription());
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
 						}
 					}

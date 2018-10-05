@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.support.annotation.StringRes
 import android.support.v4.app.DialogFragment
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -26,7 +27,7 @@ class NumberPadDialogFragment : DialogFragment() {
     private var maxMantissa = DEFAULT_MAX_MANTISSA
 
     interface Listener {
-        fun onNumberPadDone(output: String, requestCode: Int)
+        fun onNumberPadDone(output: Double, requestCode: Int)
     }
 
     override fun onAttach(context: Context?) {
@@ -62,13 +63,15 @@ class NumberPadDialogFragment : DialogFragment() {
         maxValue = arguments?.getDouble(KEY_MAX_VALUE) ?: DEFAULT_MAX_VALUE
         maxMantissa = arguments?.getInt(KEY_MAX_MANTISSA) ?: DEFAULT_MAX_MANTISSA
 
+        plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
+
         if (arguments?.containsKey(KEY_TITLE) == true) {
             titleView.text = arguments?.getString(KEY_TITLE)
         }
         subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
 
-        if (arguments?.containsKey(KEY_OUTPUT) == true) {
-            outputView.text = arguments?.getString(KEY_OUTPUT)
+        if (arguments?.containsKey(KEY_INITIAL_VALUE) == true) {
+            outputView.text = arguments?.getString(KEY_INITIAL_VALUE)
             enableDelete()
         }
 
@@ -99,7 +102,7 @@ class NumberPadDialogFragment : DialogFragment() {
 
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: DEFAULT_REQUEST_CODE
         doneView.setOnClickListener {
-            listener?.onNumberPadDone(outputView.text.toString(), requestCode)
+            listener?.onNumberPadDone(parseDouble(outputView.text.toString()), requestCode)
             dismiss()
         }
 
@@ -183,7 +186,7 @@ class NumberPadDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_TITLE = "TITLE"
         private const val KEY_SUBTITLE = "SUBTITLE"
-        private const val KEY_OUTPUT = "OUTPUT"
+        private const val KEY_INITIAL_VALUE = "INITIAL_VALUE"
         private const val KEY_COLOR = "COLOR"
         private const val KEY_MIN_VALUE = "MIN_VALUE"
         private const val KEY_MAX_VALUE = "MAX_VALUE"
@@ -197,22 +200,23 @@ class NumberPadDialogFragment : DialogFragment() {
         @JvmStatic
         @JvmOverloads
         fun newInstance(
-                title: String, output: String,
-                colorDescription: String?,
-                subtitle: String?,
-                requestCode: Int = DEFAULT_REQUEST_CODE,
+                requestCode: Int,
+                @StringRes titleResId: Int,
+                initialValue: String,
+                colorDescription: String? = null,
+                subtitle: String? = null,
                 minValue: Double = DEFAULT_MIN_VALUE,
                 maxValue: Double = DEFAULT_MAX_VALUE,
                 maxMantissa: Int = DEFAULT_MAX_MANTISSA
         ): NumberPadDialogFragment {
             return NumberPadDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putString(KEY_TITLE, title)
+                    putString(KEY_TITLE, ctx.getString(titleResId) ?: "")
                     if (!subtitle.isNullOrBlank()) {
                         putString(KEY_SUBTITLE, subtitle)
                     }
-                    if (output.toDoubleOrNull() != null) {
-                        putString(KEY_OUTPUT, output)
+                    if (initialValue.toDoubleOrNull() != null) {
+                        putString(KEY_INITIAL_VALUE, initialValue)
                     }
                     val color = colorDescription.asColorRgb()
                     if (color != Color.TRANSPARENT) {
@@ -224,6 +228,17 @@ class NumberPadDialogFragment : DialogFragment() {
                     putInt(KEY_REQUEST_CODE, requestCode)
                 }
             }
+        }
+
+        @JvmStatic
+        @JvmOverloads
+        fun newInstanceForRating(requestCode: Int,
+                                 @StringRes titleResId: Int,
+                                 initialValue: String,
+                                 colorDescription: String? = null,
+                                 subtitle: String? = null
+        ): NumberPadDialogFragment {
+            return newInstance(requestCode, titleResId, initialValue, colorDescription, subtitle, 1.0, 10.0, 6)
         }
     }
 }

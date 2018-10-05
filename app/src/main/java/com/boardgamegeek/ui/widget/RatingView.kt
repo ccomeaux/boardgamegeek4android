@@ -40,7 +40,7 @@ class RatingView @JvmOverloads constructor(
         setOnClickListener { _ ->
             var output = RATING_EDIT_FORMAT.format(ratingView.tag as Double)
             if ("0" == output) output = ""
-            val fragment = NumberPadDialogFragment.newInstance(context.getString(R.string.rating), output, null, null, 0, 1.0, 10.0, 6)
+            val fragment = NumberPadDialogFragment.newInstanceForRating(0, R.string.rating, output)
             (context as? FragmentActivity)?.showAndSurvive(fragment)
         }
     }

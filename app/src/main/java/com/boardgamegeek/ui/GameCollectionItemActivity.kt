@@ -250,9 +250,8 @@ class GameCollectionItemActivity : HeroActivity(),
         TaskUtils.executeAsyncTask(task)
     }
 
-    override fun onNumberPadDone(output: String, requestCode: Int) {
-        val rating = output.toDouble()
-        val task = UpdateCollectionItemRatingTask(ctx, gameId, collectionId, internalId, rating)
+    override fun onNumberPadDone(output: Double, requestCode: Int) {
+        val task = UpdateCollectionItemRatingTask(ctx, gameId, collectionId, internalId, output)
         TaskUtils.executeAsyncTask(task)
     }
 
