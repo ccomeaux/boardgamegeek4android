@@ -17,12 +17,10 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.DeleteCollectionItemTask
-import com.boardgamegeek.tasks.ResetCollectionItemTask
-import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask
-import com.boardgamegeek.tasks.UpdateCollectionItemTextTask
+import com.boardgamegeek.tasks.*
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.util.DialogUtils
@@ -40,7 +38,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class GameCollectionItemActivity : HeroActivity(),
         PrivateInfoDialogFragment.PrivateInfoDialogListener,
-        EditCollectionTextDialogFragment.EditCollectionTextDialogListener {
+        EditCollectionTextDialogFragment.EditCollectionTextDialogListener,
+        NumberPadDialogFragment.Listener {
     private var internalId = BggContract.INVALID_ID.toLong()
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
@@ -248,6 +247,12 @@ class GameCollectionItemActivity : HeroActivity(),
 
     override fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String) {
         val task = UpdateCollectionItemTextTask(ctx, gameId, collectionId, internalId, text, textColumn, timestampColumn)
+        TaskUtils.executeAsyncTask(task)
+    }
+
+    override fun onNumberPadDone(output: String, requestCode: Int) {
+        val rating = output.toDouble()
+        val task = UpdateCollectionItemRatingTask(ctx, gameId, collectionId, internalId, rating)
         TaskUtils.executeAsyncTask(task)
     }
 

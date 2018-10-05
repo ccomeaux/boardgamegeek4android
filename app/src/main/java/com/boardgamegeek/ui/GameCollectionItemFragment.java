@@ -32,7 +32,6 @@ import com.boardgamegeek.extensions.IntKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
@@ -41,7 +40,6 @@ import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.RatingView;
-import com.boardgamegeek.ui.widget.RatingView.Listener;
 import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -209,14 +207,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
-
-		ratingView.setOnChangeListener(getActivity(), new Listener() {
-			@Override
-			public void onRatingChanged(double rating) {
-				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getContext(), gameId, collectionId, internalId, rating);
-				TaskUtils.executeAsyncTask(task);
-			}
-		});
 
 		colorize(palette);
 

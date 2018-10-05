@@ -6,7 +6,7 @@
 			  android:orientation="vertical">
 
 	<LinearLayout
-		android:id="@+id/header"
+		android:id="@+id/headerView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
@@ -17,7 +17,7 @@
 		tools:background="#0f0">
 
 		<TextView
-			android:id="@+id/title"
+			android:id="@+id/titleView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
@@ -25,7 +25,7 @@
 			tools:text="Score"/>
 
 		<TextView
-			android:id="@+id/subtitle"
+			android:id="@+id/subtitleView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
@@ -43,7 +43,7 @@
 		android:orientation="horizontal">
 
 		<TextView
-			android:id="@+id/num_plus_minus"
+			android:id="@+id/plusMinusView"
 			style="@style/NumPad"
 			android:layout_width="40dp"
 			android:layout_height="match_parent"
@@ -55,7 +55,7 @@
 			tools:ignore="HardcodedText"/>
 
 		<TextView
-			android:id="@+id/output"
+			android:id="@+id/outputView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
@@ -66,7 +66,7 @@
 			tools:text="1234"/>
 
 		<ImageView
-			android:id="@+id/num_delete"
+			android:id="@+id/deleteView"
 			android:layout_width="40dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0"
@@ -78,6 +78,7 @@
 	</LinearLayout>
 
 	<LinearLayout
+		android:id="@+id/numberPadView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
@@ -90,17 +91,14 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/num_1"
 				style="@style/NumPad"
 				android:text="1"/>
 
 			<TextView
-				android:id="@+id/num_2"
 				style="@style/NumPad"
 				android:text="2"/>
 
 			<TextView
-				android:id="@+id/num_3"
 				style="@style/NumPad"
 				android:text="3"/>
 		</LinearLayout>
@@ -111,17 +109,14 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/num_4"
 				style="@style/NumPad"
 				android:text="4"/>
 
 			<TextView
-				android:id="@+id/num_5"
 				style="@style/NumPad"
 				android:text="5"/>
 
 			<TextView
-				android:id="@+id/num_6"
 				style="@style/NumPad"
 				android:text="6"/>
 		</LinearLayout>
@@ -132,17 +127,14 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/num_7"
 				style="@style/NumPad"
 				android:text="7"/>
 
 			<TextView
-				android:id="@+id/num_8"
 				style="@style/NumPad"
 				android:text="8"/>
 
 			<TextView
-				android:id="@+id/num_9"
 				style="@style/NumPad"
 				android:text="9"/>
 		</LinearLayout>
@@ -153,17 +145,15 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/num_0"
 				style="@style/NumPad"
 				android:text="0"/>
 
 			<TextView
-				android:id="@+id/num_decimal"
 				style="@style/NumPad"
 				android:text="."/>
 
 			<ImageView
-				android:id="@+id/num_done"
+				android:id="@+id/doneView"
 				style="@style/NumPad"
 				android:contentDescription="@string/done"
 				android:padding="@dimen/padding_extra"

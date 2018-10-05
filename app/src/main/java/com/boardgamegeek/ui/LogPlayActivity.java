@@ -121,7 +121,9 @@ import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
 
-public class LogPlayActivity extends AppCompatActivity implements ColorPickerDialogFragment.Listener {
+public class LogPlayActivity extends AppCompatActivity implements
+	ColorPickerDialogFragment.Listener,
+	NumberPadDialogFragment.Listener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -1081,6 +1083,23 @@ public class LogPlayActivity extends AppCompatActivity implements ColorPickerDia
 		playAdapter.notifyPlayerChanged(requestCode);
 	}
 
+	@Override
+	public void onNumberPadDone(String output, int requestCode) {
+		int position = requestCode / 2;
+		Player player = play.getPlayers().get(position);
+		if (requestCode % 2 == 0) {
+			player.score = output;
+			double highScore = play.getHighScore();
+			for (Player p : play.getPlayers()) {
+				double score = StringUtils.parseDouble(p.score, Double.NaN);
+				p.isWin = (score == highScore);
+			}
+			playAdapter.notifyPlayersChanged();
+		} else {
+			player.rating = StringUtils.parseDouble(output);
+			playAdapter.notifyPlayerChanged(position);
+		}
+	}
 
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
 		private final LayoutInflater inflater;
@@ -1877,17 +1896,11 @@ public class LogPlayActivity extends AppCompatActivity implements ColorPickerDia
 							getString(R.string.rating),
 							player.getRatingDescription(),
 							player.color,
-							player.getDescription());
-						fragment.setMinValue(1.0);
-						fragment.setMaxValue(10.0);
-						fragment.setMaxMantissa(6);
-						fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-							@Override
-							public void onDoneClick(String output) {
-								player.rating = StringUtils.parseDouble(output);
-								playAdapter.notifyPlayerChanged(position);
-							}
-						});
+							player.getDescription(),
+							position * 2 + 1,
+							1.0,
+							10.0,
+							6);
 						DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
 					}
 				});
@@ -1900,19 +1913,8 @@ public class LogPlayActivity extends AppCompatActivity implements ColorPickerDia
 								getString(R.string.score),
 								player.score,
 								player.color,
-								player.getDescription());
-							fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-								@Override
-								public void onDoneClick(String output) {
-									player.score = output;
-									double highScore = play.getHighScore();
-									for (Player p : play.getPlayers()) {
-										double score = StringUtils.parseDouble(p.score, Double.NaN);
-										p.isWin = (score == highScore);
-									}
-									playAdapter.notifyPlayersChanged();
-								}
-							});
+								player.getDescription(),
+								position * 2);
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
 						}
 					}
