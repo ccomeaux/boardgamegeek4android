@@ -90,11 +90,11 @@ class ColorPickerDialogFragment : DialogFragment() {
         }
 
         val colorGridAdapter = ColorGridAdapter(ctx, disabledColors, choices)
-        colorGridAdapter.setSelectedColor(selectedColor)
+        colorGridAdapter.selectedColor = selectedColor
         colorGrid.adapter = colorGridAdapter
 
         if (featuredColorGridAdapter != null) {
-            featuredColorGridAdapter.setSelectedColor(selectedColor)
+            featuredColorGridAdapter.selectedColor = selectedColor
             featuredColorGrid.adapter = featuredColorGridAdapter
         }
 
