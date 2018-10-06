@@ -1,11 +1,13 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical">
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:animateLayoutChanges="true"
+	android:orientation="vertical"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical">
 
 	<GridView
 		android:id="@+id/featuredColorGrid"
@@ -13,16 +15,26 @@
 		android:layout_height="wrap_content"
 		android:stretchMode="columnWidth"/>
 
+	<TextView
+		android:id="@+id/moreView"
+		style="@style/Text.Clickable.Caps"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:text="@string/more"/>
+
 	<View
 		android:id="@+id/dividerView"
 		android:layout_width="match_parent"
 		android:layout_height="1px"
-		android:background="@color/dark_blue"/>
+		android:background="@color/dark_blue"
+		android:visibility="gone"/>
 
 	<GridView
 		android:id="@+id/colorGrid"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:stretchMode="columnWidth"/>
+		android:stretchMode="columnWidth"
+		android:visibility="gone"/>
 
 </LinearLayout>

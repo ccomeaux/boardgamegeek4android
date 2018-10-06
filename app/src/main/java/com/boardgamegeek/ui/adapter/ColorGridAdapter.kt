@@ -13,7 +13,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setColorViewValue
 import java.util.*
 
-internal class ColorGridAdapter(private val context: Context, private val disabledColors: ArrayList<String>?, private val choices: List<Pair<String, Int>>) : BaseAdapter() {
+internal class ColorGridAdapter(private val context: Context, private val choices: List<Pair<String, Int>>, private val disabledColors: ArrayList<String>?) : BaseAdapter() {
     var selectedColor: String? = null
         set(value) {
             field = value

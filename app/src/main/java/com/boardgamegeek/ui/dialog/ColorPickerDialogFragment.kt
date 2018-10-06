@@ -75,30 +75,43 @@ class ColorPickerDialogFragment : DialogFragment() {
         }
 
         // if there are featured colors, remove them from the choices list and add them to the featured choices
-        val featuredColorGridAdapter = if (featuredColors == null) {
-            null
-        } else {
-            val features = ArrayList<Pair<String, Int>>()
+        val featuredColorGridAdapter = if (featuredColors?.isNotEmpty() == true) {
+            val featured = ArrayList<Pair<String, Int>>()
             for (i in choices.indices.reversed()) {
                 val pair = choices[i]
                 if (featuredColors.contains(pair.first)) {
                     choices.removeAt(i)
-                    features.add(0, pair)
+                    featured.add(0, pair)
                 }
             }
-            ColorGridAdapter(ctx, disabledColors, features)
+            ColorGridAdapter(ctx, featured, disabledColors)
+        } else {
+            null
         }
 
-        val colorGridAdapter = ColorGridAdapter(ctx, disabledColors, choices)
+        val colorGridAdapter = ColorGridAdapter(ctx, choices, disabledColors)
         colorGridAdapter.selectedColor = selectedColor
         colorGrid.adapter = colorGridAdapter
 
         if (featuredColorGridAdapter != null) {
             featuredColorGridAdapter.selectedColor = selectedColor
             featuredColorGrid.adapter = featuredColorGridAdapter
-        }
+            featuredColorGrid.visibility = View.VISIBLE
 
-        dividerView.visibility = if (featuredColors?.isNotEmpty() == true) View.VISIBLE else View.GONE
+            moreView.visibility = View.VISIBLE
+            moreView.setOnClickListener {
+                moreView.visibility = View.GONE
+                dividerView.visibility = View.VISIBLE
+                colorGrid.visibility = View.VISIBLE
+            }
+
+            colorGrid.visibility = View.GONE
+
+        } else {
+            featuredColorGrid.visibility = View.GONE
+            moreView.visibility = View.GONE
+            colorGrid.visibility = View.VISIBLE
+        }
 
         listOf(colorGrid, featuredColorGrid).forEach {
             it.setOnItemClickListener { parent, _, position, _ ->
