@@ -6,6 +6,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import timber.log.Timber
 import java.text.DateFormat
+import java.util.*
 
 fun String?.replaceHtmlLineFeeds(): String {
     return if (this == null || isBlank()) "" else replace("&#10;", "\n")
@@ -61,6 +62,24 @@ fun String.toMillis(format: DateFormat): Long {
             0L
         }
     }
+}
+
+/**
+ * Converts an API date (<code>yyyy-mm-dd</code>) to millis
+ */
+fun String?.toMillisFromApiDate(defaultMillis: Long = 0L): Long {
+    if (this == null) return defaultMillis
+    if (isBlank()) return defaultMillis
+    val parts = split("-".toRegex()).toTypedArray()
+    if (parts.size != 3) return defaultMillis
+    val calendar = Calendar.getInstance()
+    try {
+        calendar.set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
+    } catch (e: Exception) {
+        Timber.w(e, "Couldn't get a date from the API: %s", this)
+    }
+
+    return calendar.timeInMillis
 }
 
 fun String?.asCurrency(): String {

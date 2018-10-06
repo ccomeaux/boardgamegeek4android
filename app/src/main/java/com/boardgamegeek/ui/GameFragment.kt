@@ -120,7 +120,7 @@ class GameFragment : Fragment() {
     private fun setUpShowcaseViewWizard(): ShowcaseViewWizard {
         val wizard = ShowcaseViewWizard(act, HelpUtils.HELP_GAME_KEY, HELP_VERSION)
         wizard.addTarget(R.string.help_game_menu, Target.NONE)
-        wizard.addTarget(R.string.help_game_poll, SafeViewTarget(R.id.number_of_players, act))
+        wizard.addTarget(R.string.help_game_poll, SafeViewTarget(R.id.playerCountContainer, act))
         wizard.addTarget(0, SafeViewTarget(R.id.playerAgeContainer, act))
         return wizard
     }

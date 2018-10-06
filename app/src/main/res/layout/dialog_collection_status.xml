@@ -72,7 +72,7 @@
 			android:text="@string/collection_status_preordered"/>
 
 		<CheckBox
-			android:id="@+id/wishlist"
+			android:id="@+id/wishlistView"
 			style="@style/DialogCheckbox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
 			android:text="@string/collection_status_wishlist"/>
 
 		<Spinner
-			android:id="@+id/wishlist_priority"
+			android:id="@+id/wishlistPriorityView"
 			style="@style/DialogSpinner"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"/>

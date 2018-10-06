@@ -17,13 +17,13 @@ class FavoriteFilterDialog : CollectionFilterDialog {
     private val notFavoriteButton: RadioButton by lazy { layout.findViewById<RadioButton>(R.id.not_favorite) }
 
     @SuppressLint("InflateParams")
-    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener, filter: CollectionFilterer) {
+    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter_favorite, null)
         initializeUi(filter)
         createAlertDialog(context, listener, layout).show()
     }
 
-    private fun initializeUi(filter: CollectionFilterer) {
+    private fun initializeUi(filter: CollectionFilterer?) {
         val favoriteFilterer = filter as FavoriteFilterer?
         if (favoriteFilterer?.isFavorite == true) {
             favoriteButton.isChecked = true

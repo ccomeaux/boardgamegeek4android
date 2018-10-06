@@ -17,9 +17,12 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.DeleteCollectionItemTask
-import com.boardgamegeek.tasks.ResetCollectionItemTask
+import com.boardgamegeek.tasks.*
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
+import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
+import com.boardgamegeek.ui.dialog.NumberPadDialogFragment
+import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
+import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils.Callback
 import com.boardgamegeek.util.TaskUtils
@@ -33,7 +36,10 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
 import java.util.concurrent.atomic.AtomicBoolean
 
-class GameCollectionItemActivity : HeroActivity() {
+class GameCollectionItemActivity : HeroActivity(),
+        PrivateInfoDialogFragment.PrivateInfoDialogListener,
+        EditCollectionTextDialogFragment.EditCollectionTextDialogListener,
+        NumberPadDialogFragment.Listener {
     private var internalId = BggContract.INVALID_ID.toLong()
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
@@ -233,6 +239,20 @@ class GameCollectionItemActivity : HeroActivity() {
         swipeRefreshLayout.isEnabled = !isInEditMode
         (fragment as GameCollectionItemFragment?)?.enableEditMode(isInEditMode)
         fab.setImageResource(if (isInEditMode) R.drawable.fab_done else R.drawable.fab_edit)
+    }
+
+    override fun onPrivateInfoChanged(privateInfo: PrivateInfo) {
+        TaskUtils.executeAsyncTask(UpdateCollectionItemPrivateInfoTask(ctx, gameId, collectionId, internalId, privateInfo))
+    }
+
+    override fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String) {
+        val task = UpdateCollectionItemTextTask(ctx, gameId, collectionId, internalId, text, textColumn, timestampColumn)
+        TaskUtils.executeAsyncTask(task)
+    }
+
+    override fun onNumberPadDone(output: Double, requestCode: Int) {
+        val task = UpdateCollectionItemRatingTask(ctx, gameId, collectionId, internalId, output)
+        TaskUtils.executeAsyncTask(task)
     }
 
     companion object {

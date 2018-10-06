@@ -188,7 +188,7 @@ public class ColorUtils {
 
 		Drawable currentDrawable = view.getBackground();
 		GradientDrawable backgroundDrawable;
-		if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
+		if (currentDrawable instanceof GradientDrawable) {
 			// Reuse drawable
 			backgroundDrawable = (GradientDrawable) currentDrawable;
 		} else {
@@ -220,7 +220,7 @@ public class ColorUtils {
 
 			Drawable currentDrawable = imageView.getDrawable();
 			GradientDrawable colorChoiceDrawable;
-			if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
+			if (currentDrawable instanceof GradientDrawable) {
 				// Reuse drawable
 				colorChoiceDrawable = (GradientDrawable) currentDrawable;
 			} else {

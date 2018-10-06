@@ -65,8 +65,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         }
 
         includeSettingsButton.setOnClickListener {
-            val df = PlayStatsIncludeSettingsDialogFragment.newInstance(accuracyContainer)
-            DialogUtils.showFragment(act, df, "play_stats_settings_include")
+            DialogUtils.showFragment(act, PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
         }
 
 

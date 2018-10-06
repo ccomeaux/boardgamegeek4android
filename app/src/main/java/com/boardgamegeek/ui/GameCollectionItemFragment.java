@@ -32,20 +32,14 @@ import com.boardgamegeek.extensions.IntKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
-import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
-import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
-import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.RatingView;
-import com.boardgamegeek.ui.widget.RatingView.Listener;
 import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -117,7 +111,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info_hint) TextView privateInfoHintView;
 	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
-	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
 	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
 	@BindView(R.id.private_comment) TextEditorView privateInfoCommentView;
 
@@ -171,7 +164,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.for_trade,
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
-	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
@@ -216,14 +208,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
 
-		ratingView.setOnChangeListener(getActivity(), new Listener() {
-			@Override
-			public void onRatingChanged(double rating) {
-				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getContext(), gameId, collectionId, internalId, rating);
-				TaskUtils.executeAsyncTask(task);
-			}
-		});
-
 		colorize(palette);
 
 		mightNeedRefreshing = true;
@@ -260,6 +244,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		unbinder.unbind();
 	}
 
+	@NonNull
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -277,7 +262,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
 		if (loader.getId() == _TOKEN) {
@@ -304,7 +289,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	public void enableEditMode(boolean enable) {
@@ -381,7 +366,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
 		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
-		for (TextEditorView textEditorView: textEditorViews) {
+		for (TextEditorView textEditorView : textEditorViews) {
 			textEditorView.setHeaderColor(swatch);
 		}
 	}
@@ -469,37 +454,29 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
-		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
+		EditCollectionTextDialogFragment dialogFragment = EditCollectionTextDialogFragment.newInstance(
 			view.getHeaderText(),
-			view,
-			new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					UpdateCollectionItemTextTask task =
-						new UpdateCollectionItemTextTask(getContext(),
-							gameId, collectionId, internalId, inputText,
-							textColumn, timestampColumn);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-		dialogFragment.setText(view.getContentText());
+			view.getContentText(),
+			textColumn,
+			timestampColumn);
 		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 
 	@DebugLog
 	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
-		ensurePrivateInfoDialogFragment();
-		privateInfoDialogFragment.setPriceCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.price_currency)));
-		privateInfoDialogFragment.setPrice(getDoubleFromTag(editPrivateInfoView, R.id.price));
-		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.current_value_currency)));
-		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(editPrivateInfoView, R.id.current_value));
-		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
-		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
-		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
-		privateInfoDialogFragment.setInventoryLocation(String.valueOf(editPrivateInfoView.getTag(R.id.inventory_location)));
-		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
+		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance();
+		privateInfoDialogFragment.setPrivateInfo(new PrivateInfo(
+			String.valueOf(editPrivateInfoView.getTag(R.id.priceCurrencyView)),
+			getDoubleFromTag(editPrivateInfoView, R.id.priceView),
+			String.valueOf(editPrivateInfoView.getTag(R.id.currentValueCurrencyView)),
+			getDoubleFromTag(editPrivateInfoView, R.id.currentValueView),
+			getIntFromTag(editPrivateInfoView, R.id.quantityView),
+			String.valueOf(editPrivateInfoView.getTag(R.id.acquisitionDateView)),
+			String.valueOf(editPrivateInfoView.getTag(R.id.acquiredFromView)),
+			String.valueOf(editPrivateInfoView.getTag(R.id.inventoryLocationView))
+		));
+		DialogUtils.showAndSurvive(this, privateInfoDialogFragment);
 	}
 
 	private double getDoubleFromTag(View textView, @IdRes int key) {
@@ -512,23 +489,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		final Object tag = textView.getTag(key);
 		if (tag == null) return 1;
 		return (int) tag;
-	}
-
-	@DebugLog
-	private void ensurePrivateInfoDialogFragment() {
-		if (privateInfoDialogFragment == null) {
-			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-				privateInfoEditContainer,
-				new PrivateInfoDialogListener() {
-					@Override
-					public void onFinishEditDialog(PrivateInfo privateInfo) {
-						UpdateCollectionItemPrivateInfoTask task =
-							new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-		}
 	}
 
 	@DebugLog
@@ -631,14 +591,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		privateInfoHintView.setVisibility(hasPrivateInfo(item) ? View.GONE : View.VISIBLE);
 		editPrivateInfoView.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
 		editPrivateInfoView.setText(getPrivateInfo(item));
-		editPrivateInfoView.setTag(R.id.price_currency, item.getPriceCurrency());
-		editPrivateInfoView.setTag(R.id.price, item.getPrice());
-		editPrivateInfoView.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
-		editPrivateInfoView.setTag(R.id.current_value, item.getCurrentValue());
-		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
-		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
-		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
-		editPrivateInfoView.setTag(R.id.inventory_location, item.getInventoryLocation());
+		editPrivateInfoView.setTag(R.id.priceCurrencyView, item.getPriceCurrency());
+		editPrivateInfoView.setTag(R.id.priceView, item.getPrice());
+		editPrivateInfoView.setTag(R.id.currentValueCurrencyView, item.getCurrentValueCurrency());
+		editPrivateInfoView.setTag(R.id.currentValueView, item.getCurrentValue());
+		editPrivateInfoView.setTag(R.id.quantityView, item.getQuantity());
+		editPrivateInfoView.setTag(R.id.acquisitionDateView, item.getAcquisitionDate());
+		editPrivateInfoView.setTag(R.id.acquiredFromView, item.getAcquiredFrom());
+		editPrivateInfoView.setTag(R.id.inventoryLocationView, item.getInventoryLocation());
 
 		// both
 		privateInfoCommentView.setContent(item.getPrivateComment(), item.getPrivateInfoTimestamp());

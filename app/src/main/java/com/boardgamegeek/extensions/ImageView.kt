@@ -2,7 +2,10 @@ package com.boardgamegeek.extensions
 
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.support.annotation.ColorInt
+import android.util.TypedValue
 import android.widget.ImageView
 import com.boardgamegeek.R
 import com.boardgamegeek.util.HttpUtils
@@ -37,4 +40,22 @@ fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
                     callback?.onFailedImageLoad()
                 }
             })
+}
+
+fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {
+    val colorChoiceDrawable = drawable as? GradientDrawable ?: GradientDrawable().apply {
+        shape = GradientDrawable.OVAL
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && disabled) {
+        colorChoiceDrawable.colors = intArrayOf(color, Color.DKGRAY)
+    } else {
+        colorChoiceDrawable.setColor(color)
+    }
+
+    colorChoiceDrawable.setStroke(
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt(),
+            color.darkenColor())
+
+    setImageDrawable(colorChoiceDrawable)
 }

@@ -20,12 +20,6 @@ class RatingView @JvmOverloads constructor(
     : ForegroundLinearLayout(context, attrs) {
     private val hideWhenZero: Boolean
     private var isEditMode: Boolean = false
-    private var activity: FragmentActivity? = null
-    private var listener: Listener? = null
-
-    interface Listener {
-        fun onRatingChanged(rating: Double)
-    }
 
     init {
         LayoutInflater.from(getContext()).inflate(R.layout.widget_rating, this, true)
@@ -46,15 +40,8 @@ class RatingView @JvmOverloads constructor(
         setOnClickListener { _ ->
             var output = RATING_EDIT_FORMAT.format(ratingView.tag as Double)
             if ("0" == output) output = ""
-            val fragment = NumberPadDialogFragment.newInstance(context.getString(R.string.rating), output)
-            fragment.setMinValue(1.0)
-            fragment.setMaxValue(10.0)
-            fragment.setMaxMantissa(6)
-            fragment.setOnDoneClickListener {
-                rating = it.toDouble()
-                listener?.onRatingChanged(rating)
-            }
-            activity?.showAndSurvive(fragment)
+            val fragment = NumberPadDialogFragment.newInstanceForRating(0, R.string.rating, output)
+            (context as? FragmentActivity)?.showAndSurvive(fragment)
         }
     }
 
@@ -68,11 +55,6 @@ class RatingView @JvmOverloads constructor(
             ratingView.tag = constrainedRating
             ratingView.setTextViewBackground(constrainedRating.toColor(ratingColors))
         }
-
-    fun setOnChangeListener(activity: FragmentActivity, listener: Listener) {
-        this.activity = activity
-        this.listener = listener
-    }
 
     fun setContent(rating: Double, timestamp: Long) {
         this.rating = rating

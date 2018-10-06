@@ -17,7 +17,7 @@
 		android:hint="@string/name">
 
 		<android.support.design.widget.TextInputEditText
-			android:id="@+id/name"
+			android:id="@+id/nameView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:inputType="textCapWords"
@@ -25,17 +25,16 @@
 	</android.support.design.widget.TextInputLayout>
 
 	<CheckBox
-		android:id="@+id/default_view"
+		android:id="@+id/defaultViewCheckBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/set_as_default"/>
 
 	<TextView
-		android:id="@+id/description"
+		android:id="@+id/descriptionView"
 		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="left"
+		android:gravity="start"
 		tools:text="@tools:sample/lorem/random"/>
-
 </LinearLayout>

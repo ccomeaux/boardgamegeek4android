@@ -121,7 +121,9 @@ import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
 
-public class LogPlayActivity extends AppCompatActivity {
+public class LogPlayActivity extends AppCompatActivity implements
+	ColorPickerDialogFragment.Listener,
+	NumberPadDialogFragment.Listener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -1074,6 +1076,31 @@ public class LogPlayActivity extends AppCompatActivity {
 		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
 
+	@Override
+	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+		Player player = play.getPlayers().get(requestCode);
+		player.color = description;
+		playAdapter.notifyPlayerChanged(requestCode);
+	}
+
+	@Override
+	public void onNumberPadDone(double output, int requestCode) {
+		int position = requestCode / 2;
+		Player player = play.getPlayers().get(position);
+		if (requestCode % 2 == 0) {
+			player.score = String.valueOf(output);
+			double highScore = play.getHighScore();
+			for (Player p : play.getPlayers()) {
+				double score = StringUtils.parseDouble(p.score, Double.NaN);
+				p.isWin = (score == highScore);
+			}
+			playAdapter.notifyPlayersChanged();
+		} else {
+			player.rating = output;
+			playAdapter.notifyPlayerChanged(position);
+		}
+	}
+
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
 		private final LayoutInflater inflater;
 		private final List<Integer> headerResources = new ArrayList<>();
@@ -1857,14 +1884,7 @@ public class LogPlayActivity extends AppCompatActivity {
 							if (p != player) usedColors.add(p.color);
 						}
 						ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-							ColorUtils.getColorList(), gameColors, player.color, usedColors, null, 4);
-						fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
-							@Override
-							public void onColorSelected(String description, int color) {
-								player.color = description;
-								playAdapter.notifyPlayerChanged(position);
-							}
-						});
+							ColorUtils.getColorList(), gameColors, player.color, usedColors, 4, position);
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});
@@ -1872,21 +1892,13 @@ public class LogPlayActivity extends AppCompatActivity {
 					@Override
 					public void onClick(View v) {
 						final Player player = play.getPlayers().get(position);
-						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-							getString(R.string.rating),
+						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstanceForRating(
+							position * 2 + 1,
+							R.string.rating,
 							player.getRatingDescription(),
 							player.color,
-							player.getDescription());
-						fragment.setMinValue(1.0);
-						fragment.setMaxValue(10.0);
-						fragment.setMaxMantissa(6);
-						fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-							@Override
-							public void onDoneClick(String output) {
-								player.rating = StringUtils.parseDouble(output);
-								playAdapter.notifyPlayerChanged(position);
-							}
-						});
+							player.getDescription()
+						);
 						DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
 					}
 				});
@@ -1896,22 +1908,11 @@ public class LogPlayActivity extends AppCompatActivity {
 						public void onClick(View v) {
 							final Player player = play.getPlayers().get(position);
 							final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-								getString(R.string.score),
+								position * 2,
+								R.string.score,
 								player.score,
 								player.color,
 								player.getDescription());
-							fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-								@Override
-								public void onDoneClick(String output) {
-									player.score = output;
-									double highScore = play.getHighScore();
-									for (Player p : play.getPlayers()) {
-										double score = StringUtils.parseDouble(p.score, Double.NaN);
-										p.isWin = (score == highScore);
-									}
-									playAdapter.notifyPlayersChanged();
-								}
-							});
 							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
 						}
 					}

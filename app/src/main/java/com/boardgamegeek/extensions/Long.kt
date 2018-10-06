@@ -5,6 +5,9 @@ import android.support.annotation.StringRes
 import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.util.PreferencesUtils
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun Long.isOlderThan(duration: Int, timeUnit: TimeUnit) = System.currentTimeMillis() - this > timeUnit.toMillis(duration.toLong())
@@ -27,4 +30,12 @@ fun Long.formatTimestamp(context: Context, isForumTimestamp: Boolean, includeTim
             context.getString(R.string.text_unknown)
         } else DateUtils.getRelativeTimeSpanString(this, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, flags)
     }
+}
+
+val FORMAT_API: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+fun Long.asDateForApi(): String {
+    val c = Calendar.getInstance()
+    c.timeInMillis = this
+    return FORMAT_API.format(c.time)
 }

@@ -18,6 +18,7 @@ import com.boardgamegeek.extensions.applyDarkScrim
 import com.boardgamegeek.extensions.loadUrl
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
+import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
@@ -30,7 +31,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
 
-class GameActivity : HeroTabActivity() {
+class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var heroImageUrl = ""
@@ -186,6 +187,10 @@ class GameActivity : HeroTabActivity() {
                 override fun onFailedImageLoad() {}
             })
         }
+    }
+
+    override fun onSelectStatuses(selectedStatuses: List<String>, wishlistPriority: Int) {
+        viewModel.addCollectionItem(selectedStatuses, wishlistPriority)
     }
 
     companion object {

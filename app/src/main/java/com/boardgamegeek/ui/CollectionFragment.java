@@ -38,13 +38,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
-import com.boardgamegeek.events.CollectionViewRequestedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.pref.SyncPrefs;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -74,7 +72,6 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
@@ -99,7 +96,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener,
-	CollectionFilterDialog.OnFilterChangedListener, SaveViewDialogFragment.OnViewSavedListener, DeleteViewDialogFragment.OnViewDeletedListener {
+	CollectionFilterDialog.OnFilterChangedListener {
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final int HELP_VERSION = 2;
 
@@ -348,41 +345,25 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					}
 					break;
 				case R.id.menu_collection_view_save:
-					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(getActivity(), viewName, createViewDescription(sorter, filters));
-					dialog.setOnViewSavedListener(CollectionFragment.this);
+					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(viewName, createViewDescription(sorter, filters));
 					DialogUtils.showAndSurvive(CollectionFragment.this, dialog);
 					return true;
 				case R.id.menu_collection_view_delete:
-					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance(getActivity());
-					ddf.setOnViewDeletedListener(CollectionFragment.this);
+					DeleteViewDialogFragment ddf = DeleteViewDialogFragment.newInstance();
 					DialogUtils.showAndSurvive(CollectionFragment.this, ddf);
 					return true;
 				case R.id.menu_share:
 					shareCollection();
 					return true;
 				case R.id.menu_collection_sort:
-					final CollectionSortDialogFragment sortFragment =
-						CollectionSortDialogFragment.newInstance(swipeRefreshLayout, new CollectionSortDialogFragment.Listener() {
-							@Override
-							public void onSortSelected(int sortType) {
-								setSort(sortType);
-							}
-						});
-					sortFragment.setSelection(sorter.getType());
-					DialogUtils.showAndSurvive(CollectionFragment.this, sortFragment);
+					DialogUtils.showAndSurvive(CollectionFragment.this, CollectionSortDialogFragment.newInstance(sorter.getType()));
 					return true;
 				case R.id.menu_collection_filter:
-					final CollectionFilterDialogFragment filterFragment =
-						CollectionFilterDialogFragment.newInstance(swipeRefreshLayout, new CollectionFilterDialogFragment.Listener() {
-							@Override
-							public void onFilterSelected(int filterType) {
-								launchFilterDialog(filterType);
-							}
-						});
+					ArrayList<Integer> filterTypes = new ArrayList<>();
 					for (CollectionFilterer filter : filters) {
-						filterFragment.addEnabledFilter(filter.getType());
+						filterTypes.add(filter.getType());
 					}
-					DialogUtils.showAndSurvive(CollectionFragment.this, filterFragment);
+					DialogUtils.showAndSurvive(CollectionFragment.this, CollectionFilterDialogFragment.newInstance(filterTypes));
 					return true;
 			}
 			return launchFilterDialog(item.getItemId());
@@ -680,7 +661,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private void setSort(int sortType) {
+	public void setSort(int sortType) {
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
@@ -688,13 +669,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		sorter = getCollectionSorter(sortType);
 		resetScrollState();
 		requery();
-	}
-
-	@DebugLog
-	public void createView(long id, String name) {
-		CollectionViewManipulationEvent.log("Create", name);
-		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
-		EventBus.getDefault().post(new CollectionViewRequestedEvent(id));
 	}
 
 	@DebugLog
@@ -748,7 +722,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private boolean launchFilterDialog(int filterType) {
+	public boolean launchFilterDialog(int filterType) {
 		CollectionFilterDialogFactory factory = new CollectionFilterDialogFactory();
 		CollectionFilterDialog dialog = factory.create(getActivity(), filterType);
 		if (dialog != null) {
@@ -1034,63 +1008,32 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return text.toString();
 	}
 
-	@Override
-	public void onInsertRequested(String name, boolean isDefault) {
-		long id = insertView(name, sorter.getType(), filters);
-		setDefault(id, isDefault);
-		createView(id, name);
-	}
-
-	@Override
-	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
-		updateView(viewId, sorter.getType(), filters);
-		setDefault(viewId, isDefault);
-		createView(viewId, name);
-	}
-
-	@Override
-	public void onDeleteRequested(long viewId) {
-		CollectionViewManipulationEvent.log("Delete");
-		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (viewId == this.viewId) {
-			EventBus.getDefault().post(new CollectionViewRequestedEvent(PreferencesUtils.getViewDefaultId(getActivity())));
-		}
-	}
-
-	private void setDefault(long viewId, boolean isDefault) {
-		if (isDefault) {
-			// TODO: prompt the user if replacing a default
-			PreferencesUtils.putViewDefaultId(getActivity(), viewId);
-		} else {
-			if (viewId == PreferencesUtils.getViewDefaultId(getActivity())) {
-				PreferencesUtils.removeViewDefaultId(getActivity());
-			}
-		}
-	}
-
-	private long insertView(String name, int sortType, final List<CollectionFilterer> filters) {
-		ContentResolver resolver = getActivity().getContentResolver();
-
+	/**
+	 * Add a new view with the current filters and sort with the specified name.
+	 *
+	 * @return The ID of the inserted view.
+	 */
+	public long insertView(String name) {
 		ContentValues values = new ContentValues();
 		values.put(CollectionViews.NAME, name);
 		values.put(CollectionViews.STARRED, false);
-		values.put(CollectionViews.SORT_TYPE, sortType);
-		Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
+		values.put(CollectionViews.SORT_TYPE, sorter.getType());
+		Uri filterUri = getActivity().getContentResolver().insert(CollectionViews.CONTENT_URI, values);
 
 		int filterId = CollectionViews.getViewId(filterUri);
 		Uri uri = CollectionViews.buildViewFilterUri(filterId);
 		insertDetails(uri, filters);
-		if (filterUri == null) {
-			return BggContract.INVALID_ID;
-		}
 		return StringUtils.parseLong(filterUri.getLastPathSegment());
 	}
 
-	private void updateView(long viewId, int sortType, final List<CollectionFilterer> filters) {
+	/**
+	 * Update the specified view with current filters and sort.
+	 */
+	public void updateView(long viewId) {
 		ContentResolver resolver = getActivity().getContentResolver();
 
 		ContentValues values = new ContentValues();
-		values.put(CollectionViews.SORT_TYPE, sortType);
+		values.put(CollectionViews.SORT_TYPE, sorter.getType());
 		resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
 
 		Uri uri = CollectionViews.buildViewFilterUri(viewId);
@@ -1109,7 +1052,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 		}
 		if (cvs.size() > 0) {
-			getActivity().getContentResolver().bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+			ContentValues[] values = {};
+			getActivity().getContentResolver().bulkInsert(viewFiltersUri, cvs.toArray(values));
 		}
 	}
 }

@@ -18,24 +18,31 @@ import com.boardgamegeek.tasks.AddUsernameToPlayerTask;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment;
+import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment.EditUsernameDialogListener;
+import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class BuddyActivity extends SimpleSinglePaneActivity {
+public class BuddyActivity extends SimpleSinglePaneActivity implements
+	UpdateBuddyNicknameDialogListener,
+	EditUsernameDialogListener,
+	EditTextDialogListener {
 	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 
@@ -106,32 +113,47 @@ public class BuddyActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
 		UIUtils.showMenuItem(menu, R.id.add_username, TextUtils.isEmpty(username));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_view:
 				ActivityUtils.linkToBgg(this, "user/" + username);
 				return true;
 			case R.id.add_username:
-				EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newUsernameInstance(R.string.title_add_username, null, new EditTextDialogListener() {
-					@Override
-					public void onFinishEditDialog(String inputText) {
-						if (!TextUtils.isEmpty(inputText)) {
-							AddUsernameToPlayerTask task = new AddUsernameToPlayerTask(BuddyActivity.this, name, inputText);
-							TaskUtils.executeAsyncTask(task);
-						}
-					}
-				});
-				DialogUtils.showFragment(this, editTextDialogFragment, "add_username");
+				DialogUtils.showFragment(this, EditUsernameDialogFragment.newInstance(), "add_username");
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onFinishAddUsername(@NotNull String username) {
+		if (!TextUtils.isEmpty(username)) {
+			AddUsernameToPlayerTask task = new AddUsernameToPlayerTask(this, name, username);
+			TaskUtils.executeAsyncTask(task);
+		}
+	}
+
+	@Override
+	public void onFinishEditDialog(@NonNull String text, @Nullable String originalText) {
+		if (!TextUtils.isEmpty(text)) {
+			RenamePlayerTask task = new RenamePlayerTask(this, originalText, text);
+			TaskUtils.executeAsyncTask(task);
+		}
+	}
+
+	@Override
+	public void buddyNicknameUpdated(@NonNull String newNickname, boolean updatePlays) {
+		if (!TextUtils.isEmpty(newNickname)) {
+			BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(this, username, newNickname, updatePlays);
+			TaskUtils.executeAsyncTask(task);
+			DataManipulationEvent.log("BuddyNickname", "Edit");
+		}
 	}
 
 	@SuppressWarnings("unused")

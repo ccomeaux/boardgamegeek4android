@@ -12,7 +12,7 @@ import com.boardgamegeek.filterer.RecommendedPlayerCountFilterer
 import kotlinx.android.synthetic.main.dialog_collection_filter_recommended_player_count.view.*
 
 class RecommendedPlayerCountFilterDialog : CollectionFilterDialog {
-    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener, filter: CollectionFilterer?) {
+    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {
         @SuppressLint("InflateParams")
         val layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter_recommended_player_count, null)
 
