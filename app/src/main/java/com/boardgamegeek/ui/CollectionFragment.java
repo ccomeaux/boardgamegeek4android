@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -244,7 +246,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void requery() {
 		progressBar.show();
-		getLoaderManager().restartLoader(Query._TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 	}
 
 	@Override
@@ -745,7 +747,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			progressBar.show();
 			this.viewId = viewId;
 			resetScrollState();
-			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
+			LoaderManager.getInstance(this).restartLoader(ViewQuery._TOKEN, null, this);
 		}
 	}
 

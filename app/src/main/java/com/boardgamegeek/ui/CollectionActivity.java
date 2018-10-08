@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -95,7 +96,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 			}
 		}
 		if (!isCreatingShortcut) {
-			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		}
 
 		if (savedInstanceState == null) {

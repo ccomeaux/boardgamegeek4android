@@ -50,6 +50,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -123,14 +124,16 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
-		getLoaderManager().restartLoader(PLAY_COUNT_TOKEN, null, this);
-		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
-		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
+		LoaderManager loaderManager = LoaderManager.getInstance(this);
+
+		loaderManager.restartLoader(PLAYS_TOKEN, null, this);
+		loaderManager.restartLoader(PLAY_COUNT_TOKEN, null, this);
+		loaderManager.restartLoader(PLAYERS_TOKEN, null, this);
+		loaderManager.restartLoader(LOCATIONS_TOKEN, null, this);
 		if (!TextUtils.isEmpty(AccountUtils.getUsername(getActivity()))) {
-			getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+			loaderManager.restartLoader(COLORS_TOKEN, null, this);
 		}
-		getLoaderManager().restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
+		loaderManager.restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
 	}
 
 	@DebugLog

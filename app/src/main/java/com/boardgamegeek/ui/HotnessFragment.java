@@ -70,7 +70,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
 	@Override

@@ -121,7 +121,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@DebugLog
 	private void loadMoreResults() {
 		if (isAdded()) {
-			Loader<List<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
+			Loader<List<Comment>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
 			if (loader != null) {
 				loader.forceLoad();
 			}
@@ -131,7 +131,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@DebugLog
 	private CommentsLoader getLoader() {
 		if (isAdded()) {
-			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(LOADER_ID);
+			Loader<PaginatedData<Comment>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
 			return (CommentsLoader) loader;
 		}
 		return null;
@@ -169,7 +169,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	private void requery() {
 		if (adapter != null) adapter.clear();
 		AnimationUtils.fadeIn(progressView);
-		getLoaderManager().restartLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
 	}
 
 	@DebugLog

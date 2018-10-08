@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.core.content.ContextCompat;
 import androidx.loader.content.CursorLoader;
@@ -131,13 +132,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		lightTextColor = ContextCompat.getColor(getContext(), R.color.secondary_text);
 
 		if (isUser()) {
-			getLoaderManager().restartLoader(TOKEN, null, this);
+			LoaderManager.getInstance(this).restartLoader(TOKEN, null, this);
 		} else {
 			nicknameView.setTextColor(defaultTextColor);
 			nicknameView.setText(playerName);
 		}
-		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
-		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(PLAYS_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
 	}

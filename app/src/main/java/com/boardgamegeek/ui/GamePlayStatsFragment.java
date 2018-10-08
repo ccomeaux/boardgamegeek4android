@@ -194,7 +194,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().restartLoader(GameQuery._TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(GameQuery._TOKEN, null, this);
 	}
 
 	@Override
@@ -265,7 +265,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 						personalRating = ratingSum / ratingCount;
 					}
 				}
-				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+				LoaderManager.getInstance(this).restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
 				if (cursor == null || !cursor.moveToFirst()) {
@@ -273,7 +273,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					return;
 				}
 				stats = new Stats(cursor, personalRating);
-				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+				LoaderManager.getInstance(this).restartLoader(PlayerQuery._TOKEN, null, this);
 				break;
 			case PlayerQuery._TOKEN:
 				if (cursor != null && cursor.moveToFirst()) {

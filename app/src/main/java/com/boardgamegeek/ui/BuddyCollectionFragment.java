@@ -178,7 +178,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 		getActivity().invalidateOptionsMenu();
 		setListShown(false);
-		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
 
 	@Override

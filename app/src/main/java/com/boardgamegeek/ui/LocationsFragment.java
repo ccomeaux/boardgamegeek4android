@@ -72,7 +72,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void requery() {
-		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
 	}
 
 	@DebugLog

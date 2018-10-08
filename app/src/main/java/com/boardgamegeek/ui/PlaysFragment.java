@@ -70,6 +70,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.fragment.app.DialogFragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -196,7 +197,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 				imageUrl = bundle.getString(KEY_IMAGE_URL);
 				heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
 				arePlayersCustomSorted = bundle.getBoolean(KEY_CUSTOM_PLAYER_SORT);
-				getLoaderManager().restartLoader(GameQuery._TOKEN, bundle, this);
+				LoaderManager.getInstance(this).restartLoader(GameQuery._TOKEN, bundle, this);
 				break;
 			case MODE_BUDDY:
 				modeValue = bundle.getString(PlaysFragment.KEY_MODE_VALUE);
@@ -381,11 +382,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 
 	private void requery() {
 		if (mode == MODE_ALL || mode == MODE_LOCATION || mode == MODE_GAME) {
-			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+			LoaderManager.getInstance(this).restartLoader(SumQuery._TOKEN, getArguments(), this);
 		} else if (mode == MODE_PLAYER || mode == MODE_BUDDY) {
-			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
+			LoaderManager.getInstance(this).restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
 		}
-		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
 	}
 
 	@SuppressWarnings("unused")

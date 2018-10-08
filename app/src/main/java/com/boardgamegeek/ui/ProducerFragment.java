@@ -28,6 +28,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -97,7 +98,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		nameView.setText(title);
 
 		if (type != ProducerType.UNKNOWN) {
-			getLoaderManager().restartLoader(type.getValue(), null, this);
+			LoaderManager.getInstance(this).restartLoader(type.getValue(), null, this);
 		}
 	}
 

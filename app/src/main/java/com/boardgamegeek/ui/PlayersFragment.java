@@ -87,7 +87,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@DebugLog
 	public void requery() {
-		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
 	}
 
 	public int getSort() {

@@ -52,6 +52,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -211,8 +212,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		colorize(palette);
 
 		mightNeedRefreshing = true;
-		getLoaderManager().restartLoader(_TOKEN, getArguments(), this);
-
+		LoaderManager.getInstance(this).restartLoader(_TOKEN, getArguments(), this);
 	}
 
 	@DebugLog

@@ -107,7 +107,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 
 		latestArticleId = PreferencesUtils.getThreadArticle(getContext(), threadId);
 	}

@@ -83,7 +83,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	@Override
 	public void onResume() {
 		super.onResume();
-		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
 	@Override

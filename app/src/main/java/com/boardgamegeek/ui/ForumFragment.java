@@ -85,7 +85,7 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	@DebugLog
 	public void onResume() {
 		super.onResume();
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Nullable
 	private ForumLoader getLoader() {
 		if (isAdded()) {
-			Loader<PaginatedData<Thread>> loader = getLoaderManager().getLoader(LOADER_ID);
+			Loader<PaginatedData<Thread>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
 			return (ForumLoader) loader;
 		}
 		return null;
@@ -131,7 +131,7 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	@DebugLog
 	private void loadMoreResults() {
 		if (isAdded()) {
-			Loader<List<Thread>> loader = getLoaderManager().getLoader(LOADER_ID);
+			Loader<List<Thread>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
 			if (loader != null) {
 				loader.forceLoad();
 			}

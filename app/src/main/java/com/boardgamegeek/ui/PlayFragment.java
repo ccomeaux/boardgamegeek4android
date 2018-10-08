@@ -57,6 +57,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -186,7 +187,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		adapter = new PlayPlayerAdapter(getContext(), play);
 		playersView.setAdapter(adapter);
 
-		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, null, this);
 
 		return rootView;
 	}
@@ -485,7 +486,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		syncTimestampView.setTimestamp(play.syncTimestamp);
 
 		getActivity().invalidateOptionsMenu();
-		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (play.playId > 0 &&
 			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
