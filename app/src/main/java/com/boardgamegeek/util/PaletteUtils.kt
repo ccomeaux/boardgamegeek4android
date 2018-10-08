@@ -7,7 +7,7 @@ import androidx.palette.graphics.Palette
 import butterknife.ButterKnife
 
 /**
- * Helper class for dealing with [android.support.v7.graphics.Palette].
+ * Helper class for dealing with [androidx.palette.graphics.Palette].
  */
 object PaletteUtils {
     /**

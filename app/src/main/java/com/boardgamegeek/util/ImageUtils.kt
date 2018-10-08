@@ -30,7 +30,7 @@ object ImageUtils {
 
     /**
      * Loads an image into the [android.widget.ImageView] by attempting various sizes and image formats. Applies
-     * fit/center crop and will load a [android.support.v7.graphics.Palette].
+     * fit/center crop and will load a [androidx.palette.graphics.Palette].
      */
     @JvmStatic
     @JvmOverloads
@@ -63,7 +63,7 @@ object ImageUtils {
 
     /**
      * Loads an image into the [android.widget.ImageView] by attempting various sizes. Applies fit/center crop and
-     * will load a [android.support.v7.graphics.Palette].
+     * will load a [androidx.palette.graphics.Palette].
      */
     @JvmStatic
     @JvmOverloads
@@ -216,7 +216,7 @@ object ImageUtils {
 
     /**
      * Loads an image into the [android.widget.ImageView] by attempting each URL in the [java.util.Queue]
-     * until one is successful. Applies fit/center crop and will load a [android.support.v7.graphics.Palette].
+     * until one is successful. Applies fit/center crop and will load a [androidx.palette.graphics.Palette].
      */
     private fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: Callback?) {
         var url: String? = null
