@@ -4,16 +4,16 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.appcompat.app.AlertDialog.Builder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
+import androidx.appcompat.app.AlertDialog.Builder
+import androidx.core.view.children
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import kotlinx.android.synthetic.main.dialog_collection_status.*
-import org.jetbrains.anko.childrenSequence
 
 class CollectionStatusDialogFragment : DialogFragment() {
     private lateinit var layout: View
@@ -38,7 +38,7 @@ class CollectionStatusDialogFragment : DialogFragment() {
                 .setView(layout)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     if (listener != null) {
-                        val statuses = container.childrenSequence().filterIsInstance<CheckBox>().filter {
+                        val statuses = container.children.filterIsInstance<CheckBox>().filter {
                             it.isChecked
                         }.map { it.tag as String }.toList()
                         val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0

@@ -4,17 +4,17 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.appcompat.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.children
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
-import org.jetbrains.anko.childrenSequence
 import timber.log.Timber
 
 class CollectionSortDialogFragment : DialogFragment() {
@@ -70,7 +70,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     private fun createNames() {
         val factory = CollectionSorterFactory(requireContext())
 
-        radioGroup.childrenSequence().filterIsInstance<RadioButton>().forEach {
+        radioGroup.children.filterIsInstance<RadioButton>().forEach {
             val sortType = getTypeFromView(it)
             val sorter = factory.create(sortType)
             if (sorter != null) it.text = sorter.description
@@ -78,7 +78,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     }
 
     private fun findRadioButtonByType(type: Int): RadioButton? {
-        return radioGroup.childrenSequence().filterIsInstance<RadioButton>().find {
+        return radioGroup.children.filterIsInstance<RadioButton>().find {
             getTypeFromView(it) == type
         }
     }
