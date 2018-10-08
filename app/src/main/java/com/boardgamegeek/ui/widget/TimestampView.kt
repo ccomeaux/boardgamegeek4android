@@ -76,11 +76,15 @@ class TimestampView @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
-        ss.timestamp = timestamp
-        ss.format = format
-        ss.formatArg = formatArg
-        return ss
+        return if (superState != null) {
+            val savedState = SavedState(superState)
+            savedState.timestamp = timestamp
+            savedState.format = format
+            savedState.formatArg = formatArg
+            savedState
+        } else {
+            superState
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
