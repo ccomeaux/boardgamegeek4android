@@ -1,13 +1,13 @@
 package com.boardgamegeek.ui
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
@@ -20,15 +20,13 @@ import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_collection.*
 
-import org.jetbrains.anko.support.v4.act
-
 class GameCollectionFragment : Fragment() {
     private val adapter: GameCollectionItemAdapter by lazy {
         GameCollectionItemAdapter()
     }
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(act).get(GameViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

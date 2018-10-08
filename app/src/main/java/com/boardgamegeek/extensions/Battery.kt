@@ -30,7 +30,5 @@ private fun Context.getBatteryLevel(): Float {
 }
 
 private fun Context.getBatteryStatus(): Intent? {
-    return IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
-        registerReceiver(null, it)
-    }
+    return registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 }

@@ -16,10 +16,10 @@ class PlayerNumberRow @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    var totalVoteCount: Int = 0
-    var bestVoteCount: Int = 0
-    var recommendedVoteCount: Int = 0
-    var notRecommendedVoteCount: Int = 0
+    private var totalVoteCount: Int = 0
+    private var bestVoteCount: Int = 0
+    private var recommendedVoteCount: Int = 0
+    private var notRecommendedVoteCount: Int = 0
 
     init {
         LayoutInflater.from(context).inflate(R.layout.row_poll_players, this)
