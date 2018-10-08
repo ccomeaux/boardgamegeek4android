@@ -108,7 +108,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	}
 
 	private void setUpRecyclerView() {
-		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 		swipePaint.setColor(ContextCompat.getColor(getContext(), R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);

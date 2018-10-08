@@ -56,7 +56,7 @@ public class GeekListItemsFragment extends Fragment {
 
 	@DebugLog
 	private void setUpRecyclerView() {
-		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		recyclerView.setHasFixedSize(true);
 	}
 

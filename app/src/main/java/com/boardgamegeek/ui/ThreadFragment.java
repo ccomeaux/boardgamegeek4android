@@ -183,7 +183,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@DebugLog
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setHasFixedSize(true);
 		recyclerView.addOnScrollListener(new OnScrollListener() {
