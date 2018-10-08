@@ -1,7 +1,7 @@
 package com.boardgamegeek.repository
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import android.content.ContentValues
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R

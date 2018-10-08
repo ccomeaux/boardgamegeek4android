@@ -2,11 +2,10 @@ package com.boardgamegeek.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v7.app.ActionBarDrawerToggle
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.ActionBarDrawerToggle
 import com.boardgamegeek.R
-import org.jetbrains.anko.act
 
 abstract class TopLevelActivity : DrawerActivity() {
     private lateinit var activityTitle: CharSequence
@@ -19,7 +18,7 @@ abstract class TopLevelActivity : DrawerActivity() {
         drawerTitle = getString(R.string.app_name)
         activityTitle = title
 
-        drawerToggle = object : ActionBarDrawerToggle(act, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
+        drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
             // TODO: finish and start CAB with the drawer open/close
             override fun onDrawerClosed(drawerView: View) {
                 supportActionBar?.title = activityTitle

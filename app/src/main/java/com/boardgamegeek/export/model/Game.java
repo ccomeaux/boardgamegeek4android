@@ -2,13 +2,14 @@ package com.boardgamegeek.export.model;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.Games;
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class Game extends Model {
 	public static final String[] PROJECTION = new String[] {

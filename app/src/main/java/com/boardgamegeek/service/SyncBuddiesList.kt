@@ -2,7 +2,7 @@ package com.boardgamegeek.service
 
 import android.accounts.Account
 import android.content.SyncResult
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils

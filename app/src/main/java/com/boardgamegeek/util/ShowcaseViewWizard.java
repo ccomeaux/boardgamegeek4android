@@ -2,8 +2,6 @@ package com.boardgamegeek.util;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.support.annotation.StringRes;
-import android.support.v4.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,6 +15,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.StringRes;
+import androidx.core.util.Pair;
 import hugo.weaving.DebugLog;
 
 public class ShowcaseViewWizard {

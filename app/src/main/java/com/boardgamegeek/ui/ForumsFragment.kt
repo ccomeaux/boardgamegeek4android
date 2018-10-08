@@ -1,11 +1,11 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,8 +17,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
 import kotlinx.android.synthetic.main.fragment_forums.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 
 class ForumsFragment : Fragment() {
     private var gameId = BggContract.INVALID_ID
@@ -29,7 +27,7 @@ class ForumsFragment : Fragment() {
     }
 
     private val viewModel: ForumsViewModel by lazy {
-        ViewModelProviders.of(act).get(ForumsViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(ForumsViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -41,9 +39,9 @@ class ForumsFragment : Fragment() {
         gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         gameName = arguments?.getString(KEY_GAME_NAME)
 
-        recyclerView?.layoutManager = LinearLayoutManager(ctx)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
         recyclerView?.setHasFixedSize(true)
-        recyclerView?.addItemDecoration(DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL))
+        recyclerView?.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView?.adapter = adapter
     }
 

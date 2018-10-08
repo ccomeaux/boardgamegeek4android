@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
-import android.support.v4.widget.SimpleCursorAdapter
+import androidx.cursoradapter.widget.SimpleCursorAdapter
 import com.boardgamegeek.R
 
 /**

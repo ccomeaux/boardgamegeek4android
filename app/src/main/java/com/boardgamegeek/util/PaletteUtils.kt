@@ -1,9 +1,9 @@
 package com.boardgamegeek.util
 
 import android.graphics.Color
-import android.support.v7.graphics.Palette
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.palette.graphics.Palette
 import butterknife.ButterKnife
 
 /**

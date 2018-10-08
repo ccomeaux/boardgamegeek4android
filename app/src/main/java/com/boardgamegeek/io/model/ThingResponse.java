@@ -1,11 +1,11 @@
 package com.boardgamegeek.io.model;
 
-import android.support.annotation.NonNull;
-
 import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class ThingResponse {
 	public static final int PAGE_SIZE = 100;

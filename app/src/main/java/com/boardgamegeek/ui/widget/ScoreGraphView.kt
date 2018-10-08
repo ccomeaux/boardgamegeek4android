@@ -5,11 +5,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.Style
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.significantDigits
 import java.text.DecimalFormat

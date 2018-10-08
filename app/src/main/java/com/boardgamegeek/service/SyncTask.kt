@@ -3,9 +3,9 @@ package com.boardgamegeek.service
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.SyncResult
-import android.support.annotation.PluralsRes
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationCompat.BigTextStyle
+import androidx.annotation.PluralsRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService

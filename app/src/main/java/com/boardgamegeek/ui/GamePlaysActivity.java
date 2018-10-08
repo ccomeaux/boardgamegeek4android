@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +16,9 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;

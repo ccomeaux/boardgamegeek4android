@@ -1,15 +1,15 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.PluralsRes
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
+import androidx.annotation.PluralsRes
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Pair
 import android.view.*
 import com.boardgamegeek.R
@@ -27,8 +27,6 @@ import com.crashlytics.android.answers.CustomEvent
 import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
 import kotlinx.android.synthetic.main.fragment_search_results.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.support.v4.toast
 import java.util.*
 
@@ -40,12 +38,12 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     private val snackbar: Snackbar by lazy {
         Snackbar.make(containerView, "", Snackbar.LENGTH_INDEFINITE).apply {
             view.setBackgroundResource(R.color.dark_blue)
-            setActionTextColor(ContextCompat.getColor(ctx, R.color.accent))
+            setActionTextColor(ContextCompat.getColor(context, R.color.accent))
         }
     }
 
     private val viewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(act).get(SearchViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(SearchViewModel::class.java)
     }
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {
@@ -59,7 +57,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
                     override fun onItemLongClick(position: Int): Boolean {
                         if (actionMode != null) return false
-                        actionMode = act.startActionMode(this@SearchResultsFragment)
+                        actionMode = requireActivity().startActionMode(this@SearchResultsFragment)
                         if (actionMode == null) return false
                         toggleSelection(position)
                         return true
@@ -151,8 +149,8 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.layoutManager = LinearLayoutManager(ctx)
-        recyclerView.addItemDecoration(DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL))
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        recyclerView.addItemDecoration(androidx.recyclerview.widget.DividerItemDecoration(context, androidx.recyclerview.widget.DividerItemDecoration.VERTICAL))
         recyclerView.adapter = searchResultsAdapter
     }
 
@@ -170,23 +168,23 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     }
 
     private fun maybeShowHelp() {
-        if (HelpUtils.shouldShowHelp(ctx, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
+        if (HelpUtils.shouldShowHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
             Handler().postDelayed({ showHelp() }, 100)
         }
     }
 
     private fun showHelp() {
-        val builder = HelpUtils.getShowcaseBuilder(act)
+        val builder = HelpUtils.getShowcaseBuilder(activity)
         if (builder != null) {
             builder.setContentText(R.string.help_searchresults)
                     .setOnClickListener {
                         showcaseView?.hide()
-                        HelpUtils.updateHelp(ctx, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)
+                        HelpUtils.updateHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)
                     }
             val viewTarget = SafeViewTarget(HelpUtils.getRecyclerViewVisibleChild(recyclerView))
             builder.setTarget(viewTarget)
             showcaseView = builder.build()?.apply {
-                this.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(ctx))
+                this.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(context))
                 this.show()
             }
         }
@@ -215,8 +213,8 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = searchResultsAdapter.selectedItemCount
-        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(ctx) && count == 1 && PreferencesUtils.showLogPlay(ctx)
-        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(ctx) && PreferencesUtils.showQuickLogPlay(ctx)
+        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && PreferencesUtils.showLogPlay(context)
+        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && PreferencesUtils.showQuickLogPlay(context)
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }
@@ -234,7 +232,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         when (item.itemId) {
             R.id.menu_log_play -> {
                 game?.let {
-                    LogPlayActivity.logPlay(ctx, it.id, it.name, null, null, null, false)
+                    LogPlayActivity.logPlay(context, it.id, it.name, null, null, null, false)
                 }
                 mode.finish()
                 return true
@@ -243,7 +241,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
-                        ctx.logQuickPlay(it.id, it.name)
+                        requireActivity().logQuickPlay(it.id, it.name)
                     }
                 }
                 mode.finish()
@@ -252,7 +250,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             R.id.menu_share -> {
                 val shareMethod = "Search"
                 if (searchResultsAdapter.selectedItemCount == 1) {
-                    game?.let { act.shareGame(it.id, it.name, shareMethod) }
+                    game?.let { requireActivity().shareGame(it.id, it.name, shareMethod) }
                 } else {
                     val games = ArrayList<Pair<Int, String>>(searchResultsAdapter.selectedItemCount)
                     for (position in searchResultsAdapter.getSelectedItems()) {
@@ -260,13 +258,13 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                             games.add(Pair.create(it.id, it.name))
                         }
                     }
-                    act.shareGames(games, shareMethod)
+                    requireActivity().shareGames(games, shareMethod)
                 }
                 mode.finish()
                 return true
             }
             R.id.menu_link -> {
-                game?.let { ctx.linkBgg(it.id) }
+                game?.let { context.linkBgg(it.id) }
                 mode.finish()
                 return true
             }

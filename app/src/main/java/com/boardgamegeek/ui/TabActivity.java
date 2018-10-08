@@ -1,14 +1,14 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.google.android.material.tabs.TabLayout;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 
 /**
@@ -42,7 +42,7 @@ public abstract class TabActivity extends DrawerActivity {
 	protected void safelySetTitle(String title) {
 		if (!TextUtils.isEmpty(title)) {
 			ActionBar actionBar = getSupportActionBar();
-			if (actionBar != null){
+			if (actionBar != null) {
 				actionBar.setTitle(title);
 			}
 		}

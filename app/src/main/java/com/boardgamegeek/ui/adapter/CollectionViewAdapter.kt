@@ -2,7 +2,7 @@ package com.boardgamegeek.ui.adapter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.v4.widget.SimpleCursorAdapter
+import androidx.cursoradapter.widget.SimpleCursorAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

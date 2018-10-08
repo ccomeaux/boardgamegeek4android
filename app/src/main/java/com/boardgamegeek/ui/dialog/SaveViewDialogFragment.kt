@@ -4,14 +4,14 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.queryLong
 import com.boardgamegeek.extensions.requestFocus
@@ -20,7 +20,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_save_view.*
-import org.jetbrains.anko.support.v4.ctx
 
 class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
@@ -42,22 +41,22 @@ class SaveViewDialogFragment : DialogFragment() {
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_save_view, null)
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null)
 
         arguments?.let {
-            name = it.getString(KEY_NAME)
+            name = it.getString(KEY_NAME) ?: ""
             description = it.getString(KEY_DESCRIPTION)
         }
 
-        val builder = AlertDialog.Builder(ctx, R.style.Theme_bgglight_Dialog_Alert)
+        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_save_view)
                 .setView(layout)
                 .setPositiveButton(R.string.save) { _, _ ->
-                    val name = nameView.text.trim().toString()
+                    val name = nameView.text?.trim()?.toString() ?: ""
                     val isDefault = defaultViewCheckBox.isChecked
                     val viewId = findViewId(name)
                     if (viewId > 0) {
-                        AlertDialog.Builder(ctx)
+                        AlertDialog.Builder(requireContext())
                                 .setTitle(R.string.title_collection_view_name_in_use)
                                 .setMessage(R.string.msg_collection_view_name_in_use)
                                 .setPositiveButton(R.string.update) { _, _ -> listener?.onUpdateRequested(name, isDefault, viewId) }
@@ -82,7 +81,7 @@ class SaveViewDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         nameView.setAndSelectExistingText(name)
-        val viewDefaultId = PreferencesUtils.getViewDefaultId(ctx)
+        val viewDefaultId = PreferencesUtils.getViewDefaultId(context)
         defaultViewCheckBox.isChecked = viewDefaultId != PreferencesUtils.VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
         descriptionView.text = description
     }
@@ -91,7 +90,7 @@ class SaveViewDialogFragment : DialogFragment() {
         return if (name.isBlank())
             BggContract.INVALID_ID.toLong()
         else
-            ctx.contentResolver.queryLong(
+            requireContext().contentResolver.queryLong(
                     CollectionViews.CONTENT_URI,
                     CollectionViews._ID,
                     0L,

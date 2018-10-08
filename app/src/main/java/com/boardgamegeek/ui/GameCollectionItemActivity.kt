@@ -3,10 +3,10 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
+import androidx.fragment.app.Fragment
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.YEAR_UNKNOWN
@@ -30,8 +30,6 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.act
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
 import java.util.concurrent.atomic.AtomicBoolean
@@ -103,8 +101,8 @@ class GameCollectionItemActivity : HeroActivity(),
     override fun onBackPressed() {
         if (isInEditMode) {
             if (isItemUpdated) {
-                DialogUtils.createDiscardDialog(act, R.string.collection_item, false, false) {
-                    TaskUtils.executeAsyncTask(ResetCollectionItemTask(ctx, internalId))
+                DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false) {
+                    TaskUtils.executeAsyncTask(ResetCollectionItemTask(this, internalId))
                     toggleEditMode()
                 }.show()
             } else {
@@ -132,20 +130,20 @@ class GameCollectionItemActivity : HeroActivity(),
                 if (gameId == BggContract.INVALID_ID) {
                     onBackPressed()
                 } else {
-                    GameActivity.startUp(ctx, gameId, gameName, thumbnailUrl, heroImageUrl)
+                    GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl)
                 }
                 finish()
                 return true
             }
             R.id.menu_view_image -> {
-                ImageActivity.start(ctx, imageUrl)
+                ImageActivity.start(this, imageUrl)
                 return true
             }
             R.id.menu_delete -> {
-                DialogUtils.createThemedBuilder(ctx)
+                DialogUtils.createThemedBuilder(this)
                         .setMessage(R.string.are_you_sure_delete_collection_item)
                         .setPositiveButton(R.string.delete) { _, _ ->
-                            TaskUtils.executeAsyncTask(DeleteCollectionItemTask(ctx, internalId))
+                            TaskUtils.executeAsyncTask(DeleteCollectionItemTask(this, internalId))
                             finish()
                         }
                         .setNegativeButton(R.string.cancel, null)
@@ -218,7 +216,7 @@ class GameCollectionItemActivity : HeroActivity(),
     fun onEvent(event: CollectionItemDeletedEvent) {
         if (internalId == event.internalId) {
             longToast(R.string.msg_collection_item_deleted)
-            SyncService.sync(ctx, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+            SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
             isItemUpdated = false
         }
     }
@@ -242,16 +240,16 @@ class GameCollectionItemActivity : HeroActivity(),
     }
 
     override fun onPrivateInfoChanged(privateInfo: PrivateInfo) {
-        TaskUtils.executeAsyncTask(UpdateCollectionItemPrivateInfoTask(ctx, gameId, collectionId, internalId, privateInfo))
+        TaskUtils.executeAsyncTask(UpdateCollectionItemPrivateInfoTask(this, gameId, collectionId, internalId, privateInfo))
     }
 
     override fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String) {
-        val task = UpdateCollectionItemTextTask(ctx, gameId, collectionId, internalId, text, textColumn, timestampColumn)
+        val task = UpdateCollectionItemTextTask(this, gameId, collectionId, internalId, text, textColumn, timestampColumn)
         TaskUtils.executeAsyncTask(task)
     }
 
     override fun onNumberPadDone(output: Double, requestCode: Int) {
-        val task = UpdateCollectionItemRatingTask(ctx, gameId, collectionId, internalId, output)
+        val task = UpdateCollectionItemRatingTask(this, gameId, collectionId, internalId, output)
         TaskUtils.executeAsyncTask(task)
     }
 

@@ -1,8 +1,8 @@
 package com.boardgamegeek.extensions
 
-import android.support.v7.app.AlertDialog
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AlertDialog
 
 fun AlertDialog.requestFocus(view: View? = null) {
     view?.requestFocus()

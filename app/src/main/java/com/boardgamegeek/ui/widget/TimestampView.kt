@@ -5,12 +5,12 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES.JELLY_BEAN
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.AppCompatTextView
 import android.text.Html
 import android.text.SpannedString
 import android.util.AttributeSet
 import android.view.View
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.extensions.trimTrailingWhitespace
@@ -125,7 +125,7 @@ class TimestampView @JvmOverloads constructor(
         constructor(superState: Parcelable) : super(superState)
 
         constructor(source: Parcel) : super(source) {
-            format = source.readString()
+            format = source.readString() ?: ""
             timestamp = source.readLong()
             formatArg = source.readString()
         }

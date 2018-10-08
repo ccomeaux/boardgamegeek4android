@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog.Builder
+import androidx.fragment.app.DialogFragment
+import androidx.appcompat.app.AlertDialog.Builder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +14,6 @@ import android.widget.CheckBox
 import com.boardgamegeek.R
 import kotlinx.android.synthetic.main.dialog_collection_status.*
 import org.jetbrains.anko.childrenSequence
-import org.jetbrains.anko.support.v4.ctx
 
 class CollectionStatusDialogFragment : DialogFragment() {
     private lateinit var layout: View
@@ -32,9 +31,9 @@ class CollectionStatusDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_collection_status, null)
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_status, null)
 
-        val builder = Builder(ctx, R.style.Theme_bgglight_Dialog_Alert)
+        val builder = Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_add_a_copy)
                 .setView(layout)
                 .setPositiveButton(R.string.ok) { _, _ ->
@@ -55,7 +54,7 @@ class CollectionStatusDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        wishlistPriorityView.adapter = WishlistPriorityAdapter(ctx)
+        wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
         wishlistPriorityView.isEnabled = wishlistView.isChecked
         wishlistView.setOnClickListener {
             wishlistPriorityView.isEnabled = wishlistView.isChecked

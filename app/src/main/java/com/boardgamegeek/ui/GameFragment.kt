@@ -1,13 +1,13 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.v4.app.Fragment
 import android.text.Html
 import android.text.TextUtils
 import android.view.*
+import androidx.annotation.ColorInt
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -30,8 +30,6 @@ import kotlinx.android.synthetic.main.include_game_ranks.*
 import kotlinx.android.synthetic.main.include_game_ratings.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 
 class GameFragment : Fragment() {
     private var gameId: Int = BggContract.INVALID_ID
@@ -41,7 +39,7 @@ class GameFragment : Fragment() {
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(act).get(GameViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,10 +116,10 @@ class GameFragment : Fragment() {
     }
 
     private fun setUpShowcaseViewWizard(): ShowcaseViewWizard {
-        val wizard = ShowcaseViewWizard(act, HelpUtils.HELP_GAME_KEY, HELP_VERSION)
+        val wizard = ShowcaseViewWizard(activity, HelpUtils.HELP_GAME_KEY, HELP_VERSION)
         wizard.addTarget(R.string.help_game_menu, Target.NONE)
-        wizard.addTarget(R.string.help_game_poll, SafeViewTarget(R.id.playerCountContainer, act))
-        wizard.addTarget(0, SafeViewTarget(R.id.playerAgeContainer, act))
+        wizard.addTarget(R.string.help_game_poll, SafeViewTarget(R.id.playerCountContainer, requireActivity()))
+        wizard.addTarget(0, SafeViewTarget(R.id.playerAgeContainer, requireActivity()))
         return wizard
     }
 
@@ -147,30 +145,32 @@ class GameFragment : Fragment() {
 
         gameName = game.name
 
-        rankView?.text = game.overallRank.asRank(ctx, game.subtype)
+        rankView?.text = game.overallRank.asRank(requireContext(), game.subtype)
         rankContainer?.setOnClickListener { GameRanksFragment.launch(this) }
 
-        ratingView?.text = game.rating.asRating(ctx)
+        ratingView?.text = game.rating.asRating(context)
         ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
-        val numberOfRatings = ctx.getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
-        val numberOfComments = ctx.getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
+        val numberOfRatings = context?.getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
+                ?: ""
+        val numberOfComments = context?.getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
+                ?: ""
         ratingVotesView?.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
         ratingContainer?.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
-            CommentsActivity.startRating(ctx, Games.buildGameUri(gameId), gameName)
+            CommentsActivity.startRating(context, Games.buildGameUri(gameId), gameName)
         }
 
-        yearView?.text = game.yearPublished.asYear(ctx)
+        yearView?.text = game.yearPublished.asYear(context)
 
-        playTimeView?.text = ctx.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
+        playTimeView?.text = context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange()) ?: ""
 
-        playerCountView?.text = ctx.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
+        playerCountView?.text = context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange()) ?: ""
 
-        playerAgeView?.text = game.minimumAge.asAge(ctx)
+        playerAgeView?.text = game.minimumAge.asAge(context)
 
-        weightView?.text = game.averageWeight.toDescription(ctx, R.array.game_weight, R.string.unknown_weight)
+        weightView?.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
         weightView?.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
-        weightScoreView?.setTextOrHide(game.averageWeight.asScore(ctx))
-        weightVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
+        weightScoreView?.setTextOrHide(game.averageWeight.asScore(context))
+        weightVotesView?.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
 
         gameIdView?.text = game.id.toString()
         lastModifiedView?.timestamp = game.updated
@@ -184,18 +184,18 @@ class GameFragment : Fragment() {
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>?) {
-        val descriptions = gameRanks?.filter { it.isFamilyType }?.map { it.value.asRank(ctx, it.name, it.type) }
+        val descriptions = gameRanks?.filter { it.isFamilyType }?.map { it.value.asRank(requireContext(), it.name, it.type) }
                 ?: emptyList()
         subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 
     private fun onLanguagePollQueryComplete(entity: GamePollEntity?) {
         val score = entity?.calculateScore() ?: 0.0
-        languageView?.text = score.toDescription(ctx, R.array.language_poll, R.string.unknown_language)
+        languageView?.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
         languageView?.setTextViewBackground(score.toColor(fiveStageColors))
-        languageScoreView?.setTextOrHide(score.asScore(ctx))
+        languageScoreView?.setTextOrHide(score.asScore(context))
         val totalVotes = entity?.totalVotes ?: 0
-        languageVotesView?.setTextOrHide(ctx.getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
+        languageVotesView?.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
         languageContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             PollFragment.launchLanguageDependence(this)
         }
@@ -203,7 +203,7 @@ class GameFragment : Fragment() {
 
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
         val message = if (entity?.modalValue.isNullOrBlank()) ""
-        else ctx.getText(R.string.age_community, entity?.modalValue ?: "")
+        else context?.getText(R.string.age_community, entity?.modalValue ?: "") ?: ""
         playerAgePollView?.setTextOrHide(message)
         playerAgeContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             PollFragment.launchSuggestedPlayerAge(this)
@@ -214,8 +214,8 @@ class GameFragment : Fragment() {
         val bestCounts = entity?.bestCounts ?: emptyList()
         val goodCounts = entity?.recommendedCounts ?: emptyList()
 
-        val best = ctx.getText(R.string.best_prefix, bestCounts.asRange(max = maxPlayerCount))
-        val good = ctx.getText(R.string.recommended_prefix, goodCounts.asRange(max = maxPlayerCount))
+        val best = context?.getText(R.string.best_prefix, bestCounts.asRange(max = maxPlayerCount)) ?: ""
+        val good = context?.getText(R.string.recommended_prefix, goodCounts.asRange(max = maxPlayerCount)) ?: ""
         val communityText = when {
             bestCounts.isNotEmpty() && goodCounts.isNotEmpty() && bestCounts != goodCounts -> TextUtils.concat(best, " & ", good)
             bestCounts.isNotEmpty() -> best

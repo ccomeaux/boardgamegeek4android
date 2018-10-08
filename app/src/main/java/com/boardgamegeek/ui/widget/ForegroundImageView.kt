@@ -25,9 +25,9 @@ import android.graphics.drawable.NinePatchDrawable
 import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
-import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.appcompat.widget.AppCompatImageView
 import com.boardgamegeek.R
 
 class ForegroundImageView @JvmOverloads constructor(

@@ -1,30 +1,28 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.annotation.ColorRes
-import android.support.annotation.StringRes
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.extensions.setViewBackground
+import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.PlayerNumberRow
 import kotlinx.android.synthetic.main.fragment_poll_suggested_player_count.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 
 class SuggestedPlayerCountPollFragment : DialogFragment() {
     val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(act).get(GameViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,7 +48,7 @@ class SuggestedPlayerCountPollFragment : DialogFragment() {
             if (totalVoteCount > 0) {
                 pollList?.removeAllViews()
                 for ((_, playerCount, bestVoteCount, recommendedVoteCount, notRecommendedVoteCount) in entity!!.results) {
-                    val row = PlayerNumberRow(ctx)
+                    val row = PlayerNumberRow(requireContext())
                     row.setText(playerCount)
                     row.setVotes(bestVoteCount, recommendedVoteCount, notRecommendedVoteCount, totalVoteCount)
                     row.setOnClickListener { v ->
@@ -84,7 +82,7 @@ class SuggestedPlayerCountPollFragment : DialogFragment() {
     private fun addKeyRow(@ColorRes colorResId: Int, @StringRes textResId: Int) {
         val v = LayoutInflater.from(context).inflate(R.layout.row_poll_key, keyContainer, false) as ViewGroup
         v.findViewById<TextView>(R.id.textView).setText(textResId)
-        v.findViewById<View>(R.id.colorView).setViewBackground(ContextCompat.getColor(ctx, colorResId))
+        v.findViewById<View>(R.id.colorView).setViewBackground(ContextCompat.getColor(requireContext(), colorResId))
         keyContainer?.addView(v)
     }
 

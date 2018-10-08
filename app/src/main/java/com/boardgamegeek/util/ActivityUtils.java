@@ -7,8 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.annotation.StringRes;
-import android.support.v4.app.ShareCompat;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -24,6 +22,8 @@ import com.crashlytics.android.answers.ShareEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.StringRes;
+import androidx.core.app.ShareCompat;
 import timber.log.Timber;
 
 public class ActivityUtils {

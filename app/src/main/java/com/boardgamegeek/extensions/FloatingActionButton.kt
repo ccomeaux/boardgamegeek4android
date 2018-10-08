@@ -2,7 +2,7 @@ package com.boardgamegeek.extensions
 
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.support.design.widget.FloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 fun FloatingActionButton.colorize(color: Int): Boolean {
     if (color != Color.TRANSPARENT &&

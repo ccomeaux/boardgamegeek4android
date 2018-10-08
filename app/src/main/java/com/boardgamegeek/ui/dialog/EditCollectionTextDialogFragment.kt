@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.appcompat.app.AlertDialog
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +14,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import kotlinx.android.synthetic.main.dialog_edit_text.*
-import org.jetbrains.anko.support.v4.act
 
 class EditCollectionTextDialogFragment : DialogFragment() {
     private lateinit var layout: View
@@ -32,9 +31,9 @@ class EditCollectionTextDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(act).inflate(R.layout.dialog_edit_text, null)
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_text, null)
 
-        val builder = AlertDialog.Builder(act, R.style.Theme_bgglight_Dialog_Alert)
+        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(arguments?.getString(KEY_TITLE))
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)

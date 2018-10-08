@@ -4,8 +4,7 @@ import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import org.jetbrains.anko.support.v4.act
+import androidx.fragment.app.DialogFragment
 import java.util.*
 
 class DatePickerDialogFragment : DialogFragment() {
@@ -15,7 +14,7 @@ class DatePickerDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         calendar.timeInMillis = dateInMillis
-        return DatePickerDialog(act,
+        return DatePickerDialog(requireContext(),
                 listener,
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),

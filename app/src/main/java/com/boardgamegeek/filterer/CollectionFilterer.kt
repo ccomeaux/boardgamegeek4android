@@ -1,7 +1,7 @@
 package com.boardgamegeek.filterer
 
 import android.content.Context
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 abstract class CollectionFilterer(protected val context: Context) {
 

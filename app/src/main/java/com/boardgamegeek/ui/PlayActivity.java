@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySelectedEvent;
@@ -16,6 +15,7 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import androidx.fragment.app.Fragment;
 import icepick.Icepick;
 
 public class PlayActivity extends SimpleSinglePaneActivity {

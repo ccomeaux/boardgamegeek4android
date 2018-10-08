@@ -1,12 +1,12 @@
 package com.boardgamegeek.auth;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;

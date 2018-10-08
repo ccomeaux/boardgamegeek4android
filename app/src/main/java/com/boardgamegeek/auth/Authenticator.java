@@ -14,8 +14,6 @@ import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.events.SignOutEvent;
@@ -25,6 +23,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 public class Authenticator extends AbstractAccountAuthenticator {

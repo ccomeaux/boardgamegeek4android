@@ -5,12 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.PluralsRes;
-import android.support.annotation.StringRes;
-import android.support.design.widget.FloatingActionButton;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
@@ -22,11 +16,17 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.ConstantsKt;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.PluralsRes;
+import androidx.annotation.StringRes;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ImportFinishedEvent;
@@ -26,6 +25,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 public abstract class JsonImportTask<T extends Model> extends AsyncTask<Void, Integer, String> {

@@ -1,9 +1,9 @@
 package com.boardgamegeek.util
 
 import android.graphics.drawable.BitmapDrawable
-import android.support.annotation.DrawableRes
-import android.support.v7.graphics.Palette
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image

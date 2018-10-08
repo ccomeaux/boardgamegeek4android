@@ -1,19 +1,18 @@
 package com.boardgamegeek.ui.dialog
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.FragmentActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.dialog_game_users.*
-import org.jetbrains.anko.support.v4.act
 
 class GameUsersDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -24,7 +23,7 @@ class GameUsersDialogFragment : DialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel = ViewModelProviders.of(act).get(GameViewModel::class.java)
+        val viewModel = ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
         viewModel.game.observe(this, Observer { gameEntityRefreshableResource ->
             gameEntityRefreshableResource?.data?.let {
                 val game = gameEntityRefreshableResource.data

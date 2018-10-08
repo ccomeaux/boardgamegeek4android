@@ -1,8 +1,8 @@
 package com.boardgamegeek.repository
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import android.content.ContentValues
-import android.support.v4.util.ArrayMap
+import androidx.collection.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils

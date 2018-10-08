@@ -1,12 +1,12 @@
 package com.boardgamegeek.db
 
-import android.arch.lifecycle.LiveData
 import android.content.ContentProviderOperation
 import android.content.ContentProviderOperation.Builder
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
+import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*

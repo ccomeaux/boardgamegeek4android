@@ -4,8 +4,8 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.SyncResult
 import android.database.Cursor
-import android.support.annotation.PluralsRes
-import android.support.annotation.StringRes
+import androidx.annotation.PluralsRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator

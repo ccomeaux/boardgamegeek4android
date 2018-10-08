@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -13,6 +11,8 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 import timber.log.Timber;
 
 public class ProducerActivity extends SimpleSinglePaneActivity {

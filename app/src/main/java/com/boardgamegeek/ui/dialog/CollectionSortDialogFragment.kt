@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.appcompat.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +15,6 @@ import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
 import org.jetbrains.anko.childrenSequence
-import org.jetbrains.anko.support.v4.ctx
 import timber.log.Timber
 
 class CollectionSortDialogFragment : DialogFragment() {
@@ -34,8 +33,8 @@ class CollectionSortDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_collection_sort, null)
-        return AlertDialog.Builder(ctx).setView(layout).setTitle(R.string.title_sort).create()
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_sort, null)
+        return AlertDialog.Builder(requireContext()).setView(layout).setTitle(R.string.title_sort).create()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -45,7 +44,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
 
-        if (!PreferencesUtils.getSyncPlays(ctx)) {
+        if (!PreferencesUtils.getSyncPlays(context)) {
             hideRadioButtonIfNotSelected(playDateMaxRadioButton, selectedType)
             hideRadioButtonIfNotSelected(playDateMinRadioButton, selectedType)
         }
@@ -69,7 +68,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     }
 
     private fun createNames() {
-        val factory = CollectionSorterFactory(ctx)
+        val factory = CollectionSorterFactory(requireContext())
 
         radioGroup.childrenSequence().filterIsInstance<RadioButton>().forEach {
             val sortType = getTypeFromView(it)

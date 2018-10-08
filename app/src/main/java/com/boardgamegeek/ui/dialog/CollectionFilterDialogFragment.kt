@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.appcompat.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +14,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import kotlinx.android.synthetic.main.dialog_collection_filter.*
 import org.jetbrains.anko.childrenSequence
-import org.jetbrains.anko.support.v4.ctx
 import timber.log.Timber
 import java.util.*
 
@@ -34,9 +33,9 @@ class CollectionFilterDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_collection_filter, null)
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter, null)
 
-        return AlertDialog.Builder(ctx, R.style.Theme_bgglight_Dialog_Alert)
+        return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setView(layout)
                 .setTitle(R.string.title_filter).create()
     }

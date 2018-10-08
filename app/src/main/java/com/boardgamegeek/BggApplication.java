@@ -5,7 +5,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
-import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
@@ -31,6 +30,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Set;
 
+import androidx.multidex.MultiDexApplication;
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;

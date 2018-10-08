@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.view.Menu;
 
 import com.boardgamegeek.R;
@@ -16,6 +14,8 @@ import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import hugo.weaving.DebugLog;
 
 public class PlayerPlaysActivity extends SimpleSinglePaneActivity {

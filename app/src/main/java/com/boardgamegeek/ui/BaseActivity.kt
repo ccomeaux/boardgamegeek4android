@@ -1,8 +1,8 @@
 package com.boardgamegeek.ui
 
-import android.support.annotation.MenuRes
-import android.support.v4.app.NavUtils
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.MenuRes
+import androidx.core.app.NavUtils
+import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.boardgamegeek.R
@@ -13,8 +13,6 @@ import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.act
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
 
 const val INVALID_MENU_ID = 0
@@ -46,7 +44,7 @@ abstract class BaseActivity : AppCompatActivity() {
     @DebugLog
     @Subscribe(threadMode = ThreadMode.MAIN)
     open fun onEvent(event: SyncUserTask.CompletedEvent) {
-        if (event.username != null && event.username == AccountUtils.getUsername(ctx)) {
+        if (event.username != null && event.username == AccountUtils.getUsername(this)) {
             toast(R.string.profile_updated)
         }
     }
@@ -60,7 +58,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     @DebugLog
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.menu_cancel_sync)?.isVisible = SyncService.isActiveOrPending(ctx)
+        menu.findItem(R.id.menu_cancel_sync)?.isVisible = SyncService.isActiveOrPending(this)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -76,11 +74,11 @@ abstract class BaseActivity : AppCompatActivity() {
                     // bug in ActionBarDrawerToggle
                     return false
                 }
-                NavUtils.navigateUpFromSameTask(act)
+                NavUtils.navigateUpFromSameTask(this)
                 true
             }
             R.id.menu_cancel_sync -> {
-                SyncService.cancelSync(ctx)
+                SyncService.cancelSync(this)
                 true
             }
             else -> super.onOptionsItemSelected(item)

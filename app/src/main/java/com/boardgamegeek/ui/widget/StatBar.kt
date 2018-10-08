@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
-import android.support.annotation.ColorInt
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.annotation.ColorInt
 import com.boardgamegeek.R
 import kotlinx.android.synthetic.main.widget_stat_bar.view.*
 import java.text.NumberFormat

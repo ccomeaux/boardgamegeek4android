@@ -1,6 +1,6 @@
 package com.boardgamegeek.ui
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.Menu
 import com.boardgamegeek.R
 import com.boardgamegeek.events.BuddiesCountChangedEvent
@@ -8,7 +8,6 @@ import com.boardgamegeek.events.BuddySelectedEvent
 import com.boardgamegeek.util.ToolbarUtils
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.ctx
 
 class BuddiesActivity : TopLevelSinglePaneActivity() {
     private var numberOfBuddies = -1
@@ -33,5 +32,5 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
     }
 
     @Subscribe
-    fun onEvent(event: BuddySelectedEvent) = BuddyActivity.start(ctx, event.buddyName, event.buddyFullName)
+    fun onEvent(event: BuddySelectedEvent) = BuddyActivity.start(this, event.buddyName, event.buddyFullName)
 }

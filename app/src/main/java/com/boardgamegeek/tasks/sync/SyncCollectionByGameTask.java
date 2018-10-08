@@ -1,9 +1,9 @@
 package com.boardgamegeek.tasks.sync;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.util.ArrayMap;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;

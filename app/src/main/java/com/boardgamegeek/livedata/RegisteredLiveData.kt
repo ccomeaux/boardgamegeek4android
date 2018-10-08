@@ -1,8 +1,8 @@
 package com.boardgamegeek.livedata
 
-import android.arch.lifecycle.MutableLiveData
 import android.database.ContentObserver
 import android.net.Uri
+import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 
 open class RegisteredLiveData<T>(val application: BggApplication,

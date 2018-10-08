@@ -1,6 +1,6 @@
 package com.boardgamegeek.db
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.PlayEntity

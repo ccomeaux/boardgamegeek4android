@@ -1,9 +1,9 @@
 package com.boardgamegeek.ui.adapter
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.ui.ForumActivity

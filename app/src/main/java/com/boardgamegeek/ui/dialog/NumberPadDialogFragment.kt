@@ -3,13 +3,13 @@ package com.boardgamegeek.ui.dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.v4.app.DialogFragment
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asColorRgb
 import com.boardgamegeek.extensions.isColorDark
@@ -17,8 +17,6 @@ import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_number_pad.*
 import org.jetbrains.anko.childrenRecursiveSequence
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 
 class NumberPadDialogFragment : DialogFragment() {
     private var listener: Listener? = null
@@ -47,7 +45,7 @@ class NumberPadDialogFragment : DialogFragment() {
         if (window != null) {
             val dm = resources.displayMetrics
             val width = Math.min(
-                    act.resources.getDimensionPixelSize(R.dimen.dialog_width),
+                    requireActivity().resources.getDimensionPixelSize(R.dimen.dialog_width),
                     dm.widthPixels * 3 / 4)
             val height = window.attributes.height
             window.setLayout(width, height)
@@ -132,7 +130,7 @@ class NumberPadDialogFragment : DialogFragment() {
     }
 
     private fun maybeBuzz(v: View) {
-        if (PreferencesUtils.getHapticFeedback(ctx)) {
+        if (PreferencesUtils.getHapticFeedback(context)) {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }

@@ -26,12 +26,13 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.view.Gravity;
 import android.view.View;
 
 import com.boardgamegeek.R;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 
 /**
  * Utility methods for creating prettier gradient scrims. Lovingly borrowed from com.google.android.apps.muzei.util.

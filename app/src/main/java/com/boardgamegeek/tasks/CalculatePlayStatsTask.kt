@@ -1,10 +1,10 @@
 package com.boardgamegeek.tasks
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.Lifecycle.State
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LifecycleRegistry
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle.State
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.Observer
 import android.os.AsyncTask
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.PlayStatsEntity
