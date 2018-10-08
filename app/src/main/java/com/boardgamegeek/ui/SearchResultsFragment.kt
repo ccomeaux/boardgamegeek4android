@@ -1,17 +1,14 @@
 package com.boardgamegeek.ui
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.Handler
-import androidx.annotation.PluralsRes
-import com.google.android.material.snackbar.Snackbar
-import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Pair
 import android.view.*
+import androidx.annotation.PluralsRes
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
@@ -26,8 +23,9 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_search_results.*
-import org.jetbrains.anko.support.v4.toast
+import org.jetbrains.anko.toast
 import java.util.*
 
 class SearchResultsFragment : Fragment(), ActionMode.Callback {
@@ -238,7 +236,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 return true
             }
             R.id.menu_log_play_quick -> {
-                toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
+                context?.toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
                         requireActivity().logQuickPlay(it.id, it.name)

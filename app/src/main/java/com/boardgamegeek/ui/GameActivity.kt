@@ -27,8 +27,8 @@ import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
+import com.google.android.material.snackbar.Snackbar
 import org.jetbrains.anko.*
-import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
 
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
@@ -146,7 +146,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_log_play_quick -> {
-                coordinator.snackbar(R.string.msg_logging_play)
+                Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show()
                 ActivityUtils.logQuickPlay(this, gameId, gameName)
                 return true
             }
