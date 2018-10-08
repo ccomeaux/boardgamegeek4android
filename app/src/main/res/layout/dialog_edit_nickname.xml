@@ -5,6 +5,7 @@
 			  android:orientation="vertical"
 			  android:paddingBottom="@dimen/material_margin_vertical"
 			  android:paddingLeft="@dimen/material_margin_horizontal"
+			  android:importantForAutofill="noExcludeDescendants"
 			  android:paddingRight="@dimen/material_margin_horizontal"
 			  android:paddingTop="@dimen/material_margin_vertical">
 
