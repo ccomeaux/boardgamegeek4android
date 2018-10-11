@@ -15,27 +15,42 @@ class PlayRepository(val application: BggApplication) {
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
 
-    fun loadForStats(): LiveData<List<GameForPlayStatEntity>> {
+    fun loadForStatsAsLiveData(): LiveData<List<GameForPlayStatEntity>> {
         // TODO use PlayDao if either of these is false
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
         // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
 
-        return Transformations.map(gameDao.loadPlayInfo(
+        return Transformations.map(gameDao.loadPlayInfoAsLiveData(
                 PreferencesUtils.logPlayStatsIncomplete(application),
                 PreferencesUtils.logPlayStatsExpansions(application),
                 PreferencesUtils.logPlayStatsAccessories(application)))
-        { games ->
-            val items = collectionDao.load()
-            val g = mutableListOf<GameForPlayStatEntity>()
-            games.forEach { game ->
-                g += game.copy(isOwned = items.any { item -> item.gameId == game.id && item.own })
-            }
-            return@map g.toList()
+        {
+            return@map filterGamesOwned(it)
         }
     }
 
-    fun loadPlayersForStats(): LiveData<List<PlayerEntity>> {
+    fun loadForStats(): List<GameForPlayStatEntity> {
+        val playInfo = gameDao.loadPlayInfo(PreferencesUtils.logPlayStatsIncomplete(application),
+                PreferencesUtils.logPlayStatsExpansions(application),
+                PreferencesUtils.logPlayStatsAccessories(application))
+        return filterGamesOwned(playInfo)
+    }
+
+    private fun filterGamesOwned(playInfo: List<GameForPlayStatEntity>): List<GameForPlayStatEntity> {
+        val items = collectionDao.load()
+        val games = mutableListOf<GameForPlayStatEntity>()
+        playInfo.forEach { game ->
+            games += game.copy(isOwned = items.any { item -> item.gameId == game.id && item.own })
+        }
+        return games.toList()
+    }
+
+    fun loadPlayersForStats(): List<PlayerEntity> {
         return playDao.loadPlayers(PreferencesUtils.logPlayStatsIncomplete(application))
+    }
+
+    fun loadPlayersForStatsAsLiveData(): LiveData<List<PlayerEntity>> {
+        return playDao.loadPlayersAsLiveData(PreferencesUtils.logPlayStatsIncomplete(application))
     }
 
     fun updateGameHIndex(hIndex: Int) {
