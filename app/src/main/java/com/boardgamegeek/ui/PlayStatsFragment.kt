@@ -157,10 +157,10 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
             PlayStatRow(ctx).apply {
-                advancedTable.addView(this)
                 setLabel(R.string.play_stat_friendless)
                 setValue(stats.friendless)
                 setInfoText(R.string.play_stat_friendless_info)
+                advancedTable.addView(this)
             }
         }
         if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
@@ -170,6 +170,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 setLabel(R.string.play_stat_utilization)
                 setInfoText(R.string.play_stat_utilization_info)
                 setValue(stats.utilization.asPercentage())
+                advancedTable.addView(this)
             }
         }
         if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
@@ -179,6 +180,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 setLabel(R.string.play_stat_cfm)
                 setInfoText(R.string.play_stat_cfm_info)
                 setValue(stats.cfm)
+                advancedTable.addView(this)
             }
         }
         showData()
