@@ -186,7 +186,7 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
 
-    implementation 'com.appyvet:materialrangebar:1.4.3'
+    implementation 'com.appyvet:materialrangebar:1.4.4'
 
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
