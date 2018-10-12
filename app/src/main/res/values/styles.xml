@@ -568,6 +568,14 @@
 		<item name="android:textAppearance">@style/Text</item>
 	</style>
 
+	<style name="EmptyContainer">
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:paddingBottom">48dp</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">48dp</item>
+	</style>
+
 	<style name="RecyclerViewVerticalList">
 		<item name="android:clipToPadding">false</item>
 		<item name="android:paddingBottom">@dimen/padding_standard</item>
