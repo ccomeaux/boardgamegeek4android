@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
-import android.support.design.widget.TextInputLayout
-import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
+import com.google.android.material.textfield.TextInputLayout
 
 /**
  * A special sub-class of AppCompatAutoCompleteTextView designed for use as a child of

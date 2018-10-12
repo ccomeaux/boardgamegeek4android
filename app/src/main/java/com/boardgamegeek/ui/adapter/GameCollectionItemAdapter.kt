@@ -1,8 +1,8 @@
 package com.boardgamegeek.ui.adapter
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.RecyclerView.NO_ID
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.NO_ID
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R

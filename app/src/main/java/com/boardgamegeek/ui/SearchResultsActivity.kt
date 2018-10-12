@@ -4,12 +4,11 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.Menu
 import android.widget.SearchView
+import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Games
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 
 
@@ -91,7 +90,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
                     longToast(R.string.search_error_no_data)
                 } else {
                     val gameName = intent.getStringExtra(SearchManager.EXTRA_DATA_KEY) ?: ""
-                    GameActivity.start(ctx, Games.getGameId(uri), gameName)
+                    GameActivity.start(this, Games.getGameId(uri), gameName)
                 }
                 finish()
             }

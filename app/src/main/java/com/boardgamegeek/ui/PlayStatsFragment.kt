@@ -1,13 +1,13 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.annotation.StringRes
-import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AlertDialog
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -31,15 +31,13 @@ import com.boardgamegeek.ui.widget.PlayStatRow
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_play_stats.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 import java.util.*
 
 class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
     private val viewModel: PlayStatsViewModel by lazy {
-        ViewModelProviders.of(act).get(PlayStatsViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(PlayStatsViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,13 +48,13 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         super.onViewCreated(view, savedInstanceState)
 
         collectionStatusSettingsButton.setOnClickListener {
-            DialogUtils.createThemedBuilder(ctx)
+            DialogUtils.createThemedBuilder(context)
                     .setTitle(R.string.play_stat_title_collection_status)
                     .setMessage(R.string.play_stat_msg_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
-                        PreferencesUtils.addSyncStatus(ctx, BggService.COLLECTION_QUERY_STATUS_OWN)
-                        PreferencesUtils.addSyncStatus(ctx, BggService.COLLECTION_QUERY_STATUS_PLAYED)
-                        SyncService.sync(ctx, SyncService.FLAG_SYNC_COLLECTION)
+                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN)
+                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
+                        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         bindCollectionStatusMessage()
                     }
                     .setNegativeButton(R.string.cancel, null)
@@ -65,9 +63,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         }
 
         includeSettingsButton.setOnClickListener {
-            DialogUtils.showFragment(act, PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
+            DialogUtils.showFragment(activity, PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
         }
-
 
         viewModel.getPlays().observe(this, Observer { entity ->
             if (entity == null) {
@@ -98,29 +95,29 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
     override fun onResume() {
         super.onResume()
-        PreferenceManager.getDefaultSharedPreferences(act).registerOnSharedPreferenceChangeListener(this)
+        PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        PreferenceManager.getDefaultSharedPreferences(act).unregisterOnSharedPreferenceChangeListener(this)
+        PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun bindCollectionStatusMessage() {
-        isOwnedSynced = PreferencesUtils.isStatusSetToSync(ctx, BggService.COLLECTION_QUERY_STATUS_OWN)
-        isPlayedSynced = PreferencesUtils.isStatusSetToSync(ctx, BggService.COLLECTION_QUERY_STATUS_PLAYED)
+        isOwnedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_OWN)
+        isPlayedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
         collectionStatusContainer.visibility = if (isOwnedSynced && isPlayedSynced) View.GONE else View.VISIBLE
     }
 
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
-        if (!PreferencesUtils.logPlayStatsIncomplete(ctx)) {
+        if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
             messages.add(getString(R.string.incomplete_games).toLowerCase())
         }
-        if (!PreferencesUtils.logPlayStatsExpansions(ctx)) {
+        if (!PreferencesUtils.logPlayStatsExpansions(context)) {
             messages.add(getString(R.string.expansions).toLowerCase())
         }
-        if (!PreferencesUtils.logPlayStatsAccessories(ctx)) {
+        if (!PreferencesUtils.logPlayStatsAccessories(context)) {
             messages.add(getString(R.string.accessories).toLowerCase())
         }
         if (messages.isEmpty()) {
@@ -142,7 +139,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         maybeAddPlayCountStat(R.string.play_stat_nickels, stats.numberOfNickels)
 
         if (isPlayedSynced) {
-            PlayStatRow(ctx).apply {
+            PlayStatRow(requireContext()).apply {
                 playCountTable.addView(this)
                 setLabel(R.string.play_stat_top_100)
                 setValue("${stats.top100Count}%")
@@ -156,7 +153,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.friendless != PlayStatsEntity.INVALID_FRIENDLESS) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            PlayStatRow(ctx).apply {
+            PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_friendless)
                 setValue(stats.friendless)
                 setInfoText(R.string.play_stat_friendless_info)
@@ -166,7 +163,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            PlayStatRow(ctx).apply {
+            PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_utilization)
                 setInfoText(R.string.play_stat_utilization_info)
                 setValue(stats.utilization.asPercentage())
@@ -176,7 +173,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
             advancedHeader.visibility = View.VISIBLE
             advancedCard.visibility = View.VISIBLE
-            PlayStatRow(ctx).apply {
+            PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_cfm)
                 setInfoText(R.string.play_stat_cfm_info)
                 setValue(stats.cfm)
@@ -188,7 +185,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
     private fun maybeAddPlayCountStat(@StringRes labelResId: Int, value: Int) {
         if (value > 0) {
-            PlayStatRow(ctx).apply {
+            PlayStatRow(requireContext()).apply {
                 playCountTable.addView(this)
                 setLabel(labelResId)
                 setValue(value)
@@ -213,7 +210,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
             prefix.forEach {
-                PlayStatRow(ctx).apply {
+                PlayStatRow(requireContext()).apply {
                     setLabel(it.first)
                     setValue(it.second)
                     table.addView(this)
@@ -225,7 +222,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 addDivider(table)
             } else {
                 list.forEach {
-                    PlayStatRow(ctx).apply {
+                    PlayStatRow(requireContext()).apply {
                         setLabel(it.first)
                         setValue(it.second)
                         setBackgroundResource(R.color.light_blue)
@@ -236,7 +233,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
             val suffix = rankedEntries.filter { it.second == nextLowestHIndex }
             suffix.forEach {
-                PlayStatRow(ctx).apply {
+                PlayStatRow(requireContext()).apply {
                     setLabel(it.first)
                     setValue(it.second)
                     table.addView(this)
@@ -259,7 +256,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun addDivider(container: ViewGroup) {
-        View(ctx).apply {
+        View(context).apply {
             this.layoutParams = TableLayout.LayoutParams(0, 1)
             this.setBackgroundResource(R.color.dark_blue)
             container.addView(this)
@@ -269,7 +266,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private fun showAlertDialog(@StringRes titleResId: Int, @StringRes messageResId: Int, vararg formatArgs: Any) {
         val spannableMessage = SpannableString(getString(messageResId, *formatArgs))
         Linkify.addLinks(spannableMessage, Linkify.WEB_URLS)
-        val dialog = AlertDialog.Builder(ctx)
+        val dialog = AlertDialog.Builder(requireContext())
                 .setTitle(titleResId)
                 .setMessage(spannableMessage)
                 .show()

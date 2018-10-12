@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 	android:id="@+id/root"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -60,7 +60,7 @@
 				</LinearLayout>
 			</LinearLayout>
 
-			<android.support.v7.widget.CardView
+			<androidx.cardview.widget.CardView
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
@@ -94,9 +94,9 @@
 						android:layout_height="wrap_content"
 						android:text="@string/nickname_description"/>
 				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			</androidx.cardview.widget.CardView>
 
-			<android.support.v7.widget.CardView
+			<androidx.cardview.widget.CardView
 				android:id="@+id/collection_card"
 				style="@style/Card"
 				android:layout_width="match_parent"
@@ -128,9 +128,9 @@
 						android:maxLines="2"
 						android:text="@string/title_collection"/>
 				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			</androidx.cardview.widget.CardView>
 
-			<android.support.v7.widget.CardView
+			<androidx.cardview.widget.CardView
 				android:id="@+id/plays_card"
 				style="@style/Card"
 				android:layout_width="match_parent"
@@ -186,9 +186,9 @@
 							tools:text="42%"/>
 					</LinearLayout>
 				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			</androidx.cardview.widget.CardView>
 
-			<android.support.v7.widget.CardView
+			<androidx.cardview.widget.CardView
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
@@ -227,7 +227,7 @@
 						android:visibility="gone"
 						tools:visibility="visible"/>
 				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			</androidx.cardview.widget.CardView>
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/updated"
@@ -242,4 +242,4 @@
 				tools:text="Yesterday"/>
 		</LinearLayout>
 	</ScrollView>
-</android.support.v4.widget.SwipeRefreshLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

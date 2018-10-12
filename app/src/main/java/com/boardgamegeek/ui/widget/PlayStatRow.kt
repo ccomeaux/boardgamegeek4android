@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
-import android.support.annotation.StringRes
-import android.support.v7.app.AlertDialog
 import android.text.SpannableString
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
@@ -11,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setSelectableBackground
 import kotlinx.android.synthetic.main.widget_play_stat.view.*

@@ -1,7 +1,8 @@
 package com.boardgamegeek.ui.loader;
 
 import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
+
+import androidx.loader.content.AsyncTaskLoader;
 
 public abstract class BggLoader<D> extends AsyncTaskLoader<D> {
 	private D data;

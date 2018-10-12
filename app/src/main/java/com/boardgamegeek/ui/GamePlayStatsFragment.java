@@ -6,18 +6,6 @@ import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.util.ArrayMap;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.Transition;
@@ -79,6 +67,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.collection.ArrayMap;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -194,7 +194,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().restartLoader(GameQuery._TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(GameQuery._TOKEN, null, this);
 	}
 
 	@Override
@@ -265,7 +265,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 						personalRating = ratingSum / ratingCount;
 					}
 				}
-				getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+				LoaderManager.getInstance(this).restartLoader(PlayQuery._TOKEN, null, this);
 				break;
 			case PlayQuery._TOKEN:
 				if (cursor == null || !cursor.moveToFirst()) {
@@ -273,7 +273,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					return;
 				}
 				stats = new Stats(cursor, personalRating);
-				getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+				LoaderManager.getInstance(this).restartLoader(PlayerQuery._TOKEN, null, this);
 				break;
 			case PlayerQuery._TOKEN:
 				if (cursor != null && cursor.moveToFirst()) {

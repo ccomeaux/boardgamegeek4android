@@ -6,16 +6,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.Toolbar.OnMenuItemClickListener;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.ActionMode;
@@ -244,7 +246,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void requery() {
 		progressBar.show();
-		getLoaderManager().restartLoader(Query._TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 	}
 
 	@Override
@@ -745,7 +747,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			progressBar.show();
 			this.viewId = viewId;
 			resetScrollState();
-			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
+			LoaderManager.getInstance(this).restartLoader(ViewQuery._TOKEN, null, this);
 		}
 	}
 

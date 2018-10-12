@@ -18,17 +18,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -41,7 +30,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayerColors;
-import com.boardgamegeek.ui.PlayerColorsActivity.RecyclerViewAdapter.ColorViewHolder;
 import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.model.PlayerColor;
 import com.boardgamegeek.util.AnimationUtils;
@@ -52,11 +40,22 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -72,7 +71,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 	private String buddyName;
 	private String playerName;
 	private List<PlayerColor> colors;
-	private RecyclerViewAdapter adapter;
+	private PlayerColorsAdapter adapter;
 
 	@BindView(R.id.toolbar) Toolbar toolbar;
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
@@ -110,7 +109,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 				while (cursor.moveToNext()) {
 					colors.add(PlayerColor.fromCursor(cursor));
 				}
-				adapter = new RecyclerViewAdapter(PlayerColorsActivity.this);
+				adapter = new PlayerColorsAdapter(PlayerColorsActivity.this);
 				recyclerView.setAdapter(adapter);
 			} finally {
 				cursor.close();
@@ -167,7 +166,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 	}
 
 	private void setUpRecyclerView() {
-		recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+		recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
 		recyclerView.setHasFixedSize(true);
 
 		swipePaint.setColor(ContextCompat.getColor(this, R.color.medium_blue));
@@ -217,7 +216,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 
 			@Override
 			public void onSelectedChanged(ViewHolder viewHolder, int actionState) {
-				ColorViewHolder colorViewHolder = (ColorViewHolder) viewHolder;
+				PlayerColorsAdapter.ColorViewHolder colorViewHolder = (PlayerColorsAdapter.ColorViewHolder) viewHolder;
 				if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
 					colorViewHolder.onItemDragging();
 				} else if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
@@ -228,7 +227,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 
 			@Override
 			public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
-				ColorViewHolder colorViewHolder = (ColorViewHolder) viewHolder;
+				PlayerColorsAdapter.ColorViewHolder colorViewHolder = (PlayerColorsAdapter.ColorViewHolder) viewHolder;
 				colorViewHolder.onItemClear();
 				super.clearView(recyclerView, viewHolder);
 			}
@@ -364,7 +363,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_clear:
 				DialogUtils.createThemedBuilder(this)
@@ -452,7 +451,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 	}
 
 	@Override
-	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+	public void onColorSelected(String description, int color, int requestCode) {
 		if (colors != null) {
 			PlayerColorsManipulationEvent.log("Add", description);
 			colors.add(new PlayerColor(description, colors.size() + 1));
@@ -461,21 +460,21 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 		}
 	}
 
-	public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ColorViewHolder> {
+	public class PlayerColorsAdapter extends RecyclerView.Adapter<PlayerColorsAdapter.ColorViewHolder> {
 		private final LayoutInflater inflater;
 
-		public RecyclerViewAdapter(Context context) {
+		public PlayerColorsAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
 		}
 
 		@NonNull
 		@Override
-		public ColorViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			return new ColorViewHolder(inflater.inflate(R.layout.row_player_color, parent, false));
+		public PlayerColorsAdapter.ColorViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			return new PlayerColorsAdapter.ColorViewHolder(inflater.inflate(R.layout.row_player_color, parent, false));
 		}
 
 		@Override
-		public void onBindViewHolder(@NonNull ColorViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull PlayerColorsAdapter.ColorViewHolder holder, int position) {
 			PlayerColor color = getItem(position);
 			if (color == null) return;
 			holder.bind(color);
@@ -549,7 +548,7 @@ public class PlayerColorsActivity extends BaseActivity implements ColorPickerDia
 					public boolean onTouch(View v, MotionEvent event) {
 						if (event.getAction() == MotionEvent.ACTION_DOWN) {
 							if (itemTouchHelper != null) {
-								itemTouchHelper.startDrag(ColorViewHolder.this);
+								itemTouchHelper.startDrag(PlayerColorsAdapter.ColorViewHolder.this);
 							}
 						} else if (event.getAction() == MotionEvent.ACTION_UP) {
 							v.performClick();

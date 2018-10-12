@@ -11,9 +11,6 @@ import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
@@ -42,6 +39,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.BigTextStyle;
 import hugo.weaving.DebugLog;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.model;
 
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.PlayerColors;
+
+import androidx.annotation.NonNull;
 
 public class PlayerColor {
 	public static final String[] PROJECTION = {

@@ -3,10 +3,10 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.util.ArrayMap;
+import androidx.annotation.NonNull;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -178,7 +178,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 		getActivity().invalidateOptionsMenu();
 		setListShown(false);
-		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
 
 	@Override

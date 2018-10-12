@@ -3,8 +3,6 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.MainThread;
-import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.squareup.picasso.Picasso;
@@ -15,6 +13,8 @@ import com.squareup.picasso.Target;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.WorkerThread;
 import timber.log.Timber;
 
 public class LargeIconLoader implements Target {

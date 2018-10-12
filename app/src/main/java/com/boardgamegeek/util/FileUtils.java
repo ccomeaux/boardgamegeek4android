@@ -5,7 +5,6 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -13,6 +12,7 @@ import com.boardgamegeek.provider.BggContract;
 import java.io.File;
 import java.io.IOException;
 
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 public class FileUtils {

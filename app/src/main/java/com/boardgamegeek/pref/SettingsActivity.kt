@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.preference.PreferenceScreen
-import android.support.v4.util.ArrayMap
 import android.view.MenuItem
+import androidx.collection.ArrayMap
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent

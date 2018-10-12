@@ -3,15 +3,16 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.core.content.ContextCompat;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -131,13 +132,13 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		lightTextColor = ContextCompat.getColor(getContext(), R.color.secondary_text);
 
 		if (isUser()) {
-			getLoaderManager().restartLoader(TOKEN, null, this);
+			LoaderManager.getInstance(this).restartLoader(TOKEN, null, this);
 		} else {
 			nicknameView.setTextColor(defaultTextColor);
 			nicknameView.setText(playerName);
 		}
-		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
-		getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(PLAYS_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(COLORS_TOKEN, null, this);
 
 		return rootView;
 	}

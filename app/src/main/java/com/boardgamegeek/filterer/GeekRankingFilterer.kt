@@ -1,7 +1,7 @@
 package com.boardgamegeek.filterer
 
 import android.content.Context
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Collection
 import java.util.*

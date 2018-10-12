@@ -1,14 +1,13 @@
 package com.boardgamegeek.ui
 
-import android.support.v4.app.Fragment
 import android.view.MenuItem
+import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.events.PlaySelectedEvent
 import com.boardgamegeek.tasks.ResetPlaysTask
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.TaskUtils
 import org.greenrobot.eventbus.Subscribe
-import org.jetbrains.anko.ctx
 
 class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
 
@@ -23,10 +22,10 @@ class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.re_sync -> {
-                DialogUtils.createThemedBuilder(ctx)
+                DialogUtils.createThemedBuilder(this)
                         .setTitle(getString(R.string.pref_sync_re_sync_plays) + "?")
                         .setMessage(R.string.pref_sync_re_sync_plays_info_message)
-                        .setPositiveButton(R.string.re_sync) { _, _ -> TaskUtils.executeAsyncTask(ResetPlaysTask(ctx)) }
+                        .setPositiveButton(R.string.re_sync) { _, _ -> TaskUtils.executeAsyncTask(ResetPlaysTask(this)) }
                         .setNegativeButton(R.string.cancel, null)
                         .setCancelable(true)
                         .show()
@@ -37,5 +36,5 @@ class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
     }
 
     @Subscribe
-    fun onEvent(event: PlaySelectedEvent) = PlayActivity.start(ctx, event)
+    fun onEvent(event: PlaySelectedEvent) = PlayActivity.start(this, event)
 }

@@ -1,17 +1,17 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.graphics.Color
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
@@ -21,8 +21,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_plays.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 
 class GamePlaysFragment : Fragment() {
     private var gameId = BggContract.INVALID_ID
@@ -35,7 +33,7 @@ class GamePlaysFragment : Fragment() {
     private var iconColor = Color.TRANSPARENT
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(act).get(GameViewModel::class.java)
+        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -78,14 +76,14 @@ class GamePlaysFragment : Fragment() {
             colorsList?.fadeIn()
             colorsLabel?.fadeOut()
         } else {
-            colorsLabel?.text = ctx.getQuantityText(R.plurals.colors_suffix, count, count)
+            colorsLabel?.text = context?.getQuantityText(R.plurals.colors_suffix, count, count) ?: ""
             colorsLabel?.fadeIn()
             colorsList?.fadeOut()
         }
         colorsContainer?.fadeIn()
         colorsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
-                GameColorsActivity.start(ctx, gameId, gameName, iconColor)
+                GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
         }
     }
 
@@ -119,13 +117,13 @@ class GamePlaysFragment : Fragment() {
                 if (inProgressPlays.isNotEmpty()) {
                     inProgressPlaysList?.removeAllViews()
                     inProgressPlays.forEach { play ->
-                        val row = LayoutInflater.from(ctx).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
-                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(ctx) else play.dateInMillis.asPastDaySpan(ctx)
+                        val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
+                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateInMillis.asPastDaySpan(requireContext())
                         row.findViewById<TextView>(R.id.line1)?.text = title
-                        row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(ctx))
+                        row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
                             val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
-                            PlayActivity.start(ctx, event)
+                            PlayActivity.start(context, event)
                         }
                         inProgressPlaysList?.addView(row)
                     }
@@ -136,24 +134,24 @@ class GamePlaysFragment : Fragment() {
             }
 
             val playCount = plays.sumBy { it.quantity }
-            val description = playCount.asPlayCount(ctx)
+            val description = playCount.asPlayCount(requireContext())
             playCountIcon?.text = description.first.toString()
-            playCountView?.text = ctx.getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
+            playCountView?.text = context?.getQuantityText(R.plurals.play_title_suffix, playCount, playCount) ?: ""
             playCountDescriptionView?.setTextOrHide(description.second)
             playCountBackground?.setColorViewValue(description.third)
             playCountContainer?.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
-                    GamePlaysActivity.start(ctx, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
+                    GamePlaysActivity.start(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
             playCountContainer?.fadeIn()
 
             if (plays.isNotEmpty()) {
                 val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
                 if (lastPlay != null) {
-                    lastPlayDateView?.text = ctx.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(ctx))
-                    lastPlayInfoView?.text = lastPlay.describe(ctx)
+                    lastPlayDateView?.text = context?.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(requireContext())) ?: ""
+                    lastPlayInfoView?.text = lastPlay.describe(requireContext())
                     val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
-                    lastPlayContainer?.setOnClickListener { PlayActivity.start(ctx, event) }
+                    lastPlayContainer?.setOnClickListener { PlayActivity.start(context, event) }
                     lastPlayContainer?.fadeIn()
                 } else {
                     lastPlayContainer?.fadeOut()
@@ -161,7 +159,7 @@ class GamePlaysFragment : Fragment() {
 
                 playStatsContainer?.setOnClickListener {
                     if (gameId != BggContract.INVALID_ID)
-                        GamePlayStatsActivity.start(ctx, gameId, gameName, iconColor)
+                        GamePlayStatsActivity.start(context, gameId, gameName, iconColor)
                 }
                 playStatsContainer?.fadeIn()
             }

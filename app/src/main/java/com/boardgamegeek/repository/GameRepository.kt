@@ -1,8 +1,8 @@
 package com.boardgamegeek.repository
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
 import android.content.ContentValues
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -18,7 +18,6 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.ImageUtils
@@ -158,9 +157,7 @@ class GameRepository(val application: BggApplication) {
                     values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
                     dao.update(gameId, values)
                 }
-                if (SyncPrefs.isPlaysSyncUpToDate(application)) {
-                    TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
-                }
+                TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
                 isFullRefresh = false
             }
 

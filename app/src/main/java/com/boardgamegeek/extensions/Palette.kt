@@ -2,10 +2,10 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.graphics.Color
-import android.support.annotation.ColorRes
-import android.support.v4.content.ContextCompat
-import android.support.v7.graphics.Palette
-import android.support.v7.graphics.Target
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import androidx.palette.graphics.Palette
+import androidx.palette.graphics.Target
 import com.boardgamegeek.R
 
 /**

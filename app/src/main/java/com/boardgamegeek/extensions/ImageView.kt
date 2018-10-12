@@ -4,9 +4,9 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
-import android.support.annotation.ColorInt
 import android.util.TypedValue
 import android.widget.ImageView
+import androidx.annotation.ColorInt
 import com.boardgamegeek.R
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.ImageUtils

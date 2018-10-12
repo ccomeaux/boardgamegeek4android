@@ -5,12 +5,12 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES.JELLY_BEAN
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.AppCompatTextView
 import android.text.Html
 import android.text.SpannedString
 import android.util.AttributeSet
 import android.view.View
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.extensions.trimTrailingWhitespace
@@ -76,11 +76,15 @@ class TimestampView @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
-        ss.timestamp = timestamp
-        ss.format = format
-        ss.formatArg = formatArg
-        return ss
+        return if (superState != null) {
+            val savedState = SavedState(superState)
+            savedState.timestamp = timestamp
+            savedState.format = format
+            savedState.formatArg = formatArg
+            savedState
+        } else {
+            superState
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
@@ -125,7 +129,7 @@ class TimestampView @JvmOverloads constructor(
         constructor(superState: Parcelable) : super(superState)
 
         constructor(source: Parcel) : super(source) {
-            format = source.readString()
+            format = source.readString() ?: ""
             timestamp = source.readLong()
             formatArg = source.readString()
         }

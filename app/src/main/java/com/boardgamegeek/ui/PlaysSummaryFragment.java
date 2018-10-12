@@ -5,14 +5,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -55,6 +47,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -123,14 +124,16 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
-		getLoaderManager().restartLoader(PLAY_COUNT_TOKEN, null, this);
-		getLoaderManager().restartLoader(PLAYERS_TOKEN, null, this);
-		getLoaderManager().restartLoader(LOCATIONS_TOKEN, null, this);
+		LoaderManager loaderManager = LoaderManager.getInstance(this);
+
+		loaderManager.restartLoader(PLAYS_TOKEN, null, this);
+		loaderManager.restartLoader(PLAY_COUNT_TOKEN, null, this);
+		loaderManager.restartLoader(PLAYERS_TOKEN, null, this);
+		loaderManager.restartLoader(LOCATIONS_TOKEN, null, this);
 		if (!TextUtils.isEmpty(AccountUtils.getUsername(getActivity()))) {
-			getLoaderManager().restartLoader(COLORS_TOKEN, null, this);
+			loaderManager.restartLoader(COLORS_TOKEN, null, this);
 		}
-		getLoaderManager().restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
+		loaderManager.restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
 	}
 
 	@DebugLog

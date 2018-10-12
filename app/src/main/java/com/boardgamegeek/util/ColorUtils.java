@@ -4,9 +4,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.ColorInt;
-import android.support.v4.util.ArrayMap;
-import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -17,6 +14,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.annotation.ColorInt;
+import androidx.collection.ArrayMap;
+import androidx.core.view.ViewCompat;
 
 /**
  * Static methods for modifying and applying colors to views.

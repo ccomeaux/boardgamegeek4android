@@ -5,8 +5,6 @@ import android.app.DatePickerDialog.OnDateSetListener
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +12,8 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -21,7 +21,6 @@ import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import kotlinx.android.synthetic.main.dialog_private_info.*
-import org.jetbrains.anko.support.v4.ctx
 import java.text.DecimalFormat
 import java.util.*
 
@@ -37,11 +36,11 @@ class PrivateInfoDialogFragment : DialogFragment() {
     private var acquisitionDate = ""
 
     private val acquiredFromAdapter: AutoCompleteAdapter by lazy {
-        AutoCompleteAdapter(ctx, Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri())
+        AutoCompleteAdapter(requireContext(), Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri())
     }
 
     private val inventoryLocationAdapter: AutoCompleteAdapter by lazy {
-        AutoCompleteAdapter(ctx, Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri())
+        AutoCompleteAdapter(requireContext(), Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri())
     }
 
     override fun onAttach(context: Context?) {
@@ -52,8 +51,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_private_info, null)
-        return AlertDialog.Builder(ctx, R.style.Theme_bgglight_Dialog_Alert)
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_private_info, null)
+        return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_private_info)
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)
@@ -149,7 +148,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     private fun formatDateFromApi(date: String?): String {
         val millis = date.toMillisFromApiDate()
-        return if (millis == 0L) "" else DateUtils.formatDateTime(ctx, millis, DateUtils.FORMAT_SHOW_DATE)
+        return if (millis == 0L) "" else DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE)
     }
 
     private fun createDatePickerDialogFragment(): DatePickerDialogFragment {
@@ -170,7 +169,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     }
 
     private fun setUpCurrencyView(spinner: Spinner, item: String?) {
-        val priceCurrencyAdapter = ArrayAdapter.createFromResource(ctx, R.array.currency, android.R.layout.simple_spinner_item)
+        val priceCurrencyAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.currency, android.R.layout.simple_spinner_item)
         priceCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = priceCurrencyAdapter
         spinner.setSelection(priceCurrencyAdapter.getPosition(item))

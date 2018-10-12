@@ -1,12 +1,13 @@
 package com.boardgamegeek.util;
 
 import android.graphics.Bitmap;
-import android.support.v7.graphics.Palette;
 
 import com.squareup.picasso.Transformation;
 
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import androidx.palette.graphics.Palette;
 
 /**
  * Used to get Picasso and Palette to play well with each other.

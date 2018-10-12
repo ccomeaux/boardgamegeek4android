@@ -1,8 +1,8 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import android.support.annotation.StringRes
 import android.text.format.DateUtils
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.util.PreferencesUtils
 import java.text.DateFormat

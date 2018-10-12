@@ -2,10 +2,10 @@ package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AlertDialog.Builder
 import android.view.LayoutInflater
 import android.view.View
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AlertDialog.Builder
 import com.boardgamegeek.R
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.RecommendedPlayerCountFilterer
@@ -17,7 +17,8 @@ class RecommendedPlayerCountFilterDialog : CollectionFilterDialog {
         val layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter_recommended_player_count, null)
 
         val f = filter as RecommendedPlayerCountFilterer?
-        val playerCount = f?.playerCount?.coerceIn(layout.rangeBar.tickStart.toInt(), layout.rangeBar.tickEnd.toInt()) ?: 4
+        val playerCount = f?.playerCount?.coerceIn(layout.rangeBar.tickStart.toInt(), layout.rangeBar.tickEnd.toInt())
+                ?: 4
         val recommendation = f?.recommendation ?: RecommendedPlayerCountFilterer.RECOMMENDED
 
         when (recommendation) {

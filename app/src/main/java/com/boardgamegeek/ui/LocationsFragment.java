@@ -3,10 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +22,10 @@ import com.boardgamegeek.util.fabric.SortEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
@@ -72,7 +72,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void requery() {
-		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
 	}
 
 	@DebugLog

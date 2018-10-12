@@ -1,16 +1,16 @@
 package com.boardgamegeek.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.NavUtils
-import android.support.v4.app.TaskStackBuilder
-import android.support.v4.view.ViewPager.OnPageChangeListener
-import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.app.NavUtils
+import androidx.core.app.TaskStackBuilder
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.palette.graphics.Palette
+import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
@@ -27,8 +27,8 @@ import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
+import com.google.android.material.snackbar.Snackbar
 import org.jetbrains.anko.*
-import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
 
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
@@ -108,7 +108,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        menu.findItem(R.id.menu_log_play_quick)?.isVisible = PreferencesUtils.showQuickLogPlay(ctx)
+        menu.findItem(R.id.menu_log_play_quick)?.isVisible = PreferencesUtils.showQuickLogPlay(this)
         return true
     }
 
@@ -122,18 +122,18 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         when (item.itemId) {
             android.R.id.home -> {
                 val upIntent = when {
-                    Authenticator.isSignedIn(ctx) -> intentFor<CollectionActivity>()
+                    Authenticator.isSignedIn(this) -> intentFor<CollectionActivity>()
                     else -> intentFor<HotnessActivity>()
                 }
                 if (shouldUpRecreateTask()) {
                     TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities()
                 } else {
-                    NavUtils.navigateUpTo(act, upIntent)
+                    NavUtils.navigateUpTo(this, upIntent)
                 }
                 return true
             }
             R.id.menu_share -> {
-                ActivityUtils.shareGame(act, gameId, gameName, "Game")
+                ActivityUtils.shareGame(this, gameId, gameName, "Game")
                 return true
             }
             R.id.menu_favorite -> {
@@ -142,16 +142,16 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_shortcut -> {
-                ShortcutUtils.createGameShortcut(ctx, gameId, gameName, thumbnailUrl)
+                ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl)
                 return true
             }
             R.id.menu_log_play_quick -> {
-                snackbar(coordinator, R.string.msg_logging_play)
-                ActivityUtils.logQuickPlay(ctx, gameId, gameName)
+                Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show()
+                ActivityUtils.logQuickPlay(this, gameId, gameName)
                 return true
             }
             R.id.menu_view_image -> {
-                ImageActivity.start(ctx, heroImageUrl)
+                ImageActivity.start(this, heroImageUrl)
                 return true
             }
             R.id.menu_users -> {

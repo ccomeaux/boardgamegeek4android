@@ -1,16 +1,15 @@
 package com.boardgamegeek.ui.adapter
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.graphics.Color
-import android.support.annotation.ColorInt
-import android.support.annotation.DrawableRes
-import android.support.annotation.StringRes
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
@@ -20,6 +19,7 @@ import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.PreferencesUtils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 const val INVALID_RES_ID = 0
 
@@ -131,23 +131,26 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         @DrawableRes val resId = tabs.getOrNull(currentPosition)?.imageResId ?: INVALID_RES_ID
         if (resId != INVALID_RES_ID) {
             val existingResId = fab.getTag(R.id.res_id) as? Int? ?: INVALID_RES_ID
-            if (fab.isShown && existingResId != resId) {
-                fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
-                    override fun onHidden(fab: FloatingActionButton?) {
-                        super.onHidden(fab)
-                        fab?.setImageResource(resId)
-                        fab?.show()
-                    }
-                })
+            if (resId != existingResId) {
+                if (fab.isShown) {
+                    fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
+                        override fun onHidden(fab: FloatingActionButton?) {
+                            super.onHidden(fab)
+                            fab?.setImageResource(resId)
+                            fab?.show()
+                        }
+                    })
+                } else {
+                    fab.setImageResource(resId)
+                    fab.show()
+                }
             } else {
-                fab.setImageResource(resId)
-                fab.show()
+                if (!fab.isOrWillBeShown) fab.show()
             }
-            fab.setTag(R.id.res_id, resId)
         } else {
             fab.hide()
-            fab.setTag(R.id.res_id, INVALID_RES_ID)
         }
+        fab.setTag(R.id.res_id, resId)
     }
 
     private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && PreferencesUtils.getSyncPlays(activity)

@@ -1,7 +1,6 @@
 package com.boardgamegeek.service;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.TextUtils;
 
@@ -9,6 +8,7 @@ import com.boardgamegeek.service.model.CollectionItem;
 
 import java.io.IOException;
 
+import androidx.annotation.NonNull;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

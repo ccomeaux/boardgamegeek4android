@@ -7,12 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.NotificationUtils;
+
+import androidx.annotation.Nullable;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";

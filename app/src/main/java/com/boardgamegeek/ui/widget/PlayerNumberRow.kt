@@ -16,10 +16,10 @@ class PlayerNumberRow @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    var totalVoteCount: Int = 0
-    var bestVoteCount: Int = 0
-    var recommendedVoteCount: Int = 0
-    var notRecommendedVoteCount: Int = 0
+    private var totalVoteCount: Int = 0
+    private var bestVoteCount: Int = 0
+    private var recommendedVoteCount: Int = 0
+    private var notRecommendedVoteCount: Int = 0
 
     init {
         LayoutInflater.from(context).inflate(R.layout.row_poll_players, this)
@@ -36,12 +36,16 @@ class PlayerNumberRow @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
-        ss.totalVoteCount = totalVoteCount
-        ss.bestVoteCount = bestVoteCount
-        ss.recommendedVoteCount = recommendedVoteCount
-        ss.notRecommendedVoteCount = notRecommendedVoteCount
-        return ss
+        return if (superState != null) {
+            val savedState = SavedState(superState)
+            savedState.totalVoteCount = totalVoteCount
+            savedState.bestVoteCount = bestVoteCount
+            savedState.recommendedVoteCount = recommendedVoteCount
+            savedState.notRecommendedVoteCount = notRecommendedVoteCount
+            savedState
+        } else {
+            superState
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {

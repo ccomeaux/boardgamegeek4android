@@ -2,7 +2,7 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.provider.BggContract
 import java.text.DecimalFormat
 

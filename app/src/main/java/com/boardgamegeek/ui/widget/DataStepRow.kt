@@ -2,12 +2,12 @@ package com.boardgamegeek.ui.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.annotation.StringRes
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut

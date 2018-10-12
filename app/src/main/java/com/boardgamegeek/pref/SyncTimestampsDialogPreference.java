@@ -2,7 +2,6 @@ package com.boardgamegeek.pref;
 
 import android.content.Context;
 import android.preference.DialogPreference;
-import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
+import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 

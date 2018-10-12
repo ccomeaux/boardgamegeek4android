@@ -1,9 +1,9 @@
 package com.boardgamegeek.extensions
 
 import android.app.Activity
-import android.support.annotation.StringRes
-import android.support.v4.app.ShareCompat
 import android.util.Pair
+import androidx.annotation.StringRes
+import androidx.core.app.ShareCompat
 import com.boardgamegeek.R
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ShareEvent

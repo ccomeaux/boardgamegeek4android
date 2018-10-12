@@ -2,8 +2,8 @@ package com.boardgamegeek.service
 
 import android.accounts.Account
 import android.content.SyncResult
-import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
+import androidx.collection.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
@@ -20,7 +20,6 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.set
 
 /**
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local

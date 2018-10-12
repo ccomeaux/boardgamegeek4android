@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
-import android.support.annotation.Nullable;
 
 import com.boardgamegeek.provider.BggContract;
 
@@ -22,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 public class ResolverUtils {

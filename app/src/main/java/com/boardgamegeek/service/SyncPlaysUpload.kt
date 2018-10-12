@@ -4,9 +4,9 @@ import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Intent
 import android.content.SyncResult
-import android.support.annotation.StringRes
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationCompat.Action
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator

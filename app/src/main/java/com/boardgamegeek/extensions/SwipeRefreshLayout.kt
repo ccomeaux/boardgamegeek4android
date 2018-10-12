@@ -1,6 +1,6 @@
 package com.boardgamegeek.extensions
 
-import android.support.v4.widget.SwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.boardgamegeek.R
 
 fun SwipeRefreshLayout.setBggColors() {

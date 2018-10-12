@@ -5,11 +5,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.Style
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.significantDigits
 import java.text.DecimalFormat
@@ -87,9 +87,9 @@ class ScoreGraphView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val y = (canvas.height / 2).toFloat()
+        val y = (height / 2).toFloat()
         val left = scoreRadius + SCORE_STROKE_WIDTH
-        val right = canvas.width.toFloat() - scoreRadius - SCORE_STROKE_WIDTH.toFloat()
+        val right = width.toFloat() - scoreRadius - SCORE_STROKE_WIDTH.toFloat()
 
         canvas.drawLine(left, y, right, y, barPaint)
 
@@ -110,8 +110,8 @@ class ScoreGraphView @JvmOverloads constructor(
                 tickHeight = largeTickHeight
                 val label = SCORE_FORMAT.format(tickScore)
                 val labelWidth = textPaint.measureText(label)
-                val labelLeft = (x - labelWidth / 2).coerceIn(0f, canvas.width - labelWidth)
-                canvas.drawText(label, labelLeft, canvas.height.toFloat(), textPaint)
+                val labelLeft = (x - labelWidth / 2).coerceIn(0f, width - labelWidth)
+                canvas.drawText(label, labelLeft, height.toFloat(), textPaint)
             } else {
                 tickHeight = smallTickHeight
             }

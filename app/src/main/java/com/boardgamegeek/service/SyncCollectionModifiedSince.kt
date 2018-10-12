@@ -2,8 +2,8 @@ package com.boardgamegeek.service
 
 import android.accounts.Account
 import android.content.SyncResult
-import android.support.v4.util.ArrayMap
 import android.text.format.DateUtils
+import androidx.collection.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao

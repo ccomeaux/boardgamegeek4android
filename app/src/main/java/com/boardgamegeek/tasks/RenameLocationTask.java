@@ -6,7 +6,7 @@ import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;

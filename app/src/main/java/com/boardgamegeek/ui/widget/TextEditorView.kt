@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
-import android.support.v7.graphics.Palette
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setSelectableBackground
 import com.boardgamegeek.extensions.setTextOrHide

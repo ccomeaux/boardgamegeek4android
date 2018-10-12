@@ -5,9 +5,9 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
+import androidx.annotation.StringRes
+import androidx.fragment.app.DialogFragment
+import androidx.appcompat.app.AlertDialog
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.adapter.ColorGridAdapter
 import kotlinx.android.synthetic.main.dialog_colors.*
-import org.jetbrains.anko.support.v4.ctx
 import java.util.*
 
 class ColorPickerDialogFragment : DialogFragment() {
@@ -34,9 +33,9 @@ class ColorPickerDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(ctx).inflate(R.layout.dialog_colors, null)
+        layout = LayoutInflater.from(context).inflate(R.layout.dialog_colors, null)
 
-        val builder = AlertDialog.Builder(ctx, R.style.Theme_bgglight_Dialog_Alert).setView(layout)
+        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
         @StringRes val titleResId = arguments?.getInt(KEY_TITLE_ID) ?: 0
         if (titleResId > 0) builder.setTitle(titleResId)
         return builder.create()
@@ -84,12 +83,12 @@ class ColorPickerDialogFragment : DialogFragment() {
                     featured.add(0, pair)
                 }
             }
-            ColorGridAdapter(ctx, featured, disabledColors)
+            ColorGridAdapter(requireContext(), featured, disabledColors)
         } else {
             null
         }
 
-        val colorGridAdapter = ColorGridAdapter(ctx, choices, disabledColors)
+        val colorGridAdapter = ColorGridAdapter(requireContext(), choices, disabledColors)
         colorGridAdapter.selectedColor = selectedColor
         colorGrid.adapter = colorGridAdapter
 

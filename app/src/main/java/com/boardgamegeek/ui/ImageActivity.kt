@@ -5,9 +5,9 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.graphics.Palette
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.PaletteTransformation
@@ -16,7 +16,6 @@ import com.crashlytics.android.answers.ContentViewEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_image.*
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
@@ -41,7 +40,7 @@ class ImageActivity : AppCompatActivity() {
                     .putContentId(imageId))
         }
 
-        Picasso.with(ctx)
+        Picasso.with(this)
                 .load(HttpUtils.ensureScheme(imageUrl))
                 .error(R.drawable.thumbnail_image_empty)
                 .fit()

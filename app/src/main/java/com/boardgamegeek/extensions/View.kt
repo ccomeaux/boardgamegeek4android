@@ -2,9 +2,6 @@ package com.boardgamegeek.extensions
 
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -12,6 +9,9 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.util.ColorUtils
 import com.boardgamegeek.util.ScrimUtils
