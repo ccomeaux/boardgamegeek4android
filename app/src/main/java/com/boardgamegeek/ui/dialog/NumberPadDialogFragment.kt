@@ -65,9 +65,8 @@ class NumberPadDialogFragment : DialogFragment() {
 
         plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
 
-        if (arguments?.containsKey(KEY_TITLE) == true) {
-            titleView.text = arguments?.getString(KEY_TITLE)
-        }
+        val titleResId = arguments?.getInt(KEY_TITLE) ?: 0
+        if (titleResId != 0) titleView.setText(titleResId)
         subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
 
         if (arguments?.containsKey(KEY_INITIAL_VALUE) == true) {
@@ -211,7 +210,7 @@ class NumberPadDialogFragment : DialogFragment() {
         ): NumberPadDialogFragment {
             return NumberPadDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putString(KEY_TITLE, ctx.getString(titleResId) ?: "")
+                    putInt(KEY_TITLE, titleResId)
                     if (!subtitle.isNullOrBlank()) {
                         putString(KEY_SUBTITLE, subtitle)
                     }

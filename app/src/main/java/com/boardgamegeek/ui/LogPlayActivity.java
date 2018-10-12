@@ -106,6 +106,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -141,6 +142,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_COLORS = 1 << 2;
 	private static final int TOKEN_UNINITIALIZED = 1 << 15;
+	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.#########");
 
 	@State long internalId = BggContract.INVALID_ID;
 	private int gameId;
@@ -1088,7 +1090,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 		int position = requestCode / 2;
 		Player player = play.getPlayers().get(position);
 		if (requestCode % 2 == 0) {
-			player.score = String.valueOf(output);
+			player.score = SCORE_FORMAT.format(output);
 			double highScore = play.getHighScore();
 			for (Player p : play.getPlayers()) {
 				double score = StringUtils.parseDouble(p.score, Double.NaN);

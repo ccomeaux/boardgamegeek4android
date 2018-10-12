@@ -35,7 +35,30 @@ object ImageUtils {
     @JvmStatic
     @JvmOverloads
     fun ImageView.safelyLoadImage(imageId: Int, callback: Callback? = null) {
-        safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
+        RemoteConfig.fetch()
+        if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
+            val call = Adapter.createGeekdoApi().image(imageId)
+            call.enqueue(object : retrofit2.Callback<Image> {
+                override fun onResponse(call: Call<Image>, response: Response<Image>) {
+                    val body = response.body()
+                    if (response.code() == 200 && body != null) {
+                        val queue = LinkedList<String>()
+                        queue.add(body.images.medium.url)
+                        queue.add(body.images.small.url)
+                        addDefaultImagesToQueue(imageId, queue)
+                        safelyLoadImage(queue, callback)
+                    } else {
+                        safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
+                    }
+                }
+
+                override fun onFailure(call: Call<Image>, t: Throwable) {
+                    safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
+                }
+            })
+        } else {
+            safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
+        }
     }
 
     /**
@@ -133,11 +156,10 @@ object ImageUtils {
     }
 
     private fun addDefaultImagesToQueue(imageId: Int, q: Queue<String>? = null): Queue<String> {
-        var queue = q
-        if (queue == null) queue = LinkedList()
-        queue.add("$IMAGE_URL_PREFIX$imageId.jpg")
-        queue.add("$IMAGE_URL_PREFIX$imageId.png")
-        return queue
+        return (q ?: LinkedList()).apply {
+            add("$IMAGE_URL_PREFIX$imageId.jpg")
+            add("$IMAGE_URL_PREFIX$imageId.png")
+        }
     }
 
     @JvmStatic
