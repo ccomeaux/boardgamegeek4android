@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 	android:id="@+id/swipe_refresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -20,12 +20,12 @@
 			android:layout_gravity="center"
 			android:gravity="center"/>
 
-		<android.support.design.widget.CoordinatorLayout
+		<androidx.coordinatorlayout.widget.CoordinatorLayout
 			android:id="@+id/list_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<android.support.v7.widget.RecyclerView
+			<androidx.recyclerview.widget.RecyclerView
 				android:id="@android:id/list"
 				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
@@ -52,7 +52,7 @@
 					android:text="@string/empty"/>
 			</LinearLayout>
 
-			<android.support.design.widget.FloatingActionButton
+			<com.google.android.material.floatingactionbutton.FloatingActionButton
 				android:id="@+id/fab"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -64,6 +64,6 @@
 				app:pressedTranslationZ="@dimen/fab_translation"
 				app:rippleColor="@color/medium_blue"
 				tools:visibility="visible"/>
-		</android.support.design.widget.CoordinatorLayout>
+		</androidx.coordinatorlayout.widget.CoordinatorLayout>
 	</FrameLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
