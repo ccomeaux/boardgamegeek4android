@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.content.Context
 import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,18 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.events.BuddiesCountChangedEvent
-import com.boardgamegeek.events.BuddySelectedEvent
 import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.events.SyncEvent
 import com.boardgamegeek.extensions.firstChar
+import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.model.Buddy
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -36,10 +35,11 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.ctx
 import java.util.*
+import kotlin.properties.Delegates
 
 class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     private val adapter: BuddiesAdapter by lazy {
-        BuddiesAdapter(ctx)
+        BuddiesAdapter()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -58,7 +58,6 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         swipeRefresh.setOnRefreshListener { triggerRefresh() }
         swipeRefresh.setColorSchemeResources(*PresentationUtils.getColorSchemeResources())
 
-        recyclerView.layoutManager = LinearLayoutManager(ctx)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
@@ -118,7 +117,7 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             } while (cursor.moveToNext())
         }
 
-        adapter.changeData(buddies)
+        adapter.buddies = buddies
 
         EventBus.getDefault().postSticky(BuddiesCountChangedEvent(cursor.count))
 
@@ -127,7 +126,7 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.clear()
+        adapter.buddies = emptyList()
     }
 
     private fun setListShown(animate: Boolean) {
@@ -155,25 +154,23 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
     }
 
-    class BuddiesAdapter(context: Context) : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), SectionCallback {
-        private val inflater: LayoutInflater = LayoutInflater.from(context)
-        private val buddies = arrayListOf<Buddy>()
-
-        fun clear() {
-            this.buddies.clear()
-            notifyDataSetChanged()
+    class BuddiesAdapter() : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+        var buddies: List<Buddy> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+            autoNotify(oldValue, newValue) { old, new ->
+                old.id == new.id
+            }
         }
 
-        fun changeData(buddies: List<Buddy>) {
-            this.buddies.clear()
-            this.buddies.addAll(buddies)
-            notifyDataSetChanged()
+        init {
+            setHasStableIds(true)
         }
 
         override fun getItemCount() = buddies.size
 
+        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
-            return BuddyViewHolder(inflater.inflate(R.layout.row_buddy, parent, false))
+            return BuddyViewHolder(parent.inflate(R.layout.row_buddy))
         }
 
         override fun onBindViewHolder(holder: BuddyViewHolder, position: Int) {
@@ -181,7 +178,7 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun isSection(position: Int): Boolean {
-            if (buddies.size == 0) return false
+            if (buddies.isEmpty()) return false
             if (position == 0) return true
             val thisLetter = buddies.getOrNull(position)?.lastName.firstChar()
             val lastLetter = buddies.getOrNull(position - 1)?.lastName.firstChar()
@@ -203,7 +200,9 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
                         itemView.fullNameView.text = b.fullName
                         itemView.usernameView.setTextOrHide(b.userName)
                     }
-                    itemView.setOnClickListener { EventBus.getDefault().postSticky(BuddySelectedEvent(buddy.id, b.userName, b.fullName)) }
+                    itemView.setOnClickListener {
+                        BuddyActivity.start(itemView.context, b.userName, b.fullName)
+                    }
                 }
             }
         }

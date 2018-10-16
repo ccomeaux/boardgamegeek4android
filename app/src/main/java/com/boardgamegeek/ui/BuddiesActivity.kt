@@ -1,11 +1,10 @@
 package com.boardgamegeek.ui
 
-import androidx.fragment.app.Fragment
 import android.view.Menu
+import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.events.BuddiesCountChangedEvent
-import com.boardgamegeek.events.BuddySelectedEvent
-import com.boardgamegeek.util.ToolbarUtils
+import com.boardgamegeek.extensions.setActionBarCount
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
@@ -19,7 +18,7 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
     override fun onCreatePane(): Fragment = BuddiesFragment()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, if (numberOfBuddies <= 0) "" else String.format("%,d", numberOfBuddies))
+        menu.setActionBarCount(R.id.menu_list_count, numberOfBuddies)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -30,7 +29,4 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
         numberOfBuddies = event.count
         invalidateOptionsMenu()
     }
-
-    @Subscribe
-    fun onEvent(event: BuddySelectedEvent) = BuddyActivity.start(this, event.buddyName, event.buddyFullName)
 }
