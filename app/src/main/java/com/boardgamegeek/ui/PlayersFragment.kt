@@ -10,15 +10,15 @@ import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.events.PlayerSelectedEvent
 import com.boardgamegeek.events.PlayersCountChangedEvent
+import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.sorter.PlayersSorter
 import com.boardgamegeek.sorter.PlayersSorterFactory
+import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.model.Player
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.fragment_players.*
 import kotlinx.android.synthetic.main.row_players_player.view.*
 import org.greenrobot.eventbus.EventBus
 import org.jetbrains.anko.support.v4.ctx
-import java.util.*
+import kotlin.properties.Delegates
 
 class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     private var sorter: PlayersSorter? = null
@@ -38,7 +38,7 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         PlayersAdapter(ctx)
     }
 
-    var sort: Int
+    var sortType: Int
         get() = sorter?.type ?: PlayersSorterFactory.TYPE_DEFAULT
         set(sortType) {
             if ((sorter?.type ?: PlayersSorterFactory.TYPE_UNKNOWN) != sortType) {
@@ -54,7 +54,6 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.layoutManager = LinearLayoutManager(ctx)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
@@ -66,12 +65,7 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        var sortType = PlayersSorterFactory.TYPE_DEFAULT
-        if (savedInstanceState != null) {
-            sortType = savedInstanceState.getInt(STATE_SORT_TYPE)
-        }
-        sort = sortType
+        sortType = savedInstanceState?.getInt(STATE_SORT_TYPE) ?: PlayersSorterFactory.TYPE_DEFAULT
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -91,14 +85,15 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
         if (!isAdded) return
 
-        val players = ArrayList<Player>()
+        val players = arrayListOf<Player>()
         if (cursor.moveToFirst()) {
             do {
                 players.add(Player.fromCursor(cursor))
             } while (cursor.moveToNext())
         }
 
-        adapter.changeData(players, sorter)
+        adapter.players = players
+        adapter.sorter = sorter ?: PlayersSorterFactory.create(ctx, PlayersSorterFactory.TYPE_DEFAULT)
 
         EventBus.getDefault().postSticky(PlayersCountChangedEvent(cursor.count))
 
@@ -120,29 +115,25 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
     }
 
-    class PlayersAdapter(context: Context) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), SectionCallback {
-        private val inflater: LayoutInflater = LayoutInflater.from(context)
-        private val players = arrayListOf<Player>()
-        private var sorter: PlayersSorter = PlayersSorterFactory.create(context, PlayersSorterFactory.TYPE_DEFAULT)
+    class PlayersAdapter(context: Context) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+        var players: List<Player> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+            autoNotify(oldValue, newValue) { old, new ->
+                old.name == new.name
+            }
+        }
+
+        var sorter: PlayersSorter by Delegates.observable(PlayersSorterFactory.create(context, PlayersSorterFactory.TYPE_DEFAULT)) { _, oldValue, newValue ->
+            if (oldValue.type != newValue.type) notifyDataSetChanged()
+        }
 
         fun clear() {
-            this.players.clear()
-            notifyDataSetChanged()
+            players = emptyList()
         }
 
-        fun changeData(players: List<Player>, sorter: PlayersSorter?) {
-            this.players.clear()
-            this.players.addAll(players)
-            this.sorter = sorter ?: PlayersSorterFactory.create(inflater.context, PlayersSorterFactory.TYPE_DEFAULT)
-            notifyDataSetChanged()
-        }
-
-        override fun getItemCount(): Int {
-            return players.size
-        }
+        override fun getItemCount() = players.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            return ViewHolder(inflater.inflate(R.layout.row_players_player, parent, false))
+            return ViewHolder(parent.inflate(R.layout.row_players_player))
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -150,7 +141,7 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun isSection(position: Int): Boolean {
-            if (players.size == 0) return false
+            if (players.isEmpty()) return false
             if (position == 0) return true
             val thisLetter = sorter.getSectionText(players.getOrNull(position))
             val lastLetter = sorter.getSectionText(players.getOrNull(position - 1))
@@ -158,7 +149,7 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
-            return if (players.size == 0) "-" else sorter.getSectionText(players[position])
+            return if (players.isEmpty()) "-" else sorter.getSectionText(players[position])
         }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -167,7 +158,9 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
                     itemView.nameView.text = p.name
                     itemView.usernameView.setTextOrHide(player.username)
                     itemView.quantityView.setTextOrHide(sorter.getDisplayText(p))
-                    itemView.setOnClickListener { EventBus.getDefault().post(PlayerSelectedEvent(p.name, p.username)) }
+                    itemView.setOnClickListener {
+                        BuddyActivity.start(itemView.context, p.username, p.name)
+                    }
                 }
             }
         }
