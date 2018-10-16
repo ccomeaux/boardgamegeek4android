@@ -10,15 +10,15 @@ import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.events.LocationSelectedEvent
 import com.boardgamegeek.events.LocationSortChangedEvent
 import com.boardgamegeek.events.LocationsCountChangedEvent
+import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.sorter.LocationsSorter
 import com.boardgamegeek.sorter.LocationsSorterFactory
+import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.model.Location
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.row_location.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.support.v4.ctx
-import java.util.*
+import kotlin.properties.Delegates
 
 class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     private var sorter: LocationsSorter? = null
@@ -49,7 +49,6 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.layoutManager = LinearLayoutManager(ctx)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
@@ -101,7 +100,8 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             } while (cursor.moveToNext())
         }
 
-        adapter.changeData(locations, sorter)
+        adapter.locations = locations
+        adapter.sorter = sorter ?: LocationsSorterFactory.create(ctx, LocationsSorterFactory.TYPE_DEFAULT)
 
         EventBus.getDefault().postSticky(LocationsCountChangedEvent(cursor.count))
 
@@ -123,27 +123,25 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
     }
 
-    private class LocationsAdapter(context: Context) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), SectionCallback {
-        private val inflater: LayoutInflater = LayoutInflater.from(context)
-        private val locations = ArrayList<Location>()
-        private var sorter: LocationsSorter = LocationsSorterFactory.create(context, LocationsSorterFactory.TYPE_DEFAULT)
-
-        fun clear() {
-            this.locations.clear()
-            notifyDataSetChanged()
+    private class LocationsAdapter(context: Context) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+        var locations: List<Location> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+            autoNotify(oldValue, newValue) { old, new ->
+                old.name == new.name
+            }
         }
 
-        fun changeData(locations: List<Location>, sorter: LocationsSorter?) {
-            this.locations.clear()
-            this.locations.addAll(locations)
-            this.sorter = sorter ?: LocationsSorterFactory.create(inflater.context, LocationsSorterFactory.TYPE_DEFAULT)
-            notifyDataSetChanged()
+        var sorter: LocationsSorter by Delegates.observable(LocationsSorterFactory.create(context, LocationsSorterFactory.TYPE_DEFAULT)) { _, oldValue, newValue ->
+            if (oldValue.type != newValue.type) notifyDataSetChanged()
+        }
+
+        fun clear() {
+            locations = emptyList()
         }
 
         override fun getItemCount() = locations.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationsViewHolder {
-            return LocationsViewHolder(inflater.inflate(R.layout.row_location, parent, false))
+            return LocationsViewHolder(parent.inflate(R.layout.row_location))
         }
 
         override fun onBindViewHolder(holder: LocationsViewHolder, position: Int) {
@@ -151,7 +149,7 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun isSection(position: Int): Boolean {
-            if (locations.size == 0) return false
+            if (locations.isEmpty()) return false
             if (position == 0) return true
             val thisLetter = sorter.getSectionText(locations.getOrNull(position))
             val lastLetter = sorter.getSectionText(locations.getOrNull(position - 1))
@@ -159,7 +157,7 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
-            return if (locations.size == 0) "-" else sorter.getSectionText(locations[position])
+            return if (locations.isEmpty()) "-" else sorter.getSectionText(locations[position])
         }
 
         inner class LocationsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -171,7 +169,9 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
                         itemView.nameView.text = l.name
                     }
                     itemView.quantityView.text = itemView.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)
-                    itemView.setOnClickListener { EventBus.getDefault().postSticky(LocationSelectedEvent(l.name)) }
+                    itemView.setOnClickListener {
+                        LocationActivity.start(itemView.context, l.name)
+                    }
                 }
             }
         }
