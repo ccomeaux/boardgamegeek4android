@@ -630,8 +630,9 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			RecyclerSectionItemDecoration sectionItemDecoration =
 				new RecyclerSectionItemDecoration(
 					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
-					true,
-					getSectionCallback(plays, sorter));
+					getSectionCallback(plays, sorter),
+					true
+				);
 			while (listView.getItemDecorationCount() > 0) {
 				listView.removeItemDecorationAt(0);
 			}

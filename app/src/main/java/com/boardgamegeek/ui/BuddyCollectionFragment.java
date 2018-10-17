@@ -241,8 +241,9 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		RecyclerSectionItemDecoration sectionItemDecoration =
 			new RecyclerSectionItemDecoration(
 				getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
-				true,
-				getSectionCallback(list));
+				getSectionCallback(list),
+				true
+			);
 		while (listView.getItemDecorationCount() > 0) {
 			listView.removeItemDecorationAt(0);
 		}

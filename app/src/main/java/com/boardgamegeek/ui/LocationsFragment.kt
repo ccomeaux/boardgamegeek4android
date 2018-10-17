@@ -53,7 +53,6 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                true,
                 adapter)
         recyclerView.addItemDecoration(sectionItemDecoration)
     }

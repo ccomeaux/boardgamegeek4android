@@ -5,22 +5,21 @@ package com.boardgamegeek.ui.widget
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.inflate
 
-class RecyclerSectionItemDecoration(private val headerOffset: Int, private val sticky: Boolean, private val sectionCallback: SectionCallback) : RecyclerView.ItemDecoration() {
+class RecyclerSectionItemDecoration(private val headerOffset: Int, private val sectionCallback: SectionCallback, private val sticky: Boolean = true) : RecyclerView.ItemDecoration() {
     private var headerView: View? = null
-    private var header: TextView? = null
+    private var titleView: TextView? = null
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        super.getItemOffsets(outRect, view, parent, state)
-
+        outRect.set(0, 0, 0, 0)
         val pos = parent.getChildAdapterPosition(view)
-        if (sectionCallback.isSection(pos)) {
+        if (pos != RecyclerView.NO_POSITION && sectionCallback.isSection(pos)) {
             outRect.top = headerOffset
         }
     }
@@ -30,7 +29,7 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
 
         if (headerView == null) {
             headerView = inflateHeaderView(parent)
-            header = headerView?.findViewById(android.R.id.title)
+            titleView = headerView?.findViewById(android.R.id.title)
             fixLayoutSize(headerView, parent)
         }
 
@@ -41,11 +40,12 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
             val position = parent.getChildAdapterPosition(child)
             val nextPosition = parent.getChildAdapterPosition(nextChild)
 
-            val title = sectionCallback.getSectionHeader(position)
-            header?.text = title
-            if (previousHeader != title || sectionCallback.isSection(position)) {
+            val header = sectionCallback.getSectionHeader(position)
+            val isSection = sectionCallback.isSection(position)
+            if (previousHeader != header || isSection) {
+                titleView?.text = header
                 drawHeader(c, child, headerView, if (nextPosition != RecyclerView.NO_POSITION && sectionCallback.isSection(nextPosition)) nextChild else null)
-                previousHeader = title
+                previousHeader = header
             }
         }
     }
@@ -63,7 +63,7 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
     }
 
     private fun inflateHeaderView(parent: RecyclerView): View {
-        return LayoutInflater.from(parent.context).inflate(R.layout.row_header, parent, false)
+        return parent.inflate(R.layout.row_header)
     }
 
     /**
