@@ -12,15 +12,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,10 +64,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import androidx.annotation.ColorInt;
@@ -90,7 +90,11 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
-public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener, OnDateSetListener, OnRefreshListener {
+public class PlaysFragment extends Fragment implements
+	LoaderCallbacks<Cursor>,
+	ActionMode.Callback,
+	OnDateSetListener,
+	OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
@@ -126,12 +130,9 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	private boolean hasAutoSyncTriggered;
 	private int mode = MODE_ALL;
 	private String modeValue;
-	private final LinkedHashSet<Integer> selectedPlaysPositions = new LinkedHashSet<>();
-	private MenuItem sendMenuItem;
-	private MenuItem editMenuItem;
 	private ShowcaseView showcaseView;
-
 	private boolean isSyncing = false;
+	private ActionMode actionMode = null;
 
 	private Unbinder unbinder;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -275,16 +276,8 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
-
-//		final StickyListHeadersListView listView = getListView();
-//		if (listView != null) {
-//			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-//			listView.setMultiChoiceModeListener(this);
-//		}
-
 		maybeShowHelp();
 	}
-
 
 	public void setEmptyText(CharSequence text) {
 		emptyTextView.setText(text);
@@ -736,8 +729,10 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.ViewHolder> {
 		private final LayoutInflater inflater;
 		private final List<PlayModel> plays = new ArrayList<>();
+		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 		public PlayAdapter(Context context) {
+			setHasStableIds(true);
 			inflater = LayoutInflater.from(context);
 		}
 
@@ -755,9 +750,58 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			return plays.get(position);
 		}
 
+		public int getSelectedItemCount() {
+			return selectedItems.size();
+		}
+
+		public List<Integer> getSelectedItemPositions() {
+			ArrayList<Integer> items = new ArrayList<>(selectedItems.size());
+			for (int i = 0; i < selectedItems.size(); i++) {
+				items.add(selectedItems.keyAt(i));
+			}
+			return items;
+		}
+
+		public boolean areAllSelectedItemsPending() {
+			for (int pos : adapter.getSelectedItemPositions()) {
+				PlayModel play = adapter.getItem(pos);
+				boolean pending = play.getDirtyTimestamp() > 0;
+				if (!pending) return false;
+			}
+			return true;
+		}
+
+		public void toggleSelection(int position) {
+			if (selectedItems.get(position, false)) {
+				selectedItems.delete(position);
+			} else {
+				selectedItems.put(position, true);
+			}
+			notifyDataSetChanged(); // I'd prefer to call notifyItemChanged(position), but that causes the section header to appear briefly
+			if (actionMode != null) {
+				int count = getSelectedItemCount();
+				if (count == 0) {
+					actionMode.finish();
+				} else {
+					actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+					actionMode.invalidate();
+				}
+			}
+		}
+
+		public void clearSelection() {
+			selectedItems.clear();
+			notifyDataSetChanged();
+		}
+
 		@Override
 		public int getItemCount() {
-			return plays == null ? 0 : plays.size();
+			return plays.size();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return getItem(position).getInternalId();
 		}
 
 		@NonNull
@@ -801,10 +845,26 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 				holder.status.setText(statusMessageId);
 			}
 
+			holder.itemView.setActivated(selectedItems.get(position, false));
+
 			holder.itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					EventBus.getDefault().postSticky(new PlaySelectedEvent(play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl()));
+					if (actionMode == null) {
+						EventBus.getDefault().postSticky(new PlaySelectedEvent(play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl()));
+					} else {
+						toggleSelection(position);
+					}
+				}
+			});
+			holder.itemView.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					if (actionMode != null) return false;
+					actionMode = getActivity().startActionMode(PlaysFragment.this);
+					if (actionMode == null) return false;
+					toggleSelection(position);
+					return true;
 				}
 			});
 		}
@@ -828,15 +888,17 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 			public boolean isSection(int position) {
 				if (plays == null || plays.size() == 0) return false;
 				if (position == 0) return true;
+				if (position < 0 || position > plays.size()) return false;
 				String thisLetter = sorter.getSectionText(plays.get(position));
 				String lastLetter = sorter.getSectionText(plays.get(position - 1));
 				return !thisLetter.equals(lastLetter);
 			}
 
-			@NonNull
+			@NotNull
 			@Override
 			public CharSequence getSectionHeader(int position) {
 				if (plays == null || plays.size() == 0) return "-";
+				if (position < 0 || position > plays.size()) return "-";
 				return sorter.getSectionText(plays.get(position));
 			}
 		};
@@ -865,86 +927,60 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		MenuInflater inflater = mode.getMenuInflater();
-		inflater.inflate(R.menu.plays_context, menu);
-		sendMenuItem = menu.findItem(R.id.menu_send);
-		editMenuItem = menu.findItem(R.id.menu_edit);
-		selectedPlaysPositions.clear();
+		mode.getMenuInflater().inflate(R.menu.plays_context, menu);
+		adapter.clearSelection();
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
+		menu.findItem(R.id.menu_send).setVisible(adapter.areAllSelectedItemsPending());
+		menu.findItem(R.id.menu_edit).setVisible(adapter.getSelectedItemCount() == 1);
+		return true;
 	}
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
+		actionMode = null;
+		adapter.clearSelection();
 	}
 
 	@Override
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-		if (!isAdded()) {
-			return;
-		}
-
-		if (checked) {
-			selectedPlaysPositions.add(position);
-		} else {
-			selectedPlaysPositions.remove(position);
-		}
-
-		int count = selectedPlaysPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_plays_selected, count, count));
-
-		boolean allPending = true;
-		for (int pos : selectedPlaysPositions) {
-			PlayModel play = adapter.getItem(pos);
-			boolean pending = play.getDirtyTimestamp() > 0;
-			allPending = allPending && pending;
-		}
-
-		sendMenuItem.setVisible(allPending);
-		editMenuItem.setVisible(count == 1);
-	}
-
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (!selectedPlaysPositions.iterator().hasNext()) return false;
+	public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+		if (!adapter.getSelectedItemPositions().iterator().hasNext()) return false;
 		switch (item.getItemId()) {
 			case R.id.menu_send:
-				mode.finish();
 				new AlertDialog.Builder(getContext())
-					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()))
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, adapter.getSelectedItemCount()))
 					.setCancelable(true)
 					.setNegativeButton(R.string.cancel, null)
 					.setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
+							mode.finish();
 						}
 					})
 					.show();
 				return true;
 			case R.id.menu_edit:
-				mode.finish();
-				PlayModel play = adapter.getItem(selectedPlaysPositions.iterator().next());
+				PlayModel play = adapter.getItem(adapter.getSelectedItemPositions().iterator().next());
 				LogPlayActivity.editPlay(getActivity(), play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
+				mode.finish();
 				return true;
 			case R.id.menu_delete:
-				mode.finish();
 				new AlertDialog.Builder(getContext())
-					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()))
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, adapter.getSelectedItemCount()))
 					.setCancelable(true)
 					.setNegativeButton(R.string.cancel, null)
 					.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
+							mode.finish();
 						}
 					})
 					.show();
-
 				return true;
 		}
 		return false;
@@ -952,7 +988,7 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	private void updateSelectedPlays(String key, long value) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		for (int position : selectedPlaysPositions) {
+		for (int position : adapter.getSelectedItemPositions()) {
 			PlayModel play = adapter.getItem(position);
 			if (play.getInternalId() != BggContract.INVALID_ID)
 				batch.add(ContentProviderOperation
@@ -962,6 +998,5 @@ public class PlaysFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 		ResolverUtils.applyBatch(getActivity(), batch);
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-		selectedPlaysPositions.clear();
 	}
 }

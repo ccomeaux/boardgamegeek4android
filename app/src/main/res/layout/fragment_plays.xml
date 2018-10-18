@@ -29,7 +29,8 @@
 				android:id="@android:id/list"
 				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"/>
+				android:layout_height="match_parent"
+				tools:listitem="@layout/row_play"/>
 
 			<LinearLayout
 				android:id="@+id/empty_container"
