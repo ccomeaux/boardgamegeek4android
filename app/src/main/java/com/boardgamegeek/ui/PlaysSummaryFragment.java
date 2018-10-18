@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.pref.SyncPrefs;
@@ -333,13 +332,13 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				EventBus.getDefault().postSticky(new PlaySelectedEvent(
+				PlayActivity.start(getContext(),
 					(long) v.getTag(R.id.id),
 					(int) v.getTag(R.id.game_id),
 					(String) v.getTag(R.id.game_name),
 					(String) v.getTag(R.id.thumbnail),
 					(String) v.getTag(R.id.image),
-					(String) v.getTag(R.id.hero_image)));
+					(String) v.getTag(R.id.hero_image));
 			}
 		});
 	}

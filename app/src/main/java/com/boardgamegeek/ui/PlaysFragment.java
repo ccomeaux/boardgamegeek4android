@@ -27,7 +27,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
@@ -354,14 +353,6 @@ public class PlaysFragment extends Fragment implements
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEvent(PlaySelectedEvent event) {
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
@@ -851,7 +842,7 @@ public class PlaysFragment extends Fragment implements
 				@Override
 				public void onClick(View v) {
 					if (actionMode == null) {
-						EventBus.getDefault().postSticky(new PlaySelectedEvent(play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl()));
+						PlayActivity.start(getContext(), play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
 					} else {
 						toggleSelection(position);
 					}

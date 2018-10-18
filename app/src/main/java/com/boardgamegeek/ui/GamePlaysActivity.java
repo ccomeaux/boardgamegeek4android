@@ -9,12 +9,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.jetbrains.annotations.NotNull;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.ActionBar;
@@ -109,7 +109,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NotNull Menu menu) {
 		String countDescription = playCount <= 0 ? "" : String.valueOf(playCount);
 		ToolbarUtils.setActionBarText(menu, R.id.menu_text, countDescription);
 		return super.onPrepareOptionsMenu(menu);
@@ -117,7 +117,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl);
@@ -125,13 +125,6 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(PlaySelectedEvent event) {
-		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")
