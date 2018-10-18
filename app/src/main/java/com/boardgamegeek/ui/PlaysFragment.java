@@ -271,9 +271,8 @@ public class PlaysFragment extends Fragment implements
 		setEmptyText(getString(getEmptyStringResource()));
 		requery();
 
-		swipeRefreshLayout.setEnabled(mode == MODE_GAME);
-		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		swipeRefreshLayout.setOnRefreshListener(this);
 
 		maybeShowHelp();
 	}
@@ -676,13 +675,9 @@ public class PlaysFragment extends Fragment implements
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(@NonNull SyncEvent event) {
-		if ((event.getType() & getSyncType()) == getSyncType()) {
+		if ((event.getType() & SyncService.FLAG_SYNC_PLAYS) == SyncService.FLAG_SYNC_PLAYS) {
 			isSyncing(true);
 		}
-	}
-
-	private int getSyncType() {
-		return mode == MODE_GAME ? SyncService.FLAG_SYNC_NONE : SyncService.FLAG_SYNC_PLAYS;
 	}
 
 	public void triggerRefresh() {
