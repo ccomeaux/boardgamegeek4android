@@ -6,42 +6,33 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
+import com.boardgamegeek.events.SyncCompleteEvent;
+import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.pref.SyncPrefs;
@@ -59,9 +50,12 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
+import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -79,32 +73,55 @@ import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class CollectionFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener,
+public class CollectionFragment extends Fragment implements
+	LoaderCallbacks<Cursor>,
+	OnRefreshListener,
+	ActionMode.Callback,
 	CollectionFilterDialog.OnFilterChangedListener {
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
-	@BindView(R.id.frame_container) ViewGroup frameContainer;
-	@BindView(R.id.footer_container) ViewGroup footerContainer;
+	@BindView(R.id.empty_container) ViewGroup emptyContainer;
+	@BindView(android.R.id.empty) TextView emptyTextView;
+	@BindView(R.id.empty_button) Button emptyButton;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(android.R.id.list) RecyclerView listView;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 	@BindView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
 	@BindView(R.id.filter_scroll_view) View filterButtonScroll;
 	@BindView(R.id.toolbar_footer) Toolbar footerToolbar;
@@ -112,7 +129,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@BindView(R.id.sort_description) TextView sortDescriptionView;
 
 	private CollectionAdapter adapter;
-	@State int selectedCollectionId;
 	@State long viewId;
 	@State @Nullable String viewName = "";
 	@State int sortType;
@@ -122,10 +138,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
 	private boolean isCreatingShortcut;
-	private final LinkedHashSet<Integer> selectedPositions = new LinkedHashSet<>();
-	private android.view.MenuItem logPlayMenuItem;
-	private android.view.MenuItem logPlayQuickMenuItem;
-	private android.view.MenuItem bggLinkMenuItem;
+	private boolean isSyncing;
+	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
 	private ShowcaseViewWizard showcaseViewWizard;
 
@@ -167,6 +181,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
+	}
+
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		isCreatingShortcut = bundle.getBoolean(KEY_IS_CREATING_SHORTCUT);
@@ -185,7 +211,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if (isCreatingShortcut) {
-			Snackbar.make(frameContainer, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(swipeRefreshLayout, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
 		}
 
 		footerToolbar.inflateMenu(R.menu.collection_fragment);
@@ -194,13 +220,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		setEmptyText();
 
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		swipeRefreshLayout.setOnRefreshListener(this);
+
 		createShowcaseViewWizard();
 		showcaseViewWizard.maybeShowHelp();
-	}
-
-	@Override
-	protected boolean shouldPadForFab() {
-		return true;
 	}
 
 	private void createShowcaseViewWizard() {
@@ -222,11 +246,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		sorter = getCollectionSorter(sortType);
 		if (savedInstanceState != null || isCreatingShortcut) {
 			requery();
-		}
-		if (getListView() != null) {
-			final ListView listView = getListView().getWrappedList();
-			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-			listView.setMultiChoiceModeListener(this);
 		}
 	}
 
@@ -278,24 +297,34 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	@DebugLog
-	public void onListItemClick(View view, int position, long id) {
-		final Cursor cursor = (Cursor) adapter.getItem(position);
-		final int gameId = cursor.getInt(Query.GAME_ID);
-		final String gameName = cursor.getString(Query.GAME_NAME);
-		final String imageUrl = CursorUtils.getString(cursor, Query.IMAGE_URL);
-		final String thumbnailUrl = CursorUtils.getString(cursor, Query.THUMBNAIL_URL);
-		final String heroImageUrl = CursorUtils.getString(cursor, Query.HERO_IMAGE_URL);
-		if (isCreatingShortcut) {
-			EventBus.getDefault().post(new GameShortcutRequestedEvent(gameId, gameName, thumbnailUrl));
-		} else {
-			EventBus.getDefault().post(new GameSelectedEvent(gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl));
-			setSelectedGameId(gameId);
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(@NonNull SyncEvent event) {
+		if ((event.getType() & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
+			isSyncing(true);
 		}
 	}
 
-	@DebugLog
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(SyncCompleteEvent event) {
+		isSyncing(false);
+	}
+
+	protected void isSyncing(boolean value) {
+		isSyncing = value;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) {
+						swipeRefreshLayout.setRefreshing(isSyncing);
+					}
+				}
+			});
+		}
+	}
+
 	private void invalidateMenu() {
 		final Menu menu = footerToolbar.getMenu();
 		if (isCreatingShortcut) {
@@ -314,7 +343,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			final boolean hasFiltersApplied = (filters.size() > 0);
 			final boolean hasSortApplied = sorter != null && sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT;
 			final boolean hasViews = getActivity() != null && ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
-			final boolean hasItems = adapter != null && adapter.getCount() > 0;
+			final boolean hasItems = adapter != null && adapter.getItemCount() > 0;
 			final boolean hasViewSelected = viewId > 0;
 
 			menu.findItem(R.id.menu_collection_view_save).setEnabled(hasFiltersApplied || hasSortApplied);
@@ -332,12 +361,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
-					final Cursor cursor = (Cursor) adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getCount()));
+					final CollectionItem ci = adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getItemCount()));
 					GameActivity.start(getContext(),
-						cursor.getInt(Query.GAME_ID),
-						cursor.getString(Query.GAME_NAME),
-						CursorUtils.getString(cursor, Query.THUMBNAIL_URL),
-						CursorUtils.getString(cursor, Query.HERO_IMAGE_URL)
+						ci.gameId,
+						ci.gameName,
+						ci.thumbnailUrl,
+						ci.heroImageUrl
 					);
 					return true;
 				case R.id.menu_create_shortcut:
@@ -388,23 +417,20 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			.append(StringUtils.repeat("-", description.length()))
 			.append("\n");
 
-		final Cursor c = adapter.getCursor();
-		int currentPosition = c.getPosition();
 		int gameCount = 0;
 		final int MAX_GAMES = 10;
-		if (c.moveToFirst()) {
-			do {
-				gameCount++;
-				text.append("\u2022 ").append(ActivityUtils.formatGameLink(c.getInt(Query.GAME_ID), c.getString(Query.COLLECTION_NAME)));
-				if (gameCount >= MAX_GAMES) {
-					int leftOverCount = c.getCount() - MAX_GAMES;
-					if (leftOverCount > 0)
-						text.append(getString(R.string.and_more, leftOverCount)).append("\n");
-					break;
-				}
-			} while (c.moveToNext());
+		for (int i = 0; i < MAX_GAMES; i++) {
+			CollectionItem item = adapter.getItem(i);
+			if (item == null) break;
+			gameCount++;
+			text.append("\u2022 ").append(ActivityUtils.formatGameLink(item.gameId, item.collectionName));
+			if (gameCount >= MAX_GAMES) {
+				int leftOverCount = adapter.getItemCount() - MAX_GAMES;
+				if (leftOverCount > 0)
+					text.append(getString(R.string.and_more, leftOverCount)).append("\n");
+				break;
+			}
 		}
-		c.moveToPosition(currentPosition);
 
 		text.append("\n")
 			.append(createViewDescription(sorter, filters))
@@ -418,15 +444,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			R.string.title_share_collection);
 	}
 
-	@DebugLog
 	@Override
-	protected void triggerRefresh() {
+	public void onRefresh() {
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
-	}
-
-	@Override
-	protected int getSyncType() {
-		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
 	@NonNull
@@ -545,9 +565,26 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (token == Query._TOKEN) {
 			if (adapter == null) {
 				adapter = new CollectionAdapter(getActivity());
-				setListAdapter(adapter);
+				listView.setAdapter(adapter);
 			}
-			adapter.changeCursor(cursor);
+			List<CollectionItem> items = new ArrayList<>(cursor.getCount());
+			if (cursor.moveToFirst()) {
+				do {
+					items.add(new CollectionItem(cursor, sorter));
+				} while (cursor.moveToNext());
+			}
+			adapter.setItems(items);
+
+			RecyclerSectionItemDecoration sectionItemDecoration =
+				new RecyclerSectionItemDecoration(
+					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
+					getSectionCallback(items, sorter),
+					true
+				);
+			while (listView.getItemDecorationCount() > 0) {
+				listView.removeItemDecorationAt(0);
+			}
+			listView.addItemDecoration(sectionItemDecoration);
 
 			final int rowCount = cursor.getCount();
 			final String sortDescription = sorter == null ? "" : String.format(getActivity().getString(R.string.by_prefix), sorter.getDescription());
@@ -558,6 +595,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 			bindFilterButtons();
 			invalidateMenu();
+			if (rowCount > 0) {
+				AnimationUtils.fadeIn(listView);
+				AnimationUtils.fadeOut(emptyContainer);
+			} else {
+				AnimationUtils.fadeIn(emptyContainer);
+				AnimationUtils.fadeOut(listView);
+			}
 			progressBar.hide();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
@@ -583,35 +627,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		if (adapter != null) {
-			adapter.changeCursor(null);
-		}
-	}
-
-	@Override
-	@DebugLog
-	protected void onScrollDown() {
-		if (footerContainer.getVisibility() != View.VISIBLE) {
-			footerContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up));
-			footerContainer.setVisibility(View.VISIBLE);
-		}
-	}
-
-	@Override
-	@DebugLog
-	protected void onScrollUp() {
-		if (footerContainer.getVisibility() != View.GONE) {
-			footerContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
-			footerContainer.setVisibility(View.GONE);
-		}
-	}
-
-	@DebugLog
-	private void setSelectedGameId(int id) {
-		selectedCollectionId = id;
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+		if (adapter != null) adapter.clearItems();
 	}
 
 	@Override
@@ -624,20 +640,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 		}
 		setEmptyText();
-		resetScrollState();
 		requery();
 	}
 
 	@Override
 	@DebugLog
-	public void addFilter(@NonNull CollectionFilterer filter) {
+	public void addFilter(@NotNull CollectionFilterer filter) {
 		filters.remove(filter);
 		if (filter.isValid()) {
 			filters.add(filter);
 		}
 		FilterEvent.log("Collection", String.valueOf(filter.getType()));
 		setEmptyText();
-		resetScrollState();
 		requery();
 	}
 
@@ -655,7 +669,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			resId = R.string.empty_collection_sync_off;
 			emptyButton.setVisibility(View.VISIBLE);
 		}
-		setEmptyText(getString(resId));
+		emptyTextView.setText(getString(resId));
+	}
+
+	@OnClick(R.id.empty_button)
+	void onSyncClick() {
+		SyncPrefs.clearCollection(getContext());
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
 	}
 
 	private boolean hasFiltersApplied() {
@@ -669,7 +689,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 		SortEvent.log("Collection", String.valueOf(sortType));
 		sorter = getCollectionSorter(sortType);
-		resetScrollState();
 		requery();
 	}
 
@@ -694,7 +713,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 		}
 
-		filterButtonScroll.setVisibility(filterButtonContainer.getChildCount() > 0 ? View.VISIBLE : View.GONE);
+		final boolean show = filterButtonContainer.getChildCount() > 0;
+		filterButtonScroll.setVisibility(show ? View.VISIBLE : View.GONE);
+		swipeRefreshLayout.setPadding(
+			swipeRefreshLayout.getPaddingLeft(),
+			swipeRefreshLayout.getPaddingTop(),
+			swipeRefreshLayout.getPaddingRight(),
+			show ? getResources().getDimensionPixelSize(R.dimen.filter_button_height) : 0);
 	}
 
 	@NonNull
@@ -746,7 +771,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (this.viewId != viewId) {
 			progressBar.show();
 			this.viewId = viewId;
-			resetScrollState();
 			LoaderManager.getInstance(this).restartLoader(ViewQuery._TOKEN, null, this);
 		}
 	}
@@ -756,80 +780,137 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (viewId != 0) {
 			viewId = 0;
 			viewName = "";
-			resetScrollState();
 		}
 		filters.clear();
 		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		requery();
 	}
 
-	public class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
+	public class CollectionItem {
+		public final long internalId;
+		public final int collectionId;
+		public final String collectionName;
+		public final int gameId;
+		public final String gameName;
+		public final int year;
+		public final String collectionThumbnailUrl;
+		public final String thumbnailUrl;
+		public final String imageUrl;
+		public final String heroImageUrl;
+		public final boolean isFavorite;
+		public final long timestamp;
+		public final String displayInfo;
+		public final String headerText;
+		public boolean customPlayerSort;
+
+		public CollectionItem(Cursor cursor, CollectionSorter sorter) {
+			internalId = cursor.getLong(Query._ID);
+			collectionId = cursor.getInt(Query.COLLECTION_ID);
+			collectionName = cursor.getString(Query.COLLECTION_NAME);
+			gameId = cursor.getInt(Query.GAME_ID);
+			gameName = cursor.getString(Query.GAME_NAME);
+			int y = cursor.getInt(Query.COLLECTION_YEAR_PUBLISHED);
+			if (y == ConstantsKt.YEAR_UNKNOWN) {
+				year = cursor.getInt(Query.YEAR_PUBLISHED);
+			} else {
+				year = y;
+			}
+			collectionThumbnailUrl = CursorUtils.getString(cursor, Query.COLLECTION_THUMBNAIL_URL);
+			thumbnailUrl = CursorUtils.getString(cursor, Query.THUMBNAIL_URL);
+			imageUrl = CursorUtils.getString(cursor, Query.IMAGE_URL);
+			heroImageUrl = CursorUtils.getString(cursor, Query.HERO_IMAGE_URL);
+			isFavorite = cursor.getInt(Query.STARRED) == 1;
+			timestamp = sorter.getTimestamp(cursor);
+			displayInfo = sorter == null ? "" : sorter.getDisplayInfo(cursor);
+			headerText = sorter == null ? "" : sorter.getHeaderText(cursor, cursor.getPosition());
+			customPlayerSort = cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1;
+		}
+	}
+
+	public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.CollectionItemViewHolder> {
 		@NonNull private final LayoutInflater inflater;
+		private List<CollectionItem> items = new ArrayList<>();
+		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 		@DebugLog
 		public CollectionAdapter(Context context) {
-			super(context, null, false);
+			setHasStableIds(true);
 			inflater = LayoutInflater.from(context);
 		}
 
-		@Override
-		@DebugLog
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = inflater.inflate(R.layout.row_collection, parent, false);
-			ViewHolder holder = new ViewHolder(row);
-			row.setTag(holder);
-			return row;
+		public void clearItems() {
+			items.clear();
+			notifyDataSetChanged();
 		}
 
-		@Override
-		@DebugLog
-		public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
+		public void setItems(List<CollectionItem> values) {
+			items.clear();
+			items.addAll(values);
+			notifyDataSetChanged();
+		}
 
-			int collectionId = cursor.getInt(Query.COLLECTION_ID);
-			int year = cursor.getInt(Query.COLLECTION_YEAR_PUBLISHED);
-			if (year == 0) {
-				year = cursor.getInt(Query.YEAR_PUBLISHED);
+		public CollectionItem getItem(int position) {
+			if (position < 0 || position >= items.size()) return null;
+			return items.get(position);
+		}
+
+		public int getSelectedItemCount() {
+			return selectedItems.size();
+		}
+
+		public List<Integer> getSelectedItemPositions() {
+			ArrayList<Integer> items = new ArrayList<>(selectedItems.size());
+			for (int i = 0; i < selectedItems.size(); i++) {
+				items.add(selectedItems.keyAt(i));
 			}
-			String collectionThumbnailUrl = CursorUtils.getString(cursor, Query.COLLECTION_THUMBNAIL_URL);
-			String thumbnailUrl = CursorUtils.getString(cursor, Query.THUMBNAIL_URL);
-			boolean isFavorite = cursor.getInt(Query.STARRED) == 1;
-			final long timestamp = sorter.getTimestamp(cursor);
-
-			view.setActivated(collectionId == selectedCollectionId);
-			holder.nameView.setText(cursor.getString(Query.COLLECTION_NAME));
-			holder.yearView.setText(PresentationUtils.describeYear(getActivity(), year));
-			holder.timestampView.setTimestamp(timestamp);
-			holder.favoriteView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
-			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
-			ImageUtils.loadThumbnail(holder.thumbnailView, collectionThumbnailUrl, thumbnailUrl);
+			return items;
 		}
 
-		@Override
-		public long getHeaderId(int position) {
-			if (position < 0) {
-				return 0;
-			}
-			return sorter.getHeaderId(getCursor(), position);
-		}
-
-		@Nullable
-		@Override
-		public View getHeaderView(int position, @Nullable View convertView, ViewGroup parent) {
-			HeaderViewHolder holder;
-			if (convertView == null) {
-				holder = new HeaderViewHolder();
-				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = convertView.findViewById(android.R.id.title);
-				convertView.setTag(holder);
+		public void toggleSelection(int position) {
+			if (selectedItems.get(position, false)) {
+				selectedItems.delete(position);
 			} else {
-				holder = (HeaderViewHolder) convertView.getTag();
+				selectedItems.put(position, true);
 			}
-			holder.text.setText(sorter.getHeaderText(getCursor(), position));
-			return convertView;
+			notifyDataSetChanged(); // I'd prefer to call notifyItemChanged(position), but that causes the section header to appear briefly
+			if (actionMode != null) {
+				int count = getSelectedItemCount();
+				if (count == 0) {
+					actionMode.finish();
+				} else {
+					actionMode.invalidate();
+				}
+			}
 		}
 
-		public class ViewHolder {
+		public void clearSelection() {
+			selectedItems.clear();
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return items.get(position).internalId;
+		}
+
+		@Override
+		public int getItemCount() {
+			return items.size();
+		}
+
+		@NonNull
+		@Override
+		public CollectionItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			return new CollectionItemViewHolder(inflater.inflate(R.layout.row_collection, parent, false));
+		}
+
+		@Override
+		public void onBindViewHolder(@NonNull CollectionItemViewHolder holder, final int position) {
+			CollectionItem item = getItem(position);
+			holder.bindView(item, position);
+		}
+
+		public class CollectionItemViewHolder extends RecyclerView.ViewHolder {
 			@BindView(R.id.name) TextView nameView;
 			@BindView(R.id.year) TextView yearView;
 			@BindView(R.id.info) TextView infoView;
@@ -837,14 +918,68 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			@BindView(R.id.thumbnail) ImageView thumbnailView;
 			@BindView(R.id.favorite) ImageView favoriteView;
 
-			public ViewHolder(@NonNull View view) {
+			public CollectionItemViewHolder(View view) {
+				super(view);
 				ButterKnife.bind(this, view);
 			}
-		}
 
-		class HeaderViewHolder {
-			TextView text;
+			public void bindView(final CollectionItem item, final int position) {
+				nameView.setText(item.collectionName);
+				yearView.setText(PresentationUtils.describeYear(getActivity(), item.year));
+				timestampView.setTimestamp(item.timestamp);
+				favoriteView.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
+				PresentationUtils.setTextOrHide(infoView, item.displayInfo);
+				ImageUtils.loadThumbnail(thumbnailView, item.collectionThumbnailUrl, item.thumbnailUrl);
+
+				itemView.setActivated(selectedItems.get(position, false));
+
+				itemView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if (isCreatingShortcut) {
+							EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
+						} else if (actionMode == null) {
+							EventBus.getDefault().post(new GameSelectedEvent(item.gameId, item.gameName, item.imageUrl, item.thumbnailUrl, item.heroImageUrl));
+						} else {
+							adapter.toggleSelection(position);
+						}
+					}
+				});
+				itemView.setOnLongClickListener(new OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						if (isCreatingShortcut) return false;
+						if (actionMode != null) return false;
+						actionMode = getActivity().startActionMode(CollectionFragment.this);
+						if (actionMode == null) return false;
+						toggleSelection(position);
+						return true;
+					}
+				});
+			}
 		}
+	}
+
+	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<CollectionItem> items, final CollectionSorter sorter) {
+		return new RecyclerSectionItemDecoration.SectionCallback() {
+			@Override
+			public boolean isSection(int position) {
+				if (items == null || items.size() == 0) return false;
+				if (position == 0) return true;
+				if (position < 0 || position >= items.size()) return false;
+				String thisLetter = items.get(position).headerText;
+				String lastLetter = items.get(position - 1).headerText;
+				return !thisLetter.equals(lastLetter);
+			}
+
+			@NotNull
+			@Override
+			public CharSequence getSectionHeader(int position) {
+				if (items == null || items.size() == 0) return "-";
+				if (position < 0 || position > items.size()) return "-";
+				return items.get(position).headerText;
+			}
+		};
 	}
 
 	private interface Query {
@@ -865,7 +1000,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			Collection.COLLECTION_HERO_IMAGE_URL
 		};
 
-		// int _ID = 0;
+		int _ID = 0;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
@@ -900,91 +1035,67 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public boolean onCreateActionMode(@NonNull ActionMode mode, @NonNull android.view.Menu menu) {
-		android.view.MenuInflater inflater = mode.getMenuInflater();
-		inflater.inflate(R.menu.game_context, menu);
-		logPlayMenuItem = menu.findItem(R.id.menu_log_play);
-		logPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
-		bggLinkMenuItem = menu.findItem(R.id.menu_link);
-		selectedPositions.clear();
+		mode.getMenuInflater().inflate(R.menu.game_context, menu);
+		adapter.clearSelection();
 		return true;
 	}
 
 	@Override
 	@DebugLog
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
-		return false;
+		int count = adapter.getSelectedItemCount();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_link).setVisible(count == 1);
+		return true;
 	}
 
 	@Override
 	@DebugLog
 	public void onDestroyActionMode(ActionMode mode) {
-	}
-
-	@Override
-	@DebugLog
-	public void onItemCheckedStateChanged(@NonNull ActionMode mode, int position, long id, boolean checked) {
-		if (!isAdded()) {
-			return;
-		}
-
-		if (checked) {
-			selectedPositions.add(position);
-		} else {
-			selectedPositions.remove(position);
-		}
-
-		int count = selectedPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-
-		logPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		logPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
-		bggLinkMenuItem.setVisible(count == 1);
+		actionMode = null;
+		adapter.clearSelection();
 	}
 
 	@Override
 	@DebugLog
 	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull android.view.MenuItem item) {
-		if (!selectedPositions.iterator().hasNext()) {
+		if (!adapter.getSelectedItemPositions().iterator().hasNext()) {
 			return false;
 		}
-		Cursor cursor = (Cursor) adapter.getItem(selectedPositions.iterator().next());
-		int gameId = cursor.getInt(Query.GAME_ID);
-		String gameName = cursor.getString(Query.GAME_NAME);
-		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
-		String imageUrl = cursor.getString(Query.IMAGE_URL);
-		String heroImageUrl = cursor.getString(Query.HERO_IMAGE_URL);
-		boolean customPlayerSort = (cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1);
+		final CollectionItem ci = adapter.getItem(adapter.getSelectedItemPositions().iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
+				LogPlayActivity.logPlay(getContext(), ci.gameId, ci.gameName, ci.thumbnailUrl, ci.imageUrl, ci.heroImageUrl, ci.customPlayerSort);
 				mode.finish();
-				LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 				return true;
 			case R.id.menu_log_play_quick:
-				mode.finish();
-				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, selectedPositions.size());
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, adapter.getSelectedItemCount());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-				for (int position : selectedPositions) {
-					Cursor c = (Cursor) adapter.getItem(position);
-					ActivityUtils.logQuickPlay(getActivity(), c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME));
+				for (int position : adapter.getSelectedItemPositions()) {
+					CollectionItem collectionItem = adapter.getItem(position);
+					ActivityUtils.logQuickPlay(getActivity(), collectionItem.gameId, collectionItem.gameName);
 				}
+				mode.finish();
 				return true;
 			case R.id.menu_share:
-				mode.finish();
 				final String shareMethod = "Collection";
-				if (selectedPositions.size() == 1) {
-					ActivityUtils.shareGame(getActivity(), gameId, gameName, shareMethod);
+				if (adapter.getSelectedItemCount() == 1) {
+					ActivityUtils.shareGame(getActivity(), ci.gameId, ci.gameName, shareMethod);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<>(selectedPositions.size());
-					for (int position : selectedPositions) {
-						Cursor c = (Cursor) adapter.getItem(position);
-						games.add(new Pair<>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
+					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
+					for (int position : adapter.getSelectedItemPositions()) {
+						CollectionItem collectionItem = adapter.getItem(position);
+						games.add(new Pair<>(collectionItem.gameId, collectionItem.gameName));
 					}
 					ActivityUtils.shareGames(getActivity(), games, shareMethod);
 				}
+				mode.finish();
 				return true;
 			case R.id.menu_link:
+				ActivityUtils.linkBgg(getActivity(), ci.gameId);
 				mode.finish();
-				ActivityUtils.linkBgg(getActivity(), gameId);
 				return true;
 		}
 		return false;

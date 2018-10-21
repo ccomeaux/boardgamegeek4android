@@ -343,6 +343,13 @@
 		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
 	</style>
 
+	<style name="BottomActionBar" parent="Widget.MaterialComponents.BottomAppBar">
+		<item name="android:backgroundTint">?attr/colorPrimary</item>
+		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+	</style>
+
 	<style name="ActionBarButtonContainer">
 		<item name="android:divider">?android:attr/dividerVertical</item>
 		<item name="android:dividerPadding">12dp</item>
