@@ -599,7 +599,7 @@ public class PlaysFragment extends Fragment implements
 		int token = loader.getId();
 		if (token == PLAY_QUERY_TOKEN) {
 			if (adapter == null) {
-				adapter = new PlayAdapter(getActivity());
+				adapter = new PlayAdapter(getContext());
 				listView.setAdapter(adapter);
 			}
 			List<PlayModel> plays = new ArrayList<>();
@@ -769,7 +769,6 @@ public class PlaysFragment extends Fragment implements
 				if (count == 0) {
 					actionMode.finish();
 				} else {
-					actionMode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 					actionMode.invalidate();
 				}
 			}
@@ -920,6 +919,8 @@ public class PlaysFragment extends Fragment implements
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		int count = adapter.getSelectedItemCount();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 		menu.findItem(R.id.menu_send).setVisible(adapter.areAllSelectedItemsPending());
 		menu.findItem(R.id.menu_edit).setVisible(adapter.getSelectedItemCount() == 1);
 		return true;

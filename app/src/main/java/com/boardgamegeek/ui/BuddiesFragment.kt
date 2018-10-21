@@ -153,7 +153,7 @@ class BuddiesFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
     }
 
-    class BuddiesAdapter() : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+    class BuddiesAdapter : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
         var buddies: List<Buddy> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id

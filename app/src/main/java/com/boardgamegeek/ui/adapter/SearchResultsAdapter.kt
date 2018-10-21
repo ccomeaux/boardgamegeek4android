@@ -4,7 +4,6 @@ import android.graphics.Typeface
 import android.util.SparseBooleanArray
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.util.keyIterator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
