@@ -28,7 +28,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
@@ -194,13 +193,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
 		viewIndex = findViewIndex(id);
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(@NonNull GameSelectedEvent event) {
-		GameActivity.start(this, event.getId(), event.getName(), event.getThumbnailUrl(), event.getHeroImageUrl());
 	}
 
 	@SuppressWarnings("unused")

@@ -29,7 +29,6 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
-import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
@@ -943,7 +942,7 @@ public class CollectionFragment extends Fragment implements
 						if (isCreatingShortcut) {
 							EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
 						} else if (actionMode == null) {
-							EventBus.getDefault().post(new GameSelectedEvent(item.gameId, item.gameName, item.imageUrl, item.thumbnailUrl, item.heroImageUrl));
+							GameActivity.start(getContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
 						} else {
 							adapter.toggleSelection(position);
 						}
