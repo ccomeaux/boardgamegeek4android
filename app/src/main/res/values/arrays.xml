@@ -73,6 +73,7 @@
 		<item>Like to have</item>
 		<item>Thinking about it</item>
 		<item>Don\'t buy this</item>
+		<item>Unknown</item>
 	</string-array>
 	<string-array name="wishlist_priority_finite">
 		<item>Must have</item>

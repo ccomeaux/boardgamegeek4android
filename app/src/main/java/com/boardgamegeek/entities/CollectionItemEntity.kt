@@ -21,7 +21,7 @@ data class CollectionItemEntity(
         val wantToPlay: Boolean = false,
         val wantToBuy: Boolean = false,
         val wishList: Boolean = false,
-        val wishListPriority: Int = 3, // like to have. should this be 0?
+        val wishListPriority: Int = WISHLIST_PRIORITY_UNKNOWN,
         val preOrdered: Boolean = false,
         val lastModifiedDate: Long = 0L,
         val numberOfPlays: Int = 0,
