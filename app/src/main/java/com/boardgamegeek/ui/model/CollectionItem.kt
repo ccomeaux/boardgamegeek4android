@@ -50,7 +50,7 @@ data class CollectionItem(
         val hasPartsDirtyTimestamp: Long
 ) {
 
-    val safeWishlistPriorty: Int
+    val safeWishlistPriority: Int
         get() = when {
             wishlistPriority < 1 -> 1
             wishlistPriority > 5 -> 5
