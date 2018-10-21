@@ -714,7 +714,11 @@ public class CollectionFragment extends Fragment implements
 		}
 
 		final boolean show = filterButtonContainer.getChildCount() > 0;
-		filterButtonScroll.setVisibility(show ? View.VISIBLE : View.GONE);
+		if (show) {
+			AnimationUtils.slideUpIn(filterButtonScroll);
+		} else {
+			AnimationUtils.slideDownOut(filterButtonScroll);
+		}
 		swipeRefreshLayout.setPadding(
 			swipeRefreshLayout.getPaddingLeft(),
 			swipeRefreshLayout.getPaddingTop(),
@@ -801,7 +805,7 @@ public class CollectionFragment extends Fragment implements
 		public final long timestamp;
 		public final String displayInfo;
 		public final String headerText;
-		public boolean customPlayerSort;
+		public final boolean customPlayerSort;
 
 		public CollectionItem(Cursor cursor, CollectionSorter sorter) {
 			internalId = cursor.getLong(Query._ID);
@@ -829,7 +833,7 @@ public class CollectionFragment extends Fragment implements
 
 	public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.CollectionItemViewHolder> {
 		@NonNull private final LayoutInflater inflater;
-		private List<CollectionItem> items = new ArrayList<>();
+		private final List<CollectionItem> items = new ArrayList<>();
 		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 		@DebugLog

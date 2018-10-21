@@ -8,14 +8,42 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 
+import com.boardgamegeek.R;
+
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 
 /**
  * Helper class for animations.
  */
 public class AnimationUtils {
 	private AnimationUtils() {
+	}
+
+	public static void slideUpIn(final View view) {
+		if (view == null || view.getVisibility() == View.VISIBLE) return;
+		final Animation animation = android.view.animation.AnimationUtils.loadAnimation(view.getContext(), R.anim.slide_up);
+		view.startAnimation(animation);
+		view.setVisibility(View.VISIBLE);
+	}
+
+	public static void slideDownOut(final View view) {
+		if (view == null || view.getVisibility() == View.GONE) return;
+		final Animation animation = android.view.animation.AnimationUtils.loadAnimation(view.getContext(), R.anim.slide_down);
+		animation.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				view.setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+		});
+		view.startAnimation(animation);
 	}
 
 	public static void fadeIn(final View view) {
@@ -42,10 +70,6 @@ public class AnimationUtils {
 	public static void fadeOut(final View view) {
 		if (view == null || view.getVisibility() != View.VISIBLE) return;
 		fadeOut(view.getContext(), view, true, GONE);
-	}
-
-	public static void fadeOutToInvisible(final View view) {
-		fadeOut(view.getContext(), view, true, INVISIBLE);
 	}
 
 	private static void fadeOut(Context context, final View view, boolean animate, final int visibility) {
