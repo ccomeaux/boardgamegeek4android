@@ -873,7 +873,7 @@ public class PlaysFragment extends Fragment implements
 			public boolean isSection(int position) {
 				if (plays == null || plays.size() == 0) return false;
 				if (position == 0) return true;
-				if (position < 0 || position > plays.size()) return false;
+				if (position < 0 || position >= plays.size()) return false;
 				String thisLetter = sorter.getSectionText(plays.get(position));
 				String lastLetter = sorter.getSectionText(plays.get(position - 1));
 				return !thisLetter.equals(lastLetter);
@@ -883,7 +883,7 @@ public class PlaysFragment extends Fragment implements
 			@Override
 			public CharSequence getSectionHeader(int position) {
 				if (plays == null || plays.size() == 0) return "-";
-				if (position < 0 || position > plays.size()) return "-";
+				if (position < 0 || position >= plays.size()) return "-";
 				return sorter.getSectionText(plays.get(position));
 			}
 		};

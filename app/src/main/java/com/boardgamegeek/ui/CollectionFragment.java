@@ -976,7 +976,7 @@ public class CollectionFragment extends Fragment implements
 			@Override
 			public CharSequence getSectionHeader(int position) {
 				if (items == null || items.size() == 0) return "-";
-				if (position < 0 || position > items.size()) return "-";
+				if (position < 0 || position >= items.size()) return "-";
 				return items.get(position).headerText;
 			}
 		};
