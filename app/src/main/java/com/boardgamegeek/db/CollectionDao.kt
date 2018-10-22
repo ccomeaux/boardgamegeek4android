@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
+import com.boardgamegeek.entities.WISHLIST_PRIORITY_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -92,7 +93,7 @@ class CollectionDao(private val context: BggApplication) {
                             wantToPlay = it.getBoolean(Collection.STATUS_WANT_TO_PLAY),
                             wantToBuy = it.getBoolean(Collection.STATUS_WANT_TO_BUY),
                             wishList = it.getBoolean(Collection.STATUS_WISHLIST),
-                            wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3,
+                            wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: WISHLIST_PRIORITY_UNKNOWN,
                             dirtyTimestamp = it.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
                             statusDirtyTimestamp = it.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
                             ratingDirtyTimestamp = it.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),
@@ -184,7 +185,7 @@ class CollectionDao(private val context: BggApplication) {
                                 wantToPlay = it.getBoolean(Collection.STATUS_WANT_TO_PLAY),
                                 wantToBuy = it.getBoolean(Collection.STATUS_WANT_TO_BUY),
                                 wishList = it.getBoolean(Collection.STATUS_WISHLIST),
-                                wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: 3,
+                                wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: WISHLIST_PRIORITY_UNKNOWN,
                                 dirtyTimestamp = it.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
                                 statusDirtyTimestamp = it.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
                                 ratingDirtyTimestamp = it.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),

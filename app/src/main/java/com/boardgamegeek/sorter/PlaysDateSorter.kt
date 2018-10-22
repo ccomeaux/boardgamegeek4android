@@ -1,11 +1,10 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.getApiTime
 import com.boardgamegeek.provider.BggContract.Plays
+import com.boardgamegeek.ui.model.PlayModel
 import com.boardgamegeek.util.DateTimeUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,8 +22,8 @@ class PlaysDateSorter(context: Context) : PlaysSorter(context) {
     override val columns: Array<String>
         get() = arrayOf(Plays.DATE)
 
-    public override fun getHeaderText(cursor: Cursor): String {
-        val time = cursor.getApiTime(Plays.DATE)
+    override fun getSectionText(play: PlayModel): String {
+        val time = play.dateInMillis
         return if (time == DateTimeUtils.UNKNOWN_DATE) defaultValue else DATE_FORMAT.format(time)
     }
 

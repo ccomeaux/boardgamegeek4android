@@ -1,3 +1,5 @@
+@file:JvmName("StringUtils")
+
 package com.boardgamegeek.extensions
 
 import android.content.Context
@@ -97,3 +99,8 @@ inline fun String.andMore() = "${this}+"
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andLess() = "<${this}"
+
+fun String?.firstChar(): String {
+    if (this == null || isEmpty()) return "-"
+    return substring(0, 1).toUpperCase(Locale.getDefault())
+}

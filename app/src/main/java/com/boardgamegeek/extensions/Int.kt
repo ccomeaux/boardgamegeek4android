@@ -181,3 +181,15 @@ fun List<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = In
 fun Int.significantDigits(digits: Int): Int {
     return BigDecimal(this).round(MathContext(digits)).toInt()
 }
+
+fun Int.orderOfMagnitude(): String {
+    val digit = toString().substring(0, 1)
+    val suffix = when {
+        this >= 1000000000 -> "B"
+        this >= 1000000 -> "M"
+        this > 1000 -> "K"
+        else -> ""
+    }
+    val zeros = (toString().length - 1) % 3
+    return digit + ("0".repeat(zeros)) + suffix + "+"
+}

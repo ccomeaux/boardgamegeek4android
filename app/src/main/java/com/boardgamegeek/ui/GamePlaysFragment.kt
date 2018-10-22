@@ -16,7 +16,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.events.PlaySelectedEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -122,8 +121,7 @@ class GamePlaysFragment : Fragment() {
                         row.findViewById<TextView>(R.id.line1)?.text = title
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
-                            val event = PlaySelectedEvent(play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
-                            PlayActivity.start(context, event)
+                            PlayActivity.start(context, play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
                         }
                         inProgressPlaysList?.addView(row)
                     }
@@ -150,8 +148,9 @@ class GamePlaysFragment : Fragment() {
                 if (lastPlay != null) {
                     lastPlayDateView?.text = context?.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(requireContext())) ?: ""
                     lastPlayInfoView?.text = lastPlay.describe(requireContext())
-                    val event = PlaySelectedEvent(lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
-                    lastPlayContainer?.setOnClickListener { PlayActivity.start(context, event) }
+                    lastPlayContainer?.setOnClickListener {
+                        PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
+                    }
                     lastPlayContainer?.fadeIn()
                 } else {
                     lastPlayContainer?.fadeOut()

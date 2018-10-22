@@ -1,15 +1,15 @@
 package com.boardgamegeek.ui.adapter
 
 import android.graphics.Typeface
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.NO_ID
 import android.util.SparseBooleanArray
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.SearchResultEntity
 import com.boardgamegeek.extensions.asYear
+import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.SearchResultViewHolder
 import kotlinx.android.synthetic.main.row_search.view.*
@@ -34,8 +34,7 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.row_search, parent, false)
-        return SearchResultViewHolder(view)
+        return SearchResultViewHolder(parent.inflate(R.layout.row_search))
     }
 
     override fun onBindViewHolder(holder: SearchResultViewHolder, position: Int) {

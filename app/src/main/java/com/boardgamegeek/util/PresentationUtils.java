@@ -3,15 +3,11 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.util.TypedValue;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -34,7 +30,6 @@ import hugo.weaving.DebugLog;
  * Methods to aid in presenting information in a consistent manner.
  */
 public class PresentationUtils {
-	private static final DecimalFormat PERSONAL_RATING_FORMAT = new DecimalFormat("#0.#");
 	private static final DecimalFormat MONEY_FORMAT = setUpMoneyFormatter();
 
 	private PresentationUtils() {
@@ -66,7 +61,6 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
 	public static String describeYear(@Nullable Context context, int year) {
 		if (context == null) return "";
 		if (year > 0) {
@@ -147,7 +141,6 @@ public class PresentationUtils {
 		return info.trim();
 	}
 
-	@DebugLog
 	public static void setTextOrHide(@Nullable TextView view, int number) {
 		if (view != null) {
 			view.setText(String.valueOf(number));
@@ -155,18 +148,10 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
 	public static void setTextOrHide(@Nullable TextView view, CharSequence text) {
 		if (view != null) {
 			view.setText(text);
 			view.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		}
-	}
-
-	public static void setAndSelectExistingText(@Nullable EditText view, @Nullable String existingText) {
-		if (view != null && !TextUtils.isEmpty(existingText)) {
-			view.setText(existingText);
-			view.setSelection(0, existingText.length());
 		}
 	}
 
@@ -212,29 +197,6 @@ public class PresentationUtils {
 				fab.show();
 			}
 		}, 2000);
-	}
-
-	@DebugLog
-	public static void setSelectableBackground(View view) {
-		setSelectableBackground(view, android.R.attr.selectableItemBackground);
-	}
-
-	@DebugLog
-	public static void setSelectableBackgroundBorderless(View view) {
-		if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-			setSelectableBackground(view, android.R.attr.selectableItemBackgroundBorderless);
-		} else {
-			setSelectableBackground(view);
-		}
-	}
-
-	@DebugLog
-	private static void setSelectableBackground(View view, int backgroundResId) {
-		TypedValue outValue = new TypedValue();
-		view.getContext().getTheme().resolveAttribute(backgroundResId, outValue, true);
-		view.setBackgroundResource(outValue.resourceId);
-		view.setClickable(true);
-		view.setVisibility(View.VISIBLE);
 	}
 
 	public static final ButterKnife.Action<View> setGone = new ButterKnife.Action<View>() {

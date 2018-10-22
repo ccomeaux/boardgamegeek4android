@@ -3,17 +3,11 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.tasks.AddUsernameToPlayerTask;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.tasks.RenamePlayerTask;
@@ -30,12 +24,16 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
+import com.google.android.material.snackbar.Snackbar;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -86,7 +84,6 @@ public class BuddyActivity extends SimpleSinglePaneActivity implements
 		if (TextUtils.isEmpty(name) && TextUtils.isEmpty(username)) finish();
 		setSubtitle();
 
-		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
 				.putContentType("Buddy")
@@ -113,13 +110,13 @@ public class BuddyActivity extends SimpleSinglePaneActivity implements
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+	public boolean onPrepareOptionsMenu(@NotNull Menu menu) {
 		UIUtils.showMenuItem(menu, R.id.add_username, TextUtils.isEmpty(username));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_view:
 				ActivityUtils.linkToBgg(this, "user/" + username);
@@ -140,7 +137,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity implements
 	}
 
 	@Override
-	public void onFinishEditDialog(@NonNull String text, @Nullable String originalText) {
+	public void onFinishEditDialog(@NotNull String text, @Nullable String originalText) {
 		if (!TextUtils.isEmpty(text)) {
 			RenamePlayerTask task = new RenamePlayerTask(this, originalText, text);
 			TaskUtils.executeAsyncTask(task);
@@ -148,7 +145,7 @@ public class BuddyActivity extends SimpleSinglePaneActivity implements
 	}
 
 	@Override
-	public void buddyNicknameUpdated(@NonNull String newNickname, boolean updatePlays) {
+	public void buddyNicknameUpdated(@NotNull String newNickname, boolean updatePlays) {
 		if (!TextUtils.isEmpty(newNickname)) {
 			BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(this, username, newNickname, updatePlays);
 			TaskUtils.executeAsyncTask(task);

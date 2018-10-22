@@ -194,7 +194,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		CursorLoader loader = null;
 		switch (id) {
 			case TOKEN:
-				loader = new CursorLoader(getContext(), Buddies.buildBuddyUri(buddyName), Buddy.PROJECTION, null, null, null);
+				loader = new CursorLoader(getContext(), Buddies.buildBuddyUri(buddyName), Buddy.getProjection(), null, null, null);
 				break;
 			case PLAYS_TOKEN:
 				if (isUser()) {

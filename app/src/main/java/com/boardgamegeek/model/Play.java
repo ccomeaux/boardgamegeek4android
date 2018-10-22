@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.extensions.StringKt;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -84,7 +83,7 @@ public class Play {
 	}
 
 	public void setDateFromDatabase(String date) {
-		dateInMillis = StringKt.toMillis(date, DateTimeUtils.FORMAT_DATABASE);
+		dateInMillis = com.boardgamegeek.extensions.StringUtils.toMillis(date, DateTimeUtils.FORMAT_DATABASE);
 	}
 
 	public void setCurrentDate() {

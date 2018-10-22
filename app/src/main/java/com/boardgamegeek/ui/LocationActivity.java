@@ -8,8 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.LocationSelectedEvent;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
@@ -22,9 +20,9 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import androidx.annotation.NonNull;
@@ -55,8 +53,6 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 				.putContentType("Location")
 				.putContentName(locationName));
 		}
-
-		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
 	@Override
@@ -88,25 +84,18 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 
 	@DebugLog
 	@Override
-	public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+	public boolean onPrepareOptionsMenu(@NotNull Menu menu) {
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, playCount < 0 ? "" : String.valueOf(playCount));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		if (item.getItemId() == R.id.menu_edit) {
 			showDialog(locationName);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(@NonNull PlaySelectedEvent event) {
-		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")
@@ -140,7 +129,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 	}
 
 	@Override
-	public void onFinishEditDialog(@NonNull String text, @Nullable String originalText) {
+	public void onFinishEditDialog(@NotNull String text, @Nullable String originalText) {
 		if (!TextUtils.isEmpty(text)) {
 			DataManipulationEvent.log("Location", "Edit");
 			RenameLocationTask task = new RenameLocationTask(LocationActivity.this, originalText, text);

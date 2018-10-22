@@ -1,12 +1,11 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
 import androidx.annotation.StringRes
-
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.getInt
+import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.provider.BggContract.Plays
+import com.boardgamegeek.ui.model.Player
 
 class PlayersWinSorter(context: Context) : PlayersSorter(context) {
 
@@ -23,21 +22,9 @@ class PlayersWinSorter(context: Context) : PlayersSorter(context) {
     override val isSortDescending: Boolean
         get() = true
 
-    public override fun getHeaderText(cursor: Cursor): String {
-        val quantity = cursor.getInt(Plays.SUM_WINS)
-        val prefix = quantity.toString().substring(0, 1)
-        val suffix = when {
-            quantity >= 10000 -> "0000+"
-            quantity >= 1000 -> "000+"
-            quantity >= 100 -> "00+"
-            quantity >= 10 -> "0+"
-            else -> ""
-        }
-        return prefix + suffix
+    override fun getSectionText(player: Player?): String {
+        return (player?.winCount ?: 0).orderOfMagnitude()
     }
 
-    override fun getDisplayInfo(cursor: Cursor): String {
-        val winCount = cursor.getInt(Plays.SUM_WINS)
-        return context.resources.getQuantityString(R.plurals.wins_suffix, winCount, winCount)
-    }
+    override fun getDisplayText(player: Player): String? = context.resources.getQuantityString(R.plurals.wins_suffix, player.winCount, player.winCount)
 }

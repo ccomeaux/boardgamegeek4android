@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+	android:id="@+id/swipeRefresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -9,11 +9,10 @@
 
 	<FrameLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="@android:color/white">
+		android:layout_height="match_parent">
 
 		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-			android:id="@+id/progress"
+			android:id="@+id/progressBar"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -21,20 +20,20 @@
 			android:gravity="center"/>
 
 		<androidx.coordinatorlayout.widget.CoordinatorLayout
-			android:id="@+id/list_container"
+			android:id="@+id/listContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<se.emilsjolander.stickylistheaders.StickyListHeadersListView
-				android:id="@android:id/list"
+			<androidx.recyclerview.widget.RecyclerView
+				android:id="@+id/recyclerView"
+				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:cacheColorHint="@android:color/white"
-				android:drawSelectorOnTop="false"
-				android:fastScrollEnabled="true"/>
+				app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+				tools:listitem="@layout/row_buddy"/>
 
 			<LinearLayout
-				android:id="@+id/empty_container"
+				android:id="@+id/emptyContainer"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
@@ -45,35 +44,22 @@
 				android:paddingTop="@dimen/material_margin_vertical">
 
 				<TextView
-					android:id="@android:id/empty"
-					style="@style/Text"
+					android:id="@+id/emptyTextView"
+					style="@style/Text.Empty"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center"
-					android:text="@string/empty"/>
+					android:text="@string/empty_buddies"/>
 
 				<Button
-					android:id="@+id/empty_button"
+					android:id="@+id/emptyButton"
 					style="@style/ColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_marginTop="@dimen/padding_extra"
-					android:text="@string/re_sync"
+					android:text="@string/sync"
 					android:visibility="gone"/>
 			</LinearLayout>
-
-			<com.google.android.material.floatingactionbutton.FloatingActionButton
-				android:id="@+id/fab"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="bottom|right"
-				android:layout_margin="@dimen/padding_fab"
-				android:src="@drawable/ic_action_add"
-				android:visibility="gone"
-				app:elevation="@dimen/fab_elevation"
-				app:pressedTranslationZ="@dimen/fab_translation"
-				app:rippleColor="@color/medium_blue"
-				tools:visibility="visible"/>
 		</androidx.coordinatorlayout.widget.CoordinatorLayout>
 	</FrameLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

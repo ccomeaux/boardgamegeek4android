@@ -557,7 +557,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		// edit
 		if (wishlistPriorityView.getAdapter() == null)
 			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
-		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
+		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriority() - 1);
 		wishlistPriorityView.setEnabled(item.isWishlist());
 		wishlistView.setChecked(item.isWishlist());
 
