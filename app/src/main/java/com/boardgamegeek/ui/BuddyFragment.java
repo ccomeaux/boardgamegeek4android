@@ -3,16 +3,6 @@ package com.boardgamegeek.ui;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.core.content.ContextCompat;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,11 +36,20 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
@@ -69,19 +68,19 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	@State boolean hasBeenRefreshed;
 
 	private Unbinder unbinder;
-	private SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.buddy_info) View buddyInfoView;
-	@BindView(R.id.full_name) TextView fullNameView;
-	@BindView(R.id.username) TextView usernameView;
-	@BindView(R.id.avatar) ImageView avatarView;
-	@BindView(R.id.nickname) TextView nicknameView;
-	@BindView(R.id.collection_card) View collectionCard;
-	@BindView(R.id.plays_card) View playsCard;
-	@BindView(R.id.plays_label) TextView playsView;
-	@BindView(R.id.wins_label) TextView winsView;
-	@BindView(R.id.wins_percentage) TextView winPercentageView;
-	@BindView(R.id.color_container) LinearLayout colorContainer;
-	@BindView(R.id.updated) TimestampView updatedView;
+	@BindView(R.id.swipeRefresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.buddyInfoView) View buddyInfoView;
+	@BindView(R.id.fullNameView) TextView fullNameView;
+	@BindView(R.id.usernameView) TextView usernameView;
+	@BindView(R.id.avatarView) ImageView avatarView;
+	@BindView(R.id.nicknameView) TextView nicknameView;
+	@BindView(R.id.collectionCard) View collectionCard;
+	@BindView(R.id.playsCard) View playsCard;
+	@BindView(R.id.playsView) TextView playsView;
+	@BindView(R.id.winsView) TextView winsView;
+	@BindView(R.id.winPercentageView) TextView winPercentageView;
+	@BindView(R.id.colorContainer) LinearLayout colorContainer;
+	@BindView(R.id.updatedView) TimestampView updatedView;
 	private int defaultTextColor;
 	private int lightTextColor;
 
@@ -99,6 +98,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
+		readBundle(getArguments());
 	}
 
 	@Override
@@ -109,17 +109,17 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		readBundle(getArguments());
+		return inflater.inflate(R.layout.fragment_buddy, container, false);
+	}
 
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
-
-		unbinder = ButterKnife.bind(this, rootView);
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		unbinder = ButterKnife.bind(this, view);
 
 		buddyInfoView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		collectionCard.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 		updatedView.setVisibility(isUser() ? View.VISIBLE : View.GONE);
 
-		swipeRefreshLayout = (SwipeRefreshLayout) rootView;
 		if (isUser()) {
 			swipeRefreshLayout.setOnRefreshListener(this);
 			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
@@ -139,8 +139,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 		LoaderManager.getInstance(this).restartLoader(PLAYS_TOKEN, null, this);
 		LoaderManager.getInstance(this).restartLoader(COLORS_TOKEN, null, this);
-
-		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -153,14 +151,12 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		return !TextUtils.isEmpty(buddyName);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
@@ -173,7 +169,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		super.onDestroyView();
 	}
 
-	@DebugLog
 	private void updateRefreshStatus(boolean value) {
 		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
@@ -188,7 +183,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 
 	@NonNull
 	@Override
-	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		if (getContext() == null) return null;
 		CursorLoader loader = null;
@@ -228,7 +222,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@Override
-	@DebugLog
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
@@ -249,28 +242,27 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 	}
 
 	@Override
-	@DebugLog
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
-	@DebugLog
-	@OnClick(R.id.nickname)
+	@OnClick(R.id.nicknameView)
 	public void onEditNicknameClick() {
+		final String nickname = nicknameView.getText().toString();
 		if (isUser()) {
-			showNicknameDialog(nicknameView.getText().toString());
+			UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nickname);
+			DialogUtils.showFragment(getActivity(), dialogFragment, "edit_nickname");
 		} else {
-			showPlayerNameDialog(nicknameView.getText().toString());
+			EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, nickname);
+			DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
 		}
 	}
 
-	@DebugLog
-	@OnClick(R.id.collection_root)
+	@OnClick(R.id.collectionRoot)
 	public void onCollectionClick() {
 		BuddyCollectionActivity.start(getContext(), buddyName);
 	}
 
-	@DebugLog
-	@OnClick(R.id.plays_root)
+	@OnClick(R.id.playsRoot)
 	public void onPlaysClick() {
 		if (isUser()) {
 			BuddyPlaysActivity.start(getContext(), buddyName);
@@ -279,8 +271,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
-	@DebugLog
-	@OnClick(R.id.colors_root)
+	@OnClick(R.id.colorsRoot)
 	public void onColorsClick() {
 		PlayerColorsActivity.start(getContext(), buddyName, playerName);
 	}
@@ -306,7 +297,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		updatedView.setTimestamp(buddy.getUpdated());
 	}
 
-	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			return;
@@ -325,7 +315,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
-	@DebugLog
 	private void onColorsQueryComplete(Cursor cursor) {
 		if (cursor == null) {
 			return;
@@ -347,7 +336,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
-	@DebugLog
 	private ImageView createViewToBeColored() {
 		ImageView view = new ImageView(getActivity());
 		int size = getResources().getDimensionPixelSize(R.dimen.color_circle_diameter_small);
@@ -358,13 +346,11 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		return view;
 	}
 
-	@DebugLog
 	@Override
 	public void onRefresh() {
 		requestRefresh();
 	}
 
-	@DebugLog
 	private void requestRefresh() {
 		if (!isRefreshing) {
 			if (hasBeenRefreshed) {
@@ -375,7 +361,6 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		}
 	}
 
-	@DebugLog
 	public void forceRefresh() {
 		if (isUser()) {
 			updateRefreshStatus(true);
@@ -386,20 +371,7 @@ public class BuddyFragment extends Fragment implements LoaderCallbacks<Cursor>, 
 		hasBeenRefreshed = true;
 	}
 
-	@DebugLog
-	private void showNicknameDialog(final String nickname) {
-		UpdateBuddyNicknameDialogFragment dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nickname);
-		DialogUtils.showFragment(getActivity(), dialogFragment, "edit_nickname");
-	}
-
-	@DebugLog
-	private void showPlayerNameDialog(final String oldName) {
-		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, oldName);
-		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_player");
-	}
-
 	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CompletedEvent event) {
 		if (event.getUsername().equals(buddyName)) {

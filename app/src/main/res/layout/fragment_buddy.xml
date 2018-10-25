@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/root"
+	android:id="@+id/swipeRefresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -19,7 +19,7 @@
 			android:paddingTop="@dimen/material_margin_vertical">
 
 			<LinearLayout
-				android:id="@+id/buddy_info"
+				android:id="@+id/buddyInfoView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
@@ -30,7 +30,7 @@
 				android:paddingTop="@dimen/material_margin_vertical">
 
 				<ImageView
-					android:id="@+id/avatar"
+					android:id="@+id/avatarView"
 					android:layout_width="@dimen/avatar_size"
 					android:layout_height="@dimen/avatar_size"
 					android:layout_marginEnd="@dimen/padding_standard"
@@ -45,14 +45,14 @@
 					android:orientation="vertical">
 
 					<TextView
-						android:id="@+id/full_name"
+						android:id="@+id/fullNameView"
 						style="@style/Text.Title"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						tools:text="Chris Comeaux"/>
 
 					<TextView
-						android:id="@+id/username"
+						android:id="@+id/usernameView"
 						style="@style/Text.Subtitle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -74,11 +74,11 @@
 					<TextView
 						style="@style/Text.Header.Card"
 						android:layout_width="match_parent"
-						android:labelFor="@+id/nickname"
+						android:labelFor="@+id/nicknameView"
 						android:text="@string/nickname"/>
 
 					<TextView
-						android:id="@+id/nickname"
+						android:id="@+id/nicknameView"
 						style="@style/Text.Title"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
@@ -97,13 +97,13 @@
 			</androidx.cardview.widget.CardView>
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/collection_card"
+				android:id="@+id/collectionCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
 				<LinearLayout
-					android:id="@+id/collection_root"
+					android:id="@+id/collectionRoot"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:background="?attr/selectableItemBackground"
@@ -131,7 +131,7 @@
 			</androidx.cardview.widget.CardView>
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/plays_card"
+				android:id="@+id/playsCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
 				tools:visibility="visible">
 
 				<LinearLayout
-					android:id="@+id/plays_root"
+					android:id="@+id/playsRoot"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:background="?attr/selectableItemBackground"
@@ -162,7 +162,7 @@
 						android:orientation="vertical">
 
 						<TextView
-							android:id="@+id/plays_label"
+							android:id="@+id/playsView"
 							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -170,7 +170,7 @@
 							android:text="@string/title_plays"/>
 
 						<TextView
-							android:id="@+id/wins_label"
+							android:id="@+id/winsView"
 							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -178,7 +178,7 @@
 							android:text="@string/title_wins"/>
 
 						<TextView
-							android:id="@+id/wins_percentage"
+							android:id="@+id/winPercentageView"
 							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -194,7 +194,7 @@
 				android:layout_height="wrap_content">
 
 				<LinearLayout
-					android:id="@+id/colors_root"
+					android:id="@+id/colorsRoot"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:background="?attr/selectableItemBackground"
@@ -220,7 +220,7 @@
 						android:text="@string/title_favorite_colors"/>
 
 					<LinearLayout
-						android:id="@+id/color_container"
+						android:id="@+id/colorContainer"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:orientation="horizontal"
@@ -230,7 +230,7 @@
 			</androidx.cardview.widget.CardView>
 
 			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/updated"
+				android:id="@+id/updatedView"
 				style="@style/Text.Footnote2"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/view_row_height"
