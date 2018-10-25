@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.User;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.FileUtils;
@@ -17,19 +16,10 @@ import timber.log.Timber;
 
 public class BuddyPersister {
 	private final Context context;
-	private long updateTime;
+	private final long updateTime = System.currentTimeMillis();
 
 	public BuddyPersister(Context context) {
 		this.context = context;
-		updateTime = System.currentTimeMillis();
-	}
-
-	public long getTimestamp() {
-		return updateTime;
-	}
-
-	public void resetTimestamp() {
-		updateTime = System.currentTimeMillis();
 	}
 
 	public int saveUser(User buddy) {
@@ -48,21 +38,6 @@ public class BuddyPersister {
 				values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
 			}
 			return upsert(values, buddy.name, buddy.getId());
-		}
-		return 0;
-	}
-
-	public int saveBuddy(int userId, String username, boolean isBuddy) {
-		if (userId != BggContract.INVALID_ID && !TextUtils.isEmpty(username)) {
-			ContentValues values = new ContentValues();
-			values.put(Buddies.BUDDY_ID, userId);
-			values.put(Buddies.BUDDY_NAME, username);
-			values.put(Buddies.BUDDY_FLAG, isBuddy ? 1 : 0);
-			values.put(Buddies.UPDATED_LIST, updateTime);
-
-			return upsert(values, username, userId);
-		} else {
-			Timber.i("Un-savable buddy %s (%d)", username, userId);
 		}
 		return 0;
 	}

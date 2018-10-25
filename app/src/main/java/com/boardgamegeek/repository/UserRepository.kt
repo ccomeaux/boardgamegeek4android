@@ -38,10 +38,10 @@ class UserRepository(val application: BggApplication) {
             }
 
             override fun saveCallResult(result: User) {
-                userDao.saveBuddy(result.id, result.name, false)
+                userDao.saveUser(result.id, result.name, false)
                 var upsertedCount = 0
                 (result.buddies?.buddies ?: emptyList()).forEach {
-                    upsertedCount += userDao.saveBuddy(it.id.toIntOrNull()
+                    upsertedCount += userDao.saveUser(it.id.toIntOrNull()
                             ?: BggContract.INVALID_ID, it.name, updateTime = timestamp)
                 }
                 Timber.d("Upserted $upsertedCount users")

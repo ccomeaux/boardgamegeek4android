@@ -55,7 +55,7 @@ class UserDao(private val context: BggApplication) {
         return results
     }
 
-    fun saveBuddy(userId: Int, username: String, isBuddy: Boolean = true, updateTime: Long = System.currentTimeMillis()): Int {
+    fun saveUser(userId: Int, username: String, isBuddy: Boolean = true, updateTime: Long = System.currentTimeMillis()): Int {
         if (userId != BggContract.INVALID_ID && username.isNotBlank()) {
             val values = contentValuesOf(
                     BggContract.Buddies.BUDDY_ID to userId,
