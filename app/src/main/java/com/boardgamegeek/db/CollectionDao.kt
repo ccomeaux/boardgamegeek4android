@@ -16,14 +16,10 @@ import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.CursorUtils
 import com.boardgamegeek.util.FileUtils
-import com.boardgamegeek.util.ResolverUtils
 import com.boardgamegeek.util.SelectionBuilder
 import hugo.weaving.DebugLog
 import timber.log.Timber
-
-private const val NOT_DIRTY = 0L
 
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
@@ -93,7 +89,8 @@ class CollectionDao(private val context: BggApplication) {
                             wantToPlay = it.getBoolean(Collection.STATUS_WANT_TO_PLAY),
                             wantToBuy = it.getBoolean(Collection.STATUS_WANT_TO_BUY),
                             wishList = it.getBoolean(Collection.STATUS_WISHLIST),
-                            wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: WISHLIST_PRIORITY_UNKNOWN,
+                            wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY)
+                                    ?: WISHLIST_PRIORITY_UNKNOWN,
                             dirtyTimestamp = it.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
                             statusDirtyTimestamp = it.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
                             ratingDirtyTimestamp = it.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),
@@ -185,7 +182,8 @@ class CollectionDao(private val context: BggApplication) {
                                 wantToPlay = it.getBoolean(Collection.STATUS_WANT_TO_PLAY),
                                 wantToBuy = it.getBoolean(Collection.STATUS_WANT_TO_BUY),
                                 wishList = it.getBoolean(Collection.STATUS_WISHLIST),
-                                wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY) ?: WISHLIST_PRIORITY_UNKNOWN,
+                                wishListPriority = it.getIntOrNull(Collection.STATUS_WISHLIST_PRIORITY)
+                                        ?: WISHLIST_PRIORITY_UNKNOWN,
                                 dirtyTimestamp = it.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
                                 statusDirtyTimestamp = it.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
                                 ratingDirtyTimestamp = it.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),
@@ -219,11 +217,12 @@ class CollectionDao(private val context: BggApplication) {
     @DebugLog
     fun delete(gameId: Int, protectedCollectionIds: List<Int>): Int {
         // determine the collection IDs that are no longer in the collection
-        val collectionIdsToDelete = ResolverUtils.queryInts(resolver,
+        val collectionIdsToDelete = resolver.queryInts(
                 Collection.CONTENT_URI,
                 Collection.COLLECTION_ID,
                 "collection.${Collection.GAME_ID}=?",
                 arrayOf(gameId.toString()))
+                .toMutableList()
         collectionIdsToDelete.removeAll(protectedCollectionIds)
         // remove them
         if (collectionIdsToDelete.size > 0) {
@@ -281,7 +280,7 @@ class CollectionDao(private val context: BggApplication) {
     @DebugLog
     private fun upsertGame(gameId: Int, values: ContentValues, isBrief: Boolean) {
         val uri = Games.buildGameUri(gameId)
-        if (ResolverUtils.rowExists(resolver, uri)) {
+        if (resolver.rowExists(uri)) {
             values.remove(Games.GAME_ID)
             if (isBrief) {
                 values.remove(Games.GAME_NAME)
@@ -393,7 +392,7 @@ class CollectionDao(private val context: BggApplication) {
     @DebugLog
     private fun maybeDeleteThumbnail(values: ContentValues, uri: Uri) {
         val newThumbnailUrl: String = values.getAsString(Collection.COLLECTION_THUMBNAIL_URL) ?: ""
-        val oldThumbnailUrl = ResolverUtils.queryString(resolver, uri, Collection.COLLECTION_THUMBNAIL_URL) ?: ""
+        val oldThumbnailUrl = resolver.queryString(uri, Collection.COLLECTION_THUMBNAIL_URL) ?: ""
         if (newThumbnailUrl == oldThumbnailUrl) return // nothing to do - thumbnail hasn't changed
 
         val thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl)
@@ -439,18 +438,22 @@ class CollectionDao(private val context: BggApplication) {
 
             fun fromCursor(cursor: Cursor): SyncCandidate {
                 return SyncCandidate(
-                        CursorUtils.getLong(cursor, Collection._ID, INVALID_ID.toLong()),
-                        CursorUtils.getLong(cursor, Collection.COLLECTION_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.STATUS_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.RATING_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.COMMENT_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.WANT_PARTS_DIRTY_TIMESTAMP),
-                        CursorUtils.getLong(cursor, Collection.HAS_PARTS_DIRTY_TIMESTAMP)
+                        cursor.getLongOrNull(Collection._ID) ?: INVALID_ID.toLong(),
+                        cursor.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.COMMENT_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.WANT_PARTS_DIRTY_TIMESTAMP),
+                        cursor.getLongOrZero(Collection.HAS_PARTS_DIRTY_TIMESTAMP)
                 )
             }
         }
+    }
+
+    companion object {
+        private const val NOT_DIRTY = 0L
     }
 }

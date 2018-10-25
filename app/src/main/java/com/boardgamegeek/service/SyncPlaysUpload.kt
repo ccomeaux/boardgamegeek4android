@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.getLongOrNull
 import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
@@ -105,7 +106,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 try {
-                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val internalId = it.getLongOrNull(Plays._ID) ?: BggContract.INVALID_ID.toLong()
                     val play = PlayBuilder.fromCursor(it)
                     val playerCursor = PlayBuilder.queryPlayers(context, internalId)
                     playerCursor?.use { cursor ->
@@ -172,7 +173,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 try {
                     val play = PlayBuilder.fromCursor(it)
-                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val internalId = it.getLongOrNull(Plays._ID) ?: BggContract.INVALID_ID.toLong()
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                     if (play.playId > 0) {
                         val response = postPlayDelete(play.playId)
