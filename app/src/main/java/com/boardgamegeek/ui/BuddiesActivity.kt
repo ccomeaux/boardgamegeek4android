@@ -1,21 +1,34 @@
 package com.boardgamegeek.ui
 
+import android.os.Bundle
 import android.view.Menu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.events.BuddiesCountChangedEvent
 import com.boardgamegeek.extensions.setActionBarCount
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 
 class BuddiesActivity : TopLevelSinglePaneActivity() {
-    private var numberOfBuddies = -1
+    private var numberOfBuddies = 0
+
+    private val viewModel: BuddiesViewModel by lazy {
+        ViewModelProviders.of(this).get(BuddiesViewModel::class.java)
+    }
 
     override val answersContentType = "Buddies"
 
-    override val optionsMenuId = R.menu.buddies
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.buddies.observe(this, Observer {
+            numberOfBuddies = it?.data?.size ?: 0
+            invalidateOptionsMenu()
+        })
+    }
 
     override fun onCreatePane(): Fragment = BuddiesFragment()
+
+    override val optionsMenuId = R.menu.buddies
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.setActionBarCount(R.id.menu_list_count, numberOfBuddies)
@@ -23,10 +36,4 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
     }
 
     override fun getDrawerResId() = R.string.title_buddies
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun onEvent(event: BuddiesCountChangedEvent) {
-        numberOfBuddies = event.count
-        invalidateOptionsMenu()
-    }
 }

@@ -71,6 +71,18 @@ fun ContentResolver.getCount(uri: Uri): Int {
     return 0
 }
 
+fun ContentResolver.queryString(
+        uri: Uri,
+        columnName: String
+): String? {
+    query(uri, arrayOf(columnName), null, null, null)?.use {
+        if (it.count == 1 && it.moveToFirst()) {
+            return it.getString(0)
+        }
+    }
+    return null
+}
+
 fun ContentResolver.queryStrings(
         uri: Uri, columnName: String,
         selection: String? = null,
