@@ -59,7 +59,9 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
         var page = 0
         do {
             page++
-            createCall(page).enqueue(object : Callback<U> {
+            val call = createCall(page)
+            if (call == null) hasMorePages = false
+            call?.enqueue(object : Callback<U> {
                 override fun onResponse(call: Call<U>?, response: Response<U>?) {
                     if (response?.isSuccessful == true) {
                         val body = response.body()
@@ -105,7 +107,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     }
 
     @MainThread
-    protected abstract fun createCall(page: Int): Call<U>
+    protected abstract fun createCall(page: Int): Call<U>?
 
     @WorkerThread
     protected abstract fun saveCallResult(result: U)

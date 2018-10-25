@@ -58,7 +58,7 @@ class GameRepository(val application: BggApplication) {
                 return data == null || data.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)
             }
 
-            override fun createCall(page: Int): Call<ThingResponse> {
+            override fun createCall(page: Int): Call<ThingResponse>? {
                 timestamp = System.currentTimeMillis()
                 return Adapter.createForXml().thing(gameId, 1)
             }
@@ -135,7 +135,7 @@ class GameRepository(val application: BggApplication) {
                 }
             }
 
-            override fun createCall(page: Int): Call<PlaysResponse> {
+            override fun createCall(page: Int): Call<PlaysResponse>? {
                 if (page == 1) timestamp = System.currentTimeMillis()
                 return Adapter.createForXml().playsByGame(username, gameId, page)
             }

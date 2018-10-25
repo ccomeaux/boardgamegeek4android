@@ -53,7 +53,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 return data == null || syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
-            override fun createCall(page: Int): Call<CollectionResponse> {
+            override fun createCall(page: Int): Call<CollectionResponse>? {
                 timestamp = System.currentTimeMillis()
                 val options = ArrayMap<String, String>()
                 options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
