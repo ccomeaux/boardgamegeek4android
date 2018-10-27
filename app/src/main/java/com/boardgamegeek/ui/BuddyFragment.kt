@@ -1,13 +1,11 @@
 package com.boardgamegeek.ui
 
-import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout.LayoutParams
-import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -15,45 +13,31 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.app.LoaderManager.LoaderCallbacks
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.asColorRgb
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.getQuantityText
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setColorViewValue
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.tasks.sync.SyncUserTask
-import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
-import com.boardgamegeek.ui.model.Buddy
-import com.boardgamegeek.ui.model.Player
-import com.boardgamegeek.ui.model.PlayerColor
+import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
-import com.boardgamegeek.util.SelectionBuilder
-import com.boardgamegeek.util.TaskUtils
 import kotlinx.android.synthetic.main.fragment_buddy.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
-import timber.log.Timber
 
-class BuddyFragment : Fragment(), LoaderCallbacks<Cursor> {
+class BuddyFragment : Fragment() {
     private var buddyName: String? = null
     private var playerName: String? = null
-    private var isRefreshing: Boolean = false
-    private var hasBeenRefreshed: Boolean = false //TODO store in state
     private var defaultTextColor: Int = 0
     private var lightTextColor: Int = 0
 
-    private val isUser
-        get() = buddyName?.isNotBlank() == true
+    private val viewModel: BuddyViewModel by lazy {
+        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,169 +50,100 @@ class BuddyFragment : Fragment(), LoaderCallbacks<Cursor> {
     }
 
     override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {
-        buddyInfoView.visibility = if (isUser) View.VISIBLE else View.GONE
-        collectionCard.visibility = if (isUser) View.VISIBLE else View.GONE
-        updatedView.visibility = if (isUser) View.VISIBLE else View.GONE
-
-        if (isUser) {
-            swipeRefresh.setOnRefreshListener {
-                requestRefresh()
-            }
-            swipeRefresh.setBggColors()
-            swipeRefresh.isEnabled = true
-        } else {
-            swipeRefresh.isEnabled = false
-        }
+        swipeRefresh.isEnabled = false
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        swipeRefresh.setBggColors()
 
         defaultTextColor = nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
-        nicknameView.setOnClickListener {
-            val nickname = nicknameView.text.toString()
-            if (isUser) {
-                val dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nickname)
-                DialogUtils.showFragment(act, dialogFragment, "edit_nickname")
-            } else {
-                val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, nickname)
-                DialogUtils.showFragment(act, editTextDialogFragment, "edit_player")
-            }
-        }
-
-        playsRoot.setOnClickListener {
-            if (isUser) {
-                BuddyPlaysActivity.start(ctx, buddyName)
-            } else {
-                PlayerPlaysActivity.start(ctx, playerName)
-            }
-        }
-
-        collectionRoot.setOnClickListener {
-            BuddyCollectionActivity.start(ctx, buddyName)
-        }
-
-        colorsRoot.setOnClickListener {
-            PlayerColorsActivity.start(ctx, buddyName, playerName)
-        }
-
-        if (isUser) {
-            LoaderManager.getInstance(this).restartLoader(TOKEN, null, this)
+        if (buddyName != null && buddyName?.isNotBlank() == true) {
+            viewModel.setUsername(buddyName)
         } else {
-            nicknameView.setTextColor(defaultTextColor)
-            nicknameView.text = playerName
+            viewModel.setPlayerName(playerName)
         }
-        LoaderManager.getInstance(this).restartLoader(PLAYS_TOKEN, null, this)
-        LoaderManager.getInstance(this).restartLoader(COLORS_TOKEN, null, this)
-    }
+        viewModel.buddy.observe(this, Observer {
+            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
+            if (it?.data == null) {
+                buddyInfoView.isGone = true
 
-    override fun onStop() {
-        EventBus.getDefault().unregister(this)
-        super.onStop()
-    }
+                nicknameView.setTextColor(defaultTextColor)
+                nicknameView.text = playerName
+                nicknameView.setOnClickListener { _ ->
+                    val nickname = nicknameView.text.toString()
+                    val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, nickname)
+                    DialogUtils.showFragment(act, editTextDialogFragment, "edit_player")
+                }
 
-    private fun updateRefreshStatus(value: Boolean) {
-        isRefreshing = value
-        swipeRefresh?.post { swipeRefresh?.isRefreshing = isRefreshing }
-    }
+                collectionCard.isGone = true
+                updatedView.isGone = true
 
-    override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
-        return when (id) {
-            TOKEN -> CursorLoader(requireContext(), Buddies.buildBuddyUri(buddyName), Buddy.projection, null, null, null)
-            PLAYS_TOKEN -> if (isUser) {
-                CursorLoader(requireContext(),
-                        Plays.buildPlayersByUniqueUserUri(),
-                        Player.PROJECTION,
-                        PlayPlayers.USER_NAME + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.NO_WIN_STATS),
-                        arrayOf(buddyName), null)
-
+                swipeRefresh.isEnabled = false
             } else {
-                CursorLoader(requireContext(),
-                        Plays.buildPlayersByUniquePlayerUri(),
-                        Player.PROJECTION,
-                        "(" + PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL) AND play_players." + PlayPlayers.NAME + "=?",
-                        arrayOf("", playerName), null)
+                buddyInfoView.isVisible = true
+                avatarView.loadThumbnail(it.data.avatarUrl, R.drawable.person_image_empty)
+                fullNameView.text = it.data.fullName
+                usernameView.text = buddyName
+
+                if (it.data.playNickname.isBlank()) {
+                    nicknameView.setTextColor(lightTextColor)
+                    nicknameView.text = it.data.firstName
+                } else {
+                    nicknameView.setTextColor(defaultTextColor)
+                    nicknameView.text = it.data.playNickname
+                }
+                nicknameView.setOnClickListener { _ ->
+                    val nickname = nicknameView.text.toString()
+                    val dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nickname)
+                    DialogUtils.showFragment(act, dialogFragment, "edit_nickname")
+                }
+
+                collectionCard.isVisible = true
+                collectionRoot.setOnClickListener { _ ->
+                    BuddyCollectionActivity.start(ctx, buddyName)
+                }
+
+                updatedView.timestamp = it.data.updatedTimestamp
+                updatedView.isVisible = true
+
+                swipeRefresh.isEnabled = true
             }
-            COLORS_TOKEN -> CursorLoader(requireContext(),
-                    if (isUser) PlayerColors.buildUserUri(buddyName) else PlayerColors.buildPlayerUri(playerName),
-                    PlayerColor.PROJECTION, null, null, null)
-            else -> {
-                throw RuntimeException()
+        })
+
+        viewModel.player.observe(this, Observer { player ->
+            val playCount = player?.playCount ?: 0
+            val winCount = player?.winCount ?: 0
+            if (playCount > 0 || winCount > 0) {
+                playsView.text = ctx.getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
+                winsView.text = ctx.getQuantityText(R.plurals.wins_suffix, winCount, winCount)
+                winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
+                playsCard.isVisible = true
+            } else {
+                playsCard.isGone = true
             }
-        }
-    }
+            playsRoot.setOnClickListener {
+                if (buddyName.isNullOrBlank()) {
+                    PlayerPlaysActivity.start(ctx, playerName)
+                } else {
+                    BuddyPlaysActivity.start(ctx, buddyName)
+                }
+            }
+        })
 
-    override fun onLoadFinished(@NonNull loader: Loader<Cursor>, cursor: Cursor) {
-        if (activity == null) return
-
-        when (loader.id) {
-            TOKEN -> onBuddyQueryComplete(cursor)
-            PLAYS_TOKEN -> onPlaysQueryComplete(cursor)
-            COLORS_TOKEN -> onColorsQueryComplete(cursor)
-            else -> cursor.close()
-        }
-    }
-
-    override fun onLoaderReset(@NonNull loader: Loader<Cursor>) {}
-
-    private fun onBuddyQueryComplete(cursor: Cursor?) {
-        if (cursor == null || !cursor.moveToFirst()) {
-            requestRefresh()
-            return
-        }
-
-        val buddy = Buddy.fromCursor(cursor)
-
-        avatarView.loadThumbnail(buddy.avatarUrl, R.drawable.person_image_empty)
-        fullNameView.text = buddy.fullName
-        usernameView.text = buddyName
-        if (buddy.nickName.isBlank()) {
-            nicknameView.setTextColor(lightTextColor)
-            nicknameView.text = buddy.firstName
-        } else {
-            nicknameView.setTextColor(defaultTextColor)
-            nicknameView.text = buddy.nickName
-        }
-        updatedView.timestamp = buddy.updated
-    }
-
-    private fun onPlaysQueryComplete(cursor: Cursor?) {
-        if (cursor == null || !cursor.moveToFirst()) {
-            return
-        }
-
-        val player = Player.fromCursor(cursor)
-        val playCount = player.playCount
-        val winCount = player.winCount
-        if (playCount > 0 || winCount > 0) {
-            playsCard.isVisible = true
-            playsView.text = ctx.getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
-            winsView.text = ctx.getQuantityText(R.plurals.wins_suffix, winCount, winCount)
-            winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
-        } else {
-            playsCard.isGone = true
-        }
-    }
-
-    private fun onColorsQueryComplete(cursor: Cursor?) {
-        colorContainer.removeAllViews()
-
-        colorContainer.isVisible = (cursor?.count ?: 0) > 0
-
-        if (cursor?.moveToFirst() == true) {
-            var count = 0
-            do {
-                count++
-                val view = createViewToBeColored()
-                val color = PlayerColor.fromCursor(cursor)
-                view.setColorViewValue(color.color.asColorRgb())
-                colorContainer.addView(view)
-            } while (count < 3 && cursor.moveToNext())
-        }
-
+        viewModel.colors.observe(this, Observer { colors ->
+            colorContainer.removeAllViews()
+            colorContainer.isVisible = (colors?.size ?: 0) > 0
+            colors?.take(3)?.forEach { color ->
+                createViewToBeColored().also { view ->
+                    view.setColorViewValue(color.rgb)
+                    colorContainer.addView(view)
+                }
+            }
+            colorsRoot.setOnClickListener {
+                PlayerColorsActivity.start(ctx, buddyName, playerName)
+            }
+        })
     }
 
     private fun createViewToBeColored(): ImageView {
@@ -241,40 +156,9 @@ class BuddyFragment : Fragment(), LoaderCallbacks<Cursor> {
         return view
     }
 
-    private fun requestRefresh() {
-        if (!isRefreshing) {
-            if (hasBeenRefreshed) {
-                updateRefreshStatus(false)
-            } else {
-                forceRefresh()
-            }
-        }
-    }
-
-    private fun forceRefresh() {
-        if (isUser) {
-            updateRefreshStatus(true)
-            TaskUtils.executeAsyncTask(SyncUserTask(activity, buddyName))
-        } else {
-            Timber.w("Something tried to refresh a player that wasn't a user!")
-        }
-        hasBeenRefreshed = true
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: CompletedEvent) {
-        if (event.username == buddyName) {
-            updateRefreshStatus(false)
-        }
-    }
-
     companion object {
         private const val KEY_BUDDY_NAME = "BUDDY_NAME"
         private const val KEY_PLAYER_NAME = "PLAYER_NAME"
-
-        private const val PLAYS_TOKEN = 1
-        private const val COLORS_TOKEN = 2
-        private const val TOKEN = 0
 
         fun newInstance(username: String?, playerName: String?): BuddyFragment {
             return BuddyFragment().apply {

@@ -7,6 +7,7 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameForPlayStatEntity
+import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.util.PreferencesUtils
 
@@ -51,6 +52,22 @@ class PlayRepository(val application: BggApplication) {
 
     fun loadPlayersForStatsAsLiveData(): LiveData<List<PlayerEntity>> {
         return playDao.loadPlayersAsLiveData(PreferencesUtils.logPlayStatsIncomplete(application))
+    }
+
+    fun loadUserPlayer(username: String): LiveData<PlayerEntity> {
+        return playDao.loadUserPlayerAsLiveData(username)
+    }
+
+    fun loadNonUserPlayer(playerName: String): LiveData<PlayerEntity> {
+        return playDao.loadNonUserPlayerAsLiveData(playerName)
+    }
+
+    fun loadUserColors(username: String): LiveData<List<PlayerColorEntity>> {
+        return playDao.loadUserColors(username)
+    }
+
+    fun loadPlayerColors(username: String): LiveData<List<PlayerColorEntity>> {
+        return playDao.loadPlayerColors(username)
     }
 
     fun updateGameHIndex(hIndex: Int) {

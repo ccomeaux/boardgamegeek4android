@@ -1,9 +1,11 @@
 package com.boardgamegeek.db
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -119,5 +121,83 @@ class PlayDao(private val context: BggApplication) {
         return RegisteredLiveData(context, Plays.buildPlayersByUniquePlayerUri(), true) {
             return@RegisteredLiveData loadPlayers(includeIncompletePlays)
         }
+    }
+
+    fun loadUserPlayerAsLiveData(username: String): LiveData<PlayerEntity> {
+        return RegisteredLiveData(context, Plays.buildPlayersByUniqueUserUri(), true) {
+            return@RegisteredLiveData loadPlayer(
+                    "${PlayPlayers.USER_NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
+                    arrayOf(username))
+        }
+    }
+
+    fun loadNonUserPlayerAsLiveData(playerName: String): LiveData<PlayerEntity> {
+        return RegisteredLiveData(context, Plays.buildPlayersByUniqueUserUri(), true) {
+            return@RegisteredLiveData loadPlayer(
+                    "(${PlayPlayers.USER_NAME}=? OR ${PlayPlayers.USER_NAME} IS NULL) AND play_players.${PlayPlayers.NAME}=?",
+                    arrayOf("", playerName))
+        }
+    }
+
+    private fun loadPlayer(selection: String, selectionArgs: Array<String>): PlayerEntity? {
+        context.contentResolver.load(
+                Plays.buildPlayersByUniqueUserUri(),
+                arrayOf(
+                        PlayPlayers._ID,
+                        PlayPlayers.NAME,
+                        PlayPlayers.USER_NAME,
+                        PlayPlayers.SUM_QUANTITY,
+                        PlayPlayers.SUM_WINS
+                ),
+                selection,
+                selectionArgs
+        )?.use {
+            return if (it.moveToFirst()) {
+                PlayerEntity(
+                        it.getIntOrNull(PlayPlayers._ID) ?: BggContract.INVALID_ID,
+                        it.getStringOrEmpty(PlayPlayers.NAME),
+                        it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                        it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
+                        it.getIntOrZero(PlayPlayers.SUM_WINS)
+                )
+            } else null
+        }
+        return null
+    }
+
+    fun loadPlayerColors(playerName: String): LiveData<List<PlayerColorEntity>> {
+        val uri = BggContract.PlayerColors.buildPlayerUri(playerName)
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData loadColors(uri)
+        }
+    }
+
+    fun loadUserColors(username: String): LiveData<List<PlayerColorEntity>> {
+        val uri = BggContract.PlayerColors.buildUserUri(username)
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData loadColors(uri)
+        }
+    }
+
+    private fun loadColors(uri: Uri): List<PlayerColorEntity> {
+        val results = arrayListOf<PlayerColorEntity>()
+        context.contentResolver.load(
+                uri,
+                arrayOf(
+                        BggContract.PlayerColors._ID,
+                        BggContract.PlayerColors.PLAYER_COLOR,
+                        BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER
+                )
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += PlayerColorEntity(
+                            it.getStringOrEmpty(BggContract.PlayerColors.PLAYER_COLOR),
+                            it.getIntOrNull(BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER) ?: 0
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
     }
 }
