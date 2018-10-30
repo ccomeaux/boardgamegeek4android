@@ -59,7 +59,7 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         when {
             name == null || name.isBlank() -> AbsentLiveData.create()
             user.second == TYPE_USER -> playRepository.loadUserPlayer(name)
-            user.second == TYPE_USER -> playRepository.loadNonUserPlayer(name)
+            user.second == TYPE_PLAYER -> playRepository.loadNonUserPlayer(name)
             else -> AbsentLiveData.create()
         }
     }

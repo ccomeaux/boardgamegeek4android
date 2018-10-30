@@ -125,24 +125,28 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun loadUserPlayerAsLiveData(username: String): LiveData<PlayerEntity> {
-        return RegisteredLiveData(context, Plays.buildPlayersByUniqueUserUri(), true) {
+        val uri = Plays.buildPlayersByUniqueUserUri()
+        return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadPlayer(
+                    uri,
                     "${PlayPlayers.USER_NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
                     arrayOf(username))
         }
     }
 
     fun loadNonUserPlayerAsLiveData(playerName: String): LiveData<PlayerEntity> {
-        return RegisteredLiveData(context, Plays.buildPlayersByUniqueUserUri(), true) {
+        val uri = Plays.buildPlayersByUniquePlayerUri()
+        return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadPlayer(
-                    "(${PlayPlayers.USER_NAME}=? OR ${PlayPlayers.USER_NAME} IS NULL) AND play_players.${PlayPlayers.NAME}=?",
+                    uri,
+                    "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=?",
                     arrayOf("", playerName))
         }
     }
 
-    private fun loadPlayer(selection: String, selectionArgs: Array<String>): PlayerEntity? {
+    private fun loadPlayer(uri: Uri, selection: String, selectionArgs: Array<String>): PlayerEntity? {
         context.contentResolver.load(
-                Plays.buildPlayersByUniqueUserUri(),
+                uri,
                 arrayOf(
                         PlayPlayers._ID,
                         PlayPlayers.NAME,
