@@ -1,5 +1,6 @@
 package com.boardgamegeek.repository
 
+import android.content.ContentProviderOperation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
@@ -9,6 +10,7 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameForPlayStatEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.extensions.applyBatch
 import com.boardgamegeek.util.PreferencesUtils
 
 class PlayRepository(val application: BggApplication) {
@@ -68,6 +70,17 @@ class PlayRepository(val application: BggApplication) {
 
     fun loadPlayerColors(username: String): LiveData<List<PlayerColorEntity>> {
         return playDao.loadPlayerColors(username)
+    }
+
+    fun updatePlaysWithNickName(username: String, nickName: String): Int {
+        val count = playDao.countNickNameUpdatePlays(username, nickName)
+        val batch = arrayListOf<ContentProviderOperation>()
+        batch += playDao.createDirtyPlaysForNickNameOperations(username, nickName)
+        batch += playDao.createNickNameUpdateOperation(username, nickName)
+        application.appExecutors.diskIO.execute {
+            application.contentResolver.applyBatch(application, batch)
+        }
+        return count
     }
 
     fun updateGameHIndex(hIndex: Int) {

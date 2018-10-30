@@ -174,4 +174,13 @@ class UserDao(private val context: BggApplication) {
                 "${BggContract.Buddies.UPDATED_LIST}<?",
                 arrayOf(updateTimestamp.toString()))
     }
+
+    fun updateNickName(username: String, nickName: String) {
+        context.contentResolver.update(
+                BggContract.Buddies.buildBuddyUri(username),
+                contentValuesOf(BggContract.Buddies.PLAY_NICKNAME to nickName),
+                null,
+                null
+        )
+    }
 }

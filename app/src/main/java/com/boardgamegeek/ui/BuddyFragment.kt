@@ -57,11 +57,6 @@ class BuddyFragment : Fragment() {
         defaultTextColor = nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
-        if (buddyName != null && buddyName?.isNotBlank() == true) {
-            viewModel.setUsername(buddyName)
-        } else {
-            viewModel.setPlayerName(playerName)
-        }
         viewModel.buddy.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
 

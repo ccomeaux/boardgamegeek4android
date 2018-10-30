@@ -80,4 +80,11 @@ class UserRepository(val application: BggApplication) {
             }
         }.asLiveData()
     }
+
+    fun updateNickName(username: String, nickName: String) {
+        if (username.isBlank()) return
+        application.appExecutors.diskIO.execute {
+            userDao.updateNickName(username, nickName)
+        }
+    }
 }

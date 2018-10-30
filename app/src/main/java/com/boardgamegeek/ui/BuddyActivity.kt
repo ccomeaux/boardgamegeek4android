@@ -8,34 +8,34 @@ import android.view.MenuItem
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.tasks.AddUsernameToPlayerTask
-import com.boardgamegeek.tasks.BuddyNicknameUpdateTask
 import com.boardgamegeek.tasks.RenamePlayerTask
-import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment.EditUsernameDialogListener
-import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment.UpdateBuddyNicknameDialogListener
+import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.DialogUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.TaskUtils
-import com.boardgamegeek.util.fabric.DataManipulationEvent
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
-import com.google.android.material.snackbar.Snackbar
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.clearTop
+import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
 
-class BuddyActivity : SimpleSinglePaneActivity(), UpdateBuddyNicknameDialogListener, EditUsernameDialogListener, EditTextDialogListener {
+class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener, EditTextDialogListener {
     private var name: String? = null
     private var username: String? = null
 
-    override val optionsMenuId = R.menu.buddy
+    private val viewModel: BuddyViewModel by lazy {
+        ViewModelProviders.of(this).get(BuddyViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +48,16 @@ class BuddyActivity : SimpleSinglePaneActivity(), UpdateBuddyNicknameDialogListe
                     .putContentId(username)
                     .putContentName(name))
         }
+
+        if (username != null && username?.isNotBlank() == true) {
+            viewModel.setUsername(username)
+        } else {
+            viewModel.setPlayerName(name)
+        }
+
+        viewModel.updateMessage.observe(this, Observer {
+            showSnackbar(it)
+        })
     }
 
     override fun readIntent(intent: Intent) {
@@ -58,6 +68,8 @@ class BuddyActivity : SimpleSinglePaneActivity(), UpdateBuddyNicknameDialogListe
     override fun onCreatePane(intent: Intent): Fragment {
         return BuddyFragment.newInstance(username, name)
     }
+
+    override val optionsMenuId = R.menu.buddy
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
@@ -93,19 +105,6 @@ class BuddyActivity : SimpleSinglePaneActivity(), UpdateBuddyNicknameDialogListe
         }
     }
 
-    override fun buddyNicknameUpdated(newNickname: String, shouldUpdatePlays: Boolean) {
-        if (newNickname.isNotBlank()) {
-            val task = BuddyNicknameUpdateTask(this, username, newNickname, shouldUpdatePlays)
-            TaskUtils.executeAsyncTask(task)
-            DataManipulationEvent.log("BuddyNickname", "Edit")
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: BuddyNicknameUpdateTask.Event) {
-        showSnackbar(event.message)
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: AddUsernameToPlayerTask.Event) {
         if (event.isSuccessful) {
@@ -116,13 +115,6 @@ class BuddyActivity : SimpleSinglePaneActivity(), UpdateBuddyNicknameDialogListe
             recreateFragment()
         }
         showSnackbar(event.message)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    override fun onEvent(event: CompletedEvent) {
-        if (!event.errorMessage.isNullOrBlank() && PreferencesUtils.getSyncShowErrors(this)) {
-            showSnackbar(event.errorMessage)
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -140,9 +132,7 @@ class BuddyActivity : SimpleSinglePaneActivity(), UpdateBuddyNicknameDialogListe
 
     private fun showSnackbar(message: String) {
         if (message.isNotBlank()) {
-            rootContainer?.let {
-                Snackbar.make(it, message, Snackbar.LENGTH_LONG).show()
-            }
+            rootContainer?.longSnackbar(message)
         }
     }
 

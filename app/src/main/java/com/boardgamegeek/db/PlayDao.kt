@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import android.content.ContentProviderOperation
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
@@ -200,4 +201,41 @@ class PlayDao(private val context: BggApplication) {
         }
         return results
     }
+
+    fun createDirtyPlaysForNickNameOperations(username: String, nickName: String, timestamp: Long = System.currentTimeMillis()): ArrayList<ContentProviderOperation> {
+        val selection = createNickNameSelectionAndArgs(username, nickName)
+        val internalIds = context.contentResolver.queryLongs(
+                Plays.buildPlayersByPlayUri(),
+                Plays._ID,
+                "(${selection.first}) AND ${Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
+                selection.second)
+        val batch = arrayListOf<ContentProviderOperation>()
+        internalIds.filter { it != BggContract.INVALID_ID.toLong() }.forEach {
+            batch += ContentProviderOperation
+                    .newUpdate(Plays.buildPlayUri(it))
+                    .withValue(Plays.UPDATE_TIMESTAMP, timestamp)
+                    .build()
+        }
+        return batch
+    }
+
+    fun createNickNameUpdateOperation(username: String, nickName: String): ContentProviderOperation {
+        val selection = createNickNameSelectionAndArgs(username, nickName)
+        return ContentProviderOperation
+                .newUpdate(Plays.buildPlayersByPlayUri())
+                .withSelection(selection.first, selection.second)
+                .withValue(PlayPlayers.NAME, nickName)
+                .build()
+    }
+
+    fun countNickNameUpdatePlays(username: String, nickName: String): Int {
+        val selection = createNickNameSelectionAndArgs(username, nickName)
+        return context.contentResolver.queryCount(
+                Plays.buildPlayersByPlayUri(),
+                selection.first,
+                selection.second
+        )
+    }
+
+    private fun createNickNameSelectionAndArgs(username: String, nickName: String) = "${PlayPlayers.USER_NAME}=? AND play_players.${PlayPlayers.NAME}!=?" to arrayOf(username, nickName)
 }
