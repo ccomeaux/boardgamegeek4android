@@ -12,6 +12,7 @@ import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.livedata.AbsentLiveData
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.service.SyncService
@@ -29,8 +30,8 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     val playerName: LiveData<String>
         get() = _playerName
 
-    private val _updateMessage = MutableLiveData<String>()
-    val updateMessage: LiveData<String>
+    private val _updateMessage = MutableLiveData<Event<String>>()
+    val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
     fun setUsername(name: String?) {
@@ -108,7 +109,7 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setUpdateMessage(message: String) {
-        _updateMessage.value = message
+        _updateMessage.value = Event(message)
     }
 
     companion object {

@@ -18,6 +18,7 @@ import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.TaskUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
+import com.google.android.material.snackbar.Snackbar
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.clearTop
@@ -28,6 +29,7 @@ import timber.log.Timber
 class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
     private var name: String? = null
     private var username: String? = null
+    private var snackbar: Snackbar? = null
 
     private val viewModel: BuddyViewModel by lazy {
         ViewModelProviders.of(this).get(BuddyViewModel::class.java)
@@ -61,7 +63,8 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
         })
 
         viewModel.updateMessage.observe(this, Observer {
-            showSnackbar(it)
+            val message = it.getContentIfNotHandled()
+            if (message != null) showSnackbar(message)
         })
     }
 
@@ -119,9 +122,11 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
         supportActionBar?.subtitle = if (username.isNullOrBlank()) name else username
     }
 
-    private fun showSnackbar(message: String) {
-        if (message.isNotBlank()) {
-            rootContainer?.longSnackbar(message)
+    private fun showSnackbar(message: String?) {
+        if (message == null || message.isBlank()) {
+            snackbar?.dismiss()
+        } else {
+            snackbar = rootContainer?.longSnackbar(message)
         }
     }
 
