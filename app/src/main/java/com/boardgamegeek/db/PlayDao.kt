@@ -206,8 +206,30 @@ class PlayDao(private val context: BggApplication) {
         return results
     }
 
+    fun createCopyPlayerColorsOperations(oldName: String, newName: String): ArrayList<ContentProviderOperation> {
+        val colors = loadColors(BggContract.PlayerColors.buildPlayerUri(oldName))
+        val batch = arrayListOf<ContentProviderOperation>()
+        colors.forEach {
+            batch.add(ContentProviderOperation
+                    .newInsert(BggContract.PlayerColors.buildPlayerUri(newName))
+                    .withValue(BggContract.PlayerColors.PLAYER_COLOR, it.description)
+                    .withValue(BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                    .build())
+        }
+        return batch
+    }
+
     fun createDirtyPlaysForNickNameOperations(username: String, nickName: String, timestamp: Long = System.currentTimeMillis()): ArrayList<ContentProviderOperation> {
         val selection = createNickNameSelectionAndArgs(username, nickName)
+        return createDirtyPlaysOperations(selection, timestamp)
+    }
+
+    fun createDirtyPlaysForRenameOperations(oldName: String, timestamp: Long = System.currentTimeMillis()): ArrayList<ContentProviderOperation> {
+        val selection = createNonPlayerUserSelectionAndArgs(oldName)
+        return createDirtyPlaysOperations(selection, timestamp)
+    }
+
+    private fun createDirtyPlaysOperations(selection: Pair<String, Array<String>>, timestamp: Long): ArrayList<ContentProviderOperation> {
         val internalIds = context.contentResolver.queryLongs(
                 Plays.buildPlayersByPlayUri(),
                 Plays._ID,
@@ -241,5 +263,34 @@ class PlayDao(private val context: BggApplication) {
         )
     }
 
-    private fun createNickNameSelectionAndArgs(username: String, nickName: String) = "${PlayPlayers.USER_NAME}=? AND play_players.${PlayPlayers.NAME}!=?" to arrayOf(username, nickName)
+    /**
+     * Change player records from the old name to the new name (username  must be blank)
+     */
+    fun createRenameUpdateOperation(oldName: String, newName: String): ContentProviderOperation {
+        val selection = createNonPlayerUserSelectionAndArgs(oldName)
+        return ContentProviderOperation
+                .newUpdate(Plays.buildPlayersByPlayUri())
+                .withValue(PlayPlayers.NAME, newName)
+                .withSelection(selection.first, selection.second)
+                .build()
+    }
+
+    /**
+     * Create an operation to delete the colors of the specified player
+     */
+    fun createDeletePlayerColorsOperation(name: String): ContentProviderOperation {
+        return ContentProviderOperation.newDelete(BggContract.PlayerColors.buildPlayerUri(name)).build()
+    }
+
+    /**
+     * Select a player with the specified username AND nick name
+     */
+    private fun createNickNameSelectionAndArgs(username: String, nickName: String) =
+            "${PlayPlayers.USER_NAME}=? AND play_players.${PlayPlayers.NAME}!=?" to arrayOf(username, nickName)
+
+    /**
+     * Select a player with the specified name and no username
+     */
+    private fun createNonPlayerUserSelectionAndArgs(playerName: String) =
+            "play_players.${PlayPlayers.NAME}=? AND (${PlayPlayers.USER_NAME}=? OR ${PlayPlayers.USER_NAME} IS NULL)" to arrayOf(playerName, "")
 }

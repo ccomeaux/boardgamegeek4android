@@ -5,15 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.tasks.AddUsernameToPlayerTask
-import com.boardgamegeek.tasks.RenamePlayerTask
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment.EditUsernameDialogListener
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
@@ -29,7 +25,7 @@ import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
 
-class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener, EditTextDialogListener {
+class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
     private var name: String? = null
     private var username: String? = null
 
@@ -54,6 +50,15 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener, Ed
         } else {
             viewModel.setPlayerName(name)
         }
+
+        viewModel.user.observe(this, Observer {
+            if (it != null && it.second == BuddyViewModel.TYPE_PLAYER && it.first != name) {
+                name = it.first
+                intent.putExtra(KEY_PLAYER_NAME, name)
+                setSubtitle()
+                recreateFragment()
+            }
+        })
 
         viewModel.updateMessage.observe(this, Observer {
             showSnackbar(it)
@@ -98,13 +103,6 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener, Ed
         }
     }
 
-    override fun onFinishEditDialog(text: String, @Nullable originalText: String?) {
-        if (text.isNotBlank()) {
-            val task = RenamePlayerTask(this, originalText, text)
-            TaskUtils.executeAsyncTask(task)
-        }
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: AddUsernameToPlayerTask.Event) {
         if (event.isSuccessful) {
@@ -114,15 +112,6 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener, Ed
 
             recreateFragment()
         }
-        showSnackbar(event.message)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(@NonNull event: RenamePlayerTask.Event) {
-        name = event.playerName
-        intent.putExtra(KEY_PLAYER_NAME, name)
-        setSubtitle()
-        recreateFragment()
         showSnackbar(event.message)
     }
 

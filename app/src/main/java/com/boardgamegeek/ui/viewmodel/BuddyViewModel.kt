@@ -96,12 +96,23 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         DataManipulationEvent.log("BuddyNickname", "Edit")
     }
 
+    fun renamePlayer(newName: String) {
+        if (newName.isBlank()) return
+        if (user.value?.second != TYPE_PLAYER) return
+        val oldName = user.value?.first
+        if (oldName == null || oldName.isBlank()) return
+        playRepository.updatePlaysWithNewName(oldName, newName)
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
+        setPlayerName(newName)
+    }
+
     private fun setUpdateMessage(message: String) {
         _updateMessage.value = message
     }
 
     companion object {
-        private const val TYPE_USER = 1
-        private const val TYPE_PLAYER = 2
+        const val TYPE_USER = 1
+        const val TYPE_PLAYER = 2
     }
 }

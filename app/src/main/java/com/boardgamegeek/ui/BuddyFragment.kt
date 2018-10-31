@@ -20,10 +20,10 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.getQuantityText
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setColorViewValue
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment
+import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_buddy.*
 import org.jetbrains.anko.support.v4.act
@@ -65,10 +65,9 @@ class BuddyFragment : Fragment() {
 
                 nicknameView.setTextColor(defaultTextColor)
                 nicknameView.text = playerName
-                nicknameView.setOnClickListener { _ ->
+                nicknameView.setOnClickListener {
                     val nickname = nicknameView.text.toString()
-                    val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_player, nickname)
-                    DialogUtils.showFragment(act, editTextDialogFragment, "edit_player")
+                    act.showAndSurvive(RenamePlayerDialogFragment.newInstance(nickname))
                 }
 
                 collectionCard.isGone = true
@@ -88,14 +87,13 @@ class BuddyFragment : Fragment() {
                     nicknameView.setTextColor(defaultTextColor)
                     nicknameView.text = it.data.playNickname
                 }
-                nicknameView.setOnClickListener { _ ->
+                nicknameView.setOnClickListener {
                     val nickname = nicknameView.text.toString()
-                    val dialogFragment = UpdateBuddyNicknameDialogFragment.newInstance(nickname)
-                    DialogUtils.showFragment(act, dialogFragment, "edit_nickname")
+                    act.showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(nickname))
                 }
 
                 collectionCard.isVisible = true
-                collectionRoot.setOnClickListener { _ ->
+                collectionRoot.setOnClickListener {
                     BuddyCollectionActivity.start(ctx, buddyName)
                 }
 

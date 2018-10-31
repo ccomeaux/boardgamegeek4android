@@ -83,6 +83,17 @@ class PlayRepository(val application: BggApplication) {
         return count
     }
 
+    fun updatePlaysWithNewName(oldName: String, newName: String) {
+        val batch = arrayListOf<ContentProviderOperation>()
+        batch += playDao.createDirtyPlaysForRenameOperations(oldName)
+        batch += playDao.createRenameUpdateOperation(oldName, newName)
+        batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
+        batch += playDao.createDeletePlayerColorsOperation(oldName)
+        application.appExecutors.diskIO.execute {
+            application.contentResolver.applyBatch(application, batch)
+        }
+    }
+
     fun updateGameHIndex(hIndex: Int) {
         PreferencesUtils.updateGameHIndex(application, hIndex)
     }
