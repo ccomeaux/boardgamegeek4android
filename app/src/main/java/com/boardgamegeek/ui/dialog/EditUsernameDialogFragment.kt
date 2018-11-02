@@ -2,30 +2,25 @@ package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.appcompat.app.AlertDialog
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.requestFocus
+import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import kotlinx.android.synthetic.main.dialog_edit_text.*
+import org.jetbrains.anko.support.v4.act
 
 class EditUsernameDialogFragment : DialogFragment() {
     private lateinit var layout: View
-    private var listener: EditUsernameDialogListener? = null
 
-    interface EditUsernameDialogListener {
-        fun onFinishAddUsername(username: String)
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        listener = context as? EditUsernameDialogListener
-        if (listener == null) throw ClassCastException("$context must implement EditTextDialogListener")
+    private val viewModel: BuddyViewModel by lazy {
+        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -37,7 +32,7 @@ class EditUsernameDialogFragment : DialogFragment() {
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    listener?.onFinishAddUsername(editText.text.trim().toString())
+                    viewModel.addUsernameToPlayer(editText.text.trim().toString())
                 }
 
         return builder.create().apply {

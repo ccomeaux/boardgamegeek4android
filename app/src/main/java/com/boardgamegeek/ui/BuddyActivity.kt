@@ -9,24 +9,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.tasks.AddUsernameToPlayerTask
+import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
-import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment.EditUsernameDialogListener
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.boardgamegeek.util.ActivityUtils
-import com.boardgamegeek.util.DialogUtils
-import com.boardgamegeek.util.TaskUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
 
-class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
+class BuddyActivity : SimpleSinglePaneActivity() {
     private var name: String? = null
     private var username: String? = null
     private var snackbar: Snackbar? = null
@@ -54,23 +49,33 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
         }
 
         viewModel.user.observe(this, Observer {
-            if (it != null && it.second == BuddyViewModel.TYPE_PLAYER && it.first != name) {
-                name = it.first
-                intent.putExtra(KEY_PLAYER_NAME, name)
-                setSubtitle()
-                recreateFragment()
+            when {
+                it == null -> return@Observer
+                it.second == BuddyViewModel.TYPE_PLAYER && it.first != name -> {
+                    name = it.first
+                    intent.putExtra(KEY_PLAYER_NAME, name)
+                    setSubtitle()
+                    recreateFragment()
+                }
+                it.second == BuddyViewModel.TYPE_USER && it.first != username -> {
+                    username = it.first
+                    intent.putExtra(KEY_USERNAME, username)
+                    setSubtitle()
+                    recreateFragment()
+                }
             }
         })
 
         viewModel.updateMessage.observe(this, Observer {
-            val message = it.getContentIfNotHandled()
-            if (message != null) showSnackbar(message)
+            it.getContentIfNotHandled()?.let { content ->
+                showSnackbar(content)
+            }
         })
     }
 
     override fun readIntent(intent: Intent) {
         name = intent.getStringExtra(KEY_PLAYER_NAME)
-        username = intent.getStringExtra(KEY_BUDDY_NAME)
+        username = intent.getStringExtra(KEY_USERNAME)
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -92,30 +97,11 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
                 return true
             }
             R.id.add_username -> {
-                DialogUtils.showFragment(this, EditUsernameDialogFragment.newInstance(), "add_username")
+                showAndSurvive(EditUsernameDialogFragment.newInstance())
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onFinishAddUsername(username: String) {
-        if (username.isNotBlank()) {
-            val task = AddUsernameToPlayerTask(this, name, username)
-            TaskUtils.executeAsyncTask(task)
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: AddUsernameToPlayerTask.Event) {
-        if (event.isSuccessful) {
-            username = event.username
-            intent.putExtra(KEY_BUDDY_NAME, username)
-            setSubtitle()
-
-            recreateFragment()
-        }
-        showSnackbar(event.message)
     }
 
     private fun setSubtitle() {
@@ -131,7 +117,7 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
     }
 
     companion object {
-        private const val KEY_BUDDY_NAME = "BUDDY_NAME"
+        private const val KEY_USERNAME = "BUDDY_NAME"
         private const val KEY_PLAYER_NAME = "PLAYER_NAME"
 
         @JvmStatic
@@ -156,7 +142,7 @@ class BuddyActivity : SimpleSinglePaneActivity(), EditUsernameDialogListener {
                 return null
             }
             return context.intentFor<BuddyActivity>(
-                    KEY_BUDDY_NAME to username,
+                    KEY_USERNAME to username,
                     KEY_PLAYER_NAME to playerName
             )
         }

@@ -75,7 +75,7 @@ class PlayRepository(val application: BggApplication) {
     fun updatePlaysWithNickName(username: String, nickName: String): Int {
         val count = playDao.countNickNameUpdatePlays(username, nickName)
         val batch = arrayListOf<ContentProviderOperation>()
-        batch += playDao.createDirtyPlaysForNickNameOperations(username, nickName)
+        batch += playDao.createDirtyPlaysForUserAndNickNameOperations(username, nickName)
         batch += playDao.createNickNameUpdateOperation(username, nickName)
         application.appExecutors.diskIO.execute {
             application.contentResolver.applyBatch(application, batch)
@@ -83,12 +83,24 @@ class PlayRepository(val application: BggApplication) {
         return count
     }
 
-    fun updatePlaysWithNewName(oldName: String, newName: String) {
+    fun renamePlayer(oldName: String, newName: String) {
         val batch = arrayListOf<ContentProviderOperation>()
-        batch += playDao.createDirtyPlaysForRenameOperations(oldName)
+        batch += playDao.createDirtyPlaysForNonUserPlayerOperations(oldName)
         batch += playDao.createRenameUpdateOperation(oldName, newName)
         batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
         batch += playDao.createDeletePlayerColorsOperation(oldName)
+        application.appExecutors.diskIO.execute {
+            application.contentResolver.applyBatch(application, batch)
+        }
+    }
+
+    fun addUsernameToPlayer(playerName: String, username: String) {
+        // TODO verify username is good
+        val batch = arrayListOf<ContentProviderOperation>()
+        batch += playDao.createDirtyPlaysForNonUserPlayerOperations(playerName)
+        batch += playDao.createAddUsernameOperation(playerName, username)
+        batch += playDao.createCopyPlayerColorsToUserOperations(playerName, username)
+        batch += playDao.createDeletePlayerColorsOperation(playerName)
         application.appExecutors.diskIO.execute {
             application.contentResolver.applyBatch(application, batch)
         }

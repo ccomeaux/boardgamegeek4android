@@ -102,10 +102,21 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         if (user.value?.second != TYPE_PLAYER) return
         val oldName = user.value?.first
         if (oldName == null || oldName.isBlank()) return
-        playRepository.updatePlaysWithNewName(oldName, newName)
+        playRepository.renamePlayer(oldName, newName)
         SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
         setPlayerName(newName)
+    }
+
+    fun addUsernameToPlayer(username: String) {
+        if (username.isBlank()) return
+        if (user.value?.second != TYPE_PLAYER) return
+        val playerName = user.value?.first
+        if (playerName == null || playerName.isBlank()) return
+        playRepository.addUsernameToPlayer(playerName, username)
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
+        setUsername(username)
     }
 
     private fun setUpdateMessage(message: String) {
