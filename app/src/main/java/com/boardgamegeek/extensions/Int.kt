@@ -191,5 +191,6 @@ fun Int.orderOfMagnitude(): String {
         else -> ""
     }
     val zeros = (toString().length - 1) % 3
-    return digit + ("0".repeat(zeros)) + suffix + "+"
+    val number = digit + ("0".repeat(zeros)) + suffix
+    return if (this < 10) number else "$number+"
 }
