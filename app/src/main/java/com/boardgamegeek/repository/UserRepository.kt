@@ -20,14 +20,17 @@ import java.util.concurrent.TimeUnit
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
 
-    fun loadUser(username: String): LiveData<RefreshableResource<UserEntity>>? {
+    fun loadUser(username: String): LiveData<RefreshableResource<UserEntity>> {
         return object : RefreshableResourceLoader<UserEntity, User>(application) {
             override fun loadFromDatabase(): LiveData<UserEntity> {
                 return userDao.loadUserAsLiveData(username)
             }
 
             override fun shouldRefresh(data: UserEntity?): Boolean {
-                return data == null || data.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)
+                return data == null ||
+                        data.id == 0 ||
+                        data.id == BggContract.INVALID_ID ||
+                        data.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)
             }
 
             override val typeDescriptionResId = R.string.title_buddy

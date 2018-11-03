@@ -22,7 +22,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.events.SignInEvent;
-import com.boardgamegeek.tasks.sync.SyncUserTask;
 import com.boardgamegeek.util.TaskUtils;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -268,7 +267,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		} else {
 			accountManager.setPassword(account, password);
 		}
-		TaskUtils.executeAsyncTask(new SyncUserTask(this, username));
 
 		EventBus.getDefault().post(new SignInEvent(username));
 

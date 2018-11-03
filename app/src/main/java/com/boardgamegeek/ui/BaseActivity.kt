@@ -6,14 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.sync.SyncUserTask
 import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.toast
 
 const val INVALID_MENU_ID = 0
 
@@ -39,14 +34,6 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         EventBus.getDefault().unregister(this)
-    }
-
-    @DebugLog
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    open fun onEvent(event: SyncUserTask.CompletedEvent) {
-        if (event.username != null && event.username == AccountUtils.getUsername(this)) {
-            toast(R.string.profile_updated)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

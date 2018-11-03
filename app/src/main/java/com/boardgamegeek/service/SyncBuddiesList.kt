@@ -5,8 +5,6 @@ import android.content.SyncResult
 import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
-import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.User
@@ -14,7 +12,6 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.PresentationUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
@@ -54,7 +51,6 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
             val user = requestUser() ?: return
 
             updateNotification(R.string.sync_notification_buddies_list_storing)
-            storeUserInAuthenticator(user)
             persistUser(user)
 
             updateNotification(R.string.sync_notification_buddies_list_pruning)
@@ -89,13 +85,6 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
         }
 
         return user
-    }
-
-    private fun storeUserInAuthenticator(user: User) {
-        Authenticator.putUserId(context, user.id)
-        AccountUtils.setUsername(context, user.name)
-        AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName))
-        AccountUtils.setAvatarUrl(context, user.avatarUrl)
     }
 
     private fun persistUser(user: User) {
