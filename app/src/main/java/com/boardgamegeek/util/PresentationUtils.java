@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -45,22 +44,6 @@ public class PresentationUtils {
 		return format;
 	}
 
-	/**
-	 * Formats the date for display in the forums (based on the users selected preference.
-	 */
-	public static CharSequence formatTimestamp(Context context, long date, boolean isForumTimestamp, boolean includeTime) {
-		int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH;
-		if (includeTime) flags |= DateUtils.FORMAT_SHOW_TIME;
-		if (isForumTimestamp && PreferencesUtils.getForumDates(context)) {
-			return DateUtils.formatDateTime(context, date, flags);
-		} else {
-			if (date == 0) {
-				return context.getString(R.string.text_unknown);
-			}
-			return DateUtils.getRelativeTimeSpanString(date, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, flags);
-		}
-	}
-
 	public static String describeYear(@Nullable Context context, int year) {
 		if (context == null) return "";
 		if (year > 0) {
@@ -93,23 +76,6 @@ public class PresentationUtils {
 				return "\u00A5";
 		}
 		return "";
-	}
-
-	/**
-	 * Build a displayable full name from the first and last name.
-	 */
-	@DebugLog
-	@NonNull
-	public static String buildFullName(@NonNull String firstName, @NonNull String lastName) {
-		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
-			return "";
-		} else if (TextUtils.isEmpty(firstName)) {
-			return lastName.trim();
-		} else if (TextUtils.isEmpty(lastName)) {
-			return firstName.trim();
-		} else {
-			return firstName.trim() + " " + lastName.trim();
-		}
 	}
 
 	@NonNull
