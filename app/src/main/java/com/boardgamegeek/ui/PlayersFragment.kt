@@ -140,6 +140,7 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun isSection(position: Int): Boolean {
+            if (position == RecyclerView.NO_POSITION) return false
             if (players.isEmpty()) return false
             if (position == 0) return true
             val thisLetter = sorter.getSectionText(players.getOrNull(position))
@@ -148,7 +149,11 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
-            return if (players.isEmpty()) "-" else sorter.getSectionText(players[position])
+            return when {
+                position == RecyclerView.NO_POSITION -> "-"
+                players.isEmpty() -> "-"
+                else -> sorter.getSectionText(players.getOrNull(position))
+            }
         }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {

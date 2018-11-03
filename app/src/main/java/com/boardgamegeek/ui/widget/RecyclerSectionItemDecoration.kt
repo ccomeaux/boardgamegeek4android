@@ -41,7 +41,7 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
             val nextPosition = parent.getChildAdapterPosition(nextChild)
 
             val header = sectionCallback.getSectionHeader(position)
-            val isSection = sectionCallback.isSection(position)
+            val isSection = if (position == RecyclerView.NO_POSITION) false else sectionCallback.isSection(position)
             if (previousHeader != header || isSection) {
                 titleView?.text = header
                 drawHeader(c, child, headerView, if (nextPosition != RecyclerView.NO_POSITION && sectionCallback.isSection(nextPosition)) nextChild else null)

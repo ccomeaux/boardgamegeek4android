@@ -125,6 +125,7 @@ class BuddiesFragment : Fragment() {
         }
 
         override fun isSection(position: Int): Boolean {
+            if (position == RecyclerView.NO_POSITION) return false
             if (buddies.isEmpty()) return false
             if (position == 0) return true
             val thisLetter = buddies.getOrNull(position)?.lastName.firstChar()
@@ -133,7 +134,11 @@ class BuddiesFragment : Fragment() {
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
-            return buddies.getOrNull(position)?.lastName.firstChar()
+            return when {
+                position == RecyclerView.NO_POSITION -> "-"
+                buddies.isEmpty() -> "-"
+                else -> buddies.getOrNull(position)?.lastName.firstChar()
+            }
         }
 
         inner class BuddyViewHolder(view: View) : RecyclerView.ViewHolder(view) {

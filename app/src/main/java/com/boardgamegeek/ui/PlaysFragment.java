@@ -871,6 +871,7 @@ public class PlaysFragment extends Fragment implements
 		return new RecyclerSectionItemDecoration.SectionCallback() {
 			@Override
 			public boolean isSection(int position) {
+				if (position == RecyclerView.NO_POSITION) return false;
 				if (plays == null || plays.size() == 0) return false;
 				if (position == 0) return true;
 				if (position < 0 || position >= plays.size()) return false;
@@ -882,6 +883,7 @@ public class PlaysFragment extends Fragment implements
 			@NotNull
 			@Override
 			public CharSequence getSectionHeader(int position) {
+				if (position == RecyclerView.NO_POSITION) return "-";
 				if (plays == null || plays.size() == 0) return "-";
 				if (position < 0 || position >= plays.size()) return "-";
 				return sorter.getSectionText(plays.get(position));

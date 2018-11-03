@@ -33,6 +33,7 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -337,7 +338,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 
 		@Override
 		public int getItemCount() {
-			return items == null ? 0 : items.size();
+			return items.size();
 		}
 
 		public CollectionItemEntity getItemAt(int position) {
@@ -356,36 +357,6 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 			final CollectionItemEntity item = items.get(position);
 			holder.bind(item);
 		}
-
-//		@Override
-//		public View getHeaderView(int position, View convertView, ViewGroup parent) {
-//			HeaderViewHolder holder;
-//			if (convertView == null) {
-//				holder = new HeaderViewHolder();
-//				convertView = inflater.inflate(R.layout.row_header, parent, false);
-//				holder.text = convertView.findViewById(android.R.id.title);
-//				convertView.setTag(holder);
-//			} else {
-//				holder = (HeaderViewHolder) convertView.getTag();
-//			}
-//			holder.text.setText(getHeaderText(position));
-//			return convertView;
-//		}
-//
-//		@Override
-//		public long getHeaderId(int position) {
-//			return getHeaderText(position).charAt(0);
-//		}
-//
-//		private String getHeaderText(int position) {
-//			if (position < getCount()) {
-//				CollectionItemEntity item = getItem(position);
-//				if (item != null) {
-//					return item.getSortName().substring(0, 1);
-//				}
-//			}
-//			return "-";
-//		}
 
 		class BuddyGameViewHolder extends RecyclerView.ViewHolder {
 			public final TextView title;
@@ -415,6 +386,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		return new RecyclerSectionItemDecoration.SectionCallback() {
 			@Override
 			public boolean isSection(int position) {
+				if (position == RecyclerView.NO_POSITION) return false;
 				if (items == null || items.size() == 0) return false;
 				if (position == 0) return true;
 				String thisLetter = StringUtils.firstChar(items.get(position).getSortName());
@@ -422,10 +394,12 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 				return !thisLetter.equals(lastLetter);
 			}
 
-			@NonNull
+			@NotNull
 			@Override
 			public CharSequence getSectionHeader(int position) {
+				if (position == RecyclerView.NO_POSITION) return "-";
 				if (items == null || items.size() == 0) return "-";
+				if (position < 0 || position >= items.size()) return "-";
 				return StringUtils.firstChar(items.get(position).getSortName());
 			}
 		};
