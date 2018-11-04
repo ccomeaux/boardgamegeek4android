@@ -15,9 +15,8 @@ import butterknife.BindView;
  * A navigation drawer activity that displays a view pager.
  */
 public abstract class TabActivity extends DrawerActivity {
-	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
-	@BindView(R.id.tab_layout) TabLayout tabLayout;
-	@BindView(R.id.viewpager) ViewPager viewPager;
+	@BindView(R.id.tabLayout) TabLayout tabLayout;
+	@BindView(R.id.viewPager) ViewPager viewPager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

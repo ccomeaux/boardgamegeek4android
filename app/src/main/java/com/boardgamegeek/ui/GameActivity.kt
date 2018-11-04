@@ -146,7 +146,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_log_play_quick -> {
-                Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(coordinatorLayout, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show()
                 ActivityUtils.logQuickPlay(this, gameId, gameName)
                 return true
             }

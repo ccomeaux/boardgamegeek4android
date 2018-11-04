@@ -19,12 +19,12 @@ import butterknife.BindView;
  * A navigation drawer activity that displays a hero image over a view pager.
  */
 public abstract class HeroTabActivity extends DrawerActivity {
-	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
+	@BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
 	@BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
 	@BindView(R.id.toolbar_image) ImageView toolbarImage;
 	@BindView(R.id.scrim) View scrimView;
-	@BindView(R.id.tab_layout) TabLayout tabLayout;
-	@BindView(R.id.viewpager) ViewPager viewPager;
+	@BindView(R.id.tabLayout) TabLayout tabLayout;
+	@BindView(R.id.viewPager) ViewPager viewPager;
 	@BindView(R.id.fab) FloatingActionButton fab;
 
 	@Override

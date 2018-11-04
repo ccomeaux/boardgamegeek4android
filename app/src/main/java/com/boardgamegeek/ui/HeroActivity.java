@@ -27,7 +27,6 @@ public abstract class HeroActivity extends DrawerActivity implements OnRefreshLi
 	private boolean isRefreshing;
 
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.coordinator) CoordinatorLayout coordinator;
 	@BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
 	@BindView(R.id.toolbar_image) ImageView toolbarImage;
 	@BindView(R.id.scrim) View scrimView;
