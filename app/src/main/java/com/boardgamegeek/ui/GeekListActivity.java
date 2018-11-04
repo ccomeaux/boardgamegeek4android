@@ -22,6 +22,8 @@ import com.boardgamegeek.util.StringUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +46,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	private String errorMessage;
 	private String descriptionFragmentTag;
 	private String itemsFragmentTag;
+	private GeekListPagerAdapter adapter;
 
 	public static void start(Context context, int id, String title) {
 		Intent starter = createIntent(context, id, title);
@@ -92,7 +95,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_view:
 				//noinspection SpellCheckingInspection
@@ -105,10 +108,10 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		return super.onOptionsItemSelected(item);
 	}
 
+	@NotNull
 	@Override
-	protected void setUpViewPager() {
-		GeekListPagerAdapter adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
-		viewPager.setAdapter(adapter);
+	protected FragmentPagerAdapter createAdapter() {
+		adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
 		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description, new ItemInstantiatedCallback() {
 			@Override
 			public void itemInstantiated(String tag) {
@@ -123,6 +126,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 				setItems();
 			}
 		});
+		return adapter;
 	}
 
 	private interface ItemInstantiatedCallback {
@@ -225,18 +229,13 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	private void setDescription() {
-		if (viewPager == null) return;
-		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
-
 		GeekListDescriptionFragment descriptionFragment = (GeekListDescriptionFragment) getSupportFragmentManager().findFragmentByTag(descriptionFragmentTag);
 		if (descriptionFragment != null) descriptionFragment.setData(geekList);
 	}
 
 	private void setItems() {
 		if (geekList == null || geekListItems == null) return;
-		if (viewPager == null) return;
-		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
 
 		GeekListItemsFragment itemsFragment = (GeekListItemsFragment) getSupportFragmentManager().findFragmentByTag(itemsFragmentTag);
