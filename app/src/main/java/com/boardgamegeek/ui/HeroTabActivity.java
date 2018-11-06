@@ -20,9 +20,9 @@ import butterknife.BindView;
  */
 public abstract class HeroTabActivity extends DrawerActivity {
 	@BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
-	@BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
-	@BindView(R.id.toolbar_image) ImageView toolbarImage;
-	@BindView(R.id.scrim) View scrimView;
+	@BindView(R.id.collapsingToolbar) CollapsingToolbarLayout collapsingToolbar;
+	@BindView(R.id.toolbarImage) ImageView toolbarImage;
+	@BindView(R.id.scrimView) View scrimView;
 	@BindView(R.id.tabLayout) TabLayout tabLayout;
 	@BindView(R.id.viewPager) ViewPager viewPager;
 	@BindView(R.id.fab) FloatingActionButton fab;
