@@ -11,14 +11,13 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.ScrimUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -109,8 +108,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 				.putContentName(objectName));
 		}
 
-		ScrimUtils.applyDarkScrim(scrimView);
-		ImageUtils.safelyLoadImage(toolbarImage, imageId);
+		loadToolbarImage(imageId);
 	}
 
 	@Override
@@ -119,7 +117,7 @@ public class GeekListItemActivity extends HeroTabActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (geekListId != BggContract.INVALID_ID) {
@@ -141,9 +139,9 @@ public class GeekListItemActivity extends HeroTabActivity {
 	}
 
 	@Override
-	protected void setUpViewPager() {
-		GeekListItemPagerAdapter adapter = new GeekListItemPagerAdapter(getSupportFragmentManager());
-		viewPager.setAdapter(adapter);
+	@NotNull
+	protected FragmentPagerAdapter createAdapter() {
+		return new GeekListItemPagerAdapter(getSupportFragmentManager());
 	}
 
 	private final class GeekListItemPagerAdapter extends FragmentPagerAdapter {
