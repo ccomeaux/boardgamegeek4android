@@ -9,7 +9,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.util.PaletteTransformation
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
@@ -41,7 +41,7 @@ class ImageActivity : AppCompatActivity() {
         }
 
         Picasso.with(this)
-                .load(HttpUtils.ensureScheme(imageUrl))
+                .load(imageUrl.ensureHttpsScheme())
                 .error(R.drawable.thumbnail_image_empty)
                 .fit()
                 .centerInside()

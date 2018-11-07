@@ -104,3 +104,11 @@ fun String?.firstChar(): String {
     if (this == null || isEmpty()) return "-"
     return substring(0, 1).toUpperCase(Locale.getDefault())
 }
+
+fun String?.ensureHttpsScheme(): String {
+    return when {
+        this == null -> ""
+        startsWith("//") -> "https:${this}"
+        else -> this
+    }
+}

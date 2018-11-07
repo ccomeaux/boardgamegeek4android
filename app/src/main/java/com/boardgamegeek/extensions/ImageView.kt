@@ -8,7 +8,6 @@ import android.util.TypedValue
 import android.widget.ImageView
 import androidx.annotation.ColorInt
 import com.boardgamegeek.R
-import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.PaletteTransformation
 import com.squareup.picasso.Picasso
@@ -20,7 +19,7 @@ fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
 fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
     val isSameImage = getTag(R.id.image) == ImageUtils.getImageId(url)
     val requestCreator = Picasso.with(context)
-            .load(if (url.isEmpty()) null else HttpUtils.ensureScheme(url))
+            .load(url.ensureHttpsScheme())
             .transform(PaletteTransformation.instance())
     if (isSameImage) {
         requestCreator.noFade().noPlaceholder()

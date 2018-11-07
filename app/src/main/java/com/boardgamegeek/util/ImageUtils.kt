@@ -5,6 +5,7 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image
 import com.squareup.picasso.Picasso
@@ -198,7 +199,7 @@ object ImageUtils {
         }
         val imageUrl = url
         Picasso.with(context)
-                .load(HttpUtils.ensureScheme(imageUrl))
+                .load(imageUrl.ensureHttpsScheme())
                 .placeholder(errorResId)
                 .error(errorResId)
                 .fit()
@@ -237,7 +238,7 @@ object ImageUtils {
         }
         val imageUrl = url
         Picasso.with(context)
-                .load(HttpUtils.ensureScheme(imageUrl))
+                .load(imageUrl.ensureHttpsScheme())
                 .transform(PaletteTransformation.instance())
                 .into(this, object : com.squareup.picasso.Callback {
                     override fun onSuccess() {
