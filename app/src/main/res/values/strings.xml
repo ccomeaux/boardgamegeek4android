@@ -359,6 +359,9 @@
 	<string name="menu_sort_wins">Wins</string>
 	<string name="menu_sort_comments">Comments</string>
 	<string name="menu_sort_rating">Rating</string>
+	<string name="menu_sort_username">Username</string>
+	<string name="menu_sort_first_name">First name</string>
+	<string name="menu_sort_last_name">Last name</string>
 	<string name="undo">Undo</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>

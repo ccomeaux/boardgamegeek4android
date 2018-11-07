@@ -8,8 +8,8 @@ fun Menu.setActionBarCount(@IdRes id: Int, count: Int) {
     setActionBarText(id, if (count <= 0) "" else "%,d".format(count), null)
 }
 
-fun Menu.setActionBarText(@IdRes id: Int, text: String) {
-    setActionBarText(id, text, null)
+fun Menu.setActionBarCount(@IdRes id: Int, count: Int, text: String?) {
+    setActionBarText(id, if (count <= 0) "" else "%,d".format(count), text)
 }
 
 fun Menu.setActionBarText(@IdRes id: Int, text1: String, text2: String?) {

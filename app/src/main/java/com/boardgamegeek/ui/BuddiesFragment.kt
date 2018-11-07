@@ -32,7 +32,7 @@ class BuddiesFragment : Fragment() {
     }
 
     private val adapter: BuddiesAdapter by lazy {
-        BuddiesAdapter()
+        BuddiesAdapter(viewModel)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -101,7 +101,7 @@ class BuddiesFragment : Fragment() {
         swipeRefresh.isRefreshing = viewModel.refresh()
     }
 
-    class BuddiesAdapter : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+    class BuddiesAdapter(private val viewModel: BuddiesViewModel) : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
         var buddies: List<UserEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
@@ -128,8 +128,8 @@ class BuddiesFragment : Fragment() {
             if (position == RecyclerView.NO_POSITION) return false
             if (buddies.isEmpty()) return false
             if (position == 0) return true
-            val thisLetter = buddies.getOrNull(position)?.lastName.firstChar()
-            val lastLetter = buddies.getOrNull(position - 1)?.lastName.firstChar()
+            val thisLetter = viewModel.getSectionHeader(buddies.getOrNull(position))
+            val lastLetter = viewModel.getSectionHeader(buddies.getOrNull(position - 1))
             return thisLetter != lastLetter
         }
 
@@ -137,7 +137,7 @@ class BuddiesFragment : Fragment() {
             return when {
                 position == RecyclerView.NO_POSITION -> "-"
                 buddies.isEmpty() -> "-"
-                else -> buddies.getOrNull(position)?.lastName.firstChar()
+                else -> viewModel.getSectionHeader(buddies.getOrNull(position))
             }
         }
 

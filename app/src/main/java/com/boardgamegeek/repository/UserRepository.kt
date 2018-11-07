@@ -45,12 +45,12 @@ class UserRepository(val application: BggApplication) {
         }.asLiveData()
     }
 
-    fun loadBuddies(): LiveData<RefreshableResource<List<UserEntity>>> {
+    fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): LiveData<RefreshableResource<List<UserEntity>>> {
         return object : RefreshableResourceLoader<List<UserEntity>, User>(application) {
             private var timestamp = 0L
 
             override fun loadFromDatabase(): LiveData<List<UserEntity>> {
-                return userDao.loadBuddiesAsLiveData()
+                return userDao.loadBuddiesAsLiveData(sortBy)
             }
 
             override fun shouldRefresh(data: List<UserEntity>?): Boolean {

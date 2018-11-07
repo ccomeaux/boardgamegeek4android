@@ -45,8 +45,9 @@ abstract class BaseActivity : AppCompatActivity() {
 
     @DebugLog
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.menu_cancel_sync)?.isVisible = SyncService.isActiveOrPending(this)
-        return super.onPrepareOptionsMenu(menu)
+        return true
     }
 
     protected fun setSubtitle(text: String?) {

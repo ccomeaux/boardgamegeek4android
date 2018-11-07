@@ -15,9 +15,13 @@ import com.boardgamegeek.util.FileUtils
 import timber.log.Timber
 
 class UserDao(private val context: BggApplication) {
-    fun loadBuddiesAsLiveData(): LiveData<List<UserEntity>> {
+    enum class UsersSortBy {
+        FIRST_NAME, LAST_NAME, USERNAME
+    }
+
+    fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<UserEntity>> {
         return RegisteredLiveData(context, BggContract.Buddies.CONTENT_URI, true) {
-            return@RegisteredLiveData loadBuddies()
+            return@RegisteredLiveData loadBuddies(sortBy)
         }
     }
 
@@ -56,8 +60,13 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
-    private fun loadBuddies(): List<UserEntity> {
+    private fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<UserEntity> {
         val results = arrayListOf<UserEntity>()
+        val sortOrder = when (sortBy) {
+            UsersSortBy.USERNAME -> BggContract.Buddies.BUDDY_NAME
+            UsersSortBy.FIRST_NAME -> BggContract.Buddies.BUDDY_FIRSTNAME
+            UsersSortBy.LAST_NAME -> BggContract.Buddies.BUDDY_LASTNAME
+        }.plus(" ${BggContract.COLLATE_NOCASE} ASC")
         context.contentResolver.load(
                 BggContract.Buddies.CONTENT_URI,
                 arrayOf(
@@ -71,7 +80,8 @@ class UserDao(private val context: BggApplication) {
                         BggContract.Buddies.UPDATED
                 ),
                 "${BggContract.Buddies.BUDDY_ID}!=? AND ${BggContract.Buddies.BUDDY_FLAG}=1",
-                arrayOf(Authenticator.getUserId(context))
+                arrayOf(Authenticator.getUserId(context)),
+                sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
