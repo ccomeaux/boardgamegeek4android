@@ -22,7 +22,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.events.SignInEvent;
-import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.greenrobot.eventbus.EventBus;

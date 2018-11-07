@@ -5,6 +5,7 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
@@ -16,7 +17,6 @@ import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.SelectionBuilder
-import com.boardgamegeek.util.TaskUtils
 import retrofit2.Response
 import timber.log.Timber
 
@@ -65,7 +65,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 deleteUnupdatedPlaysBefore(oldestDate)
                 SyncPrefs.setPlaysOldestTimestamp(context, 0L)
             }
-            TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
+            CalculatePlayStatsTask(application).executeAsyncTask()
         } finally {
             Timber.i("...complete!")
         }

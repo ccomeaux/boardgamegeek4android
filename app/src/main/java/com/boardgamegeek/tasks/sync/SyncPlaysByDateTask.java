@@ -1,22 +1,22 @@
 package com.boardgamegeek.tasks.sync;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.io.model.PlaysResponse;
 import com.boardgamegeek.mappers.PlayMapper;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
-import com.boardgamegeek.util.TaskUtils;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import retrofit2.Call;
 import timber.log.Timber;
 

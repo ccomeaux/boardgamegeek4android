@@ -3,9 +3,9 @@ package com.boardgamegeek.ui
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.tasks.ResetPlaysTask
 import com.boardgamegeek.util.DialogUtils
-import com.boardgamegeek.util.TaskUtils
 
 class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
 
@@ -23,7 +23,7 @@ class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
                 DialogUtils.createThemedBuilder(this)
                         .setTitle(getString(R.string.pref_sync_re_sync_plays) + "?")
                         .setMessage(R.string.pref_sync_re_sync_plays_info_message)
-                        .setPositiveButton(R.string.re_sync) { _, _ -> TaskUtils.executeAsyncTask(ResetPlaysTask(this)) }
+                        .setPositiveButton(R.string.re_sync) { _, _ -> ResetPlaysTask(this).executeAsyncTask() }
                         .setNegativeButton(R.string.cancel, null)
                         .setCancelable(true)
                         .show()

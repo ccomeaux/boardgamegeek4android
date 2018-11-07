@@ -9,11 +9,11 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.fabric.DataManipulationEvent;
 import com.crashlytics.android.answers.Answers;

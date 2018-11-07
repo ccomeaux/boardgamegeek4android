@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
@@ -20,7 +21,6 @@ import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.SelectionBuilder
-import com.boardgamegeek.util.TaskUtils
 import hugo.weaving.DebugLog
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.intentFor
@@ -164,7 +164,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         val contentValues = ContentValues()
         addTask.appendContentValues(contentValues)
         context.contentResolver.update(Collection.buildUri(item.internalId), contentValues, null, null)
-        TaskUtils.executeAsyncTask(SyncCollectionByGameTask(application, item.gameId))
+        SyncCollectionByGameTask(application, item.gameId).executeAsyncTask()
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }
 

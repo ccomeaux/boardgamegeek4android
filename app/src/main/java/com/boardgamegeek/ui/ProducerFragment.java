@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
@@ -18,7 +19,6 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import org.greenrobot.eventbus.EventBus;

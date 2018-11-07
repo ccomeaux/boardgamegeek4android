@@ -14,6 +14,7 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.events.CollectionItemChangedEvent
 import com.boardgamegeek.events.CollectionItemDeletedEvent
 import com.boardgamegeek.events.CollectionItemUpdatedEvent
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.service.SyncService
@@ -24,7 +25,6 @@ import com.boardgamegeek.ui.dialog.NumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.util.DialogUtils
-import com.boardgamegeek.util.TaskUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
@@ -100,7 +100,7 @@ class GameCollectionItemActivity : HeroActivity(),
         if (isInEditMode) {
             if (isItemUpdated) {
                 DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false) {
-                    TaskUtils.executeAsyncTask(ResetCollectionItemTask(this, internalId))
+                    ResetCollectionItemTask(this, internalId).executeAsyncTask()
                     toggleEditMode()
                 }.show()
             } else {
@@ -141,7 +141,7 @@ class GameCollectionItemActivity : HeroActivity(),
                 DialogUtils.createThemedBuilder(this)
                         .setMessage(R.string.are_you_sure_delete_collection_item)
                         .setPositiveButton(R.string.delete) { _, _ ->
-                            TaskUtils.executeAsyncTask(DeleteCollectionItemTask(this, internalId))
+                            DeleteCollectionItemTask(this, internalId).executeAsyncTask()
                             finish()
                         }
                         .setNegativeButton(R.string.cancel, null)
@@ -229,17 +229,15 @@ class GameCollectionItemActivity : HeroActivity(),
     }
 
     override fun onPrivateInfoChanged(privateInfo: PrivateInfo) {
-        TaskUtils.executeAsyncTask(UpdateCollectionItemPrivateInfoTask(this, gameId, collectionId, internalId, privateInfo))
+        UpdateCollectionItemPrivateInfoTask(this, gameId, collectionId, internalId, privateInfo).executeAsyncTask()
     }
 
     override fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String) {
-        val task = UpdateCollectionItemTextTask(this, gameId, collectionId, internalId, text, textColumn, timestampColumn)
-        TaskUtils.executeAsyncTask(task)
+        UpdateCollectionItemTextTask(this, gameId, collectionId, internalId, text, textColumn, timestampColumn).executeAsyncTask()
     }
 
     override fun onNumberPadDone(output: Double, requestCode: Int) {
-        val task = UpdateCollectionItemRatingTask(this, gameId, collectionId, internalId, output)
-        TaskUtils.executeAsyncTask(task)
+        UpdateCollectionItemRatingTask(this, gameId, collectionId, internalId, output).executeAsyncTask()
     }
 
     companion object {

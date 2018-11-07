@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.getLongOrNull
 import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.extensions.use
@@ -27,7 +28,10 @@ import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.util.SelectionBuilder
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
@@ -83,7 +87,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
-        TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
+        CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
     @DebugLog
