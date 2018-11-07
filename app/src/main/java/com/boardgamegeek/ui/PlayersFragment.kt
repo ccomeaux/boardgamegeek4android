@@ -23,7 +23,6 @@ import com.boardgamegeek.ui.model.Player
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.boardgamegeek.util.AnimationUtils
-import com.boardgamegeek.util.StringUtils
 import com.boardgamegeek.util.fabric.SortEvent
 import kotlinx.android.synthetic.main.fragment_players.*
 import kotlinx.android.synthetic.main.row_players_player.view.*
@@ -75,7 +74,7 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
         return CursorLoader(ctx,
                 Plays.buildPlayersByUniquePlayerUri(),
-                StringUtils.unionArrays(Player.PROJECTION, sorter?.columns),
+                Player.PROJECTION.union(sorter?.columns?.toList() ?: emptyList()).toTypedArray(),
                 null,
                 null,
                 sorter?.orderByClause)
