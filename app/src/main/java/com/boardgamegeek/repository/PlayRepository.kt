@@ -8,6 +8,7 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameForPlayStatEntity
+import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.applyBatch
@@ -70,6 +71,10 @@ class PlayRepository(val application: BggApplication) {
 
     fun loadPlayerColors(username: String): LiveData<List<PlayerColorEntity>> {
         return playDao.loadPlayerColors(username)
+    }
+
+    fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): LiveData<List<LocationEntity>> {
+        return playDao.loadLocationsAsLiveData(sortBy)
     }
 
     fun updatePlaysWithNickName(username: String, nickName: String): Int {

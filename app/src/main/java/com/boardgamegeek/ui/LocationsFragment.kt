@@ -1,46 +1,33 @@
 package com.boardgamegeek.ui
 
-import android.content.Context
-import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.events.LocationSortChangedEvent
-import com.boardgamegeek.events.LocationsCountChangedEvent
+import com.boardgamegeek.entities.LocationEntity
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.sorter.LocationsSorter
-import com.boardgamegeek.sorter.LocationsSorterFactory
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.model.Location
+import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.AnimationUtils
-import com.boardgamegeek.util.fabric.SortEvent
 import kotlinx.android.synthetic.main.fragment_locations.*
 import kotlinx.android.synthetic.main.row_location.view.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.jetbrains.anko.support.v4.ctx
 import kotlin.properties.Delegates
 
-class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
-    private var sorter: LocationsSorter? = null
-
-    private val adapter: LocationsAdapter by lazy {
-        LocationsAdapter(requireContext())
+class LocationsFragment : Fragment() {
+    private val viewModel: LocationsViewModel by lazy {
+        ViewModelProviders.of(requireActivity()).get(LocationsViewModel::class.java)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        setSort(savedInstanceState?.getInt(STATE_SORT_TYPE) ?: LocationsSorterFactory.TYPE_DEFAULT)
+    private val adapter: LocationsAdapter by lazy {
+        LocationsAdapter(viewModel)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -55,86 +42,25 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter)
         recyclerView.addItemDecoration(sectionItemDecoration)
+
+        viewModel.locations.observe(this, Observer {
+            adapter.locations = it
+            progressBar?.hide()
+            if (adapter.itemCount == 0) {
+                recyclerView.fadeOut()
+                emptyContainer.fadeIn()
+            } else {
+                emptyContainer.fadeOut()
+                recyclerView.fadeIn(recyclerView.windowToken != null)
+            }
+        })
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(STATE_SORT_TYPE, sorter?.type ?: LocationsSorterFactory.TYPE_DEFAULT)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
-    @Subscribe
-    fun onEvent(event: LocationSortChangedEvent) {
-        setSort(event.sortType)
-    }
-
-    private fun setSort(sortType: Int) {
-        if ((sorter?.type ?: LocationsSorterFactory.TYPE_UNKNOWN) != sortType) {
-            SortEvent.log("Locations", sortType.toString())
-            sorter = LocationsSorterFactory.create(ctx, sortType)
-            LoaderManager.getInstance(this).restartLoader(0, arguments, this)
-        }
-    }
-
-    override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
-        return CursorLoader(ctx, Plays.buildLocationsUri(), Location.PROJECTION, null, null, sorter?.orderByClause)
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
-        if (!isAdded) return
-
-        val locations = arrayListOf<Location>()
-        if (cursor.moveToFirst()) {
-            do {
-                locations.add(Location.fromCursor(cursor))
-            } while (cursor.moveToNext())
-        }
-
-        adapter.locations = locations
-        adapter.sorter = sorter ?: LocationsSorterFactory.create(ctx, LocationsSorterFactory.TYPE_DEFAULT)
-
-        EventBus.getDefault().postSticky(LocationsCountChangedEvent(cursor.count))
-
-        progressBar?.hide()
-        setListShown(recyclerView.windowToken != null)
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.clear()
-    }
-
-    private fun setListShown(animate: Boolean) {
-        if (adapter.itemCount == 0) {
-            AnimationUtils.fadeOut(recyclerView)
-            AnimationUtils.fadeIn(emptyContainer)
-        } else {
-            AnimationUtils.fadeOut(emptyContainer)
-            AnimationUtils.fadeIn(recyclerView, animate)
-        }
-    }
-
-    private class LocationsAdapter(context: Context) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-        var locations: List<Location> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+    private class LocationsAdapter(val viewModel: LocationsViewModel) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+        var locations: List<LocationEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name
             }
-        }
-
-        var sorter: LocationsSorter by Delegates.observable(LocationsSorterFactory.create(context, LocationsSorterFactory.TYPE_DEFAULT)) { _, oldValue, newValue ->
-            if (oldValue.type != newValue.type) notifyDataSetChanged()
-        }
-
-        fun clear() {
-            locations = emptyList()
         }
 
         override fun getItemCount() = locations.size
@@ -151,8 +77,8 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             if (position == RecyclerView.NO_POSITION) return false
             if (locations.isEmpty()) return false
             if (position == 0) return true
-            val thisLetter = sorter.getSectionText(locations.getOrNull(position))
-            val lastLetter = sorter.getSectionText(locations.getOrNull(position - 1))
+            val thisLetter = viewModel.getSectionHeader(locations.getOrNull(position))
+            val lastLetter = viewModel.getSectionHeader(locations.getOrNull(position - 1))
             return thisLetter != lastLetter
         }
 
@@ -160,14 +86,14 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             return when {
                 position == RecyclerView.NO_POSITION -> "-"
                 locations.isEmpty() -> "-"
-                else -> sorter.getSectionText(locations.getOrNull(position))
+                else -> viewModel.getSectionHeader(locations.getOrNull(position))
             }
         }
 
         inner class LocationsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bind(location: Location?) {
+            fun bind(location: LocationEntity?) {
                 location?.let { l ->
-                    if (l.name.isNullOrBlank()) {
+                    if (l.name.isBlank()) {
                         itemView.nameView.setText(R.string.no_location)
                     } else {
                         itemView.nameView.text = l.name
@@ -179,9 +105,5 @@ class LocationsFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
                 }
             }
         }
-    }
-
-    companion object {
-        private const val STATE_SORT_TYPE = "sortType"
     }
 }

@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.entities.PlayerEntity
@@ -199,6 +200,43 @@ class PlayDao(private val context: BggApplication) {
                     results += PlayerColorEntity(
                             it.getStringOrEmpty(BggContract.PlayerColors.PLAYER_COLOR),
                             it.getIntOrNull(BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER) ?: 0
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
+    }
+
+    enum class LocationSortBy {
+        NAME, PLAY_COUNT
+    }
+
+    fun loadLocationsAsLiveData(sortBy: LocationSortBy = LocationSortBy.NAME): LiveData<List<LocationEntity>> {
+        return RegisteredLiveData(context, Plays.buildLocationsUri(), true) {
+            return@RegisteredLiveData loadLocations(sortBy)
+        }
+    }
+
+    private fun loadLocations(sortBy: LocationSortBy = LocationSortBy.NAME): List<LocationEntity> {
+        val results = arrayListOf<LocationEntity>()
+        val sortOrder = when (sortBy) {
+            LocationSortBy.NAME -> ""
+            LocationSortBy.PLAY_COUNT -> Plays.SUM_QUANTITY + " DESC"
+        }
+        context.contentResolver.load(
+                Plays.buildLocationsUri(),
+                arrayOf(
+                        Plays._ID,
+                        Plays.LOCATION,
+                        Plays.SUM_QUANTITY
+                ),
+                sortOrder = sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += LocationEntity(
+                            it.getStringOrEmpty(BggContract.Plays.LOCATION),
+                            it.getIntOrNull(BggContract.Plays.SUM_QUANTITY) ?: 0
                     )
                 } while (it.moveToNext())
             }

@@ -7,10 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository

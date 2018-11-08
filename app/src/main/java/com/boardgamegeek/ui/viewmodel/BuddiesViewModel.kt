@@ -21,8 +21,8 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
     private var refreshTimestamp = 0L
     private val userRepository = UserRepository(getApplication())
 
-    private val _sort = MutableLiveData<Sort>()
-    val sort: LiveData<Sort>
+    private val _sort = MutableLiveData<BuddiesSort>()
+    val sort: LiveData<BuddiesSort>
         get() = _sort
 
     init {
@@ -36,9 +36,9 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
 
     fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
-            SortType.USERNAME -> SortByUsername()
-            SortType.FIRST_NAME -> SortByFirstName()
-            SortType.LAST_NAME -> SortByLastName()
+            SortType.USERNAME -> BuddiesSortByUsername()
+            SortType.FIRST_NAME -> BuddiesSortByFirstName()
+            SortType.LAST_NAME -> BuddiesSortByLastName()
         }
     }
 
@@ -57,13 +57,13 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
     }
 }
 
-sealed class Sort {
+sealed class BuddiesSort {
     abstract val sortType: BuddiesViewModel.SortType
     abstract val sortBy: UserDao.UsersSortBy
     abstract fun getSectionHeader(user: UserEntity?): String
 }
 
-class SortByUsername : Sort() {
+class BuddiesSortByUsername : BuddiesSort() {
     override val sortType = BuddiesViewModel.SortType.USERNAME
     override val sortBy = UserDao.UsersSortBy.USERNAME
     override fun getSectionHeader(user: UserEntity?): String {
@@ -71,7 +71,7 @@ class SortByUsername : Sort() {
     }
 }
 
-class SortByFirstName : Sort() {
+class BuddiesSortByFirstName : BuddiesSort() {
     override val sortType = BuddiesViewModel.SortType.FIRST_NAME
     override val sortBy = UserDao.UsersSortBy.FIRST_NAME
     override fun getSectionHeader(user: UserEntity?): String {
@@ -79,7 +79,7 @@ class SortByFirstName : Sort() {
     }
 }
 
-class SortByLastName : Sort() {
+class BuddiesSortByLastName : BuddiesSort() {
     override val sortType = BuddiesViewModel.SortType.LAST_NAME
     override val sortBy = UserDao.UsersSortBy.LAST_NAME
     override fun getSectionHeader(user: UserEntity?): String {

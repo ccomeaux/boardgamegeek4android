@@ -5,19 +5,21 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.events.LocationSortChangedEvent
-import com.boardgamegeek.events.LocationsCountChangedEvent
 import com.boardgamegeek.extensions.setActionBarCount
-import com.boardgamegeek.sorter.LocationsSorterFactory
+import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 class LocationsActivity : SimpleSinglePaneActivity() {
+    private val viewModel: LocationsViewModel by lazy {
+        ViewModelProviders.of(this).get(LocationsViewModel::class.java)
+    }
+
     private var locationCount = -1
-    private var sortType = LocationsSorterFactory.TYPE_DEFAULT
+    private var sortType = LocationsViewModel.SortType.NAME
 
     override val optionsMenuId: Int
         get() = R.menu.locations
@@ -27,6 +29,15 @@ class LocationsActivity : SimpleSinglePaneActivity() {
         if (savedInstanceState == null) {
             Answers.getInstance().logContentView(ContentViewEvent().putContentType("Locations"))
         }
+
+        viewModel.locations.observe(this, Observer {
+            locationCount = it?.size ?: 0
+            invalidateOptionsMenu()
+        })
+        viewModel.sort.observe(this, Observer {
+            sortType = it?.sortType ?: LocationsViewModel.SortType.NAME
+            invalidateOptionsMenu()
+        })
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -34,37 +45,28 @@ class LocationsActivity : SimpleSinglePaneActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (sortType == LocationsSorterFactory.TYPE_QUANTITY) {
-            menu.findItem(R.id.menu_sort_quantity)?.isChecked = true
-        } else {
-            menu.findItem(R.id.menu_sort_name)?.isChecked = true
+        super.onPrepareOptionsMenu(menu)
+        when (sortType) {
+            LocationsViewModel.SortType.NAME -> menu.findItem(R.id.menu_sort_name)
+            LocationsViewModel.SortType.PLAY_COUNT -> menu.findItem(R.id.menu_sort_quantity)
+        }.apply {
+            isChecked = true
+            menu.setActionBarCount(R.id.menu_list_count, locationCount, title.toString())
         }
-        menu.setActionBarCount(R.id.menu_list_count, locationCount)
-        return super.onPrepareOptionsMenu(menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_sort_name -> {
-                EventBus.getDefault().postSticky(LocationSortChangedEvent(LocationsSorterFactory.TYPE_NAME))
+                viewModel.sort(LocationsViewModel.SortType.NAME)
                 return true
             }
             R.id.menu_sort_quantity -> {
-                EventBus.getDefault().postSticky(LocationSortChangedEvent(LocationsSorterFactory.TYPE_QUANTITY))
+                viewModel.sort(LocationsViewModel.SortType.PLAY_COUNT)
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @Subscribe(sticky = true)
-    fun onEvent(event: LocationsCountChangedEvent) {
-        locationCount = event.count
-        invalidateOptionsMenu()
-    }
-
-    @Subscribe(sticky = true)
-    fun onEvent(event: LocationSortChangedEvent) {
-        sortType = event.sortType
     }
 }

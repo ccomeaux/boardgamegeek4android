@@ -11,7 +11,7 @@ import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 
 class BuddiesActivity : TopLevelSinglePaneActivity() {
-    private var numberOfBuddies = 0
+    private var numberOfBuddies = -1
     private var sortBy = BuddiesViewModel.SortType.USERNAME
 
     private val viewModel: BuddiesViewModel by lazy {
