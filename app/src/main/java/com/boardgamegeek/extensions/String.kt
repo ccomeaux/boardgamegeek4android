@@ -113,3 +113,11 @@ fun String?.ensureHttpsScheme(): String? {
         else -> this
     }
 }
+
+fun String.descending(): String {
+    return this.plus(" DESC")
+}
+
+fun String.collateNoCase(): String {
+    return this.plus(" COLLATE NOCASE")
+}

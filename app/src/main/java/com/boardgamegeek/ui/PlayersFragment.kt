@@ -1,51 +1,35 @@
 package com.boardgamegeek.ui
 
-import android.content.Context
-import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.events.PlayersCountChangedEvent
+import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
-import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.sorter.PlayersSorter
-import com.boardgamegeek.sorter.PlayersSorterFactory
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.model.Player
+import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.AnimationUtils
-import com.boardgamegeek.util.fabric.SortEvent
 import kotlinx.android.synthetic.main.fragment_players.*
 import kotlinx.android.synthetic.main.row_players_player.view.*
-import org.greenrobot.eventbus.EventBus
-import org.jetbrains.anko.support.v4.ctx
 import kotlin.properties.Delegates
 
-class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
-    private var sorter: PlayersSorter? = null
-
-    private val adapter: PlayersAdapter by lazy {
-        PlayersAdapter(ctx)
+class PlayersFragment : Fragment() {
+    private val viewModel: PlayersViewModel by lazy {
+        ViewModelProviders.of(requireActivity()).get(PlayersViewModel::class.java)
     }
 
-    var sortType: Int
-        get() = sorter?.type ?: PlayersSorterFactory.TYPE_DEFAULT
-        set(sortType) {
-            if ((sorter?.type ?: PlayersSorterFactory.TYPE_UNKNOWN) != sortType) {
-                SortEvent.log("Players", sortType.toString())
-                sorter = PlayersSorterFactory.create(ctx, sortType)
-                LoaderManager.getInstance(this).restartLoader(0, arguments, this)
-            }
-        }
+    private val adapter: PlayersAdapter by lazy {
+        PlayersAdapter(viewModel)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_players, container, false)
@@ -59,73 +43,33 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter)
         recyclerView.addItemDecoration(sectionItemDecoration)
+
+        viewModel.players.observe(this, Observer {
+            adapter.players = it
+            progressBar?.hide()
+            if (adapter.itemCount == 0) {
+                recyclerView.fadeOut()
+                emptyContainer.fadeIn()
+            } else {
+                emptyContainer.fadeOut()
+                recyclerView.fadeIn(recyclerView.windowToken != null)
+            }
+        })
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        sortType = savedInstanceState?.getInt(STATE_SORT_TYPE) ?: PlayersSorterFactory.TYPE_DEFAULT
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(STATE_SORT_TYPE, sorter?.type ?: PlayersSorterFactory.TYPE_DEFAULT)
-    }
-
-    override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
-        return CursorLoader(ctx,
-                Plays.buildPlayersByUniquePlayerUri(),
-                Player.PROJECTION.union(sorter?.columns?.toList() ?: emptyList()).toTypedArray(),
-                null,
-                null,
-                sorter?.orderByClause)
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
-        if (!isAdded) return
-
-        val players = arrayListOf<Player>()
-        if (cursor.moveToFirst()) {
-            do {
-                players.add(Player.fromCursor(cursor))
-            } while (cursor.moveToNext())
-        }
-
-        adapter.players = players
-        adapter.sorter = sorter ?: PlayersSorterFactory.create(ctx, PlayersSorterFactory.TYPE_DEFAULT)
-
-        EventBus.getDefault().postSticky(PlayersCountChangedEvent(cursor.count))
-
-        progressBar.hide()
-        setListShown(recyclerView.windowToken != null)
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.clear()
-    }
-
-    private fun setListShown(animate: Boolean) {
-        if (adapter.itemCount == 0) {
-            AnimationUtils.fadeOut(recyclerView)
-            AnimationUtils.fadeIn(emptyContainer)
-        } else {
-            AnimationUtils.fadeOut(emptyContainer)
-            AnimationUtils.fadeIn(recyclerView, animate)
-        }
-    }
-
-    class PlayersAdapter(context: Context) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-        var players: List<Player> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+    class PlayersAdapter(val viewModel: PlayersViewModel) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+        var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
-                old.name == new.name
+                old.id == new.id
             }
         }
 
-        var sorter: PlayersSorter by Delegates.observable(PlayersSorterFactory.create(context, PlayersSorterFactory.TYPE_DEFAULT)) { _, oldValue, newValue ->
-            if (oldValue.type != newValue.type) notifyDataSetChanged()
+        init {
+            setHasStableIds(true)
         }
 
-        fun clear() {
-            players = emptyList()
+        override fun getItemId(position: Int): Long {
+            return players.getOrNull(position)?.id ?: RecyclerView.NO_ID
         }
 
         override fun getItemCount() = players.size
@@ -142,8 +86,8 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             if (position == RecyclerView.NO_POSITION) return false
             if (players.isEmpty()) return false
             if (position == 0) return true
-            val thisLetter = sorter.getSectionText(players.getOrNull(position))
-            val lastLetter = sorter.getSectionText(players.getOrNull(position - 1))
+            val thisLetter = viewModel.getSectionHeader(players.getOrNull(position))
+            val lastLetter = viewModel.getSectionHeader(players.getOrNull(position - 1))
             return thisLetter != lastLetter
         }
 
@@ -151,25 +95,21 @@ class PlayersFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             return when {
                 position == RecyclerView.NO_POSITION -> "-"
                 players.isEmpty() -> "-"
-                else -> sorter.getSectionText(players.getOrNull(position))
+                else -> viewModel.getSectionHeader(players.getOrNull(position))
             }
         }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bind(player: Player?) {
+            fun bind(player: PlayerEntity?) {
                 player?.let { p ->
                     itemView.nameView.text = p.name
                     itemView.usernameView.setTextOrHide(player.username)
-                    itemView.quantityView.setTextOrHide(sorter.getDisplayText(p))
+                    itemView.quantityView.setTextOrHide(viewModel.getDisplayText(p))
                     itemView.setOnClickListener {
                         BuddyActivity.start(itemView.context, p.username, p.name)
                     }
                 }
             }
         }
-    }
-
-    companion object {
-        private const val STATE_SORT_TYPE = "sortType"
     }
 }

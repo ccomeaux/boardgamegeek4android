@@ -102,12 +102,12 @@ class PlayDao(private val context: BggApplication) {
                         PlayPlayers.SUM_WINS),
                 selection,
                 selectionArgs,
-                "${PlayPlayers.SUM_QUANTITY} DESC, ${PlayPlayers.NAME}${BggContract.COLLATE_NOCASE}"
+                "${PlayPlayers.SUM_QUANTITY.descending()}, ${PlayPlayers.NAME.collateNoCase()}"
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerEntity(
-                            it.getInt(PlayPlayers._ID),
+                            it.getLongOrNull(PlayPlayers._ID) ?: BggContract.INVALID_ID.toLong(),
                             it.getStringOrEmpty(PlayPlayers.NAME),
                             it.getStringOrEmpty(PlayPlayers.USER_NAME),
                             it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
@@ -160,7 +160,7 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             return if (it.moveToFirst()) {
                 PlayerEntity(
-                        it.getIntOrNull(PlayPlayers._ID) ?: BggContract.INVALID_ID,
+                        it.getLongOrNull(PlayPlayers._ID) ?: BggContract.INVALID_ID.toLong(),
                         it.getStringOrEmpty(PlayPlayers.NAME),
                         it.getStringOrEmpty(PlayPlayers.USER_NAME),
                         it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
@@ -221,7 +221,7 @@ class PlayDao(private val context: BggApplication) {
         val results = arrayListOf<LocationEntity>()
         val sortOrder = when (sortBy) {
             LocationSortBy.NAME -> ""
-            LocationSortBy.PLAY_COUNT -> Plays.SUM_QUANTITY + " DESC"
+            LocationSortBy.PLAY_COUNT -> Plays.SUM_QUANTITY.descending()
         }
         context.contentResolver.load(
                 Plays.buildLocationsUri(),
@@ -237,6 +237,49 @@ class PlayDao(private val context: BggApplication) {
                     results += LocationEntity(
                             it.getStringOrEmpty(BggContract.Plays.LOCATION),
                             it.getIntOrNull(BggContract.Plays.SUM_QUANTITY) ?: 0
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
+    }
+
+    enum class PlayerSortBy {
+        NAME, PLAY_COUNT, WIN_COUNT
+    }
+
+    fun loadPlayersAsLiveData(sortBy: PlayerSortBy = PlayerSortBy.NAME): LiveData<List<PlayerEntity>> {
+        return RegisteredLiveData(context, Plays.buildPlayersByUniquePlayerUri(), true) {
+            return@RegisteredLiveData loadPlayers(sortBy)
+        }
+    }
+
+    private fun loadPlayers(sortBy: PlayerSortBy = PlayerSortBy.NAME): List<PlayerEntity> {
+        val results = arrayListOf<PlayerEntity>()
+        val sortOrder = when (sortBy) {
+            PlayerSortBy.NAME -> PlayPlayers.NAME.collateNoCase()
+            PlayerSortBy.PLAY_COUNT -> Plays.SUM_QUANTITY.descending()
+            PlayerSortBy.WIN_COUNT -> Plays.SUM_WINS.descending()
+        }
+        context.contentResolver.load(
+                Plays.buildPlayersByUniquePlayerUri(),
+                arrayOf(
+                        PlayPlayers._ID,
+                        PlayPlayers.NAME,
+                        PlayPlayers.USER_NAME,
+                        PlayPlayers.SUM_QUANTITY,
+                        PlayPlayers.SUM_WINS
+                ),
+                sortOrder = sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += PlayerEntity(
+                            it.getLongOrNull(BggContract.PlayPlayers._ID) ?: BggContract.INVALID_ID.toLong(),
+                            it.getStringOrEmpty(BggContract.PlayPlayers.NAME),
+                            it.getStringOrEmpty(BggContract.PlayPlayers.USER_NAME),
+                            it.getIntOrNull(BggContract.PlayPlayers.SUM_QUANTITY) ?: 0,
+                            it.getIntOrNull(BggContract.PlayPlayers.SUM_WINS) ?: 0
                     )
                 } while (it.moveToNext())
             }

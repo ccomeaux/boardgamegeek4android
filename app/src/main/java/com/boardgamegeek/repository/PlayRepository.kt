@@ -49,6 +49,10 @@ class PlayRepository(val application: BggApplication) {
         return games.toList()
     }
 
+    fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME): LiveData<List<PlayerEntity>> {
+        return playDao.loadPlayersAsLiveData(sortBy)
+    }
+
     fun loadPlayersForStats(): List<PlayerEntity> {
         return playDao.loadPlayers(PreferencesUtils.logPlayStatsIncomplete(application))
     }

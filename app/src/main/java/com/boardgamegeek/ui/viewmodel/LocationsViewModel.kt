@@ -40,7 +40,6 @@ class LocationsViewModel(application: Application) : AndroidViewModel(applicatio
     fun getSectionHeader(location: LocationEntity?): String {
         return sort.value?.getSectionHeader(location) ?: ""
     }
-
 }
 
 sealed class LocationsSort {
