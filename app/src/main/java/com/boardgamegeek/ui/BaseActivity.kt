@@ -7,8 +7,6 @@ import android.view.Menu
 import android.view.MenuItem
 import com.boardgamegeek.R
 import com.boardgamegeek.service.SyncService
-import hugo.weaving.DebugLog
-import org.greenrobot.eventbus.EventBus
 
 const val INVALID_MENU_ID = 0
 
@@ -26,16 +24,6 @@ abstract class BaseActivity : AppCompatActivity() {
         @MenuRes
         get() = INVALID_MENU_ID
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.base, menu)
@@ -43,7 +31,6 @@ abstract class BaseActivity : AppCompatActivity() {
         return true
     }
 
-    @DebugLog
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.menu_cancel_sync)?.isVisible = SyncService.isActiveOrPending(this)
@@ -54,7 +41,6 @@ abstract class BaseActivity : AppCompatActivity() {
         supportActionBar?.subtitle = text ?: ""
     }
 
-    @DebugLog
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {

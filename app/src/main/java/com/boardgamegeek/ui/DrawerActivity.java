@@ -22,6 +22,7 @@ import com.boardgamegeek.ui.viewmodel.SelfUserViewModel;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -76,7 +77,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-
+		EventBus.getDefault().register(this);
 		if (!PreferencesUtils.hasSeenNavDrawer(this)) {
 			drawerLayout.openDrawer(GravityCompat.START);
 			PreferencesUtils.sawNavDrawer(this);
@@ -87,6 +88,12 @@ public abstract class DrawerActivity extends BaseActivity {
 	protected void onResume() {
 		super.onResume();
 		refreshDrawer();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@DebugLog
