@@ -7,8 +7,6 @@ import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
 data class PlayEntity(
         val internalId: Long,
         val playId: Int,
@@ -24,7 +22,10 @@ data class PlayEntity(
         val syncTimestamp: Long,
         val playerCount: Int,
         val dirtyTimestamp: Long,
-        val startTime: Long
+        val startTime: Long,
+        val imageUrl: String = "",
+        val thumbnailUrl: String = "",
+        val heroImageUrl: String = ""
 ) {
     val dateInMillis = date.toMillis(FORMAT)
 
@@ -37,4 +38,7 @@ data class PlayEntity(
         return info.trim().toString()
     }
 
+    companion object {
+        private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    }
 }

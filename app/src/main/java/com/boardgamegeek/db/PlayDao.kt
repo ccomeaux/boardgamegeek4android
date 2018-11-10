@@ -13,8 +13,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.PlayPlayers
-import com.boardgamegeek.provider.BggContract.Plays
+import com.boardgamegeek.provider.BggContract.*
 import timber.log.Timber
 
 class PlayDao(private val context: BggApplication) {
@@ -82,7 +81,10 @@ class PlayDao(private val context: BggApplication) {
                         Plays.SYNC_TIMESTAMP,
                         Plays.PLAYER_COUNT,
                         Plays.DIRTY_TIMESTAMP,
-                        Plays.START_TIME),
+                        Plays.START_TIME,
+                        Games.THUMBNAIL_URL,
+                        Games.IMAGE_URL,
+                        Games.HERO_IMAGE_URL),
                 selection.first,
                 selection.second
         )?.use {
@@ -103,7 +105,10 @@ class PlayDao(private val context: BggApplication) {
                             syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
                             playerCount = it.getInt(Plays.PLAYER_COUNT),
                             dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
-                            startTime = it.getLong(Plays.START_TIME)
+                            startTime = it.getLong(Plays.START_TIME),
+                            imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
+                            thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
+                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL)
                     ))
                 } while (it.moveToNext())
             }

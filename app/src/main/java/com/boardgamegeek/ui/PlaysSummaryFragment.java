@@ -223,9 +223,9 @@ public class PlaysSummaryFragment extends Fragment implements OnRefreshListener,
 					play.getInternalId(),
 					play.getGameId(),
 					play.getGameName(),
-					"",
-					"",
-					"");
+					play.getThumbnailUrl(),
+					play.getImageUrl(),
+					play.getHeroImageUrl());
 			}
 		});
 	}
