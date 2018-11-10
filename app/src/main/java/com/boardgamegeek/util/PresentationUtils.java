@@ -20,7 +20,6 @@ import java.text.NumberFormat;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.PluralsRes;
 import androidx.annotation.StringRes;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
@@ -78,13 +77,6 @@ public class PresentationUtils {
 		return "";
 	}
 
-	@NonNull
-	public static String describePlayer(String name, String username) {
-		if (name == null) return "";
-		if (TextUtils.isEmpty(username)) return name;
-		return name + " (" + username + ")";
-	}
-
 	@DebugLog
 	@NonNull
 	public static String describePlayDetails(Context context, String date, String location, int quantity, int length, int playerCount) {
@@ -127,15 +119,6 @@ public class PresentationUtils {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
 		final String htmlString = String.format(Html.toHtml(new SpannedString(context.getText(id))), args);
-		return trimTrailingWhitespace(Html.fromHtml(htmlString));
-	}
-
-	@DebugLog
-	public static CharSequence getQuantityText(Context context, @PluralsRes int id, int quantity, Object... args) {
-		for (int i = 0; i < args.length; ++i) {
-			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
-		}
-		final String htmlString = String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args);
 		return trimTrailingWhitespace(Html.fromHtml(htmlString));
 	}
 

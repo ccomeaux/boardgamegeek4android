@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,24 +18,19 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.entities.LocationEntity;
+import com.boardgamegeek.entities.PlayerColorEntity;
+import com.boardgamegeek.entities.PlayerEntity;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.sorter.LocationsSorter;
-import com.boardgamegeek.sorter.LocationsSorterFactory;
-import com.boardgamegeek.sorter.PlayersSorter;
-import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.sorter.PlaysSorter;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
-import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.ui.model.PlayModel;
-import com.boardgamegeek.ui.model.Player;
-import com.boardgamegeek.ui.model.PlayerColor;
+import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -46,9 +40,13 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
@@ -59,19 +57,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener, OnSharedPreferenceChangeListener {
 	private static final int PLAYS_TOKEN = 1;
 	private static final int PLAY_COUNT_TOKEN = 2;
-	private static final int PLAYERS_TOKEN = 3;
-	private static final int LOCATIONS_TOKEN = 4;
-	private static final int COLORS_TOKEN = 5;
 	private static final int PLAYS_IN_PROGRESS_TOKEN = 6;
 
 	private static final int NUMBER_OF_PLAYS_SHOWN = 5;
-	private static final int NUMBER_OF_PLAYERS_SHOWN = 5;
-	private static final int NUMBER_OF_LOCATIONS_SHOWN = 5;
 
 	private boolean isRefreshing;
 
@@ -109,6 +101,26 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
+
+		PlaysSummaryViewModel viewModel = ViewModelProviders.of(this).get(PlaysSummaryViewModel.class);
+		viewModel.getPlayers().observe(this, new Observer<List<PlayerEntity>>() {
+			@Override
+			public void onChanged(List<PlayerEntity> playerEntities) {
+				onPlayersQueryComplete(playerEntities);
+			}
+		});
+		viewModel.getLocations().observe(this, new Observer<List<LocationEntity>>() {
+			@Override
+			public void onChanged(List<LocationEntity> locationEntities) {
+				onLocationsQueryComplete(locationEntities);
+			}
+		});
+		viewModel.getColors().observe(this, new Observer<List<PlayerColorEntity>>() {
+			@Override
+			public void onChanged(List<PlayerColorEntity> playerColorEntities) {
+				onColorsQueryComplete(playerColorEntities);
+			}
+		});
 	}
 
 	@Override
@@ -127,15 +139,9 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		loaderManager.restartLoader(PLAYS_TOKEN, null, this);
 		loaderManager.restartLoader(PLAY_COUNT_TOKEN, null, this);
-		loaderManager.restartLoader(PLAYERS_TOKEN, null, this);
-		loaderManager.restartLoader(LOCATIONS_TOKEN, null, this);
-		if (!TextUtils.isEmpty(AccountUtils.getUsername(getActivity()))) {
-			loaderManager.restartLoader(COLORS_TOKEN, null, this);
-		}
 		loaderManager.restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -148,7 +154,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		SyncPrefs.getPrefs(getContext()).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -172,7 +177,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		CursorLoader loader = new CursorLoader(getContext());
 		switch (id) {
 			case PLAYS_IN_PROGRESS_TOKEN:
-				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
+				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlaysSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
 					PlayModel.getProjection(),
@@ -181,7 +186,7 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					playsSorter == null ? null : playsSorter.getOrderByClause());
 				break;
 			case PLAYS_TOKEN:
-				playsSorter = PlaysSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_DEFAULT);
+				playsSorter = PlaysSorterFactory.create(getContext(), PlaysSorterFactory.TYPE_DEFAULT);
 				loader = new CursorLoader(getContext(),
 					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
 					PlayModel.getProjection(),
@@ -196,39 +201,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
 					null,
 					null);
-				break;
-			case PLAYERS_TOKEN:
-				PlayersSorter playersSorter = PlayersSorterFactory.create(getContext(), PlayersSorterFactory.TYPE_QUANTITY);
-				loader = new CursorLoader(getContext(),
-					Plays.buildPlayersByUniquePlayerUri()
-						.buildUpon()
-						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYERS_SHOWN))
-						.build(),
-					Player.PROJECTION,
-					PlayPlayers.USER_NAME + "!=?",
-					new String[] { AccountUtils.getUsername(getActivity()) },
-					playersSorter.getOrderByClause());
-				break;
-			case LOCATIONS_TOKEN:
-				LocationsSorter locationsSorter = LocationsSorterFactory.create(getContext(), LocationsSorterFactory.TYPE_QUANTITY);
-				loader = new CursorLoader(getContext(),
-					Plays.buildLocationsUri()
-						.buildUpon()
-						.appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_LOCATIONS_SHOWN))
-						.build(),
-					Location.PROJECTION,
-					SelectionBuilder.whereNotNullOrEmpty(Plays.LOCATION),
-					null,
-					locationsSorter.getOrderByClause());
-				break;
-			case COLORS_TOKEN:
-				String username = AccountUtils.getUsername(getActivity());
-				if (!TextUtils.isEmpty(username)) {
-					loader = new CursorLoader(getContext(),
-						PlayerColors.buildUserUri(username),
-						PlayerColor.PROJECTION,
-						null, null, null);
-				}
 				break;
 		}
 		return loader;
@@ -247,15 +219,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 				break;
 			case PLAY_COUNT_TOKEN:
 				onPlayCountQueryComplete(cursor);
-				break;
-			case PLAYERS_TOKEN:
-				onPlayersQueryComplete(cursor);
-				break;
-			case LOCATIONS_TOKEN:
-				onLocationsQueryComplete(cursor);
-				break;
-			case COLORS_TOKEN:
-				onColorsQueryComplete(cursor);
 				break;
 			default:
 				cursor.close();
@@ -354,58 +317,37 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		}
 	}
 
-	private void onPlayersQueryComplete(Cursor cursor) {
+	private void onPlayersQueryComplete(List<PlayerEntity> players) {
 		playersContainer.removeAllViews();
+		playersCard.setVisibility(players.size() == 0 ? View.GONE : View.VISIBLE);
+		for (final PlayerEntity player : players) {
+			View view = createRowWithPlayCount(playersContainer, player.getDescription(), player.getPlayCount());
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					BuddyActivity.start(getContext(),
+						player.getUsername(),
+						player.getName());
+				}
+			});
 
-		if (cursor != null && cursor.moveToFirst()) {
-			do {
-				Player player = Player.fromCursor(cursor);
-
-				playersCard.setVisibility(View.VISIBLE);
-				View view = createRowWithPlayCount(playersContainer, PresentationUtils.describePlayer(player.getName(), player.getUsername()), player.getPlayCount());
-
-				view.setTag(R.id.name, player.getName());
-				view.setTag(R.id.username, player.getUsername());
-
-				view.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						BuddyActivity.start(getContext(),
-							(String) v.getTag(R.id.username),
-							(String) v.getTag(R.id.name));
-					}
-				});
-
-			}
-			while (cursor.moveToNext());
-			morePlayersButton.setVisibility(View.VISIBLE);
-		} else {
-			morePlayersButton.setVisibility(View.GONE);
 		}
+		morePlayersButton.setVisibility(players.size() == 0 ? View.GONE : View.VISIBLE);
 	}
 
-	private void onLocationsQueryComplete(Cursor cursor) {
+	private void onLocationsQueryComplete(List<LocationEntity> locations) {
 		locationsContainer.removeAllViews();
-		if (cursor != null && cursor.moveToFirst()) {
-			do {
-				Location location = Location.fromCursor(cursor);
-
-				locationsCard.setVisibility(View.VISIBLE);
-				View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
-
-				view.setTag(R.id.name, location.getName());
-
-				view.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						LocationActivity.start(getContext(), (String) v.getTag(R.id.name));
-					}
-				});
-			} while (cursor.moveToNext());
-			moreLocationsButton.setVisibility(View.VISIBLE);
-		} else {
-			moreLocationsButton.setVisibility(View.GONE);
+		locationsCard.setVisibility(locations.size() == 0 ? View.GONE : View.VISIBLE);
+		for (final LocationEntity location : locations) {
+			View view = createRowWithPlayCount(locationsContainer, location.getName(), location.getPlayCount());
+			view.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					LocationActivity.start(getContext(), location.getName());
+				}
+			});
 		}
+		moreLocationsButton.setVisibility(locations.size() == 0 ? View.GONE : View.VISIBLE);
 	}
 
 	private View createRow(ViewGroup container, String title, String text) {
@@ -420,18 +362,13 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		return createRow(container, title, getResources().getQuantityString(R.plurals.plays_suffix, playCount, playCount));
 	}
 
-	private void onColorsQueryComplete(Cursor cursor) {
+	private void onColorsQueryComplete(List<PlayerColorEntity> colors) {
 		colorContainer.removeAllViews();
-		if (cursor != null && cursor.moveToFirst()) {
-			do {
-				ImageView view = createViewToBeColored();
-				PlayerColor color = PlayerColor.fromCursor(cursor);
-				ColorUtils.setColorViewValue(view, ColorUtils.parseColor(color.getColor()));
-				colorContainer.addView(view);
-			} while (cursor.moveToNext());
-			colorsCard.setVisibility(View.VISIBLE);
-		} else {
-			colorsCard.setVisibility(View.GONE);
+		colorsCard.setVisibility(colors.size() == 0 ? View.GONE : View.VISIBLE);
+		for (PlayerColorEntity color : colors) {
+			ImageView view = createViewToBeColored();
+			ColorUtils.setColorViewValue(view, color.getRgb());
+			colorContainer.addView(view);
 		}
 	}
 
@@ -498,7 +435,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(@NonNull SyncEvent event) {
 		if (((event.getType() & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) ||
@@ -508,13 +444,11 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncCompleteEvent event) {
 		updateRefreshStatus(false);
 	}
 
-	@DebugLog
 	private void updateRefreshStatus(boolean value) {
 		this.isRefreshing = value;
 		if (swipeRefreshLayout != null) {
