@@ -25,55 +25,103 @@ class PlayDao(private val context: BggApplication) {
         Timber.i("Deleted %,d unupdated play(s) of game ID=%s", count, gameId)
     }
 
-    fun load(gameId: Int): LiveData<List<PlayEntity>> {
+    fun countPlays(): LiveData<Int> {
+        val uri = Plays.CONTENT_SIMPLE_URI
+        val selection = createPlaySelectionAndArgs()
+        var count = 0
+        return RegisteredLiveData(context, uri, true) {
+            context.contentResolver.load(uri,
+                    arrayOf(Plays.SUM_QUANTITY),
+                    selection.first,
+                    selection.second
+            )?.use {
+                if (it.moveToFirst()) {
+                    count = it.getIntOrNull(0) ?: 0
+                }
+            }
+            return@RegisteredLiveData count
+        }
+    }
+
+    fun loadPlaysInProgress(): LiveData<List<PlayEntity>> {
+        val uri = Plays.CONTENT_URI
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData loadPlays(uri, createInProgressPlaySelectionAndArgs())
+        }
+    }
+
+    fun loadPlaysNotInProgress(): LiveData<List<PlayEntity>> {
+        val uri = Plays.CONTENT_URI
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData loadPlays(uri, createUpdatedPlaySelectionAndArgs())
+        }
+    }
+
+    fun loadPlaysByGame(gameId: Int): LiveData<List<PlayEntity>> {
         if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
         val uri = Plays.CONTENT_URI
         return RegisteredLiveData(context, uri, true) {
-            val list = arrayListOf<PlayEntity>()
-            context.contentResolver.load(uri,
-                    arrayOf(Plays._ID,
-                            Plays.PLAY_ID,
-                            Plays.DATE,
-                            Plays.OBJECT_ID,
-                            Plays.ITEM_NAME,
-                            Plays.QUANTITY,
-                            Plays.LENGTH,
-                            Plays.LOCATION,
-                            Plays.INCOMPLETE,
-                            Plays.NO_WIN_STATS,
-                            Plays.COMMENTS,
-                            Plays.SYNC_TIMESTAMP,
-                            Plays.PLAYER_COUNT,
-                            Plays.DIRTY_TIMESTAMP,
-                            Plays.START_TIME),
-                    "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
-                    arrayOf(gameId.toString())
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        list.add(PlayEntity(
-                                internalId = it.getLong(Plays._ID),
-                                playId = it.getInt(Plays.PLAY_ID),
-                                date = it.getString(Plays.DATE),
-                                gameId = it.getInt(Plays.OBJECT_ID),
-                                gameName = it.getString(Plays.ITEM_NAME),
-                                quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,
-                                length = it.getIntOrNull(Plays.LENGTH) ?: 0,
-                                location = it.getStringOrEmpty(Plays.LOCATION),
-                                incomplete = it.getInt(Plays.INCOMPLETE) == 1,
-                                noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
-                                comments = it.getStringOrEmpty(Plays.COMMENTS),
-                                syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
-                                playerCount = it.getInt(Plays.PLAYER_COUNT),
-                                dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
-                                startTime = it.getLong(Plays.START_TIME)
-                        ))
-                    } while (it.moveToNext())
-                }
-            }
-            return@RegisteredLiveData list
+            return@RegisteredLiveData loadPlays(uri, createGamePlaySelectionAndArgs(gameId))
         }
     }
+
+    private fun loadPlays(uri: Uri, selection: Pair<String, Array<String>>): ArrayList<PlayEntity> {
+        val list = arrayListOf<PlayEntity>()
+        context.contentResolver.load(uri,
+                arrayOf(Plays._ID,
+                        Plays.PLAY_ID,
+                        Plays.DATE,
+                        Plays.OBJECT_ID,
+                        Plays.ITEM_NAME,
+                        Plays.QUANTITY,
+                        Plays.LENGTH,
+                        Plays.LOCATION,
+                        Plays.INCOMPLETE,
+                        Plays.NO_WIN_STATS,
+                        Plays.COMMENTS,
+                        Plays.SYNC_TIMESTAMP,
+                        Plays.PLAYER_COUNT,
+                        Plays.DIRTY_TIMESTAMP,
+                        Plays.START_TIME),
+                selection.first,
+                selection.second
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list.add(PlayEntity(
+                            internalId = it.getLong(Plays._ID),
+                            playId = it.getInt(Plays.PLAY_ID),
+                            date = it.getString(Plays.DATE),
+                            gameId = it.getInt(Plays.OBJECT_ID),
+                            gameName = it.getString(Plays.ITEM_NAME),
+                            quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,
+                            length = it.getIntOrNull(Plays.LENGTH) ?: 0,
+                            location = it.getStringOrEmpty(Plays.LOCATION),
+                            incomplete = it.getInt(Plays.INCOMPLETE) == 1,
+                            noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
+                            comments = it.getStringOrEmpty(Plays.COMMENTS),
+                            syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
+                            playerCount = it.getInt(Plays.PLAYER_COUNT),
+                            dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
+                            startTime = it.getLong(Plays.START_TIME)
+                    ))
+                } while (it.moveToNext())
+            }
+        }
+        return list
+    }
+
+    private fun createPlaySelectionAndArgs() =
+            Plays.DIRTY_TIMESTAMP.whereZeroOrNull() to emptyArray<String>()
+
+    private fun createInProgressPlaySelectionAndArgs() =
+            "${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
+
+    private fun createUpdatedPlaySelectionAndArgs() =
+            "${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to emptyArray<String>()
+
+    private fun createGamePlaySelectionAndArgs(gameId: Int) =
+            "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())
 
     fun loadPlayers(includeIncompletePlays: Boolean): List<PlayerEntity> {
         val selection = arrayListOf<String>().apply {

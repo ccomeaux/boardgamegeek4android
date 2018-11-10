@@ -19,6 +19,12 @@ class PlayRepository(val application: BggApplication) {
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
 
+    fun countPlays() = playDao.countPlays()
+
+    fun loadPlaysInProgress() = playDao.loadPlaysInProgress()
+
+    fun loadPlaysNotInProgress() = playDao.loadPlaysNotInProgress()
+
     fun loadForStatsAsLiveData(): LiveData<List<GameForPlayStatEntity>> {
         // TODO use PlayDao if either of these is false
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
@@ -73,8 +79,8 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadUserColors(username)
     }
 
-    fun loadPlayerColors(username: String): LiveData<List<PlayerColorEntity>> {
-        return playDao.loadPlayerColors(username)
+    fun loadPlayerColors(playerName: String): LiveData<List<PlayerColorEntity>> {
+        return playDao.loadPlayerColors(playerName)
     }
 
     fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): LiveData<List<LocationEntity>> {

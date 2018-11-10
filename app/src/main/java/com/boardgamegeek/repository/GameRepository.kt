@@ -117,7 +117,7 @@ class GameRepository(val application: BggApplication) {
                 get() = R.string.title_plays
 
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
-                return playDao.load(gameId)
+                return playDao.loadPlaysByGame(gameId)
             }
 
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {

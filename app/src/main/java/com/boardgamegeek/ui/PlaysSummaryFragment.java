@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -19,22 +18,17 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.entities.LocationEntity;
+import com.boardgamegeek.entities.PlayEntity;
 import com.boardgamegeek.entities.PlayerColorEntity;
 import com.boardgamegeek.entities.PlayerEntity;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.pref.SyncPrefs;
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.sorter.PlaysSorter;
-import com.boardgamegeek.sorter.PlaysSorterFactory;
-import com.boardgamegeek.ui.model.PlayModel;
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.SelectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -47,10 +41,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
@@ -58,13 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener, OnSharedPreferenceChangeListener {
-	private static final int PLAYS_TOKEN = 1;
-	private static final int PLAY_COUNT_TOKEN = 2;
-	private static final int PLAYS_IN_PROGRESS_TOKEN = 6;
-
-	private static final int NUMBER_OF_PLAYS_SHOWN = 5;
-
+public class PlaysSummaryFragment extends Fragment implements OnRefreshListener, OnSharedPreferenceChangeListener {
 	private boolean isRefreshing;
 
 	private Unbinder unbinder;
@@ -103,6 +87,24 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		hIndexView.setText(PresentationUtils.getText(getActivity(), R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(getActivity())));
 
 		PlaysSummaryViewModel viewModel = ViewModelProviders.of(this).get(PlaysSummaryViewModel.class);
+		viewModel.getPlaysInProgress().observe(this, new Observer<List<PlayEntity>>() {
+			@Override
+			public void onChanged(List<PlayEntity> playEntities) {
+				onPlaysInProgressQueryComplete(playEntities);
+			}
+		});
+		viewModel.getPlaysNotInProgress().observe(this, new Observer<List<PlayEntity>>() {
+			@Override
+			public void onChanged(List<PlayEntity> playEntities) {
+				onPlaysQueryComplete(playEntities);
+			}
+		});
+		viewModel.getPlayCount().observe(this, new Observer<Integer>() {
+			@Override
+			public void onChanged(Integer integer) {
+				onPlayCountQueryComplete(integer);
+			}
+		});
 		viewModel.getPlayers().observe(this, new Observer<List<PlayerEntity>>() {
 			@Override
 			public void onChanged(List<PlayerEntity> playerEntities) {
@@ -129,17 +131,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		bindStatusMessage();
 		bindSyncCard();
 		SyncPrefs.getPrefs(getContext()).registerOnSharedPreferenceChangeListener(this);
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		LoaderManager loaderManager = LoaderManager.getInstance(this);
-
-		loaderManager.restartLoader(PLAYS_TOKEN, null, this);
-		loaderManager.restartLoader(PLAY_COUNT_TOKEN, null, this);
-		loaderManager.restartLoader(PLAYS_IN_PROGRESS_TOKEN, null, this);
 	}
 
 	@Override
@@ -171,61 +162,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		bindStatusMessage();
 	}
 
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		CursorLoader loader = new CursorLoader(getContext());
-		switch (id) {
-			case PLAYS_IN_PROGRESS_TOKEN:
-				PlaysSorter playsSorter = PlaysSorterFactory.create(getContext(), PlaysSorterFactory.TYPE_DEFAULT);
-				loader = new CursorLoader(getContext(),
-					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
-					PlayModel.getProjection(),
-					Plays.DIRTY_TIMESTAMP + ">0",
-					null,
-					playsSorter == null ? null : playsSorter.getOrderByClause());
-				break;
-			case PLAYS_TOKEN:
-				playsSorter = PlaysSorterFactory.create(getContext(), PlaysSorterFactory.TYPE_DEFAULT);
-				loader = new CursorLoader(getContext(),
-					Plays.CONTENT_URI.buildUpon().appendQueryParameter(BggContract.QUERY_KEY_LIMIT, String.valueOf(NUMBER_OF_PLAYS_SHOWN)).build(),
-					PlayModel.getProjection(),
-					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP) + " AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP),
-					null,
-					playsSorter == null ? null : playsSorter.getOrderByClause());
-				break;
-			case PLAY_COUNT_TOKEN:
-				loader = new CursorLoader(getContext(),
-					Plays.CONTENT_SIMPLE_URI,
-					new String[] { Plays.SUM_QUANTITY },
-					SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
-					null,
-					null);
-				break;
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-
-		switch (loader.getId()) {
-			case PLAYS_IN_PROGRESS_TOKEN:
-				onPlaysInProgressQueryComplete(cursor);
-				break;
-			case PLAYS_TOKEN:
-				onPlaysQueryComplete(cursor);
-				break;
-			case PLAY_COUNT_TOKEN:
-				onPlayCountQueryComplete(cursor);
-				break;
-			default:
-				cursor.close();
-				break;
-		}
-	}
-
 	private void bindStatusMessage() {
 		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
 		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
@@ -251,8 +187,8 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 			View.VISIBLE);
 	}
 
-	private void onPlaysInProgressQueryComplete(Cursor cursor) {
-		int numberOfPlaysInProgress = cursor == null ? 0 : cursor.getCount();
+	private void onPlaysInProgressQueryComplete(List<PlayEntity> plays) {
+		int numberOfPlaysInProgress = plays == null ? 0 : plays.size();
 		final int visibility = numberOfPlaysInProgress == 0 ? View.GONE : View.VISIBLE;
 		playsInProgressSubtitle.setVisibility(visibility);
 		playsInProgressContainer.setVisibility(visibility);
@@ -260,60 +196,46 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 
 		playsInProgressContainer.removeAllViews();
 		if (numberOfPlaysInProgress > 0) {
-			while (cursor.moveToNext()) {
-				addPlayToContainer(cursor, playsInProgressContainer);
+			for (PlayEntity play : plays) {
+				addPlayToContainer(play, playsInProgressContainer);
 			}
 			playsCard.setVisibility(View.VISIBLE);
 		}
 	}
 
-	private void onPlaysQueryComplete(Cursor cursor) {
-		if (cursor == null) return;
-
+	private void onPlaysQueryComplete(List<PlayEntity> plays) {
 		recentPlaysContainer.removeAllViews();
-		if (cursor.moveToFirst()) {
-			do {
-				addPlayToContainer(cursor, recentPlaysContainer);
-			} while (cursor.moveToNext());
+		if (plays != null && plays.size() > 0) {
+			for (PlayEntity play : plays) {
+				addPlayToContainer(play, recentPlaysContainer);
+			}
 			playsCard.setVisibility(View.VISIBLE);
 			recentPlaysContainer.setVisibility(View.VISIBLE);
 		}
 	}
 
-	private void addPlayToContainer(Cursor cursor, LinearLayout container) {
-		long internalId = cursor.getLong(cursor.getColumnIndex(Plays._ID));
-		PlayModel play = PlayModel.fromCursor(cursor, getContext());
-		View view = createRow(container, play.getName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
-
-		view.setTag(R.id.id, internalId);
-		view.setTag(R.id.game_id, play.getGameId());
-		view.setTag(R.id.game_name, play.getName());
-		view.setTag(R.id.thumbnail, play.getThumbnailUrl());
-		view.setTag(R.id.image, play.getImageUrl());
-		view.setTag(R.id.hero_image, play.getHeroImageUrl());
-
+	private void addPlayToContainer(final PlayEntity play, LinearLayout container) {
+		View view = createRow(container, play.getGameName(), PresentationUtils.describePlayDetails(getActivity(), play.getDate(), play.getLocation(), play.getQuantity(), play.getLength(), play.getPlayerCount()));
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				PlayActivity.start(getContext(),
-					(long) v.getTag(R.id.id),
-					(int) v.getTag(R.id.game_id),
-					(String) v.getTag(R.id.game_name),
-					(String) v.getTag(R.id.thumbnail),
-					(String) v.getTag(R.id.image),
-					(String) v.getTag(R.id.hero_image));
+					play.getInternalId(),
+					play.getGameId(),
+					play.getGameName(),
+					"",
+					"",
+					"");
 			}
 		});
 	}
 
-	private void onPlayCountQueryComplete(Cursor cursor) {
+	private void onPlayCountQueryComplete(Integer playCount) {
 		morePlaysButton.setVisibility(View.VISIBLE);
 		morePlaysButton.setText(R.string.more);
-		if (cursor != null && cursor.moveToFirst()) {
-			int morePlaysCount = cursor.getInt(0) - NUMBER_OF_PLAYS_SHOWN;
-			if (morePlaysCount > 0) {
-				morePlaysButton.setText(String.format(getString(R.string.more_suffix), morePlaysCount));
-			}
+		int morePlaysCount = playCount - 5;
+		if (morePlaysCount > 0) {
+			morePlaysButton.setText(String.format(getString(R.string.more_suffix), morePlaysCount));
 		}
 	}
 
@@ -380,10 +302,6 @@ public class PlaysSummaryFragment extends Fragment implements LoaderCallbacks<Cu
 		lp.setMargins(margin, margin, margin, margin);
 		view.setLayoutParams(lp);
 		return view;
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	@OnClick(R.id.sync)

@@ -7,6 +7,7 @@ import androidx.lifecycle.Transformations
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.LocationEntity
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -15,9 +16,18 @@ import com.boardgamegeek.repository.PlayRepository
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())
 
+    val playCount: LiveData<Int> = playRepository.countPlays()
+
+    val playsInProgress: LiveData<List<PlayEntity>> = playRepository.loadPlaysInProgress()
+
+    val playsNotInProgress: LiveData<List<PlayEntity>> =
+            Transformations.map(playRepository.loadPlaysNotInProgress()) { p ->
+                p.take(5)
+            }
+
     val players: LiveData<List<PlayerEntity>> =
-            Transformations.map(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)) { l ->
-                l.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(5)
+            Transformations.map(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)) { p ->
+                p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(5)
             }
 
     val locations: LiveData<List<LocationEntity>> =

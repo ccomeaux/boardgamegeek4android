@@ -23,10 +23,6 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     val user: LiveData<Pair<String?, Int>>
         get() = _user
 
-    private val _playerName = MutableLiveData<String>()
-    val playerName: LiveData<String>
-        get() = _playerName
-
     private val _updateMessage = MutableLiveData<Event<String>>()
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
