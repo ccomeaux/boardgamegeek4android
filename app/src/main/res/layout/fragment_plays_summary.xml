@@ -1,5 +1,5 @@
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+	android:id="@+id/swipeRefreshLayout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -19,7 +19,7 @@
 			android:paddingTop="@dimen/padding_standard">
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/card_sync"
+				android:id="@+id/syncCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
 						android:paddingTop="@dimen/padding_standard">
 
 						<Button
-							android:id="@+id/sync_cancel"
+							android:id="@+id/syncCancelButton"
 							style="@style/Widget.AppCompat.Button"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
 							android:layout_height="match_parent"/>
 
 						<Button
-							android:id="@+id/sync"
+							android:id="@+id/syncButton"
 							style="@style/ColoredButton"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
 					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 				<Button
-					android:id="@+id/more_plays_button"
+					android:id="@+id/morePlaysButton"
 					style="@style/SmallColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/card_plays"
+				android:id="@+id/playsCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
 					android:orientation="vertical">
 
 					<TextView
-						android:id="@+id/plays_subtitle_in_progress"
+						android:id="@+id/playsInProgressSubtitle"
 						style="@style/Text.Header"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
 						tools:visibility="visible"/>
 
 					<LinearLayout
-						android:id="@+id/plays_in_progress_container"
+						android:id="@+id/playsInProgressContainer"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:divider="@drawable/list_divider"
@@ -122,7 +122,7 @@
 						android:showDividers="middle"/>
 
 					<TextView
-						android:id="@+id/plays_subtitle_recent"
+						android:id="@+id/recentPlaysSubtitle"
 						style="@style/Text.Header"
 						android:layout_width="wrap_content"
 						android:layout_height="40dp"
@@ -132,7 +132,7 @@
 						tools:visibility="visible"/>
 
 					<LinearLayout
-						android:id="@+id/plays_container"
+						android:id="@+id/recentPlaysContainer"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:divider="@drawable/list_divider"
@@ -158,7 +158,7 @@
 					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 				<Button
-					android:id="@+id/more_players_button"
+					android:id="@+id/morePlayersButton"
 					style="@style/SmallColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -167,7 +167,7 @@
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/card_players"
+				android:id="@+id/playersCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -175,7 +175,7 @@
 				tools:visibility="visible">
 
 				<LinearLayout
-					android:id="@+id/players_container"
+					android:id="@+id/playersContainer"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:divider="@drawable/list_divider"
@@ -200,7 +200,7 @@
 					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 				<Button
-					android:id="@+id/more_locations_button"
+					android:id="@+id/moreLocationsButton"
 					style="@style/SmallColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -209,7 +209,7 @@
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/card_locations"
+				android:id="@+id/locationsCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -217,7 +217,7 @@
 				tools:visibility="visible">
 
 				<LinearLayout
-					android:id="@+id/locations_container"
+					android:id="@+id/locationsContainer"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:divider="@drawable/list_divider"
@@ -242,7 +242,7 @@
 					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 				<Button
-					android:id="@+id/edit_colors_button"
+					android:id="@+id/editColorsButton"
 					style="@style/SmallColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -251,7 +251,7 @@
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
-				android:id="@+id/card_colors"
+				android:id="@+id/colorsCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -265,7 +265,7 @@
 					android:minHeight="56dp">
 
 					<LinearLayout
-						android:id="@+id/color_container"
+						android:id="@+id/colorsContainer"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_vertical"
@@ -290,7 +290,7 @@
 					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
 				<Button
-					android:id="@+id/more_play_stats_button"
+					android:id="@+id/morePlayStatsButton"
 					style="@style/SmallColoredButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -304,7 +304,7 @@
 				android:layout_height="wrap_content">
 
 				<TextView
-					android:id="@+id/h_index"
+					android:id="@+id/hIndexView"
 					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -315,7 +315,7 @@
 			</androidx.cardview.widget.CardView>
 
 			<TextView
-				android:id="@+id/sync_status"
+				android:id="@+id/syncStatusView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:paddingBottom="@dimen/padding_standard"

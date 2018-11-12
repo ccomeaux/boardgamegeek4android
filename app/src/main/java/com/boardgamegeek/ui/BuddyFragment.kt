@@ -4,23 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout.LayoutParams
 import androidx.annotation.Nullable
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.getQuantityText
-import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.extensions.setColorViewValue
-import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
@@ -128,7 +122,7 @@ class BuddyFragment : Fragment() {
             colorContainer.removeAllViews()
             colorContainer.isVisible = (colors?.size ?: 0) > 0
             colors?.take(3)?.forEach { color ->
-                createViewToBeColored().also { view ->
+                requireContext().createSmallCircle().also { view ->
                     view.setColorViewValue(color.rgb)
                     colorContainer.addView(view)
                 }
@@ -137,16 +131,6 @@ class BuddyFragment : Fragment() {
                 PlayerColorsActivity.start(ctx, buddyName, playerName)
             }
         })
-    }
-
-    private fun createViewToBeColored(): ImageView {
-        val view = ImageView(ctx)
-        val size = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small)
-        val margin = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small_margin)
-        view.layoutParams = LayoutParams(size, size).apply {
-            setMargins(margin)
-        }
-        return view
     }
 
     companion object {

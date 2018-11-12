@@ -29,9 +29,10 @@ data class PlayEntity(
 ) {
     val dateInMillis = date.toMillis(FORMAT)
 
-    fun describe(context: Context): String {
+    fun describe(context: Context, includeDate: Boolean = false): String {
         val info = StringBuilder()
         if (quantity > 1) info.append(context.resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity))
+        if (includeDate && date.isNotBlank()) info.append(context.getString(R.string.play_description_date_segment, date))
         if (location.isNotBlank()) info.append(context.getString(R.string.play_description_location_segment, location))
         if (length > 0) info.append(context.getString(R.string.play_description_length_segment, length.asTime()))
         if (playerCount > 0) info.append(context.resources.getQuantityString(R.plurals.play_description_players_segment, playerCount, playerCount))
