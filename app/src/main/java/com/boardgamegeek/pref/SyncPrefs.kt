@@ -16,7 +16,7 @@ class SyncPrefs {
         private const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
         @JvmStatic
-        fun getPrefs(context: Context) = PreferenceHelper.customPrefs(context, "com.boardgamegeek.sync")
+        fun getPrefs(context: Context) = PreferenceHelper.get(context, "com.boardgamegeek.sync")
 
         @JvmStatic
         fun migrate(context: Context) {

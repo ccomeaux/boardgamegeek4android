@@ -49,7 +49,7 @@ class GameCollectionRepository(val application: BggApplication) {
             override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
                 if (gameId == BggContract.INVALID_ID || username == null) return false
                 val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-                return data == null || syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
+                return syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
             override fun createCall(page: Int): Call<CollectionResponse>? {

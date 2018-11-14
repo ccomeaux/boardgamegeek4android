@@ -54,6 +54,7 @@ class UserRepository(val application: BggApplication) {
             }
 
             override fun shouldRefresh(data: List<UserEntity>?): Boolean {
+                if (data == null) return true
                 val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(application)
                 return lastCompleteSync.isOlderThan(1, TimeUnit.HOURS)
             }
