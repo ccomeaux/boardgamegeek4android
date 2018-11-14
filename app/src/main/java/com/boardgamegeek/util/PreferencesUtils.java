@@ -37,7 +37,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
-	private static final String KEY_GAME_H_INDEX = "hIndex";
+	public static final String KEY_GAME_H_INDEX = "hIndex";
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
 	private static final String KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
@@ -47,7 +47,7 @@ public class PreferencesUtils {
 	public static final String KEY_SYNC_STATUSES = "sync_statuses";
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	public static final String KEY_SYNC_PLAYS = "syncPlays";
-	private static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
+	public static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
 	public static final String KEY_SYNC_BUDDIES = "syncBuddies";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
@@ -217,10 +217,6 @@ public class PreferencesUtils {
 
 	public static boolean setSyncPlays(Context context) {
 		return putBoolean(context, KEY_SYNC_PLAYS, true);
-	}
-
-	public static long getSyncPlaysTimestamp(Context context) {
-		return getLong(context, KEY_SYNC_PLAYS_TIMESTAMP, 0);
 	}
 
 	public static boolean setSyncPlaysTimestamp(Context context) {

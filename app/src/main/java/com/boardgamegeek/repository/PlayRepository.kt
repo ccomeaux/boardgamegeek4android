@@ -51,6 +51,7 @@ class PlayRepository(val application: BggApplication) {
             }
 
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
+                if (!PreferencesUtils.getSyncPlays(application)) return false
                 return data == null || data.isEmpty() || playsRateLimiter.shouldFetch(0)
             }
 

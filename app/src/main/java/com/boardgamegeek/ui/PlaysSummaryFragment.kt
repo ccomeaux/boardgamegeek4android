@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.LayoutInflater
@@ -21,13 +19,17 @@ import com.boardgamegeek.extensions.createSmallCircle
 import com.boardgamegeek.extensions.getText
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setColorViewValue
-import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
 import org.jetbrains.anko.support.v4.startActivity
 
-class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
+class PlaysSummaryFragment : Fragment() {
+    private var syncPlays = false
+    private var syncPlaysTimestamp = 0L
+    private var oldestSyncDate = Long.MAX_VALUE
+    private var newestSyncDate = 0L
+
     val viewModel by lazy {
         ViewModelProviders.of(this).get(PlaysSummaryViewModel::class.java)
     }
@@ -46,19 +48,12 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
 
         syncButton.setOnClickListener {
             PreferencesUtils.setSyncPlays(context)
-            viewModel.refresh()
             PreferencesUtils.setSyncPlaysTimestamp(context)
-            bindSyncCard()
+            viewModel.refresh()
         }
 
         syncCancelButton.setOnClickListener {
             PreferencesUtils.setSyncPlaysTimestamp(context)
-            bindSyncCard()
-        }
-
-        hIndexView.text = context?.getText(R.string.game_h_index_prefix, PreferencesUtils.getGameHIndex(context))
-        morePlayStatsButton.setOnClickListener {
-            startActivity<PlayStatsActivity>()
         }
 
         viewModel.plays.observe(this, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })
@@ -68,42 +63,43 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
         viewModel.players.observe(this, Observer { playerEntities -> bindPlayers(playerEntities) })
         viewModel.locations.observe(this, Observer { locationEntities -> bindLocations(locationEntities) })
         viewModel.colors.observe(this, Observer { playerColorEntities -> bindColors(playerColorEntities) })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        bindStatusMessage()
-        bindSyncCard()
-        SyncPrefs.getPrefs(requireContext()).registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        SyncPrefs.getPrefs(requireContext()).unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        bindStatusMessage()
+        viewModel.hIndex.observe(this, Observer {
+            hIndexView.text = context?.getText(R.string.game_h_index_prefix, it ?: 0)
+            morePlayStatsButton.setOnClickListener {
+                startActivity<PlayStatsActivity>()
+            }
+        })
+        viewModel.syncPlays.observe(this, Observer {
+            syncPlays = it ?: false
+            bindSyncCard()
+        })
+        viewModel.syncPlaysTimestamp.observe(this, Observer {
+            syncPlaysTimestamp = it ?: 0L
+            bindSyncCard()
+        })
+        viewModel.oldestSyncDate.observe(this, Observer {
+            oldestSyncDate = it ?: Long.MAX_VALUE
+            bindStatusMessage()
+        })
+        viewModel.newestSyncDate.observe(this, Observer {
+            newestSyncDate = it ?: 0L
+            bindStatusMessage()
+        })
     }
 
     private fun bindStatusMessage() {
-        val oldestDate = SyncPrefs.getPlaysOldestTimestamp(requireContext())
-        val newestDate = SyncPrefs.getPlaysNewestTimestamp(requireContext())
         syncStatusView.text = when {
-            oldestDate == Long.MAX_VALUE && newestDate == 0L -> getString(R.string.plays_sync_status_none)
-            oldestDate == 0L -> String.format(getString(R.string.plays_sync_status_new), millisAsDate(newestDate))
-            newestDate == 0L -> String.format(getString(R.string.plays_sync_status_old), millisAsDate(oldestDate))
-            else -> String.format(getString(R.string.plays_sync_status_range), millisAsDate(oldestDate), millisAsDate(newestDate))
+            oldestSyncDate == Long.MAX_VALUE && newestSyncDate == 0L -> getString(R.string.plays_sync_status_none)
+            oldestSyncDate == 0L -> String.format(getString(R.string.plays_sync_status_new), millisAsDate(newestSyncDate))
+            newestSyncDate == 0L -> String.format(getString(R.string.plays_sync_status_old), millisAsDate(oldestSyncDate))
+            else -> String.format(getString(R.string.plays_sync_status_range), millisAsDate(oldestSyncDate), millisAsDate(newestSyncDate))
         }
     }
 
     private fun millisAsDate(millis: Long) = DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE)
 
     private fun bindSyncCard() {
-        syncCard.visibility = if (PreferencesUtils.getSyncPlays(context) || PreferencesUtils.getSyncPlaysTimestamp(context) > 0)
-            View.GONE
-        else
-            View.VISIBLE
+        syncCard.isGone = syncPlays || syncPlaysTimestamp > 0
     }
 
     private fun bindInProgressPlays(plays: List<PlayEntity>?) {
@@ -147,7 +143,7 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
     private fun bindPlayCount(playCount: Int) {
         morePlaysButton.isVisible = true
         morePlaysButton.setText(R.string.more)
-        val morePlaysCount = playCount - 5
+        val morePlaysCount = playCount - PlaysSummaryViewModel.ITEMS_TO_DISPLAY
         if (morePlaysCount > 0) {
             morePlaysButton.text = String.format(getString(R.string.more_suffix), morePlaysCount)
         }

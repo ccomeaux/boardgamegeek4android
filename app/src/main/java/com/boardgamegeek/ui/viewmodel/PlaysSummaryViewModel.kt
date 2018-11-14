@@ -10,8 +10,11 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.AbsentLiveData
+import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.util.PreferencesUtils
 import java.util.concurrent.TimeUnit
 
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
@@ -36,17 +39,17 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
     }
 
     val playsNotInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
-        list?.data?.filter { it.dirtyTimestamp == 0L }?.take(5)
+        list?.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY)
     }
 
     val players: LiveData<List<PlayerEntity>> =
             Transformations.map(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)) { p ->
-                p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(5)
+                p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(ITEMS_TO_DISPLAY)
             }
 
     val locations: LiveData<List<LocationEntity>> =
             Transformations.map(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT)) { l ->
-                l.filter { it.name.isNotBlank() }.take(5)
+                l.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
             }
 
     val colors: LiveData<List<PlayerColorEntity>>
@@ -58,12 +61,24 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
             }
         }
 
+    val hIndex: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX)
+
+    val oldestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
+    val newestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
+
+    val syncPlays: LiveSharedPreference<Boolean> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_SYNC_PLAYS)
+    val syncPlaysTimestamp: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_SYNC_PLAYS_TIMESTAMP)
+
     fun refresh(): Boolean {
         SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         val value = syncTimestamp.value
-        return if (value == null || value.isOlderThan(5, TimeUnit.MINUTES)) {
+        return if (value == null || value.isOlderThan(1, TimeUnit.SECONDS)) {
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false
+    }
+
+    companion object {
+        const val ITEMS_TO_DISPLAY = 5
     }
 }

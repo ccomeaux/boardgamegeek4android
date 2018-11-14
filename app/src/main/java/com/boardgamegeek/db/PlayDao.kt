@@ -227,7 +227,7 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun loadLocationsAsLiveData(sortBy: LocationSortBy = LocationSortBy.NAME): LiveData<List<LocationEntity>> {
-        return RegisteredLiveData(context, Plays.buildLocationsUri(), true) {
+        return RegisteredLiveData(context, Plays.CONTENT_URI, true) {
             return@RegisteredLiveData loadLocations(sortBy)
         }
     }
@@ -264,7 +264,7 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun loadPlayersAsLiveData(sortBy: PlayerSortBy = PlayerSortBy.NAME): LiveData<List<PlayerEntity>> {
-        return RegisteredLiveData(context, Plays.buildPlayersByUniquePlayerUri(), true) {
+        return RegisteredLiveData(context, Plays.CONTENT_URI, true) {
             return@RegisteredLiveData loadPlayers(sortBy)
         }
     }

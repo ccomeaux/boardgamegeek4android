@@ -201,7 +201,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					viewModel.getUser().observe(this, new Observer<RefreshableResource<UserEntity>>() {
 						@Override
 						public void onChanged(RefreshableResource<UserEntity> userEntityRefreshableResource) {
-							if (userEntityRefreshableResource.getStatus() == Status.SUCCESS) {
+							if (userEntityRefreshableResource != null && userEntityRefreshableResource.getStatus() == Status.SUCCESS) {
 								refreshDrawer();
 							}
 						}

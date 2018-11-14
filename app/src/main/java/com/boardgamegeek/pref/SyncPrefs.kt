@@ -9,14 +9,15 @@ import com.boardgamegeek.auth.Authenticator
 
 class SyncPrefs {
     companion object {
+        const val NAME = "com.boardgamegeek.sync"
         private const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
         private const val TIMESTAMP_COLLECTION_PARTIAL = "TIMESTAMP_COLLECTION_PARTIAL"
         private const val TIMESTAMP_BUDDIES = "TIMESTAMP_BUDDIES"
-        private const val TIMESTAMP_PLAYS_NEWEST_DATE = "TIMESTAMP_PLAYS_NEWEST_DATE"
-        private const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
+        const val TIMESTAMP_PLAYS_NEWEST_DATE = "TIMESTAMP_PLAYS_NEWEST_DATE"
+        const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
         @JvmStatic
-        fun getPrefs(context: Context) = PreferenceHelper.get(context, "com.boardgamegeek.sync")
+        fun getPrefs(context: Context) = PreferenceHelper.get(context, NAME)
 
         @JvmStatic
         fun migrate(context: Context) {
