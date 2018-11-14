@@ -17,42 +17,10 @@ import com.boardgamegeek.provider.BggContract.*
 import timber.log.Timber
 
 class PlayDao(private val context: BggApplication) {
-    fun deleteUnupdatedPlays(gameId: Int, since: Long) {
-        val count = context.contentResolver.delete(Plays.CONTENT_URI,
-                "${Plays.SYNC_TIMESTAMP}<? AND ${Plays.OBJECT_ID}=? AND ${Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
-                arrayOf(since.toString(), gameId.toString()))
-        Timber.i("Deleted %,d unupdated play(s) of game ID=%s", count, gameId)
-    }
-
-    fun countPlays(): LiveData<Int> {
-        val uri = Plays.CONTENT_SIMPLE_URI
-        val selection = createPlaySelectionAndArgs()
-        var count = 0
-        return RegisteredLiveData(context, uri, true) {
-            context.contentResolver.load(uri,
-                    arrayOf(Plays.SUM_QUANTITY),
-                    selection.first,
-                    selection.second
-            )?.use {
-                if (it.moveToFirst()) {
-                    count = it.getIntOrNull(0) ?: 0
-                }
-            }
-            return@RegisteredLiveData count
-        }
-    }
-
-    fun loadPlaysInProgress(): LiveData<List<PlayEntity>> {
+    fun loadPlays(): LiveData<List<PlayEntity>> {
         val uri = Plays.CONTENT_URI
         return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlays(uri, createInProgressPlaySelectionAndArgs())
-        }
-    }
-
-    fun loadPlaysNotInProgress(): LiveData<List<PlayEntity>> {
-        val uri = Plays.CONTENT_URI
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlays(uri, createUpdatedPlaySelectionAndArgs())
+            return@RegisteredLiveData loadPlays(uri, createPlaySelectionAndArgs())
         }
     }
 
@@ -118,12 +86,6 @@ class PlayDao(private val context: BggApplication) {
 
     private fun createPlaySelectionAndArgs() =
             Plays.DIRTY_TIMESTAMP.whereZeroOrNull() to emptyArray<String>()
-
-    private fun createInProgressPlaySelectionAndArgs() =
-            "${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
-
-    private fun createUpdatedPlaySelectionAndArgs() =
-            "${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to emptyArray<String>()
 
     private fun createGamePlaySelectionAndArgs(gameId: Int) =
             "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())
@@ -338,6 +300,40 @@ class PlayDao(private val context: BggApplication) {
             }
         }
         return results
+    }
+
+    fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
+        return deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
+    }
+
+    fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long): Int {
+        return deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
+    }
+
+    private fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int {
+        val selection = createDeleteSelectionAndArgs(syncTimestamp)
+        return context.contentResolver.delete(Plays.CONTENT_URI,
+                selection.first + " AND ${Plays.DATE}$dateComparator?",
+                selection.second + playDate.asDateForApi())
+    }
+
+    fun deleteUnupdatedPlays(gameId: Int, syncTimestamp: Long) {
+        val selection = createDeleteSelectionAndArgs(syncTimestamp)
+        val count = context.contentResolver.delete(Plays.CONTENT_URI,
+                selection.first + " AND ${Plays.OBJECT_ID}=?",
+                selection.second + gameId.toString())
+        Timber.d("Deleted %,d unupdated play(s) of game ID=%s", count, gameId)
+    }
+
+    private fun createDeleteSelectionAndArgs(syncTimestamp: Long): Pair<String, Array<String>> {
+        val selection = arrayOf(
+                "${Plays.SYNC_TIMESTAMP}<?",
+                Plays.UPDATE_TIMESTAMP.whereZeroOrNull(),
+                Plays.DELETE_TIMESTAMP.whereZeroOrNull(),
+                Plays.DIRTY_TIMESTAMP.whereZeroOrNull()
+        ).joinToString(" AND ")
+        val selectionArgs = arrayOf(syncTimestamp.toString())
+        return selection to selectionArgs
     }
 
     fun createCopyPlayerColorsOperations(oldName: String, newName: String): ArrayList<ContentProviderOperation> {

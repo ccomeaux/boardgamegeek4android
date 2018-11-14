@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.NonNull
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -17,28 +16,21 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
-import com.boardgamegeek.entities.LocationEntity
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.events.SyncCompleteEvent
-import com.boardgamegeek.events.SyncEvent
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.createSmallCircle
 import com.boardgamegeek.extensions.getText
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setColorViewValue
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.startActivity
 
 class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
-    private var isRefreshing: Boolean = false
+    val viewModel by lazy {
+        ViewModelProviders.of(this).get(PlaysSummaryViewModel::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_plays_summary, container, false)
@@ -49,16 +41,12 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
 
         swipeRefreshLayout.setBggColors()
         swipeRefreshLayout.setOnRefreshListener {
-            if (!isRefreshing) {
-                SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
-            } else {
-                updateRefreshStatus(false)
-            }
+            swipeRefreshLayout.isRefreshing = viewModel.refresh()
         }
 
         syncButton.setOnClickListener {
             PreferencesUtils.setSyncPlays(context)
-            SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
+            viewModel.refresh()
             PreferencesUtils.setSyncPlaysTimestamp(context)
             bindSyncCard()
         }
@@ -73,7 +61,7 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
             startActivity<PlayStatsActivity>()
         }
 
-        val viewModel = ViewModelProviders.of(this).get(PlaysSummaryViewModel::class.java)
+        viewModel.plays.observe(this, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })
         viewModel.playsInProgress.observe(this, Observer { playEntities -> bindInProgressPlays(playEntities) })
         viewModel.playsNotInProgress.observe(this, Observer { playEntities -> bindRecentPlays(playEntities) })
         viewModel.playCount.observe(this, Observer { playCount -> bindPlayCount(playCount ?: 0) })
@@ -89,19 +77,9 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
         SyncPrefs.getPrefs(requireContext()).registerOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
     override fun onPause() {
         super.onPause()
         SyncPrefs.getPrefs(requireContext()).unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -113,15 +91,13 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
         val newestDate = SyncPrefs.getPlaysNewestTimestamp(requireContext())
         syncStatusView.text = when {
             oldestDate == Long.MAX_VALUE && newestDate == 0L -> getString(R.string.plays_sync_status_none)
-            oldestDate == 0L -> String.format(getString(R.string.plays_sync_status_new),
-                    DateUtils.formatDateTime(context, newestDate, DateUtils.FORMAT_SHOW_DATE))
-            newestDate == 0L -> String.format(getString(R.string.plays_sync_status_old),
-                    DateUtils.formatDateTime(context, oldestDate, DateUtils.FORMAT_SHOW_DATE))
-            else -> String.format(getString(R.string.plays_sync_status_range),
-                    DateUtils.formatDateTime(context, oldestDate, DateUtils.FORMAT_SHOW_DATE),
-                    DateUtils.formatDateTime(context, newestDate, DateUtils.FORMAT_SHOW_DATE))
+            oldestDate == 0L -> String.format(getString(R.string.plays_sync_status_new), millisAsDate(newestDate))
+            newestDate == 0L -> String.format(getString(R.string.plays_sync_status_old), millisAsDate(oldestDate))
+            else -> String.format(getString(R.string.plays_sync_status_range), millisAsDate(oldestDate), millisAsDate(newestDate))
         }
     }
+
+    private fun millisAsDate(millis: Long) = DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE)
 
     private fun bindSyncCard() {
         syncCard.visibility = if (PreferencesUtils.getSyncPlays(context) || PreferencesUtils.getSyncPlaysTimestamp(context) > 0)
@@ -239,23 +215,5 @@ class PlaysSummaryFragment : Fragment(), OnSharedPreferenceChangeListener {
         editColorsButton.setOnClickListener {
             PlayerColorsActivity.start(context, AccountUtils.getUsername(context), null)
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(@NonNull event: SyncEvent) {
-        if (event.type and SyncService.FLAG_SYNC_PLAYS_DOWNLOAD == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD ||
-                event.type and SyncService.FLAG_SYNC_PLAYS_UPLOAD == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
-            updateRefreshStatus(true)
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(event: SyncCompleteEvent) {
-        updateRefreshStatus(false)
-    }
-
-    private fun updateRefreshStatus(value: Boolean) {
-        this.isRefreshing = value
-        swipeRefreshLayout?.post { swipeRefreshLayout?.isRefreshing = isRefreshing }
     }
 }

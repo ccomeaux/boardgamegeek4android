@@ -3,27 +3,41 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.LocationEntity
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.repository.PlayRepository
+import com.boardgamegeek.service.SyncService
+import java.util.concurrent.TimeUnit
 
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
+    private val syncTimestamp = MutableLiveData<Long>()
+
+    init {
+        refresh()
+    }
+
     private val playRepository = PlayRepository(getApplication())
 
-    val playCount: LiveData<Int> = playRepository.countPlays()
+    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(syncTimestamp) {
+        playRepository.getPlays()
+    }
 
-    val playsInProgress: LiveData<List<PlayEntity>> = playRepository.loadPlaysInProgress()
+    val playCount: LiveData<Int> = Transformations.map(plays) { list ->
+        list?.data?.sumBy { it.quantity } ?: 0
+    }
 
-    val playsNotInProgress: LiveData<List<PlayEntity>> =
-            Transformations.map(playRepository.loadPlaysNotInProgress()) { p ->
-                p.take(5)
-            }
+    val playsInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
+        list?.data?.filter { it.dirtyTimestamp > 0L }
+    }
+
+    val playsNotInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
+        list?.data?.filter { it.dirtyTimestamp == 0L }?.take(5)
+    }
 
     val players: LiveData<List<PlayerEntity>> =
             Transformations.map(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)) { p ->
@@ -43,4 +57,13 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
                 else -> playRepository.loadUserColors(username)
             }
         }
+
+    fun refresh(): Boolean {
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        val value = syncTimestamp.value
+        return if (value == null || value.isOlderThan(5, TimeUnit.MINUTES)) {
+            syncTimestamp.postValue(System.currentTimeMillis())
+            true
+        } else false
+    }
 }
