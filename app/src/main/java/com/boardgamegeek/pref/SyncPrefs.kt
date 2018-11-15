@@ -102,7 +102,7 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getPlaysNewestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE, 0L] ?: 0L
+        fun getPlaysNewestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE, 0L]
 
         fun setPlaysNewestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE] = timestamp

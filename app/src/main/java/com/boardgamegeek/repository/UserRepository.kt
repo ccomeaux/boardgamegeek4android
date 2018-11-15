@@ -35,7 +35,7 @@ class UserRepository(val application: BggApplication) {
 
             override val typeDescriptionResId = R.string.title_buddy
 
-            override fun createCall(page: Int): Call<User>? {
+            override fun createCall(page: Int): Call<User> {
                 return Adapter.createForXml().user(username)
             }
 
@@ -48,12 +48,15 @@ class UserRepository(val application: BggApplication) {
     fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): LiveData<RefreshableResource<List<UserEntity>>> {
         return object : RefreshableResourceLoader<List<UserEntity>, User>(application) {
             private var timestamp = 0L
+            private var accountName: String? = null
 
             override fun loadFromDatabase(): LiveData<List<UserEntity>> {
                 return userDao.loadBuddiesAsLiveData(sortBy)
             }
 
             override fun shouldRefresh(data: List<UserEntity>?): Boolean {
+                accountName = Authenticator.getAccount(application)?.name
+                if (accountName == null) return false
                 if (data == null) return true
                 val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(application)
                 return lastCompleteSync.isOlderThan(1, TimeUnit.HOURS)
@@ -61,10 +64,9 @@ class UserRepository(val application: BggApplication) {
 
             override val typeDescriptionResId = R.string.title_buddies
 
-            override fun createCall(page: Int): Call<User>? {
+            override fun createCall(page: Int): Call<User> {
                 timestamp = System.currentTimeMillis()
-                val account = Authenticator.getAccount(application) ?: return null
-                return Adapter.createForXml().user(account.name, 1, page)
+                return Adapter.createForXml().user(accountName, 1, page)
             }
 
             override fun saveCallResult(result: User) {

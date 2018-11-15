@@ -113,7 +113,6 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
 	public static CharSequence getText(Context context, @StringRes int id, Object... args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
@@ -133,12 +132,10 @@ public class PresentationUtils {
 		return source.subSequence(0, i + 1);
 	}
 
-	@DebugLog
 	public static int[] getColorSchemeResources() {
 		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
 	}
 
-	@DebugLog
 	public static void ensureFabIsShown(final FloatingActionButton fab) {
 		fab.postDelayed(new Runnable() {
 			@Override

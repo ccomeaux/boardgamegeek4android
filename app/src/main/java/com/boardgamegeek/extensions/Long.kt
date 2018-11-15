@@ -34,6 +34,11 @@ fun Long.formatTimestamp(context: Context, isForumTimestamp: Boolean, includeTim
 
 val FORMAT_API: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
+fun Long?.asDateForApi(): String? {
+    if (this == null) return null
+    return this.asDateForApi()
+}
+
 fun Long.asDateForApi(): String {
     val c = Calendar.getInstance()
     c.timeInMillis = this

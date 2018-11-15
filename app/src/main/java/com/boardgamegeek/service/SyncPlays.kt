@@ -41,21 +41,13 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
             startTime = System.currentTimeMillis()
 
             val newestSyncDate = SyncPrefs.getPlaysNewestTimestamp(context)
-            if (newestSyncDate <= 0) {
-                if (executeCall(account.name, null, null)) {
-                    cancel()
-                    return
-                }
-            } else {
-                val date = newestSyncDate.asDateForApi()
-                if (executeCall(account.name, date, null)) {
-                    cancel()
-                    return
-                }
-                val count = playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate)
-                syncResult.stats.numDeletes += count.toLong()
-                Timber.i("...deleted $count unupdated plays")
+            if (executeCall(account.name, newestSyncDate.asDateForApi(), null)) {
+                cancel()
+                return
             }
+            val deletedCount = playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L)
+            syncResult.stats.numDeletes += deletedCount.toLong()
+            Timber.i("...deleted $deletedCount unupdated plays")
 
             val oldestDate = SyncPrefs.getPlaysOldestTimestamp(context)
             if (oldestDate > 0) {
@@ -64,7 +56,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                     cancel()
                     return
                 }
-                val count = playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate)
+                val count = playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L)
                 syncResult.stats.numDeletes += count.toLong()
                 Timber.i("...deleted $count unupdated plays")
                 SyncPrefs.setPlaysOldestTimestamp(context, 0L)
@@ -146,7 +138,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
     private fun updateTimestamps(plays: List<Play>?) {
         if (plays == null) return
         val newestDate = newestDate(plays)
-        if (newestDate > SyncPrefs.getPlaysNewestTimestamp(context)) {
+        if (newestDate > SyncPrefs.getPlaysNewestTimestamp(context) ?: 0L) {
             SyncPrefs.setPlaysNewestTimestamp(context, newestDate)
         }
         val oldestDate = oldestDate(plays)

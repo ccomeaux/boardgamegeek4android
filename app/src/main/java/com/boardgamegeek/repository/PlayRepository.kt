@@ -23,6 +23,7 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RateLimiter
+import hugo.weaving.DebugLog
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -40,30 +41,47 @@ class PlayRepository(val application: BggApplication) {
         return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
             val persister = PlayPersister(application)
             var timestamp = 0L
-            val newestTimestamp = SyncPrefs.getPlaysNewestTimestamp(application)
+            val newestTimestamp: Long? = SyncPrefs.getPlaysNewestTimestamp(application)
+            val oldestTimestamp = SyncPrefs.getPlaysOldestTimestamp(application)
             val mapper = PlayMapper()
+            var sortingNewest = false
+            var lastNewPage = 0
 
             override val typeDescriptionResId: Int
                 get() = R.string.title_plays
 
+            @DebugLog
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
                 return playDao.loadPlays()
             }
 
+            @DebugLog
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
                 if (!PreferencesUtils.getSyncPlays(application)) return false
                 return data == null || data.isEmpty() || playsRateLimiter.shouldFetch(0)
             }
 
-            override fun createCall(page: Int): Call<PlaysResponse>? {
-                if (page == 1) timestamp = System.currentTimeMillis()
-                return Adapter.createForXml().plays(username,
-                        newestTimestamp.asDateForApi(),
-                        null,
-                        page)
-                // TODO also sync old plays
+            @DebugLog
+            override fun createCall(page: Int): Call<PlaysResponse> {
+                if (page == 1) {
+                    timestamp = System.currentTimeMillis()
+                    sortingNewest = true
+                }
+                if (sortingNewest) lastNewPage = page
+                return if (sortingNewest) {
+                    Adapter.createForXml().plays(username,
+                            newestTimestamp?.asDateForApi(),
+                            null,
+                            page)
+                } else {
+                    Adapter.createForXml().plays(username,
+                            null,
+                            oldestTimestamp.asDateForApi(),
+                            page - lastNewPage)
+                }
             }
 
+            @DebugLog
             override fun saveCallResult(result: PlaysResponse) {
                 val plays = mapper.map(result.plays)
                 persister.save(plays, timestamp)
@@ -71,10 +89,25 @@ class PlayRepository(val application: BggApplication) {
                 Timber.i("Synced page %,d of plays", 1)
             }
 
-            override fun hasMorePages(result: PlaysResponse) = result.hasMorePages()
+            @DebugLog
+            override fun hasMorePages(result: PlaysResponse): Boolean {
+                return when {
+                    result.hasMorePages() -> true
+                    sortingNewest -> {
+                        sortingNewest = false
+                        oldestTimestamp > 0L
+                    }
+                    else -> false
+                }
+            }
 
             override fun onRefreshSucceeded() {
-                playDao.deleteUnupdatedPlaysSince(timestamp, newestTimestamp)
+                newestTimestamp?.let { playDao.deleteUnupdatedPlaysSince(timestamp, it) }
+                if (oldestTimestamp > 0L) {
+                    playDao.deleteUnupdatedPlaysBefore(timestamp, oldestTimestamp)
+                } else {
+                    SyncPrefs.setPlaysOldestTimestamp(application, 0L)
+                }
                 CalculatePlayStatsTask(application).executeAsyncTask()
             }
 
@@ -82,9 +115,10 @@ class PlayRepository(val application: BggApplication) {
                 playsRateLimiter.reset(0)
             }
 
+            @DebugLog
             private fun updateTimestamps(plays: List<Play>?) {
                 val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
-                if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application)) {
+                if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
                     SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
                 }
                 val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
