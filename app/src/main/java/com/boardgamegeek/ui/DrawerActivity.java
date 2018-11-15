@@ -99,12 +99,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SignInEvent event) {
-		if (!TextUtils.isEmpty(event.getUsername()))
-			onSignInSuccess();
-	}
-
-	protected void onSignInSuccess() {
-		refreshDrawer();
+		refreshUser(event.getUsername());
 	}
 
 	private void refreshDrawer() {
@@ -197,19 +192,11 @@ public abstract class DrawerActivity extends BaseActivity {
 		if (TextUtils.isEmpty(fullName)) {
 			if (TextUtils.isEmpty(username)) {
 				Account account = Authenticator.getAccount(this);
-				if (account != null) {
-					viewModel.getUser().observe(this, new Observer<RefreshableResource<UserEntity>>() {
-						@Override
-						public void onChanged(RefreshableResource<UserEntity> userEntityRefreshableResource) {
-							if (userEntityRefreshableResource != null && userEntityRefreshableResource.getStatus() == Status.SUCCESS) {
-								refreshDrawer();
-							}
-						}
-					});
-				}
+				if (account != null) refreshUser(account.name);
 				return null;
 			} else {
 				((TextView) view.findViewById(R.id.account_info_primary)).setText(username);
+				refreshUser(username);
 			}
 		} else {
 			((TextView) view.findViewById(R.id.account_info_primary)).setText(fullName);
@@ -226,6 +213,22 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		return view;
+	}
+
+	private void refreshUser(String username) {
+		if (TextUtils.isEmpty(username)) return;
+		viewModel.setUsername(username);
+		viewModel.getUser().observe(this, new Observer<RefreshableResource<UserEntity>>() {
+			@Override
+			public void onChanged(RefreshableResource<UserEntity> userEntityRefreshableResource) {
+				if (userEntityRefreshableResource != null &&
+					userEntityRefreshableResource.getStatus() == Status.SUCCESS &&
+					userEntityRefreshableResource.getData() != null &&
+					!TextUtils.isEmpty(userEntityRefreshableResource.getData().getUserName())) {
+					refreshDrawer();
+				}
+			}
+		});
 	}
 
 	private View makeNavDrawerBuffer(ViewGroup container) {
