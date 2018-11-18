@@ -67,6 +67,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
         val call = createCall(currentPage)
         call.enqueue(object : Callback<U> {
             override fun onResponse(call: Call<U>?, response: Response<U>?) {
+                result.removeSource(dbSource)
                 if (response?.isSuccessful == true) {
                     val body = response.body()
                     if (body != null) {
@@ -74,10 +75,12 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                             saveCallResult(body)
                             application.appExecutors.mainThread.execute {
                                 if (hasMorePages(body)) {
+                                    result.addSource(loadFromDatabase()) { newData ->
+                                        setValue(RefreshableResource.refreshing(newData))
+                                    }
                                     page++
                                     makeCall(page, dbSource)
                                 } else {
-                                    result.removeSource(dbSource)
                                     application.appExecutors.diskIO.execute { onRefreshSucceeded() }
                                     result.addSource(loadFromDatabase()) { newData ->
                                         setValue(RefreshableResource.success(newData))
@@ -86,14 +89,12 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                             }
                         }
                     } else {
-                        result.removeSource(dbSource)
                         application.appExecutors.diskIO.execute { onRefreshFailed() }
                         result.addSource(dbSource) { newData ->
                             setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
                         }
                     }
                 } else {
-                    result.removeSource(dbSource)
                     application.appExecutors.diskIO.execute { onRefreshFailed() }
                     result.addSource(dbSource) { newData ->
                         setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
