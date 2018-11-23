@@ -69,12 +69,12 @@ class LargeIconLoader(private val context: Context, imageUrl: String, thumbnailU
         callback?.onSuccessfulIconLoad(bitmap)
     }
 
-    override fun onBitmapFailed(errorDrawable: Drawable) {
+    override fun onBitmapFailed(errorDrawable: Drawable?) {
         Timber.i("Didn't find an image at %s", currentImageUrl)
         callback?.onFailedIconLoad()
     }
 
-    override fun onPrepareLoad(placeHolderDrawable: Drawable) {}
+    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
 
     interface Callback {
         fun onSuccessfulIconLoad(bitmap: Bitmap)
