@@ -41,7 +41,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
             startTime = System.currentTimeMillis()
 
             val newestSyncDate = SyncPrefs.getPlaysNewestTimestamp(context)
-            if (executeCall(account.name, newestSyncDate.asDateForApi(), null)) {
+            if (executeCall(account.name, newestSyncDate?.asDateForApi(), null)) {
                 cancel()
                 return
             }
