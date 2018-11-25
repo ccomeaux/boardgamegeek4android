@@ -85,7 +85,7 @@ class PlayDao(private val context: BggApplication) {
     }
 
     private fun createPlaySelectionAndArgs() =
-            Plays.DIRTY_TIMESTAMP.whereZeroOrNull() to emptyArray<String>()
+            Plays.DELETE_TIMESTAMP.whereZeroOrNull() to emptyArray<String>()
 
     private fun createGamePlaySelectionAndArgs(gameId: Int) =
             "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())
