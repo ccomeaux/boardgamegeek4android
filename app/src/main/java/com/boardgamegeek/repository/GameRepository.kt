@@ -164,6 +164,10 @@ class GameRepository(val application: BggApplication) {
             override fun onRefreshFailed() {
                 isFullRefresh = false
             }
+
+            override fun onRefreshCancelled() {
+                isFullRefresh = false
+            }
         }.asLiveData()
     }
 

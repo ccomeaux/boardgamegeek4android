@@ -115,6 +115,10 @@ class PlayRepository(val application: BggApplication) {
                 playsRateLimiter.reset(0)
             }
 
+            override fun onRefreshCancelled() {
+                playsRateLimiter.reset(0)
+            }
+
             @DebugLog
             private fun updateTimestamps(plays: List<Play>?) {
                 val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L

@@ -14,7 +14,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) {
-    private val result = MediatorLiveData<RefreshableResource<T>>()
+    private val result = CancelableMediatorLiveData<RefreshableResource<T>>()
     var page = 0
 
     init {
@@ -64,52 +64,60 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
 
     @MainThread
     private fun makeCall(currentPage: Int, dbSource: LiveData<T>) {
-        val call = createCall(currentPage)
-        call.enqueue(object : Callback<U> {
-            override fun onResponse(call: Call<U>?, response: Response<U>?) {
-                result.removeSource(dbSource)
-                if (response?.isSuccessful == true) {
-                    val body = response.body()
-                    if (body != null) {
-                        application.appExecutors.diskIO.execute {
-                            saveCallResult(body)
-                            application.appExecutors.mainThread.execute {
-                                if (hasMorePages(body)) {
-                                    result.addSource(loadFromDatabase()) { newData ->
-                                        setValue(RefreshableResource.refreshing(newData))
-                                    }
-                                    page++
-                                    makeCall(page, dbSource)
-                                } else {
-                                    application.appExecutors.diskIO.execute { onRefreshSucceeded() }
-                                    result.addSource(loadFromDatabase()) { newData ->
-                                        setValue(RefreshableResource.success(newData))
+        if (result.hasActiveObservers()) {
+            val call = createCall(currentPage)
+            result.updateCall(call)
+            call.enqueue(object : Callback<U> {
+                override fun onResponse(call: Call<U>?, response: Response<U>?) {
+                    result.removeSource(dbSource)
+                    if (response?.isSuccessful == true) {
+                        val body = response.body()
+                        if (body != null) {
+                            application.appExecutors.diskIO.execute {
+                                saveCallResult(body)
+                                application.appExecutors.mainThread.execute {
+                                    if (hasMorePages(body)) {
+                                        result.addSource(loadFromDatabase()) { newData ->
+                                            setValue(RefreshableResource.refreshing(newData))
+                                        }
+                                        page++
+                                        makeCall(page, dbSource)
+                                    } else {
+                                        application.appExecutors.diskIO.execute { onRefreshSucceeded() }
+                                        result.addSource(loadFromDatabase()) { newData ->
+                                            setValue(RefreshableResource.success(newData))
+                                        }
                                     }
                                 }
+                            }
+                        } else {
+                            application.appExecutors.diskIO.execute { onRefreshFailed() }
+                            result.addSource(dbSource) { newData ->
+                                setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
                             }
                         }
                     } else {
                         application.appExecutors.diskIO.execute { onRefreshFailed() }
                         result.addSource(dbSource) { newData ->
-                            setValue(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(typeDescriptionResId)), newData))
+                            setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
                         }
                     }
-                } else {
+                }
+
+                override fun onFailure(call: Call<U>?, t: Throwable?) {
+                    result.removeSource(dbSource)
                     application.appExecutors.diskIO.execute { onRefreshFailed() }
                     result.addSource(dbSource) { newData ->
-                        setValue(RefreshableResource.error(getHttpErrorMessage(response?.code() ?: 500), newData))
+                        setValue(RefreshableResource.error(t, newData))
                     }
                 }
+            })
+        } else {
+            application.appExecutors.diskIO.execute { onRefreshCancelled() }
+            result.addSource(dbSource) { newData ->
+                setValue(RefreshableResource.success(newData))
             }
-
-            override fun onFailure(call: Call<U>?, t: Throwable?) {
-                result.removeSource(dbSource)
-                application.appExecutors.diskIO.execute { onRefreshFailed() }
-                result.addSource(dbSource) { newData ->
-                    setValue(RefreshableResource.error(t, newData))
-                }
-            }
-        })
+        }
     }
 
     @MainThread
@@ -129,6 +137,10 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     protected open fun onRefreshFailed() {
     }
 
+    @WorkerThread
+    protected open fun onRefreshCancelled() {
+    }
+
     private fun getHttpErrorMessage(httpCode: Int): String {
         @StringRes val resId: Int = when {
             httpCode >= 500 -> R.string.msg_sync_response_500
@@ -136,5 +148,18 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
             else -> R.string.msg_sync_error_http_code
         }
         return application.getString(resId, httpCode.toString())
+    }
+
+    class CancelableMediatorLiveData<T> : MediatorLiveData<T>() {
+        var call: Call<*>? = null
+
+        fun updateCall(call: Call<*>) {
+            this.call = call
+        }
+
+        override fun onInactive() {
+            super.onInactive()
+            call?.cancel()
+        }
     }
 }
