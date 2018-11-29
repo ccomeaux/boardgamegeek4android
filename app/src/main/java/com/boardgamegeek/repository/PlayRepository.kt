@@ -58,7 +58,7 @@ class PlayRepository(val application: BggApplication) {
             @DebugLog
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
                 if (!PreferencesUtils.getSyncPlays(application)) return false
-                return data == null || data.isEmpty() || playsRateLimiter.shouldFetch(0)
+                return data == null || data.isEmpty() || playsRateLimiter.shouldProcess(0)
             }
 
             @DebugLog
