@@ -89,9 +89,9 @@ class PlaysSummaryFragment : Fragment() {
 
     private fun bindStatusMessage() {
         syncStatusView.text = when {
-            oldestSyncDate == Long.MAX_VALUE && newestSyncDate == 0L -> getString(R.string.plays_sync_status_none)
-            oldestSyncDate == 0L -> String.format(getString(R.string.plays_sync_status_new), millisAsDate(newestSyncDate))
-            newestSyncDate == 0L -> String.format(getString(R.string.plays_sync_status_old), millisAsDate(oldestSyncDate))
+            oldestSyncDate == Long.MAX_VALUE && newestSyncDate <= 0L -> getString(R.string.plays_sync_status_none)
+            oldestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), millisAsDate(newestSyncDate))
+            newestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), millisAsDate(oldestSyncDate))
             else -> String.format(getString(R.string.plays_sync_status_range), millisAsDate(oldestSyncDate), millisAsDate(newestSyncDate))
         }
     }
