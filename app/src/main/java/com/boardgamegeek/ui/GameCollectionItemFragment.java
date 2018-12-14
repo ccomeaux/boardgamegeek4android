@@ -248,9 +248,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != _TOKEN ||
-			collectionId == BggContract.INVALID_ID ||
-			getContext() == null) return null;
+		if (id != _TOKEN || getContext() == null) return null;
 
 		return new CursorLoader(getContext(),
 			CollectionItem.getUri(),
