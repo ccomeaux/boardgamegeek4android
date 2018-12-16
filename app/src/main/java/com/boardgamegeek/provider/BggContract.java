@@ -774,6 +774,10 @@ public class BggContract {
 			return buildPlayerUri(playerName).buildUpon().appendPath(String.valueOf(sortOrder)).build();
 		}
 
+		public static Uri addSortUri(Uri uri, int sortOrder) {
+			return uri.buildUpon().appendPath(String.valueOf(sortOrder)).build();
+		}
+
 		@Nullable
 		public static String getUsername(Uri uri) {
 			if (uri != null) {

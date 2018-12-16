@@ -62,8 +62,8 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         val name = user.first
         when {
             name == null || name.isBlank() -> AbsentLiveData.create()
-            user.second == TYPE_USER -> playRepository.loadUserColors(name)
-            user.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
+            user.second == TYPE_USER -> playRepository.loadUserColorsAsLiveData(name)
+            user.second == TYPE_PLAYER -> playRepository.loadPlayerColorsAsLiveData(name)
             else -> AbsentLiveData.create()
         }
     }

@@ -183,12 +183,28 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadNonUserPlayerAsLiveData(playerName)
     }
 
-    fun loadUserColors(username: String): LiveData<List<PlayerColorEntity>> {
+    fun loadUserColorsAsLiveData(username: String): LiveData<List<PlayerColorEntity>> {
+        return playDao.loadUserColorsAsLiveData(username)
+    }
+
+    fun loadUserColors(username: String): List<PlayerColorEntity> {
         return playDao.loadUserColors(username)
     }
 
-    fun loadPlayerColors(playerName: String): LiveData<List<PlayerColorEntity>> {
+    fun loadPlayerColorsAsLiveData(playerName: String): LiveData<List<PlayerColorEntity>> {
+        return playDao.loadPlayerColorsAsLiveData(playerName)
+    }
+
+    fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
         return playDao.loadPlayerColors(playerName)
+    }
+
+    fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
+        playDao.savePlayerColors(playerName, colors)
+    }
+
+    fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
+        playDao.saveUserColors(username, colors)
     }
 
     fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): LiveData<List<LocationEntity>> {

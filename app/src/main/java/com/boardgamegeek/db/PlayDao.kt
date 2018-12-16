@@ -14,6 +14,7 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.util.ResolverUtils
 import timber.log.Timber
 
 class PlayDao(private val context: BggApplication) {
@@ -186,18 +187,28 @@ class PlayDao(private val context: BggApplication) {
         return null
     }
 
-    fun loadPlayerColors(playerName: String): LiveData<List<PlayerColorEntity>> {
+    fun loadPlayerColorsAsLiveData(playerName: String): LiveData<List<PlayerColorEntity>> {
         val uri = BggContract.PlayerColors.buildPlayerUri(playerName)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadColors(uri)
         }
     }
 
-    fun loadUserColors(username: String): LiveData<List<PlayerColorEntity>> {
+    fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
+        val uri = BggContract.PlayerColors.buildPlayerUri(playerName)
+        return loadColors(uri)
+    }
+
+    fun loadUserColorsAsLiveData(username: String): LiveData<List<PlayerColorEntity>> {
         val uri = BggContract.PlayerColors.buildUserUri(username)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadColors(uri)
         }
+    }
+
+    fun loadUserColors(playerName: String): List<PlayerColorEntity> {
+        val uri = BggContract.PlayerColors.buildUserUri(playerName)
+        return loadColors(uri)
     }
 
     private fun loadColors(uri: Uri): List<PlayerColorEntity> {
@@ -300,6 +311,34 @@ class PlayDao(private val context: BggApplication) {
             }
         }
         return results
+    }
+
+    fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
+        saveColors(PlayerColors.buildPlayerUri(playerName), colors)
+    }
+
+    fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
+        saveColors(PlayerColors.buildUserUri(username), colors)
+    }
+
+    private fun saveColors(uri: Uri, colors: List<PlayerColorEntity>?) {
+        val resolver = context.contentResolver
+        resolver.delete(uri, null, null) // TODO change to batch
+        if (colors != null && colors.isNotEmpty()) {
+            val batch = ArrayList<ContentProviderOperation>()
+            colors.forEach {
+                if (it.description.isNotBlank()) {
+                    val sortUri = PlayerColors.addSortUri(uri, it.sortOrder)
+                    val builder = if (context.contentResolver.rowExists(sortUri)) {
+                        ContentProviderOperation.newUpdate(sortUri)
+                    } else {
+                        ContentProviderOperation.newInsert(uri).withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                    }
+                    batch.add(builder.withValue(BggContract.PlayerColors.PLAYER_COLOR, it.description).build())
+                }
+            }
+            ResolverUtils.applyBatch(context, batch)
+        }
     }
 
     fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
