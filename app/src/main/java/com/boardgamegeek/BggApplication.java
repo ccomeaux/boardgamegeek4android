@@ -94,7 +94,7 @@ public class BggApplication extends MultiDexApplication {
 
 	private void initializeFabric() {
 		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
-		Fabric.with(this, crashlytics, new Answers());
+		Fabric.with(this, crashlytics, new Answers(), new Crashlytics());
 	}
 
 	private void enableStrictMode() {
