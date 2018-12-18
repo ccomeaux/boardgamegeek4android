@@ -209,7 +209,7 @@ class PlaysSummaryFragment : Fragment() {
             }
         }
         editColorsButton.setOnClickListener {
-            PlayerColorsActivity.start(context, AccountUtils.getUsername(context), null)
+            PlayerColorsActivity.start(requireContext(), AccountUtils.getUsername(context), null)
         }
     }
 }

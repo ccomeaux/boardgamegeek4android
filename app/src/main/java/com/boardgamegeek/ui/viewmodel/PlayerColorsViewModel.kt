@@ -130,15 +130,12 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
                 }
             }
 
-            for (color in newColors) {
-                if (color.description == colorMoving.description) {
-                    Timber.d("Moving %s to %d!", color.description, toPosition + 1)
-                    color.sortOrder = toPosition + 1
-                    break
-                }
+            newColors.find { c -> c.description == colorMoving.description }?.let { c ->
+                Timber.d("Moving %s to %d!", c.description, toPosition + 1)
+                c.sortOrder = toPosition + 1
             }
 
-            _colors.value = newColors
+            _colors.value = newColors.sortedBy { c -> c.sortOrder }
 
             return true
         }

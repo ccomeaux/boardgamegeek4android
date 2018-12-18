@@ -129,15 +129,15 @@ class BuddyActivity : SimpleSinglePaneActivity() {
 
         @JvmStatic
         @JvmOverloads
-        fun startUp(context: Context, username: String, playerName: String? = null) {
+        fun startUp(context: Context, username: String?, playerName: String? = null) {
             createIntent(context, username, playerName)?.let {
                 context.startActivity(it.clearTop())
             }
         }
 
         @JvmStatic
-        fun createIntent(context: Context, username: String, playerName: String?): Intent? {
-            if (username.isBlank() && playerName.isNullOrBlank()) {
+        fun createIntent(context: Context, username: String?, playerName: String?): Intent? {
+            if (username.isNullOrBlank() && playerName.isNullOrBlank()) {
                 Timber.w("Unable to create a BuddyActivity intent - missing both a username and a player name")
                 return null
             }
