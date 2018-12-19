@@ -19,6 +19,7 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_collection.*
+import org.jetbrains.anko.support.v4.toast
 
 class GameCollectionFragment : Fragment() {
     private val adapter: GameCollectionItemAdapter by lazy {
@@ -52,16 +53,21 @@ class GameCollectionFragment : Fragment() {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError()
-                it.status == Status.ERROR -> showError(if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection))
-                else -> showData(it.data)
+                it.status == Status.ERROR -> {
+                    showError(
+                            if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection),
+                            it.data?.isNotEmpty() == true
+                    )
+                }
+                else -> showData(it.data ?: emptyList())
             }
             progressView.hide()
         })
     }
 
-    private fun showData(items: List<CollectionItemEntity>?) {
+    private fun showData(items: List<CollectionItemEntity>) {
         if (!isAdded) return
-        if (items != null && items.isNotEmpty()) {
+        if (items.isNotEmpty()) {
             adapter.items = items
             syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
             emptyMessage.fadeOut()
@@ -69,19 +75,23 @@ class GameCollectionFragment : Fragment() {
         } else {
             syncTimestamp.timestamp = System.currentTimeMillis()
             showError()
+            recyclerView?.fadeOut()
         }
-        swipeRefresh?.setOnRefreshListener {
-            if (items != null && items.any { it.isDirty })
+        swipeRefresh.setOnRefreshListener {
+            if (items.any { it.isDirty })
                 SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
             viewModel.refresh()
         }
-        swipeRefresh?.isEnabled = true
+        swipeRefresh.isEnabled = true
     }
 
-    private fun showError(message: String = getString(R.string.empty_game_collection)) {
-        emptyMessage.text = message
-        emptyMessage.fadeIn()
-        recyclerView?.fadeOut()
+    private fun showError(message: String = getString(R.string.empty_game_collection), hasData: Boolean = false) {
+        if (hasData) {
+            toast(message)
+        } else {
+            emptyMessage.text = message
+            emptyMessage.fadeIn()
+        }
     }
 
     companion object {
