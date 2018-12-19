@@ -58,11 +58,10 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
-import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
+import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -86,6 +85,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -123,7 +123,7 @@ import icepick.State;
 import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity implements
-	ColorPickerDialogFragment.Listener,
+	ColorPickerWithListenerDialogFragment.Listener,
 	NumberPadDialogFragment.Listener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
@@ -1079,7 +1079,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+	public void onColorSelected(@NotNull String description, int color, int requestCode) {
 		Player player = play.getPlayers().get(requestCode);
 		player.color = description;
 		playAdapter.notifyPlayerChanged(requestCode);
@@ -1885,8 +1885,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 						for (Player p : play.getPlayers()) {
 							if (p != player) usedColors.add(p.color);
 						}
-						ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-							ColorUtils.getColorList(), gameColors, player.color, usedColors, 4, position);
+						ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(gameColors, player.color, usedColors, position);
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});

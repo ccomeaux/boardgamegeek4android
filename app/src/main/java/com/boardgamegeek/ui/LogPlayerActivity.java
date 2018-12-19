@@ -29,7 +29,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.adapter.PlayerNameAdapter;
-import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
+import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -43,11 +43,12 @@ import com.boardgamegeek.util.fabric.AddFieldEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -60,7 +61,7 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class LogPlayerActivity extends AppCompatActivity implements ColorPickerDialogFragment.Listener {
+public class LogPlayerActivity extends AppCompatActivity implements ColorPickerWithListenerDialogFragment.Listener {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
@@ -291,13 +292,12 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerD
 	@DebugLog
 	@OnClick(R.id.color_view)
 	public void onColorClick() {
-		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), colors, teamColorView.getText().toString(), usedColors, 4);
+		ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(colors, teamColorView.getText().toString(), usedColors);
 		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
 	@Override
-	public void onColorSelected(@NonNull String description, int color, int requestCode) {
+	public void onColorSelected(@NotNull String description, int color, int requestCode) {
 		teamColorView.setText(description);
 	}
 

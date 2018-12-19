@@ -17,9 +17,8 @@ import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setColorViewValue
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment
+import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
-import com.boardgamegeek.util.ColorUtils
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
 import com.crashlytics.android.answers.Answers
@@ -29,10 +28,12 @@ import kotlinx.android.synthetic.main.activity_player_colors.*
 import kotlinx.android.synthetic.main.row_player_color.view.*
 import org.jetbrains.anko.startActivity
 import timber.log.Timber
-import java.util.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.properties.Delegates
 
-class PlayerColorsActivity : BaseActivity(), ColorPickerDialogFragment.Listener {
+class PlayerColorsActivity : BaseActivity() {
     private var buddyName: String? = null
     private var playerName: String? = null
 
@@ -93,7 +94,7 @@ class PlayerColorsActivity : BaseActivity(), ColorPickerDialogFragment.Listener 
 
                     // fade and slide item
                     val width = itemView.width.toFloat()
-                    val alpha = 1.0f - Math.abs(dX) / width
+                    val alpha = 1.0f - abs(dX) / width
                     itemView.alpha = alpha
                     itemView.translationX = dX
 
@@ -108,22 +109,22 @@ class PlayerColorsActivity : BaseActivity(), ColorPickerDialogFragment.Listener 
                         iconSrc = Rect(
                                 0,
                                 0,
-                                Math.min((dX - itemView.left.toFloat() - horizontalPadding).toInt(), deleteIcon.width),
+                                min((dX - itemView.left.toFloat() - horizontalPadding).toInt(), deleteIcon.width),
                                 deleteIcon.height)
                         iconDst = RectF(
                                 itemView.left.toFloat() + horizontalPadding,
                                 itemView.top.toFloat() + verticalPadding,
-                                Math.min(itemView.left.toFloat() + horizontalPadding + deleteIcon.width.toFloat(), dX),
+                                min(itemView.left.toFloat() + horizontalPadding + deleteIcon.width.toFloat(), dX),
                                 itemView.bottom.toFloat() - verticalPadding)
                     } else {
                         background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
                         iconSrc = Rect(
-                                Math.max(deleteIcon.width + horizontalPadding.toInt() + dX.toInt(), 0),
+                                max(deleteIcon.width + horizontalPadding.toInt() + dX.toInt(), 0),
                                 0,
                                 deleteIcon.width,
                                 deleteIcon.height)
                         iconDst = RectF(
-                                Math.max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - deleteIcon.width.toFloat()),
+                                max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - deleteIcon.width.toFloat()),
                                 itemView.top.toFloat() + verticalPadding,
                                 itemView.right.toFloat() - horizontalPadding,
                                 itemView.bottom.toFloat() - verticalPadding)
@@ -169,10 +170,7 @@ class PlayerColorsActivity : BaseActivity(), ColorPickerDialogFragment.Listener 
         }
 
         fab.setOnClickListener {
-            // TODO - this should operate on the viewModel
-            val fragment = ColorPickerDialogFragment.newInstance(R.string.title_add_color,
-                    ColorUtils.getColorList(), null, null, null, 4, 0, usedColors)
-            fragment.show(supportFragmentManager, "color_picker")
+            PlayerColorPickerDialogFragment.launch(this, usedColors)
         }
 
         viewModel.setUsername(buddyName)
@@ -229,11 +227,6 @@ class PlayerColorsActivity : BaseActivity(), ColorPickerDialogFragment.Listener 
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onColorSelected(description: String, color: Int, requestCode: Int) {
-        PlayerColorsManipulationEvent.log("Add", description)
-        viewModel.add(description)
     }
 
     class PlayerColorsAdapter(private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<PlayerColorsAdapter.ColorViewHolder>(), AutoUpdatableAdapter {
