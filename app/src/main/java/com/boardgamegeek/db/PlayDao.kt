@@ -62,7 +62,7 @@ class PlayDao(private val context: BggApplication) {
                     list.add(PlayEntity(
                             internalId = it.getLong(Plays._ID),
                             playId = it.getInt(Plays.PLAY_ID),
-                            date = it.getString(Plays.DATE),
+                            rawDate = it.getString(Plays.DATE),
                             gameId = it.getInt(Plays.OBJECT_ID),
                             gameName = it.getString(Plays.ITEM_NAME),
                             quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,

@@ -2,6 +2,7 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.text.format.DateUtils
+import android.text.format.DateUtils.*
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.util.PreferencesUtils
@@ -12,8 +13,14 @@ import java.util.concurrent.TimeUnit
 
 fun Long.isOlderThan(duration: Int, timeUnit: TimeUnit) = System.currentTimeMillis() - this > timeUnit.toMillis(duration.toLong())
 
-fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.never): CharSequence {
-    return if (this == 0L) context.getString(zeroResId) else DateUtils.getRelativeTimeSpanString(this, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS)
+fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
+    return if (this == 0L)
+        context.getString(zeroResId)
+    else {
+        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_MONTH
+        if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
+        DateUtils.getRelativeTimeSpanString(this, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS, flags)
+    }
 }
 
 fun Long.asPastMinuteSpan(context: Context): CharSequence {
@@ -33,11 +40,6 @@ fun Long.formatTimestamp(context: Context, isForumTimestamp: Boolean, includeTim
 }
 
 val FORMAT_API: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
-fun Long?.asDateForApi(): String? {
-    if (this == null) return null
-    return this.asDateForApi()
-}
 
 fun Long.asDateForApi(): String {
     val c = Calendar.getInstance()

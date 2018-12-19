@@ -35,7 +35,10 @@ class PlayModel(
     private constructor(context: Context) : this(context, BggContract.INVALID_ID.toLong(), BggContract.INVALID_ID, BggContract.INVALID_ID)
 
     val date: String by lazy {
-        if (dateInMillis == UNKNOWN_DATE) "" else DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL)
+        if (dateInMillis == UNKNOWN_DATE)
+            ""
+        else
+            DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_WEEKDAY or  DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL)
     }
 
     val dateInMillis: Long by lazy {

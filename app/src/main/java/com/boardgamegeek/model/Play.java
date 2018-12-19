@@ -71,7 +71,7 @@ public class Play {
 	}
 
 	public CharSequence getDateForDisplay(Context context) {
-		return DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE);
+		return DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_SHOW_WEEKDAY);
 	}
 
 	public void setDate(int year, int month, int day) {

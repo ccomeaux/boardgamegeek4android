@@ -53,15 +53,16 @@ fun String.asRankDescription(context: Context, type: String = BggService.RANK_TY
     }
 }
 
-fun String.toMillis(format: DateFormat): Long {
+@JvmOverloads
+fun String.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     return if (isBlank()) {
-        0L
+        defaultMillis
     } else {
         try {
             format.parse(this).time
         } catch (e: Exception) {
             Timber.w(e, "Unable to parse %s as %s", this, format)
-            0L
+            defaultMillis
         }
     }
 }
