@@ -164,7 +164,7 @@ class PlaysSummaryFragment : Fragment() {
             }
             morePlayersButton.isVisible = true
         }
-        morePlayersButton.setOnClickListener { startActivity<PlayersActivity>() }
+        morePlayersButton.setOnClickListener { PlayersActivity.start(requireContext()) }
     }
 
     private fun bindLocations(locations: List<LocationEntity>?) {

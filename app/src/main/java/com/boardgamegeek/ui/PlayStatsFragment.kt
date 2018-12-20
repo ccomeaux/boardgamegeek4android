@@ -1,13 +1,8 @@
 package com.boardgamegeek.ui
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
-import androidx.appcompat.app.AlertDialog
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -16,6 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
@@ -196,6 +196,9 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private fun bindPlayerUi(stats: PlayerStatsEntity) {
         playerHIndexView.text = stats.hIndex.toString()
         bindHIndexTable(playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
+        playerHIndexTable.setOnClickListener {
+            PlayersActivity.startByPlayCount(requireContext())
+        }
     }
 
     private fun bindHIndexTable(table: TableLayout, hIndex: Int, entries: List<Pair<String, Int>>?) {

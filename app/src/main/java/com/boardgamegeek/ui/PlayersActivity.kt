@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -12,6 +13,7 @@ import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
+import org.jetbrains.anko.startActivity
 
 class PlayersActivity : SimpleSinglePaneActivity() {
     private val viewModel: PlayersViewModel by lazy {
@@ -21,15 +23,14 @@ class PlayersActivity : SimpleSinglePaneActivity() {
     private var playerCount = -1
     private var sortType = PlayersViewModel.SortType.NAME
 
-    override val optionsMenuId: Int
-        get() = R.menu.players
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             Answers.getInstance().logContentView(ContentViewEvent().putContentType("Players"))
         }
 
+        viewModel.sort(intent.extras?.get(KEY_SORT_TYPE) as? PlayersViewModel.SortType
+                ?: PlayersViewModel.SortType.NAME)
         viewModel.players.observe(this, Observer {
             playerCount = it?.size ?: 0
             invalidateOptionsMenu()
@@ -40,9 +41,13 @@ class PlayersActivity : SimpleSinglePaneActivity() {
         })
     }
 
+    override fun getDrawerResId() = R.string.title_players
+
     override fun onCreatePane(intent: Intent): Fragment {
         return PlayersFragment()
     }
+
+    override val optionsMenuId = R.menu.players
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
@@ -75,5 +80,17 @@ class PlayersActivity : SimpleSinglePaneActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun getDrawerResId() = R.string.title_players
+    companion object {
+        private const val KEY_SORT_TYPE = "SORT_TYPE"
+
+        fun start(context: Context) {
+            context.startActivity<PlayersActivity>()
+        }
+
+        fun startByPlayCount(context: Context) {
+            context.startActivity<PlayersActivity>(
+                    KEY_SORT_TYPE to PlayersViewModel.SortType.PLAY_COUNT
+            )
+        }
+    }
 }
