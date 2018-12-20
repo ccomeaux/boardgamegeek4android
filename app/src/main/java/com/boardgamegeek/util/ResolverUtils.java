@@ -146,29 +146,6 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI.
-	 */
-	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs) {
-		return queryInts(resolver, uri, columnName, selection, selectionArgs, null);
-	}
-
-	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI.
-	 */
-	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs, String sortOrder) {
-		List<Integer> list = new ArrayList<>();
-		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
-		try {
-			while (cursor != null && cursor.moveToNext()) {
-				list.add(cursor.getInt(0));
-			}
-		} finally {
-			closeCursor(cursor);
-		}
-		return list;
-	}
-
-	/*
 	 * Use the content resolver to get a list of longs from the specified column at the URI.
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection, String[] selectionArgs) {
@@ -242,37 +219,9 @@ public class ResolverUtils {
 		return value;
 	}
 
-	/*
-	 * Loads a bitmap from the URI. Returns null if the URI is invalid or the bitmap can't be created.
-	 */
-	public static Bitmap getBitmapFromContentProvider(ContentResolver resolver, Uri uri) {
-		InputStream stream = null;
-		try {
-			stream = resolver.openInputStream(uri);
-		} catch (FileNotFoundException e) {
-			Timber.d(e, "Couldn't find drawable: %s", uri);
-		}
-		if (stream != null) {
-			Bitmap bitmap = BitmapFactory.decodeStream(stream);
-			closeStream(stream);
-			return bitmap;
-		}
-		return null;
-	}
-
 	private static void closeCursor(Cursor cursor) {
 		if (cursor != null && !cursor.isClosed()) {
 			cursor.close();
-		}
-	}
-
-	private static void closeStream(Closeable stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				Timber.e(e, "Could not close stream");
-			}
 		}
 	}
 }

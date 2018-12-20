@@ -22,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -33,7 +34,6 @@ import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 

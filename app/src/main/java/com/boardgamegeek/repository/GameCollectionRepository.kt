@@ -1,8 +1,8 @@
 package com.boardgamegeek.repository
 
-import androidx.lifecycle.LiveData
 import android.content.ContentValues
 import androidx.collection.ArrayMap
+import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -21,7 +21,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.StringUtils
 import retrofit2.Call
 import retrofit2.Response
 import timber.log.Timber
@@ -50,7 +49,7 @@ class GameCollectionRepository(val application: BggApplication) {
             override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
                 if (gameId == BggContract.INVALID_ID || username == null) return false
                 val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-                return data == null || syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
+                return syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
             override fun createCall(page: Int): Call<CollectionResponse> {
@@ -116,7 +115,7 @@ class GameCollectionRepository(val application: BggApplication) {
 
             val gameName = values.getAsString(BggContract.Collection.COLLECTION_NAME)
             val response = application.contentResolver.insert(BggContract.Collection.CONTENT_URI, values)
-            val internalId = if (response == null) BggContract.INVALID_ID.toLong() else StringUtils.parseLong(response.lastPathSegment, BggContract.INVALID_ID)
+            val internalId = response?.lastPathSegment?.toLongOrNull() ?: BggContract.INVALID_ID.toLong()
             if (internalId == BggContract.INVALID_ID.toLong()) {
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {

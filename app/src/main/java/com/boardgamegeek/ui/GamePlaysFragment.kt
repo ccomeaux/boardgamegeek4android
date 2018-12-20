@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
@@ -68,9 +66,10 @@ class GamePlaysFragment : Fragment() {
         if (colors != null && count > 0 && colors.all { it.isKnownColor() }) {
             colorsList.removeAllViews()
             colors.forEach {
-                val view = createViewToBeColored()
-                view.setColorViewValue(it.asColorRgb())
-                colorsList.addView(view)
+                requireContext().createSmallCircle().apply {
+                    setColorViewValue(it.asColorRgb())
+                    colorsList.addView(this)
+                }
             }
             colorsList?.fadeIn()
             colorsLabel?.fadeOut()
@@ -84,16 +83,6 @@ class GamePlaysFragment : Fragment() {
             if (gameId != BggContract.INVALID_ID)
                 GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
         }
-    }
-
-    private fun createViewToBeColored(): ImageView {
-        val view = ImageView(activity)
-        val size = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small)
-        val margin = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small_margin)
-        val lp = LinearLayout.LayoutParams(size, size)
-        lp.setMargins(margin, margin, margin, margin)
-        view.layoutParams = lp
-        return view
     }
 
     private fun onGameQueryComplete(game: GameEntity?) {
@@ -117,7 +106,7 @@ class GamePlaysFragment : Fragment() {
                     inProgressPlaysList?.removeAllViews()
                     inProgressPlays.forEach { play ->
                         val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
-                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateInMillis.asPastDaySpan(requireContext())
+                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateForDisplay(requireContext())
                         row.findViewById<TextView>(R.id.line1)?.text = title
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
@@ -146,7 +135,7 @@ class GamePlaysFragment : Fragment() {
             if (plays.isNotEmpty()) {
                 val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
                 if (lastPlay != null) {
-                    lastPlayDateView?.text = context?.getText(R.string.last_played_prefix, lastPlay.dateInMillis.asPastDaySpan(requireContext())) ?: ""
+                    lastPlayDateView?.text = context?.getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext())) ?: ""
                     lastPlayInfoView?.text = lastPlay.describe(requireContext())
                     lastPlayContainer?.setOnClickListener {
                         PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)

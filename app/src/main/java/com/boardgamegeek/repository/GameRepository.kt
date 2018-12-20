@@ -9,6 +9,7 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image
@@ -22,7 +23,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.TaskUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -117,7 +117,7 @@ class GameRepository(val application: BggApplication) {
                 get() = R.string.title_plays
 
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
-                return playDao.load(gameId)
+                return playDao.loadPlaysByGame(gameId)
             }
 
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
@@ -157,11 +157,15 @@ class GameRepository(val application: BggApplication) {
                     values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
                     dao.update(gameId, values)
                 }
-                TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
+                CalculatePlayStatsTask(application).executeAsyncTask()
                 isFullRefresh = false
             }
 
             override fun onRefreshFailed() {
+                isFullRefresh = false
+            }
+
+            override fun onRefreshCancelled() {
                 isFullRefresh = false
             }
         }.asLiveData()

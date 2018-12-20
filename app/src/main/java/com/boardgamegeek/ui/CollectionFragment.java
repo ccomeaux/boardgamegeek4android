@@ -967,6 +967,7 @@ public class CollectionFragment extends Fragment implements
 		return new RecyclerSectionItemDecoration.SectionCallback() {
 			@Override
 			public boolean isSection(int position) {
+				if (position == RecyclerView.NO_POSITION) return false;
 				if (items == null || items.size() == 0) return false;
 				if (position == 0) return true;
 				if (position < 0 || position >= items.size()) return false;
@@ -978,6 +979,7 @@ public class CollectionFragment extends Fragment implements
 			@NotNull
 			@Override
 			public CharSequence getSectionHeader(int position) {
+				if (position == RecyclerView.NO_POSITION) return "-";
 				if (items == null || items.size() == 0) return "-";
 				if (position < 0 || position >= items.size()) return "-";
 				return items.get(position).headerText;

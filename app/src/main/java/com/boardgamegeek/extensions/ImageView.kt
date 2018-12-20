@@ -1,14 +1,16 @@
 package com.boardgamegeek.extensions
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.util.TypedValue
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.core.view.setMargins
 import com.boardgamegeek.R
-import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.PaletteTransformation
 import com.squareup.picasso.Picasso
@@ -20,7 +22,7 @@ fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
 fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
     val isSameImage = getTag(R.id.image) == ImageUtils.getImageId(url)
     val requestCreator = Picasso.with(context)
-            .load(if (url.isEmpty()) null else HttpUtils.ensureScheme(url))
+            .load(url.ensureHttpsScheme())
             .transform(PaletteTransformation.instance())
     if (isSameImage) {
         requestCreator.noFade().noPlaceholder()
@@ -58,4 +60,14 @@ fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {
             color.darkenColor())
 
     setImageDrawable(colorChoiceDrawable)
+}
+
+fun Context.createSmallCircle(): ImageView {
+    val size = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small)
+    val margin = resources.getDimensionPixelSize(R.dimen.color_circle_diameter_small_margin)
+    val view = ImageView(this)
+    view.layoutParams = LinearLayout.LayoutParams(size, size).apply {
+        setMargins(margin)
+    }
+    return view
 }

@@ -6,14 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.sync.SyncUserTask
-import hugo.weaving.DebugLog
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.toast
 
 const val INVALID_MENU_ID = 0
 
@@ -31,24 +24,6 @@ abstract class BaseActivity : AppCompatActivity() {
         @MenuRes
         get() = INVALID_MENU_ID
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
-    @DebugLog
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    open fun onEvent(event: SyncUserTask.CompletedEvent) {
-        if (event.username != null && event.username == AccountUtils.getUsername(this)) {
-            toast(R.string.profile_updated)
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.base, menu)
@@ -56,17 +31,16 @@ abstract class BaseActivity : AppCompatActivity() {
         return true
     }
 
-    @DebugLog
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.menu_cancel_sync)?.isVisible = SyncService.isActiveOrPending(this)
-        return super.onPrepareOptionsMenu(menu)
+        return true
     }
 
     protected fun setSubtitle(text: String?) {
         supportActionBar?.subtitle = text ?: ""
     }
 
-    @DebugLog
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {

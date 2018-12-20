@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.shortcut.CollectionShortcutTask;
 import com.boardgamegeek.util.shortcut.GameShortcutTask;

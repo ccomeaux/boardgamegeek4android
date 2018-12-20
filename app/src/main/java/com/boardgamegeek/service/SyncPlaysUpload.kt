@@ -10,6 +10,8 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.executeAsyncTask
+import com.boardgamegeek.extensions.getLongOrNull
 import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
@@ -26,7 +28,10 @@ import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.util.SelectionBuilder
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
@@ -82,7 +87,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
-        TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
+        CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
     @DebugLog
@@ -105,7 +110,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 try {
-                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val internalId = it.getLongOrNull(Plays._ID) ?: BggContract.INVALID_ID.toLong()
                     val play = PlayBuilder.fromCursor(it)
                     val playerCursor = PlayBuilder.queryPlayers(context, internalId)
                     playerCursor?.use { cursor ->
@@ -172,7 +177,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 try {
                     val play = PlayBuilder.fromCursor(it)
-                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val internalId = it.getLongOrNull(Plays._ID) ?: BggContract.INVALID_ID.toLong()
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                     if (play.playId > 0) {
                         val response = postPlayDelete(play.playId)

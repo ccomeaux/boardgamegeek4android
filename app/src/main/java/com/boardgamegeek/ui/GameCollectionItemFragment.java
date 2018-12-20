@@ -21,6 +21,7 @@ import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.extensions.IntKt;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
@@ -39,7 +40,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -248,9 +248,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != _TOKEN ||
-			collectionId == BggContract.INVALID_ID ||
-			getContext() == null) return null;
+		if (id != _TOKEN || getContext() == null) return null;
 
 		return new CursorLoader(getContext(),
 			CollectionItem.getUri(),

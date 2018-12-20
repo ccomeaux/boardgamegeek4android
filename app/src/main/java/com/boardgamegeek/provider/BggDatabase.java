@@ -5,8 +5,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
-import androidx.annotation.NonNull;
 
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -35,13 +35,13 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
 import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
 import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
-import com.boardgamegeek.util.TaskUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 public class BggDatabase extends SQLiteOpenHelper {

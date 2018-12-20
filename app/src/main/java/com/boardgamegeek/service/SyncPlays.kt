@@ -4,25 +4,25 @@ import android.accounts.Account
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.SelectionBuilder
-import com.boardgamegeek.util.TaskUtils
 import retrofit2.Response
 import timber.log.Timber
 
 class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
     private val persister: PlayPersister = PlayPersister(context)
+    private val playDao: PlayDao = PlayDao(application)
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
@@ -41,19 +41,13 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
             startTime = System.currentTimeMillis()
 
             val newestSyncDate = SyncPrefs.getPlaysNewestTimestamp(context)
-            if (newestSyncDate <= 0) {
-                if (executeCall(account.name, null, null)) {
-                    cancel()
-                    return
-                }
-            } else {
-                val date = newestSyncDate.asDateForApi()
-                if (executeCall(account.name, date, null)) {
-                    cancel()
-                    return
-                }
-                deleteUnupdatedPlaysSince(newestSyncDate)
+            if (executeCall(account.name, newestSyncDate?.asDateForApi(), null)) {
+                cancel()
+                return
             }
+            val deletedCount = playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L)
+            syncResult.stats.numDeletes += deletedCount.toLong()
+            Timber.i("...deleted $deletedCount unupdated plays")
 
             val oldestDate = SyncPrefs.getPlaysOldestTimestamp(context)
             if (oldestDate > 0) {
@@ -62,10 +56,12 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                     cancel()
                     return
                 }
-                deleteUnupdatedPlaysBefore(oldestDate)
+                val count = playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L)
+                syncResult.stats.numDeletes += count.toLong()
+                Timber.i("...deleted $count unupdated plays")
                 SyncPrefs.setPlaysOldestTimestamp(context, 0L)
             }
-            TaskUtils.executeAsyncTask(CalculatePlayStatsTask(application))
+            CalculatePlayStatsTask(application).executeAsyncTask()
         } finally {
             Timber.i("...complete!")
         }
@@ -139,32 +135,10 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
         }
     }
 
-    private fun deleteUnupdatedPlaysSince(time: Long) {
-        deleteUnupdatedPlays(time, ">=")
-    }
-
-    private fun deleteUnupdatedPlaysBefore(time: Long) {
-        deleteUnupdatedPlays(time, "<=")
-    }
-
-    private fun deleteUnupdatedPlays(time: Long, dateComparator: String) {
-        deletePlays(Plays.SYNC_TIMESTAMP + "<? AND " + Plays.DATE + dateComparator + "? AND " +
-                SelectionBuilder.whereZeroOrNull(Plays.UPDATE_TIMESTAMP) + " AND " +
-                SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP) + " AND " +
-                SelectionBuilder.whereZeroOrNull(Plays.DIRTY_TIMESTAMP),
-                arrayOf(startTime.toString(), time.asDateForApi()))
-    }
-
-    private fun deletePlays(selection: String, selectionArgs: Array<String>) {
-        val count = context.contentResolver.delete(Plays.CONTENT_URI, selection, selectionArgs)
-        syncResult.stats.numDeletes += count.toLong()
-        Timber.i("...deleted $count unupdated plays")
-    }
-
     private fun updateTimestamps(plays: List<Play>?) {
         if (plays == null) return
         val newestDate = newestDate(plays)
-        if (newestDate > SyncPrefs.getPlaysNewestTimestamp(context)) {
+        if (newestDate > SyncPrefs.getPlaysNewestTimestamp(context) ?: 0L) {
             SyncPrefs.setPlaysNewestTimestamp(context, newestDate)
         }
         val oldestDate = oldestDate(plays)

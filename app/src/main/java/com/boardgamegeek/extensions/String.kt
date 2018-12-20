@@ -53,15 +53,16 @@ fun String.asRankDescription(context: Context, type: String = BggService.RANK_TY
     }
 }
 
-fun String.toMillis(format: DateFormat): Long {
+@JvmOverloads
+fun String.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     return if (isBlank()) {
-        0L
+        defaultMillis
     } else {
         try {
             format.parse(this).time
         } catch (e: Exception) {
             Timber.w(e, "Unable to parse %s as %s", this, format)
-            0L
+            defaultMillis
         }
     }
 }
@@ -103,4 +104,21 @@ inline fun String.andLess() = "<${this}"
 fun String?.firstChar(): String {
     if (this == null || isEmpty()) return "-"
     return substring(0, 1).toUpperCase(Locale.getDefault())
+}
+
+fun String?.ensureHttpsScheme(): String? {
+    return when {
+        this == null -> null
+        this == "" -> null
+        startsWith("//") -> "https:${this}"
+        else -> this
+    }
+}
+
+fun String.descending(): String {
+    return this.plus(" DESC")
+}
+
+fun String.collateNoCase(): String {
+    return this.plus(" COLLATE NOCASE")
 }

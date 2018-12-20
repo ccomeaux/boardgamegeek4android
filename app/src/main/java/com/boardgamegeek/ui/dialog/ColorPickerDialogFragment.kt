@@ -2,34 +2,22 @@ package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.fragment.app.DialogFragment
-import androidx.appcompat.app.AlertDialog
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.adapter.ColorGridAdapter
 import kotlinx.android.synthetic.main.dialog_colors.*
 import java.util.*
 
-class ColorPickerDialogFragment : DialogFragment() {
+abstract class ColorPickerDialogFragment : DialogFragment() {
     private lateinit var layout: View
-    private var listener: Listener? = null
-
-    interface Listener {
-        fun onColorSelected(description: String, color: Int, requestCode: Int)
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        listener = context as? Listener
-        if (listener == null) throw ClassCastException("$context must implement Listener")
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
@@ -37,7 +25,7 @@ class ColorPickerDialogFragment : DialogFragment() {
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
         @StringRes val titleResId = arguments?.getInt(KEY_TITLE_ID) ?: 0
-        if (titleResId > 0) builder.setTitle(titleResId)
+        if (titleResId != 0) builder.setTitle(titleResId)
         return builder.create()
     }
 
@@ -116,11 +104,13 @@ class ColorPickerDialogFragment : DialogFragment() {
             it.setOnItemClickListener { parent, _, position, _ ->
                 val adapter = parent.adapter as? ColorGridAdapter
                 val item = adapter?.getItem(position)
-                if (item != null) listener?.onColorSelected(item.first, item.second, requestCode)
+                onColorClicked(item, requestCode)
                 dismiss()
             }
         }
     }
+
+    abstract fun onColorClicked(item: Pair<String, Int>?, requestCode: Int)
 
     companion object {
         private const val KEY_TITLE_ID = "title_id"
@@ -148,32 +138,28 @@ class ColorPickerDialogFragment : DialogFragment() {
          * @param columns        number of columns
          * @return new ColorPickerDialog
          */
-        @JvmStatic
-        @JvmOverloads
-        fun newInstance(@StringRes titleResId: Int,
-                        colors: List<Pair<String, Int>>,
-                        featuredColors: ArrayList<String>?,
-                        selectedColor: String?,
-                        disabledColors: ArrayList<String>?,
-                        columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
-                        requestCode: Int = 0,
-                        hiddenColors: ArrayList<String>? = null): ColorPickerDialogFragment {
-            return ColorPickerDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(KEY_TITLE_ID, titleResId)
-                    putInt(KEY_COLOR_COUNT, colors.size)
-                    for (i in colors.indices) {
-                        val color = colors[i]
-                        putString(KEY_COLORS_DESCRIPTION + i, color.first)
-                        putInt(KEY_COLORS + i, color.second)
-                    }
-                    putStringArrayList(KEY_FEATURED_COLORS, featuredColors)
-                    putString(KEY_SELECTED_COLOR, selectedColor)
-                    putStringArrayList(KEY_DISABLED_COLORS, disabledColors)
-                    putStringArrayList(KEY_HIDDEN_COLORS, hiddenColors)
-                    putInt(KEY_COLUMNS, columns)
-                    putInt(KEY_REQUEST_CODE, requestCode)
+        fun createBundle(@StringRes titleResId: Int,
+                         colors: List<Pair<String, Int>>,
+                         featuredColors: ArrayList<String>?,
+                         selectedColor: String?,
+                         disabledColors: ArrayList<String>?,
+                         columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
+                         requestCode: Int = 0,
+                         hiddenColors: ArrayList<String>? = null): Bundle {
+            return Bundle().apply {
+                putInt(KEY_TITLE_ID, titleResId)
+                putInt(KEY_COLOR_COUNT, colors.size)
+                for (i in colors.indices) {
+                    val color = colors[i]
+                    putString(KEY_COLORS_DESCRIPTION + i, color.first)
+                    putInt(KEY_COLORS + i, color.second)
                 }
+                putStringArrayList(KEY_FEATURED_COLORS, featuredColors)
+                putString(KEY_SELECTED_COLOR, selectedColor)
+                putStringArrayList(KEY_DISABLED_COLORS, disabledColors)
+                putStringArrayList(KEY_HIDDEN_COLORS, hiddenColors)
+                putInt(KEY_COLUMNS, columns)
+                putInt(KEY_REQUEST_CODE, requestCode)
             }
         }
     }

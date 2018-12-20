@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,7 +20,6 @@ import java.text.NumberFormat;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.PluralsRes;
 import androidx.annotation.StringRes;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
@@ -43,22 +41,6 @@ public class PresentationUtils {
 		symbols.setCurrencySymbol("");
 		format.setDecimalFormatSymbols(symbols);
 		return format;
-	}
-
-	/**
-	 * Formats the date for display in the forums (based on the users selected preference.
-	 */
-	public static CharSequence formatTimestamp(Context context, long date, boolean isForumTimestamp, boolean includeTime) {
-		int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH;
-		if (includeTime) flags |= DateUtils.FORMAT_SHOW_TIME;
-		if (isForumTimestamp && PreferencesUtils.getForumDates(context)) {
-			return DateUtils.formatDateTime(context, date, flags);
-		} else {
-			if (date == 0) {
-				return context.getString(R.string.text_unknown);
-			}
-			return DateUtils.getRelativeTimeSpanString(date, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, flags);
-		}
 	}
 
 	public static String describeYear(@Nullable Context context, int year) {
@@ -93,30 +75,6 @@ public class PresentationUtils {
 				return "\u00A5";
 		}
 		return "";
-	}
-
-	/**
-	 * Build a displayable full name from the first and last name.
-	 */
-	@DebugLog
-	@NonNull
-	public static String buildFullName(@NonNull String firstName, @NonNull String lastName) {
-		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
-			return "";
-		} else if (TextUtils.isEmpty(firstName)) {
-			return lastName.trim();
-		} else if (TextUtils.isEmpty(lastName)) {
-			return firstName.trim();
-		} else {
-			return firstName.trim() + " " + lastName.trim();
-		}
-	}
-
-	@NonNull
-	public static String describePlayer(String name, String username) {
-		if (name == null) return "";
-		if (TextUtils.isEmpty(username)) return name;
-		return name + " (" + username + ")";
 	}
 
 	@DebugLog
@@ -155,21 +113,11 @@ public class PresentationUtils {
 		}
 	}
 
-	@DebugLog
 	public static CharSequence getText(Context context, @StringRes int id, Object... args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
 		}
 		final String htmlString = String.format(Html.toHtml(new SpannedString(context.getText(id))), args);
-		return trimTrailingWhitespace(Html.fromHtml(htmlString));
-	}
-
-	@DebugLog
-	public static CharSequence getQuantityText(Context context, @PluralsRes int id, int quantity, Object... args) {
-		for (int i = 0; i < args.length; ++i) {
-			args[i] = args[i] instanceof String ? TextUtils.htmlEncode((String) args[i]) : args[i];
-		}
-		final String htmlString = String.format(Html.toHtml(new SpannedString(context.getResources().getQuantityText(id, quantity))), args);
 		return trimTrailingWhitespace(Html.fromHtml(htmlString));
 	}
 
@@ -184,12 +132,10 @@ public class PresentationUtils {
 		return source.subSequence(0, i + 1);
 	}
 
-	@DebugLog
 	public static int[] getColorSchemeResources() {
 		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
 	}
 
-	@DebugLog
 	public static void ensureFabIsShown(final FloatingActionButton fab) {
 		fab.postDelayed(new Runnable() {
 			@Override

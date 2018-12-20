@@ -1,15 +1,14 @@
 package com.boardgamegeek.ui.adapter
 
 import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.NO_ID
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
 import kotlinx.android.synthetic.main.widget_collection_row.view.*
 import kotlin.properties.Delegates
@@ -74,18 +73,17 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
             }
 
             itemView.setOnClickListener {
-                if (item.collectionId != BggContract.INVALID_ID)
-                    GameCollectionItemActivity.start(
-                            itemView.context,
-                            item.internalId,
-                            item.gameId,
-                            item.gameName,
-                            item.collectionId,
-                            item.collectionName,
-                            item.thumbnailUrl,
-                            item.heroImageUrl,
-                            gameYearPublished,
-                            item.yearPublished)
+                GameCollectionItemActivity.start(
+                        itemView.context,
+                        item.internalId,
+                        item.gameId,
+                        item.gameName,
+                        item.collectionId,
+                        item.collectionName,
+                        item.thumbnailUrl,
+                        item.heroImageUrl,
+                        gameYearPublished,
+                        item.yearPublished)
             }
         }
 

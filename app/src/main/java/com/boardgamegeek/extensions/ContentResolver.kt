@@ -71,6 +71,18 @@ fun ContentResolver.getCount(uri: Uri): Int {
     return 0
 }
 
+fun ContentResolver.queryString(
+        uri: Uri,
+        columnName: String
+): String? {
+    query(uri, arrayOf(columnName), null, null, null)?.use {
+        if (it.count == 1 && it.moveToFirst()) {
+            return it.getString(0)
+        }
+    }
+    return null
+}
+
 fun ContentResolver.queryStrings(
         uri: Uri, columnName: String,
         selection: String? = null,
@@ -117,6 +129,22 @@ fun ContentResolver.queryInt(
     return defaultValue
 }
 
+fun ContentResolver.queryLongs(
+        uri: Uri,
+        columnName: String,
+        selection: String? = null,
+        selectionArgs: Array<String>? = null,
+        sortOrder: String? = null
+): List<Long> {
+    val list = arrayListOf<Long>()
+    query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
+        while (it.moveToNext()) {
+            list.add(it.getLong(0))
+        }
+    }
+    return list
+}
+
 fun ContentResolver.queryLong(
         uri: Uri,
         columnName: String,
@@ -134,4 +162,10 @@ fun ContentResolver.queryLong(
 
 fun ContentResolver.queryCount(uri: Uri): Int {
     return queryInt(uri, "count(*) AS count")
+}
+
+fun ContentResolver.queryCount(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
+    return query(uri, arrayOf(BaseColumns._ID), selection, selectionArgs, null)?.use {
+        it.count
+    } ?: 0
 }

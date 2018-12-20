@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.core.app.NavUtils
 import androidx.core.app.TaskStackBuilder
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.palette.graphics.Palette
@@ -14,21 +15,18 @@ import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.applyDarkScrim
-import com.boardgamegeek.extensions.loadUrl
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
-import com.boardgamegeek.util.ImageUtils.Callback
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
-import com.google.android.material.snackbar.Snackbar
 import org.jetbrains.anko.*
+import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
 
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
@@ -93,9 +91,12 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         }
     }
 
-    override fun setUpViewPager() {
-        viewPager.adapter = adapter
-        viewPager.addOnPageChangeListener(object : OnPageChangeListener {
+    override fun createAdapter(): FragmentPagerAdapter {
+        return adapter
+    }
+
+    override fun createOnPageChangeListener(): OnPageChangeListener {
+        return object : OnPageChangeListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
@@ -103,7 +104,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -146,7 +147,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_log_play_quick -> {
-                Snackbar.make(coordinator, R.string.msg_logging_play, Snackbar.LENGTH_SHORT).show()
+                getCoordinatorLayout().snackbar(R.string.msg_logging_play)
                 ActivityUtils.logQuickPlay(this, gameId, gameName)
                 return true
             }
@@ -178,15 +179,12 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         val url = if (heroImageUrl.isBlank()) thumbnailUrl else heroImageUrl
         if (this.heroImageUrl != url) {
             this.heroImageUrl = url
-            toolbarImage?.loadUrl(this.heroImageUrl, object : Callback {
-                override fun onSuccessfulImageLoad(palette: Palette?) {
-                    viewModel.updateGameColors(palette)
-                    scrimView?.applyDarkScrim()
-                }
-
-                override fun onFailedImageLoad() {}
-            })
+            loadToolbarImage(url)
         }
+    }
+
+    override fun onPaletteLoaded(palette: Palette?) {
+        viewModel.updateGameColors(palette)
     }
 
     override fun onSelectStatuses(selectedStatuses: List<String>, wishlistPriority: Int) {
