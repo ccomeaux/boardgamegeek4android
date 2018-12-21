@@ -149,16 +149,16 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
-    implementation('com.squareup.retrofit2:converter-simplexml:2.4.0') {
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation("com.squareup.retrofit2:converter-simplexml:$retrofit_version") {
         exclude group: 'stax', module: 'stax-api'
         exclude group: 'stax', module: 'stax'
         exclude group: 'xpp3', module: 'xpp3'
     }
 
-    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
 
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
