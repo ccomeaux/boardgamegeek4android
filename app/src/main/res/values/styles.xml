@@ -57,7 +57,7 @@
 	</style>
 
 	<style name="Text.Big">
-		<item name="android:textSize">16sp</item>
+		<item name="android:textSize">18sp</item>
 	</style>
 
 	<style name="Text.Huge">
@@ -67,6 +67,7 @@
 	<style name="Text.Pad">
 		<item name="android:textSize">34sp</item>
 		<item name="android:textColor">#888</item>
+		<item name="android:fontFamily">sans-serif-light</item>
 	</style>
 
 	<style name="Text.Readout">
@@ -82,7 +83,24 @@
 	</style>
 
 	<style name="Text.Primary.DrawerHeader">
+		<item name="android:fontFamily">sans-serif-medium</item>
 		<item name="android:textSize">14sp</item>
+		<item name="android:textColor">#fff</item>
+	</style>
+
+	<style name="Text.Secondary.DrawerHeader">
+		<item name="android:fontFamily">sans-serif</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:textColor">#fff</item>
+	</style>
+
+	<style name="DrawerItem" parent="TextAppearance.AppCompat">
+		<item name="android:fontFamily">sans-serif-medium</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:textColor">#de000000</item>
+		<item name="android:gravity">left|center_vertical</item>
+		<item name="android:textIsSelectable">false</item>
+		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
 	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
@@ -96,9 +114,6 @@
 
 	<style name="Text.Secondary.Inverse">
 		<item name="android:textColor">@color/inverse_text_body</item>
-	</style>
-
-	<style name="Text.Secondary.DrawerHeader">
 	</style>
 
 	<style name="Text.FilterButton">
@@ -156,13 +171,6 @@
 
 	<style name="Text.Label.Dialog">
 		<item name="android:textColor">@color/dialog_text</item>
-	</style>
-
-	<style name="DrawerItem" parent="TextAppearance.AppCompat">
-		<item name="android:textSize">14sp</item>
-		<item name="android:gravity">left|center_vertical</item>
-		<item name="android:textIsSelectable">false</item>
-		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
 	<style name="DrawerIcon">

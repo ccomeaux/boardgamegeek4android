@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.util.TypedValue
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -49,8 +48,12 @@ fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {
         shape = GradientDrawable.OVAL
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && disabled) {
-        colorChoiceDrawable.colors = intArrayOf(color, Color.DKGRAY)
+    if (disabled) {
+        if (color.isColorDark()) {
+            colorChoiceDrawable.colors = intArrayOf(Color.LTGRAY, color)
+        } else {
+            colorChoiceDrawable.colors = intArrayOf(color, Color.DKGRAY)
+        }
     } else {
         colorChoiceDrawable.setColor(color)
     }
