@@ -16,7 +16,7 @@ class SearchResultMapper {
 
     private fun getYearPublished(yearPublished: String?): Int {
         if (yearPublished.isNullOrBlank()) return YEAR_UNKNOWN
-        val l = yearPublished?.toLong() ?: YEAR_UNKNOWN.toLong()
+        val l = yearPublished.toLong()
         return if (l > Integer.MAX_VALUE) {
             try {
                 (l - Long.MAX_VALUE).toInt() - 1
@@ -24,7 +24,7 @@ class SearchResultMapper {
                 YEAR_UNKNOWN
             }
         } else {
-            yearPublished?.toIntOrNull() ?: YEAR_UNKNOWN
+            yearPublished.toIntOrNull() ?: YEAR_UNKNOWN
         }
     }
 
