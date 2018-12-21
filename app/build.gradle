@@ -202,9 +202,9 @@ dependencies {
     compileOnly 'frankiesardo:icepick-processor:3.2.0'
     annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
-    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
+    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
 }
 
 apply plugin: 'com.google.gms.google-services'
