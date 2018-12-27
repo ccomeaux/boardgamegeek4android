@@ -173,7 +173,7 @@ dependencies {
 
     compile 'com.github.rhlff:NestedScrollWebView:v1.0.2'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.7@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.8@aar') {
         transitive = true
     }
 
