@@ -18,10 +18,8 @@
 		android:layout_marginTop="16dp"
 		android:contentDescription="@string/image"
 		android:scaleType="centerCrop"
-		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0"
 		app:srcCompat="@drawable/thumbnail_image_empty"/>
 
 	<TextView
@@ -32,6 +30,7 @@
 		android:layout_marginLeft="16dp"
 		android:layout_marginRight="16dp"
 		android:layout_marginStart="16dp"
+		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/Text"
 		android:textStyle="bold"
@@ -51,6 +50,7 @@
 		android:layout_marginLeft="16dp"
 		android:layout_marginRight="16dp"
 		android:layout_marginStart="16dp"
+		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/Text.Secondary"
 		app:layout_constraintBottom_toBottomOf="@+id/thumbnail"
@@ -58,7 +58,7 @@
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@+id/thumbnail"
 		app:layout_constraintTop_toBottomOf="@+id/status"
-		tools:text="Terra Mystica (2015)"/>
+		tools:text="Through the Ages: A New Story of Civilization (2015)"/>
 
 	<TextView
 		android:id="@+id/rating"
@@ -85,12 +85,21 @@
 		android:layout_marginRight="@dimen/activity_horizontal_margin"
 		android:layout_marginStart="@dimen/activity_horizontal_margin"
 		android:layout_marginTop="8dp"
-		android:maxLines="3"
+		android:ellipsize="end"
+		android:maxLines="5"
 		android:textAppearance="@style/Text"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/thumbnail"
-		tools:text="Comments"/>
+		app:layout_constraintTop_toBottomOf="@+id/commentBarrier"
+		tools:text="@tools:sample/lorem/random"/>
+
+	<androidx.constraintlayout.widget.Barrier
+		android:id="@+id/commentBarrier"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:barrierAllowsGoneWidgets="false"
+		app:barrierDirection="bottom"
+		app:constraint_referenced_ids="thumbnail,description,rating"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
