@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES.JELLY_BEAN
 import android.os.Parcel
 import android.os.Parcelable
 import android.text.Html
@@ -56,11 +54,8 @@ class TimestampView @JvmOverloads constructor(
         } finally {
             a.recycle()
         }
-        if (VERSION.SDK_INT >= JELLY_BEAN) {
-            val maxLines = maxLines
-            if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
-                setMaxLines(1)
-            }
+        if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
+            maxLines = 1
         }
     }
 

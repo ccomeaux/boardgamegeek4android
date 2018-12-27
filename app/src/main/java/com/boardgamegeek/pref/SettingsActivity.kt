@@ -96,12 +96,8 @@ class SettingsActivity : DrawerActivity() {
                                 .withLibraries(
                                         "AndroidIcons",
                                         "Hugo",
-                                        "Jsoup",
-                                        "LeakCanary",
                                         "MaterialRangeBar",
-                                        "MPAndroidChart",
-                                        "NestedScrollWebView",
-                                        "PhotoView"
+                                        "NestedScrollWebView"
                                 )
                                 .withAutoDetect(true)
                                 .withLicenseShown(true)

@@ -53,26 +53,26 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
 
     inner class SearchResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(game: SearchResultEntity?, position: Int) {
-            game?.let {
-                itemView.nameView.text = it.name
-                val style = when (it.nameType) {
+            game?.let { result ->
+                itemView.nameView.text = result.name
+                val style = when (result.nameType) {
                     SearchResultEntity.NAME_TYPE_ALTERNATE -> Typeface.ITALIC
                     SearchResultEntity.NAME_TYPE_PRIMARY, SearchResultEntity.NAME_TYPE_UNKNOWN -> Typeface.NORMAL
                     else -> Typeface.NORMAL
                 }
                 itemView.nameView.setTypeface(itemView.nameView.typeface, style)
-                itemView.yearView.text = it.yearPublished.asYear(itemView.context)
-                itemView.gameIdView.text = itemView.context.getString(R.string.id_list_text, it.id.toString())
+                itemView.yearView.text = result.yearPublished.asYear(itemView.context)
+                itemView.gameIdView.text = itemView.context.getString(R.string.id_list_text, result.id.toString())
 
                 itemView.isActivated = selectedItems.get(position, false)
 
-                itemView.setOnClickListener { _ ->
+                itemView.setOnClickListener {
                     if (callback?.onItemClick(position) != true) {
-                        GameActivity.start(itemView.context, it.id, it.name)
+                        GameActivity.start(itemView.context, result.id, result.name)
                     }
                 }
 
-                itemView.setOnLongClickListener { _ ->
+                itemView.setOnLongClickListener {
                     callback?.onItemLongClick(position) ?: false
                 }
             }
