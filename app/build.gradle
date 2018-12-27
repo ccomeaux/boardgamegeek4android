@@ -205,6 +205,8 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
+
+    implementation 'com.github.turing-tech:MaterialScrollBar:13.+'
 }
 
 apply plugin: 'com.google.gms.google-services'

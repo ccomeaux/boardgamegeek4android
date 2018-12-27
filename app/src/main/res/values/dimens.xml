@@ -63,4 +63,10 @@
 	<dimen name="filter_button_height">40dp</dimen>
 	<string name="hero_aspect_ratio">H,16:9</string>
 
+	<dimen name="fastscroller_handle_corner">16dp</dimen>
+	<dimen name="fastscroller_handle_size">48dp</dimen>
+	<dimen name="fastscroller_reack_corner">2dp</dimen>
+	<dimen name="fastscroller_track_width">8dp</dimen>
+	<dimen name="fastscroller_track_height">32dp</dimen>
+	<dimen name="fastscroller_track_padding">2dp</dimen>
 </resources>

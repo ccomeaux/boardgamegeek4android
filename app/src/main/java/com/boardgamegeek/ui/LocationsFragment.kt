@@ -15,7 +15,6 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
-import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import kotlinx.android.synthetic.main.fragment_locations.*
 import kotlinx.android.synthetic.main.row_location.view.*
@@ -38,11 +37,11 @@ class LocationsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        val sectionItemDecoration = RecyclerSectionItemDecoration(
-                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter)
-        recyclerView.addItemDecoration(sectionItemDecoration)
-
+//        val sectionItemDecoration = RecyclerSectionItemDecoration(
+//                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
+//                adapter)
+//        recyclerView.addItemDecoration(sectionItemDecoration)
+    
         viewModel.locations.observe(this, Observer {
             adapter.locations = it
             progressBar?.hide()

@@ -16,7 +16,6 @@ import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
-import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PreferencesUtils
@@ -44,13 +43,16 @@ class BuddiesFragment : Fragment() {
 
         swipeRefresh.setOnRefreshListener { triggerRefresh() }
         swipeRefresh.setBggColors()
+        //swipeRefresh.isEnabled = false
 
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        val sectionItemDecoration = RecyclerSectionItemDecoration(
-                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter)
-        recyclerView.addItemDecoration(sectionItemDecoration)
+//        val sectionItemDecoration = RecyclerSectionItemDecoration(
+//                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
+//                adapter)
+//        recyclerView.addItemDecoration(sectionItemDecoration)
+
+        fastScroller.setRecyclerView(recyclerView);
 
         viewModel.buddies.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }

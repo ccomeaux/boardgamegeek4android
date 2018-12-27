@@ -26,7 +26,8 @@ import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 class GameDetailRow @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+        defStyleAttr: Int = 0
+) : LinearLayout(context, attrs, defStyleAttr) {
 
     private val oneMore: String by lazy {
         context.getString(R.string.one_more)
