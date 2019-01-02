@@ -10,6 +10,7 @@
 		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
 		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="searchViewStyle">@style/MySearchViewStyle</item>
 	</style>
 
 	<style name="ColoredButton" parent="Widget.AppCompat.Button.Colored">

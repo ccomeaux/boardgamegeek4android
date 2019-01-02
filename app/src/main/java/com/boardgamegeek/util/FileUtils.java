@@ -1,6 +1,8 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Environment;
@@ -10,6 +12,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.provider.BggContract;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import androidx.annotation.Nullable;
@@ -35,20 +38,32 @@ public class FileUtils {
 	 * Find a path to store the specific type of content, ensuring that it exists. Returns null if none can be found or
 	 * created.
 	 */
+	@Nullable
 	public static File generateContentPath(Context context, String type) {
-		if (context == null) {
-			return null;
+		if (context == null) return null;
+
+		File path = context.getExternalFilesDir(type);
+		if (path == null) return null;
+
+		if (!path.exists()) if (!path.mkdirs()) return null;
+
+		return path;
+	}
+
+	public static void persistThumbnail(Context context, Bitmap bitmap, String imageUrl) {
+		if (context == null) return;
+		final String filename = FileUtils.getFileNameFromUrl(imageUrl);
+		if (TextUtils.isEmpty(filename)) return;
+
+		File file = new File(context.getExternalFilesDir(BggContract.PATH_THUMBNAILS), filename);
+		try {
+			file.createNewFile();
+			FileOutputStream stream = new FileOutputStream(file);
+			bitmap.compress(CompressFormat.JPEG, 75, stream);
+			stream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		File base = context.getExternalFilesDir(type);
-		if (base == null) {
-			return null;
-		}
-		if (!base.exists()) {
-			if (!base.mkdirs()) {
-				return null;
-			}
-		}
-		return base;
 	}
 
 	/**

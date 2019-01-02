@@ -349,6 +349,11 @@
 		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
 		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="searchViewStyle">@style/MySearchViewStyle</item>
+	</style>
+
+	<style name="MySearchViewStyle" parent="Widget.AppCompat.Light.SearchView">
+		<item name="suggestionRowLayout">@layout/layout</item>
 	</style>
 
 	<style name="BottomActionBar" parent="Widget.MaterialComponents.BottomAppBar">

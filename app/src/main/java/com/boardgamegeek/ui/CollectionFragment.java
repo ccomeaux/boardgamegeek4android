@@ -226,6 +226,16 @@ public class CollectionFragment extends Fragment implements
 		showcaseViewWizard.maybeShowHelp();
 	}
 
+//	@Override
+//	protected boolean shouldPadForFab() {
+//		return true;
+//	}
+//
+//	@Override
+//	protected boolean shouldPersistThumbnail() {
+//		return true;
+//	}
+
 	private void createShowcaseViewWizard() {
 		showcaseViewWizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION);
 		showcaseViewWizard.addTarget(R.string.help_collection, Target.NONE);
@@ -855,6 +865,23 @@ public class CollectionFragment extends Fragment implements
 		public CollectionItem getItem(int position) {
 			if (position < 0 || position >= items.size()) return null;
 			return items.get(position);
+//			int collectionId = cursor.getInt(Query.COLLECTION_ID);
+//			int year = cursor.getInt(Query.COLLECTION_YEAR_PUBLISHED);
+//			if (year == 0) {
+//				year = cursor.getInt(Query.YEAR_PUBLISHED);
+//			}
+//			String collectionThumbnailUrl = CursorUtils.getString(cursor, Query.COLLECTION_THUMBNAIL_URL);
+//			String thumbnailUrl = CursorUtils.getString(cursor, Query.THUMBNAIL_URL);
+//			boolean isFavorite = cursor.getInt(Query.STARRED) == 1;
+//			final long timestamp = sorter.getTimestamp(cursor);
+//
+//			view.setActivated(collectionId == selectedCollectionId);
+//			holder.nameView.setText(cursor.getString(Query.COLLECTION_NAME));
+//			holder.yearView.setText(PresentationUtils.describeYear(getActivity(), year));
+//			holder.timestampView.setTimestamp(timestamp);
+//			holder.favoriteView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+//			PresentationUtils.setTextOrHide(holder.infoView, sorter == null ? "" : sorter.getDisplayInfo(cursor));
+//			loadThumbnail(holder.thumbnailView, collectionThumbnailUrl);
 		}
 
 		public int getSelectedItemCount() {

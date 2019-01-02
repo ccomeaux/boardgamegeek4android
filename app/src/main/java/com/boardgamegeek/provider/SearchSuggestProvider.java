@@ -11,6 +11,7 @@ import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 
 import java.util.Locale;
@@ -18,24 +19,22 @@ import java.util.Map;
 
 public class SearchSuggestProvider extends BaseProvider {
 	public static final Map<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();
-	private static final String GROUP_BY = Collection.COLLECTION_NAME + ","
-		+ Collection.COLLECTION_YEAR_PUBLISHED;
+	private static final String GROUP_BY = Collection.COLLECTION_NAME + "," + Collection.COLLECTION_YEAR_PUBLISHED;
 
 	private static ArrayMap<String, String> buildSuggestionProjectionMap() {
 		ArrayMap<String, String> map = new ArrayMap<>();
 		map.put(BaseColumns._ID, BaseColumns._ID);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1,
-			String.format("%s AS %s", Collection.COLLECTION_NAME, SearchManager.SUGGEST_COLUMN_TEXT_1));
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2,
-			String.format("IFNULL(CASE WHEN %s=0 THEN NULL ELSE %s END, '?') AS %s", Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_YEAR_PUBLISHED, SearchManager.SUGGEST_COLUMN_TEXT_2));
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,
-			String.format("%s.%s AS %s", Tables.COLLECTION, Collection.GAME_ID, SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID));
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA,
-			String.format("%s.%s AS %s", Tables.COLLECTION, Collection.COLLECTION_NAME, SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA));
-		//		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
-		//			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
-		//			+ SearchManager.SUGGEST_COLUMN_ICON_2);
+		mapAs(map, SearchManager.SUGGEST_COLUMN_TEXT_1, Collection.COLLECTION_NAME);
+		mapAs(map, SearchManager.SUGGEST_COLUMN_TEXT_2, String.format("IFNULL(CASE WHEN %1$s=0 THEN NULL ELSE %1$s END, '?')", Collection.COLLECTION_YEAR_PUBLISHED));
+		mapAs(map, SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.COLLECTION + "." + Collection.GAME_ID);
+		mapAs(map, SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA, Tables.COLLECTION + "." + Collection.COLLECTION_NAME);
+		mapAs(map, SearchManager.SUGGEST_COLUMN_ICON_1, String.format("'%s/' || %s.%s || '/%s'", Games.CONTENT_URI, Tables.COLLECTION, Collection.GAME_ID, BggContract.PATH_THUMBNAILS));
+		// mapAs(map, SearchManager.SUGGEST_COLUMN_ICON_2, String.format("'android.resource://com.boardgamegeek/%s'", R.drawable.ic_top_games));
 		return map;
+	}
+
+	private static void mapAs(ArrayMap<String, String> map, String columnName, String query) {
+		map.put(columnName, query + " AS " + columnName);
 	}
 
 	@Override
