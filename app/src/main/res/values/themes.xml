@@ -16,6 +16,10 @@
 		<item name="searchViewStyle">@style/MySearchViewStyle</item>
 	</style>
 
+	<style name="MySearchViewStyle" parent="Widget.AppCompat.Light.SearchView">
+		<item name="suggestionRowLayout">@layout/layout</item>
+	</style>
+
 	<style name="Theme.bgglight.Base" parent="@style/Theme.AppCompat.Light.NoActionBar"/>
 
 	<style name="Theme.bgglight.NavDrawer"/>

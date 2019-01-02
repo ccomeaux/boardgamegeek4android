@@ -960,6 +960,7 @@ public class CollectionFragment extends Fragment implements
 				favoriteView.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
 				PresentationUtils.setTextOrHide(infoView, item.displayInfo);
 				ImageUtils.loadThumbnail(thumbnailView, item.collectionThumbnailUrl, item.thumbnailUrl);
+				//TODO - on success, save the thumbnail with FileUtils.persistThumbnail(context, bitmap, url)
 
 				itemView.setActivated(selectedItems.get(position, false));
 

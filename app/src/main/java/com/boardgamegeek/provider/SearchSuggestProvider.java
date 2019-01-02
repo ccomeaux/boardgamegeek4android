@@ -10,6 +10,7 @@ import android.provider.BaseColumns;
 import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
@@ -30,6 +31,10 @@ public class SearchSuggestProvider extends BaseProvider {
 		mapAs(map, SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA, Tables.COLLECTION + "." + Collection.COLLECTION_NAME);
 		mapAs(map, SearchManager.SUGGEST_COLUMN_ICON_1, String.format("'%s/' || %s.%s || '/%s'", Games.CONTENT_URI, Tables.COLLECTION, Collection.GAME_ID, BggContract.PATH_THUMBNAILS));
 		// mapAs(map, SearchManager.SUGGEST_COLUMN_ICON_2, String.format("'android.resource://com.boardgamegeek/%s'", R.drawable.ic_top_games));
+		map.put(SearchManager.SUGGEST_COLUMN_ICON_1,
+			String.format("'android.resource://com.boardgamegeek/%d' AS %s", R.drawable.ic_top_games, SearchManager.SUGGEST_COLUMN_ICON_1));
+		map.put(SearchManager.SUGGEST_COLUMN_ICON_1,
+			String.format("'%s/' || %s.%s || '/%s' AS %s", Games.CONTENT_URI, Tables.COLLECTION, Collection.GAME_ID, BggContract.PATH_THUMBNAILS, SearchManager.SUGGEST_COLUMN_ICON_1));
 		return map;
 	}
 
