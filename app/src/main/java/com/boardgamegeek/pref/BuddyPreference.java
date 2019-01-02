@@ -2,7 +2,7 @@ package com.boardgamegeek.pref;
 
 import android.content.Context;
 import android.content.Intent;
-import android.preference.Preference;
+import androidx.preference.Preference;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.ui.BuddyActivity;

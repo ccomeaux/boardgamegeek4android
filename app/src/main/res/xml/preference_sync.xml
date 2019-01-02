@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="@string/pref_sync_group_what">
-		<MultiSelectListPreference
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<androidx.preference.PreferenceCategory android:title="@string/pref_sync_group_what">
+		<androidx.preference.MultiSelectListPreference
 			android:defaultValue="@array/pref_sync_status_default"
 			android:dialogTitle="@string/pref_sync_statuses"
 			android:entries="@array/pref_sync_status_entries"
 			android:entryValues="@array/pref_sync_status_values"
 			android:key="sync_statuses"
 			android:title="@string/pref_sync_statuses"/>
-		<CheckBoxPreference
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="syncPlays"
 			android:title="@string/pref_sync_plays"/>
-		<CheckBoxPreference
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="syncBuddies"
 			android:title="@string/pref_sync_buddies"/>
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_sync_group_how">
-		<CheckBoxPreference
+	</androidx.preference.PreferenceCategory>
+	<androidx.preference.PreferenceCategory android:title="@string/pref_sync_group_how">
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="true"
 			android:key="sync_uploads"
 			android:title="@string/pref_sync_upload"/>
-		<CheckBoxPreference
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="sync_notifications"
 			android:title="@string/pref_sync_notifications"/>
-		<CheckBoxPreference
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="sync_errors"
 			android:title="@string/pref_sync_errors"/>
-		<CheckBoxPreference
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="sync_only_charging"
 			android:title="@string/pref_sync_only_charging"/>
-		<CheckBoxPreference
+		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="sync_only_wifi"
 			android:title="@string/pref_sync_only_wifi"/>
-	</PreferenceCategory>
-</PreferenceScreen>
+	</androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>

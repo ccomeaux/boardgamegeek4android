@@ -1,7 +1,7 @@
 package com.boardgamegeek.pref;
 
 import android.content.Context;
-import android.preference.Preference;
+import androidx.preference.Preference;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.util.HelpUtils;

@@ -1,7 +1,7 @@
 package com.boardgamegeek.pref;
 
 import android.content.Context;
-import android.preference.DialogPreference;
+import androidx.preference.DialogPreference;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.R;
@@ -13,12 +13,12 @@ public abstract class ConfirmDialogPreference extends DialogPreference {
 		setDialogLayoutResource(R.layout.widget_dialogpreference_textview);
 	}
 
-	@Override
-	protected void onDialogClosed(boolean positiveResult) {
-		if (positiveResult) {
-			execute();
-		}
-	}
+//	@Override
+//	protected void onDialogClosed(boolean positiveResult) {
+//		if (positiveResult) {
+//			execute();
+//		}
+//	}
 
 	protected abstract void execute();
 }

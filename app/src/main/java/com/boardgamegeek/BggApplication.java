@@ -111,7 +111,8 @@ public class BggApplication extends MultiDexApplication {
 		}
 		StrictMode.setVmPolicy(builder.build());
 		StrictMode.setThreadPolicy(new Builder()
-			.detectAll()
+			.detectDiskWrites()
+			.detectNetwork()
 			.penaltyLog()
 			.penaltyFlashScreen()
 			.build());

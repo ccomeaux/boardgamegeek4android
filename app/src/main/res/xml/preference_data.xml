@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<com.boardgamegeek.pref.ClearDialogPreference
 		android:dialogMessage="@string/pref_sync_clear_info_message"
 		android:positiveButtonText="@string/pref_sync_clear_pos"
@@ -20,4 +20,4 @@
 		android:positiveButtonText="@string/pref_sync_reset_pos"
 		android:title="@string/pref_sync_reset_buddies"/>
 	<com.boardgamegeek.pref.SyncTimestampsDialogPreference android:title="@string/pref_sync_timestamps"/>
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

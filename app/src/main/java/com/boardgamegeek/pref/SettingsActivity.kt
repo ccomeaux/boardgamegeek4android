@@ -3,11 +3,11 @@ package com.boardgamegeek.pref
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.PreferenceScreen
 import android.view.MenuItem
 import androidx.collection.ArrayMap
+import androidx.preference.Preference
+import androidx.preference.PreferenceDialogFragmentCompat
+import androidx.preference.PreferenceFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
@@ -21,6 +21,8 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.toast
+import timber.log.Timber
+
 
 class SettingsActivity : DrawerActivity() {
 
@@ -69,9 +71,7 @@ class SettingsActivity : DrawerActivity() {
         private var entries = emptyArray<String>()
         private var syncType = SyncService.FLAG_SYNC_NONE
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
             if (fragmentKey.isNullOrBlank()) {
                 addPreferencesFromResource(R.xml.preference_headers)
@@ -174,14 +174,34 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
-            preference.apply {
-                if (key?.startsWith(ACTION_PREFIX) == true) {
-                    (activity as SettingsActivity).replaceFragment(key)
-                    return true
+        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+            preference?.key?.let {
+                return when {
+                    it.startsWith(ACTION_PREFIX) -> {
+                        (activity as SettingsActivity).replaceFragment(it)
+                        true
+                    }
+                    it == "logout" -> {
+                        // do it
+                        true
+                    }
+                    else -> {
+                        super.onPreferenceTreeClick(preference)
+                    }
                 }
             }
-            return super.onPreferenceTreeClick(preferenceScreen, preference)
+            return super.onPreferenceTreeClick(preference)
+        }
+
+        override fun onDisplayPreferenceDialog(preference: Preference?) {
+            if (preference is SignOutPreference) {
+
+                Timber.w("Sign out")
+
+                val dialogFragment = DialogPrefFragCompat.newInstance(preference.getKey())
+                //dialogFragment.setTargetFragment(this, 0)
+                //dialogFragment.show(fragmentManager, null)
+            } else super.onDisplayPreferenceDialog(preference)
         }
 
         @Subscribe(threadMode = ThreadMode.MAIN)
@@ -225,6 +245,25 @@ class SettingsActivity : DrawerActivity() {
             map[ACTION_ABOUT] = R.xml.preference_about
             map[ACTION_AUTHORS] = R.xml.preference_authors
             return map
+        }
+    }
+}
+
+class DialogPrefFragCompat : PreferenceDialogFragmentCompat() {
+
+    override fun onDialogClosed(positiveResult: Boolean) {
+        if (positiveResult) {
+            // do things
+        }
+    }
+
+    companion object {
+        fun newInstance(key: String): DialogPrefFragCompat {
+            val fragment = DialogPrefFragCompat()
+            val bundle = Bundle(1)
+            bundle.putString(PreferenceDialogFragmentCompat.ARG_KEY, key)
+            fragment.arguments = bundle
+            return fragment
         }
     }
 }

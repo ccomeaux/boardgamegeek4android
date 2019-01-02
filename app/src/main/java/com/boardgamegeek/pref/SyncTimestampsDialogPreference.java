@@ -1,7 +1,7 @@
 package com.boardgamegeek.pref;
 
 import android.content.Context;
-import android.preference.DialogPreference;
+import androidx.preference.DialogPreference;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -38,32 +38,32 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		setNegativeButtonText("");
 	}
 
-	@Override
-	protected void onBindDialogView(@NonNull View view) {
-		super.onBindDialogView(view);
-		ButterKnife.bind(this, view);
-
-		setDateTime(collectionFull, SyncPrefs.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-		setDateTime(collectionPartial, SyncPrefs.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-
-		setDateTime(buddies, SyncPrefs.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-
-		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
-		Long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
-		if (oldestDate == Long.MAX_VALUE && (newestDate == null || newestDate <= 0L)) {
-			playsView.setText(R.string.plays_sync_status_none);
-		} else if (newestDate == null || newestDate <= 0L) {
-			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_old),
-				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else if (oldestDate <= 0L) {
-			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else {
-			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_range),
-				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		}
-	}
+//	@Override
+//	protected void onBindDialogView(@NonNull View view) {
+//		super.onBindDialogView(view);
+//		ButterKnife.bind(this, view);
+//
+//		setDateTime(collectionFull, SyncPrefs.getLastCompleteCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+//		setDateTime(collectionPartial, SyncPrefs.getLastPartialCollectionTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+//
+//		setDateTime(buddies, SyncPrefs.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+//
+//		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
+//		Long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
+//		if (oldestDate == Long.MAX_VALUE && (newestDate == null || newestDate <= 0L)) {
+//			playsView.setText(R.string.plays_sync_status_none);
+//		} else if (newestDate == null || newestDate <= 0L) {
+//			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_old),
+//				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
+//		} else if (oldestDate <= 0L) {
+//			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
+//				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+//		} else {
+//			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_range),
+//				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
+//				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
+//		}
+//	}
 
 	private void setDateTime(TextView view, long timeStamp, int flags) {
 		CharSequence text;

@@ -1,7 +1,7 @@
 package com.boardgamegeek.pref
 
 import android.content.Context
-import android.preference.DialogPreference
+import androidx.preference.DialogPreference
 import android.util.AttributeSet
 import android.util.TypedValue
 import com.boardgamegeek.R
@@ -26,13 +26,13 @@ class SignOutPreference(context: Context, attrs: AttributeSet) : DialogPreferenc
         return Authenticator.isSignedIn(context)
     }
 
-    override fun onDialogClosed(positiveResult: Boolean) {
-        if (positiveResult) {
-            SyncService.cancelSync(context)
-            Authenticator.signOut(context)
-            notifyChanged()
-        }
-    }
+//    override fun onDialogClosed(positiveResult: Boolean) {
+//        if (positiveResult) {
+//            SyncService.cancelSync(context)
+//            Authenticator.signOut(context)
+//            notifyChanged()
+//        }
+//    }
 
     fun update() {
         notifyChanged()

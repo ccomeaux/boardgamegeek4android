@@ -132,6 +132,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.annotation:annotation:1.0.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    implementation 'androidx.preference:preference:1.0.0'
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
