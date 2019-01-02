@@ -80,6 +80,8 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
                 itemView.privateInfo.isVisible = false
             }
 
+            itemView.privateComment.setTextOrHide(item.privateComment)
+
             itemView.setOnClickListener {
                 GameCollectionItemActivity.start(
                         itemView.context,

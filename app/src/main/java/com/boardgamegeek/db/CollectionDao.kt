@@ -155,7 +155,8 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.PRIVATE_INFO_ACQUIRED_FROM,
                 Collection.PRIVATE_INFO_ACQUISITION_DATE,
                 Collection.PRIVATE_INFO_QUANTITY,
-                Collection.PRIVATE_INFO_INVENTORY_LOCATION
+                Collection.PRIVATE_INFO_INVENTORY_LOCATION,
+                Collection.PRIVATE_INFO_COMMENT
         )
         return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<CollectionItemEntity>()
@@ -208,7 +209,8 @@ class CollectionDao(private val context: BggApplication) {
                                 quantity = it.getIntOrZero(Collection.PRIVATE_INFO_QUANTITY),
                                 acquiredFrom = it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUIRED_FROM),
                                 acquisitionDate = it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUISITION_DATE),
-                                inventoryLocation = it.getStringOrEmpty(Collection.PRIVATE_INFO_INVENTORY_LOCATION)
+                                inventoryLocation = it.getStringOrEmpty(Collection.PRIVATE_INFO_INVENTORY_LOCATION),
+                                privateComment = it.getStringOrEmpty(Collection.PRIVATE_INFO_COMMENT)
                         )
                         if (includeDeletedItems || item.deleteTimestamp == 0L)
                             list.add(item)
