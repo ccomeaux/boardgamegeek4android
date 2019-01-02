@@ -346,16 +346,16 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:background">?attr/colorPrimary</item>
 		<item name="android:minHeight">?attr/actionBarSize</item>
-		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 	</style>
 
 	<style name="BottomActionBar" parent="Widget.MaterialComponents.BottomAppBar">
 		<item name="android:backgroundTint">?attr/colorPrimary</item>
-		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 	</style>
 
 	<style name="ActionBarButtonContainer">
@@ -535,11 +535,6 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 		<item name="android:gravity">center</item>
 		<item name="android:textAppearance">@style/Text.Pad</item>
-	</style>
-
-	<style name="RaisedButtonTheme" parent="Theme.AppCompat">
-		<item name="colorButtonNormal">@color/medium_blue</item>
-		<item name="colorControlHighlight">@color/primary</item>
 	</style>
 
 	<style name="RaisedButton">

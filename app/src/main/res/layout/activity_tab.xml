@@ -14,16 +14,15 @@
 		<com.google.android.material.appbar.AppBarLayout
 			android:id="@+id/appbar"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+			android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+			android:layout_height="wrap_content">
 
 			<androidx.appcompat.widget.Toolbar
 				android:id="@+id/toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="?attr/actionBarSize"
-				android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
 				app:layout_scrollFlags="scroll|enterAlways"
-				app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"/>
 
 			<com.google.android.material.tabs.TabLayout
 				android:id="@+id/tabLayout"
@@ -31,8 +30,7 @@
 				android:layout_height="wrap_content"
 				android:clipToPadding="false"
 				android:gravity="bottom"
-				android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-				app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
 				app:tabMode="scrollable"/>
 		</com.google.android.material.appbar.AppBarLayout>
 

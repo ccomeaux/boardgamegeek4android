@@ -18,19 +18,19 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:fitsSystemWindows="true"
-			android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+			android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar">
 
 			<com.google.android.material.appbar.CollapsingToolbarLayout
 				android:id="@+id/collapsingToolbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:fitsSystemWindows="true"
-				android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+				android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 				app:contentScrim="?attr/colorPrimary"
 				app:expandedTitleMarginEnd="@dimen/material_margin_horizontal"
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
 				app:layout_scrollFlags="scroll|exitUntilCollapsed"
-				app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
 
 				<androidx.constraintlayout.widget.ConstraintLayout
 					android:layout_width="match_parent"
@@ -66,9 +66,9 @@
 					android:id="@+id/toolbar"
 					android:layout_width="match_parent"
 					android:layout_height="?attr/actionBarSize"
-					android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+					android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 					app:layout_collapseMode="pin"
-					app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+					app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"/>
 			</com.google.android.material.appbar.CollapsingToolbarLayout>
 
 		</com.google.android.material.appbar.AppBarLayout>
