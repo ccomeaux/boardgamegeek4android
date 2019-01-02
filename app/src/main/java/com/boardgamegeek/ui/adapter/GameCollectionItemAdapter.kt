@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.adapter
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
@@ -65,11 +66,18 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
             itemView.description.setTextOrHide(description)
 
             if (item.rating == 0.0) {
-                itemView.rating.visibility = View.GONE
+                itemView.rating.isVisible = false
             } else {
                 itemView.rating.text = item.rating.asPersonalRating(itemView.context)
                 itemView.rating.setTextViewBackground(item.rating.toColor(ratingColors))
-                itemView.rating.visibility = View.VISIBLE
+                itemView.rating.isVisible = true
+            }
+
+            if (item.hasPrivateInfo()) {
+                itemView.privateInfo.text = item.getPrivateInfo(itemView.context)
+                itemView.privateInfo.isVisible = true
+            } else {
+                itemView.privateInfo.isVisible = false
             }
 
             itemView.setOnClickListener {

@@ -147,7 +147,15 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
                 Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
                 Collection.HAS_PARTS_DIRTY_TIMESTAMP,
-                Collection.WANT_PARTS_DIRTY_TIMESTAMP
+                Collection.WANT_PARTS_DIRTY_TIMESTAMP,
+                Collection.PRIVATE_INFO_PRICE_PAID,
+                Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+                Collection.PRIVATE_INFO_CURRENT_VALUE,
+                Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+                Collection.PRIVATE_INFO_ACQUIRED_FROM,
+                Collection.PRIVATE_INFO_ACQUISITION_DATE,
+                Collection.PRIVATE_INFO_QUANTITY,
+                Collection.PRIVATE_INFO_INVENTORY_LOCATION
         )
         return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<CollectionItemEntity>()
@@ -192,7 +200,15 @@ class CollectionDao(private val context: BggApplication) {
                                 wishListDirtyTimestamp = it.getLongOrZero(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP),
                                 tradeConditionDirtyTimestamp = it.getLongOrZero(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP),
                                 hasPartsDirtyTimestamp = it.getLongOrZero(Collection.HAS_PARTS_DIRTY_TIMESTAMP),
-                                wantPartsDirtyTimestamp = it.getLongOrZero(Collection.WANT_PARTS_DIRTY_TIMESTAMP)
+                                wantPartsDirtyTimestamp = it.getLongOrZero(Collection.WANT_PARTS_DIRTY_TIMESTAMP),
+                                pricePaid = it.getDoubleOrZero(Collection.PRIVATE_INFO_PRICE_PAID),
+                                pricePaidCurrency = it.getStringOrEmpty(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY),
+                                currentValue = it.getDoubleOrZero(Collection.PRIVATE_INFO_CURRENT_VALUE),
+                                currentValueCurrency = it.getStringOrEmpty(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY),
+                                quantity = it.getIntOrZero(Collection.PRIVATE_INFO_QUANTITY),
+                                acquiredFrom = it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUIRED_FROM),
+                                acquisitionDate = it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUISITION_DATE),
+                                inventoryLocation = it.getStringOrEmpty(Collection.PRIVATE_INFO_INVENTORY_LOCATION)
                         )
                         if (includeDeletedItems || item.deleteTimestamp == 0L)
                             list.add(item)

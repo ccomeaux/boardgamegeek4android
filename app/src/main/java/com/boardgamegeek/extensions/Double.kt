@@ -52,5 +52,4 @@ fun Double.toColor(colors: IntArray): Int {
 
 fun Double.asMoney(currency: String): String {
     return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + this.toInt()
-
 }
