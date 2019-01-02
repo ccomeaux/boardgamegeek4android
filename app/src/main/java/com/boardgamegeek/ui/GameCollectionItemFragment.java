@@ -7,6 +7,9 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -25,6 +28,7 @@ import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
@@ -189,6 +193,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
@@ -244,7 +249,28 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		unbinder.unbind();
 	}
 
-	@NonNull
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.game_collection_fragment, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_discard).setVisible(!isInEditMode); // TODO - only if modified
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_discard:
+				TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId));
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
