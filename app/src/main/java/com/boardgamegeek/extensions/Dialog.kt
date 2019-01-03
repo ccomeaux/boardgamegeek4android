@@ -35,6 +35,7 @@ private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentMana
     dialog.show(ft, tag)
 }
 
+// TODO - use showAndSurvive instead
 fun FragmentActivity.showFragment(fragment: DialogFragment, tag: String) {
     val ft = supportFragmentManager.beginTransaction()
     val prev = supportFragmentManager.findFragmentByTag(tag)
@@ -58,7 +59,7 @@ fun createDiscardDialog(
         R.string.discard_new_message
     else
         R.string.discard_changes_message)
-    return createThemedBuilder(activity)
+    return activity.createThemedBuilder()
             .setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
             .setPositiveButton(positiveButtonResId, null)
             .setNegativeButton(R.string.discard) { _, _ ->
@@ -72,6 +73,6 @@ fun createDiscardDialog(
             .create()
 }
 
-fun createThemedBuilder(context: Context): AlertDialog.Builder {
-    return AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
+fun Context.createThemedBuilder(): AlertDialog.Builder {
+    return AlertDialog.Builder(this, R.style.Theme_bgglight_Dialog_Alert)
 }
