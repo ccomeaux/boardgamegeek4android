@@ -23,6 +23,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
+import com.boardgamegeek.extensions.DialogUtils;
 import com.boardgamegeek.extensions.IntKt;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
@@ -40,7 +41,6 @@ import com.boardgamegeek.ui.widget.RatingView;
 import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -266,7 +266,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				DialogUtils.createDiscardDialog(getActivity(), R.string.collection_item, false, false,
+				DialogUtils.createDiscardDialog(getActivity(), R.string.collection_item, false, false, R.string.keep,
 					() -> TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId))
 				).show();
 				return true;
