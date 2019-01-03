@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
@@ -62,7 +63,7 @@ public class TableBuilder {
 		}
 		sb.append(")");
 		Timber.d(sb.toString());
-		db.execSQL(sb.toString());
+		db.execSQL(String.format(Locale.ROOT, sb.toString()));
 	}
 
 	public void replace(SQLiteDatabase db) {
@@ -90,7 +91,7 @@ public class TableBuilder {
 	}
 
 	private void rename(SQLiteDatabase db) {
-		db.execSQL("ALTER TABLE " + tableName + " RENAME TO " + tempTable());
+		db.execSQL(String.format(Locale.ROOT, "ALTER TABLE %s  RENAME TO %s", tableName, tempTable()));
 	}
 
 	private void copy(SQLiteDatabase db, Map<String, String> columnMap, String joinTable, String joinColumn) {
@@ -114,11 +115,11 @@ public class TableBuilder {
 		String sql = String.format("INSERT INTO %s(%s) SELECT %s FROM %s",
 			tableName, destinationColumns.toString(), sourceColumns.toString(), destinationTable);
 		Timber.d(sql);
-		db.execSQL(sql);
+		db.execSQL(String.format(Locale.ROOT, sql));
 	}
 
 	private void dropTemp(SQLiteDatabase db) {
-		db.execSQL("DROP TABLE " + tempTable());
+		db.execSQL(String.format(Locale.ROOT, "DROP TABLE %s", tempTable()));
 	}
 
 	public TableBuilder setTable(String table) {

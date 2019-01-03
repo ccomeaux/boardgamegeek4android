@@ -39,6 +39,7 @@ import com.boardgamegeek.util.TaskUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
@@ -647,6 +648,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					version = VER_PLAYS_START_TIME;
 				case VER_PLAYS_START_TIME:
 					addColumn(db, Tables.PLAYS, Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER);
+					// TODO: 8/28/17
 					db.execSQL("UPDATE " + Tables.PLAYS + " SET " + Plays.PLAYER_COUNT + "= (SELECT COUNT("
 						+ PlayPlayers.USER_ID + ")" + " FROM " + Tables.PLAY_PLAYERS + " WHERE " + Tables.PLAYS + "."
 						+ Plays.PLAY_ID + "=" + Tables.PLAY_PLAYERS + "." + PlayPlayers.PLAY_ID + ")");
@@ -706,7 +708,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					String sql = String.format(
 						"UPDATE %1$s SET %4$s = (SELECT %2$s.object_id FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s), %5$s = (SELECT %2$s.name FROM %2$s WHERE %2$s.%3$s = %1$s.%3$s)",
 						Tables.PLAYS, playItemsTableName, Plays.PLAY_ID, Plays.OBJECT_ID, Plays.ITEM_NAME);
-					db.execSQL(sql);
+					db.execSQL(String.format(Locale.ROOT, sql));
 					dropTable(db, playItemsTableName);
 					version = VER_PLAY_ITEMS_COLLAPSE;
 				case VER_PLAY_ITEMS_COLLAPSE:
@@ -716,35 +718,40 @@ public class BggDatabase extends SQLiteOpenHelper {
 					version = VER_PLAY_PLAYERS_KEY;
 				case VER_PLAY_PLAYERS_KEY:
 					addColumn(db, Tables.PLAYS, Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-					db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=3",
+					db.execSQL(String.format(Locale.ROOT,
+						"UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=3",
 						Tables.PLAYS,
 						Plays.DELETE_TIMESTAMP,
 						System.currentTimeMillis())); // 3 = deleted sync status
 					version = VER_PLAY_DELETE_TIMESTAMP;
 				case VER_PLAY_DELETE_TIMESTAMP:
 					addColumn(db, Tables.PLAYS, Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER);
-					db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=1",
+					db.execSQL(String.format(Locale.ROOT,
+						"UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=1",
 						Tables.PLAYS,
 						Plays.UPDATE_TIMESTAMP,
 						System.currentTimeMillis())); // 1 = update sync status
 					version = VER_PLAY_UPDATE_TIMESTAMP;
 				case VER_PLAY_UPDATE_TIMESTAMP:
 					addColumn(db, Tables.PLAYS, Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER);
-					db.execSQL(String.format("UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=2",
+					db.execSQL(String.format(Locale.ROOT,
+						"UPDATE %s SET %s=%s, sync_status=0 WHERE sync_status=2",
 						Tables.PLAYS,
 						Plays.DIRTY_TIMESTAMP,
 						System.currentTimeMillis())); // 2 = in progress
 					version = VER_PLAY_DIRTY_TIMESTAMP;
 				case VER_PLAY_DIRTY_TIMESTAMP:
 					buildPlaysTable().replace(db);
-					db.execSQL(String.format("UPDATE %s SET %s=null WHERE %s>=100000000 AND (%s>0 OR %s>0 OR %s>0)",
+					db.execSQL(String.format(Locale.ROOT,
+						"UPDATE %s SET %s=null WHERE %s>=100000000 AND (%s>0 OR %s>0 OR %s>0)",
 						Tables.PLAYS,
 						Plays.PLAY_ID,
 						Plays.PLAY_ID,
 						Plays.DIRTY_TIMESTAMP,
 						Plays.UPDATE_TIMESTAMP,
 						Plays.DELETE_TIMESTAMP));
-					db.execSQL(String.format("UPDATE %s SET %s=%s, %s=null WHERE %s>=100000000",
+					db.execSQL(String.format(Locale.ROOT,
+						"UPDATE %s SET %s=%s, %s=null WHERE %s>=100000000",
 						Tables.PLAYS,
 						Plays.DIRTY_TIMESTAMP,
 						System.currentTimeMillis(),
@@ -824,12 +831,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 	}
 
 	private void dropTable(@NonNull SQLiteDatabase db, String tableName) {
-		db.execSQL("DROP TABLE IF EXISTS " + tableName);
+		db.execSQL(String.format(Locale.ROOT, "DROP TABLE IF EXISTS %s", tableName));
 	}
 
 	private void addColumn(@NonNull SQLiteDatabase db, String table, String column, COLUMN_TYPE type) {
 		try {
-			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+			db.execSQL(String.format(Locale.ROOT, "ALTER TABLE %s ADD COLUMN %s %s", table, column, type));
 		} catch (SQLException e) {
 			Timber.w(e, "Probably just trying to add an existing column.");
 		}
