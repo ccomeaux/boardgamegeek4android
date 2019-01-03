@@ -179,6 +179,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private boolean needsUploading;
 	@State boolean isItemEditable;
 	private boolean isInEditMode;
+	private boolean isDirty = false;
 
 	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
 		Bundle args = new Bundle();
@@ -258,14 +259,16 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		menu.findItem(R.id.menu_discard).setVisible(!isInEditMode); // TODO - only if modified
+		menu.findItem(R.id.menu_discard).setVisible(!isInEditMode && isDirty);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId));
+				DialogUtils.createDiscardDialog(getActivity(), R.string.collection_item, false, false,
+					() -> TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId))
+				).show();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -297,6 +300,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 			CollectionItem item = CollectionItem.fromCursor(cursor);
 			internalId = item.getInternalId();
+			isDirty = item.isDirty();
 			updateUi(item);
 
 			if (mightNeedRefreshing) {
