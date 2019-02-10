@@ -3,12 +3,6 @@ package com.boardgamegeek.ui;
 import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,17 +13,27 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.entities.RefreshableResource;
+import com.boardgamegeek.entities.Status;
+import com.boardgamegeek.entities.UserEntity;
 import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.pref.SettingsActivity;
-import com.boardgamegeek.tasks.sync.SyncUserTask;
-import com.boardgamegeek.tasks.sync.SyncUserTask.CompletedEvent;
+import com.boardgamegeek.ui.viewmodel.SelfUserViewModel;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.TaskUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
@@ -43,6 +47,8 @@ public abstract class DrawerActivity extends BaseActivity {
 	@BindView(R.id.left_drawer) LinearLayout drawerList;
 	@BindView(R.id.toolbar) Toolbar toolbar;
 	@Nullable @BindView(R.id.root_container) ViewGroup rootContainer;
+
+	private SelfUserViewModel viewModel;
 
 	protected int getDrawerResId() {
 		return 0;
@@ -60,6 +66,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			drawerLayout.setStatusBarBackgroundColor(ContextCompat.getColor(this, R.color.primary_dark));
 		}
+		viewModel = ViewModelProviders.of(this).get(SelfUserViewModel.class);
 	}
 
 	@LayoutRes
@@ -70,7 +77,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-
+		EventBus.getDefault().register(this);
 		if (!PreferencesUtils.hasSeenNavDrawer(this)) {
 			drawerLayout.openDrawer(GravityCompat.START);
 			PreferencesUtils.sawNavDrawer(this);
@@ -83,26 +90,16 @@ public abstract class DrawerActivity extends BaseActivity {
 		refreshDrawer();
 	}
 
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(CompletedEvent event) {
-		if (!TextUtils.isEmpty(event.getErrorMessage())) {
-			Account account = Authenticator.getAccount(this);
-			if (account != null && event.getUsername().equals(account.name)) {
-				refreshDrawer();
-			}
-		}
+	@Override
+	protected void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SignInEvent event) {
-		if (!TextUtils.isEmpty(event.getUsername()))
-			onSignInSuccess();
-	}
-
-	protected void onSignInSuccess() {
-		refreshDrawer();
+		refreshUser(event.getUsername());
 	}
 
 	private void refreshDrawer() {
@@ -195,12 +192,11 @@ public abstract class DrawerActivity extends BaseActivity {
 		if (TextUtils.isEmpty(fullName)) {
 			if (TextUtils.isEmpty(username)) {
 				Account account = Authenticator.getAccount(this);
-				if (account != null) {
-					TaskUtils.executeAsyncTask(new SyncUserTask(this, account.name));
-				}
+				if (account != null) refreshUser(account.name);
 				return null;
 			} else {
 				((TextView) view.findViewById(R.id.account_info_primary)).setText(username);
+				refreshUser(username);
 			}
 		} else {
 			((TextView) view.findViewById(R.id.account_info_primary)).setText(fullName);
@@ -208,7 +204,6 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		String avatarUrl = AccountUtils.getAvatarUrl(this);
-		if (avatarUrl == null) avatarUrl = "";
 		final ImageView imageView = view.findViewById(R.id.account_image);
 		if (TextUtils.isEmpty(avatarUrl)) {
 			imageView.setVisibility(View.GONE);
@@ -218,6 +213,22 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		return view;
+	}
+
+	private void refreshUser(String username) {
+		if (TextUtils.isEmpty(username)) return;
+		viewModel.setUsername(username);
+		viewModel.getUser().observe(this, new Observer<RefreshableResource<UserEntity>>() {
+			@Override
+			public void onChanged(RefreshableResource<UserEntity> userEntityRefreshableResource) {
+				if (userEntityRefreshableResource != null &&
+					userEntityRefreshableResource.getStatus() == Status.SUCCESS &&
+					userEntityRefreshableResource.getData() != null &&
+					!TextUtils.isEmpty(userEntityRefreshableResource.getData().getUserName())) {
+					refreshDrawer();
+				}
+			}
+		});
 	}
 
 	private View makeNavDrawerBuffer(ViewGroup container) {

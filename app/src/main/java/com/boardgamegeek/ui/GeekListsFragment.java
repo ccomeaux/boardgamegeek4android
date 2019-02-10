@@ -2,13 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +22,13 @@ import com.boardgamegeek.util.fabric.SortEvent;
 
 import java.util.List;
 
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -72,7 +72,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public void onResume() {
 		super.onResume();
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
 	@DebugLog
@@ -136,7 +136,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 			if (adapter != null) {
 				adapter.clear();
 			}
-			getLoaderManager().restartLoader(LOADER_ID, null, this);
+			LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
 			SortEvent.log("GeekLists", String.valueOf(sortType));
 			return true;
 		}
@@ -146,7 +146,6 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@DebugLog
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 
 		recyclerView.setHasFixedSize(true);
@@ -171,7 +170,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 
 	private GeekListsLoader getLoader() {
 		if (isAdded()) {
-			Loader<PaginatedData<GeekListEntry>> loader = getLoaderManager().getLoader(LOADER_ID);
+			Loader<PaginatedData<GeekListEntry>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
 			return (GeekListsLoader) loader;
 		}
 		return null;
@@ -179,7 +178,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 
 	public void loadMoreResults() {
 		if (isAdded()) {
-			Loader<List<GeekListEntry>> loader = getLoaderManager().getLoader(LOADER_ID);
+			Loader<List<GeekListEntry>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
 			if (loader != null) {
 				loader.forceLoad();
 			}

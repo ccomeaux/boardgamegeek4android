@@ -2,11 +2,12 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import android.util.SparseArray
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getInt
+import com.boardgamegeek.entities.RANK_UNKNOWN
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.Games
 import java.text.NumberFormat
 
@@ -14,19 +15,16 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     private val defaultHeaderText = context.resources.getString(R.string.unranked)
     private val defaultText = context.resources.getString(R.string.text_not_available)
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_rank
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_rank
 
-    public override val typeResource: Int
-        @StringRes
-        get() = R.string.collection_sort_type_rank
+    @StringRes
+    public override val typeResId = R.string.collection_sort_type_rank
 
-    override val sortColumn: String
-        get() = Games.GAME_RANK
+    override val sortColumn = Games.GAME_RANK
 
     public override fun getHeaderText(cursor: Cursor): String {
-        val rank = cursor.getInt(Games.GAME_RANK, Integer.MAX_VALUE)
+        val rank = cursor.getInt(Games.GAME_RANK, RANK_UNKNOWN)
         return (0 until RANKS.size())
                 .map { RANKS.keyAt(it) }
                 .firstOrNull { rank <= it }
@@ -35,8 +33,8 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     }
 
     override fun getDisplayInfo(cursor: Cursor): String {
-        val rank = cursor.getInt(Games.GAME_RANK, Integer.MAX_VALUE)
-        return if (rank == Integer.MAX_VALUE) {
+        val rank = cursor.getInt(Games.GAME_RANK, RANK_UNKNOWN)
+        return if (rank == RANK_UNKNOWN) {
             defaultText
         } else NUMBER_FORMAT.format(rank)
     }

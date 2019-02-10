@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+	android:id="@+id/swipeRefresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -9,48 +9,61 @@
 	app:layout_behavior="@string/appbar_scrolling_view_behavior"
 	tools:context=".ui.GameActivity">
 
-	<android.support.v4.widget.NestedScrollView
+	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<LinearLayout
+		<FrameLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			android:paddingTop="@dimen/padding_standard">
+			android:layout_height="match_parent">
 
-			<TextView
-				android:id="@+id/empty"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="@dimen/material_margin_horizontal"
-				android:text="@string/empty_game_collection"
-				android:textAppearance="@style/Text.Empty"
-				android:visibility="gone"
-				tools:visibility="visible"/>
-
-			<LinearLayout
-				android:id="@+id/collection_container"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"/>
-
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/sync_timestamp"
-				style="@style/Text.Footnote2"
+			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+				android:id="@+id/progressView"
+				style="?android:attr/progressBarStyleLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
-				app:emptyMessage="@string/needs_updating"
-				app:format="@string/synced_prefix"
-				tools:text="Yesterday"/>
+				android:layout_gravity="center"
+				android:gravity="center"
+				android:padding="@dimen/material_margin_horizontal"/>
 
-			<View
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/fab_buffer"
-				android:minHeight="@dimen/fab_buffer"/>
-		</LinearLayout>
-	</android.support.v4.widget.NestedScrollView>
-</android.support.v4.widget.SwipeRefreshLayout>
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:paddingTop="@dimen/padding_standard">
+
+				<TextView
+					android:id="@+id/emptyMessage"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:padding="@dimen/material_margin_horizontal"
+					android:text="@string/empty_game_collection"
+					android:textAppearance="@style/Text.Empty"
+					android:visibility="gone"
+					tools:visibility="visible"/>
+
+				<androidx.recyclerview.widget.RecyclerView
+					android:id="@+id/recyclerView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"/>
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/syncTimestamp"
+					style="@style/Text.Footnote2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right"
+					android:paddingLeft="@dimen/material_margin_horizontal"
+					android:paddingRight="@dimen/material_margin_horizontal"
+					app:emptyMessage="@string/needs_updating"
+					app:format="@string/synced_prefix"
+					tools:text="Yesterday"/>
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/fab_buffer"
+					android:minHeight="@dimen/fab_buffer"/>
+			</LinearLayout>
+		</FrameLayout>
+	</androidx.core.widget.NestedScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public abstract class BaseFileProvider extends BaseProvider {
-	// private static final String TAG = makeLogTag(BaseFileProvider.class);
 
 	protected abstract String getContentPath();
 
@@ -65,22 +64,19 @@ public abstract class BaseFileProvider extends BaseProvider {
 				break;
 			case "w":
 			case "wt":
-				modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
-					| ParcelFileDescriptor.MODE_TRUNCATE;
+				modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_TRUNCATE;
 				break;
 			case "wa":
-				modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
-					| ParcelFileDescriptor.MODE_APPEND;
+				modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_APPEND;
 				break;
 			case "rw":
 				modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE;
 				break;
 			case "rwt":
-				modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE
-					| ParcelFileDescriptor.MODE_TRUNCATE;
+				modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_TRUNCATE;
 				break;
 			default:
-				throw new FileNotFoundException("Bad mode for " + uri + ": " + mode);
+				throw new FileNotFoundException(String.format("Bad mode for %s: %s", uri, mode));
 		}
 		return modeBits;
 	}

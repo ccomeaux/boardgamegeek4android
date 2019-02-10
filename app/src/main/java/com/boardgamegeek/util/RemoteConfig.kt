@@ -27,6 +27,11 @@ class RemoteConfig {
         const val KEY_SYNC_GAMES_DELETE_VIEW_HOURS = "sync_games_delete_view_hours"
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
+        const val KEY_REFRESH_GAME_MINUTES = "refresh_game_minutes"
+        const val KEY_REFRESH_GAME_COLLECTION_MINUTES = "refresh_game_collection_minutes"
+        const val KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES = "refresh_game_plays_partial_minutes"
+        const val KEY_REFRESH_GAME_PLAYS_FULL_HOURS = "refresh_game_plays_full_hours"
+
         const val KEY_RETRY_202_INITIAL_INTERVAL_MILLIS = "retry_202_initial_interval_millis"
         const val KEY_RETRY_202_RANDOMIZATION_FACTOR = "retry_202_randomization_factor"
         const val KEY_RETRY_202_MULTIPLIER = "retry_202_multiplier"
@@ -35,6 +40,8 @@ class RemoteConfig {
         const val KEY_RETRY_429_MAX_BACKOFF_COUNT = "retry_429_max_backoff_count"
 
         const val KEY_FETCH_IMAGE_WITH_API = "fetch_image_with_api"
+
+        const val KEY_PRIVACY_CHECK_WEEKS = "privacy_check_weeks"
 
         @JvmStatic
         fun init() {

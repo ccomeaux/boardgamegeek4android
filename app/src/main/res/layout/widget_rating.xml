@@ -9,7 +9,7 @@
 	tools:parentTag="android.widget.LinearLayout">
 
 	<TextView
-		android:id="@+id/rating_value"
+		android:id="@+id/ratingView"
 		style="@style/RatingLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -18,11 +18,11 @@
 		tools:text="9.5"/>
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/rating_timestamp"
-		style="@style/Text.Footnote2"
+		android:id="@+id/timestampView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"
+		android:textAppearance="@style/Text.Footnote2"
 		app:hideWhenEmpty="true"
 		tools:text="Yesterday"/>
 </merge>

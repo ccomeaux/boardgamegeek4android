@@ -2,23 +2,17 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.getInt
+import com.boardgamegeek.extensions.asYear
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.PresentationUtils
 
 abstract class YearPublishedSorter(context: Context) : CollectionSorter(context) {
-    private val columnName = Collection.YEAR_PUBLISHED
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_year_published
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_year_published
+    override val sortColumn = Collection.YEAR_PUBLISHED
 
-    override val sortColumn: String
-        get() = columnName
-
-    public override fun getHeaderText(cursor: Cursor): String {
-        return PresentationUtils.describeYear(context, cursor.getInt(columnName))
-    }
+    public override fun getHeaderText(cursor: Cursor) = cursor.getInt(sortColumn).asYear(context)
 }

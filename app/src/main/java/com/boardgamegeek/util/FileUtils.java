@@ -12,6 +12,7 @@ import com.boardgamegeek.provider.BggContract;
 import java.io.File;
 import java.io.IOException;
 
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 public class FileUtils {
@@ -21,12 +22,11 @@ public class FileUtils {
 	/**
 	 * Returns a usable filename from the specified URL.
 	 */
+	@Nullable
 	public static String getFileNameFromUrl(String url) {
 		if (!TextUtils.isEmpty(url) && !BggContract.INVALID_URL.equals(url)) {
 			int index = url.lastIndexOf('/');
-			if (index > 0) {
-				return url.substring(index + 1);
-			}
+			if (index > 0) return url.substring(index + 1);
 		}
 		return null;
 	}
@@ -52,7 +52,7 @@ public class FileUtils {
 	}
 
 	/**
-	 * Recursively delete everything in {@code dir}. From libcore.io.IoUtils and com.google.android.apps.iosched.
+	 * Recursively delete everything in {@code dir}.
 	 */
 	public static int deleteContents(File directory) throws IOException {
 		// TODO: this should specify paths as Strings rather than as Files

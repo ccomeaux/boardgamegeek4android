@@ -2,13 +2,13 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import java.util.Calendar;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 /**
@@ -154,15 +154,6 @@ public class CursorUtils {
 			cursor.moveToPosition(position);
 		}
 		return array;
-	}
-
-	public static long getDateInMillis(Cursor cursor, int columnIndex) {
-		String date = cursor.getString(columnIndex);
-		if (!TextUtils.isEmpty(date)) {
-			Calendar calendar = getCalendar(date);
-			return calendar.getTimeInMillis();
-		}
-		return 0;
 	}
 
 	/**

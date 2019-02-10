@@ -6,13 +6,12 @@
 	   tools:parentTag="android.widget.LinearLayout">
 
 	<FrameLayout
-		android:id="@+id/color_container"
 		android:layout_width="@dimen/edit_label_width"
 		android:layout_height="match_parent"
 		android:layout_gravity="left|center_vertical">
 
 		<ImageView
-			android:id="@+id/color_view"
+			android:id="@+id/colorView"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="left|center_vertical"
@@ -20,7 +19,7 @@
 			tools:background="#0f0"/>
 
 		<TextView
-			android:id="@+id/seat"
+			android:id="@+id/seatView"
 			style="@style/Text.Huge"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="match_parent"
@@ -30,7 +29,7 @@
 	</FrameLayout>
 
 	<LinearLayout
-		android:id="@+id/name_container"
+		android:id="@+id/nameContainer"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical"
@@ -38,28 +37,28 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/name"
+			android:id="@+id/nameView"
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="Chris"/>
 
 		<TextView
-			android:id="@+id/username"
+			android:id="@+id/usernameView"
 			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="ccomeaux"/>
 
 		<TextView
-			android:id="@+id/team_color"
+			android:id="@+id/teamColorView"
 			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="They"/>
 
 		<TextView
-			android:id="@+id/starting_position"
+			android:id="@+id/startingPositionView"
 			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -72,7 +71,7 @@
 		android:layout_gravity="center">
 
 		<ImageView
-			android:id="@+id/rating_button"
+			android:id="@+id/ratingButton"
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
@@ -82,7 +81,7 @@
 			tools:tintMode="src_in"/>
 
 		<TextView
-			android:id="@+id/rating"
+			android:id="@+id/ratingView"
 			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -96,7 +95,7 @@
 		android:layout_gravity="center">
 
 		<ImageView
-			android:id="@+id/score_button"
+			android:id="@+id/scoreButton"
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
@@ -106,7 +105,7 @@
 			tools:tintMode="src_in"/>
 
 		<TextView
-			android:id="@+id/score"
+			android:id="@+id/scoreView"
 			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -115,7 +114,7 @@
 	</FrameLayout>
 
 	<ImageView
-		android:id="@+id/more"
+		android:id="@+id/moreButton"
 		style="@style/Icon.Right"
 		android:layout_gravity="center"
 		android:background="?attr/selectableItemBackgroundBorderless"
@@ -124,7 +123,7 @@
 		tools:visibility="visible"/>
 
 	<ImageView
-		android:id="@+id/drag_handle"
+		android:id="@+id/dragHandle"
 		style="@style/Icon.Right"
 		android:layout_gravity="center"
 		android:contentDescription="@string/sort"

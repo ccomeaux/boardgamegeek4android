@@ -3,8 +3,8 @@ package com.boardgamegeek.tasks;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import android.widget.Toast;
 
 /**
@@ -32,7 +32,7 @@ public abstract class ToastingAsyncTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		@StringRes final int resId = result ? getSuccessMessageResource() : getFailureMessageResource();
-		if (resId > 0) {
+		if (resId != 0) {
 			Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
 		}
 	}

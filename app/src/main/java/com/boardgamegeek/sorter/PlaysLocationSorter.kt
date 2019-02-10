@@ -1,17 +1,15 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
-import android.support.annotation.StringRes
-
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.getString
 import com.boardgamegeek.provider.BggContract.Plays
+import com.boardgamegeek.ui.model.PlayModel
 
 class PlaysLocationSorter(context: Context) : PlaysSorter(context) {
     private val noLocation = context.getString(R.string.no_location)
 
-    override val descriptionId: Int
+    override val descriptionResId: Int
         @StringRes
         get() = R.string.menu_plays_sort_location
 
@@ -21,7 +19,8 @@ class PlaysLocationSorter(context: Context) : PlaysSorter(context) {
     override val sortColumn: String
         get() = Plays.LOCATION
 
-    public override fun getHeaderText(cursor: Cursor): String {
-        return cursor.getString(Plays.LOCATION, noLocation)
+    override fun getSectionText(play: PlayModel): String {
+        if (play.location.isBlank()) return noLocation
+        return play.location
     }
 }

@@ -8,11 +8,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -34,7 +29,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.adapter.PlayerNameAdapter;
-import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
+import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -46,11 +41,18 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.fabric.AddFieldEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -59,7 +61,7 @@ import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class LogPlayerActivity extends AppCompatActivity {
+public class LogPlayerActivity extends AppCompatActivity implements ColorPickerWithListenerDialogFragment.Listener {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
@@ -290,18 +292,13 @@ public class LogPlayerActivity extends AppCompatActivity {
 	@DebugLog
 	@OnClick(R.id.color_view)
 	public void onColorClick() {
-		ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), colors, teamColorView.getText().toString(), usedColors, null, 4);
-
-		fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
-			@Override
-			public void onColorSelected(String description, int color) {
-				teamColorView.setText(description);
-			}
-
-		});
-
+		ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(colors, teamColorView.getText().toString(), usedColors);
 		fragment.show(getSupportFragmentManager(), "color_picker");
+	}
+
+	@Override
+	public void onColorSelected(@NotNull String description, int color, int requestCode) {
+		teamColorView.setText(description);
 	}
 
 	@DebugLog
@@ -346,7 +343,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 	private void bindUi() {
 		if (hasAutoPosition()) {
 			titleView.setText(gameName);
-			subtitleView.setText(getString(R.string.title_player) + " #" + autoPosition);
+			subtitleView.setText(getString(R.string.generic_player, autoPosition));
 			headerView.setVisibility(View.GONE);
 			twoLineContainer.setVisibility(View.VISIBLE);
 		} else {
@@ -362,8 +359,8 @@ public class LogPlayerActivity extends AppCompatActivity {
 		}
 		scoreView.setTextKeepState(player.score);
 		ratingView.setTextKeepState((player.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(player.rating));
-		newView.setChecked(player.New());
-		winView.setChecked(player.Win());
+		newView.setChecked(player.isNew);
+		winView.setChecked(player.isWin);
 	}
 
 	@DebugLog
@@ -422,12 +419,12 @@ public class LogPlayerActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideNew() {
-		return !preferToShowNew && !userHasShownNew && !player.New();
+		return !preferToShowNew && !userHasShownNew && !player.isNew;
 	}
 
 	@DebugLog
 	private boolean shouldHideWin() {
-		return !preferToShowWin && !userHasShownWin && !player.Win();
+		return !preferToShowWin && !userHasShownWin && !player.isWin;
 	}
 
 	@DebugLog
@@ -549,7 +546,7 @@ public class LogPlayerActivity extends AppCompatActivity {
 		player.setStartingPosition(positionView.getText().toString().trim());
 		player.score = scoreView.getText().toString().trim();
 		player.rating = StringUtils.parseDouble(ratingView.getText().toString().trim());
-		player.New(newView.isChecked());
-		player.Win(winView.isChecked());
+		player.isNew = newView.isChecked();
+		player.isWin = winView.isChecked();
 	}
 }

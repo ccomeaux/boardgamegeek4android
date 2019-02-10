@@ -4,9 +4,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.ColorInt;
-import android.support.v4.util.ArrayMap;
-import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -18,11 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.ColorInt;
+import androidx.collection.ArrayMap;
+import androidx.core.view.ViewCompat;
+
 /**
  * Static methods for modifying and applying colors to views.
  */
 public class ColorUtils {
-	public static final int TRANSPARENT = 0;
 	private static final int BLACK = 0xFF000000;
 	// private static final int DKGRAY = 0xFF444444;
 	private static final int GRAY = 0xFF888888;
@@ -57,7 +57,7 @@ public class ColorUtils {
 	 */
 	public static int parseColor(String colorString) {
 		if (TextUtils.isEmpty(colorString)) {
-			return TRANSPARENT;
+			return Color.TRANSPARENT;
 		}
 		if (colorString.charAt(0) == '#') {
 			if (colorString.length() == 7 || colorString.length() == 9) {
@@ -69,7 +69,7 @@ public class ColorUtils {
 				}
 				return (int) color;
 			} else {
-				return TRANSPARENT;
+				return Color.TRANSPARENT;
 			}
 		} else {
 			Integer color = colorNameMap.get(formatKey(colorString));
@@ -77,7 +77,7 @@ public class ColorUtils {
 				return color;
 			}
 		}
-		return TRANSPARENT;
+		return Color.TRANSPARENT;
 	}
 
 	/**
@@ -87,14 +87,6 @@ public class ColorUtils {
 	public static int getRatingColor(double rating) {
 		int baseRating = MathUtils.constrain((int) rating, 0, 10);
 		return blendColors(RATING_COLORS[baseRating], RATING_COLORS[baseRating + 1], baseRating + 1 - rating);
-	}
-
-	/**
-	 * Returns a color based on the stage (1 - 5) using a proportional blend for any decimal places.
-	 */
-	public static int getFiveStageColor(double stage) {
-		int index = MathUtils.constrain((int) stage, 1, 5) - 1;
-		return blendColors(FIVE_STAGE_COLORS[index], FIVE_STAGE_COLORS[index + 1], index + 2 - stage);
 	}
 
 	/**
@@ -129,7 +121,7 @@ public class ColorUtils {
 		0x00ffffff
 	};
 
-	private static final ArrayMap<String, Integer> colorNameMap;
+	public static final ArrayMap<String, Integer> colorNameMap;
 	private static final ArrayList<Pair<String, Integer>> limitedColorNameList;
 	private static final ArrayList<Pair<String, Integer>> colorNameList;
 
@@ -197,7 +189,7 @@ public class ColorUtils {
 
 		Drawable currentDrawable = view.getBackground();
 		GradientDrawable backgroundDrawable;
-		if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
+		if (currentDrawable instanceof GradientDrawable) {
 			// Reuse drawable
 			backgroundDrawable = (GradientDrawable) currentDrawable;
 		} else {
@@ -229,7 +221,7 @@ public class ColorUtils {
 
 			Drawable currentDrawable = imageView.getDrawable();
 			GradientDrawable colorChoiceDrawable;
-			if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
+			if (currentDrawable instanceof GradientDrawable) {
 				// Reuse drawable
 				colorChoiceDrawable = (GradientDrawable) currentDrawable;
 			} else {
@@ -246,7 +238,7 @@ public class ColorUtils {
 
 			imageView.setImageDrawable(colorChoiceDrawable);
 		} else if (view instanceof TextView) {
-			if (color != ColorUtils.TRANSPARENT) {
+			if (color != Color.TRANSPARENT) {
 				((TextView) view).setTextColor(color);
 			}
 		}
@@ -256,7 +248,7 @@ public class ColorUtils {
 	 * Returns a darker version of the specified color. Returns a translucent gray for transparent colors.
 	 */
 	private static int darkenColor(int color) {
-		if (color == TRANSPARENT) {
+		if (color == Color.TRANSPARENT) {
 			return Color.argb(127, 127, 127, 127);
 		}
 		return Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256, Color.blue(color) * 192 / 256);
@@ -271,37 +263,9 @@ public class ColorUtils {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
 	}
 
-	public static final int[] FIVE_STAGE_COLORS = {
-		0xFF249563,
-		0xFF2FC482,
-		0xFF1D8ACD,
-		0xFF5369A2,
-		0xFFDF4751,
-		0x00ffffff
-		// 0xFFDB303B - alternate red color
-	};
-
-	/**
-	 * Create an array of random, but light, colors
-	 */
-	public static final int[] TWELVE_STAGE_COLORS = {
-		0xFFDFEBCC,
-		0xFFBBDCCD,
-		0xFF98CBCD,
-		0xFF78BCCF,
-		0xFF60A8CA,
-		0xFF5290BA,
-		0xFF4576A9,
-		0xFF385E99,
-		0xFF2B4489,
-		0xFF1E2C7A,
-		0xFF182161,
-		0xFF121848
-	};
-
 	@ColorInt
 	public static int getTextColor(int backgroundColor) {
-		return backgroundColor != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
+		return backgroundColor != Color.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
 			Color.WHITE :
 			Color.BLACK;
 	}

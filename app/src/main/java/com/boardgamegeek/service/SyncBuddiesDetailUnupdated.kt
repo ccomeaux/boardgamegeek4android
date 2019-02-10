@@ -1,17 +1,17 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.queryStrings
 import com.boardgamegeek.util.SelectionBuilder
 
 /**
  * Syncs all buddies that haven't been updated completely.
  */
-class SyncBuddiesDetailUnupdated(context: Context, service: BggService, syncResult: SyncResult) : SyncBuddiesDetail(context, service, syncResult) {
+class SyncBuddiesDetailUnupdated(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncBuddiesDetail(application, service, syncResult) {
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 

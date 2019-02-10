@@ -20,7 +20,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -29,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 import timber.log.Timber;
 
 /**
@@ -289,6 +290,7 @@ public class SelectionBuilder {
 		return String.format("(%1$S IS NOT NULL AND %1$S<>'')", columnName);
 	}
 
+	@NonNull
 	public static String whereZeroOrNull(String columnName) {
 		return String.format("(%1$s=0 OR %1$s IS NULL)", columnName);
 	}

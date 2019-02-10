@@ -3,8 +3,8 @@ package com.boardgamegeek.tasks.sync;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;

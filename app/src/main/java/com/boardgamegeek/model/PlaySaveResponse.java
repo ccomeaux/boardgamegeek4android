@@ -1,9 +1,8 @@
 package com.boardgamegeek.model;
 
-import android.support.annotation.NonNull;
-
 import com.boardgamegeek.provider.BggContract;
 
+import androidx.annotation.NonNull;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 

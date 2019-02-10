@@ -1,15 +1,14 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
-
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 
 /**
  * Syncs a number of games that haven't been updated in a long time.
  */
-class SyncGamesOldest(context: Context, service: BggService, syncResult: SyncResult) : SyncGames(context, service, syncResult) {
+class SyncGamesOldest(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncGames(application, service, syncResult) {
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 

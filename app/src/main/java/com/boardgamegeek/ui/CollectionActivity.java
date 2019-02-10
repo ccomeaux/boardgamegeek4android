@@ -10,32 +10,28 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.CollectionViewRequestedEvent;
-import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
+import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
+import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
@@ -44,11 +40,25 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
+public class CollectionActivity extends TopLevelSinglePaneActivity implements
+	LoaderCallbacks<Cursor>,
+	SaveViewDialogFragment.OnViewSavedListener,
+	DeleteViewDialogFragment.OnViewDeletedListener,
+	CollectionSortDialogFragment.Listener,
+	CollectionFilterDialogFragment.Listener {
 	private static final String KEY_VIEW_ID = "VIEW_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
@@ -85,7 +95,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			}
 		}
 		if (!isCreatingShortcut) {
-			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		}
 
 		if (savedInstanceState == null) {
@@ -145,18 +155,51 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		return R.string.title_collection;
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(@NonNull GameSelectedEvent event) {
-		GameActivity.start(this, event.getId(), event.getName());
+	@Override
+	public void onInsertRequested(String name, boolean isDefault) {
+		long viewId = ((CollectionFragment) getFragment()).insertView(name);
+		setOrRemoveDefault(viewId, isDefault);
+		notifyViewCreated(viewId, name);
+	}
+
+	@Override
+	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
+		((CollectionFragment) getFragment()).updateView(viewId);
+		setOrRemoveDefault(viewId, isDefault);
+		notifyViewCreated(viewId, name);
+	}
+
+	@Override
+	public void onViewDeleted(long viewId) {
+		CollectionViewManipulationEvent.log("Delete");
+		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
+		if (viewId == this.viewId) {
+			viewIndex = findViewIndex(PreferencesUtils.getViewDefaultId(this));
+		}
+	}
+
+	private void setOrRemoveDefault(long viewId, boolean isDefault) {
+		if (isDefault) {
+			// TODO: prompt the user if replacing a default
+			PreferencesUtils.putViewDefaultId(this, viewId);
+		} else {
+			if (viewId == PreferencesUtils.getViewDefaultId(this)) {
+				PreferencesUtils.removeViewDefaultId(this);
+			}
+		}
+	}
+
+	public void notifyViewCreated(long id, String name) {
+		CollectionViewManipulationEvent.log("Create", name);
+		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
+		viewIndex = findViewIndex(id);
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
-		Intent shortcutIntent = GameActivity.createIntentAsShortcut(event.getId(), event.getName());
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		if (shortcutIntent != null) {
 			Intent intent;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -189,14 +232,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
 		}
 		return shortcutManager.createShortcutResultIntent(builder.build());
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(@NonNull CollectionViewRequestedEvent event) {
-		viewId = event.getViewId();
-		viewIndex = findViewIndex(viewId);
 	}
 
 	@Nullable
@@ -278,6 +313,16 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			}
 		}
 		return index;
+	}
+
+	@Override
+	public void onSortSelected(int sortType) {
+		((CollectionFragment) getFragment()).setSort(sortType);
+	}
+
+	@Override
+	public void onFilterSelected(int filterType) {
+		((CollectionFragment) getFragment()).launchFilterDialog(filterType);
 	}
 
 	private interface Query {

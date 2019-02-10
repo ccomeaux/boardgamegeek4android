@@ -3,6 +3,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
 	<string name="pref_log">Logging plays</string>
+	<string name="pref_log_summary">Options to record plays</string>
 	<string name="pref_log_play">Log play</string>
 	<string name="pref_log_play_quick">Quick log play</string>
 	<string name="pref_edit_player">Edit player on add</string>
@@ -32,6 +33,7 @@
 	<string name="pref_log_stats_expansions">Include board game expansions</string>
 	<string name="pref_log_stats_accessories">Include board game accessories</string>
 	<string name="pref_sync">Sync</string>
+	<string name="pref_sync_summary">What and how to sync</string>
 	<string name="pref_sync_group_what">What</string>
 	<string name="pref_sync_group_how">How</string>
 	<string name="pref_sync_group_tasks">Tasks</string>
@@ -44,12 +46,14 @@
 	<string name="pref_sync_only_charging">Only while charging</string>
 	<string name="pref_sync_only_wifi">Only on WiFi</string>
 	<string name="pref_account">Account</string>
+	<string name="pref_account_summary">Sign in/out of your BGG account</string>
 	<string name="pref_sync_accounts">System Account</string>
 	<string name="pref_sync_sign_in">Sign in</string>
 	<string name="pref_sync_sign_out">Sign out</string>
 	<string name="pref_sync_sign_out_pos">Sign out</string>
 	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out? Data you have synced to this device will be deleted.</string>
 	<string name="pref_data">Data</string>
+	<string name="pref_data_summary">Manipulate the data stored on this device</string>
 	<string name="pref_sync_clear">Clear local data</string>
 	<string name="pref_sync_clear_pos">Clear</string>
 	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed, but you can always re-sync.</string>
@@ -73,6 +77,7 @@
 	<string name="pref_sync_timestamps_buddy">Last Buddy Sync</string>
 	<string name="pref_list_empty">&lt;None&gt;</string>
 	<string name="pref_advanced">Advanced</string>
+	<string name="pref_advanced_summary">Settings you probably shouldn\'t touch</string>
 	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
 	<string name="pref_advanced_forum_dates_off">Show relative times for all dates associated with forums (when the time is recent)</string>
 	<string name="pref_advanced_forum_dates_on">Always show absolute date/time for all dates associated with forums</string>
@@ -88,6 +93,7 @@
 	<string name="pref_advanced_notify_errors_off">Leave this off if you\'re not crashing</string>
 	<string name="pref_advanced_notify_errors_on">You will see the details of a crash in the notification bar - send this info to the developers!</string>
 	<string name="pref_about">About</string>
+	<string name="pref_about_summary">Info about the app\'s creation</string>
 	<string name="pref_about_version">Version</string>
 	<string name="pref_change_log">Release notes</string>
 	<string name="pref_about_authors">Authors</string>
@@ -100,6 +106,10 @@
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_thread">BoardGameGeek Thread</string>
 
+	<string name="intent_action_account">com.boardgamegeek.intent.action.ACCOUNT</string>
+	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
+	<string name="intent_action_data">com.boardgamegeek.intent.action.DATA</string>
+
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
@@ -109,16 +119,6 @@
 	<string name="library_Hugo_licenseId">apache_2_0</string>
 	<string name="library_Hugo_isOpenSource">true</string>
 	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
-
-	<string name="define_int_PhotoView"></string>
-	<string name="library_PhotoView_author">Chris Banes</string>
-	<string name="library_PhotoView_authorWebsite">https://chris.banes.me</string>
-	<string name="library_PhotoView_libraryName">PhotoView</string>
-	<string name="library_PhotoView_libraryDescription">Implementation of ImageView for Android that supports zooming, by various touch gestures.</string>
-	<string name="library_PhotoView_libraryVersion">1.2.4</string>
-	<string name="library_PhotoView_licenseId">apache_2_0</string>
-	<string name="library_PhotoView_isOpenSource">true</string>
-	<string name="library_PhotoView_repositoryLink">https://github.com/chrisbanes/PhotoView</string>
 
 	<string name="define_int_AndroidIcons"></string>
 	<string name="library_AndroidIcons_author">Opoloo</string>
@@ -130,6 +130,16 @@
 	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
 	<string name="library_AndroidIcons_isOpenSource">true</string>
 	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
+
+	<string name="define_int_NestedScrollWebView"></string>
+	<string name="library_NestedScrollWebView_author">Tobias Rohloff</string>
+	<string name="library_NestedScrollWebView_authorWebsite">https://github.com/tobiasrohloff</string>
+	<string name="library_NestedScrollWebView_libraryName">NestedScrollWebView for Android</string>
+	<string name="library_NestedScrollWebView_libraryDescription">An Android WebView that implements NestedScrollingChild, in order to use it with CoordinatorLayout and AppBarLayout.</string>
+	<string name="library_NestedScrollWebView_libraryVersion">1.0.2</string>
+	<string name="library_NestedScrollWebView_licenseId">apache_2_0</string>
+	<string name="library_NestedScrollWebView_isOpenSource">true</string>
+	<string name="library_NestedScrollWebView_repositoryLink">https://github.com/tobiasrohloff/NestedScrollWebView</string>
 
 	<string name="define_license_CCBYSA_4_0"></string>
 	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>

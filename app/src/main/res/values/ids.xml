@@ -9,18 +9,16 @@
 	<item name="version" type="id"/>
 	<!-- game header -->
 	<item name="game_name" type="id"/>
-	<!-- player order popup menu -->
-	<item name="menu_custom_player_order" type="id"/>
-	<item name="menu_pick_start_player" type="id"/>
-	<item name="menu_random_start_player" type="id"/>
-	<item name="menu_random_player_order" type="id"/>
 	<!-- image -->
 	<item name="url" type="id"/>
 
 	<item name="visibility" type="id"/>
 
 	<!-- plays summary -->
+	<item name="game_id" type="id"/>
 	<item name="image" type="id"/>
 	<item name="hero_image" type="id"/>
 
+	<!-- FAB -->
+	<item name="res_id" type="id"/>
 </resources>

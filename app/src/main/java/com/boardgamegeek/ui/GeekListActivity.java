@@ -3,13 +3,6 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -29,8 +22,18 @@ import com.boardgamegeek.util.StringUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
 	private static final String KEY_ID = "GEEK_LIST_ID";
@@ -43,6 +46,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	private String errorMessage;
 	private String descriptionFragmentTag;
 	private String itemsFragmentTag;
+	private GeekListPagerAdapter adapter;
 
 	public static void start(Context context, int id, String title) {
 		Intent starter = createIntent(context, id, title);
@@ -82,7 +86,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	@Override
 	public void onResume() {
 		super.onResume();
-		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
@@ -91,9 +95,10 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_view:
+				//noinspection SpellCheckingInspection
 				ActivityUtils.linkToBgg(this, "geeklist", geekListId);
 				return true;
 			case R.id.menu_share:
@@ -103,10 +108,10 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		return super.onOptionsItemSelected(item);
 	}
 
+	@NotNull
 	@Override
-	protected void setUpViewPager() {
-		GeekListPagerAdapter adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
-		viewPager.setAdapter(adapter);
+	protected FragmentPagerAdapter createAdapter() {
+		adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
 		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description, new ItemInstantiatedCallback() {
 			@Override
 			public void itemInstantiated(String tag) {
@@ -121,6 +126,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 				setItems();
 			}
 		});
+		return adapter;
 	}
 
 	private interface ItemInstantiatedCallback {
@@ -169,6 +175,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		}
 
 		@Override
+		@NonNull
 		public Object instantiateItem(ViewGroup container, int position) {
 			Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
 			TabInfo tabInfo = tabs.get(position);
@@ -185,12 +192,13 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
+	@NonNull
 	public Loader<SafeResponse<GeekListResponse>> onCreateLoader(int id, Bundle data) {
 		return new GeekListLoader(this, geekListId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
+	public void onLoadFinished(@NonNull Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
 		GeekListResponse body = data.getBody();
 		if (body == null) {
 			errorMessage = getString(R.string.empty_geeklist);
@@ -221,18 +229,13 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	private void setDescription() {
-		if (viewPager == null) return;
-		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
-
 		GeekListDescriptionFragment descriptionFragment = (GeekListDescriptionFragment) getSupportFragmentManager().findFragmentByTag(descriptionFragmentTag);
 		if (descriptionFragment != null) descriptionFragment.setData(geekList);
 	}
 
 	private void setItems() {
 		if (geekList == null || geekListItems == null) return;
-		if (viewPager == null) return;
-		GeekListPagerAdapter adapter = (GeekListPagerAdapter) viewPager.getAdapter();
 		if (adapter == null) return;
 
 		GeekListItemsFragment itemsFragment = (GeekListItemsFragment) getSupportFragmentManager().findFragmentByTag(itemsFragmentTag);
@@ -248,7 +251,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onLoaderReset(Loader<SafeResponse<GeekListResponse>> loader) {
+	public void onLoaderReset(@NonNull Loader<SafeResponse<GeekListResponse>> loader) {
 	}
 
 	private static class GeekListLoader extends BggLoader<SafeResponse<GeekListResponse>> {

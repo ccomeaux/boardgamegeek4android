@@ -14,25 +14,25 @@
 		android:paddingTop="@dimen/material_margin_vertical">
 
 		<com.boardgamegeek.ui.widget.StatBar
-			android:id="@+id/users_owning_bar"
+			android:id="@+id/numberOwningBar"
 			style="@style/StatRow"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"/>
 
 		<com.boardgamegeek.ui.widget.StatBar
-			android:id="@+id/users_trading_bar"
+			android:id="@+id/numberTradingBar"
 			style="@style/StatRow"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"/>
 
 		<com.boardgamegeek.ui.widget.StatBar
-			android:id="@+id/users_wanting_bar"
+			android:id="@+id/numberWantingBar"
 			style="@style/StatRow"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"/>
 
 		<com.boardgamegeek.ui.widget.StatBar
-			android:id="@+id/users_wishing_bar"
+			android:id="@+id/numberWishingBar"
 			style="@style/StatRow"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"/>

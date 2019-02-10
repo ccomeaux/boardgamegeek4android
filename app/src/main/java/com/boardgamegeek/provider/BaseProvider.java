@@ -8,7 +8,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -83,14 +83,14 @@ public abstract class BaseProvider {
 	@DebugLog
 	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
-		notifyChange(context, uri);
+		if (rowCount > 0) notifyChange(context, uri);
 		return rowCount;
 	}
 
 	@DebugLog
 	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).delete(db);
-		notifyChange(context, uri);
+		if (rowCount > 0) notifyChange(context, uri);
 		return rowCount;
 	}
 

@@ -2,17 +2,19 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.shortcut.CollectionShortcutTask;
 import com.boardgamegeek.util.shortcut.GameShortcutTask;
 
 import java.io.File;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Helps create shortcuts.

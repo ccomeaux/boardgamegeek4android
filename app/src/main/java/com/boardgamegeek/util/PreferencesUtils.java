@@ -6,16 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.ui.PlayStatsActivity;
-import com.boardgamegeek.ui.model.PlayStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +18,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.core.app.NotificationCompat;
 
 /**
  * Utility for getting and putting preferences.
@@ -37,8 +37,9 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
-	private static final String KEY_GAME_H_INDEX = "hIndex";
+	public static final String KEY_GAME_H_INDEX = "hIndex";
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
+	private static final String KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	public static final String KEY_LOGIN = "login";
@@ -46,7 +47,7 @@ public class PreferencesUtils {
 	public static final String KEY_SYNC_STATUSES = "sync_statuses";
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	public static final String KEY_SYNC_PLAYS = "syncPlays";
-	private static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
+	public static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
 	public static final String KEY_SYNC_BUDDIES = "syncBuddies";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
@@ -218,10 +219,6 @@ public class PreferencesUtils {
 		return putBoolean(context, KEY_SYNC_PLAYS, true);
 	}
 
-	public static long getSyncPlaysTimestamp(Context context) {
-		return getLong(context, KEY_SYNC_PLAYS_TIMESTAMP, 0);
-	}
-
 	public static boolean setSyncPlaysTimestamp(Context context) {
 		return putLong(context, KEY_SYNC_PLAYS_TIMESTAMP, System.currentTimeMillis());
 	}
@@ -254,6 +251,14 @@ public class PreferencesUtils {
 		return getBoolean(context, "sync_only_wifi", false);
 	}
 
+	public static Long getLastPrivacyCheckTimestamp(Context context) {
+		return getLong(context, KEY_PRIVACY_CHECK_TIMESTAMP, 0L);
+	}
+
+	public static boolean setLastPrivacyCheckTimestamp(Context context) {
+		return putLong(context, KEY_PRIVACY_CHECK_TIMESTAMP, System.currentTimeMillis());
+	}
+
 	public static boolean getForumDates(Context context) {
 		return getBoolean(context, "advancedForumDates", false);
 	}
@@ -266,13 +271,19 @@ public class PreferencesUtils {
 		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updatePlayStats(@Nullable Context context, PlayStats playStats) {
+	public static void updateGameHIndex(@Nullable Context context, int gameHIndex) {
 		if (context == null) return;
-		if (playStats == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateHIndex(context, editor, playStats.getGameHIndex(), KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
-		updateHIndex(context, editor, playStats.getPlayerHIndex(), KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
+		updateHIndex(context, editor, gameHIndex, KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
+		editor.apply();
+	}
+
+	public static void updatePlayerHIndex(@Nullable Context context, int playerHIndex) {
+		if (context == null) return;
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		updateHIndex(context, editor, playerHIndex, KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
 		editor.apply();
 	}
 
@@ -291,7 +302,7 @@ public class PreferencesUtils {
 		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
-			.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStats.class)
+			.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStatsActivity.class)
 			.setContentText(message)
 			.setContentIntent(pi);
 		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, id, builder);

@@ -7,11 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.setTextOrHide
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.setTextOrHide
-import com.boardgamegeek.use
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
-import com.boardgamegeek.util.PresentationUtils
 import java.util.*
 
 class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player, ArrayList<Result>()), Filterable {
@@ -119,7 +118,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
                         val lastName = it.getString(3) ?: ""
                         val nickname = it.getString(4) ?: ""
                         val avatarUrl = it.getString(5) ?: ""
-                        val fullName = PresentationUtils.buildFullName(firstName, lastName)
+                        val fullName = "${firstName.trim()} ${lastName.trim()}".trim()
 
                         results.add(Result(
                                 if (nickname.isBlank()) fullName else nickname,

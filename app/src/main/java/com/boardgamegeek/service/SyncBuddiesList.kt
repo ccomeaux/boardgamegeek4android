@@ -1,22 +1,17 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.Context
 import android.content.SyncResult
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
-import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.model.Buddy
 import com.boardgamegeek.model.User
-import com.boardgamegeek.model.persister.BuddyPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.PresentationUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
@@ -24,10 +19,11 @@ import java.io.IOException
 /**
  * Syncs the list of buddies. Only runs every few days.
  */
-class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(context, service, syncResult) {
+class SyncBuddiesList(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     @StringRes
     private var currentDetailResId: Int = 0
-    private var persister = BuddyPersister(context)
+    private val userDao = UserDao(this.application)
+    private var updateTimestamp = System.currentTimeMillis()
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
@@ -49,19 +45,18 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
                 return
             }
 
-            persister.resetTimestamp()
+            updateTimestamp = System.currentTimeMillis()
 
             updateNotification(R.string.sync_notification_buddies_list_downloading)
             val user = requestUser() ?: return
 
             updateNotification(R.string.sync_notification_buddies_list_storing)
-            storeUserInAuthenticator(user)
             persistUser(user)
 
             updateNotification(R.string.sync_notification_buddies_list_pruning)
             pruneOldBuddies()
 
-            SyncPrefs.setBuddiesTimestamp(context, persister.timestamp)
+            SyncPrefs.setBuddiesTimestamp(context, updateTimestamp)
         } finally {
             Timber.i("...complete!")
         }
@@ -92,20 +87,11 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
         return user
     }
 
-    private fun storeUserInAuthenticator(user: User) {
-        Authenticator.putUserId(context, user.id)
-        AccountUtils.setUsername(context, user.name)
-        AccountUtils.setFullName(context, PresentationUtils.buildFullName(user.firstName, user.lastName))
-        AccountUtils.setAvatarUrl(context, user.avatarUrl)
-    }
-
     private fun persistUser(user: User) {
-        var count = persister.saveBuddy(user.id, user.name, false)
+        var count = userDao.saveUser(user.id, user.name, false)
 
-        val buddies = user.buddies?.buddies ?: listOf<Buddy>()
-        for (buddy in buddies) {
-            val userId = buddy.id.toIntOrNull() ?: BggContract.INVALID_ID
-            count += persister.saveBuddy(userId, buddy.name, true)
+        (user.buddies?.buddies ?: emptyList()).forEach { buddy ->
+            count += userDao.saveUser(buddy.id.toIntOrNull() ?: BggContract.INVALID_ID, buddy.name)
         }
 
         syncResult.stats.numEntries += count.toLong()
@@ -113,10 +99,7 @@ class SyncBuddiesList(context: Context, service: BggService, syncResult: SyncRes
     }
 
     private fun pruneOldBuddies() {
-        val resolver = context.contentResolver
-        val count = resolver.delete(Buddies.CONTENT_URI,
-                Buddies.UPDATED_LIST + "<?",
-                arrayOf(persister.timestamp.toString()))
+        val count = userDao.deleteUsersAsOf(updateTimestamp)
         syncResult.stats.numDeletes += count.toLong()
         Timber.i("Pruned %,d users who are no longer buddies", count)
     }

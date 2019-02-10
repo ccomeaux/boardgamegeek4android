@@ -1,20 +1,16 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 import com.boardgamegeek.R
 
 class YearPublishedDescendingSorter(context: Context) : YearPublishedSorter(context) {
+    @StringRes
+    public override val typeResId = R.string.collection_sort_type_year_published_desc
 
-    public override val typeResource: Int
-        @StringRes
-        get() = R.string.collection_sort_type_year_published_desc
+    @StringRes
+    public override val subDescriptionResId = R.string.newest
 
-    override val isSortDescending: Boolean
-        get() = true
-
-    public override val subDescriptionId: Int
-        @StringRes
-        get() = R.string.newest
+    override val isSortDescending = true
 }

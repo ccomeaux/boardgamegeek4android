@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.model
 
-
 import android.database.Cursor
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Collection
@@ -23,6 +22,7 @@ data class CollectionItem(
         val acquiredFrom: String,
         val acquisitionDate: String,
         val privateComment: String,
+        val inventoryLocation: String,
         val privateInfoTimestamp: Long,
         val statusTimestamp: Long,
         val imageUrl: String,
@@ -50,12 +50,24 @@ data class CollectionItem(
         val hasPartsDirtyTimestamp: Long
 ) {
 
-    val safeWishlistPriorty: Int
+    val safeWishlistPriority: Int
         get() = when {
             wishlistPriority < 1 -> 1
             wishlistPriority > 5 -> 5
             else -> wishlistPriority
         }
+
+    fun isDirty(): Boolean {
+        return dirtyTimestamp > 0L ||
+                ratingTimestamp > 0L ||
+                commentTimestamp > 0L ||
+                privateInfoTimestamp > 0L ||
+                statusTimestamp > 0L ||
+                wishlistCommentDirtyTimestamp > 0L ||
+                tradeConditionDirtyTimestamp > 0L ||
+                wantPartsDirtyTimestamp > 0L ||
+                hasPartsDirtyTimestamp > 0L
+    }
 
     companion object {
         @JvmStatic
@@ -123,7 +135,8 @@ data class CollectionItem(
                 Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
                 Collection.WANT_PARTS_DIRTY_TIMESTAMP,
                 Collection.HAS_PARTS_DIRTY_TIMESTAMP,
-                Collection.COLLECTION_HERO_IMAGE_URL
+                Collection.COLLECTION_HERO_IMAGE_URL,
+                Collection.PRIVATE_INFO_INVENTORY_LOCATION
         )
 
         private const val ID = 0
@@ -169,6 +182,7 @@ data class CollectionItem(
         private const val WANT_PARTS_DIRTY_TIMESTAMP = 40
         private const val HAS_PARTS_DIRTY_TIMESTAMP = 41
         private const val COLLECTION_HERO_IMAGE_URL = 42
+        private const val PRIVATE_INFO_INVENTORY_LOCATION = 43
 
         @JvmStatic
         fun fromCursor(cursor: Cursor): CollectionItem {
@@ -190,6 +204,7 @@ data class CollectionItem(
                     cursor.getString(PRIVATE_INFO_ACQUIRED_FROM) ?: "",
                     cursor.getString(PRIVATE_INFO_ACQUISITION_DATE) ?: "",
                     cursor.getString(PRIVATE_INFO_COMMENT) ?: "",
+                    cursor.getString(PRIVATE_INFO_INVENTORY_LOCATION) ?: "",
                     cursor.getLong(PRIVATE_INFO_DIRTY_TIMESTAMP),
                     cursor.getLong(STATUS_DIRTY_TIMESTAMP),
                     cursor.getString(COLLECTION_IMAGE_URL) ?: "",

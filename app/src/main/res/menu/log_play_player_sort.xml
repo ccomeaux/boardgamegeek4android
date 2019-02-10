@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/menu_custom_player_order"
+		android:checkable="true"
+		android:title="@string/menu_custom_player_order"/>
+	<item
+		android:id="@+id/menu_pick_start_player"
+		android:title="@string/menu_pick_start_player"/>
+	<item
+		android:id="@+id/menu_random_start_player"
+		android:title="@string/menu_random_start_player"/>
+	<item
+		android:id="@+id/menu_random_player_order"
+		android:title="@string/menu_random_player_order"/>
+</menu>

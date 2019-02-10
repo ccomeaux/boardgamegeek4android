@@ -1,14 +1,13 @@
 package com.boardgamegeek.auth;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.boardgamegeek.util.HttpUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.LoginEvent;
 
 import java.io.IOException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import hugo.weaving.DebugLog;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;

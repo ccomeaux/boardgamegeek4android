@@ -3,19 +3,17 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import com.boardgamegeek.events.PlayDeletedEvent;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import androidx.fragment.app.Fragment;
 import icepick.Icepick;
 
 public class PlayActivity extends SimpleSinglePaneActivity {
@@ -32,8 +30,8 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	private String imageUrl;
 	private String heroImageUrl;
 
-	public static void start(Context context, PlaySelectedEvent event) {
-		Intent intent = createIntent(context, event.getInternalId(), event.getGameId(), event.getGameName(), event.getThumbnailUrl(), event.getImageUrl(), event.getHeroImageUrl());
+	public static void start(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
 		context.startActivity(intent);
 	}
 
@@ -52,8 +50,6 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		EventBus.getDefault().removeStickyEvent(PlaySelectedEvent.class);
 
 		if (savedInstanceState == null) {
 			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");

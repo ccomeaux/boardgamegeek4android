@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+	android:id="@+id/swipeRefresh"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"/>
+
+		<androidx.coordinatorlayout.widget.CoordinatorLayout
+			android:id="@+id/coordinatorLayout"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<androidx.recyclerview.widget.RecyclerView
+				android:id="@+id/recyclerView"
+				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:visibility="gone"
+				app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+				tools:listitem="@layout/row_buddy"/>
+
+			<LinearLayout
+				android:id="@+id/emptyContainer"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:gravity="center"
+				android:orientation="vertical"
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal"
+				android:paddingTop="@dimen/material_margin_vertical"
+				android:visibility="gone">
+
+				<TextView
+					android:id="@+id/emptyTextView"
+					style="@style/Text.Empty"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:text="@string/empty_buddies"/>
+
+				<Button
+					android:id="@+id/emptyButton"
+					style="@style/ColoredButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/padding_extra"
+					android:text="@string/sync"
+					android:visibility="gone"/>
+			</LinearLayout>
+		</androidx.coordinatorlayout.widget.CoordinatorLayout>
+	</FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

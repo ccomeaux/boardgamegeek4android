@@ -7,8 +7,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.NonNull;
-import android.support.v4.util.SimpleArrayMap;
+import androidx.annotation.NonNull;
+import androidx.collection.SimpleArrayMap;
 
 import java.io.FileNotFoundException;
 
@@ -80,6 +80,7 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new CollectionProvider());
 		addProvider(map, new CollectionIdProvider());
 		addProvider(map, new CollectionAcquiredFromProvider());
+		addProvider(map, new CollectionInventoryLocationProvider());
 
 		addProvider(map, new PlaysProvider());
 		addProvider(map, new PlaysIdProvider());
@@ -101,7 +102,6 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new GamesIdThumbnailProvider());
 		addProvider(map, new CollectionIdThumbnailProvider());
 		addProvider(map, new AvatarsProvider());
-		addProvider(map, new AvatarsIdProvider());
 		addProvider(map, new BuddiesIdAvatarProvider());
 
 		addProvider(map, new SearchSuggestProvider());

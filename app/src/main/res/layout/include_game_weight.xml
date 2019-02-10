@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	android:id="@+id/weight_root"
-	style="@style/CardRow"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/weightContainer"
+	style="@style/CardRow"
 	android:layout_width="0dp"
 	android:layout_height="match_parent"
 	android:layout_weight="1"
@@ -11,7 +11,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_weight"
+		android:id="@+id/weightIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_weight"/>
 
@@ -19,33 +19,46 @@
 		style="@style/CardRowContent"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:gravity="center_vertical"
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/game_weight_message"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:maxLines="2"
-			android:textAppearance="@style/Text"
-			tools:text="Light"/>
-
-		<TextView
-			android:id="@+id/game_weight_score"
-			style="@style/RatingSmall"
-			android:layout_width="64dp"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			tools:background="#088"
-			tools:text="1.23"/>
-
-		<TextView
-			android:id="@+id/game_weight_votes"
+			android:id="@+id/weightView"
+			style="@style/RatingSmall.Wide"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary.Small"
-			tools:text="42,000 votes"/>
+			tools:background="#088"
+			tools:text="Light"/>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/weightScoreView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:paddingEnd="@dimen/padding_mid_wide"
+				android:paddingRight="@dimen/padding_mid_wide"
+				android:textAppearance="@style/Text.Secondary.Small"
+				android:textStyle="bold"
+				android:visibility="gone"
+				tools:text="1.23"
+				tools:visibility="visible"/>
+
+			<TextView
+				android:id="@+id/weightVotesView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text.Secondary.Small"
+				android:visibility="gone"
+				tools:text="42,000 votes"
+				tools:visibility="visible"/>
+		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>
-
-				

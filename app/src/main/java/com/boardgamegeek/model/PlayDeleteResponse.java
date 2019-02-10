@@ -1,6 +1,6 @@
 package com.boardgamegeek.model;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

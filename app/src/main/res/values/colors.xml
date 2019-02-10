@@ -24,6 +24,7 @@
 	<color name="navdrawer_icon_tint">#75ffffff</color>
 	<color name="navdrawer_selected_row">#eeeeee</color>
 	<color name="disabled">#eee</color>
+	<color name="empty_tint">#aaaaaa</color>
 
 	<color name="best">#00a550</color>
 	<color name="recommended">#ffef00</color>
@@ -40,4 +41,6 @@
 
 	<color name="delete">#f00</color>
 	<color name="edit">#080</color>
+
+	<color name="fast_scroll_track">#eee</color>
 </resources>

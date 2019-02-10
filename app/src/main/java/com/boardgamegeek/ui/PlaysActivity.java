@@ -2,12 +2,9 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
@@ -17,7 +14,10 @@ import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 import hugo.weaving.DebugLog;
 
 public class PlaysActivity extends SimpleSinglePaneActivity {
@@ -43,19 +43,12 @@ public class PlaysActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NotNull Menu menu) {
 		boolean hide = playCount <= 0;
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
 			hide ? "" : String.format("%,d", playCount),
 			hide ? "" : sortName);
 		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(PlaySelectedEvent event) {
-		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")

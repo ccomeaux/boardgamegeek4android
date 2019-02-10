@@ -3,8 +3,8 @@ package com.boardgamegeek.tasks.sync;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;

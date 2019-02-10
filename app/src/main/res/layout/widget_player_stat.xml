@@ -10,7 +10,7 @@
 		android:orientation="horizontal">
 
 		<TextView
-			android:id="@+id/name"
+			android:id="@+id/nameView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="3"
@@ -18,7 +18,7 @@
 			tools:text="Chris (ccomeaux)"/>
 
 		<TextView
-			android:id="@+id/wins"
+			android:id="@+id/winCountView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="2"
@@ -26,7 +26,7 @@
 			android:textAppearance="@style/Text"/>
 
 		<TextView
-			android:id="@+id/play_count"
+			android:id="@+id/playCountView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
@@ -35,7 +35,7 @@
 	</LinearLayout>
 
 	<LinearLayout
-		android:id="@+id/scores"
+		android:id="@+id/scoresView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
@@ -57,7 +57,7 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/low_score"
+				android:id="@+id/lowScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:drawableLeft="@drawable/ic_score_low"
@@ -66,13 +66,13 @@
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"/>
 
-			<android.support.v4.widget.Space
+			<androidx.legacy.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"/>
 
 			<TextView
-				android:id="@+id/average_score"
+				android:id="@+id/averageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:drawableLeft="@drawable/ic_score_average"
@@ -81,13 +81,13 @@
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"/>
 
-			<android.support.v4.widget.Space
+			<androidx.legacy.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"/>
 
 			<TextView
-				android:id="@+id/average_win_score"
+				android:id="@+id/averageWinScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:drawableLeft="@drawable/ic_score_average_win"
@@ -96,13 +96,13 @@
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"/>
 
-			<android.support.v4.widget.Space
+			<androidx.legacy.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"/>
 
 			<TextView
-				android:id="@+id/high_score"
+				android:id="@+id/highScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:drawableLeft="@drawable/ic_score_high"
@@ -113,7 +113,7 @@
 		</LinearLayout>
 
 		<com.boardgamegeek.ui.widget.ScoreGraphView
-			android:id="@+id/score_graph"
+			android:id="@+id/graphView"
 			android:layout_width="match_parent"
 			android:layout_height="40dp"/>
 

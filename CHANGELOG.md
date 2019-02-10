@@ -3,7 +3,20 @@ Release Notes
 
 Version 6.7
 -----------
- * Coming soon
+ * UI changes
+ * View and edit inventory location
+ * Improve search usability
+ * Ability to specify negative scores more easily
+ * Show collection status of expansion and base games
+ * Lots of under the hood improvements
+
+Version 6.6.7
+-------------
+ * Bug fixes
+
+Version 6.6.6
+-------------
+ * Bug fixes
 
 Version 6.6.5
 -------------

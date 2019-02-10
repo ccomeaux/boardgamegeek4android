@@ -4,12 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 public class CancelReceiver extends BroadcastReceiver {

@@ -18,7 +18,8 @@ import timber.log.Timber;
 public class DateTimeUtils {
 	public static final long UNPARSED_DATE = -2;
 	public static final long UNKNOWN_DATE = -1;
-	private static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	public static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	public static final DateFormat FORMAT_DATABASE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private static final String FORMAT_MINUTES = "%d:%02d";
 
 	private DateTimeUtils() {
@@ -52,6 +53,10 @@ public class DateTimeUtils {
 			return String.format(FORMAT_MINUTES, hours, minutes);
 		}
 		return "0:00";
+	}
+
+	public static int howManyWeeksOld(long time) {
+		return (int) ((System.currentTimeMillis() - time) / DateUtils.WEEK_IN_MILLIS);
 	}
 
 	/**
@@ -90,14 +95,6 @@ public class DateTimeUtils {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
 	}
 
-	public static String formatDateFromApi(Context context, String date) {
-		long millis = getMillisFromApiDate(date, Long.MAX_VALUE);
-		if (millis == Long.MAX_VALUE) {
-			return "";
-		}
-		return DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE);
-	}
-
 	public static long getMillisFromApiDate(String date, long defaultMillis) {
 		if (TextUtils.isEmpty(date)) {
 			return defaultMillis;
@@ -122,6 +119,12 @@ public class DateTimeUtils {
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(date);
 		return FORMAT_API.format(c.getTime());
+	}
+
+	public static String formatDateForDatabase(long date) {
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(date);
+		return FORMAT_DATABASE.format(c.getTime());
 	}
 
 	/**

@@ -11,31 +11,30 @@
 			  android:paddingRight="@dimen/material_margin_horizontal"
 			  android:paddingTop="@dimen/material_margin_vertical">
 
-	<android.support.design.widget.TextInputLayout
+	<com.google.android.material.textfield.TextInputLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:hint="@string/name">
 
-		<android.support.design.widget.TextInputEditText
-			android:id="@+id/name"
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/nameView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:inputType="textCapWords"
 			android:maxLines="1"/>
-	</android.support.design.widget.TextInputLayout>
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<CheckBox
-		android:id="@+id/default_view"
+		android:id="@+id/defaultViewCheckBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/set_as_default"/>
 
 	<TextView
-		android:id="@+id/description"
+		android:id="@+id/descriptionView"
 		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="left"
+		android:gravity="start"
 		tools:text="@tools:sample/lorem/random"/>
-
 </LinearLayout>

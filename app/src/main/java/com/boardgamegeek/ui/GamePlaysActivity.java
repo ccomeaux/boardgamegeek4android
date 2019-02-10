@@ -4,21 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
@@ -84,6 +84,10 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
 		arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 		iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT);
+
+		if (imageUrl == null) imageUrl = "";
+		if (thumbnailUrl == null) thumbnailUrl = "";
+		if (heroImageUrl == null) heroImageUrl = "";
 	}
 
 	@DebugLog
@@ -105,7 +109,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NotNull Menu menu) {
 		String countDescription = playCount <= 0 ? "" : String.valueOf(playCount);
 		ToolbarUtils.setActionBarText(menu, R.id.menu_text, countDescription);
 		return super.onPrepareOptionsMenu(menu);
@@ -113,21 +117,14 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity {
 
 	@DebugLog
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				GameActivity.startUp(this, gameId, gameName);
+				GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl);
 				finish();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(PlaySelectedEvent event) {
-		PlayActivity.start(this, event);
 	}
 
 	@SuppressWarnings("unused")

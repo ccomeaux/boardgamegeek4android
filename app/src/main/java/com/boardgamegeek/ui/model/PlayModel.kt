@@ -3,18 +3,22 @@ package com.boardgamegeek.ui.model
 import android.content.Context
 import android.database.Cursor
 import android.database.CursorIndexOutOfBoundsException
+import android.text.format.DateUtils
 import com.boardgamegeek.provider.BggContract
-
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.util.CursorUtils
 import timber.log.Timber
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PlayModel(
+        private val context: Context,
+        val internalId: Long,
         val playId: Int,
         val gameId: Int,
         val name: String = "",
-        val date: String = "",
+        private val rawDate: String = "",
         val location: String = "",
         val quantity: Int = 1,
         val length: Int = 0,
@@ -28,9 +32,32 @@ class PlayModel(
         val dirtyTimestamp: Long = 0
 ) {
 
-    private constructor() : this(BggContract.INVALID_ID, BggContract.INVALID_ID)
+    private constructor(context: Context) : this(context, BggContract.INVALID_ID.toLong(), BggContract.INVALID_ID, BggContract.INVALID_ID)
+
+    val date: String by lazy {
+        if (dateInMillis == UNKNOWN_DATE)
+            ""
+        else
+            DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_WEEKDAY or  DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL)
+    }
+
+    val dateInMillis: Long by lazy {
+        if (!rawDate.isEmpty()) {
+            try {
+                return@lazy FORMAT.parse(rawDate).time
+            } catch (e: ParseException) {
+                Timber.w(e, "Unable to parse %s as %s", rawDate, FORMAT)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                Timber.w(e, "Unable to parse %s as %s", rawDate, FORMAT)
+            }
+        }
+        UNKNOWN_DATE
+    }
 
     companion object {
+        const val UNKNOWN_DATE: Long = -1
+        private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
         @JvmStatic
         val projection = arrayOf(
                 Plays._ID,
@@ -51,6 +78,7 @@ class PlayModel(
                 Games.HERO_IMAGE_URL
         )
 
+        private const val INTERNAL_ID = 0
         private const val PLAY_ID = 1
         private const val DATE = 2
         private const val GAME_NAME = 3
@@ -71,10 +99,12 @@ class PlayModel(
         fun fromCursor(cursor: Cursor, context: Context): PlayModel {
             try {
                 return PlayModel(
+                        context,
+                        cursor.getLong(INTERNAL_ID),
                         cursor.getInt(PLAY_ID),
                         cursor.getInt(GAME_ID),
                         cursor.getString(GAME_NAME) ?: "",
-                        CursorUtils.getFormattedDateAbbreviated(cursor, context, DATE),
+                        cursor.getString(DATE) ?: "",
                         cursor.getString(LOCATION) ?: "",
                         cursor.getInt(QUANTITY),
                         cursor.getInt(LENGTH),
@@ -89,7 +119,7 @@ class PlayModel(
                 )
             } catch (e: CursorIndexOutOfBoundsException) {
                 Timber.w(e)
-                return PlayModel()
+                return PlayModel(context)
             }
         }
     }

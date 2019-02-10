@@ -1,6 +1,6 @@
 package com.boardgamegeek.ui.adapter;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,7 +71,10 @@ public class TopGamesAdapter extends RecyclerView.Adapter<TopGamesAdapter.ViewHo
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					GameActivity.start(itemView.getContext(), getGame().getId(), getGame().getName());
+					GameActivity.start(itemView.getContext(),
+						getGame().getId(),
+						getGame().getName(),
+						getGame().getThumbnailUrl());
 				}
 			});
 		}

@@ -11,21 +11,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -37,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -45,15 +31,29 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter;
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter.Callback;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.TaskUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,7 +69,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	private int gameId;
 	@ColorInt private int iconColor;
 	private GameColorRecyclerViewAdapter adapter;
-	private EditTextDialogFragment editTextDialogFragment;
 	private ActionMode actionMode;
 
 	private Unbinder unbinder;
@@ -101,7 +100,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@Nullable
 	@DebugLog
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		PresentationUtils.colorFab(fab, iconColor);
@@ -110,7 +109,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	}
 
 	private void setUpRecyclerView() {
-		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 		swipePaint.setColor(ContextCompat.getColor(getContext(), R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
@@ -157,12 +156,28 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 					if (dX > 0) {
 						background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-						iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getHeight());
-						iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+						iconSrc = new Rect(
+							0,
+							0,
+							Math.min((int) (dX - itemView.getLeft() - horizontalPadding), deleteIcon.getWidth()),
+							deleteIcon.getHeight());
+						iconDst = new RectF(
+							(float) itemView.getLeft() + horizontalPadding,
+							(float) itemView.getTop() + verticalPadding,
+							Math.min(itemView.getLeft() + horizontalPadding + deleteIcon.getWidth(), dX),
+							(float) itemView.getBottom() - verticalPadding);
 					} else {
 						background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
-						iconSrc = new Rect(Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, deleteIcon.getWidth(), deleteIcon.getHeight());
-						iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+						iconSrc = new Rect(
+							Math.max(deleteIcon.getWidth() + (int) horizontalPadding + (int) dX, 0),
+							0,
+							deleteIcon.getWidth(),
+							deleteIcon.getHeight());
+						iconDst = new RectF(
+							Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - deleteIcon.getWidth()),
+							(float) itemView.getTop() + verticalPadding,
+							(float) itemView.getRight() - horizontalPadding,
+							(float) itemView.getBottom() - verticalPadding);
 					}
 					c.drawRect(background, swipePaint);
 					c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
@@ -185,7 +200,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		super.onActivityCreated(savedInstanceState);
 		readBundle(getArguments());
 		PresentationUtils.colorFab(fab, iconColor);
-		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -212,7 +227,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Nullable
+	@NonNull
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -318,29 +333,18 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 	@DebugLog
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		if (adapter != null) {
-			adapter.changeCursor(null);
-		}
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		if (adapter != null) adapter.changeCursor(null);
 	}
 
 	@OnClick(R.id.fab)
 	public void onFabClicked() {
-		if (editTextDialogFragment == null) {
-			editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_add_color, null, new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					if (!TextUtils.isEmpty(inputText)) {
-						addColor(inputText);
-					}
-				}
-			});
-		}
+		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_add_color, "");
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
 	}
 
 	@DebugLog
-	private void addColor(String color) {
+	public void addColor(String color) {
 		ContentValues values = new ContentValues();
 		values.put(GameColors.COLOR, color);
 		getActivity().getContentResolver().insert(Games.buildColorsUri(gameId), values);

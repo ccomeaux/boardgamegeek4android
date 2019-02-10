@@ -2,7 +2,7 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.provider.BggContract.Collection
 
 abstract class CollectionSorter(context: Context) : Sorter(context) {
@@ -13,24 +13,22 @@ abstract class CollectionSorter(context: Context) : Sorter(context) {
     override val description: String
         get() {
             var description = super.description
-            if (subDescriptionId > 0) {
-                description += " - " + context.getString(subDescriptionId)
+            if (subDescriptionResId != 0) {
+                description += " - " + context.getString(subDescriptionResId)
             }
             return description
         }
 
-    protected open val subDescriptionId: Int
-        @StringRes
-        get() = 0
+    @StringRes
+    protected open val subDescriptionResId = 0
 
     override val type: Int
-        get() = context.getString(typeResource).toIntOrNull() ?: CollectionSorterFactory.TYPE_DEFAULT
+        get() = context.getString(typeResId).toIntOrNull() ?: CollectionSorterFactory.TYPE_DEFAULT
 
     @get:StringRes
-    protected abstract val typeResource: Int
+    protected abstract val typeResId: Int
 
-    override val defaultSort: String
-        get() = Collection.DEFAULT_SORT
+    override val defaultSort = Collection.DEFAULT_SORT
 
     /**
      * Gets the detail text to display on each row.

@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Chronometer;

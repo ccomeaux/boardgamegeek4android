@@ -1,17 +1,17 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.SyncResult
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.User
-import com.boardgamegeek.model.persister.BuddyPersister
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
 
-abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+abstract class SyncBuddiesDetail(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private var notificationMessage: String = ""
 
     /**
@@ -34,7 +34,7 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
                 return
             }
 
-            val persister = BuddyPersister(context)
+            val userDao = UserDao(application)
             var count = 0
             val names = fetchBuddyNames()
             Timber.i("...found %,d buddies to update", names.size)
@@ -50,7 +50,7 @@ abstract class SyncBuddiesDetail(context: Context, service: BggService, syncResu
 
                     val user = requestUser(name) ?: break
 
-                    persister.saveUser(user)
+                    userDao.saveUser(user)
                     syncResult.stats.numUpdates++
                     count++
 

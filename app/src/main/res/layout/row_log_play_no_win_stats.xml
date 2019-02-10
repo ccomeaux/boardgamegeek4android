@@ -6,7 +6,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<android.support.v7.widget.SwitchCompat
+	<androidx.appcompat.widget.SwitchCompat
 		android:id="@+id/log_play_no_win_stats"
 		style="@style/Text.Big"
 		android:layout_width="match_parent"

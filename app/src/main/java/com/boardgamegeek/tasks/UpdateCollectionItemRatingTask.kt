@@ -3,15 +3,11 @@ package com.boardgamegeek.tasks
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.use
-import hugo.weaving.DebugLog
 import timber.log.Timber
 
-class UpdateCollectionItemRatingTask @DebugLog
-constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val rating: Double) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
-
-    @DebugLog
+class UpdateCollectionItemRatingTask(context: Context?, gameId: Int, collectionId: Int, internalId: Long, private val rating: Double) : UpdateCollectionItemTask(context, gameId, collectionId, internalId) {
     override fun updateResolver(resolver: ContentResolver, internalId: Long): Boolean {
         val item = Item.fromResolver(resolver, internalId) ?: return false
         if (rating != item.rating) {
@@ -24,7 +20,6 @@ constructor(context: Context?, gameId: Int, collectionId: Int, internalId: Long,
         return false
     }
 
-    @DebugLog
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
         if (result == true) {

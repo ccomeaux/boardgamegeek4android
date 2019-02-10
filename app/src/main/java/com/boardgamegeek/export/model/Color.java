@@ -1,10 +1,11 @@
 package com.boardgamegeek.export.model;
 
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.google.gson.annotations.Expose;
+
+import androidx.annotation.NonNull;
 
 public class Color {
 	public static final String[] PROJECTION = new String[] {

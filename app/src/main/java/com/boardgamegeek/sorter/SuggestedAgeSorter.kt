@@ -2,30 +2,29 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 import com.boardgamegeek.R
-import com.boardgamegeek.getIntAsString
+import com.boardgamegeek.extensions.getIntAsString
 import com.boardgamegeek.provider.BggContract.Collection
 
 abstract class SuggestedAgeSorter(context: Context) : CollectionSorter(context) {
-    private val columnName = Collection.MINIMUM_AGE
     private val defaultValue = context.getString(R.string.text_unknown)
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_suggested_age
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_suggested_age
 
-    override val sortColumn: String
-        get() = columnName
+    override val sortColumn = Collection.MINIMUM_AGE
 
     public override fun getHeaderText(cursor: Cursor): String {
-        return cursor.getIntAsString(columnName, defaultValue, true)
+        return cursor.getIntAsString(sortColumn, defaultValue, true)
     }
 
     override fun getDisplayInfo(cursor: Cursor): String {
-        var info = getHeaderText(cursor)
-        if (defaultValue != info) info += "+"
-        return "${context.getString(R.string.ages)} $info"
+        val info = getHeaderText(cursor)
+        return when {
+            defaultValue != info -> "${context.getString(R.string.ages)} $info+"
+            else -> "${context.getString(R.string.ages)} $info"
+        }
     }
 }

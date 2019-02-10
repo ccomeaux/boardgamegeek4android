@@ -2,17 +2,17 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import com.boardgamegeek.getDouble
-import com.boardgamegeek.getString
-import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.extensions.asMoney
+import com.boardgamegeek.extensions.getDouble
+import com.boardgamegeek.extensions.getString
+import kotlin.math.ceil
 
 abstract class MoneySorter(context: Context) : CollectionSorter(context) {
 
     override val sortColumn: String
         get() = "$currencyColumnName DESC, $amountColumnName"
 
-    override val isSortDescending: Boolean
-        get() = true
+    override val isSortDescending = true
 
     protected abstract val amountColumnName: String
 
@@ -22,17 +22,11 @@ abstract class MoneySorter(context: Context) : CollectionSorter(context) {
         get() = arrayOf(currencyColumnName, amountColumnName)
 
     override fun getDisplayInfo(cursor: Cursor): String {
-        val amount = cursor.getDouble(amountColumnName)
-        val currency = cursor.getString(currencyColumnName)
-        val info = PresentationUtils.describeMoney(currency, amount)
-        return getInfoOrMissingInfo(info)
+        return getInfoOrMissingInfo(cursor.getDouble(amountColumnName).asMoney(cursor.getString(currencyColumnName)))
     }
 
     public override fun getHeaderText(cursor: Cursor): String {
-        val amount = round(cursor.getDouble(amountColumnName))
-        val currency = cursor.getString(currencyColumnName)
-        val info = PresentationUtils.describeMoneyWithoutDecimals(currency, amount)
-        return getInfoOrMissingInfo(info)
+        return getInfoOrMissingInfo(round(cursor.getDouble(amountColumnName)).asMoney(cursor.getString(currencyColumnName)))
     }
 
     private fun getInfoOrMissingInfo(info: String): String {
@@ -42,10 +36,10 @@ abstract class MoneySorter(context: Context) : CollectionSorter(context) {
     }
 
     private fun round(value: Double): Double {
-        return ((Math.ceil(value + 9) / 10).toInt() * 10).toDouble()
+        return ((ceil(value + 9) / 10).toInt() * 10).toDouble()
     }
 
     companion object {
-        val MISSING_DATA = "-"
+        private const val MISSING_DATA = "-"
     }
 }

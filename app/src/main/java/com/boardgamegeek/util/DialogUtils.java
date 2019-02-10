@@ -5,20 +5,17 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager.LayoutParams;
 
 import com.boardgamegeek.R;
+
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 /**
  * Helper class for creating and modifying dialogs.
@@ -34,7 +31,6 @@ public class DialogUtils {
 	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
 		final FragmentManager fragmentManager = host.getFragmentManager();
 		if (fragmentManager == null) return;
-
 		String tag = "dialog";
 
 		FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -61,13 +57,11 @@ public class DialogUtils {
 		return createThemedBuilder(activity)
 			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
 			.setPositiveButton(R.string.keep_editing, null)
-			.setNegativeButton(R.string.discard, new OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					if (listener != null) listener.onDiscard();
-					if (finishActivity) {
-						activity.setResult(Activity.RESULT_CANCELED);
-						activity.finish();
-					}
+			.setNegativeButton(R.string.discard, (dialog, id) -> {
+				if (listener != null) listener.onDiscard();
+				if (finishActivity) {
+					activity.setResult(Activity.RESULT_CANCELED);
+					activity.finish();
 				}
 			})
 			.setCancelable(true)
@@ -96,15 +90,5 @@ public class DialogUtils {
 		}
 		ft.addToBackStack(null);
 		fragment.show(ft, tag);
-	}
-
-	public static void requestFocus(@NonNull AlertDialog dialog) {
-		requestFocus(dialog, null);
-	}
-
-	public static void requestFocus(@NonNull AlertDialog dialog, View view) {
-		if (view != null) view.requestFocus();
-		Window window = dialog.getWindow();
-		if (window != null) window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 }

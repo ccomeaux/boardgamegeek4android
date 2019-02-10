@@ -3,13 +3,11 @@ package com.boardgamegeek.tasks
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.use
-import hugo.weaving.DebugLog
 import timber.log.Timber
 
-class UpdateCollectionItemStatusTask @DebugLog
-constructor(context: Context?,
+class UpdateCollectionItemStatusTask(context: Context?,
             gameId: Int,
             collectionId: Int,
             internalId: Long,
@@ -50,7 +48,7 @@ constructor(context: Context?,
 
     private fun putWishList(values: ContentValues, item: Item) {
         val futureValue = statuses.contains(Collection.STATUS_WISHLIST)
-        if (futureValue != item.wishList && wishListPriority != item.wishListPriority) {
+        if (futureValue != item.wishList || wishListPriority != item.wishListPriority) {
             if (statuses.contains(Collection.STATUS_WISHLIST)) {
                 values.put(Collection.STATUS_WISHLIST, 1)
                 values.put(Collection.STATUS_WISHLIST_PRIORITY, wishListPriority)
@@ -60,7 +58,6 @@ constructor(context: Context?,
         }
     }
 
-    @DebugLog
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
         if (result == true) {

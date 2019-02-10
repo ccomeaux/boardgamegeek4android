@@ -2,10 +2,11 @@ package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.support.annotation.LayoutRes;
-import android.support.v4.widget.CursorAdapter;
+import androidx.annotation.LayoutRes;
+import androidx.cursoradapter.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,7 @@ public class GameColorAdapter extends CursorAdapter {
 
 	private void setColor(ViewHolder holder, String colorName) {
 		int color = ColorUtils.parseColor(colorName);
-		if (color != ColorUtils.TRANSPARENT) {
+		if (color != Color.TRANSPARENT) {
 			ColorUtils.setColorViewValue(holder.color, color);
 		} else {
 			holder.color.setImageDrawable(null);

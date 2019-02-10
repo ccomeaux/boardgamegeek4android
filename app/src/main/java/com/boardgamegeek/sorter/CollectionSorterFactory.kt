@@ -32,6 +32,7 @@ class CollectionSorterFactory(context: Context) {
             add(AcquiredFromSorter(context))
             add(PricePaidSorter(context))
             add(CurrentValueSorter(context))
+            add(InventoryLocationSorter(context))
         }
     }
 

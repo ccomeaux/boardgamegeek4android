@@ -2,7 +2,6 @@ package com.boardgamegeek.pref
 
 import android.accounts.AccountManager
 import android.content.Context
-import android.text.TextUtils
 import com.boardgamegeek.PreferenceHelper
 import com.boardgamegeek.PreferenceHelper.get
 import com.boardgamegeek.PreferenceHelper.set
@@ -10,14 +9,15 @@ import com.boardgamegeek.auth.Authenticator
 
 class SyncPrefs {
     companion object {
+        const val NAME = "com.boardgamegeek.sync"
         private const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
         private const val TIMESTAMP_COLLECTION_PARTIAL = "TIMESTAMP_COLLECTION_PARTIAL"
         private const val TIMESTAMP_BUDDIES = "TIMESTAMP_BUDDIES"
-        private const val TIMESTAMP_PLAYS_NEWEST_DATE = "TIMESTAMP_PLAYS_NEWEST_DATE"
-        private const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
+        const val TIMESTAMP_PLAYS_NEWEST_DATE = "TIMESTAMP_PLAYS_NEWEST_DATE"
+        const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
         @JvmStatic
-        fun getPrefs(context: Context) = PreferenceHelper.customPrefs(context, "com.boardgamegeek.sync")
+        fun getPrefs(context: Context) = PreferenceHelper.get(context, NAME)
 
         @JvmStatic
         fun migrate(context: Context) {
@@ -102,14 +102,22 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getPlaysNewestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE, 0L] ?: 0L
+        fun getPlaysNewestTimestamp(context: Context): Long? {
+            val l: Long? = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE]
+            return when {
+                l == null -> null
+                l < 0L -> null
+                else -> l
+            }
+        }
 
         fun setPlaysNewestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE] = timestamp
         }
 
         @JvmStatic
-        fun getPlaysOldestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE, 0L] ?: 0L
+        fun getPlaysOldestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE]
+                ?: Long.MAX_VALUE
 
         fun setPlaysOldestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE] = timestamp
@@ -117,7 +125,7 @@ class SyncPrefs {
 
         @JvmStatic
         fun clearPlaysTimestamps(context: Context) {
-            setPlaysNewestTimestamp(context, 0L)
+            setPlaysNewestTimestamp(context, -1L)
             setPlaysOldestTimestamp(context, Long.MAX_VALUE)
         }
 
@@ -130,7 +138,7 @@ class SyncPrefs {
             val accountManager = AccountManager.get(context)
             val account = Authenticator.getAccount(accountManager) ?: return defaultValue
             val s = accountManager.getUserData(account, key)
-            return if (TextUtils.isEmpty(s)) defaultValue else java.lang.Long.parseLong(s)
+            return s?.toLongOrNull() ?: defaultValue
         }
     }
 }

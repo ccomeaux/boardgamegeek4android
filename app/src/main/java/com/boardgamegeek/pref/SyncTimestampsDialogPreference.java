@@ -2,7 +2,6 @@ package com.boardgamegeek.pref;
 
 import android.content.Context;
 import android.preference.DialogPreference;
-import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
+import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -49,15 +49,15 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		setDateTime(buddies, SyncPrefs.getBuddiesTimestamp(getContext()), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 
 		long oldestDate = SyncPrefs.getPlaysOldestTimestamp(getContext());
-		long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
-		if (oldestDate == 0 && newestDate == 0) {
+		Long newestDate = SyncPrefs.getPlaysNewestTimestamp(getContext());
+		if (oldestDate == Long.MAX_VALUE && (newestDate == null || newestDate <= 0L)) {
 			playsView.setText(R.string.plays_sync_status_none);
-		} else if (oldestDate == 0) {
-			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
-				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
-		} else if (newestDate == 0) {
+		} else if (newestDate == null || newestDate <= 0L) {
 			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_old),
 				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE)));
+		} else if (oldestDate <= 0L) {
+			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_new),
+				DateUtils.formatDateTime(getContext(), newestDate, DateUtils.FORMAT_SHOW_DATE)));
 		} else {
 			playsView.setText(String.format(getContext().getString(R.string.plays_sync_status_range),
 				DateUtils.formatDateTime(getContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),

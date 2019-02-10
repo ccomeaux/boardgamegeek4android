@@ -1,12 +1,10 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
-import android.support.annotation.StringRes
-
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.getInt
 import com.boardgamegeek.provider.BggContract.Plays
+import com.boardgamegeek.ui.model.PlayModel
 import java.text.NumberFormat
 
 class PlaysLengthSorter(context: Context) : PlaysSorter(context) {
@@ -15,7 +13,7 @@ class PlaysLengthSorter(context: Context) : PlaysSorter(context) {
     private val hoursSuffix = context.getString(R.string.hours_abbr)
     private val minutesSuffix = context.getString(R.string.minutes_abbr)
 
-    override val descriptionId: Int
+    override val descriptionResId: Int
         @StringRes
         get() = R.string.menu_plays_sort_length
 
@@ -28,8 +26,8 @@ class PlaysLengthSorter(context: Context) : PlaysSorter(context) {
     override val isSortDescending: Boolean
         get() = true
 
-    public override fun getHeaderText(cursor: Cursor): String {
-        val minutes = cursor.getInt(Plays.LENGTH)
+    override fun getSectionText(play: PlayModel): String {
+        val minutes = play.length
         return when {
             minutes == 0 -> noLength
             minutes >= 120 -> numberFormat.format(minutes / 60) + AND_MORE_SUFFIX + hoursSuffix

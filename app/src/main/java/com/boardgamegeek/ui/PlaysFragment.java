@@ -11,75 +11,89 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.DatePicker;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
+import com.boardgamegeek.events.SyncCompleteEvent;
+import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.sorter.PlaysSorter;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
-import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.model.PlayModel;
-import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
+import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashSet;
+import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import hugo.weaving.DebugLog;
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
-public class PlaysFragment extends StickyHeaderListFragment implements LoaderCallbacks<Cursor>, MultiChoiceModeListener, OnDateSetListener {
+public class PlaysFragment extends Fragment implements
+	LoaderCallbacks<Cursor>,
+	ActionMode.Callback,
+	OnDateSetListener,
+	OnRefreshListener {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
@@ -111,14 +125,21 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	private String heroImageUrl;
 	private boolean arePlayersCustomSorted;
 	private int filterType = FILTER_TYPE_STATUS_ALL;
-	private Sorter sorter;
+	private PlaysSorter sorter;
 	private boolean hasAutoSyncTriggered;
 	private int mode = MODE_ALL;
 	private String modeValue;
-	private final LinkedHashSet<Integer> selectedPlaysPositions = new LinkedHashSet<>();
-	private MenuItem sendMenuItem;
-	private MenuItem editMenuItem;
 	private ShowcaseView showcaseView;
+	private boolean isSyncing = false;
+	private ActionMode actionMode = null;
+
+	private Unbinder unbinder;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(android.R.id.list) RecyclerView listView;
+	@BindView(R.id.empty_container) ViewGroup emptyContainer;
+	@BindView(android.R.id.empty) TextView emptyTextView;
+	@BindView(R.id.fab) FloatingActionButton fabView;
 
 	public static PlaysFragment newInstance() {
 		Bundle args = new Bundle();
@@ -176,6 +197,39 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		setHasOptionsMenu(true);
 	}
 
+	@Nullable
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_plays, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
+
+		listView.setLayoutManager(new LinearLayoutManager(getContext()));
+		listView.setHasFixedSize(true);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EventBus.getDefault().unregister(this);
+	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -195,7 +249,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 				imageUrl = bundle.getString(KEY_IMAGE_URL);
 				heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
 				arePlayersCustomSorted = bundle.getBoolean(KEY_CUSTOM_PLAYER_SORT);
-				getLoaderManager().restartLoader(GameQuery._TOKEN, bundle, this);
+				LoaderManager.getInstance(this).restartLoader(GameQuery._TOKEN, bundle, this);
 				break;
 			case MODE_BUDDY:
 				modeValue = bundle.getString(PlaysFragment.KEY_MODE_VALUE);
@@ -217,23 +271,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		setEmptyText(getString(getEmptyStringResource()));
 		requery();
 
-		final StickyListHeadersListView listView = getListView();
-		if (listView != null) {
-			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-			listView.setMultiChoiceModeListener(this);
-		}
+		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		swipeRefreshLayout.setOnRefreshListener(this);
 
 		maybeShowHelp();
 	}
 
-	@Override
-	public void onListItemClick(View view, int position, long id) {
-		Cursor cursor = (Cursor) adapter.getItem(position);
-		if (cursor != null) {
-			long internalId = cursor.getInt(cursor.getColumnIndex(Plays._ID));
-			PlayModel play = PlayModel.fromCursor(cursor, getContext());
-			EventBus.getDefault().postSticky(new PlaySelectedEvent(internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl()));
-		}
+	public void setEmptyText(CharSequence text) {
+		emptyTextView.setText(text);
 	}
 
 	@Override
@@ -309,29 +354,33 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	protected boolean dividerShown() {
-		return true;
+	@SuppressWarnings({ "unused", "UnusedParameters" })
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(SyncCompleteEvent event) {
+		isSyncing(false);
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(PlaySelectedEvent event) {
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncPlaysByDateTask.CompletedEvent event) {
 		isSyncing(false);
 	}
 
+	protected void isSyncing(boolean value) {
+		isSyncing = value;
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					if (swipeRefreshLayout != null) {
+						swipeRefreshLayout.setRefreshing(isSyncing);
+					}
+				}
+			});
+		}
+	}
+
 	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		if (mode == MODE_GAME && event.getGameId() == gameId) {
@@ -342,12 +391,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		}
 	}
 
-	@Override
-	protected boolean isRefreshable() {
-		return super.isRefreshable() || (mode == MODE_GAME);
+	protected void showFab(boolean show) {
+		if (fabView == null) return;
+		if (show) {
+			fabView.show();
+		} else {
+			fabView.hide();
+		}
 	}
 
-	@DebugLog
 	private void showHelp() {
 		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
 		if (builder != null) {
@@ -366,7 +418,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		}
 	}
 
-	@DebugLog
 	private void maybeShowHelp() {
 		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION)) {
 			new Handler().postDelayed(new Runnable() {
@@ -380,11 +431,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 
 	private void requery() {
 		if (mode == MODE_ALL || mode == MODE_LOCATION || mode == MODE_GAME) {
-			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+			LoaderManager.getInstance(this).restartLoader(SumQuery._TOKEN, getArguments(), this);
 		} else if (mode == MODE_PLAYER || mode == MODE_BUDDY) {
-			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
+			LoaderManager.getInstance(this).restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
 		}
-		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
+		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, getArguments(), this);
 	}
 
 	@SuppressWarnings("unused")
@@ -408,7 +459,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		}
 		SortEvent.log("Plays", String.valueOf(sortType));
 		sorter = PlaysSorterFactory.create(getContext(), sortType);
-		resetScrollState();
 		requery();
 	}
 
@@ -435,7 +485,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	public void onDateSet(DatePicker view, int year, int month, int day) {
 		isSyncing(true);
 		String date = DateTimeUtils.formatDateForApi(year, month, day);
-		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask(getContext(), date));
+		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask((BggApplication) getActivity().getApplication(), date));
 	}
 
 	private int getEmptyStringResource() {
@@ -470,30 +520,36 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == PLAY_QUERY_TOKEN) {
-			loader = new CursorLoader(getActivity(),
-				uri,
-				sorter == null ? PlayModel.getProjection() : StringUtils.unionArrays(PlayModel.getProjection(), sorter.getColumns()),
-				selection(),
-				selectionArgs(),
-				sorter == null ? null : sorter.getOrderByClause());
-			loader.setUpdateThrottle(2000);
-		} else if (id == GameQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Games.buildGameUri(gameId), GameQuery.PROJECTION, null, null, null);
-			loader.setUpdateThrottle(0);
-		} else if (id == SumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(), selectionArgs(), null);
-			loader.setUpdateThrottle(0);
-		} else if (id == PlayerSumQuery._TOKEN) {
-			Uri uri = Plays.buildPlayersByUniquePlayerUri();
-			if (mode == MODE_BUDDY) {
-				uri = Plays.buildPlayersByUniqueUserUri();
-			}
-			loader = new CursorLoader(getActivity(), uri, PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
-			loader.setUpdateThrottle(0);
+		switch (id) {
+			case PLAY_QUERY_TOKEN:
+				loader = new CursorLoader(getContext(),
+					uri,
+					sorter == null ? PlayModel.getProjection() : StringUtils.unionArrays(PlayModel.getProjection(), sorter.getColumns()),
+					selection(),
+					selectionArgs(),
+					sorter == null ? null : sorter.getOrderByClause());
+				loader.setUpdateThrottle(2000);
+				break;
+			case GameQuery._TOKEN:
+				loader = new CursorLoader(getContext(), Games.buildGameUri(gameId), GameQuery.PROJECTION, null, null, null);
+				loader.setUpdateThrottle(0);
+				break;
+			case SumQuery._TOKEN:
+				loader = new CursorLoader(getContext(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(), selectionArgs(), null);
+				loader.setUpdateThrottle(0);
+				break;
+			case PlayerSumQuery._TOKEN:
+				Uri uri = Plays.buildPlayersByUniquePlayerUri();
+				if (mode == MODE_BUDDY) {
+					uri = Plays.buildPlayersByUniqueUserUri();
+				}
+				loader = new CursorLoader(getContext(), uri, PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
+				loader.setUpdateThrottle(0);
+				break;
 		}
 		return loader;
 	}
@@ -535,7 +591,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
 		}
@@ -543,18 +599,41 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		int token = loader.getId();
 		if (token == PLAY_QUERY_TOKEN) {
 			if (adapter == null) {
-				adapter = new PlayAdapter(getActivity());
-				setListAdapter(adapter);
+				adapter = new PlayAdapter(getContext());
+				listView.setAdapter(adapter);
 			}
-			adapter.changeCursor(cursor);
-			restoreScrollState();
-			PlaysSortChangedEvent event;
-			if (sorter == null) {
-				event = new PlaysSortChangedEvent(PlaysSorterFactory.TYPE_UNKNOWN, "");
+			List<PlayModel> plays = new ArrayList<>();
+			if (cursor.moveToFirst()) {
+				do {
+					plays.add(PlayModel.fromCursor(cursor, getContext()));
+				} while (cursor.moveToNext());
+			}
+			adapter.changeData(plays);
+
+			RecyclerSectionItemDecoration sectionItemDecoration =
+				new RecyclerSectionItemDecoration(
+					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
+					getSectionCallback(plays, sorter),
+					true
+				);
+			while (listView.getItemDecorationCount() > 0) {
+				listView.removeItemDecorationAt(0);
+			}
+			listView.addItemDecoration(sectionItemDecoration);
+
+			if (cursor.getCount() == 0) {
+				AnimationUtils.fadeIn(emptyContainer);
+				AnimationUtils.fadeOut(listView);
 			} else {
-				event = new PlaysSortChangedEvent(sorter.getType(), sorter.getDescription());
+				AnimationUtils.fadeIn(listView);
+				AnimationUtils.fadeOut(emptyContainer);
 			}
+
+			PlaysSortChangedEvent event = sorter == null ?
+				new PlaysSortChangedEvent(PlaysSorterFactory.TYPE_UNKNOWN, "") :
+				new PlaysSortChangedEvent(sorter.getType(), sorter.getDescription());
 			EventBus.getDefault().postSticky(event);
+			progressBar.hide();
 		} else if (token == GameQuery._TOKEN) {
 			if (!hasAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				hasAutoSyncTriggered = true;
@@ -582,19 +661,25 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		if (loader.getId() == PLAY_QUERY_TOKEN) {
-			adapter.changeCursor(null);
+			adapter.clear();
 		}
 	}
 
 	@Override
-	protected int getSyncType() {
-		return mode == MODE_GAME ? SyncService.FLAG_SYNC_NONE : SyncService.FLAG_SYNC_PLAYS;
+	public void onRefresh() {
+		triggerRefresh();
 	}
 
-	@DebugLog
-	@Override
+	@SuppressWarnings("unused")
+	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+	public void onEvent(@NonNull SyncEvent event) {
+		if ((event.getType() & SyncService.FLAG_SYNC_PLAYS) == SyncService.FLAG_SYNC_PLAYS) {
+			isSyncing(true);
+		}
+	}
+
 	public void triggerRefresh() {
 		if (isSyncing) return;
 		switch (mode) {
@@ -607,12 +692,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 			case MODE_GAME:
 				isSyncing(true);
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), gameId));
+				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) getActivity().getApplication(), gameId));
 				break;
 		}
 	}
 
-	@Override
+	@OnClick(R.id.fab)
 	protected void onFabClicked() {
 		LogPlayActivity.logPlay(getContext(), gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
 	}
@@ -627,27 +712,92 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 		}
 	}
 
-	class PlayAdapter extends CursorAdapter implements StickyListHeadersAdapter {
+	class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.ViewHolder> {
 		private final LayoutInflater inflater;
+		private final List<PlayModel> plays = new ArrayList<>();
+		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 		public PlayAdapter(Context context) {
-			super(context, null, false);
-			inflater = getActivity().getLayoutInflater();
+			setHasStableIds(true);
+			inflater = LayoutInflater.from(context);
+		}
+
+		public void clear() {
+			plays.clear();
+		}
+
+		public void changeData(List<PlayModel> plays) {
+			this.plays.clear();
+			this.plays.addAll(plays);
+			notifyDataSetChanged();
+		}
+
+		public PlayModel getItem(int position) {
+			return plays.get(position);
+		}
+
+		public int getSelectedItemCount() {
+			return selectedItems.size();
+		}
+
+		public List<Integer> getSelectedItemPositions() {
+			ArrayList<Integer> items = new ArrayList<>(selectedItems.size());
+			for (int i = 0; i < selectedItems.size(); i++) {
+				items.add(selectedItems.keyAt(i));
+			}
+			return items;
+		}
+
+		public boolean areAllSelectedItemsPending() {
+			for (int pos : adapter.getSelectedItemPositions()) {
+				PlayModel play = adapter.getItem(pos);
+				boolean pending = play.getDirtyTimestamp() > 0;
+				if (!pending) return false;
+			}
+			return true;
+		}
+
+		public void toggleSelection(int position) {
+			if (selectedItems.get(position, false)) {
+				selectedItems.delete(position);
+			} else {
+				selectedItems.put(position, true);
+			}
+			notifyDataSetChanged(); // I'd prefer to call notifyItemChanged(position), but that causes the section header to appear briefly
+			if (actionMode != null) {
+				int count = getSelectedItemCount();
+				if (count == 0) {
+					actionMode.finish();
+				} else {
+					actionMode.invalidate();
+				}
+			}
+		}
+
+		public void clearSelection() {
+			selectedItems.clear();
+			notifyDataSetChanged();
 		}
 
 		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = inflater.inflate(R.layout.row_play, parent, false);
-			ViewHolder holder = new ViewHolder(row);
-			row.setTag(holder);
-			return row;
+		public int getItemCount() {
+			return plays.size();
 		}
 
 		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
+		public long getItemId(int position) {
+			return getItem(position).getInternalId();
+		}
 
-			PlayModel play = PlayModel.fromCursor(cursor, getContext());
+		@NonNull
+		@Override
+		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			return new ViewHolder(inflater.inflate(R.layout.row_play, parent, false));
+		}
+
+		@Override
+		public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+			final PlayModel play = plays.get(position);
 
 			String info = PresentationUtils.describePlayDetails(getActivity(),
 				mode != MODE_GAME ? play.getDate() : null,
@@ -679,45 +829,66 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 				holder.status.setVisibility(View.VISIBLE);
 				holder.status.setText(statusMessageId);
 			}
+
+			holder.itemView.setActivated(selectedItems.get(position, false));
+
+			holder.itemView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (actionMode == null) {
+						PlayActivity.start(getContext(), play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
+					} else {
+						toggleSelection(position);
+					}
+				}
+			});
+			holder.itemView.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					if (actionMode != null) return false;
+					actionMode = getActivity().startActionMode(PlaysFragment.this);
+					if (actionMode == null) return false;
+					toggleSelection(position);
+					return true;
+				}
+			});
 		}
 
-		@Override
-		public long getHeaderId(int position) {
-			if (position < 0 || sorter == null) {
-				return 0;
-			}
-			return sorter.getHeaderId(getCursor(), position);
-		}
-
-		@Override
-		public View getHeaderView(int position, View convertView, ViewGroup parent) {
-			HeaderViewHolder holder;
-			if (convertView == null) {
-				holder = new HeaderViewHolder();
-				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = convertView.findViewById(android.R.id.title);
-				convertView.setTag(holder);
-			} else {
-				holder = (HeaderViewHolder) convertView.getTag();
-			}
-			holder.text.setText(sorter == null ? "" : sorter.getHeaderText(getCursor(), position));
-			return convertView;
-		}
-
-		class ViewHolder {
+		class ViewHolder extends RecyclerView.ViewHolder {
 			@BindView(android.R.id.title) TextView title;
 			@BindView(android.R.id.text1) TextView text1;
 			@BindView(android.R.id.text2) TextView text2;
 			@BindView(android.R.id.message) TextView status;
 
 			public ViewHolder(View view) {
+				super(view);
 				ButterKnife.bind(this, view);
 			}
 		}
+	}
 
-		class HeaderViewHolder {
-			TextView text;
-		}
+	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<PlayModel> plays, final PlaysSorter sorter) {
+		return new RecyclerSectionItemDecoration.SectionCallback() {
+			@Override
+			public boolean isSection(int position) {
+				if (position == RecyclerView.NO_POSITION) return false;
+				if (plays == null || plays.size() == 0) return false;
+				if (position == 0) return true;
+				if (position < 0 || position >= plays.size()) return false;
+				String thisLetter = sorter.getSectionText(plays.get(position));
+				String lastLetter = sorter.getSectionText(plays.get(position - 1));
+				return !thisLetter.equals(lastLetter);
+			}
+
+			@NotNull
+			@Override
+			public CharSequence getSectionHeader(int position) {
+				if (position == RecyclerView.NO_POSITION) return "-";
+				if (plays == null || plays.size() == 0) return "-";
+				if (position < 0 || position >= plays.size()) return "-";
+				return sorter.getSectionText(plays.get(position));
+			}
+		};
 	}
 
 	private interface GameQuery {
@@ -743,89 +914,62 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		MenuInflater inflater = mode.getMenuInflater();
-		inflater.inflate(R.menu.plays_context, menu);
-		sendMenuItem = menu.findItem(R.id.menu_send);
-		editMenuItem = menu.findItem(R.id.menu_edit);
-		selectedPlaysPositions.clear();
+		mode.getMenuInflater().inflate(R.menu.plays_context, menu);
+		adapter.clearSelection();
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
+		int count = adapter.getSelectedItemCount();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+		menu.findItem(R.id.menu_send).setVisible(adapter.areAllSelectedItemsPending());
+		menu.findItem(R.id.menu_edit).setVisible(adapter.getSelectedItemCount() == 1);
+		return true;
 	}
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
+		actionMode = null;
+		adapter.clearSelection();
 	}
 
 	@Override
-	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-		if (!isAdded()) {
-			return;
-		}
-
-		if (checked) {
-			selectedPlaysPositions.add(position);
-		} else {
-			selectedPlaysPositions.remove(position);
-		}
-
-		int count = selectedPlaysPositions.size();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_plays_selected, count, count));
-
-		boolean allPending = true;
-		for (int pos : selectedPlaysPositions) {
-			Cursor cursor = (Cursor) adapter.getItem(pos);
-			PlayModel play = PlayModel.fromCursor(cursor, getContext());
-			boolean pending = play.getDirtyTimestamp() > 0;
-			allPending = allPending && pending;
-		}
-
-		sendMenuItem.setVisible(allPending);
-		editMenuItem.setVisible(count == 1);
-	}
-
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		if (!selectedPlaysPositions.iterator().hasNext()) return false;
+	public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+		if (!adapter.getSelectedItemPositions().iterator().hasNext()) return false;
 		switch (item.getItemId()) {
 			case R.id.menu_send:
-				mode.finish();
 				new AlertDialog.Builder(getContext())
-					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, selectedPlaysPositions.size()))
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, adapter.getSelectedItemCount()))
 					.setCancelable(true)
 					.setNegativeButton(R.string.cancel, null)
 					.setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
+							mode.finish();
 						}
 					})
 					.show();
 				return true;
 			case R.id.menu_edit:
+				PlayModel play = adapter.getItem(adapter.getSelectedItemPositions().iterator().next());
+				LogPlayActivity.editPlay(getActivity(), play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
 				mode.finish();
-				Cursor cursor = (Cursor) adapter.getItem(selectedPlaysPositions.iterator().next());
-				long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-				PlayModel play = PlayModel.fromCursor(cursor, getContext());
-				LogPlayActivity.editPlay(getActivity(), internalId, play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
 				return true;
 			case R.id.menu_delete:
-				mode.finish();
 				new AlertDialog.Builder(getContext())
-					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, selectedPlaysPositions.size()))
+					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, adapter.getSelectedItemCount()))
 					.setCancelable(true)
 					.setNegativeButton(R.string.cancel, null)
 					.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
+							mode.finish();
 						}
 					})
 					.show();
-
 				return true;
 		}
 		return false;
@@ -833,17 +977,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderCal
 
 	private void updateSelectedPlays(String key, long value) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		for (int position : selectedPlaysPositions) {
-			Cursor cursor = (Cursor) adapter.getItem(position);
-			long internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-			if (internalId != BggContract.INVALID_ID)
+		for (int position : adapter.getSelectedItemPositions()) {
+			PlayModel play = adapter.getItem(position);
+			if (play.getInternalId() != BggContract.INVALID_ID)
 				batch.add(ContentProviderOperation
-					.newUpdate(Plays.buildPlayUri(internalId))
+					.newUpdate(Plays.buildPlayUri(play.getInternalId()))
 					.withValue(key, value)
 					.build());
 		}
 		ResolverUtils.applyBatch(getActivity(), batch);
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-		selectedPlaysPositions.clear();
 	}
 }
