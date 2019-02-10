@@ -217,6 +217,7 @@ class SettingsActivity : DrawerActivity() {
         private const val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
         private val FRAGMENT_MAP = buildFragmentMap()
 
+        @JvmStatic
         fun newIntent(startContext: Context): Intent {
             return Intent(startContext, SettingsActivity::class.java)
         }

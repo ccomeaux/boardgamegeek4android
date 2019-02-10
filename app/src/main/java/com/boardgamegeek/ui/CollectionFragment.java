@@ -706,7 +706,7 @@ public class CollectionFragment extends Fragment implements
 		emptyButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(SettingsActivity.Companion.newIntent(getContext()));
+				startActivity(SettingsActivity.newIntent(getContext()));
 			}
 		});
 		emptyButton.setText(R.string.title_settings);
