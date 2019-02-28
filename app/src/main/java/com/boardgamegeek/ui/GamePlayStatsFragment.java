@@ -128,7 +128,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		R.id.header_advanced
 	}) List<TextView> colorizedHeaders;
 	@BindViews({
-		R.id.score_help
+		R.id.score_help,
+		R.id.players_skill_help
 	}) List<ImageView> colorizedIcons;
 
 	private Transition playerTransition;
@@ -153,8 +154,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		unbinder = ButterKnife.bind(this, rootView);
 
 		if (headerColor != Color.TRANSPARENT) {
-			ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), headerColor);
-			ButterKnife.apply(colorizedIcons, PaletteUtils.getRgbIconSetter(), headerColor);
+			for (TextView view : colorizedHeaders) {
+				view.setTextColor(headerColor);
+			}
+			for (ImageView view : colorizedIcons) {
+				view.setColorFilter(headerColor);
+			}
 		}
 
 		if (getContext() != null) {
