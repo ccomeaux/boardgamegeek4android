@@ -328,7 +328,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindVisibility() {
 		boolean isEdit = isInEditMode && isItemEditable;
 
-		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
+		for (View view : editFields) {
+			view.setVisibility(isEdit ? View.VISIBLE : View.GONE);
+		}
 
 		ratingView.enableEditMode(isEdit);
 		commentView.enableEditMode(isEdit);
@@ -393,7 +395,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (palette == null || !isAdded()) return;
 		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
+		for (TextView view : colorizedHeaders) {
+			view.setTextColor(swatch.getRgb());
+		}
 		for (TextEditorView textEditorView : textEditorViews) {
 			textEditorView.setHeaderColor(swatch);
 		}

@@ -152,13 +152,6 @@ public class PresentationUtils {
 		}
 	};
 
-	public static final ButterKnife.Setter<View, Boolean> setVisibility = new ButterKnife.Setter<View, Boolean>() {
-		@Override
-		public void set(@NonNull View view, Boolean value, int index) {
-			view.setVisibility(value ? View.VISIBLE : View.GONE);
-		}
-	};
-
 	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
