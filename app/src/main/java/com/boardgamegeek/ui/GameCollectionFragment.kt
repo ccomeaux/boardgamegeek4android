@@ -54,10 +54,13 @@ class GameCollectionFragment : Fragment() {
             when {
                 it == null -> showError()
                 it.status == Status.ERROR -> {
-                    showError(
-                            if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection),
-                            it.data?.isNotEmpty() == true
-                    )
+                    val errorMessage = if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection)
+                    if (it.data?.isNotEmpty() == true) {
+                        showData(it.data)
+                        showError(errorMessage, true)
+                    } else {
+                        showError(errorMessage, false)
+                    }
                 }
                 else -> showData(it.data ?: emptyList())
             }

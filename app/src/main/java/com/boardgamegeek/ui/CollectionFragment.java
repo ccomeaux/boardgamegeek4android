@@ -19,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -72,6 +73,8 @@ import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -121,11 +124,11 @@ public class CollectionFragment extends Fragment implements
 	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
 	@BindView(android.R.id.list) RecyclerView listView;
 	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.filter_linear_layout) LinearLayout filterButtonContainer;
-	@BindView(R.id.filter_scroll_view) View filterButtonScroll;
 	@BindView(R.id.toolbar_footer) Toolbar footerToolbar;
 	@BindView(R.id.row_count) TextView rowCountView;
 	@BindView(R.id.sort_description) TextView sortDescriptionView;
+	@BindView(R.id.chipGroupScrollView) HorizontalScrollView chipGroupScrollView;
+	@BindView(R.id.chipGroup) ChipGroup chipGroup;
 
 	private CollectionAdapter adapter;
 	@State long viewId;
@@ -703,52 +706,33 @@ public class CollectionFragment extends Fragment implements
 
 	@DebugLog
 	private void bindFilterButtons() {
-		filterButtonContainer.removeAllViews();
-
-		final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-		for (CollectionFilterer filter : filters) {
+		chipGroup.removeAllViews();
+		for (final CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.toShortDescription())) {
-				filterButtonContainer.addView(createFilterButton(layoutInflater, filter.getType(), filter.toShortDescription()));
+				Chip chip = new Chip(getContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
+				chip.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+				chip.setText(filter.toShortDescription());
+				chip.setOnClickListener(v -> launchFilterDialog(filter.getType()));
+				chip.setOnLongClickListener(v -> {
+					removeFilter(filter.getType());
+					return true;
+				});
+
+				chipGroup.addView(chip);
 			}
 		}
 
-		final boolean show = filterButtonContainer.getChildCount() > 0;
+		final boolean show = chipGroup.getChildCount() > 0;
 		if (show) {
-			AnimationUtils.slideUpIn(filterButtonScroll);
+			AnimationUtils.slideUpIn(chipGroupScrollView);
 		} else {
-			AnimationUtils.slideDownOut(filterButtonScroll);
+			AnimationUtils.slideDownOut(chipGroupScrollView);
 		}
 		swipeRefreshLayout.setPadding(
 			swipeRefreshLayout.getPaddingLeft(),
 			swipeRefreshLayout.getPaddingTop(),
 			swipeRefreshLayout.getPaddingRight(),
-			show ? getResources().getDimensionPixelSize(R.dimen.filter_button_height) : 0);
-	}
-
-	@NonNull
-	@DebugLog
-	private Button createFilterButton(@NonNull LayoutInflater layoutInflater, final int type, String text) {
-		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, filterButtonContainer, false);
-		button.setText(text);
-		button.setTag(type);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		int margin = getResources().getDimensionPixelSize(R.dimen.padding_half);
-		params.setMargins(0, margin, margin, 0);
-		button.setLayoutParams(params);
-		button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(@NonNull View v) {
-				launchFilterDialog((Integer) v.getTag());
-			}
-		});
-		button.setOnLongClickListener(new View.OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				removeFilter(type);
-				return true;
-			}
-		});
-		return button;
+			show ? getResources().getDimensionPixelSize(R.dimen.chip_group_height) : 0); // TODO replace this with the chip height + padding x2
 	}
 
 	@DebugLog

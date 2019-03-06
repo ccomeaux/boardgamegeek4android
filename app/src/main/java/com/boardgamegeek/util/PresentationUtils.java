@@ -145,20 +145,6 @@ public class PresentationUtils {
 		}, 2000);
 	}
 
-	public static final ButterKnife.Action<View> setGone = new ButterKnife.Action<View>() {
-		@Override
-		public void apply(@NonNull View view, int index) {
-			view.setVisibility(View.GONE);
-		}
-	};
-
-	public static final ButterKnife.Setter<View, Boolean> setVisibility = new ButterKnife.Setter<View, Boolean>() {
-		@Override
-		public void set(@NonNull View view, Boolean value, int index) {
-			view.setVisibility(value ? View.VISIBLE : View.GONE);
-		}
-	};
-
 	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));

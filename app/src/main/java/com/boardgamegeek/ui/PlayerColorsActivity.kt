@@ -13,13 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerColorEntity
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setColorViewValue
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
-import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
@@ -211,7 +211,7 @@ class PlayerColorsActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_clear -> DialogUtils.createThemedBuilder(this)
+            R.id.menu_clear -> this.createThemedBuilder()
                     .setMessage(R.string.are_you_sure_clear_colors)
                     .setPositiveButton(R.string.clear) { _, _ ->
                         PlayerColorsManipulationEvent.log("Clear")

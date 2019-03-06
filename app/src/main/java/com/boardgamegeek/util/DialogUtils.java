@@ -57,13 +57,11 @@ public class DialogUtils {
 		return createThemedBuilder(activity)
 			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
 			.setPositiveButton(R.string.keep_editing, null)
-			.setNegativeButton(R.string.discard, new OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					if (listener != null) listener.onDiscard();
-					if (finishActivity) {
-						activity.setResult(Activity.RESULT_CANCELED);
-						activity.finish();
-					}
+			.setNegativeButton(R.string.discard, (dialog, id) -> {
+				if (listener != null) listener.onDiscard();
+				if (finishActivity) {
+					activity.setResult(Activity.RESULT_CANCELED);
+					activity.finish();
 				}
 			})
 			.setCancelable(true)

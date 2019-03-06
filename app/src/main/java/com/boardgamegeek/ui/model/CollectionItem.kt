@@ -57,6 +57,18 @@ data class CollectionItem(
             else -> wishlistPriority
         }
 
+    fun isDirty(): Boolean {
+        return dirtyTimestamp > 0L ||
+                ratingTimestamp > 0L ||
+                commentTimestamp > 0L ||
+                privateInfoTimestamp > 0L ||
+                statusTimestamp > 0L ||
+                wishlistCommentDirtyTimestamp > 0L ||
+                tradeConditionDirtyTimestamp > 0L ||
+                wantPartsDirtyTimestamp > 0L ||
+                hasPartsDirtyTimestamp > 0L
+    }
+
     companion object {
         @JvmStatic
         val uri: Uri = Collection.CONTENT_URI
