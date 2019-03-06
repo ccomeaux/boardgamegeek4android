@@ -157,8 +157,8 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
 
-    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.13.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.13.1'
 
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
