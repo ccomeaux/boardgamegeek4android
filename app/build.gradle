@@ -130,7 +130,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.1'
+    implementation 'androidx.annotation:annotation:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
 
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -171,7 +171,7 @@ dependencies {
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
-    compile 'com.github.rhlff:NestedScrollWebView:v1.0.2'
+    implementation 'com.github.rhlff:NestedScrollWebView:v1.0.2'
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.9@aar') {
         transitive = true
@@ -186,7 +186,7 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:3.0.3'
 
-    implementation 'com.appyvet:materialrangebar:1.4.4'
+    implementation 'com.appyvet:materialrangebar:1.4.5'
 
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
