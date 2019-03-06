@@ -14,6 +14,9 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.events.CollectionItemChangedEvent
 import com.boardgamegeek.events.CollectionItemDeletedEvent
 import com.boardgamegeek.events.CollectionItemUpdatedEvent
+import com.boardgamegeek.extensions.OnDiscardListener
+import com.boardgamegeek.extensions.createDiscardDialog
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -24,7 +27,6 @@ import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.model.PrivateInfo
-import com.boardgamegeek.util.DialogUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
@@ -99,10 +101,17 @@ class GameCollectionItemActivity : HeroActivity(),
     override fun onBackPressed() {
         if (isInEditMode) {
             if (isItemUpdated) {
-                DialogUtils.createDiscardDialog(this, R.string.collection_item, false, false) {
-                    ResetCollectionItemTask(this, internalId).executeAsyncTask()
-                    toggleEditMode()
-                }.show()
+                createDiscardDialog(
+                        this@GameCollectionItemActivity,
+                        R.string.collection_item,
+                        false,
+                        false,
+                        R.string.keep, object : OnDiscardListener {
+                    override fun onDiscard() {
+                        ResetCollectionItemTask(this@GameCollectionItemActivity, internalId).executeAsyncTask()
+                        return toggleEditMode()
+                    }
+                }).show()
             } else {
                 toggleEditMode()
             }
@@ -138,7 +147,7 @@ class GameCollectionItemActivity : HeroActivity(),
                 return true
             }
             R.id.menu_delete -> {
-                DialogUtils.createThemedBuilder(this)
+                this.createThemedBuilder()
                         .setMessage(R.string.are_you_sure_delete_collection_item)
                         .setPositiveButton(R.string.delete) { _, _ ->
                             DeleteCollectionItemTask(this, internalId).executeAsyncTask()
