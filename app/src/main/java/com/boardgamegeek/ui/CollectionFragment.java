@@ -732,7 +732,7 @@ public class CollectionFragment extends Fragment implements
 			swipeRefreshLayout.getPaddingLeft(),
 			swipeRefreshLayout.getPaddingTop(),
 			swipeRefreshLayout.getPaddingRight(),
-			show ? getResources().getDimensionPixelSize(R.dimen.chip_group_height) : 0); // TODO replace this with the chip height + padding x2
+			show ? getResources().getDimensionPixelSize(R.dimen.chip_group_height) : 0);
 	}
 
 	@DebugLog

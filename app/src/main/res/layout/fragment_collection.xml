@@ -46,7 +46,6 @@
 
 				<Button
 					android:id="@+id/empty_button"
-					style="@style/Widget.AppCompat.Button.Colored"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="@string/re_sync"
@@ -76,10 +75,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			app:chipSpacingHorizontal="@dimen/padding_standard"
-			app:singleLine="true">
-
-		</com.google.android.material.chip.ChipGroup>
+			app:chipSpacing="@dimen/padding_half"
+			app:singleLine="true"
+			app:singleSelection="true"/>
 	</HorizontalScrollView>
 
 	<com.google.android.material.bottomappbar.BottomAppBar
