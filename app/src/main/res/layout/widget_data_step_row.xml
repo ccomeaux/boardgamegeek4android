@@ -56,11 +56,10 @@
 
 		<Button
 			android:id="@+id/exportButton"
-			style="@style/Widget.AppCompat.Button.Colored"
+			style="@style/ColoredButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/title_export"
-			app:backgroundTint="@color/medium_blue"/>
+			android:text="@string/title_export"/>
 
 		<Space
 			android:layout_width="24dp"
@@ -68,10 +67,9 @@
 
 		<Button
 			android:id="@+id/importButton"
-			style="@style/Widget.AppCompat.Button.Colored"
+			style="@style/ColoredButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/title_import"
-			app:backgroundTint="@color/medium_blue"/>
+			android:text="@string/title_import"/>
 	</LinearLayout>
 </merge>
