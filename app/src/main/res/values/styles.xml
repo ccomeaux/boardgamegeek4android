@@ -29,10 +29,10 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 	</style>
 
-	<style name="ColoredButton" parent="Widget.AppCompat.Button.Colored">
+	<style name="ColoredButton" parent="Widget.MaterialComponents.Button">
 	</style>
 
-	<style name="SmallColoredButton" parent="Widget.AppCompat.Button.Colored">
+	<style name="SmallColoredButton" parent="ColoredButton">
 		<item name="android:minHeight">32dp</item>
 		<item name="android:textSize">12sp</item>
 	</style>

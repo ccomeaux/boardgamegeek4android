@@ -12,13 +12,12 @@
 		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 	</style>
 
-	<style name="ColoredButton" parent="Widget.AppCompat.Button.Colored">
+	<style name="ColoredButton" parent="Widget.MaterialComponents.Button">
 		<item name="android:backgroundTint">@color/medium_blue</item>
 	</style>
 
-	<style name="SmallColoredButton" parent="Widget.AppCompat.Button.Colored">
+	<style name="SmallColoredButton" parent="ColoredButton">
 		<item name="android:minHeight">32dp</item>
-		<item name="android:backgroundTint">@color/medium_blue</item>
 		<item name="android:textSize">12sp</item>
 	</style>
 </resources>
