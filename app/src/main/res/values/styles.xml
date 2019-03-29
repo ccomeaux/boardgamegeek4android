@@ -173,6 +173,20 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
+	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2"/>
+
+	<style name="TextAppearance.Caption.Secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
+		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
+	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1"/>
+
+	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Body2"/>
+
+	<style name="TextAppearance.RowDetail.Secondary">
+		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
 	<style name="DrawerIcon">
 		<item name="android:layout_width">32dp</item>
 		<item name="android:layout_height">32dp</item>
@@ -322,6 +336,13 @@
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 	</style>
 
+	<style name="RowRank">
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6</item>
+		<item name="android:gravity">end|center_vertical</item>
+		<item name="android:minWidth">32dp</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
 	<style name="ActionBar">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
@@ -409,6 +430,11 @@
 		<item name="android:paddingLeft">@dimen/padding_half</item>
 		<item name="android:paddingRight">@dimen/padding_half</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+
+	<style name="RatingSmall.Regular">
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
 	</style>
 
 	<style name="RatingSmall.Wide">
@@ -603,7 +629,7 @@
 	</style>
 
 	<style name="TextWithImage">
-		<item name="android:drawablePadding">4dp</item>
+		<item name="android:drawablePadding">8dp</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:maxLines">1</item>
 		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
@@ -611,7 +637,7 @@
 
 	<style name="TextWithImage.Secondary">
 		<item name="android:drawableTint">@color/secondary_text</item>
-		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 

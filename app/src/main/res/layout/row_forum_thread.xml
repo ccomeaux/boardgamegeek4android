@@ -13,7 +13,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="4dp"
-		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+		android:textAppearance="@style/TextAppearance.RowTitle"
 		tools:text="The Best way to Play!"/>
 
 	<LinearLayout

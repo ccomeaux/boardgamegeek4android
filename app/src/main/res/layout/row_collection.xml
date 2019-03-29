@@ -28,7 +28,7 @@
 			android:id="@+id/name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Primary"
+			android:textAppearance="@style/TextAppearance.RowTitle"
 			tools:text="Terra Mystica"/>
 
 		<TextView
@@ -38,7 +38,7 @@
 			android:layout_alignLeft="@id/name"
 			android:layout_alignStart="@id/name"
 			android:layout_below="@id/name"
-			android:textAppearance="@style/Text.Secondary"
+			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 			tools:text="2012"/>
 
 		<ImageView
@@ -60,7 +60,7 @@
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/name"
-			android:textAppearance="@style/Text"
+			android:textAppearance="@style/TextAppearance.RowDetail"
 			tools:text="8.0"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
@@ -70,7 +70,7 @@
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/name"
-			android:textAppearance="@style/Text"
+			android:textAppearance="@style/TextAppearance.RowDetail"
 			app:hideWhenEmpty="true"
 			tools:text="4 hours ago"/>
 	</RelativeLayout>

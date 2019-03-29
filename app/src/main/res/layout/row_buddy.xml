@@ -29,15 +29,14 @@
 			android:id="@+id/fullNameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+			android:textAppearance="@style/TextAppearance.RowTitle"
 			tools:text="Chris Comeaux"/>
 
 		<TextView
 			android:id="@+id/usernameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-			android:textColor="@color/secondary_text"
+			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 			tools:text="ccomeaux"/>
 	</LinearLayout>
 
