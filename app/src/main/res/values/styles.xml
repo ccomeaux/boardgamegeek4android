@@ -32,7 +32,7 @@
 	<style name="ColoredButton" parent="Widget.MaterialComponents.Button">
 	</style>
 
-	<style name="SmallColoredButton" parent="ColoredButton">
+	<style name="ColoredButton.Small">
 		<item name="android:minHeight">32dp</item>
 		<item name="android:textSize">12sp</item>
 	</style>
@@ -174,6 +174,10 @@
 	</style>
 
 	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2"/>
+
+	<style name="TextAppearance.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
 	<style name="TextAppearance.Caption.Secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/secondary_text</item>
