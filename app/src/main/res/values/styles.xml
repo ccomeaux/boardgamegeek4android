@@ -42,7 +42,7 @@
 		<item name="android:typeface">monospace</item>
 	</style>
 
-	<style name="Text" parent="@style/TextAppearance.AppCompat.Body1">
+	<style name="Text" parent="@style/TextAppearance.MaterialComponents.Body1">
 		<item name="android:textColor">@color/primary_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
@@ -74,7 +74,7 @@
 		<item name="android:textSize">45sp</item>
 	</style>
 
-	<style name="Text.Primary" parent="@style/TextAppearance.AppCompat.Subhead">
+	<style name="Text.Primary" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">#000</item>
 	</style>
 
@@ -103,7 +103,7 @@
 		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
-	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
+	<style name="Text.Secondary" parent="@style/TextAppearance.MaterialComponents.Body1">
 		<item name="android:textColor">@color/secondary_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
@@ -121,11 +121,11 @@
 		<item name="android:textSize">12sp</item>
 	</style>
 
-	<style name="Text.Footnote" parent="@style/TextAppearance.AppCompat.Caption">
+	<style name="Text.Footnote" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/primary_text</item>
 	</style>
 
-	<style name="Text.Footnote2" parent="@style/TextAppearance.AppCompat.Caption">
+	<style name="Text.Footnote2" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -149,15 +149,15 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
+	<style name="Text.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
 
-	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
+	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">@color/primary_text</item>
 	</style>
 
-	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
+	<style name="Text.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5"/>
 
-	<style name="Text.Empty" parent="@style/TextAppearance.AppCompat.Subhead">
+	<style name="Text.Empty" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -217,14 +217,13 @@
 		<item name="android:minHeight">88dp</item>
 	</style>
 
-	<style name="RowSeparator" parent="@style/TextAppearance.AppCompat.Menu">
+	<style name="RowSeparator" parent="@style/TextAppearance.MaterialComponents.Subtitle2">
 		<item name="android:background">@color/light_blue</item>
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">@dimen/recycler_section_header_height</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:textAllCaps">true</item>
-		<item name="android:textIsSelectable">false</item>
 	</style>
 
 	<style name="ImageList">
@@ -232,7 +231,7 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="Text.Body" parent="@style/TextAppearance.AppCompat.Body1">
+	<style name="Text.Body" parent="@style/TextAppearance.MaterialComponents.Body2">
 	</style>
 
 	<style name="Text.Clickable">
@@ -246,8 +245,7 @@
 		<item name="android:textAllCaps">true</item>
 	</style>
 
-	<style name="Text.Header" parent="@style/TextAppearance.AppCompat.Button">
-		<item name="android:textAllCaps">true</item>
+	<style name="Text.Header" parent="@style/TextAppearance.MaterialComponents.Button">
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
@@ -267,8 +265,7 @@
 		<item name="android:maxLines">1</item>
 	</style>
 
-	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
-		<item name="android:textAllCaps">true</item>
+	<style name="Text.Footer" parent="@style/TextAppearance.MaterialComponents.Button">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -305,22 +302,6 @@
 		<item name="android:shadowDx">0</item>
 		<item name="android:shadowDy">1</item>
 		<item name="android:shadowRadius">3</item>
-	</style>
-
-	<style name="Text.Headline.Overlay">
-		<item name="android:textColor">#fff</item>
-		<item name="android:shadowColor">#000</item>
-		<item name="android:shadowDx">0</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:shadowRadius">5</item>
-	</style>
-
-	<style name="Text.Footnote.Overlay">
-		<item name="android:textColor">#fff</item>
-		<item name="android:shadowColor">#000</item>
-		<item name="android:shadowDx">0</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:shadowRadius">1</item>
 	</style>
 
 	<style name="LoginFormContainer">
@@ -625,12 +606,12 @@
 		<item name="android:drawablePadding">4dp</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:maxLines">1</item>
-		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Subhead</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
 	</style>
 
 	<style name="TextWithImage.Secondary">
 		<item name="android:drawableTint">@color/secondary_text</item>
-		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
