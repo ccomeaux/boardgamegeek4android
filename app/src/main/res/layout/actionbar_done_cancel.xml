@@ -4,7 +4,7 @@
 	style="@style/ActionBar"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+	android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar">
 
 	<LinearLayout
 		style="@style/ActionBarButtonContainer"

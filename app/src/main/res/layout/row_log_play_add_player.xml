@@ -11,7 +11,6 @@
 
 	<Button
 		android:id="@+id/add_players_button"
-		style="@style/Widget.AppCompat.Button.Colored"
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"

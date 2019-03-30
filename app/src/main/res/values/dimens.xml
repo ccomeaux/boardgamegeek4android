@@ -60,7 +60,7 @@
 	<dimen name="material_progress_bar_height">4dp</dimen>
 	<dimen name="material_progress_bar_unclipped_height">24dp</dimen>
 	<dimen name="recycler_section_header_height">32dp</dimen>
-	<dimen name="filter_button_height">40dp</dimen>
+	<dimen name="chip_group_height">48dp</dimen>
 	<string name="hero_aspect_ratio">H,16:9</string>
 
 </resources>

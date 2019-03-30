@@ -9,16 +9,16 @@
 
 	<TextView
 		android:id="@android:id/title"
-		style="@style/Text.Primary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.RowTitle"
 		tools:text="Title"/>
 
 	<TextView
 		android:id="@android:id/text1"
-		style="@style/Text.Secondary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		tools:text="Text 1"/>
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		tools:text="Detail"/>
 
 </LinearLayout>

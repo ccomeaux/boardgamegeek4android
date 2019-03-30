@@ -15,13 +15,13 @@
 		android:id="@id/line1"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text"
+		android:textAppearance="@style/TextAppearance.RowTitle"
 		tools:text="Title"/>
 
 	<TextView
 		android:id="@+id/line2"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Secondary"
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 		tools:text="Text 1"/>
 </LinearLayout>

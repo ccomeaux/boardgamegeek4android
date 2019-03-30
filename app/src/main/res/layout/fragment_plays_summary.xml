@@ -35,7 +35,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:text="@string/msg_play_sync"
-						android:textAppearance="@style/Text.Subtitle"/>
+						android:textAppearance="@style/TextAppearance.Subtitle"/>
 
 					<LinearLayout
 						android:layout_width="match_parent"
@@ -45,7 +45,7 @@
 
 						<Button
 							android:id="@+id/syncCancelButton"
-							style="@style/Widget.AppCompat.Button"
+							style="@style/Widget.MaterialComponents.Button.OutlinedButton"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_gravity="end|bottom"
@@ -57,7 +57,6 @@
 
 						<Button
 							android:id="@+id/syncButton"
-							style="@style/ColoredButton"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_gravity="end|bottom"
@@ -79,16 +78,17 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_plays"
-					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+					android:textAppearance="@style/TextAppearance.Title"/>
 
 				<Button
 					android:id="@+id/morePlaysButton"
-					style="@style/SmallColoredButton"
+					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
 					android:text="@string/more"
-					android:visibility="gone"/>
+					android:visibility="gone"
+					tools:visibility="visible"/>
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -155,11 +155,11 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_players"
-					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+					android:textAppearance="@style/TextAppearance.Title"/>
 
 				<Button
 					android:id="@+id/morePlayersButton"
-					style="@style/SmallColoredButton"
+					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
@@ -197,11 +197,11 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_locations"
-					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+					android:textAppearance="@style/TextAppearance.Title"/>
 
 				<Button
 					android:id="@+id/moreLocationsButton"
-					style="@style/SmallColoredButton"
+					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
@@ -239,11 +239,11 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_favorite_colors"
-					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+					android:textAppearance="@style/TextAppearance.Title"/>
 
 				<Button
 					android:id="@+id/editColorsButton"
-					style="@style/SmallColoredButton"
+					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
@@ -287,11 +287,11 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_play_stats"
-					android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+					android:textAppearance="@style/TextAppearance.Title"/>
 
 				<Button
 					android:id="@+id/morePlayStatsButton"
-					style="@style/SmallColoredButton"
+					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
