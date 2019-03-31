@@ -62,4 +62,16 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     override fun getSelectionArgs(): Array<String>? {
         return null
     }
+
+    /**
+     * @return a set of status values representing the statuses currently selected within this filter.
+     */
+    fun getSelectedStatusesSet(): Set<String> {
+        val selectedStatusesSet = HashSet<String>()
+        val values = context.resources.getStringArray(R.array.pref_sync_status_values)
+        selectedStatuses.indices
+                .filter { selectedStatuses[it] }
+                .mapTo(selectedStatusesSet) { values[it] }
+        return selectedStatusesSet
+    }
 }

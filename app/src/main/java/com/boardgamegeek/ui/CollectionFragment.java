@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,6 +36,8 @@ import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
+import com.boardgamegeek.filterer.CollectionStatusFilterer;
+import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -83,6 +86,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -660,24 +664,55 @@ public class CollectionFragment extends Fragment implements
 	@DebugLog
 	private void setEmptyText() {
 		if (emptyButton == null) return;
-		@StringRes int resId = R.string.empty_collection;
-		if (SyncPrefs.getLastCompleteCollectionTimestamp(getContext()) == 0L) {
-			resId = R.string.empty_collection_sync_never;
-			emptyButton.setVisibility(View.GONE);
-		} else if (hasFiltersApplied()) {
-			resId = R.string.empty_collection_filter_on;
-			emptyButton.setVisibility(View.VISIBLE);
-		} else if (!PreferencesUtils.isCollectionSetToSync(getContext())) {
-			resId = R.string.empty_collection_sync_off;
-			emptyButton.setVisibility(View.VISIBLE);
+		if (PreferencesUtils.isCollectionSetToSync(getContext())) {
+			final Set<String> syncedStatuses = PreferencesUtils.getSyncStatuses(getContext());
+			if (SyncPrefs.noPreviousCollectionSync(getContext())) {
+				setEmptyStateForNoAction(R.string.empty_collection_sync_never);
+			} else if (hasFiltersApplied()) {
+				if (isAtLeastOneSyncOff(syncedStatuses, getListOfVisibleStatuses())) {
+					setEmptyStateForSettingsAction(R.string.empty_collection_filter_on_sync_partial);
+				} else {
+					setEmptyStateForNoAction(R.string.empty_collection_filter_on);
+				}
+			} else {
+				setEmptyStateForSettingsAction(R.string.empty_collection);
+			}
+		} else {
+			setEmptyStateForSettingsAction(R.string.empty_collection_sync_off);
 		}
-		emptyTextView.setText(getString(resId));
+	}
+
+	private Set<String> getListOfVisibleStatuses() {
+		for (CollectionFilterer filter : filters) {
+			if (filter instanceof CollectionStatusFilterer) {
+				return ((CollectionStatusFilterer) filter).getSelectedStatusesSet();
+			}
+		}
+		return new HashSet<>();
+	}
+
+	private boolean isAtLeastOneSyncOff(Set<String> syncedStatuses, Set<String> statusesToCheck) {
+		for (String status : statusesToCheck) {
+			if (!syncedStatuses.contains(status)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void setEmptyStateForSettingsAction(@StringRes int textResId) {
+		emptyTextView.setText(textResId);
+		emptyButton.setVisibility(View.VISIBLE);
+	}
+
+	private void setEmptyStateForNoAction(@StringRes int textResId) {
+		emptyTextView.setText(textResId);
+		emptyButton.setVisibility(View.GONE);
 	}
 
 	@OnClick(R.id.empty_button)
 	void onSyncClick() {
-		SyncPrefs.clearCollection(getContext());
-		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
+		startActivity(new Intent(getContext(), SettingsActivity.class));
 	}
 
 	private boolean hasFiltersApplied() {

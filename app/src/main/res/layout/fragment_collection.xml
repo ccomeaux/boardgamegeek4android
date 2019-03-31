@@ -48,7 +48,7 @@
 					android:id="@+id/empty_button"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="@string/re_sync"
+					android:text="@string/title_settings"
 					android:visibility="gone"/>
 			</LinearLayout>
 		</FrameLayout>

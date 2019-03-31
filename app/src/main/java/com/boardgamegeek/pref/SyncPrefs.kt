@@ -37,6 +37,11 @@ class SyncPrefs {
             getPrefs(context)[TIMESTAMP_COLLECTION_COMPLETE] = timestamp
         }
 
+        @JvmStatic
+        fun noPreviousCollectionSync(context: Context): Boolean {
+            return SyncPrefs.getLastCompleteCollectionTimestamp(context) == 0L
+        }
+
         fun getCurrentCollectionSyncTimestamp(context: Context): Long {
             return getPrefs(context)["$TIMESTAMP_COLLECTION_COMPLETE-CURRENT", 0L] ?: 0L
         }
