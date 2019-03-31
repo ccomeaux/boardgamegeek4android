@@ -46,10 +46,9 @@
 
 				<Button
 					android:id="@+id/empty_button"
-					style="@style/Widget.AppCompat.Button.Colored"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="@string/re_sync"
+					android:text="@string/title_settings"
 					android:visibility="gone"/>
 			</LinearLayout>
 		</FrameLayout>
@@ -57,27 +56,28 @@
 	</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 	<HorizontalScrollView
-		android:id="@+id/filter_scroll_view"
+		android:id="@+id/chipGroupScrollView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom"
 		android:background="@color/primary"
 		android:clipToPadding="false"
-		android:minHeight="@dimen/filter_button_height"
+		android:minHeight="@dimen/chip_group_height"
 		android:paddingBottom="@dimen/padding_half"
 		android:paddingLeft="@dimen/padding_standard"
 		android:paddingRight="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_half"
-		android:scrollbars="none"
 		android:visibility="gone"
 		app:layout_dodgeInsetEdges="bottom">
 
-		<LinearLayout
-			android:id="@+id/filter_linear_layout"
+		<com.google.android.material.chip.ChipGroup
+			android:id="@+id/chipGroup"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			android:orientation="horizontal"/>
+			app:chipSpacing="@dimen/padding_half"
+			app:singleLine="true"
+			app:singleSelection="true"/>
 	</HorizontalScrollView>
 
 	<com.google.android.material.bottomappbar.BottomAppBar

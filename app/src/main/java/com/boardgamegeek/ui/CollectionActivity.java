@@ -157,13 +157,16 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 
 	@Override
 	public void onInsertRequested(String name, boolean isDefault) {
-		long viewId = ((CollectionFragment) getFragment()).insertView(name);
+		viewId = ((CollectionFragment) getFragment()).insertView(name);
+		viewIndex = findViewIndex();
 		setOrRemoveDefault(viewId, isDefault);
 		notifyViewCreated(viewId, name);
 	}
 
 	@Override
 	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
+		this.viewId = viewId;
+		viewIndex = findViewIndex();
 		((CollectionFragment) getFragment()).updateView(viewId);
 		setOrRemoveDefault(viewId, isDefault);
 		notifyViewCreated(viewId, name);
@@ -174,7 +177,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		CollectionViewManipulationEvent.log("Delete");
 		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (viewId == this.viewId) {
-			viewIndex = findViewIndex(PreferencesUtils.getViewDefaultId(this));
+			this.viewId = PreferencesUtils.getViewDefaultId(this);
+			viewIndex = findViewIndex();
 		}
 	}
 
@@ -192,7 +196,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	public void notifyViewCreated(long id, String name) {
 		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
-		viewIndex = findViewIndex(id);
 	}
 
 	@SuppressWarnings("unused")
@@ -254,9 +257,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 			} else {
 				adapter.changeCursor(cursor);
 			}
-			if (viewId != -1) {
-				viewIndex = findViewIndex(viewId);
-			}
+			if (viewId != -1) viewIndex = findViewIndex();
 			bindSpinner();
 		} else {
 			cursor.close();
@@ -274,7 +275,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 					if (id != oldId) {
 						Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
 						viewId = id;
-						viewIndex = findViewIndex(id);
+						viewIndex = findViewIndex();
 						if (id < 0) {
 							fragment.clearView();
 						} else {
@@ -300,16 +301,21 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	}
 
 	@DebugLog
-	private int findViewIndex(long viewId) {
+	private int findViewIndex() {
 		int index = 0;
 		if (viewId > 0) {
-			Cursor c = adapter.getCursor();
-			if (c != null && c.moveToFirst()) {
-				do {
-					if (viewId == c.getLong(Query._ID)) {
-						return c.getPosition() + 1;
-					}
-				} while (c.moveToNext());
+			Cursor cursor = adapter.getCursor();
+			if (cursor != null) {
+				int position = cursor.getPosition();
+				if (cursor.moveToFirst()) {
+					do {
+						if (viewId == cursor.getLong(Query._ID)) {
+							index = cursor.getPosition() + 1;
+							break;
+						}
+					} while (cursor.moveToNext());
+				}
+				cursor.moveToPosition(position);
 			}
 		}
 		return index;

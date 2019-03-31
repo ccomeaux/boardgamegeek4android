@@ -239,8 +239,9 @@
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
-	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection. If you\'ve already done that and you\'re still seeing this message, it\'s probably time to re-sync.</string>
-	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. If you think you should, you might want to try to re-sync.</string>
+	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
+	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. Maybe you should try different filters.</string>
+	<string name="empty_collection_filter_on_sync_partial">Collection sync for some of the filtered statuses is off. Try to enable it from Settings > Sync to display some games.</string>
 	<string name="sync">Sync</string>
 	<string name="empty_game_collection">This game isn\'t in your collection.</string>
 	<string name="re_sync">Re-sync</string>
@@ -267,7 +268,7 @@
 	<string name="empty_generic">Nothing to see here. Move along.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
-	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website it up and you still see this message, please let us know about the error below. Otherwise, please check back here later.\n\n%s</string>
+	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website is up and you still see this message, please let us know about the error below. Otherwise, please check back later.\n\n%s</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_dates">Dates</string>

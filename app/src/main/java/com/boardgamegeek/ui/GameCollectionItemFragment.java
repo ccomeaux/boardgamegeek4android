@@ -7,6 +7,9 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,11 +23,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
+import com.boardgamegeek.extensions.DialogUtils;
 import com.boardgamegeek.extensions.IntKt;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
@@ -36,7 +41,6 @@ import com.boardgamegeek.ui.widget.RatingView;
 import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -175,6 +179,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private boolean needsUploading;
 	@State boolean isItemEditable;
 	private boolean isInEditMode;
+	private boolean isDirty = false;
 
 	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
 		Bundle args = new Bundle();
@@ -189,6 +194,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
@@ -244,7 +250,30 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		unbinder.unbind();
 	}
 
-	@NonNull
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.game_collection_fragment, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_discard).setVisible(!isInEditMode && isDirty);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_discard:
+				DialogUtils.createDiscardDialog(getActivity(), R.string.collection_item, false, false, R.string.keep,
+					() -> TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId))
+				).show();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -271,6 +300,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 			CollectionItem item = CollectionItem.fromCursor(cursor);
 			internalId = item.getInternalId();
+			isDirty = item.isDirty();
 			updateUi(item);
 
 			if (mightNeedRefreshing) {
@@ -298,7 +328,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindVisibility() {
 		boolean isEdit = isInEditMode && isItemEditable;
 
-		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
+		for (View view : editFields) {
+			view.setVisibility(isEdit ? View.VISIBLE : View.GONE);
+		}
 
 		ratingView.enableEditMode(isEdit);
 		commentView.enableEditMode(isEdit);
@@ -309,12 +341,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		hasPartsView.enableEditMode(isEdit);
 
 		if (isEdit) {
-			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setGone);
+			for (View view : visibleByTagOrGoneViews) {
+				view.setVisibility(View.GONE);
+			}
 		} else {
-			ButterKnife.apply(visibleByTagOrGoneViews, setVisibilityByTag);
+			for (View view : visibleByTagOrGoneViews) {
+				boolean isVisible = getVisibleTag(view);
+				view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+			}
 		}
 
-		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
+		for (ViewGroup view : visibleByChildrenViews) {
+			setVisibilityByChildren(view);
+		}
 
 		invalidStatusView.setVisibility(getInvalidVisibility() ? View.VISIBLE : View.GONE);
 	}
@@ -363,7 +402,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		if (palette == null || !isAdded()) return;
 		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.getRgbTextViewSetter(), swatch.getRgb());
+		for (TextView view : colorizedHeaders) {
+			view.setTextColor(swatch.getRgb());
+		}
 		for (TextEditorView textEditorView : textEditorViews) {
 			textEditorView.setHeaderColor(swatch);
 		}
@@ -702,24 +743,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	private static final ButterKnife.Action<View> setVisibilityByTag = new ButterKnife.Action<View>() {
-		@Override
-		public void apply(@NonNull View view, int index) {
-			boolean isVisible = getVisibleTag(view);
-			view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+	private void setVisibilityByChildren(ViewGroup view) {
+		for (int i = 0; i < view.getChildCount(); i++) {
+			final View child = view.getChildAt(i);
+			if (setVisibilityByChild(view, child)) return;
 		}
-	};
-
-	private final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
-		@Override
-		public void apply(@NonNull ViewGroup view, int index) {
-			for (int i = 0; i < view.getChildCount(); i++) {
-				final View child = view.getChildAt(i);
-				if (setVisibilityByChild(view, child)) return;
-			}
-			view.setVisibility(View.GONE);
-		}
-	};
+		view.setVisibility(View.GONE);
+	}
 
 	private static boolean setVisibilityByChild(@NonNull ViewGroup view, View child) {
 		if (child instanceof ViewGroup) {

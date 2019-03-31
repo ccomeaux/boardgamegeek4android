@@ -19,16 +19,12 @@ import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
-import com.boardgamegeek.extensions.asPercentage
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.formatList
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
-import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_play_stats.*
 import java.util.*
@@ -48,7 +44,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         super.onViewCreated(view, savedInstanceState)
 
         collectionStatusSettingsButton.setOnClickListener {
-            DialogUtils.createThemedBuilder(context)
+            requireActivity().createThemedBuilder()
                     .setTitle(R.string.play_stat_title_collection_status)
                     .setMessage(R.string.play_stat_msg_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
@@ -63,7 +59,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         }
 
         includeSettingsButton.setOnClickListener {
-            DialogUtils.showFragment(activity, PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
+            activity?.showFragment(PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
         }
 
         viewModel.getPlays().observe(this, Observer { entity ->

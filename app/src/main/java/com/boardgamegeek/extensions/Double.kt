@@ -9,6 +9,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import java.text.DecimalFormat
+import java.text.NumberFormat
 import kotlin.math.roundToInt
 
 fun Double.asPersonalRating(context: Context?): String {
@@ -50,7 +51,17 @@ fun Double.toColor(colors: IntArray): Int {
     }
 }
 
-fun Double.asMoney(currency: String): String {
-    return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + this.toInt()
+fun Double.asMoney(currency: String, format: DecimalFormat = MONEY_FORMAT): String {
+    return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + format.format(this)
+}
 
+private val MONEY_FORMAT: DecimalFormat
+    get() = setUpMoneyFormatter()
+
+private fun setUpMoneyFormatter(): DecimalFormat {
+    val format = NumberFormat.getCurrencyInstance() as DecimalFormat
+    val symbols = format.decimalFormatSymbols
+    symbols.currencySymbol = ""
+    format.decimalFormatSymbols = symbols
+    return format
 }

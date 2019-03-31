@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout style="@style/RowContainer"
+				xmlns:android="http://schemas.android.com/apk/res/android"
 				xmlns:tools="http://schemas.android.com/tools"
-				style="@style/RowContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
@@ -10,35 +10,33 @@
 
 	<TextView
 		android:id="@+id/username"
-		style="@style/Text.Primary"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
 		android:layout_alignParentTop="true"
+		android:textAppearance="@style/TextAppearance.RowTitle"
 		tools:text="ccomeaux"/>
 
 	<TextView
 		android:id="@+id/rating"
-		style="@style/Text.Primary"
+		style="@style/RatingSmall.Regular"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
 		android:layout_gravity="right|center_vertical"
-		android:paddingBottom="@dimen/padding_small"
-		android:paddingLeft="@dimen/padding_standard"
-		android:paddingRight="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_small"
 		tools:background="#0f0"
 		tools:text="8.5"/>
 
 	<TextView
 		android:id="@+id/comment"
-		style="@style/Text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/rating"
 		android:paddingTop="@dimen/padding_half"
+		android:textAppearance="@style/TextAppearance.RowDetail"
 		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!"/>
 
 </RelativeLayout>
