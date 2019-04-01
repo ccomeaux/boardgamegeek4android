@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.service.SyncService
 
 class SignOutPreference(context: Context, attrs: AttributeSet) : DialogPreference(context, attrs) {
 
@@ -14,7 +13,7 @@ class SignOutPreference(context: Context, attrs: AttributeSet) : DialogPreferenc
         val typedValue = TypedValue()
         getContext().theme.resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true)
         setDialogIcon(typedValue.resourceId)
-        dialogTitle = title.toString() + "?"
+        dialogTitle = "$title?"
         dialogLayoutResource = R.layout.widget_dialogpreference_textview
     }
 
@@ -25,14 +24,6 @@ class SignOutPreference(context: Context, attrs: AttributeSet) : DialogPreferenc
     override fun isEnabled(): Boolean {
         return Authenticator.isSignedIn(context)
     }
-
-//    override fun onDialogClosed(positiveResult: Boolean) {
-//        if (positiveResult) {
-//            SyncService.cancelSync(context)
-//            Authenticator.signOut(context)
-//            notifyChanged()
-//        }
-//    }
 
     fun update() {
         notifyChanged()
