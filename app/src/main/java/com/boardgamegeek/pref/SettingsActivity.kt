@@ -3,11 +3,11 @@ package com.boardgamegeek.pref
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.PreferenceScreen
 import android.view.MenuItem
 import androidx.collection.ArrayMap
+import androidx.fragment.app.DialogFragment
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
@@ -36,7 +36,7 @@ class SettingsActivity : DrawerActivity() {
                 getString(R.string.intent_action_data) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_DATA)
             }
             prefFragment.arguments = args
-            fragmentManager.beginTransaction().add(R.id.root_container, prefFragment, TAG_SINGLE_PANE).commit()
+            supportFragmentManager.beginTransaction().add(R.id.root_container, prefFragment, TAG_SINGLE_PANE).commit()
         }
     }
 
@@ -51,7 +51,7 @@ class SettingsActivity : DrawerActivity() {
     }
 
     override fun onBackPressed() {
-        if (!fragmentManager.popBackStackImmediate()) {
+        if (!supportFragmentManager.popBackStackImmediate()) {
             super.onBackPressed()
         }
     }
@@ -61,17 +61,15 @@ class SettingsActivity : DrawerActivity() {
         args.putString(KEY_SETTINGS_FRAGMENT, key)
         val fragment = PrefFragment()
         fragment.arguments = args
-        fragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
+        supportFragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
     }
 
-    class PrefFragment : PreferenceFragment(), OnSharedPreferenceChangeListener {
+    class PrefFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
         private var syncType = SyncService.FLAG_SYNC_NONE
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
             if (fragmentKey.isNullOrBlank()) {
                 addPreferencesFromResource(R.xml.preference_headers)
@@ -144,19 +142,19 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PreferencesUtils.KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefs.requestPartialSync(activity)
+                    SyncPrefs.requestPartialSync(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefs.requestPartialSync(activity)
+                    SyncPrefs.requestPartialSync(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_PLAYS -> {
-                    SyncPrefs.clearPlaysTimestamps(activity)
+                    SyncPrefs.clearPlaysTimestamps(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
                 PreferencesUtils.KEY_SYNC_BUDDIES -> {
-                    SyncPrefs.clearBuddyListTimestamps(activity)
+                    SyncPrefs.clearBuddyListTimestamps(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
                 }
             }
@@ -174,14 +172,39 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
-            preference.apply {
-                if (key?.startsWith(ACTION_PREFIX) == true) {
-                    (activity as SettingsActivity).replaceFragment(key)
-                    return true
+        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+            preference?.key?.let {
+                return when {
+                    it.startsWith(ACTION_PREFIX) -> {
+                        (activity as SettingsActivity).replaceFragment(it)
+                        true
+                    }
+                    else -> {
+                        super.onPreferenceTreeClick(preference)
+                    }
                 }
             }
-            return super.onPreferenceTreeClick(preferenceScreen, preference)
+            return super.onPreferenceTreeClick(preference)
+        }
+
+        private val dialogFragmentTag = "PreferenceFragment.DIALOG"
+
+        override fun onDisplayPreferenceDialog(preference: Preference?) {
+            if (fragmentManager?.findFragmentByTag(dialogFragmentTag) != null) {
+                return
+            }
+
+            val dialogFragment: DialogFragment? = when (preference) {
+                is SignOutPreference -> SignOutDialogFragment.newInstance(preference.key)
+                is ConfirmDialogPreference -> ConfirmDialogFragment.newInstance(preference.key)
+                is SyncTimestampsDialogPreference -> SyncTimestampsDialogFragment.newInstance(preference.key)
+                else -> null
+            }
+
+            if (dialogFragment != null) {
+                dialogFragment.setTargetFragment(this, 0)
+                dialogFragment.show(fragmentManager, dialogFragmentTag)
+            } else super.onDisplayPreferenceDialog(preference)
         }
 
         @Subscribe(threadMode = ThreadMode.MAIN)
@@ -191,7 +214,7 @@ class SettingsActivity : DrawerActivity() {
 
         @Subscribe(threadMode = ThreadMode.MAIN)
         fun onEvent(@Suppress("UNUSED_PARAMETER") event: SignOutEvent) {
-            toast(R.string.msg_sign_out_success)
+            context?.toast(R.string.msg_sign_out_success)
             updateAccountPrefs("")
         }
 

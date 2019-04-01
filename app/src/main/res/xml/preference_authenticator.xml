@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceScreen
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<androidx.preference.PreferenceScreen
 		android:icon="@drawable/ic_account_circle_black_24dp"
 		android:key="com.boardgamegeek.prefs.ACCOUNT"
 		android:summary="@string/pref_account_summary"
@@ -9,8 +9,8 @@
 			android:action="@string/intent_action_account"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek"/>
-	</PreferenceScreen>
-	<PreferenceScreen
+	</androidx.preference.PreferenceScreen>
+	<androidx.preference.PreferenceScreen
 		android:icon="@drawable/ic_action_refresh_light"
 		android:key="com.boardgamegeek.prefs.SYNC"
 		android:summary="@string/pref_sync_summary"
@@ -19,7 +19,7 @@
 			android:action="@string/intent_action_sync"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek"/>
-	</PreferenceScreen>
+	</androidx.preference.PreferenceScreen>
 	<PreferenceScreen
 		android:icon="@drawable/ic_storage"
 		android:key="com.boardgamegeek.prefs.DATA"
@@ -30,4 +30,4 @@
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek"/>
 	</PreferenceScreen>
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>
