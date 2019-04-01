@@ -24,5 +24,7 @@
 		android:positiveButtonText="@string/pref_sync_reset_pos"
 		android:title="@string/pref_sync_reset_buddies"/>
 
-	<com.boardgamegeek.pref.SyncTimestampsDialogPreference android:title="@string/pref_sync_timestamps"/>
+	<com.boardgamegeek.pref.SyncTimestampsDialogPreference
+		android:key="sync_timestamps"
+		android:title="@string/pref_sync_timestamps"/>
 </androidx.preference.PreferenceScreen>
