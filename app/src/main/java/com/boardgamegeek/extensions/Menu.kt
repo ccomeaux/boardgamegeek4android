@@ -4,12 +4,10 @@ import android.view.Menu
 import android.widget.TextView
 import androidx.annotation.IdRes
 
-fun Menu.setActionBarCount(@IdRes id: Int, count: Int) {
-    setActionBarText(id, if (count <= 0) "" else "%,d".format(count), null)
-}
-
 fun Menu.setActionBarCount(@IdRes id: Int, count: Int, text: String?) {
-    setActionBarText(id, if (count <= 0) "" else "%,d".format(count), text)
+    setActionBarText(id,
+            if (count <= 0) "" else "%,d".format(count),
+            if (count <= 0) "" else text)
 }
 
 fun Menu.setActionBarText(@IdRes id: Int, text1: String, text2: String?) {
