@@ -922,7 +922,7 @@ public class PlaysFragment extends Fragment implements
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		int count = adapter.getSelectedItemCount();
-		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_plays_selected, count, count));
 		menu.findItem(R.id.menu_send).setVisible(adapter.areAllSelectedItemsPending());
 		menu.findItem(R.id.menu_edit).setVisible(adapter.getSelectedItemCount() == 1);
 		return true;
