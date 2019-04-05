@@ -194,7 +194,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     private fun search(query: String, shouldSearchExact: Boolean) {
         if (!isAdded) return
-        progressView.fadeIn()
         Answers.getInstance().logSearch(SearchEvent().putQuery(query))
         if (shouldSearchExact) {
             viewModel.search(query)
