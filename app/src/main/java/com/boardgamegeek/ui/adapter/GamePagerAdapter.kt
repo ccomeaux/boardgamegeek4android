@@ -82,7 +82,6 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
             LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
         })
         tabs.add(Tab(R.string.title_info, R.drawable.fab_favorite_off) {
-            if (updateFavIcon(!isFavorite)) displayFab()
             viewModel.updateFavorite(!isFavorite)
         })
         if (shouldShowCollection())
@@ -109,37 +108,38 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
                     updateFavIcon(isFavorite)
                     fab.colorize(iconColor)
                     fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
-                    displayFab()
+                    displayFab(false)
                 }
             }
         })
     }
 
-    private fun updateFavIcon(isFavorite: Boolean): Boolean {
+    private fun updateFavIcon(isFavorite: Boolean) {
         tabs.find { it.titleResId == R.string.title_info }?.let {
-            val resId = if (isFavorite) R.drawable.fab_favorite_on else R.drawable.fab_favorite_off
-            if (resId != it.imageResId) {
-                it.imageResId = resId
-                if (it.titleResId == tabs.getOrNull(currentPosition)?.titleResId ?: INVALID_RES_ID)
-                    return true
-            }
+            it.imageResId = if (isFavorite) R.drawable.fab_favorite_on else R.drawable.fab_favorite_off
         }
-        return false
     }
 
-    private fun displayFab() {
+    private fun displayFab(animateChange: Boolean = true) {
         @DrawableRes val resId = tabs.getOrNull(currentPosition)?.imageResId ?: INVALID_RES_ID
         if (resId != INVALID_RES_ID) {
             val existingResId = fab.getTag(R.id.res_id) as? Int? ?: INVALID_RES_ID
             if (resId != existingResId) {
                 if (fab.isShown) {
-                    fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
-                        override fun onHidden(fab: FloatingActionButton?) {
-                            super.onHidden(fab)
-                            fab?.setImageResource(resId)
-                            fab?.show()
-                        }
-                    })
+                    if (animateChange) {
+                        fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
+                            override fun onHidden(fab: FloatingActionButton?) {
+                                super.onHidden(fab)
+                                fab?.setImageResource(resId)
+                                fab?.show()
+                            }
+                        })
+                    } else {
+                        fab.setImageResource(resId)
+                        // HACK or else the icon just disappears
+                        fab.hide()
+                        fab.show()
+                    }
                 } else {
                     fab.setImageResource(resId)
                     fab.show()
