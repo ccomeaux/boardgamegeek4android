@@ -144,9 +144,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 
-    implementation 'com.google.firebase:firebase-core:16.0.7'
-    implementation 'com.google.firebase:firebase-config:16.3.0'
-    implementation 'com.google.firebase:firebase-messaging:17.4.0'
+    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-config:16.4.1'
+    implementation 'com.google.firebase:firebase-messaging:17.5.0'
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
