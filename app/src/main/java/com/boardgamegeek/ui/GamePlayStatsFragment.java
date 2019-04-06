@@ -36,11 +36,10 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.MathUtils;
-import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
-import com.github.mikephil.charting.animation.Easing.EasingOption;
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -343,7 +342,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 			BarData data = new BarData(dataSets);
 			playCountChart.setData(data);
-			playCountChart.animateY(1000, EasingOption.EaseInOutBack);
+			playCountChart.animateY(1000, Easing.EaseInOutBack);
 			playCountChart.setVisibility(View.VISIBLE);
 		} else {
 			playCountChart.setVisibility(View.GONE);
