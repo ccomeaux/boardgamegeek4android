@@ -189,8 +189,8 @@ dependencies {
 
     implementation 'com.appyvet:materialrangebar:1.4.5'
 
-    implementation 'com.facebook.stetho:stetho:1.5.0'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+    implementation "com.facebook.stetho:stetho:$stetho_version"
+    implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
     implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
 
