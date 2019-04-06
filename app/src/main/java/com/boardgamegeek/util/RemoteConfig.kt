@@ -61,7 +61,7 @@ class RemoteConfig {
             firebaseRemoteConfig.fetch(cacheExpiration).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.i("Successfully fetched Firebase remote config.")
-                    firebaseRemoteConfig.activateFetched()
+                    firebaseRemoteConfig.activate()
                 } else {
                     Timber.i(task.exception, "Failed to fetch Firebase remote config.")
                 }

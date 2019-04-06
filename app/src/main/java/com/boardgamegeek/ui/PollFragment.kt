@@ -1,14 +1,13 @@
 package com.boardgamegeek.ui
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.extensions.fadeIn
@@ -17,7 +16,7 @@ import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.extensions.twelveStageColors
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.IntegerValueFormatter
-import com.github.mikephil.charting.animation.Easing.EasingOption
+import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment
 import com.github.mikephil.charting.components.Legend.LegendVerticalAlignment
 import com.github.mikephil.charting.data.Entry
@@ -26,6 +25,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_poll.*
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -117,7 +117,7 @@ class PollFragment : DialogFragment() {
             chartView?.data = data
             chartView?.centerText = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
 
-            chartView?.animateY(1000, EasingOption.EaseOutCubic)
+            chartView?.animateY(1000, Easing.EaseOutCubic)
         }
         progressView?.hide()
         scrollView?.fadeIn()

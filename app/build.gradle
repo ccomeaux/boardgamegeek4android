@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
-        classpath 'io.fabric.tools:gradle:1.27.1'
+        classpath 'io.fabric.tools:gradle:1.28.1'
     }
 }
 
@@ -131,7 +131,7 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.annotation:annotation:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha4'
     implementation 'androidx.preference:preference:1.0.0'
 
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -144,9 +144,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 
-    implementation 'com.google.firebase:firebase-core:16.0.7'
-    implementation 'com.google.firebase:firebase-config:16.3.0'
-    implementation 'com.google.firebase:firebase-messaging:17.4.0'
+    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-config:16.5.0'
+    implementation 'com.google.firebase:firebase-messaging:17.6.0'
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
@@ -158,8 +158,8 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
 
-    implementation 'com.squareup.okhttp3:okhttp:3.13.1'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.13.1'
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
@@ -185,12 +185,12 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.1.1'
     annotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.1'
 
-    implementation 'com.github.PhilJay:MPAndroidChart:3.0.3'
+    implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
 
     implementation 'com.appyvet:materialrangebar:1.4.5'
 
-    implementation 'com.facebook.stetho:stetho:1.5.0'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+    implementation "com.facebook.stetho:stetho:$stetho_version"
+    implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
     implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
 
