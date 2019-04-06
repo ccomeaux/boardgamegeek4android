@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
@@ -20,7 +21,6 @@ import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
 import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
@@ -131,8 +131,8 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             snackbar.setText(resources.getQuantityString(messageId, count, count, queryText))
             if (isExactMatch) {
                 snackbar.setAction(R.string.more) {
-                    search(queryText, false)
-                    Answers.getInstance().logCustom(CustomEvent("SearchMore"))
+                    Answers.getInstance().logSearch(SearchEvent().putQuery(queryText).putCustomAttribute("exact", "false"))
+                    viewModel.searchInexact(queryText)
                 }
             } else {
                 snackbar.setAction("", null)
@@ -147,8 +147,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-        recyclerView.addItemDecoration(androidx.recyclerview.widget.DividerItemDecoration(context, androidx.recyclerview.widget.DividerItemDecoration.VERTICAL))
+        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = searchResultsAdapter
     }
 
@@ -185,20 +184,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 this.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(context))
                 this.show()
             }
-        }
-    }
-
-    fun search(query: String) {
-        search(query, true)
-    }
-
-    private fun search(query: String, shouldSearchExact: Boolean) {
-        if (!isAdded) return
-        Answers.getInstance().logSearch(SearchEvent().putQuery(query))
-        if (shouldSearchExact) {
-            viewModel.search(query)
-        } else {
-            viewModel.searchInexact(query)
         }
     }
 

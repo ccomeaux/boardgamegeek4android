@@ -7,8 +7,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.ui.viewmodel.SearchViewModel
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.SearchEvent
 import org.jetbrains.anko.longToast
 
 
@@ -20,6 +24,10 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
 
     private var searchText: String? = null
     private var searchView: SearchView? = null
+
+    private val viewModel: SearchViewModel by lazy {
+        ViewModelProviders.of(this).get(SearchViewModel::class.java)
+    }
 
     override val optionsMenuId: Int
         get() = R.menu.search_widget
@@ -65,7 +73,8 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null && query.length > 1) {
-                    (fragment as SearchResultsFragment).search(query)
+                    Answers.getInstance().logSearch(SearchEvent().putQuery(query).putCustomAttribute("exact", "true"))
+                    viewModel.search(query)
                 }
                 // close the auto-complete list; don't pass to a different activity
                 searchView.clearFocus()
@@ -97,8 +106,15 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
             Intent.ACTION_SEARCH,
             ACTION_VOICE_SEARCH -> {
                 // searches invoked by the device
-                searchText = intent.getStringExtra(SearchManager.QUERY) ?: ""
-                searchView?.setQuery(searchText, true)
+                val query = intent.getStringExtra(SearchManager.QUERY) ?: ""
+                Answers.getInstance().logSearch(SearchEvent().putQuery(query).putCustomAttribute("exact", "true"))
+                if (searchView == null) {
+                    // sometimes this is invoked before the menu is created
+                    viewModel.search(query)
+                } else {
+                    searchView?.setQuery(query, true)
+                }
+                searchText = query
             }
         }
     }
