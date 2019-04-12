@@ -9,10 +9,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.extensions.TaskUtils;
-import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.tasks.sync.SyncArtistTask;
 import com.boardgamegeek.tasks.sync.SyncDesignerTask;
 import com.boardgamegeek.tasks.sync.SyncPublisherTask;
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
@@ -130,8 +128,6 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		CursorLoader loader = null;
 		if (id == ProducerType.DESIGNER.getValue()) {
 			loader = new CursorLoader(getContext(), Designers.buildDesignerUri(this.id), DesignerQuery.PROJECTION, null, null, null);
-		} else if (id == ProducerType.ARTIST.getValue()) {
-			loader = new CursorLoader(getContext(), Artists.buildArtistUri(this.id), ArtistQuery.PROJECTION, null, null, null);
 		} else if (id == ProducerType.PUBLISHER.getValue()) {
 			loader = new CursorLoader(getContext(), Publishers.buildPublisherUri(this.id), PublisherQuery.PROJECTION, null, null, null);
 
@@ -175,10 +171,6 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 			switch (type) {
 				case DESIGNER:
 					TaskUtils.executeAsyncTask(new SyncDesignerTask(getContext(), id));
-					updateRefreshStatus(true);
-					break;
-				case ARTIST:
-					TaskUtils.executeAsyncTask(new SyncArtistTask(getContext(), id));
 					updateRefreshStatus(true);
 					break;
 				case PUBLISHER:
@@ -226,15 +218,6 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncArtistTask.CompletedEvent event) {
-		if (event.getArtistId() == id) {
-			updateRefreshStatus(false);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SyncPublisherTask.CompletedEvent event) {
 		if (event.getPublisherId() == id) {
 			updateRefreshStatus(false);
@@ -250,10 +233,6 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 
 	private interface DesignerQuery extends Query {
 		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers.DESIGNER_DESCRIPTION, Designers.UPDATED };
-	}
-
-	private interface ArtistQuery extends Query {
-		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists.ARTIST_DESCRIPTION, Artists.UPDATED };
 	}
 
 	private interface PublisherQuery extends Query {

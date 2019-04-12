@@ -68,8 +68,6 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 		switch (type) {
 			case DESIGNER:
 				return getString(R.string.title_designer);
-			case ARTIST:
-				return getString(R.string.title_artist);
 			case PUBLISHER:
 				return getString(R.string.title_publisher);
 			default:

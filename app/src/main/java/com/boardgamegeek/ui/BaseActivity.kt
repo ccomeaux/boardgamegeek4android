@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui
 
-import androidx.annotation.MenuRes
-import androidx.core.app.NavUtils
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.MenuRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NavUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.service.SyncService
-
-const val INVALID_MENU_ID = 0
 
 /**
  * Registers/unregisters a sticky event bus
@@ -57,5 +55,9 @@ abstract class BaseActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    companion object {
+        const val INVALID_MENU_ID = 0
     }
 }

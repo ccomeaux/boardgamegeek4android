@@ -17,6 +17,7 @@ import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.setOrClearColorFilter
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.ArtistActivity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import com.boardgamegeek.ui.ProducerActivity
@@ -90,10 +91,11 @@ class GameDetailRow @JvmOverloads constructor(
                     descriptionView.setTextOrHide(description)
                     setOnClickListener {
                         when (type) {
+                            ProducerType.ARTIST -> ArtistActivity.start(context, id, name)
                             ProducerType.DESIGNER,
-                            ProducerType.ARTIST,
-                            ProducerType.PUBLISHER ->
+                            ProducerType.PUBLISHER -> {
                                 ProducerActivity.start(context, type, id, name)
+                            }
                             ProducerType.EXPANSIONS,
                             ProducerType.BASE_GAMES -> {
                                 GameActivity.start(context, id, name)

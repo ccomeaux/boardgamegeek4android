@@ -1,12 +1,13 @@
 package com.boardgamegeek.ui.adapter
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
+import com.boardgamegeek.ui.ArtistActivity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.ProducerActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -49,8 +50,8 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
                     GameViewModel.ProducerType.EXPANSIONS,
                     GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, entity.id, entity.name) }
                     GameViewModel.ProducerType.DESIGNER,
-                    GameViewModel.ProducerType.ARTIST,
                     GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, entity.id, entity.name) }
+                    GameViewModel.ProducerType.ARTIST -> itemView.setOnClickListener { ArtistActivity.start(itemView.context, entity.id, entity.name) }
                     else -> {
                         itemView.setOnClickListener { }
                         itemView.isClickable = false

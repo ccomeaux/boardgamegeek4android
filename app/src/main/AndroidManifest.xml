@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-	xmlns:tools="http://schemas.android.com/tools"
 	package="com.boardgamegeek"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
@@ -102,6 +102,10 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
+		<activity
+			android:name=".ui.ArtistActivity"
+			android:exported="false"
+			android:label="@string/title_artist"/>
 		<activity
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
