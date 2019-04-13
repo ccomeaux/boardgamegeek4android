@@ -97,7 +97,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_HERO_IMAGE_URL = 49;
 	private static final int VER_GAME_PALETTE_COLORS = 50;
 	private static final int VER_PRIVATE_INFO_INVENTORY_LOCATION = 51;
-	private static final int DATABASE_VERSION = VER_PRIVATE_INFO_INVENTORY_LOCATION;
+	private static final int VER_ARTIST_IMAGES = 52;
+	private static final int DATABASE_VERSION = VER_ARTIST_IMAGES;
 
 	private final Context context;
 
@@ -252,7 +253,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Artists.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Artists.ARTIST_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Artists.ARTIST_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT);
+			.addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPublishersTable() {
@@ -810,6 +815,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 				case VER_GAME_PALETTE_COLORS:
 					addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_INVENTORY_LOCATION, COLUMN_TYPE.TEXT);
 					version = VER_PRIVATE_INFO_INVENTORY_LOCATION;
+				case VER_PRIVATE_INFO_INVENTORY_LOCATION:
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_ARTIST_IMAGES;
 			}
 
 			if (version != DATABASE_VERSION) {

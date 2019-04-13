@@ -86,6 +86,10 @@ public class BggContract {
 		String ARTIST_ID = "artist_id";
 		String ARTIST_NAME = "artist_name";
 		String ARTIST_DESCRIPTION = "artist_description";
+		String ARTIST_IMAGE_URL = "artist_image_url";
+		String ARTIST_THUMBNAIL_URL = "artist_thumbnail_url";
+		String ARTIST_HERO_IMAGE_URL = "artist_hero_image_url";
+		String ARTIST_IMAGES_UPDATED_TIMESTAMP = "artist_images_updated_timestamp";
 	}
 
 	interface PublishersColumns {

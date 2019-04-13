@@ -45,7 +45,17 @@ class ArtistActivity : HeroTabActivity() {
                 else -> {
                     it.data.apply {
                         safelySetTitle(name)
-                        //TODO changeImage(heroImageUrl, thumbnailUrl)
+                    }
+                }
+            }
+        })
+        viewModel.artistImages.observe(this, Observer { resource ->
+            resource?.let { entity ->
+                if (entity.status == Status.SUCCESS) entity.data?.let {
+                    if (it.heroImageUrl.isBlank()) {
+                        loadToolbarImage(it.thumbnailUrl)
+                    } else {
+                        loadToolbarImage(it.heroImageUrl)
                     }
                 }
             }

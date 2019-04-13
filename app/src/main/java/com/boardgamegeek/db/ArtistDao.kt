@@ -5,7 +5,9 @@ import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.ArtistEntity
+import com.boardgamegeek.entities.ArtistImagesEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.provider.BggContract
@@ -49,6 +51,51 @@ class ArtistDao(private val context: BggApplication) {
             return upsert(values, id)
         }
         return 0
+    }
+
+    fun loadArtistImagesAsLiveData(id: Int): LiveData<ArtistImagesEntity> {
+        return RegisteredLiveData(context, BggContract.Artists.buildArtistUri(id), true) {
+            return@RegisteredLiveData loadArtistImages(id)
+        }
+    }
+
+    private fun loadArtistImages(id: Int): ArtistImagesEntity? {
+        return context.contentResolver.load(
+                BggContract.Artists.buildArtistUri(id),
+                arrayOf(
+                        BggContract.Artists.ARTIST_ID,
+                        BggContract.Artists.ARTIST_IMAGE_URL,
+                        BggContract.Artists.ARTIST_THUMBNAIL_URL,
+                        BggContract.Artists.ARTIST_HERO_IMAGE_URL,
+                        BggContract.Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP
+                )
+        )?.use {
+            if (it.moveToFirst()) {
+                ArtistImagesEntity(
+                        it.getInt(BggContract.Artists.ARTIST_ID),
+                        it.getStringOrEmpty(BggContract.Artists.ARTIST_IMAGE_URL),
+                        it.getStringOrEmpty(BggContract.Artists.ARTIST_THUMBNAIL_URL),
+                        it.getStringOrEmpty(BggContract.Artists.ARTIST_HERO_IMAGE_URL),
+                        it.getLongOrZero(BggContract.Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP)
+                )
+            } else null
+        }
+    }
+
+    fun saveArtistImage(id: Int, artist: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
+        if (artist != null) {
+            val values = contentValuesOf(
+                    BggContract.Artists.ARTIST_IMAGE_URL to artist.items[0].image,
+                    BggContract.Artists.ARTIST_THUMBNAIL_URL to artist.items[0].thumbnail,
+                    BggContract.Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to updateTime
+            )
+            return upsert(values, id)
+        }
+        return 0
+    }
+
+    fun update(artistId: Int, values: ContentValues): Int {
+        return context.contentResolver.update(BggContract.Artists.buildArtistUri(artistId), values, null, null)
     }
 
     private fun upsert(values: ContentValues, artistId: Int): Int {

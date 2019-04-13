@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.entities.ArtistEntity
+import com.boardgamegeek.entities.ArtistImagesEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
@@ -24,6 +25,13 @@ class ArtistViewModel(application: Application) : AndroidViewModel(application) 
         when (artistId) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameRepository.loadArtist(artistId)
+        }
+    }
+
+    val artistImages: LiveData<RefreshableResource<ArtistImagesEntity>> = Transformations.switchMap(_artistId) { artistId ->
+        when (artistId) {
+            BggContract.INVALID_ID -> AbsentLiveData.create()
+            else -> gameRepository.loadArtistImages(artistId)
         }
     }
 
