@@ -30,6 +30,22 @@ class ForumRepository(val application: BggApplication) {
         }.asLiveData()
     }
 
+    fun getForumsForPerson(personId: Int): LiveData<RefreshableResource<List<ForumEntity>>> {
+        return object : NetworkLoader<List<ForumEntity>, ForumListResponse>(application) {
+            override val typeDescriptionResId: Int
+                get() = R.string.title_forums
+
+            override fun createCall(): Call<ForumListResponse> {
+                return Adapter.createForXml().forumList(BggService.FORUM_TYPE_PERSON, personId)
+            }
+
+            override fun parseResult(result: ForumListResponse): List<ForumEntity> {
+                return mapForums(result)
+            }
+
+        }.asLiveData()
+    }
+
     fun getForums(): LiveData<RefreshableResource<List<ForumEntity>>> {
         return object : NetworkLoader<List<ForumEntity>, ForumListResponse>(application) {
             override val typeDescriptionResId: Int

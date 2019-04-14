@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
@@ -12,7 +13,9 @@ import com.boardgamegeek.ui.adapter.ArtistPagerAdapter
 import com.boardgamegeek.ui.viewmodel.ArtistViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
-import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.clearTop
+import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.toast
 
 class ArtistActivity : HeroTabActivity() {
@@ -24,7 +27,7 @@ class ArtistActivity : HeroTabActivity() {
     }
 
     private val adapter: ArtistPagerAdapter by lazy {
-        ArtistPagerAdapter(supportFragmentManager, this, id)
+        ArtistPagerAdapter(supportFragmentManager, this, id, name)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +82,16 @@ class ArtistActivity : HeroTabActivity() {
 
         @JvmStatic
         fun start(context: Context, id: Int, name: String) {
-            context.startActivity<ArtistActivity>(
+            context.startActivity(createIntent(context, id, name))
+        }
+
+        @JvmStatic
+        fun startUp(context: Context, id: Int, name: String) {
+            context.startActivity(createIntent(context, id, name).clearTask().clearTop())
+        }
+
+        private fun createIntent(context: Context, id: Int, name: String): Intent {
+            return context.intentFor<ArtistActivity>(
                     KEY_ARTIST_ID to id,
                     KEY_ARTIST_NAME to name
             )

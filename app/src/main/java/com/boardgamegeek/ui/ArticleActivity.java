@@ -3,12 +3,11 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.model.Article;
 import com.boardgamegeek.util.ActivityUtils;
@@ -16,11 +15,17 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 
+import org.jetbrains.annotations.NotNull;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+
 public class ArticleActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
 	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_OBJECT_ID = "OBJECT_ID";
+	private static final String KEY_OBJECT_NAME = "OBJECT_NAME";
+	private static final String KEY_OBJECT_TYPE = "OBJECT_TYPE";
 	private static final String KEY_USER = "USER";
 	private static final String KEY_THREAD_ID = "THREAD_ID";
 	private static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
@@ -35,8 +40,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private String threadSubject;
 	private int forumId;
 	private String forumTitle;
-	private int gameId;
-	private String gameName;
+	private int objectId;
+	private String objectName;
+	private ForumType objectType;
 	private String link;
 	private int articleId;
 	private String user;
@@ -45,14 +51,15 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private int editCount;
 	private String body;
 
-	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int gameId, String gameName, Article article) {
+	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType, Article article) {
 		Intent starter = new Intent(context, ArticleActivity.class);
 		starter.putExtra(KEY_THREAD_ID, threadId);
 		starter.putExtra(KEY_THREAD_SUBJECT, threadSubject);
 		starter.putExtra(KEY_FORUM_ID, forumId);
 		starter.putExtra(KEY_FORUM_TITLE, forumTitle);
-		starter.putExtra(KEY_GAME_ID, gameId);
-		starter.putExtra(KEY_GAME_NAME, gameName);
+		starter.putExtra(KEY_OBJECT_ID, objectId);
+		starter.putExtra(KEY_OBJECT_NAME, objectName);
+		starter.putExtra(KEY_OBJECT_TYPE, objectType);
 		starter.putExtra(KEY_USER, article.getUsername());
 		starter.putExtra(KEY_POST_DATE, article.getPostTicks());
 		starter.putExtra(KEY_EDIT_DATE, article.getEditTicks());
@@ -69,12 +76,12 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (TextUtils.isEmpty(gameName)) {
+			if (TextUtils.isEmpty(objectName)) {
 				actionBar.setTitle(forumTitle);
 				actionBar.setSubtitle(threadSubject);
 			} else {
 				actionBar.setTitle(threadSubject + " - " + forumTitle);
-				actionBar.setSubtitle(gameName);
+				actionBar.setSubtitle(objectName);
 			}
 		}
 		if (savedInstanceState == null) {
@@ -91,8 +98,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT);
 		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
 		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
+		objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID);
+		objectName = intent.getStringExtra(KEY_OBJECT_NAME);
+		objectType = (ForumType) intent.getSerializableExtra(KEY_OBJECT_TYPE);
 		link = intent.getStringExtra(KEY_LINK);
 		articleId = intent.getIntExtra(KEY_ARTICLE_ID, BggContract.INVALID_ID);
 		user = intent.getStringExtra(KEY_USER);
@@ -113,23 +121,23 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NotNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				ThreadActivity.startUp(this, threadId, threadSubject, forumId, forumTitle, gameId, gameName);
+				ThreadActivity.startUp(this, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType);
 				finish();
 				return true;
 			case R.id.menu_view:
 				ActivityUtils.link(this, link);
 				return true;
 			case R.id.menu_share:
-				String description = TextUtils.isEmpty(gameName) ?
+				String description = TextUtils.isEmpty(objectName) ?
 					String.format(getString(R.string.share_thread_article_text), threadSubject, forumTitle) :
-					String.format(getString(R.string.share_thread_article_game_text), threadSubject, forumTitle, gameName);
+					String.format(getString(R.string.share_thread_article_object_text), threadSubject, forumTitle, objectName);
 				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link, R.string.title_share);
-				String contentName = TextUtils.isEmpty(gameName) ?
+				String contentName = TextUtils.isEmpty(objectName) ?
 					String.format("%s | %s", forumTitle, threadSubject) :
-					String.format("%s | %s | %s", gameName, forumTitle, threadSubject);
+					String.format("%s | %s | %s", objectName, forumTitle, threadSubject);
 				Answers.getInstance().logShare(new ShareEvent()
 					.putContentType("Article")
 					.putContentName(contentName)

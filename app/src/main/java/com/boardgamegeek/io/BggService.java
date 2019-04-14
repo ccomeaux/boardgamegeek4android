@@ -113,6 +113,7 @@ public interface BggService {
 
 	String FORUM_TYPE_REGION = "region";
 	String FORUM_TYPE_THING = "thing";
+	String FORUM_TYPE_PERSON = "person";
 
 	int FORUM_REGION_BOARDGAME = 1;
 	int FORUM_REGION_RPG = 2;

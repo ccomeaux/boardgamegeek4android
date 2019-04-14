@@ -3,47 +3,52 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+
 public class ForumActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
 	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_OBJECT_TYPE = "OBJECT_TYPE";
+	private static final String KEY_OBJECT_ID = "OBJECT_ID";
+	private static final String KEY_OBJECT_NAME = "OBJECT_NAME";
 
-	private int gameId;
-	private String gameName;
+	private ForumType objectType;
+	private int objectId;
+	private String objectName;
 	private int forumId;
 	private String forumTitle;
 
-	public static void start(Context context, int forumId, String forumTitle, int gameId, String gameName) {
-		Intent starter = createIntent(context, forumId, forumTitle, gameId, gameName);
+	public static void start(Context context, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
+		Intent starter = createIntent(context, forumId, forumTitle, objectId, objectName, objectType);
 		context.startActivity(starter);
 	}
 
-	public static void startUp(Context context, int forumId, String forumTitle, int gameId, String gameName) {
-		Intent starter = createIntent(context, forumId, forumTitle, gameId, gameName);
+	public static void startUp(Context context, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
+		Intent starter = createIntent(context, forumId, forumTitle, objectId, objectName, objectType);
 		starter.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(starter);
 	}
 
 	@NonNull
-	private static Intent createIntent(Context context, int forumId, String forumTitle, int gameId, String gameName) {
+	private static Intent createIntent(Context context, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		Intent starter = new Intent(context, ForumActivity.class);
 		starter.putExtra(KEY_FORUM_ID, forumId);
 		starter.putExtra(KEY_FORUM_TITLE, forumTitle);
-		starter.putExtra(KEY_GAME_ID, gameId);
-		starter.putExtra(KEY_GAME_NAME, gameName);
+		starter.putExtra(KEY_OBJECT_ID, objectId);
+		starter.putExtra(KEY_OBJECT_NAME, objectName);
+		starter.putExtra(KEY_OBJECT_TYPE, objectType);
 		return starter;
 	}
 
@@ -54,12 +59,10 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
 			if (actionBar != null) {
-				if (TextUtils.isEmpty(gameName)) {
-					actionBar.setSubtitle(forumTitle);
-				} else {
-					actionBar.setTitle(forumTitle);
-					actionBar.setSubtitle(gameName);
+				if (!TextUtils.isEmpty(objectName)) {
+					actionBar.setTitle(objectName);
 				}
+				actionBar.setSubtitle(forumTitle);
 			}
 		}
 
@@ -73,15 +76,16 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected void readIntent(Intent intent) {
-		gameName = intent.getStringExtra(KEY_GAME_NAME);
-		gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		objectName = intent.getStringExtra(KEY_OBJECT_NAME);
+		objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID);
+		objectType = (ForumType) intent.getSerializableExtra(KEY_OBJECT_TYPE);
 		forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID);
 		forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
 	}
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return ForumFragment.newInstance(forumId, forumTitle, gameId, gameName);
+		return ForumFragment.newInstance(forumId, forumTitle, objectId, objectName, objectType);
 	}
 
 	@Override
@@ -93,10 +97,12 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (gameId == BggContract.INVALID_ID) {
+				if (objectType == ForumType.REGION) {
 					ForumsActivity.startUp(this);
-				} else {
-					GameActivity.startUp(this, gameId, gameName);
+				} else if (objectType == ForumType.GAME) {
+					GameActivity.startUp(this, objectId, objectName);
+				} else if (objectType == ForumType.ARTIST) {
+					ArtistActivity.startUp(this, objectId, objectName);
 				}
 				finish();
 				return true;
