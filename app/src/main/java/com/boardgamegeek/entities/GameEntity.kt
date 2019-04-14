@@ -8,8 +8,8 @@ class GameEntity(
         val name: String = "",
         val sortName: String = "",
         val subtype: String = "",
-        val thumbnailUrl: String = "",
-        val imageUrl: String = "",
+        override val thumbnailUrl: String = "",
+        override val imageUrl: String = "",
         val description: String = "",
         val yearPublished: Int = YEAR_UNKNOWN,
         val minPlayers: Int = 0,
@@ -18,7 +18,7 @@ class GameEntity(
         val minPlayingTime: Int = 0,
         val maxPlayingTime: Int = 0,
         val minimumAge: Int = 0
-) {
+) : ImagesEntity {
     var hasStatistics = false
     var numberOfRatings = 0
     var rating = 0.0
@@ -35,7 +35,10 @@ class GameEntity(
     var overallRank: Int = RANK_UNKNOWN
     var ranks = arrayListOf<GameRankEntity>()
 
-    var heroImageUrl = ""
+    override var heroImageUrl = ""
+    override val imagesEntityDescription: String
+        get() = "$name ($id)"
+
     var updated: Long = 0
     var updatedPlays: Long = 0
     var customPlayerSort: Boolean = false

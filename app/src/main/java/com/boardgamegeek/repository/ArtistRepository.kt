@@ -8,21 +8,15 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.entities.ArtistEntity
 import com.boardgamegeek.entities.ArtistImagesEntity
-import com.boardgamegeek.entities.ImagesEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.ImageUtils
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -80,46 +74,15 @@ class ArtistRepository(val application: BggApplication) {
             }
         }.asLiveData()
         mediatorLiveData.addSource(liveData) {
-            maybeRefreshHeroImageUrl(it?.data, "artist", started) { url ->
-                artistDao.update(id, ContentValues().apply {
-                    put(BggContract.Artists.ARTIST_HERO_IMAGE_URL, url)
-                })
+            it?.data?.maybeRefreshHeroImageUrl("artist", started) { url ->
+                application.appExecutors.diskIO.execute {
+                    artistDao.update(id, ContentValues().apply {
+                        put(BggContract.Artists.ARTIST_HERO_IMAGE_URL, url)
+                    })
+                }
             }
             mediatorLiveData.value = it
         }
         return mediatorLiveData
-    }
-
-    private fun maybeRefreshHeroImageUrl(entity: ImagesEntity?, description: String, started: AtomicBoolean, successListener: (String) -> Unit = {}) {
-        if (entity == null) return
-        val heroImageId = ImageUtils.getImageId(entity.heroImageUrl)
-        val thumbnailId = ImageUtils.getImageId(entity.thumbnailUrl)
-        if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
-            val call = Adapter.createGeekdoApi().image(thumbnailId)
-            call.enqueue(object : Callback<Image> {
-                override fun onResponse(call: Call<Image>?, response: Response<Image>?) {
-                    if (response?.isSuccessful == true) {
-                        val body = response.body()
-                        if (body != null) {
-                            application.appExecutors.diskIO.execute {
-                                successListener(body.images.medium.url)
-                            }
-                        } else {
-                            Timber.w("Empty body while fetching image $thumbnailId for $description ${entity.id}")
-                        }
-                    } else {
-                        val message = response?.message() ?: response?.code().toString()
-                        Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for $description ${entity.id}")
-                    }
-                    started.set(false)
-                }
-
-                override fun onFailure(call: Call<Image>?, t: Throwable?) {
-                    val message = t?.localizedMessage ?: "Unknown error"
-                    Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for $description ${entity.id}")
-                    started.set(false)
-                }
-            })
-        }
     }
 }
