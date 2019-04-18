@@ -68,8 +68,11 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new DesignersProvider());
 		addProvider(map, new DesignersIdProvider());
+
 		addProvider(map, new ArtistsProvider());
 		addProvider(map, new ArtistsIdProvider());
+		addProvider(map, new ArtistsIdCollectionProvider());
+
 		addProvider(map, new PublishersProvider());
 		addProvider(map, new PublishersIdProvider());
 		addProvider(map, new MechanicsProvider());

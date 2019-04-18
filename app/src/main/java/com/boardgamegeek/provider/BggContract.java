@@ -3,13 +3,14 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class BggContract {
 
@@ -625,12 +626,12 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).build();
 		}
 
-		public static int getArtistId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		public static Uri buildArtistCollectionUri(int artistId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).appendPath(PATH_COLLECTION).build();
 		}
 
-		public static boolean isArtistUri(Uri uri) {
-			return isUri(uri, PATH_ARTISTS);
+		public static int getArtistId(Uri uri) {
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -941,7 +942,7 @@ public class BggContract {
 
 	public static final class PlayLocations {
 		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + COLLATE_NOCASE + " ASC";
-		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY +  " DESC, " + DEFAULT_SORT;
+		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY + " DESC, " + DEFAULT_SORT;
 	}
 
 	public static final class CollectionViews implements CollectionViewsColumns, BaseColumns {

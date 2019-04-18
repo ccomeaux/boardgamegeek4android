@@ -5,7 +5,9 @@ import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.ArtistEntity
+import com.boardgamegeek.entities.ArtistGameEntity
 import com.boardgamegeek.entities.ArtistImagesEntity
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
@@ -92,6 +94,43 @@ class ArtistDao(private val context: BggApplication) {
             return upsert(values, id)
         }
         return 0
+    }
+
+    fun loadCollectionAsLiveData(id: Int): LiveData<List<ArtistGameEntity>>? {
+        return RegisteredLiveData(context, BggContract.Artists.buildArtistCollectionUri(id), true) {
+            return@RegisteredLiveData loadCollection(id)
+        }
+    }
+
+    private fun loadCollection(artistId: Int): List<ArtistGameEntity> {
+        val list = arrayListOf<ArtistGameEntity>()
+        context.contentResolver.load(
+                BggContract.Artists.buildArtistCollectionUri(artistId),
+                arrayOf(
+                        "games." + BggContract.Collection.GAME_ID,
+                        BggContract.Collection.GAME_NAME,
+                        BggContract.Collection.COLLECTION_NAME,
+                        BggContract.Collection.COLLECTION_YEAR_PUBLISHED,
+                        BggContract.Collection.COLLECTION_THUMBNAIL_URL,
+                        BggContract.Collection.THUMBNAIL_URL,
+                        BggContract.Collection.HERO_IMAGE_URL
+                )
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list += ArtistGameEntity(
+                            it.getInt(BggContract.Collection.GAME_ID),
+                            it.getStringOrEmpty(BggContract.Collection.GAME_NAME),
+                            it.getStringOrEmpty(BggContract.Collection.COLLECTION_NAME),
+                            it.getIntOrNull(BggContract.Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
+                            it.getStringOrEmpty(BggContract.Collection.COLLECTION_THUMBNAIL_URL),
+                            it.getStringOrEmpty(BggContract.Collection.THUMBNAIL_URL),
+                            it.getStringOrEmpty(BggContract.Collection.HERO_IMAGE_URL)
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return list
     }
 
     fun update(artistId: Int, values: ContentValues): Int {

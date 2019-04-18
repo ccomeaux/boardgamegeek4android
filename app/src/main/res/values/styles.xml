@@ -586,7 +586,7 @@
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
-		<item name="android:textAppearance">@style/Text</item>
+		<item name="android:textAppearance">@style/Text.Empty</item>
 	</style>
 
 	<style name="EmptyContainer">
