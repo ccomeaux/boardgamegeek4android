@@ -40,14 +40,13 @@
 					android:paddingTop="@dimen/padding_standard">
 
 					<TextView
-						android:id="@+id/emptyMessage"
+						android:id="@+id/emptyMessageView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/empty_artist"
 						android:textAppearance="@style/Text.Empty"/>
 
 					<TextView
-						android:id="@+id/artistDescription"
+						android:id="@+id/descriptionView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:textAppearance="@style/Text.Body"
@@ -77,7 +76,7 @@
 						tools:text="Yesterday"/>
 
 					<TextView
-						android:id="@+id/artistIdView"
+						android:id="@+id/idView"
 						style="@style/Text.Footnote2"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"

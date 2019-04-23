@@ -65,14 +65,10 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 	}
 
 	private String getContentType(ProducerType type) {
-		switch (type) {
-			case DESIGNER:
-				return getString(R.string.title_designer);
-			case PUBLISHER:
-				return getString(R.string.title_publisher);
-			default:
-				return "";
+		if (type == ProducerType.PUBLISHER) {
+			return getString(R.string.title_publisher);
 		}
+		return "";
 	}
 
 	@Override

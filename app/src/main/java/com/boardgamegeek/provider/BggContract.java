@@ -81,6 +81,10 @@ public class BggContract {
 		String DESIGNER_ID = "designer_id";
 		String DESIGNER_NAME = "designer_name";
 		String DESIGNER_DESCRIPTION = "designer_description";
+		String DESIGNER_IMAGE_URL = "designer_image_url";
+		String DESIGNER_THUMBNAIL_URL = "designer_thumbnail_url";
+		String DESIGNER_HERO_IMAGE_URL = "designer_hero_image_url";
+		String DESIGNER_IMAGES_UPDATED_TIMESTAMP = "designer_images_updated_timestamp";
 	}
 
 	interface ArtistsColumns {
@@ -597,8 +601,8 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
-		public static boolean isDesignerUri(Uri uri) {
-			return isUri(uri, PATH_DESIGNERS);
+		public static Uri buildDesignerCollectionUri(int designerId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(designerId)).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -936,7 +940,11 @@ public class BggContract {
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
-			return Long.valueOf(uri.getLastPathSegment());
+			if (uri != null) {
+				String lastPathSegment = uri.getLastPathSegment();
+				return lastPathSegment == null ? BggContract.INVALID_ID : Long.valueOf(lastPathSegment);
+			}
+			return BggContract.INVALID_ID;
 		}
 	}
 
@@ -979,7 +987,11 @@ public class BggContract {
 		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + COLLATE_NOCASE + " ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {
-			return Integer.valueOf(uri.getLastPathSegment());
+			if (uri != null) {
+				String lastPathSegment = uri.getLastPathSegment();
+				return lastPathSegment == null ? BggContract.INVALID_ID : Integer.valueOf(lastPathSegment);
+			}
+			return BggContract.INVALID_ID;
 		}
 	}
 

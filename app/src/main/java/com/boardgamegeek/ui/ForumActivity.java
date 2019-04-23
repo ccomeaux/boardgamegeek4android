@@ -102,7 +102,9 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 				} else if (objectType == ForumType.GAME) {
 					GameActivity.startUp(this, objectId, objectName);
 				} else if (objectType == ForumType.ARTIST) {
-					ArtistActivity.startUp(this, objectId, objectName);
+					PersonActivity.startUpForArtist(this, objectId, objectName);
+				} else if (objectType == ForumType.DESIGNER) {
+					PersonActivity.startUpForDesigner(this, objectId, objectName);
 				}
 				finish();
 				return true;

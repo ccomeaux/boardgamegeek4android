@@ -7,11 +7,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import androidx.annotation.NonNull;
-import androidx.collection.SimpleArrayMap;
 
 import java.io.FileNotFoundException;
 
+import androidx.annotation.NonNull;
+import androidx.collection.SimpleArrayMap;
 import hugo.weaving.DebugLog;
 
 public class BggProvider extends ContentProvider {
@@ -68,6 +68,7 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new DesignersProvider());
 		addProvider(map, new DesignersIdProvider());
+		addProvider(map, new DesignersIdCollectionProvider());
 
 		addProvider(map, new ArtistsProvider());
 		addProvider(map, new ArtistsIdProvider());
@@ -75,6 +76,7 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new PublishersProvider());
 		addProvider(map, new PublishersIdProvider());
+
 		addProvider(map, new MechanicsProvider());
 		addProvider(map, new MechanicsIdProvider());
 		addProvider(map, new CategoriesProvider());

@@ -9,9 +9,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.extensions.TaskUtils;
-import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.tasks.sync.SyncDesignerTask;
 import com.boardgamegeek.tasks.sync.SyncPublisherTask;
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType;
 import com.boardgamegeek.ui.widget.TimestampView;
@@ -126,9 +124,7 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == ProducerType.DESIGNER.getValue()) {
-			loader = new CursorLoader(getContext(), Designers.buildDesignerUri(this.id), DesignerQuery.PROJECTION, null, null, null);
-		} else if (id == ProducerType.PUBLISHER.getValue()) {
+		if (id == ProducerType.PUBLISHER.getValue()) {
 			loader = new CursorLoader(getContext(), Publishers.buildPublisherUri(this.id), PublisherQuery.PROJECTION, null, null, null);
 
 		}
@@ -168,15 +164,9 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	@DebugLog
 	private void requestRefresh() {
 		if (!isRefreshing) {
-			switch (type) {
-				case DESIGNER:
-					TaskUtils.executeAsyncTask(new SyncDesignerTask(getContext(), id));
-					updateRefreshStatus(true);
-					break;
-				case PUBLISHER:
-					TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
-					updateRefreshStatus(true);
-					break;
+			if (type == ProducerType.PUBLISHER) {
+				TaskUtils.executeAsyncTask(new SyncPublisherTask(getContext(), id));
+				updateRefreshStatus(true);
 			}
 		} else {
 			updateRefreshStatus(false);
@@ -197,21 +187,9 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 	private void updateRefreshStatus(boolean value) {
 		this.isRefreshing = value;
 		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
-				}
+			swipeRefreshLayout.post(() -> {
+				if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 			});
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onEvent(SyncDesignerTask.CompletedEvent event) {
-		if (event.getDesignerId() == id) {
-			updateRefreshStatus(false);
 		}
 	}
 
@@ -229,10 +207,6 @@ public class ProducerFragment extends Fragment implements LoaderCallbacks<Cursor
 		int NAME = 1;
 		int DESCRIPTION = 2;
 		int UPDATED = 3;
-	}
-
-	private interface DesignerQuery extends Query {
-		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers.DESIGNER_DESCRIPTION, Designers.UPDATED };
 	}
 
 	private interface PublisherQuery extends Query {

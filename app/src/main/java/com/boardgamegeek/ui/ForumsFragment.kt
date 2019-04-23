@@ -50,8 +50,9 @@ class ForumsFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         when (forumType) {
             ForumEntity.ForumType.GAME -> viewModel.setGameId(objectId)
-            ForumEntity.ForumType.ARTIST -> viewModel.setPersonId(objectId)
             ForumEntity.ForumType.REGION -> viewModel.setRegion()
+            ForumEntity.ForumType.ARTIST,
+            ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
         }
         viewModel.forums.observe(this, Observer {
             when (it?.status) {
@@ -108,6 +109,16 @@ class ForumsFragment : Fragment() {
             return ForumsFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(KEY_TYPE, ForumEntity.ForumType.ARTIST)
+                    putInt(KEY_OBJECT_ID, id)
+                    putString(KEY_OBJECT_NAME, name)
+                }
+            }
+        }
+
+        fun newInstanceForDesigner(id: Int, name: String): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.DESIGNER)
                     putInt(KEY_OBJECT_ID, id)
                     putString(KEY_OBJECT_NAME, name)
                 }

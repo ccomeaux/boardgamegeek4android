@@ -6,28 +6,40 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.ui.ArtistCollectionFragment
-import com.boardgamegeek.ui.ArtistDescriptionFragment
+import com.boardgamegeek.ui.PersonActivity
 import com.boardgamegeek.ui.ForumsFragment
+import com.boardgamegeek.ui.PersonCollectionFragment
+import com.boardgamegeek.ui.PersonDescriptionFragment
 
-class ArtistPagerAdapter(
+class PersonPagerAdapter(
         fragmentManager: FragmentManager,
         private val activity: FragmentActivity,
         private val id: Int,
-        private val name: String
+        private val name: String,
+        private val type: PersonActivity.PersonType
 ) : FragmentPagerAdapter(fragmentManager) {
     override fun getItem(position: Int): Fragment? {
         return when (position) {
-            0 -> ArtistDescriptionFragment.newInstance()
-            1 -> ArtistCollectionFragment.newInstance()
-            2 -> ForumsFragment.newInstanceForArtist(id, name)
+            0 -> PersonDescriptionFragment.newInstance()
+            1 -> PersonCollectionFragment.newInstance()
+            2 -> {
+                when (type) {
+                    PersonActivity.PersonType.ARTIST -> ForumsFragment.newInstanceForArtist(id, name)
+                    PersonActivity.PersonType.DESIGNER -> ForumsFragment.newInstanceForDesigner(id, name)
+                }
+            }
             else -> null
         }
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
         @StringRes val resId = when (position) {
-            0 -> R.string.title_artist
+            0 -> {
+                when (type) {
+                    PersonActivity.PersonType.ARTIST -> R.string.title_artist
+                    PersonActivity.PersonType.DESIGNER -> R.string.title_designer
+                }
+            }
             1 -> R.string.title_collection
             2 -> R.string.title_forums
             else -> 0

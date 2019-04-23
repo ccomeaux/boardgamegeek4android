@@ -17,9 +17,9 @@ import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.setOrClearColorFilter
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.ArtistActivity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
+import com.boardgamegeek.ui.PersonActivity
 import com.boardgamegeek.ui.ProducerActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
@@ -44,7 +44,7 @@ class GameDetailRow @JvmOverloads constructor(
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true)
 
-        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         val sa = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground))
         try {
             setBackgroundResource(sa.getResourceId(0, 0))
@@ -55,7 +55,7 @@ class GameDetailRow @JvmOverloads constructor(
         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = resources.getDimensionPixelSize(R.dimen.game_detail_row_height)
-        orientation = LinearLayout.HORIZONTAL
+        orientation = HORIZONTAL
 
         attrs?.let {
             val a = context.obtainStyledAttributes(it, R.styleable.GameDetailRow)
@@ -91,11 +91,9 @@ class GameDetailRow @JvmOverloads constructor(
                     descriptionView.setTextOrHide(description)
                     setOnClickListener {
                         when (type) {
-                            ProducerType.ARTIST -> ArtistActivity.start(context, id, name)
-                            ProducerType.DESIGNER,
-                            ProducerType.PUBLISHER -> {
-                                ProducerActivity.start(context, type, id, name)
-                            }
+                            ProducerType.ARTIST -> PersonActivity.startForArtist(context, id, name)
+                            ProducerType.DESIGNER -> PersonActivity.startForDesigner(context, id, name)
+                            ProducerType.PUBLISHER -> ProducerActivity.start(context, type, id, name)
                             ProducerType.EXPANSIONS,
                             ProducerType.BASE_GAMES -> {
                                 GameActivity.start(context, id, name)

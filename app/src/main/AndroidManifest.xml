@@ -103,7 +103,7 @@
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
-			android:name=".ui.ArtistActivity"
+			android:name=".ui.PersonActivity"
 			android:exported="false"
 			android:label="@string/title_artist"/>
 		<activity

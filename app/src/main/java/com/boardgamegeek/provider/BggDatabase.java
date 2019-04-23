@@ -98,7 +98,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAME_PALETTE_COLORS = 50;
 	private static final int VER_PRIVATE_INFO_INVENTORY_LOCATION = 51;
 	private static final int VER_ARTIST_IMAGES = 52;
-	private static final int DATABASE_VERSION = VER_ARTIST_IMAGES;
+	private static final int VER_DESIGNER_IMAGES = 53;
+	private static final int DATABASE_VERSION = VER_DESIGNER_IMAGES;
 
 	private final Context context;
 
@@ -177,6 +178,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS = createJoin(GAME_POLL_RESULTS_RESULT, GAME_POLL_RESULTS, GamePollResultsResult.POLL_RESULTS_ID, GamePollResults._ID) +
 			createJoinSuffix(Tables.GAME_POLL_RESULTS, Tables.GAME_POLLS, GamePollResults.POLL_ID, GamePolls._ID);
 		String ARTIST_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_ARTISTS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+		String DESIGNER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_DESIGNERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 	}
 
 	@NonNull
@@ -246,7 +248,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Designers.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Designers.DESIGNER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Designers.DESIGNER_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT);
+			.addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildArtistsTable() {
@@ -822,6 +828,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.ARTISTS, Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
 					addColumn(db, Tables.ARTISTS, Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 					version = VER_ARTIST_IMAGES;
+				case VER_ARTIST_IMAGES:
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_DESIGNER_IMAGES;
 			}
 
 			if (version != DATABASE_VERSION) {

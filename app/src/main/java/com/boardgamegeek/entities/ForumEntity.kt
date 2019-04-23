@@ -10,6 +10,7 @@ data class ForumEntity(
     enum class ForumType {
         REGION,
         GAME,
-        ARTIST
+        ARTIST,
+        DESIGNER
     }
 }

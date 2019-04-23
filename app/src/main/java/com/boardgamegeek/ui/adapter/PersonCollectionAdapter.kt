@@ -4,7 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.ArtistGameEntity
+import com.boardgamegeek.entities.PersonGameEntity
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadUrl
@@ -12,12 +12,12 @@ import com.boardgamegeek.ui.GameActivity
 import kotlinx.android.synthetic.main.row_collection.view.*
 import kotlin.properties.Delegates
 
-class ArtistCollectionAdapter : RecyclerView.Adapter<ArtistCollectionAdapter.DetailViewHolder>(), AutoUpdatableAdapter {
+class PersonCollectionAdapter : RecyclerView.Adapter<PersonCollectionAdapter.DetailViewHolder>(), AutoUpdatableAdapter {
     init {
         setHasStableIds(true)
     }
 
-    var items: List<ArtistGameEntity> by Delegates.observable(emptyList()) { _, old, new ->
+    var items: List<PersonGameEntity> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
             o.gameId == n.gameId
         }
@@ -36,7 +36,7 @@ class ArtistCollectionAdapter : RecyclerView.Adapter<ArtistCollectionAdapter.Det
     override fun getItemId(position: Int): Long = items.getOrNull(position)?.gameId?.toLong() ?: RecyclerView.NO_ID
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(gameDetail: ArtistGameEntity?) {
+        fun bind(gameDetail: PersonGameEntity?) {
             gameDetail?.let { entity ->
                 itemView.name.text = entity.collectionName
                 itemView.year.text = entity.yearPublished.asYear(itemView.context)

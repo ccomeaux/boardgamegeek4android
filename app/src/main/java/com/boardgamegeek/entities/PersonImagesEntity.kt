@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class ArtistImagesEntity(
+data class PersonImagesEntity(
         val id: Int,
         override val imageUrl: String,
         override val thumbnailUrl: String,
