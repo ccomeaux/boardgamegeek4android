@@ -21,7 +21,8 @@ import org.jetbrains.anko.toast
 class PersonActivity : HeroTabActivity() {
     enum class PersonType {
         ARTIST,
-        DESIGNER
+        DESIGNER,
+        PUBLISHER
     }
 
     private var id = BggContract.INVALID_ID
@@ -48,12 +49,19 @@ class PersonActivity : HeroTabActivity() {
         initializeViewPager()
         safelySetTitle(name)
 
-        if (personType == PersonType.ARTIST) {
-            viewModel.setArtistId(id)
-            emptyMessageDescription = getString(R.string.title_artist).toLowerCase()
-        } else if (personType == PersonType.DESIGNER) {
-            viewModel.setDesignerId(id)
-            emptyMessageDescription = getString(R.string.title_designer).toLowerCase()
+        emptyMessageDescription = when (personType) {
+            PersonType.ARTIST -> {
+                viewModel.setArtistId(id)
+                getString(R.string.title_artist).toLowerCase()
+            }
+            PersonType.DESIGNER -> {
+                viewModel.setDesignerId(id)
+                getString(R.string.title_designer).toLowerCase()
+            }
+            PersonType.PUBLISHER -> {
+                viewModel.setPublisherId(id)
+                getString(R.string.title_publisher).toLowerCase()
+            }
         }
 
         viewModel.details.observe(this, Observer {
@@ -97,39 +105,38 @@ class PersonActivity : HeroTabActivity() {
         private const val KEY_PERSON_ID = "PERSON_ID"
         private const val KEY_PERSON_NAME = "PERSON_NAME"
 
-        @JvmStatic
         fun startForArtist(context: Context, id: Int, name: String) {
-            context.startActivity(createIntentForArtist(context, id, name))
+            context.startActivity(createIntent(context, id, name, PersonType.ARTIST))
         }
 
-        @JvmStatic
         fun startForDesigner(context: Context, id: Int, name: String) {
-            context.startActivity(createIntentForDesigner(context, id, name))
+            context.startActivity(createIntent(context, id, name, PersonType.DESIGNER))
+        }
+
+        fun startForPublisher(context: Context, id: Int, name: String) {
+            context.startActivity(createIntent(context, id, name, PersonType.PUBLISHER))
         }
 
         @JvmStatic
         fun startUpForArtist(context: Context, id: Int, name: String) {
-            context.startActivity(createIntentForArtist(context, id, name).clearTask().clearTop())
+            context.startActivity(createIntent(context, id, name, PersonType.ARTIST).clearTask().clearTop())
         }
 
         @JvmStatic
         fun startUpForDesigner(context: Context, id: Int, name: String) {
-            context.startActivity(createIntentForDesigner(context, id, name).clearTask().clearTop())
+            context.startActivity(createIntent(context, id, name, PersonType.DESIGNER).clearTask().clearTop())
         }
 
-        private fun createIntentForArtist(context: Context, id: Int, name: String): Intent {
+        @JvmStatic
+        fun startUpForPublisher(context: Context, id: Int, name: String) {
+            context.startActivity(createIntent(context, id, name, PersonType.PUBLISHER).clearTask().clearTop())
+        }
+
+        private fun createIntent(context: Context, id: Int, name: String, personType: PersonType): Intent {
             return context.intentFor<PersonActivity>(
                     KEY_PERSON_ID to id,
                     KEY_PERSON_NAME to name,
-                    KEY_PERSON_TYPE to PersonType.ARTIST
-            )
-        }
-
-        private fun createIntentForDesigner(context: Context, id: Int, name: String): Intent {
-            return context.intentFor<PersonActivity>(
-                    KEY_PERSON_ID to id,
-                    KEY_PERSON_NAME to name,
-                    KEY_PERSON_TYPE to PersonType.DESIGNER
+                    KEY_PERSON_TYPE to personType
             )
         }
     }

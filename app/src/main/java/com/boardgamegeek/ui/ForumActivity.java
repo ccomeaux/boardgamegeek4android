@@ -105,6 +105,8 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 					PersonActivity.startUpForArtist(this, objectId, objectName);
 				} else if (objectType == ForumType.DESIGNER) {
 					PersonActivity.startUpForDesigner(this, objectId, objectName);
+				} else if (objectType == ForumType.PUBLISHER) {
+					PersonActivity.startUpForPublisher(this, objectId, objectName);
 				}
 				finish();
 				return true;

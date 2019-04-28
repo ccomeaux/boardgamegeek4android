@@ -9,7 +9,6 @@ import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.PersonActivity
-import com.boardgamegeek.ui.ProducerActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.row_game_detail.view.*
 import kotlin.properties.Delegates
@@ -49,7 +48,7 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
                 when (type) {
                     GameViewModel.ProducerType.EXPANSIONS,
                     GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, entity.id, entity.name) }
-                    GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { ProducerActivity.start(itemView.context, type, entity.id, entity.name) }
+                    GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { PersonActivity.startForPublisher(itemView.context, entity.id, entity.name) }
                     GameViewModel.ProducerType.ARTIST -> itemView.setOnClickListener { PersonActivity.startForArtist(itemView.context, entity.id, entity.name) }
                     GameViewModel.ProducerType.DESIGNER -> itemView.setOnClickListener { PersonActivity.startForDesigner(itemView.context, entity.id, entity.name) }
                     else -> {

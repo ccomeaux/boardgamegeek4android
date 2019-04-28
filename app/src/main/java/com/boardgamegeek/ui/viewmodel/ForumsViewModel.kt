@@ -15,7 +15,8 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
     private enum class ForumType {
         GAME,
         REGION,
-        PERSON
+        PERSON,
+        COMPANY
     }
 
     private val _id = MutableLiveData<Pair<ForumType, Int>>()
@@ -34,11 +35,16 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
         if (_id.value != ForumType.PERSON to personId) _id.value = (ForumType.PERSON to personId)
     }
 
+    fun setCompanyId(companyId: Int) {
+        if (_id.value != ForumType.COMPANY to companyId) _id.value = (ForumType.COMPANY to companyId)
+    }
+
     val forums: LiveData<RefreshableResource<List<ForumEntity>>> = Transformations.switchMap(_id) { pair ->
         when {
             pair.first == ForumType.REGION -> repository.getForums()
             pair.first == ForumType.GAME && pair.second != BggContract.INVALID_ID -> repository.getForumsForGame(pair.second)
             pair.first == ForumType.PERSON && pair.second != BggContract.INVALID_ID -> repository.getForumsForPerson(pair.second)
+            pair.first == ForumType.COMPANY && pair.second != BggContract.INVALID_ID -> repository.getForumsForCompany(pair.second)
             else -> AbsentLiveData.create()
         }
     }

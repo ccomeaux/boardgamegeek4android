@@ -26,6 +26,7 @@ class PersonPagerAdapter(
                 when (type) {
                     PersonActivity.PersonType.ARTIST -> ForumsFragment.newInstanceForArtist(id, name)
                     PersonActivity.PersonType.DESIGNER -> ForumsFragment.newInstanceForDesigner(id, name)
+                    PersonActivity.PersonType.PUBLISHER -> ForumsFragment.newInstanceForPublisher(id, name)
                 }
             }
             else -> null
@@ -38,6 +39,7 @@ class PersonPagerAdapter(
                 when (type) {
                     PersonActivity.PersonType.ARTIST -> R.string.title_artist
                     PersonActivity.PersonType.DESIGNER -> R.string.title_designer
+                    PersonActivity.PersonType.PUBLISHER -> R.string.title_publisher
                 }
             }
             1 -> R.string.title_collection

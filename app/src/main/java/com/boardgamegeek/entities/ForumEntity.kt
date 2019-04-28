@@ -11,6 +11,7 @@ data class ForumEntity(
         REGION,
         GAME,
         ARTIST,
-        DESIGNER
+        DESIGNER,
+        PUBLISHER
     }
 }

@@ -99,7 +99,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PRIVATE_INFO_INVENTORY_LOCATION = 51;
 	private static final int VER_ARTIST_IMAGES = 52;
 	private static final int VER_DESIGNER_IMAGES = 53;
-	private static final int DATABASE_VERSION = VER_DESIGNER_IMAGES;
+	private static final int VER_PUBLISHER_IMAGES = 54;
+	private static final int DATABASE_VERSION = VER_PUBLISHER_IMAGES;
 
 	private final Context context;
 
@@ -179,6 +180,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			createJoinSuffix(Tables.GAME_POLL_RESULTS, Tables.GAME_POLLS, GamePollResults.POLL_ID, GamePolls._ID);
 		String ARTIST_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_ARTISTS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 		String DESIGNER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_DESIGNERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+		String PUBLISHER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_PUBLISHERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 	}
 
 	@NonNull
@@ -272,7 +274,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Publishers.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Publishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Publishers.PUBLISHER_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT);
+			.addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.TEXT);
 	}
 
 	private TableBuilder buildMechanicsTable() {
@@ -834,6 +840,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
 					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 					version = VER_DESIGNER_IMAGES;
+				case VER_DESIGNER_IMAGES:
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.INTEGER);
+					version = VER_PUBLISHER_IMAGES;
 			}
 
 			if (version != DATABASE_VERSION) {

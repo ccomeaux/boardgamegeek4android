@@ -53,6 +53,7 @@ class ForumsFragment : Fragment() {
             ForumEntity.ForumType.REGION -> viewModel.setRegion()
             ForumEntity.ForumType.ARTIST,
             ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
+            ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
         viewModel.forums.observe(this, Observer {
             when (it?.status) {
@@ -119,6 +120,16 @@ class ForumsFragment : Fragment() {
             return ForumsFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(KEY_TYPE, ForumEntity.ForumType.DESIGNER)
+                    putInt(KEY_OBJECT_ID, id)
+                    putString(KEY_OBJECT_NAME, name)
+                }
+            }
+        }
+
+        fun newInstanceForPublisher(id: Int, name: String): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.PUBLISHER)
                     putInt(KEY_OBJECT_ID, id)
                     putString(KEY_OBJECT_NAME, name)
                 }

@@ -101,6 +101,10 @@ public class BggContract {
 		String PUBLISHER_ID = "publisher_id";
 		String PUBLISHER_NAME = "publisher_name";
 		String PUBLISHER_DESCRIPTION = "publisher_description";
+		String PUBLISHER_IMAGE_URL = "publisher_image_url";
+		String PUBLISHER_THUMBNAIL_URL = "publisher_thumbnail_url";
+		String PUBLISHER_HERO_IMAGE_URL = "publisher_hero_image_url";
+		String PUBLISHER_SORT_NAME = "publisher_sort_name";
 	}
 
 	interface MechanicsColumns {
@@ -655,8 +659,8 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
-		public static boolean isPublisherUri(Uri uri) {
-			return isUri(uri, PATH_PUBLISHERS);
+		public static Uri buildCollectionUri(int publisherId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(publisherId)).appendPath(PATH_COLLECTION).build();
 		}
 	}
 

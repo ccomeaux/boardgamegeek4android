@@ -1,6 +1,7 @@
 package com.boardgamegeek.io;
 
 import com.boardgamegeek.io.model.CollectionResponse;
+import com.boardgamegeek.io.model.CompanyResponse2;
 import com.boardgamegeek.io.model.ForumListResponse;
 import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.io.model.PersonResponse2;
@@ -96,6 +97,9 @@ public interface BggService {
 	@GET("/xmlapi/{type}/{id}")
 	Call<Company> company(@Path("type") String type, @Path("id") int id);
 
+	@GET("/xmlapi2/company/{id}")
+	Call<CompanyResponse2> company(@Query("id") int id);
+
 	String SEARCH_TYPE_BOARD_GAME = "boardgame";
 	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
 	String SEARCH_TYPE_RPG = "rpg";
@@ -114,6 +118,7 @@ public interface BggService {
 	String FORUM_TYPE_REGION = "region";
 	String FORUM_TYPE_THING = "thing";
 	String FORUM_TYPE_PERSON = "person";
+	String FORUM_TYPE_COMPANY = "company";
 
 	int FORUM_REGION_BOARDGAME = 1;
 	int FORUM_REGION_RPG = 2;

@@ -20,7 +20,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import com.boardgamegeek.ui.PersonActivity
-import com.boardgamegeek.ui.ProducerActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 
@@ -93,7 +92,7 @@ class GameDetailRow @JvmOverloads constructor(
                         when (type) {
                             ProducerType.ARTIST -> PersonActivity.startForArtist(context, id, name)
                             ProducerType.DESIGNER -> PersonActivity.startForDesigner(context, id, name)
-                            ProducerType.PUBLISHER -> ProducerActivity.start(context, type, id, name)
+                            ProducerType.PUBLISHER -> PersonActivity.startForPublisher(context, id, name)
                             ProducerType.EXPANSIONS,
                             ProducerType.BASE_GAMES -> {
                                 GameActivity.start(context, id, name)

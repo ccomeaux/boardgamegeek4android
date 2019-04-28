@@ -13,15 +13,18 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
+import com.boardgamegeek.repository.PublisherRepository
 
 class PersonViewModel(application: Application) : AndroidViewModel(application) {
     enum class PersonType {
         ARTIST,
-        DESIGNER
+        DESIGNER,
+        PUBLISHER
     }
 
     private val artistRepository = ArtistRepository(getApplication())
     private val designerRepository = DesignerRepository(getApplication())
+    private val publisherRepository = PublisherRepository(getApplication())
 
     private val _person = MutableLiveData<Pair<PersonType, Int>>()
     val person: LiveData<Pair<PersonType, Int>>
@@ -35,6 +38,10 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         if (_person.value?.first != PersonType.DESIGNER && _person.value?.second != designerId) _person.value = PersonType.DESIGNER to designerId
     }
 
+    fun setPublisherId(publisherId: Int) {
+        if (_person.value?.first != PersonType.PUBLISHER && _person.value?.second != publisherId) _person.value = PersonType.PUBLISHER to publisherId
+    }
+
     val details: LiveData<RefreshableResource<PersonEntity>> = Transformations.switchMap(_person) { person ->
         when (person.second) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
@@ -42,6 +49,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                 when (person.first) {
                     PersonType.ARTIST -> artistRepository.loadArtist(person.second)
                     PersonType.DESIGNER -> designerRepository.loadDesigner(person.second)
+                    PersonType.PUBLISHER -> publisherRepository.loadPublisher(person.second)
                 }
             }
         }
@@ -54,6 +62,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                 when (person.first) {
                     PersonType.ARTIST -> artistRepository.loadArtistImages(person.second)
                     PersonType.DESIGNER -> designerRepository.loadDesignerImages(person.second)
+                    PersonType.PUBLISHER -> publisherRepository.loadPublisherImages(person.second)
                 }
             }
         }
@@ -66,6 +75,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                 when (person.first) {
                     PersonType.ARTIST -> artistRepository.loadCollection(person.second)
                     PersonType.DESIGNER -> designerRepository.loadCollection(person.second)
+                    PersonType.PUBLISHER -> publisherRepository.loadCollection(person.second)
                 }
             }
         }
