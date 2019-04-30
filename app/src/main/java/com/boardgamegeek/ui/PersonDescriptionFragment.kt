@@ -13,6 +13,7 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
+import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_person_description.*
 
@@ -69,7 +70,7 @@ class PersonDescriptionFragment : Fragment() {
         if (person.description.isBlank()) {
             showError(getString(R.string.empty_person_description, emptyMessageDescription))
         } else {
-            descriptionView.text = person.description
+            descriptionView.setTextMaybeHtml(person.description)
             descriptionView.fadeIn()
             emptyMessageView.fadeOut()
         }
