@@ -4,9 +4,8 @@ import android.content.ContentValues
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonGameEntity
-import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.CompanyResponse2
@@ -15,44 +14,19 @@ import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 
 class PublisherDao(private val context: BggApplication) {
-    fun loadPublisherAsLiveData(id: Int): LiveData<PersonEntity> {
+    fun loadPublisherAsLiveData(id: Int): LiveData<CompanyEntity> {
         return RegisteredLiveData(context, BggContract.Publishers.buildPublisherUri(id), true) {
             return@RegisteredLiveData loadPublisher(id)
         }
     }
 
-    private fun loadPublisher(id: Int): PersonEntity? {
+    private fun loadPublisher(id: Int): CompanyEntity? {
         return context.contentResolver.load(
                 BggContract.Publishers.buildPublisherUri(id),
                 arrayOf(
                         BggContract.Publishers.PUBLISHER_ID,
                         BggContract.Publishers.PUBLISHER_NAME,
                         BggContract.Publishers.PUBLISHER_DESCRIPTION,
-                        BggContract.Publishers.UPDATED
-                )
-        )?.use {
-            if (it.moveToFirst()) {
-                PersonEntity(
-                        it.getInt(BggContract.Publishers.PUBLISHER_ID),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_NAME),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_DESCRIPTION),
-                        it.getLongOrZero(BggContract.Publishers.UPDATED)
-                )
-            } else null
-        }
-    }
-
-    fun loadPublisherImagesAsLiveData(id: Int): LiveData<PersonImagesEntity> {
-        return RegisteredLiveData(context, BggContract.Publishers.buildPublisherUri(id), true) {
-            return@RegisteredLiveData loadPublisherImages(id)
-        }
-    }
-
-    private fun loadPublisherImages(id: Int): PersonImagesEntity? {
-        return context.contentResolver.load(
-                BggContract.Publishers.buildPublisherUri(id),
-                arrayOf(
-                        BggContract.Publishers.PUBLISHER_ID,
                         BggContract.Publishers.PUBLISHER_IMAGE_URL,
                         BggContract.Publishers.PUBLISHER_THUMBNAIL_URL,
                         BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL,
@@ -60,8 +34,10 @@ class PublisherDao(private val context: BggApplication) {
                 )
         )?.use {
             if (it.moveToFirst()) {
-                PersonImagesEntity(
-                        it.getInt(BggContract.Publishers.PUBLISHER_IMAGE_URL),
+                CompanyEntity(
+                        it.getInt(BggContract.Publishers.PUBLISHER_ID),
+                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_NAME),
+                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_DESCRIPTION),
                         it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_IMAGE_URL),
                         it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_THUMBNAIL_URL),
                         it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL),

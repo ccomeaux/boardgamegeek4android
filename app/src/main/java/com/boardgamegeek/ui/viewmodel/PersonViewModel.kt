@@ -5,10 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonGameEntity
-import com.boardgamegeek.entities.PersonImagesEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
@@ -42,6 +39,14 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         if (_person.value?.first != PersonType.PUBLISHER && _person.value?.second != publisherId) _person.value = PersonType.PUBLISHER to publisherId
     }
 
+    private val publisher: LiveData<RefreshableResource<CompanyEntity>> = Transformations.switchMap(_person) { publisher ->
+        if (publisher.first == PersonType.PUBLISHER && publisher.second != BggContract.INVALID_ID) {
+            publisherRepository.loadPublisher(publisher.second)
+        } else {
+            AbsentLiveData.create()
+        }
+    }
+
     val details: LiveData<RefreshableResource<PersonEntity>> = Transformations.switchMap(_person) { person ->
         when (person.second) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
@@ -49,7 +54,18 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                 when (person.first) {
                     PersonType.ARTIST -> artistRepository.loadArtist(person.second)
                     PersonType.DESIGNER -> designerRepository.loadDesigner(person.second)
-                    PersonType.PUBLISHER -> publisherRepository.loadPublisher(person.second)
+                    PersonType.PUBLISHER -> {
+                        Transformations.map(publisher) { company ->
+                            RefreshableResource.map(company, company.data?.let {
+                                PersonEntity(
+                                        it.id,
+                                        it.name,
+                                        it.description,
+                                        it.updatedTimestamp
+                                )
+                            })
+                        }
+                    }
                 }
             }
         }
@@ -62,7 +78,19 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                 when (person.first) {
                     PersonType.ARTIST -> artistRepository.loadArtistImages(person.second)
                     PersonType.DESIGNER -> designerRepository.loadDesignerImages(person.second)
-                    PersonType.PUBLISHER -> publisherRepository.loadPublisherImages(person.second)
+                    PersonType.PUBLISHER -> {
+                        Transformations.map(publisher) { company ->
+                            RefreshableResource.map(company, company.data?.let {
+                                PersonImagesEntity(
+                                        it.id,
+                                        it.imageUrl,
+                                        it.thumbnailUrl,
+                                        it.heroImageUrl,
+                                        it.updatedTimestamp
+                                )
+                            })
+                        }
+                    }
                 }
             }
         }

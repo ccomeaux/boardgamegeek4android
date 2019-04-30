@@ -23,5 +23,9 @@ data class RefreshableResource<out T>(val status: Status, val data: T?, val mess
         fun <T> refreshing(data: T? = null): RefreshableResource<T> {
             return RefreshableResource(Status.REFRESHING, data)
         }
+
+        fun <T> map(source: RefreshableResource<*>, data: T? = null): RefreshableResource<T> {
+            return RefreshableResource(source.status, data, source.message)
+        }
     }
 }
