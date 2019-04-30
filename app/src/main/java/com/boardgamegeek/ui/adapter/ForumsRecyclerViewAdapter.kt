@@ -14,7 +14,11 @@ import java.text.NumberFormat
 private const val ITEM_VIEW_TYPE_FORUM = 0
 private const val ITEM_VIEW_TYPE_HEADER = 1
 
-class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: String?) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
+class ForumsRecyclerViewAdapter(
+        private val objectId: Int,
+        private val objectName: String?,
+        private val objectType: ForumEntity.ForumType
+) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
     init {
         setHasStableIds(true)
     }
@@ -37,7 +41,7 @@ class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: S
     override fun onBindViewHolder(holder: ForumViewHolder, position: Int) {
         return when (holder) {
             is ForumViewHolder.HeaderViewHolder -> holder.bind(forums.getOrNull(position))
-            is ForumViewHolder.ForumItemViewHolder -> holder.bind(forums.getOrNull(position), gameId, gameName)
+            is ForumViewHolder.ForumItemViewHolder -> holder.bind(forums.getOrNull(position), objectId, objectName, objectType)
         }
     }
 
@@ -57,13 +61,13 @@ class ForumsRecyclerViewAdapter(private val gameId: Int, private val gameName: S
     sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
 
-            fun bind(forum: ForumEntity?, gameId: Int, gameName: String?) {
+            fun bind(forum: ForumEntity?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType) {
                 if (forum == null) return
                 itemView.apply {
                     title.text = forum.title
                     numberOfThreads.text = numberFormat.format(forum.numberOfThreads.toLong())
                     lastPostDate.timestamp = forum.lastPostDateTime
-                    setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, gameId, gameName) }
+                    setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, objectId, objectName, objectType) }
                 }
             }
         }

@@ -21,8 +21,6 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.PreferencesUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-const val INVALID_RES_ID = 0
-
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
         FragmentPagerAdapter(fragmentManager) {
     var currentPosition = 0
@@ -156,4 +154,8 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && PreferencesUtils.getSyncPlays(activity)
 
     private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && PreferencesUtils.isCollectionSetToSync(activity)
+
+    companion object {
+        const val INVALID_RES_ID = 0
+    }
 }

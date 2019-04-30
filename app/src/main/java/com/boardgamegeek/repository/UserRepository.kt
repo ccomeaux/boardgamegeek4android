@@ -9,8 +9,8 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.model.User
 import com.boardgamegeek.livedata.RefreshableResourceLoader
-import com.boardgamegeek.model.User
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils

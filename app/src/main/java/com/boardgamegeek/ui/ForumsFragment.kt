@@ -1,15 +1,15 @@
 package com.boardgamegeek.ui
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -19,11 +19,12 @@ import com.boardgamegeek.ui.viewmodel.ForumsViewModel
 import kotlinx.android.synthetic.main.fragment_forums.*
 
 class ForumsFragment : Fragment() {
-    private var gameId = BggContract.INVALID_ID
-    private var gameName: String? = null
+    private var forumType = ForumEntity.ForumType.REGION
+    private var objectId = BggContract.INVALID_ID
+    private var objectName: String? = null
 
     private val adapter: ForumsRecyclerViewAdapter by lazy {
-        ForumsRecyclerViewAdapter(gameId, gameName)
+        ForumsRecyclerViewAdapter(objectId, objectName, forumType)
     }
 
     private val viewModel: ForumsViewModel by lazy {
@@ -36,10 +37,10 @@ class ForumsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
-        gameName = arguments?.getString(KEY_GAME_NAME)
+        forumType = (arguments?.getSerializable(KEY_TYPE) as ForumEntity.ForumType?) ?: ForumEntity.ForumType.REGION
+        objectId = arguments?.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
+        objectName = arguments?.getString(KEY_OBJECT_NAME)
 
-        recyclerView?.layoutManager = LinearLayoutManager(context)
         recyclerView?.setHasFixedSize(true)
         recyclerView?.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView?.adapter = adapter
@@ -47,10 +48,12 @@ class ForumsFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (gameId == BggContract.INVALID_ID) {
-            viewModel.setRegion()
-        } else {
-            viewModel.setGameId(gameId)
+        when (forumType) {
+            ForumEntity.ForumType.GAME -> viewModel.setGameId(objectId)
+            ForumEntity.ForumType.REGION -> viewModel.setRegion()
+            ForumEntity.ForumType.ARTIST,
+            ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
+            ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
         viewModel.forums.observe(this, Observer {
             when (it?.status) {
@@ -79,19 +82,58 @@ class ForumsFragment : Fragment() {
     }
 
     companion object {
-        private const val KEY_GAME_ID = "GAME_ID"
-        private const val KEY_GAME_NAME = "GAME_NAME"
+        private const val KEY_TYPE = "TYPE"
+        private const val KEY_OBJECT_ID = "ID"
+        private const val KEY_OBJECT_NAME = "NAME"
 
-        fun newInstance(): ForumsFragment = ForumsFragment()
+        fun newInstance(): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.REGION)
+                    putInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
+                    putString(KEY_OBJECT_NAME, "")
+                }
+            }
+        }
 
-        fun newInstance(gameId: Int, gameName: String): ForumsFragment {
-            val args = Bundle()
-            args.putInt(KEY_GAME_ID, gameId)
-            args.putString(KEY_GAME_NAME, gameName)
+        fun newInstance(id: Int, name: String): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.GAME)
+                    putInt(KEY_OBJECT_ID, id)
+                    putString(KEY_OBJECT_NAME, name)
+                }
+            }
+        }
 
-            val fragment = ForumsFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstanceForArtist(id: Int, name: String): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.ARTIST)
+                    putInt(KEY_OBJECT_ID, id)
+                    putString(KEY_OBJECT_NAME, name)
+                }
+            }
+        }
+
+        fun newInstanceForDesigner(id: Int, name: String): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.DESIGNER)
+                    putInt(KEY_OBJECT_ID, id)
+                    putString(KEY_OBJECT_NAME, name)
+                }
+            }
+        }
+
+        fun newInstanceForPublisher(id: Int, name: String): ForumsFragment {
+            return ForumsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(KEY_TYPE, ForumEntity.ForumType.PUBLISHER)
+                    putInt(KEY_OBJECT_ID, id)
+                    putString(KEY_OBJECT_NAME, name)
+                }
+            }
         }
     }
 }

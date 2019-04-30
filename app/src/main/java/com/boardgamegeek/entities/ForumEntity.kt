@@ -6,4 +6,12 @@ data class ForumEntity(
         val numberOfThreads: Int,
         val lastPostDateTime: Long,
         val isHeader: Boolean
-)
+) {
+    enum class ForumType {
+        REGION,
+        GAME,
+        ARTIST,
+        DESIGNER,
+        PUBLISHER
+    }
+}

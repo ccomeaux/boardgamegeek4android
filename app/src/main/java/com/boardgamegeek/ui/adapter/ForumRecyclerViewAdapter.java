@@ -2,12 +2,11 @@ package com.boardgamegeek.ui.adapter;
 
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.ui.ThreadActivity;
 import com.boardgamegeek.ui.model.PaginatedData;
@@ -15,22 +14,25 @@ import com.boardgamegeek.ui.widget.TimestampView;
 
 import java.text.NumberFormat;
 
+import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Thread> {
 	private final int forumId;
 	private final String forumTitle;
-	private final int gameId;
-	private final String gameName;
+	private final int objectId;
+	private final String objectName;
+	private final ForumType objectType;
 	private final NumberFormat numberFormat;
 
-	public ForumRecyclerViewAdapter(Context context, PaginatedData<Thread> data, int forumId, String forumTitle, int gameId, String gameName) {
+	public ForumRecyclerViewAdapter(Context context, PaginatedData<Thread> data, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		super(context, R.layout.row_forum_thread, data);
 		this.forumId = forumId;
 		this.forumTitle = forumTitle;
-		this.gameId = gameId;
-		this.gameName = gameName;
+		this.objectId = objectId;
+		this.objectName = objectName;
+		this.objectType = objectType;
 		numberFormat = NumberFormat.getNumberInstance();
 	}
 
@@ -59,12 +61,7 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 			int replies = thread.numberOfArticles - 1;
 			numberOfArticlesView.setText(numberFormat.format(replies));
 			lastPostDateView.setTimestamp(thread.lastPostDate());
-			itemView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					ThreadActivity.start(context, thread.id, thread.subject, forumId, forumTitle, gameId, gameName);
-				}
-			});
+			itemView.setOnClickListener(v -> ThreadActivity.start(context, thread.id, thread.subject, forumId, forumTitle, objectId, objectName, objectType));
 		}
 	}
 }

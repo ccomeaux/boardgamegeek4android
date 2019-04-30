@@ -269,6 +269,9 @@
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
 	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website is up and you still see this message, please let us know about the error below. Otherwise, please check back later.\n\n%s</string>
+	<string name="empty_person">No %s by that ID.</string>
+	<string name="empty_person_description">This %s is indescribable.</string>
+	<string name="empty_person_collection">No games for this %s.</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_dates">Dates</string>
@@ -432,7 +435,7 @@
 	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
 	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
 	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
-	<string name="share_thread_article_game_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
+	<string name="share_thread_article_object_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
 	<string name="timer">Timer</string>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-	xmlns:tools="http://schemas.android.com/tools"
 	package="com.boardgamegeek"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
@@ -95,13 +95,9 @@
 			android:name=".ui.GameDetailActivity"
 			android:label="@string/title_game_detail"/>
 		<activity
-			android:name=".ui.ProducerActivity"
+			android:name=".ui.PersonActivity"
 			android:exported="false"
-			android:label="@string/app_name">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
-		</activity>
+			android:label="@string/title_artist"/>
 		<activity
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"

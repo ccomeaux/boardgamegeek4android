@@ -12,7 +12,6 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -21,11 +20,8 @@ import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -71,7 +67,13 @@ class GameRepository(val application: BggApplication) {
             }
         }.asLiveData()
         mediatorLiveData.addSource(liveData) {
-            maybeRefreshHeroImageUrl(it?.data, started)
+            it?.data?.maybeRefreshHeroImageUrl("game", started) { url ->
+                application.appExecutors.diskIO.execute {
+                    dao.update(gameId, ContentValues().apply {
+                        put(BggContract.Games.HERO_IMAGE_URL, url)
+                    })
+                }
+            }
             mediatorLiveData.value = it
         }
         return mediatorLiveData
@@ -204,41 +206,6 @@ class GameRepository(val application: BggApplication) {
             val values = ContentValues()
             values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
             dao.update(gameId, values)
-        }
-    }
-
-    private fun maybeRefreshHeroImageUrl(game: GameEntity?, started: AtomicBoolean) {
-        if (game == null) return
-        val heroImageId = ImageUtils.getImageId(game.heroImageUrl)
-        val thumbnailId = ImageUtils.getImageId(game.thumbnailUrl)
-        if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
-            val call = Adapter.createGeekdoApi().image(thumbnailId)
-            call.enqueue(object : Callback<Image> {
-                override fun onResponse(call: Call<Image>?, response: Response<Image>?) {
-                    if (response?.isSuccessful == true) {
-                        val body = response.body()
-                        if (body != null) {
-                            application.appExecutors.diskIO.execute {
-                                val values = ContentValues()
-                                values.put(BggContract.Games.HERO_IMAGE_URL, body.images.medium.url)
-                                dao.update(game.id, values)
-                            }
-                        } else {
-                            Timber.w("Empty body while fetching image $thumbnailId for game ${game.id}")
-                        }
-                    } else {
-                        val message = response?.message() ?: response?.code().toString()
-                        Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for game ${game.id}")
-                    }
-                    started.set(false)
-                }
-
-                override fun onFailure(call: Call<Image>?, t: Throwable?) {
-                    val message = t?.localizedMessage ?: "Unknown error"
-                    Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for game ${game.id}")
-                    started.set(false)
-                }
-            })
         }
     }
 }

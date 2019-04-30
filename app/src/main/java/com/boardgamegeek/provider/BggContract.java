@@ -3,13 +3,14 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class BggContract {
 
@@ -80,18 +81,30 @@ public class BggContract {
 		String DESIGNER_ID = "designer_id";
 		String DESIGNER_NAME = "designer_name";
 		String DESIGNER_DESCRIPTION = "designer_description";
+		String DESIGNER_IMAGE_URL = "designer_image_url";
+		String DESIGNER_THUMBNAIL_URL = "designer_thumbnail_url";
+		String DESIGNER_HERO_IMAGE_URL = "designer_hero_image_url";
+		String DESIGNER_IMAGES_UPDATED_TIMESTAMP = "designer_images_updated_timestamp";
 	}
 
 	interface ArtistsColumns {
 		String ARTIST_ID = "artist_id";
 		String ARTIST_NAME = "artist_name";
 		String ARTIST_DESCRIPTION = "artist_description";
+		String ARTIST_IMAGE_URL = "artist_image_url";
+		String ARTIST_THUMBNAIL_URL = "artist_thumbnail_url";
+		String ARTIST_HERO_IMAGE_URL = "artist_hero_image_url";
+		String ARTIST_IMAGES_UPDATED_TIMESTAMP = "artist_images_updated_timestamp";
 	}
 
 	interface PublishersColumns {
 		String PUBLISHER_ID = "publisher_id";
 		String PUBLISHER_NAME = "publisher_name";
 		String PUBLISHER_DESCRIPTION = "publisher_description";
+		String PUBLISHER_IMAGE_URL = "publisher_image_url";
+		String PUBLISHER_THUMBNAIL_URL = "publisher_thumbnail_url";
+		String PUBLISHER_HERO_IMAGE_URL = "publisher_hero_image_url";
+		String PUBLISHER_SORT_NAME = "publisher_sort_name";
 	}
 
 	interface MechanicsColumns {
@@ -592,8 +605,8 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
-		public static boolean isDesignerUri(Uri uri) {
-			return isUri(uri, PATH_DESIGNERS);
+		public static Uri buildDesignerCollectionUri(int designerId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(designerId)).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -621,12 +634,12 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).build();
 		}
 
-		public static int getArtistId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		public static Uri buildArtistCollectionUri(int artistId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).appendPath(PATH_COLLECTION).build();
 		}
 
-		public static boolean isArtistUri(Uri uri) {
-			return isUri(uri, PATH_ARTISTS);
+		public static int getArtistId(Uri uri) {
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -646,8 +659,8 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
-		public static boolean isPublisherUri(Uri uri) {
-			return isUri(uri, PATH_PUBLISHERS);
+		public static Uri buildCollectionUri(int publisherId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(publisherId)).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -931,13 +944,17 @@ public class BggContract {
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
-			return Long.valueOf(uri.getLastPathSegment());
+			if (uri != null) {
+				String lastPathSegment = uri.getLastPathSegment();
+				return lastPathSegment == null ? BggContract.INVALID_ID : Long.valueOf(lastPathSegment);
+			}
+			return BggContract.INVALID_ID;
 		}
 	}
 
 	public static final class PlayLocations {
 		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + COLLATE_NOCASE + " ASC";
-		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY +  " DESC, " + DEFAULT_SORT;
+		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY + " DESC, " + DEFAULT_SORT;
 	}
 
 	public static final class CollectionViews implements CollectionViewsColumns, BaseColumns {
@@ -974,7 +991,11 @@ public class BggContract {
 		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + COLLATE_NOCASE + " ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {
-			return Integer.valueOf(uri.getLastPathSegment());
+			if (uri != null) {
+				String lastPathSegment = uri.getLastPathSegment();
+				return lastPathSegment == null ? BggContract.INVALID_ID : Integer.valueOf(lastPathSegment);
+			}
+			return BggContract.INVALID_ID;
 		}
 	}
 
