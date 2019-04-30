@@ -78,7 +78,7 @@ class PersonActivity : HeroTabActivity() {
         })
         viewModel.images.observe(this, Observer { resource ->
             resource?.let { entity ->
-                if (entity.status == Status.SUCCESS) entity.data?.let {
+                entity.data?.let {
                     if (it.heroImageUrl.isBlank()) {
                         loadToolbarImage(it.thumbnailUrl)
                     } else {
