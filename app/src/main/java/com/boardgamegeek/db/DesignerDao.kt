@@ -11,7 +11,7 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.model.Person
+import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 

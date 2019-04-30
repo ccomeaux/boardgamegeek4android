@@ -4,17 +4,16 @@ import com.boardgamegeek.io.model.CollectionResponse;
 import com.boardgamegeek.io.model.CompanyResponse2;
 import com.boardgamegeek.io.model.ForumListResponse;
 import com.boardgamegeek.io.model.GeekListResponse;
+import com.boardgamegeek.io.model.Person;
 import com.boardgamegeek.io.model.PersonResponse2;
 import com.boardgamegeek.io.model.PlaysResponse;
 import com.boardgamegeek.io.model.SearchResponse;
 import com.boardgamegeek.io.model.ThingResponse;
 import com.boardgamegeek.io.model.ThreadResponse;
-import com.boardgamegeek.model.Company;
+import com.boardgamegeek.io.model.User;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;
-import com.boardgamegeek.model.Person;
-import com.boardgamegeek.model.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -93,9 +92,6 @@ public interface BggService {
 	Call<PersonResponse2> person(@Query("id") int id);
 
 	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
-
-	@GET("/xmlapi/{type}/{id}")
-	Call<Company> company(@Path("type") String type, @Path("id") int id);
 
 	@GET("/xmlapi2/company/{id}")
 	Call<CompanyResponse2> company(@Query("id") int id);

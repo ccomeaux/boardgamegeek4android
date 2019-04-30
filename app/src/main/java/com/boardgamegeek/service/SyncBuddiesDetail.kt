@@ -5,7 +5,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.model.User
+import com.boardgamegeek.io.model.User
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber

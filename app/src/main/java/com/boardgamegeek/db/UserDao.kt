@@ -9,7 +9,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.model.User
+import com.boardgamegeek.io.model.User
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.FileUtils
 import timber.log.Timber

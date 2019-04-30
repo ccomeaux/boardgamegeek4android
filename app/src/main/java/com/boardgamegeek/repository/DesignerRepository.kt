@@ -13,9 +13,9 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RefreshableResourceLoader
-import com.boardgamegeek.model.Person
 import com.boardgamegeek.provider.BggContract
 import retrofit2.Call
 import java.util.concurrent.TimeUnit

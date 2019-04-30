@@ -7,7 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.model.User
+import com.boardgamegeek.io.model.User
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.DateTimeUtils
