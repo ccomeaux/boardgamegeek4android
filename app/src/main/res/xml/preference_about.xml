@@ -24,7 +24,7 @@
 		android:summary="https://trello.com/b/pRZWIOOv"
 		android:title="@string/pref_about_trello_board"/>
 	<com.boardgamegeek.pref.LinkPreference
-		android:summary="https://boardgamegeek.com/thread/543998"
-		android:title="@string/pref_about_bgg_thread"/>
+		android:summary="https://boardgamegeek.com/guild/3543"
+		android:title="@string/pref_about_bgg_guild"/>
 
 </androidx.preference.PreferenceScreen>

@@ -104,7 +104,7 @@
 	<string name="pref_about_privacy_policy">Privacy Policy</string>
 	<string name="pref_about_google_plus_community">Google+ Community</string>
 	<string name="pref_about_trello_board">Trello Board</string>
-	<string name="pref_about_bgg_thread">BoardGameGeek Thread</string>
+	<string name="pref_about_bgg_guild">BGG for Android Guild</string>
 
 	<string name="intent_action_account">com.boardgamegeek.intent.action.ACCOUNT</string>
 	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
