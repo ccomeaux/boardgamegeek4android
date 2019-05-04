@@ -164,4 +164,10 @@ class GamePlaysFragment : Fragment() {
             arrayOf(playsIcon, playStatsIcon, colorsIcon).forEach { it.setOrClearColorFilter(iconColor) }
         }
     }
+
+    companion object {
+        fun newInstance(): GamePlaysFragment {
+            return GamePlaysFragment()
+        }
+    }
 }

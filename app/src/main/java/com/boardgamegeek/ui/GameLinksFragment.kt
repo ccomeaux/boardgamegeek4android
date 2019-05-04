@@ -29,23 +29,24 @@ class GameLinksFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
-        val gameName = arguments?.getString(KEY_GAME_NAME)
 
-        if (gameId != BggContract.INVALID_ID) {
-            geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", gameId) }
-            bggLink.setOnClickListener { context.linkBgg(gameId) }
-        }
-        if (gameName != null && gameName.isNotBlank()) {
-            bgPricesLink.setOnClickListener { context.linkBgPrices(gameName) }
-            bgPricesUkLink.setOnClickListener { context.linkBgPricesUk(gameName) }
-            amazonLink.setOnClickListener { context.linkAmazon(gameName, LINK_AMAZON_COM) }
-            amazonUkLink.setOnClickListener { context.linkAmazon(gameName, LINK_AMAZON_UK) }
-            amazonDeLink.setOnClickListener { context.linkAmazon(gameName, LINK_AMAZON_DE) }
-            ebayLink.setOnClickListener { context.linkEbay(gameName) }
-        }
+        viewModel.game.observe(this, Observer {
+            it.data?.let { game ->
+                if (game.id != BggContract.INVALID_ID) {
+                    geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", game.id) }
+                    bggLink.setOnClickListener { context.linkBgg(game.id) }
+                }
+                if ( game.name.isNotBlank()) {
+                    bgPricesLink.setOnClickListener { context.linkBgPrices(game.name) }
+                    bgPricesUkLink.setOnClickListener { context.linkBgPricesUk(game.name) }
+                    amazonLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_COM) }
+                    amazonUkLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_UK) }
+                    amazonDeLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_DE) }
+                    ebayLink.setOnClickListener { context.linkEbay(game.name) }
+                }
+            }
+        })
 
-        colorize(arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) ?: Color.TRANSPARENT)
         viewModel.game.observe(this, Observer { game ->
             colorize(game?.data?.iconColor ?: Color.TRANSPARENT)
         })
@@ -66,19 +67,9 @@ class GameLinksFragment : Fragment() {
     }
 
     companion object {
-        private const val KEY_GAME_ID = "GAME_ID"
-        private const val KEY_GAME_NAME = "GAME_NAME"
-        private const val KEY_ICON_COLOR = "ICON_COLOR"
-
         @JvmStatic
-        fun newInstance(gameId: Int, gameName: String, @ColorInt iconColor: Int): GameLinksFragment {
-            val args = Bundle()
-            args.putInt(KEY_GAME_ID, gameId)
-            args.putString(KEY_GAME_NAME, gameName)
-            args.putInt(KEY_ICON_COLOR, iconColor)
-            val fragment = GameLinksFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): GameLinksFragment {
+            return GameLinksFragment()
         }
     }
 }

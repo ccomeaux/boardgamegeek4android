@@ -54,16 +54,14 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
-        if (gameId == BggContract.INVALID_ID) throw IllegalArgumentException("Invalid game ID")
-        gameName = arguments?.getString(KEY_GAME_NAME) ?: ""
-
-
         swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh?.setBggColors()
 
-        gameIdView?.text = gameId.toString()
         lastModifiedView?.timestamp = 0
+
+        viewModel.gameId.observe(this, Observer { gameId ->
+            gameIdView?.text = gameId.toString()
+        })
 
         viewModel.game.observe(this, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
@@ -74,29 +72,29 @@ class GameFragment : Fragment() {
                 else -> onGameContentChanged(it.data)
             }
             progress.hide()
+
+            viewModel.ranks.observe(this, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
+
+            viewModel.languagePoll.observe(this, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
+
+            viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
+
+            viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
+
+            viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
+
+            viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
+
+            viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
+
+            viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
+
+            viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
+
+            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
+
+            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
-
-        viewModel.ranks.observe(this, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
-
-        viewModel.languagePoll.observe(this, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
-
-        viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
-
-        viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
-
-        viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
-
-        viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
-
-        viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
-
-        viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
-
-        viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
-
-        viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
-
-        viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
 
         showcaseViewWizard = setUpShowcaseViewWizard()
         showcaseViewWizard?.maybeShowHelp()
@@ -161,9 +159,11 @@ class GameFragment : Fragment() {
 
         yearView?.text = game.yearPublished.asYear(context)
 
-        playTimeView?.text = context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange()) ?: ""
+        playTimeView?.text = context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
+                ?: ""
 
-        playerCountView?.text = context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange()) ?: ""
+        playerCountView?.text = context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
+                ?: ""
 
         playerAgeView?.text = game.minimumAge.asAge(context)
 
@@ -229,18 +229,10 @@ class GameFragment : Fragment() {
     }
 
     companion object {
-        private const val KEY_GAME_ID = "GAME_ID"
-        private const val KEY_GAME_NAME = "GAME_NAME"
-
         private const val HELP_VERSION = 2
 
-        fun newInstance(gameId: Int, gameName: String): GameFragment {
-            val args = Bundle()
-            args.putInt(KEY_GAME_ID, gameId)
-            args.putString(KEY_GAME_NAME, gameName)
-            val fragment = GameFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): GameFragment {
+            return GameFragment()
         }
     }
 }

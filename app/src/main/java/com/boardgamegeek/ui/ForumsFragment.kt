@@ -96,7 +96,7 @@ class ForumsFragment : Fragment() {
             }
         }
 
-        fun newInstance(id: Int, name: String): ForumsFragment {
+        fun newInstanceForGame(id: Int, name: String): ForumsFragment {
             return ForumsFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(KEY_TYPE, ForumEntity.ForumType.GAME)

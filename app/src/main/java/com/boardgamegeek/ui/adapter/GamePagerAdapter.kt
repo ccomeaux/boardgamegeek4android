@@ -62,12 +62,12 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
 
     override fun getItem(position: Int): Fragment? {
         return when (tabs.getOrNull(position)?.titleResId) {
-            R.string.title_description -> GameDescriptionFragment.newInstance(gameId)
-            R.string.title_info -> GameFragment.newInstance(gameId, gameName)
-            R.string.title_collection -> GameCollectionFragment.newInstance(gameId)
-            R.string.title_plays -> GamePlaysFragment()
-            R.string.title_forums -> ForumsFragment.newInstance(gameId, gameName)
-            R.string.links -> GameLinksFragment.newInstance(gameId, gameName, iconColor)
+            R.string.title_description -> GameDescriptionFragment.newInstance()
+            R.string.title_info -> GameFragment.newInstance()
+            R.string.title_collection -> GameCollectionFragment.newInstance()
+            R.string.title_plays -> GamePlaysFragment.newInstance()
+            R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
+            R.string.links -> GameLinksFragment.newInstance()
             else -> null
         }
     }

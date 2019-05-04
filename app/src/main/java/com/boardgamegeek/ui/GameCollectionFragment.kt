@@ -98,14 +98,8 @@ class GameCollectionFragment : Fragment() {
     }
 
     companion object {
-        private const val ARG_GAME_ID = "GAME_ID"
-
-        fun newInstance(gameId: Int): GameCollectionFragment {
-            val args = Bundle()
-            args.putInt(ARG_GAME_ID, gameId)
-            val fragment = GameCollectionFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): GameCollectionFragment {
+            return GameCollectionFragment()
         }
     }
 }
