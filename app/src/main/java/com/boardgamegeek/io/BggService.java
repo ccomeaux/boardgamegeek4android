@@ -91,8 +91,6 @@ public interface BggService {
 	@GET("/xmlapi2/person")
 	Call<PersonResponse2> person(@Query("id") int id);
 
-	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
-
 	@GET("/xmlapi2/company/{id}")
 	Call<CompanyResponse2> company(@Query("id") int id);
 

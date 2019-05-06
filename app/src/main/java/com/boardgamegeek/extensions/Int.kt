@@ -12,6 +12,7 @@ import java.math.MathContext
 
 /**
  * Gets the ordinal (1st) for the given cardinal (1)
+ * Note, this is English-specific
  */
 fun Int.toOrdinal(): String {
     if (this < 0) return "-th"

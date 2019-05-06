@@ -53,7 +53,6 @@ public class GamesProvider extends BasicProvider {
 		}
 		builder.mapToTable(Games.UPDATED, Tables.GAMES);
 
-
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {
 			builder.groupBy(groupBy);
