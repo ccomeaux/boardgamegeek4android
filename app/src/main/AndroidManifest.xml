@@ -51,6 +51,13 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
+		<activity
+			android:name=".ui.ArtistsActivity"
+			android:label="@string/title_artists">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
 
 		<activity-alias
 			android:name=".CreateShortcutActivity"

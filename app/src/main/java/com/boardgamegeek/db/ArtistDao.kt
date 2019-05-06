@@ -9,13 +9,58 @@ import com.boardgamegeek.entities.PersonGameEntity
 import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 
 class ArtistDao(private val context: BggApplication) {
+    enum class SortType {
+        NAME, ITEM_COUNT
+    }
+
+    fun loadArtistsAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<PersonEntity>> {
+        return RegisteredLiveData(context, BggContract.Artists.CONTENT_URI, true) {
+            return@RegisteredLiveData loadArtists(sortBy)
+        }
+    }
+
+    private fun loadArtists(sortBy: SortType): List<PersonEntity> {
+        val results = arrayListOf<PersonEntity>()
+        val sortByName = BggContract.Artists.ARTIST_NAME.collateNoCase().ascending()
+        val sortOrder = when (sortBy) {
+            SortType.NAME -> sortByName
+            SortType.ITEM_COUNT -> BggContract.Artists.ITEM_COUNT.descending().plus(", $sortByName")
+        }
+        context.contentResolver.load(
+                BggContract.Artists.CONTENT_URI,
+                arrayOf(
+                        BggContract.Artists.ARTIST_ID,
+                        BggContract.Artists.ARTIST_NAME,
+                        BggContract.Artists.ARTIST_DESCRIPTION,
+                        BggContract.Artists.UPDATED,
+                        BggContract.Artists.ARTIST_THUMBNAIL_URL,
+                        BggContract.Artists.ITEM_COUNT
+                ),
+                sortOrder = sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += PersonEntity(
+                            it.getInt(BggContract.Artists.ARTIST_ID),
+                            it.getStringOrEmpty(BggContract.Artists.ARTIST_NAME),
+                            it.getStringOrEmpty(BggContract.Artists.ARTIST_DESCRIPTION),
+                            it.getLongOrZero(BggContract.Artists.UPDATED),
+                            it.getStringOrEmpty(BggContract.Artists.ARTIST_THUMBNAIL_URL),
+                            it.getIntOrZero(BggContract.Artists.ITEM_COUNT)
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
+    }
+
     fun loadArtistAsLiveData(id: Int): LiveData<PersonEntity> {
         return RegisteredLiveData(context, BggContract.Artists.buildArtistUri(id), true) {
             return@RegisteredLiveData loadArtist(id)

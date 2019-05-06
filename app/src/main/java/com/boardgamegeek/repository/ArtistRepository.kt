@@ -24,6 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ArtistRepository(val application: BggApplication) {
     private val artistDao = ArtistDao(application)
 
+    fun loadArtists(sortBy: ArtistDao.SortType = ArtistDao.SortType.NAME): LiveData<List<PersonEntity>> {
+        return artistDao.loadArtistsAsLiveData(sortBy)
+    }
+
     fun loadArtist(id: Int): LiveData<RefreshableResource<PersonEntity>> {
         return object : RefreshableResourceLoader<PersonEntity, Person>(application) {
             override fun loadFromDatabase(): LiveData<PersonEntity> {

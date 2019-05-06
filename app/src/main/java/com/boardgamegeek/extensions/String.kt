@@ -115,6 +115,10 @@ fun String?.ensureHttpsScheme(): String? {
     }
 }
 
+fun String.ascending(): String {
+    return this.plus(" ASC")
+}
+
 fun String.descending(): String {
     return this.plus(" DESC")
 }

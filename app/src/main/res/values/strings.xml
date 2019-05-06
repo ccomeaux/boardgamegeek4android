@@ -179,6 +179,7 @@
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
 	<string name="title_artist">Artist</string>
+	<string name="title_artists">Artists</string>
 	<string name="title_publisher">Publisher</string>
 	<string name="title_user">User</string>
 	<string name="title_users">Users</string>
@@ -236,6 +237,7 @@
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
+	<string name="empty_artists">No artists.</string>
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
@@ -359,6 +361,7 @@
 	<string name="menu_plays_filter_in_progress">Edits and Drafts</string>
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
+	<string name="menu_sort_item_count">Games</string>
 	<string name="menu_sort_quantity">Play count</string>
 	<string name="menu_sort_wins">Wins</string>
 	<string name="menu_sort_comments">Comments</string>
@@ -737,6 +740,10 @@
 	<plurals name="plays_suffix">
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
+	</plurals>
+	<plurals name="games_suffix">
+		<item quantity="one"><b>%,d</b> game</item>
+		<item quantity="other"><b>%,d</b> games</item>
 	</plurals>
 	<plurals name="collection_items_suffix">
 		<item quantity="one"><b>%,d</b> collection item</item>
