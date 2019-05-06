@@ -20,6 +20,7 @@
 		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:text="@string/empty_person_collection"
 		android:visibility="gone"/>
 
 	<androidx.recyclerview.widget.RecyclerView
