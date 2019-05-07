@@ -178,6 +178,7 @@
 	<string name="title_recent">Recent</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
+	<string name="title_designers">Designers</string>
 	<string name="title_artist">Artist</string>
 	<string name="title_artists">Artists</string>
 	<string name="title_publisher">Publisher</string>
@@ -237,6 +238,7 @@
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
+	<string name="empty_designers">No designers.</string>
 	<string name="empty_artists">No artists.</string>
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>

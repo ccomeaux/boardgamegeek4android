@@ -116,6 +116,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			drawerList.addView(makeNavDrawerSpacer(drawerList));
 			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_collection, drawerList));
 			if (Authenticator.isSignedIn(this)) {
+				drawerList.addView(makeNavDrawerItem(R.string.title_designers, R.drawable.ic_designers, drawerList));
 				drawerList.addView(makeNavDrawerItem(R.string.title_artists, R.drawable.ic_artists, drawerList));
 			}
 			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_log_play, drawerList));
@@ -144,6 +145,9 @@ public abstract class DrawerActivity extends BaseActivity {
 			switch (titleResId) {
 				case R.string.title_collection:
 					intent = new Intent(this, CollectionActivity.class);
+					break;
+				case R.string.title_designers:
+					intent = new Intent(this, DesignersActivity.class);
 					break;
 				case R.string.title_artists:
 					intent = new Intent(this, ArtistsActivity.class);

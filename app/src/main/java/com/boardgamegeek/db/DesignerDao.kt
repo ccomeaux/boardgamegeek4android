@@ -16,6 +16,51 @@ import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 
 class DesignerDao(private val context: BggApplication) {
+    enum class SortType {
+        NAME, ITEM_COUNT
+    }
+
+    fun loadDesignersAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<PersonEntity>> {
+        return RegisteredLiveData(context, BggContract.Designers.CONTENT_URI, true) {
+            return@RegisteredLiveData loadDesigners(sortBy)
+        }
+    }
+
+    private fun loadDesigners(sortBy: SortType): List<PersonEntity> {
+        val results = arrayListOf<PersonEntity>()
+        val sortByName = BggContract.Designers.DESIGNER_NAME.collateNoCase().ascending()
+        val sortOrder = when (sortBy) {
+            SortType.NAME -> sortByName
+            SortType.ITEM_COUNT -> BggContract.Designers.ITEM_COUNT.descending().plus(", $sortByName")
+        }
+        context.contentResolver.load(
+                BggContract.Designers.CONTENT_URI,
+                arrayOf(
+                        BggContract.Designers.DESIGNER_ID,
+                        BggContract.Designers.DESIGNER_NAME,
+                        BggContract.Designers.DESIGNER_DESCRIPTION,
+                        BggContract.Designers.UPDATED,
+                        BggContract.Designers.DESIGNER_THUMBNAIL_URL,
+                        BggContract.Designers.ITEM_COUNT
+                ),
+                sortOrder = sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += PersonEntity(
+                            it.getInt(BggContract.Designers.DESIGNER_ID),
+                            it.getStringOrEmpty(BggContract.Designers.DESIGNER_NAME),
+                            it.getStringOrEmpty(BggContract.Designers.DESIGNER_DESCRIPTION),
+                            it.getLongOrZero(BggContract.Designers.UPDATED),
+                            it.getStringOrEmpty(BggContract.Designers.DESIGNER_THUMBNAIL_URL),
+                            it.getIntOrZero(BggContract.Designers.ITEM_COUNT)
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
+    }
+
     fun loadDesignerAsLiveData(id: Int): LiveData<PersonEntity> {
         return RegisteredLiveData(context, BggContract.Designers.buildDesignerUri(id), true) {
             return@RegisteredLiveData loadDesigner(id)

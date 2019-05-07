@@ -85,6 +85,7 @@ public class BggContract {
 		String DESIGNER_THUMBNAIL_URL = "designer_thumbnail_url";
 		String DESIGNER_HERO_IMAGE_URL = "designer_hero_image_url";
 		String DESIGNER_IMAGES_UPDATED_TIMESTAMP = "designer_images_updated_timestamp";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface ArtistsColumns {

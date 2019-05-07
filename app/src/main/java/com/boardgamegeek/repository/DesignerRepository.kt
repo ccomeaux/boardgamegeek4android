@@ -24,6 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 class DesignerRepository(val application: BggApplication) {
     private val designerDao = DesignerDao(application)
 
+    fun loadDesigners(sortBy: DesignerDao.SortType = DesignerDao.SortType.NAME): LiveData<List<PersonEntity>> {
+        return designerDao.loadDesignersAsLiveData(sortBy)
+    }
+
     fun loadDesigner(id: Int): LiveData<RefreshableResource<PersonEntity>> {
         return object : RefreshableResourceLoader<PersonEntity, Person>(application) {
             override fun loadFromDatabase(): LiveData<PersonEntity> {

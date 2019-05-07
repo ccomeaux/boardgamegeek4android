@@ -182,6 +182,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String DESIGNER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_DESIGNERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 		String PUBLISHER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_PUBLISHERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 		String ARTISTS_JOIN_GAMES = createJoin(ARTISTS, GAMES_ARTISTS, Artists.ARTIST_ID) + createJoinSuffix(GAMES_ARTISTS, GAMES, Games.GAME_ID, Games.GAME_ID);
+		String DESIGNERS_JOIN_GAMES = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.DESIGNER_ID) + createJoinSuffix(GAMES_DESIGNERS, GAMES, Games.GAME_ID, Games.GAME_ID);
 	}
 
 	@NonNull
