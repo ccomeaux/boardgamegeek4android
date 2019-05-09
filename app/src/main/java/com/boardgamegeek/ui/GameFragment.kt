@@ -60,6 +60,7 @@ class GameFragment : Fragment() {
         lastModifiedView?.timestamp = 0
 
         viewModel.gameId.observe(this, Observer { gameId ->
+            this.gameId = gameId
             gameIdView?.text = gameId.toString()
         })
 
