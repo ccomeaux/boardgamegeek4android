@@ -113,7 +113,7 @@
 	</style>
 
 	<style name="Text.Secondary.Inverse">
-		<item name="android:textColor">@color/inverse_text_body</item>
+		<item name="android:textColor">@color/inverse_secondary_text</item>
 	</style>
 
 	<style name="Text.FilterButton">

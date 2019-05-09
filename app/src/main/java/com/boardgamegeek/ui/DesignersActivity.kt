@@ -60,5 +60,5 @@ class DesignersActivity : TopLevelSinglePaneActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun getDrawerResId() = R.string.title_designers
+    override fun getNavigationItemId() = R.id.designers
 }

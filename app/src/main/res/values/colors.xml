@@ -15,7 +15,7 @@
 	<color name="primary_text">#de000000</color>
 	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text">#ffffff</color>
-	<color name="inverse_text_body">#deffffff</color>
+	<color name="inverse_secondary_text">#b3ffffff</color>
 
 	<color name="black_overlay">#CC000000</color>
 	<color name="white_overlay">#CCFFFFFF</color>

@@ -9,5 +9,5 @@ class DataActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = DataFragment()
 
-    override fun getDrawerResId(): Int = R.string.title_backup
+    override fun getNavigationItemId(): Int = R.id.data
 }

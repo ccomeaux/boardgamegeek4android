@@ -119,5 +119,5 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun getDrawerResId() = R.string.title_search
+    override fun getNavigationItemId() = R.id.search
 }

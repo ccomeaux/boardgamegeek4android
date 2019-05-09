@@ -8,5 +8,5 @@ class GeekListsActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = GeekListsFragment()
 
-    override fun getDrawerResId() = R.string.title_geeklists
+    override fun getNavigationItemId() = R.id.geeklists
 }

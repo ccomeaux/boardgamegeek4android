@@ -6,52 +6,40 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@color/primary"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/drawer_status_bar_buffer">
 
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/account_image"
 		android:layout_width="@dimen/drawer_header_image_size"
 		android:layout_height="@dimen/drawer_header_image_size"
-		android:layout_marginBottom="@dimen/material_margin_vertical"
-		android:layout_marginLeft="@dimen/material_margin_horizontal"
-		android:layout_marginTop="@dimen/padding_extra"
-		android:elevation="@dimen/drawer_header_image_elevation"
+		android:elevation="2dp"
 		android:src="@drawable/person_image_empty"
 		app:maskDrawable="@drawable/circle_mask"/>
 
-	<LinearLayout
+	<TextView
+		android:id="@+id/account_info_primary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="bottom"
-		android:gravity="center_vertical"
-		android:minHeight="@dimen/drawer_header_account_height"
-		android:orientation="vertical"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal">
+		android:gravity="bottom"
+		android:minHeight="36dp"
+		android:textAppearance="@style/Text.Title"
+		android:textColor="@color/inverse_text"
+		tools:text="Chris Comeaux"/>
 
-		<TextView
-			android:id="@+id/account_info_primary"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Primary.DrawerHeader"
-			tools:text="Chris Comeaux"/>
-
-		<TextView
-			android:id="@+id/account_info_secondary"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Secondary.DrawerHeader"
-			tools:text="ccomeaux"/>
-	</LinearLayout>
-
-	<LinearLayout
+	<TextView
+		android:id="@+id/account_info_secondary"
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/drawer_vertical_spacing">
+		android:layout_height="wrap_content"
+		android:gravity="bottom"
+		android:minHeight="20dp"
+		android:textAppearance="@style/Text.Subtitle"
+		android:textColor="@color/inverse_secondary_text"
+		tools:text="ccomeaux"/>
 
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/divider_height"
-			android:layout_gravity="bottom"
-			android:background="@color/list_divider"/>
-	</LinearLayout>
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="18dp"/>
 </LinearLayout>

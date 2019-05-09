@@ -11,7 +11,7 @@ class ForumsActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = ForumsFragment.newInstance()
 
-    override fun getDrawerResId() = R.string.title_forums
+    override fun getNavigationItemId() = R.id.forums
 
     companion object {
         @JvmStatic

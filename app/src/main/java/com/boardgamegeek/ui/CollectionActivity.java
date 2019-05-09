@@ -151,8 +151,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	}
 
 	@Override
-	protected int getDrawerResId() {
-		return R.string.title_collection;
+	protected int getNavigationItemId() {
+		return R.id.collection;
 	}
 
 	@Override

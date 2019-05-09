@@ -7,20 +7,18 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.entities.Status;
-import com.boardgamegeek.entities.UserEntity;
 import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.google.android.material.navigation.NavigationView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -32,7 +30,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,14 +40,13 @@ import hugo.weaving.DebugLog;
  */
 public abstract class DrawerActivity extends BaseActivity {
 	@BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
-	@BindView(R.id.drawer_container) View drawerListContainer;
-	@BindView(R.id.left_drawer) LinearLayout drawerList;
+	@BindView(R.id.navigation) NavigationView navigationView;
 	@BindView(R.id.toolbar) Toolbar toolbar;
 	@Nullable @BindView(R.id.root_container) ViewGroup rootContainer;
 
 	private SelfUserViewModel viewModel;
 
-	protected int getDrawerResId() {
+	protected int getNavigationItemId() {
 		return 0;
 	}
 
@@ -66,6 +62,11 @@ public abstract class DrawerActivity extends BaseActivity {
 			drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			drawerLayout.setStatusBarBackgroundColor(ContextCompat.getColor(this, R.color.primary_dark));
 		}
+
+		navigationView.setNavigationItemSelectedListener(menuItem -> {
+			selectItem(menuItem.getItemId());
+			return true;
+		});
 		viewModel = ViewModelProviders.of(this).get(SelfUserViewModel.class);
 	}
 
@@ -96,6 +97,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		EventBus.getDefault().unregister(this);
 	}
 
+	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(SignInEvent event) {
@@ -103,84 +105,51 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	private void refreshDrawer() {
-		if (drawerList == null) return;
-
-		drawerList.removeAllViews();
-		drawerList.addView(makeNavDrawerBuffer(drawerList));
-		if (!Authenticator.isSignedIn(this)) {
-			drawerList.addView(makeNavDrawerSpacer(drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, drawerList));
-		} else {
-			View view = makeNavDrawerHeader(drawerList);
-			if (view != null) drawerList.addView(view);
-			drawerList.addView(makeNavDrawerSpacer(drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_collection, drawerList));
-			if (Authenticator.isSignedIn(this)) {
-				drawerList.addView(makeNavDrawerItem(R.string.title_designers, R.drawable.ic_designers, drawerList));
-				drawerList.addView(makeNavDrawerItem(R.string.title_artists, R.drawable.ic_artists, drawerList));
-			}
-			drawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_log_play, drawerList));
-			drawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_user, drawerList));
-		}
-		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
-
-		drawerList.addView(makeNavDrawerSpacer(drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_search, R.drawable.ic_action_search, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_hotness, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_top_games, R.drawable.ic_top_games, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_geek_list, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_forums, drawerList));
-		drawerList.addView(makeNavDrawerSpacerWithDivider(drawerList));
-
-		drawerList.addView(makeNavDrawerSpacer(drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_backup, R.drawable.ic_data, drawerList));
-		drawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings, drawerList));
-		drawerList.addView(makeNavDrawerSpacer(drawerList));
+		navigationView.getMenu().setGroupVisible(R.id.personal, Authenticator.isSignedIn(this));
+		refreshHeader();
+		navigationView.setCheckedItem(getNavigationItemId());
 	}
 
-	private void selectItem(int titleResId) {
-		if (titleResId != getDrawerResId()) {
+	private void selectItem(int menuItemId) {
+		if (menuItemId != getNavigationItemId()) {
 			Intent intent = null;
 			boolean shouldFinish = true;
-			switch (titleResId) {
-				case R.string.title_collection:
+			switch (menuItemId) {
+				case R.id.collection:
 					intent = new Intent(this, CollectionActivity.class);
 					break;
-				case R.string.title_designers:
+				case R.id.designers:
 					intent = new Intent(this, DesignersActivity.class);
 					break;
-				case R.string.title_artists:
+				case R.id.artists:
 					intent = new Intent(this, ArtistsActivity.class);
 					break;
-				case R.string.title_search:
+				case R.id.search:
 					intent = new Intent(this, SearchResultsActivity.class);
 					shouldFinish = false;
 					break;
-				case R.string.title_hotness:
+				case R.id.hotness:
 					intent = new Intent(this, HotnessActivity.class);
 					break;
-				case R.string.title_top_games:
+				case R.id.top_games:
 					intent = new Intent(this, TopGamesActivity.class);
 					break;
-				case R.string.title_geeklists:
+				case R.id.geeklists:
 					intent = new Intent(this, GeekListsActivity.class);
 					break;
-				case R.string.title_plays:
+				case R.id.plays:
 					intent = new Intent(this, PlaysSummaryActivity.class);
 					break;
-				case R.string.title_buddies:
+				case R.id.geek_buddies:
 					intent = new Intent(this, BuddiesActivity.class);
 					break;
-				case R.string.title_forums:
+				case R.id.forums:
 					intent = new Intent(this, ForumsActivity.class);
 					break;
-				case R.string.title_signin:
-					startActivity(new Intent(this, LoginActivity.class));
-					break;
-				case R.string.title_backup:
+				case R.id.data:
 					startActivity(new Intent(this, DataActivity.class));
 					break;
-				case R.string.title_settings:
+				case R.id.settings:
 					startActivity(new Intent(this, SettingsActivity.class));
 					break;
 			}
@@ -191,98 +160,60 @@ public abstract class DrawerActivity extends BaseActivity {
 				}
 			}
 		}
-		drawerLayout.closeDrawer(drawerListContainer);
+		drawerLayout.closeDrawer(navigationView);
 	}
 
-	private View makeNavDrawerHeader(ViewGroup container) {
-		final View view = getLayoutInflater().inflate(R.layout.row_header_drawer, container, false);
+	private void refreshHeader() {
+		View view = navigationView.getHeaderView(0);
+		TextView primaryView = view.findViewById(R.id.account_info_primary);
+		TextView secondaryView = view.findViewById(R.id.account_info_secondary);
+		ImageView imageView = view.findViewById(R.id.account_image);
 
-		String fullName = AccountUtils.getFullName(this);
-		String username = AccountUtils.getUsername(this);
-		if (TextUtils.isEmpty(fullName)) {
-			if (TextUtils.isEmpty(username)) {
-				Account account = Authenticator.getAccount(this);
-				if (account != null) refreshUser(account.name);
-				return null;
+		if (Authenticator.isSignedIn(this)) {
+			String fullName = AccountUtils.getFullName(this);
+			String username = AccountUtils.getUsername(this);
+			if (TextUtils.isEmpty(fullName)) {
+				if (TextUtils.isEmpty(username)) {
+					Account account = Authenticator.getAccount(this);
+					if (account != null) refreshUser(account.name);
+					return;
+				} else {
+					primaryView.setText(username);
+					secondaryView.setText("");
+					refreshUser(username);
+				}
 			} else {
-				((TextView) view.findViewById(R.id.account_info_primary)).setText(username);
-				refreshUser(username);
+				primaryView.setText(fullName);
+				secondaryView.setText(username);
+			}
+
+			String avatarUrl = AccountUtils.getAvatarUrl(this);
+			if (TextUtils.isEmpty(avatarUrl)) {
+				imageView.setVisibility(View.GONE);
+			} else {
+				imageView.setVisibility(View.VISIBLE);
+				if (avatarUrl != null) {
+					ImageUtils.loadThumbnail(imageView, avatarUrl, R.drawable.person_image_empty);
+				}
 			}
 		} else {
-			((TextView) view.findViewById(R.id.account_info_primary)).setText(fullName);
-			((TextView) view.findViewById(R.id.account_info_secondary)).setText(username);
-		}
-
-		String avatarUrl = AccountUtils.getAvatarUrl(this);
-		final ImageView imageView = view.findViewById(R.id.account_image);
-		if (TextUtils.isEmpty(avatarUrl)) {
+			primaryView.setText(R.string.title_signin);
+			primaryView.setOnClickListener(v -> startActivity(new Intent(DrawerActivity.this, LoginActivity.class)));
+			secondaryView.setText("");
 			imageView.setVisibility(View.GONE);
-		} else {
-			imageView.setVisibility(View.VISIBLE);
-			ImageUtils.loadThumbnail(imageView, avatarUrl, R.drawable.person_image_empty);
 		}
-
-		return view;
 	}
 
 	private void refreshUser(String username) {
 		if (TextUtils.isEmpty(username)) return;
 		viewModel.setUsername(username);
-		viewModel.getUser().observe(this, new Observer<RefreshableResource<UserEntity>>() {
-			@Override
-			public void onChanged(RefreshableResource<UserEntity> userEntityRefreshableResource) {
-				if (userEntityRefreshableResource != null &&
-					userEntityRefreshableResource.getStatus() == Status.SUCCESS &&
-					userEntityRefreshableResource.getData() != null &&
-					!TextUtils.isEmpty(userEntityRefreshableResource.getData().getUserName())) {
-					refreshDrawer();
-				}
+		viewModel.getUser().observe(this, userEntityRefreshableResource -> {
+			if (userEntityRefreshableResource != null &&
+				userEntityRefreshableResource.getStatus() == Status.SUCCESS &&
+				userEntityRefreshableResource.getData() != null &&
+				!TextUtils.isEmpty(userEntityRefreshableResource.getData().getUserName())) {
+				refreshDrawer();
 			}
 		});
-	}
-
-	private View makeNavDrawerBuffer(ViewGroup container) {
-		return getLayoutInflater().inflate(R.layout.row_buffer_drawer, container, false);
-	}
-
-	private View makeNavDrawerSpacer(ViewGroup container) {
-		return getLayoutInflater().inflate(R.layout.row_spacer_drawer, container, false);
-	}
-
-	private View makeNavDrawerSpacerWithDivider(ViewGroup container) {
-		final View view = makeNavDrawerSpacer(container);
-		view.findViewById(R.id.divider).setVisibility(View.VISIBLE);
-		return view;
-	}
-
-	private View makeNavDrawerItem(final int titleId, int iconId, ViewGroup container) {
-		View view = getLayoutInflater().inflate(R.layout.row_drawer, container, false);
-
-		TextView titleView = view.findViewById(android.R.id.title);
-		ImageView iconView = view.findViewById(android.R.id.icon);
-
-		titleView.setText(titleId);
-		if (iconId != 0) {
-			iconView.setImageResource(iconId);
-			iconView.setVisibility(View.VISIBLE);
-		} else {
-			iconView.setVisibility(View.GONE);
-		}
-		if (titleId == getDrawerResId()) {
-			view.setBackgroundResource(R.color.navdrawer_selected_row);
-			titleView.setTextColor(ContextCompat.getColor(this, R.color.primary));
-			iconView.setColorFilter(ContextCompat.getColor(this, R.color.primary));
-		} else {
-			iconView.setColorFilter(ContextCompat.getColor(this, R.color.navdrawer_icon_tint));
-		}
-
-		view.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				selectItem(titleId);
-			}
-		});
-
-		return view;
 	}
 }
