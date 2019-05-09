@@ -161,7 +161,7 @@ class GamePlaysFragment : Fragment() {
 
     private fun colorize() {
         if (isAdded) {
-            arrayOf(playsIcon, playStatsIcon, colorsIcon).forEach { it.setOrClearColorFilter(iconColor) }
+            arrayOf(inProgressPlaysIcon, playsIcon, playStatsIcon, colorsIcon).forEach { it.setOrClearColorFilter(iconColor) }
         }
     }
 
