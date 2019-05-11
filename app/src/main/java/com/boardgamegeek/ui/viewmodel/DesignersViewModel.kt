@@ -23,7 +23,7 @@ class DesignsViewModel(application: Application) : AndroidViewModel(application)
         get() = _sort
 
     init {
-        sort(SortType.NAME)
+        sort(SortType.ITEM_COUNT)
     }
 
     val designers: LiveData<List<PersonEntity>> = Transformations.switchMap(sort) {

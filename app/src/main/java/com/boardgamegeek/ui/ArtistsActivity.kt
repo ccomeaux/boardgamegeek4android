@@ -12,7 +12,7 @@ import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 
 class ArtistsActivity : TopLevelSinglePaneActivity() {
     private var numberOfArtists = -1
-    private var sortBy = ArtistsViewModel.SortType.NAME
+    private var sortBy = ArtistsViewModel.SortType.ITEM_COUNT
 
     private val viewModel: ArtistsViewModel by lazy {
         ViewModelProviders.of(this).get(ArtistsViewModel::class.java)
