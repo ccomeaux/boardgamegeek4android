@@ -9,5 +9,5 @@ class DataActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = DataFragment()
 
-    override fun getNavigationItemId(): Int = R.id.data
+    override val navigationItemId: Int = R.id.data
 }

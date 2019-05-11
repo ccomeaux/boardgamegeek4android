@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -9,7 +9,8 @@
 	android:orientation="vertical"
 	android:paddingLeft="@dimen/material_margin_horizontal"
 	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/drawer_status_bar_buffer">
+	android:paddingTop="@dimen/drawer_status_bar_buffer"
+	android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/account_image"
@@ -17,6 +18,8 @@
 		android:layout_height="@dimen/drawer_header_image_size"
 		android:elevation="2dp"
 		android:src="@drawable/person_image_empty"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		app:maskDrawable="@drawable/circle_mask"/>
 
 	<TextView
@@ -26,7 +29,8 @@
 		android:gravity="bottom"
 		android:minHeight="36dp"
 		android:textAppearance="@style/Text.Title"
-		android:textColor="@color/inverse_text"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/account_image"
 		tools:text="Chris Comeaux"/>
 
 	<TextView
@@ -36,10 +40,13 @@
 		android:gravity="bottom"
 		android:minHeight="20dp"
 		android:textAppearance="@style/Text.Subtitle"
-		android:textColor="@color/inverse_secondary_text"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/account_info_primary"
 		tools:text="ccomeaux"/>
 
 	<View
 		android:layout_width="match_parent"
-		android:layout_height="18dp"/>
-</LinearLayout>
+		android:layout_height="18dp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/account_info_secondary"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,7 +20,7 @@ abstract class TabActivity : DrawerActivity() {
 
     protected abstract fun createAdapter(): FragmentPagerAdapter
 
-    override fun getLayoutResId() = R.layout.activity_tab
+    override val layoutResId = R.layout.activity_tab
 
     protected fun safelySetTitle(title: String?) {
         if (!title.isNullOrBlank()) {

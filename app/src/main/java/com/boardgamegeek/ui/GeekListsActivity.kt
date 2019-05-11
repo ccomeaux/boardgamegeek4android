@@ -8,5 +8,5 @@ class GeekListsActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = GeekListsFragment()
 
-    override fun getNavigationItemId() = R.id.geeklists
+    override val navigationItemId = R.id.geeklists
 }

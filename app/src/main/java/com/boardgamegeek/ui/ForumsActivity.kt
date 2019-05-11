@@ -11,7 +11,7 @@ class ForumsActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = ForumsFragment.newInstance()
 
-    override fun getNavigationItemId() = R.id.forums
+    override val navigationItemId = R.id.forums
 
     companion object {
         @JvmStatic

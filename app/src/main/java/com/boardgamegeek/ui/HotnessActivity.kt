@@ -10,7 +10,7 @@ class HotnessActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane() = HotnessFragment()
 
-    override fun getNavigationItemId() = R.id.hotness
+    override val navigationItemId = R.id.hotness
 
     override val optionsMenuId = R.menu.search
 

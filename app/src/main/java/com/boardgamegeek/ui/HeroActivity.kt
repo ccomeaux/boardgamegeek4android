@@ -68,7 +68,7 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
      */
     protected abstract fun onCreatePane(): Fragment
 
-    override fun getLayoutResId() = R.layout.activity_hero
+    override val layoutResId = R.layout.activity_hero
 
     protected fun safelySetTitle(title: String) {
         if (title.isNotBlank()) {

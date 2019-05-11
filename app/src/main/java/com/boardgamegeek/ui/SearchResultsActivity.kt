@@ -119,5 +119,5 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun getNavigationItemId() = R.id.search
+    override val navigationItemId = R.id.search
 }

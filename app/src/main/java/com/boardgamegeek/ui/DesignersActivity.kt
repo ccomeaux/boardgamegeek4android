@@ -60,5 +60,5 @@ class DesignersActivity : TopLevelSinglePaneActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun getNavigationItemId() = R.id.designers
+    override val navigationItemId = R.id.designers
 }

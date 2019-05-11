@@ -18,8 +18,8 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
         username.value = Authenticator.getAccount(application)?.name ?: ""
     }
 
-    fun setUsername(newUsername: String) {
-        if (username.value != newUsername) username.value = newUsername
+    fun setUsername(newUsername: String?) {
+        if (newUsername != null && username.value != newUsername) username.value = newUsername
     }
 
     val user: LiveData<RefreshableResource<UserEntity>> = Transformations.switchMap(username) { username ->

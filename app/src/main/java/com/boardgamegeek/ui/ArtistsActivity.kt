@@ -60,5 +60,5 @@ class ArtistsActivity : TopLevelSinglePaneActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun getNavigationItemId() = R.string.title_artists
+    override val navigationItemId = R.id.artists
 }

@@ -15,7 +15,7 @@ class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = PlaysSummaryFragment()
 
-    override fun getNavigationItemId() = R.id.plays
+    override val navigationItemId = R.id.plays
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

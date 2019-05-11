@@ -8,5 +8,5 @@ class TopGamesActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = TopGamesFragment()
 
-    override fun getNavigationItemId() = R.id.top_games
+    override val navigationItemId = R.id.top_games
 }

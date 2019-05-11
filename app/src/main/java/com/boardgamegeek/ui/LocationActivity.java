@@ -117,8 +117,8 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
 
-		if (!TextUtils.isEmpty(event.getMessage()) && rootContainer != null) {
-			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
+		if (!TextUtils.isEmpty(event.getMessage()) && getRootContainer() != null) {
+			Snackbar.make(getRootContainer(), event.getMessage(), Snackbar.LENGTH_LONG).show();
 		}
 	}
 
