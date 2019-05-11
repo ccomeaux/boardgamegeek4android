@@ -7,6 +7,7 @@
 	android:layout_height="wrap_content"
 	android:background="@color/primary"
 	android:orientation="vertical"
+	android:paddingBottom="18dp"
 	android:paddingLeft="@dimen/material_margin_horizontal"
 	android:paddingRight="@dimen/material_margin_horizontal"
 	android:paddingTop="@dimen/drawer_status_bar_buffer"
@@ -44,9 +45,18 @@
 		app:layout_constraintTop_toBottomOf="@id/account_info_primary"
 		tools:text="ccomeaux"/>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="18dp"
+	<Button
+		android:id="@+id/singInButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/action_sign_in"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/account_info_secondary"/>
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<androidx.constraintlayout.widget.Group
+		android:id="@+id/signed_in"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:constraint_referenced_ids="account_image,account_info_primary,account_info_secondary"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

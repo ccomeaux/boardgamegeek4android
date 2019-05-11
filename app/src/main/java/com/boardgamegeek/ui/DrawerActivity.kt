@@ -3,26 +3,28 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.Group
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.events.SignInEvent
+import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PreferencesUtils
 import com.google.android.material.navigation.NavigationView
-import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -67,10 +69,8 @@ abstract class DrawerActivity : BaseActivity() {
             true
         }
 
-        viewModel.user.observe(this, Observer { resource ->
-            if (resource?.status === Status.SUCCESS && resource.data?.userName?.isBlank() != true) {
-                refreshDrawer()
-            }
+        viewModel.user.observe(this, Observer {
+            refreshDrawer()
         })
     }
 
@@ -93,10 +93,14 @@ abstract class DrawerActivity : BaseActivity() {
         EventBus.getDefault().unregister(this)
     }
 
-    @DebugLog
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: SignInEvent) {
         viewModel.setUsername(event.username)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onEvent(event: SignOutEvent) {
+        viewModel.setUsername("")
     }
 
     override fun onBackPressed() {
@@ -141,6 +145,8 @@ abstract class DrawerActivity : BaseActivity() {
         val primaryView = view.findViewById<TextView>(R.id.account_info_primary)
         val secondaryView = view.findViewById<TextView>(R.id.account_info_secondary)
         val imageView = view.findViewById<ImageView>(R.id.account_image)
+        val signedInGroup = view.findViewById<Group>(R.id.signed_in)
+        val signInButton = view.findViewById<Button>(R.id.singInButton)
 
         if (Authenticator.isSignedIn(this)) {
             val fullName = AccountUtils.getFullName(this)
@@ -160,8 +166,6 @@ abstract class DrawerActivity : BaseActivity() {
                 secondaryView.text = username
                 viewModel.setUsername(username)
             }
-            primaryView.setOnClickListener(null)
-            primaryView.isClickable = false
 
             val avatarUrl = AccountUtils.getAvatarUrl(this)
             if (avatarUrl.isNullOrBlank()) {
@@ -170,11 +174,12 @@ abstract class DrawerActivity : BaseActivity() {
                 imageView.visibility = View.VISIBLE
                 imageView.loadThumbnail(avatarUrl, R.drawable.person_image_empty)
             }
+            signedInGroup.isVisible = true
+            signInButton.isVisible = false
         } else {
-            primaryView.setText(R.string.title_signin)
-            primaryView.setOnClickListener { startActivity<LoginActivity>() }
-            secondaryView.text = ""
-            imageView.visibility = View.GONE
+            signedInGroup.isVisible = false
+            signInButton.isVisible = true
+            signInButton.setOnClickListener { startActivity<LoginActivity>() }
         }
     }
 }
