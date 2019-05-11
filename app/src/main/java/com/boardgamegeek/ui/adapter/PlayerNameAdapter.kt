@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import java.util.*
 
 class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player, emptyList<Result>()), Filterable {
@@ -47,7 +47,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     override fun getFilter() = PlayerFilter()
 
     inner class PlayerFilter : Filter() {
-        override fun performFiltering(constraint: CharSequence?): Filter.FilterResults? {
+        override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filter = constraint?.toString() ?: ""
             if (filter.isBlank()) return null
 
@@ -65,13 +65,13 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             }
             resultList.sortBy { -it.playCount }
 
-            val filterResults = Filter.FilterResults()
-            filterResults.values = resultList
-            filterResults.count = resultList.size
-            return filterResults
+            return FilterResults().apply {
+                values = resultList
+                count = resultList.size
+            }
         }
 
-        override fun publishResults(constraint: CharSequence?, results: Filter.FilterResults?) {
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             resultList.clear()
             var values: ArrayList<Result>? = null
             if (results != null && results.count > 0) {

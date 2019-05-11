@@ -20,9 +20,9 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PreferencesUtils
 import com.google.android.material.navigation.NavigationView
 import org.greenrobot.eventbus.EventBus

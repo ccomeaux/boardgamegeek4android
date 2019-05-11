@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.core.view.setMargins
 import com.boardgamegeek.R
 import com.boardgamegeek.util.ImageUtils
@@ -41,6 +42,28 @@ fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
                     callback?.onFailedImageLoad()
                 }
             })
+}
+
+fun ImageView.loadThumbnail(imageUrl: String, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
+    val isSameImage = getTag(R.id.image) == ImageUtils.getImageId(imageUrl)
+    val requestCreator = Picasso.with(context)
+            .load(imageUrl.ensureHttpsScheme())
+            .error(errorResId)
+            .fit()
+            .centerCrop()
+    if (isSameImage) {
+        requestCreator.noFade().noPlaceholder()
+    } else {
+        requestCreator.placeholder(errorResId)
+    }
+    requestCreator.into(this, object : com.squareup.picasso.Callback {
+        override fun onSuccess() {
+            setTag(R.id.url, imageUrl)
+        }
+
+        override fun onError() {
+        }
+    })
 }
 
 fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {

@@ -13,10 +13,10 @@ import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_artists.*
 import kotlinx.android.synthetic.main.row_artist.view.*
 import kotlin.properties.Delegates
