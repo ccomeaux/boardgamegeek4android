@@ -124,8 +124,8 @@ class TimestampView @JvmOverloads constructor(
         constructor(superState: Parcelable) : super(superState)
 
         constructor(source: Parcel) : super(source) {
-            format = source.readString() ?: ""
             timestamp = source.readLong()
+            format = source.readString() ?: ""
             formatArg = source.readString()
         }
 
