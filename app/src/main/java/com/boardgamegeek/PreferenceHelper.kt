@@ -2,7 +2,7 @@ package com.boardgamegeek
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 object PreferenceHelper {
     fun get(context: Context, name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
