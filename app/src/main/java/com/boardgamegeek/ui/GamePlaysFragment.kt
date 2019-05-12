@@ -136,7 +136,7 @@ class GamePlaysFragment : Fragment() {
                 val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
                 if (lastPlay != null) {
                     lastPlayDateView?.text = context?.getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext())) ?: ""
-                    lastPlayInfoView?.text = lastPlay.describe(requireContext())
+                    lastPlayInfoView?.setTextOrHide(lastPlay.describe(requireContext()))
                     lastPlayContainer?.setOnClickListener {
                         PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
                     }

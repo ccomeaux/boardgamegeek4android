@@ -106,7 +106,7 @@
 					<ImageView
 						android:id="@+id/inProgressPlaysIcon"
 						style="@style/Icon"
-						android:contentDescription="@string/play_stat_last_play"
+						android:contentDescription="@string/title_in_progress"
 						android:src="@drawable/ic_timer"/>
 
 					<LinearLayout
@@ -135,7 +135,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:gravity="center_vertical"
-						android:minHeight="@dimen/view_row_height"
+						android:minHeight="48dp"
 						android:orientation="vertical"
 						android:paddingBottom="@dimen/padding_half"
 						android:paddingTop="@dimen/padding_half">
