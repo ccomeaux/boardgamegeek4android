@@ -173,7 +173,7 @@ public class Player implements Parcelable {
 		out.writeString(score);
 		out.writeDouble(rating);
 		out.writeInt(isNew ? 1 : 0);
-		out.writeInt(isNew ? 1 : 0);
+		out.writeInt(isWin ? 1 : 0);
 	}
 
 	public static final Parcelable.Creator<Player> CREATOR = new Parcelable.Creator<Player>() {
