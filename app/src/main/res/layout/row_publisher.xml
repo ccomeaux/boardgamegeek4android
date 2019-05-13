@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+	style="@style/RowContainer.WithThumbnail"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
+	android:orientation="horizontal">
+
+	<com.boardgamegeek.ui.widget.BezelImageView
+		android:id="@+id/avatarView"
+		style="@style/ImageList"
+		android:layout_width="@dimen/thumbnail_list_size"
+		android:layout_height="@dimen/thumbnail_list_size"
+		android:clickable="false"
+		android:contentDescription="@string/avatar"
+		android:src="@drawable/person_image_empty"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="8dp"
+		android:layout_marginStart="8dp"
+		android:textAppearance="@style/TextAppearance.RowTitle"
+		app:layout_constraintBottom_toTopOf="@id/countView"
+		app:layout_constraintStart_toEndOf="@id/avatarView"
+		app:layout_constraintVertical_chainStyle="packed"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="Hans im Gluck"/>
+
+	<TextView
+		android:id="@+id/countView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="8dp"
+		android:layout_marginStart="8dp"
+		app:layout_constraintVertical_chainStyle="packed"
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/avatarView"
+		app:layout_constraintTop_toBottomOf="@+id/nameView"
+		tools:text="42 games"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

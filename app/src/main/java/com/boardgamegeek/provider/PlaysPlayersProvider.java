@@ -78,7 +78,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 				break;
 		}
 		builder
-			.map(PlayPlayers.COUNT, "count(*)")
+			.mapAsCount(PlayPlayers.COUNT)
 			.map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
 			.map(PlayPlayers.DESCRIPTION, "name || IFNULL(NULLIF(' ('||user_name||')', ' ()'), '')");
 		return builder;

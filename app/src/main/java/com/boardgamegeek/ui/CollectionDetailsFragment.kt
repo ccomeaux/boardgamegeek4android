@@ -25,5 +25,9 @@ class CollectionDetailsFragment : Fragment() {
         artistsButton.setOnClickListener {
             startActivity<ArtistsActivity>()
         }
+
+        publishersButton.setOnClickListener {
+            startActivity<PublishersActivity>()
+        }
     }
 }

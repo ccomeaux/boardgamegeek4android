@@ -21,6 +21,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 class PublisherRepository(val application: BggApplication) {
     private val publisherDao = PublisherDao(application)
 
+    fun loadPublishers(sortBy: PublisherDao.SortType = PublisherDao.SortType.NAME): LiveData<List<CompanyEntity>> {
+        return publisherDao.loadPublishersAsLiveData(sortBy)
+    }
+
     fun loadPublisher(id: Int): LiveData<RefreshableResource<CompanyEntity>> {
         val started = AtomicBoolean()
         val mediatorLiveData = MediatorLiveData<RefreshableResource<CompanyEntity>>()

@@ -107,6 +107,7 @@ public class BggContract {
 		String PUBLISHER_THUMBNAIL_URL = "publisher_thumbnail_url";
 		String PUBLISHER_HERO_IMAGE_URL = "publisher_hero_image_url";
 		String PUBLISHER_SORT_NAME = "publisher_sort_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface MechanicsColumns {

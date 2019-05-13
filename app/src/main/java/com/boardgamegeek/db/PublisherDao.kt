@@ -14,6 +14,55 @@ import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 
 class PublisherDao(private val context: BggApplication) {
+    enum class SortType {
+        NAME, ITEM_COUNT
+    }
+
+    fun loadPublishersAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<CompanyEntity>> {
+        return RegisteredLiveData(context, BggContract.Publishers.CONTENT_URI, true) {
+            return@RegisteredLiveData loadPublishers(sortBy)
+        }
+    }
+
+    private fun loadPublishers(sortBy: SortType): List<CompanyEntity> {
+        val results = arrayListOf<CompanyEntity>()
+        val sortByName = BggContract.Publishers.PUBLISHER_NAME.collateNoCase().ascending()
+        val sortOrder = when (sortBy) {
+            SortType.NAME -> sortByName
+            SortType.ITEM_COUNT -> BggContract.Publishers.ITEM_COUNT.descending().plus(", $sortByName")
+        }
+        context.contentResolver.load(
+                BggContract.Publishers.CONTENT_URI,
+                arrayOf(
+                        BggContract.Publishers.PUBLISHER_ID,
+                        BggContract.Publishers.PUBLISHER_NAME,
+                        BggContract.Publishers.PUBLISHER_DESCRIPTION,
+                        BggContract.Publishers.PUBLISHER_IMAGE_URL,
+                        BggContract.Publishers.PUBLISHER_THUMBNAIL_URL,
+                        BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL,
+                        BggContract.Publishers.UPDATED,
+                        BggContract.Publishers.ITEM_COUNT
+                ),
+                sortOrder = sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += CompanyEntity(
+                            it.getInt(BggContract.Publishers.PUBLISHER_ID),
+                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_NAME),
+                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_DESCRIPTION),
+                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_IMAGE_URL),
+                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_THUMBNAIL_URL),
+                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL),
+                            it.getLongOrZero(BggContract.Publishers.UPDATED),
+                            it.getIntOrZero(BggContract.Publishers.ITEM_COUNT)
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
+    }
+
     fun loadPublisherAsLiveData(id: Int): LiveData<CompanyEntity> {
         return RegisteredLiveData(context, BggContract.Publishers.buildPublisherUri(id), true) {
             return@RegisteredLiveData loadPublisher(id)

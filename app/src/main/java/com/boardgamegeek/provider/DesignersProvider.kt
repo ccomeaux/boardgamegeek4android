@@ -19,12 +19,12 @@ class DesignersProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>): SelectionBuilder {
         val builder = SelectionBuilder()
-                .mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
-                .mapToTable(Designers.UPDATED, Tables.DESIGNERS)
+                .mapToTable(Designers.DESIGNER_ID, table)
+                .mapToTable(Designers.UPDATED, table)
         if (projection.contains(Designers.ITEM_COUNT)) {
             builder
                     .table(Tables.DESIGNERS_JOIN_GAMES)
-                    .groupBy("designers." + Designers.DESIGNER_ID)
+                    .groupBy("$table.${Designers.DESIGNER_ID}")
                     .mapAsCount(Designers.ITEM_COUNT)
         } else {
             builder.table(table)
