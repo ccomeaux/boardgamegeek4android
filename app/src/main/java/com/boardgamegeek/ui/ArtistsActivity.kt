@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,7 +11,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 
-class ArtistsActivity : TopLevelSinglePaneActivity() {
+class ArtistsActivity : SimpleSinglePaneActivity() {
     private var numberOfArtists = -1
     private var sortBy = ArtistsViewModel.SortType.ITEM_COUNT
 
@@ -30,7 +31,7 @@ class ArtistsActivity : TopLevelSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(): Fragment = ArtistsFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = ArtistsFragment.newInstance()
 
     override val optionsMenuId = R.menu.artists
 
@@ -59,6 +60,4 @@ class ArtistsActivity : TopLevelSinglePaneActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
-    override val navigationItemId = R.id.artists
 }

@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,7 +11,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.DesignsViewModel
 
-class DesignersActivity : TopLevelSinglePaneActivity() {
+class DesignersActivity : SimpleSinglePaneActivity() {
     private var numberOfDesigners = -1
     private var sortBy = DesignsViewModel.SortType.ITEM_COUNT
 
@@ -30,7 +31,7 @@ class DesignersActivity : TopLevelSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(): Fragment = DesignersFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = DesignersFragment.newInstance()
 
     override val optionsMenuId = R.menu.designers
 
@@ -59,6 +60,4 @@ class DesignersActivity : TopLevelSinglePaneActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
-    override val navigationItemId = R.id.designers
 }

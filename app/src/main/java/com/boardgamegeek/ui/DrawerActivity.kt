@@ -121,12 +121,8 @@ abstract class DrawerActivity : BaseActivity() {
         if (menuItemId != navigationItemId) {
             when (menuItemId) {
                 R.id.collection -> startActivity<CollectionActivity>()
-                R.id.designers -> startActivity<DesignersActivity>()
-                R.id.artists -> startActivity<ArtistsActivity>()
-                R.id.search -> {
-                    startActivity<SearchResultsActivity>()
-                    finish()
-                }
+                R.id.collection_details -> startActivity<CollectionDetailsActivity>()
+                R.id.search -> startActivity<SearchResultsActivity>()
                 R.id.hotness -> startActivity<HotnessActivity>()
                 R.id.top_games -> startActivity<TopGamesActivity>()
                 R.id.geeklists -> startActivity<GeekListsActivity>()

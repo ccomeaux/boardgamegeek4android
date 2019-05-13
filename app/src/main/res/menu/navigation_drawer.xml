@@ -8,13 +8,9 @@
 			android:icon="@drawable/ic_collection"
 			android:title="@string/title_collection"/>
 		<item
-			android:id="@+id/designers"
-			android:icon="@drawable/ic_designers"
-			android:title="@string/title_designers"/>
-		<item
-			android:id="@+id/artists"
-			android:icon="@drawable/ic_artists"
-			android:title="@string/title_artists"/>
+			android:id="@+id/collection_details"
+			android:icon="@drawable/ic_collection"
+			android:title="@string/title_collection_details"/>
 		<item
 			android:id="@+id/plays"
 			android:icon="@drawable/ic_plays"
