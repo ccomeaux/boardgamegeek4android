@@ -79,6 +79,21 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
+		<activity
+			android:name=".ui.MechanicsActivity"
+			android:label="@string/title_mechanics">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.CategoriesActivity"
+			android:label="@string/title_categories">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+
 
 		<activity-alias
 			android:name=".CreateShortcutActivity"

@@ -113,11 +113,13 @@ public class BggContract {
 	interface MechanicsColumns {
 		String MECHANIC_ID = "mechanic_id";
 		String MECHANIC_NAME = "mechanic_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface CategoriesColumns {
 		String CATEGORY_ID = "category_id";
 		String CATEGORY_NAME = "category_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface GamesExpansionsColumns {
@@ -615,14 +617,6 @@ public class BggContract {
 
 	public static Uri buildBasicUri(String path, long id) {
 		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
-	}
-
-	public static boolean isUri(Uri uri, String path) {
-		if (uri == null || TextUtils.isEmpty(path)) {
-			return false;
-		}
-		List<String> pathSegments = uri.getPathSegments();
-		return pathSegments != null && pathSegments.size() > 0 && path.equals(pathSegments.get(0));
 	}
 
 	public static class Artists implements ArtistsColumns, BaseColumns, SyncColumns {
