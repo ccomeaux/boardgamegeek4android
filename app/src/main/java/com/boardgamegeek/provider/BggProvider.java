@@ -80,8 +80,11 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new MechanicsProvider());
 		addProvider(map, new MechanicsIdProvider());
+		addProvider(map, new MechanicsIdCollectionProvider());
+
 		addProvider(map, new CategoriesProvider());
 		addProvider(map, new CategoriesIdProvider());
+		addProvider(map, new CategoriesIdCollectionProvider());
 
 		addProvider(map, new CollectionProvider());
 		addProvider(map, new CollectionIdProvider());

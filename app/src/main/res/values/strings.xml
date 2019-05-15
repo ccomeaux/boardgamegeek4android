@@ -184,7 +184,9 @@
 	<string name="title_artists">Artists</string>
 	<string name="title_publisher">Publisher</string>
 	<string name="title_publishers">Publishers</string>
+	<string name="title_mechanic">Mechanic</string>
 	<string name="title_mechanics">Mechanics</string>
+	<string name="title_category">Category</string>
 	<string name="title_categories">Categories</string>
 	<string name="title_user">User</string>
 	<string name="title_users">Users</string>

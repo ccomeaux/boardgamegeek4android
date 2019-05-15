@@ -86,9 +86,12 @@ class CategoriesFragment : Fragment() {
 
         inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(category: CategoryEntity?) {
-                category?.let { a ->
-                    itemView.nameView.text = a.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                category?.let { c ->
+                    itemView.nameView.text = c.name
+                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)
+                    itemView.setOnClickListener {
+                        CategoryActivity.start(itemView.context, c.id, c.name)
+                    }
                 }
             }
         }

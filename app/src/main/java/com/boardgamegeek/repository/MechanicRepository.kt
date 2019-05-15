@@ -4,11 +4,16 @@ import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.MechanicDao
 import com.boardgamegeek.entities.MechanicEntity
+import com.boardgamegeek.entities.PersonGameEntity
 
-class MechanicRepository (val application: BggApplication){
+class MechanicRepository(val application: BggApplication) {
     private val mechanicDao = MechanicDao(application)
 
     fun loadMechanics(sortBy: MechanicDao.SortType = MechanicDao.SortType.NAME): LiveData<List<MechanicEntity>> {
         return mechanicDao.loadMechanicsAsLiveData(sortBy)
+    }
+
+    fun loadCollection(id: Int): LiveData<List<PersonGameEntity>>? {
+        return mechanicDao.loadCollectionAsLiveData(id)
     }
 }

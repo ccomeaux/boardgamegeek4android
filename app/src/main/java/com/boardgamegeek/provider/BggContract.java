@@ -670,11 +670,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildMechanicUri(int mechanicId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId)).build();
+			return createMechanicUri(mechanicId).build();
+		}
+
+		private static Builder createMechanicUri(int mechanicId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId));
 		}
 
 		public static int getMechanicId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static Uri buildCollectionUri(int mechanicId) {
+			return createMechanicUri(mechanicId).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -687,11 +695,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildCategoryUri(int categoryId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId)).build();
+			return createCategoryUri(categoryId).build();
 		}
 
 		public static int getCategoryId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static Uri buildCollectionUri(int categoryId) {
+			return createCategoryUri(categoryId).appendPath(PATH_COLLECTION).build();
+		}
+
+		private static Builder createCategoryUri(int categoryId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId));
 		}
 	}
 

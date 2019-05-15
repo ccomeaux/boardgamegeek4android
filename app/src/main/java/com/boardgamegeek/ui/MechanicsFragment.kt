@@ -86,9 +86,12 @@ class MechanicsFragment : Fragment() {
 
         inner class MechanicViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(mechanic: MechanicEntity?) {
-                mechanic?.let { a ->
-                    itemView.nameView.text = a.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                mechanic?.let {m ->
+                    itemView.nameView.text = m.name
+                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, m.itemCount, m.itemCount)
+                    itemView.setOnClickListener {
+                        MechanicActivity.start(itemView.context, m.id, m.name)
+                    }
                 }
             }
         }

@@ -87,13 +87,26 @@
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
+			android:name=".ui.MechanicActivity"
+			android:label="@string/title_mechanic">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
 			android:name=".ui.CategoriesActivity"
 			android:label="@string/title_categories">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
-
+		<activity
+			android:name=".ui.CategoryActivity"
+			android:label="@string/title_category">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
 
 		<activity-alias
 			android:name=".CreateShortcutActivity"
