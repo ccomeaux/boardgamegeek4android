@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.entities.CategoryEntity
-import com.boardgamegeek.entities.PersonGameEntity
+import com.boardgamegeek.entities.BriefGameEntity
 
 class CategoryRepository(val application: BggApplication) {
     private val categoryDao = CategoryDao(application)
@@ -14,7 +14,7 @@ class CategoryRepository(val application: BggApplication) {
     }
 
 
-    fun loadCollection(id: Int): LiveData<List<PersonGameEntity>>? {
+    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
         return categoryDao  .loadCollectionAsLiveData(id)
     }
 }

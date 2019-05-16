@@ -4,8 +4,8 @@ import android.content.ContentValues
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonGameEntity
 import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
@@ -141,14 +141,14 @@ class ArtistDao(private val context: BggApplication) {
         return 0
     }
 
-    fun loadCollectionAsLiveData(id: Int): LiveData<List<PersonGameEntity>>? {
+    fun loadCollectionAsLiveData(id: Int): LiveData<List<BriefGameEntity>>? {
         return RegisteredLiveData(context, BggContract.Artists.buildArtistCollectionUri(id), true) {
             return@RegisteredLiveData loadCollection(id)
         }
     }
 
-    private fun loadCollection(artistId: Int): List<PersonGameEntity> {
-        val list = arrayListOf<PersonGameEntity>()
+    private fun loadCollection(artistId: Int): List<BriefGameEntity> {
+        val list = arrayListOf<BriefGameEntity>()
         context.contentResolver.load(
                 BggContract.Artists.buildArtistCollectionUri(artistId),
                 arrayOf(
@@ -159,11 +159,12 @@ class ArtistDao(private val context: BggApplication) {
                         BggContract.Collection.COLLECTION_THUMBNAIL_URL,
                         BggContract.Collection.THUMBNAIL_URL,
                         BggContract.Collection.HERO_IMAGE_URL
-                )
+                ),
+                sortOrder = BggContract.Collection.GAME_SORT_NAME.collateNoCase().ascending()
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    list += PersonGameEntity(
+                    list += BriefGameEntity(
                             it.getInt(BggContract.Collection.GAME_ID),
                             it.getStringOrEmpty(BggContract.Collection.GAME_NAME),
                             it.getStringOrEmpty(BggContract.Collection.COLLECTION_NAME),

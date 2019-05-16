@@ -7,7 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonGameEntity
+import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
@@ -91,7 +91,7 @@ class DesignerRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int): LiveData<List<PersonGameEntity>>? {
+    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
         return designerDao.loadCollectionAsLiveData(id)
     }
 }

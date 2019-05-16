@@ -10,13 +10,13 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.ui.adapter.PersonCollectionAdapter
+import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.CategoryViewModel
 import kotlinx.android.synthetic.main.fragment_game_details.*
 
 class CategoryCollectionFragment : Fragment() {
-    private val adapter: PersonCollectionAdapter by lazy {
-        PersonCollectionAdapter()
+    private val adapter: LinkedCollectionAdapter by lazy {
+        LinkedCollectionAdapter()
     }
 
     private val viewModel: CategoryViewModel by lazy {
@@ -24,7 +24,7 @@ class CategoryCollectionFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_person_collection, container, false)
+        return inflater.inflate(R.layout.fragment_linked_collection, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,7 +35,7 @@ class CategoryCollectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        emptyMessage.text = getString(R.string.empty_person_collection, getString(R.string.title_category).toLowerCase())
+        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).toLowerCase())
         viewModel.collection.observe(this, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it

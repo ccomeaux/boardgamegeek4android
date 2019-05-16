@@ -96,7 +96,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    val collection: LiveData<List<PersonGameEntity>> = Transformations.switchMap(_person) { person ->
+    val collection: LiveData<List<BriefGameEntity>> = Transformations.switchMap(_person) { person ->
         when (person.second) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {

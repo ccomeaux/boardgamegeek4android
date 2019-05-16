@@ -2,8 +2,8 @@ package com.boardgamegeek.db
 
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.MechanicEntity
-import com.boardgamegeek.entities.PersonGameEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.RegisteredLiveData
@@ -49,14 +49,14 @@ class MechanicDao(private val context: BggApplication) {
         return results
     }
 
-    fun loadCollectionAsLiveData(mechanicId: Int): LiveData<List<PersonGameEntity>>? {
+    fun loadCollectionAsLiveData(mechanicId: Int): LiveData<List<BriefGameEntity>>? {
         return RegisteredLiveData(context, BggContract.Mechanics.buildCollectionUri(mechanicId), true) {
             return@RegisteredLiveData loadCollection(mechanicId)
         }
     }
 
-    private fun loadCollection(mechanicId: Int): List<PersonGameEntity> {
-        val list = arrayListOf<PersonGameEntity>()
+    private fun loadCollection(mechanicId: Int): List<BriefGameEntity> {
+        val list = arrayListOf<BriefGameEntity>()
         context.contentResolver.load(
                 BggContract.Mechanics.buildCollectionUri(mechanicId),
                 arrayOf(
@@ -72,7 +72,7 @@ class MechanicDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    list += PersonGameEntity(
+                    list += BriefGameEntity(
                             it.getInt(BggContract.Collection.GAME_ID),
                             it.getStringOrEmpty(BggContract.Collection.GAME_NAME),
                             it.getStringOrEmpty(BggContract.Collection.COLLECTION_NAME),

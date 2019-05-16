@@ -7,7 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.entities.PersonGameEntity
+import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
@@ -63,7 +63,7 @@ class PublisherRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int): LiveData<List<PersonGameEntity>>? {
+    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
         return publisherDao.loadCollectionAsLiveData(id)
     }
 }
