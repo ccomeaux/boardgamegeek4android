@@ -38,8 +38,8 @@ class PersonDescriptionFragment : Fragment() {
         lastUpdated.timestamp = 0L
 
         viewModel.person.observe(this, Observer {
-            idView.text = it.second.toString()
-            emptyMessageDescription = when (it.first) {
+            idView.text = it.id.toString()
+            emptyMessageDescription = when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
                 PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
                 PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()

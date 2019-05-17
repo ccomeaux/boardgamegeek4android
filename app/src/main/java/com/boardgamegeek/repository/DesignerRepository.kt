@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.BriefGameEntity
@@ -91,7 +92,7 @@ class DesignerRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
-        return designerDao.loadCollectionAsLiveData(id)
+    fun loadCollection(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>>? {
+        return designerDao.loadCollectionAsLiveData(id, sortBy)
     }
 }

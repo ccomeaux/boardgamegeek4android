@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.BriefGameEntity
@@ -63,7 +64,7 @@ class PublisherRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
-        return publisherDao.loadCollectionAsLiveData(id)
+    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+        return publisherDao.loadCollectionAsLiveData(id, sortBy)
     }
 }

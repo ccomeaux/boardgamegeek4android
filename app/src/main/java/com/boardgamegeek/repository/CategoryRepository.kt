@@ -3,8 +3,9 @@ package com.boardgamegeek.repository
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CategoryDao
-import com.boardgamegeek.entities.CategoryEntity
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.BriefGameEntity
+import com.boardgamegeek.entities.CategoryEntity
 
 class CategoryRepository(val application: BggApplication) {
     private val categoryDao = CategoryDao(application)
@@ -13,8 +14,7 @@ class CategoryRepository(val application: BggApplication) {
         return categoryDao.loadCategoriesAsLiveData(sortBy)
     }
 
-
-    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
-        return categoryDao  .loadCollectionAsLiveData(id)
+    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+        return categoryDao.loadCollectionAsLiveData(id, sortBy)
     }
 }

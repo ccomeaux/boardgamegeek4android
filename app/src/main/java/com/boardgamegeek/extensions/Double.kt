@@ -12,8 +12,8 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import kotlin.math.roundToInt
 
-fun Double.asPersonalRating(context: Context?): String {
-    return asScore(context, R.string.unrated, DecimalFormat("#0.#"))
+fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
+    return asScore(context, defaultResId, DecimalFormat("#0.#"))
 }
 
 fun Double.asRating(context: Context?): String {

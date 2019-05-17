@@ -4,12 +4,13 @@ import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CategoryEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 
 class CategoryDao(private val context: BggApplication) {
+    private val collectionDao = CollectionDao(context)
+
     enum class SortType {
         NAME, ITEM_COUNT
     }
@@ -49,42 +50,11 @@ class CategoryDao(private val context: BggApplication) {
         return results
     }
 
-    fun loadCollectionAsLiveData(categoryId: Int): LiveData<List<BriefGameEntity>>? {
-        return RegisteredLiveData(context, BggContract.Categories.buildCollectionUri(categoryId), true) {
-            return@RegisteredLiveData loadCollection(categoryId)
+    fun loadCollectionAsLiveData(categoryId: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+        val uri = BggContract.Categories.buildCollectionUri(categoryId)
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
         }
-    }
-
-    private fun loadCollection(categoryId: Int): List<BriefGameEntity> {
-        val list = arrayListOf<BriefGameEntity>()
-        context.contentResolver.load(
-                BggContract.Categories.buildCollectionUri(categoryId),
-                arrayOf(
-                        "games." + BggContract.Collection.GAME_ID,
-                        BggContract.Collection.GAME_NAME,
-                        BggContract.Collection.COLLECTION_NAME,
-                        BggContract.Collection.COLLECTION_YEAR_PUBLISHED,
-                        BggContract.Collection.COLLECTION_THUMBNAIL_URL,
-                        BggContract.Collection.THUMBNAIL_URL,
-                        BggContract.Collection.HERO_IMAGE_URL
-                ),
-                sortOrder = BggContract.Collection.GAME_SORT_NAME.collateNoCase().ascending()
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    list += BriefGameEntity(
-                            it.getInt(BggContract.Collection.GAME_ID),
-                            it.getStringOrEmpty(BggContract.Collection.GAME_NAME),
-                            it.getStringOrEmpty(BggContract.Collection.COLLECTION_NAME),
-                            it.getIntOrNull(BggContract.Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
-                            it.getStringOrEmpty(BggContract.Collection.COLLECTION_THUMBNAIL_URL),
-                            it.getStringOrEmpty(BggContract.Collection.THUMBNAIL_URL),
-                            it.getStringOrEmpty(BggContract.Collection.HERO_IMAGE_URL)
-                    )
-                } while (it.moveToNext())
-            }
-        }
-        return list
     }
 }
 

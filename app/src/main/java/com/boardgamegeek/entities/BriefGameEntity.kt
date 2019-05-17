@@ -7,5 +7,7 @@ data class BriefGameEntity(
         val yearPublished: Int,
         val collectionThumbnailUrl: String,
         val gameThumbnailUrl: String,
-        val gameHeroImageUrl: String
+        val gameHeroImageUrl: String,
+        val personalRating: Double = 0.0,
+        val isFavorite: Boolean = false
 )

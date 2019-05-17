@@ -6,6 +6,7 @@ import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.ArtistDao
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonImagesEntity
@@ -91,7 +92,7 @@ class ArtistRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int): LiveData<List<BriefGameEntity>>? {
-        return artistDao.loadCollectionAsLiveData(id)
+    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+        return artistDao.loadCollectionAsLiveData(id, sortBy)
     }
 }

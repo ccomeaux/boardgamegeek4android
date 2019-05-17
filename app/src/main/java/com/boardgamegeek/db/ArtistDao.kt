@@ -7,7 +7,6 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonImagesEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonResponse2
@@ -16,6 +15,8 @@ import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 
 class ArtistDao(private val context: BggApplication) {
+    private val collectionDao = CollectionDao(context)
+
     enum class SortType {
         NAME, ITEM_COUNT
     }
@@ -141,42 +142,11 @@ class ArtistDao(private val context: BggApplication) {
         return 0
     }
 
-    fun loadCollectionAsLiveData(id: Int): LiveData<List<BriefGameEntity>>? {
-        return RegisteredLiveData(context, BggContract.Artists.buildArtistCollectionUri(id), true) {
-            return@RegisteredLiveData loadCollection(id)
+    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+        val uri = BggContract.Artists.buildArtistCollectionUri(id)
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
         }
-    }
-
-    private fun loadCollection(artistId: Int): List<BriefGameEntity> {
-        val list = arrayListOf<BriefGameEntity>()
-        context.contentResolver.load(
-                BggContract.Artists.buildArtistCollectionUri(artistId),
-                arrayOf(
-                        "games." + BggContract.Collection.GAME_ID,
-                        BggContract.Collection.GAME_NAME,
-                        BggContract.Collection.COLLECTION_NAME,
-                        BggContract.Collection.COLLECTION_YEAR_PUBLISHED,
-                        BggContract.Collection.COLLECTION_THUMBNAIL_URL,
-                        BggContract.Collection.THUMBNAIL_URL,
-                        BggContract.Collection.HERO_IMAGE_URL
-                ),
-                sortOrder = BggContract.Collection.GAME_SORT_NAME.collateNoCase().ascending()
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    list += BriefGameEntity(
-                            it.getInt(BggContract.Collection.GAME_ID),
-                            it.getStringOrEmpty(BggContract.Collection.GAME_NAME),
-                            it.getStringOrEmpty(BggContract.Collection.COLLECTION_NAME),
-                            it.getIntOrNull(BggContract.Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
-                            it.getStringOrEmpty(BggContract.Collection.COLLECTION_THUMBNAIL_URL),
-                            it.getStringOrEmpty(BggContract.Collection.THUMBNAIL_URL),
-                            it.getStringOrEmpty(BggContract.Collection.HERO_IMAGE_URL)
-                    )
-                } while (it.moveToNext())
-            }
-        }
-        return list
     }
 
     fun update(artistId: Int, values: ContentValues): Int {
