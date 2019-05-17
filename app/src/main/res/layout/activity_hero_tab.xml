@@ -24,8 +24,8 @@
 				android:id="@+id/collapsingToolbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 				android:fitsSystemWindows="true"
+				android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 				app:contentScrim="?attr/colorPrimary"
 				app:expandedTitleMarginEnd="@dimen/material_margin_horizontal"
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
@@ -63,9 +63,9 @@
 
 				<androidx.appcompat.widget.Toolbar
 					android:id="@+id/toolbar"
+					style="@style/Toolbar"
 					android:layout_width="match_parent"
 					android:layout_height="?attr/actionBarSize"
-					android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 					app:layout_collapseMode="pin"/>
 
 			</com.google.android.material.appbar.CollapsingToolbarLayout>

@@ -64,11 +64,10 @@
 
 				<androidx.appcompat.widget.Toolbar
 					android:id="@+id/toolbar"
+					style="@style/Toolbar"
 					android:layout_width="match_parent"
 					android:layout_height="?attr/actionBarSize"
-					android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-					app:layout_collapseMode="pin"
-					app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"/>
+					app:layout_collapseMode="pin"/>
 			</com.google.android.material.appbar.CollapsingToolbarLayout>
 
 		</com.google.android.material.appbar.AppBarLayout>

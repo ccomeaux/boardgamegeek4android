@@ -395,6 +395,11 @@
 		<item name="android:ellipsize">none</item>
 		<item name="android:padding">4dp</item>
 	</style>
+	
+	<style name="Toolbar">
+		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+	</style>
 
 	<style name="DrawerListContainer">
 		<item name="android:layout_width">@dimen/drawer_width</item>
