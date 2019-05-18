@@ -2,10 +2,8 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import androidx.annotation.StringRes
-
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Collection
-
 import java.text.DecimalFormat
 
 class GeekRatingSorter(context: Context) : RatingSorter(context) {

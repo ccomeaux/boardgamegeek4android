@@ -16,8 +16,8 @@ fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.
     return asScore(context, defaultResId, DecimalFormat("#0.#"))
 }
 
-fun Double.asRating(context: Context?): String {
-    return asScore(context, R.string.unrated)
+fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
+    return asScore(context, defaultResId)
 }
 
 fun Double.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#0.0#")): String {

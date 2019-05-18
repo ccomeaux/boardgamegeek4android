@@ -1,11 +1,11 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
+import android.database.Cursor
 import androidx.annotation.StringRes
-
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.asPersonalRating
 import com.boardgamegeek.provider.BggContract.Collection
-
 import java.text.DecimalFormat
 
 class MyRatingSorter(context: Context) : RatingSorter(context) {
@@ -20,4 +20,6 @@ class MyRatingSorter(context: Context) : RatingSorter(context) {
     override val sortColumn = Collection.RATING
 
     override val displayFormat = format
+
+    override fun getRatingText(cursor: Cursor) = getRating(cursor).asPersonalRating(context, R.string.unrated_abbr)
 }

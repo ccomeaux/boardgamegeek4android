@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -16,8 +15,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -59,6 +56,7 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -320,12 +318,9 @@ public class CollectionFragment extends Fragment implements
 	protected void isSyncing(boolean value) {
 		isSyncing = value;
 		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) {
-						swipeRefreshLayout.setRefreshing(isSyncing);
-					}
+			swipeRefreshLayout.post(() -> {
+				if (swipeRefreshLayout != null) {
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
@@ -570,7 +565,7 @@ public class CollectionFragment extends Fragment implements
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
 			if (adapter == null) {
-				adapter = new CollectionAdapter(getActivity());
+				adapter = new CollectionAdapter();
 				listView.setAdapter(adapter);
 			}
 			List<CollectionItem> items = new ArrayList<>(cursor.getCount());
@@ -584,7 +579,7 @@ public class CollectionFragment extends Fragment implements
 			RecyclerSectionItemDecoration sectionItemDecoration =
 				new RecyclerSectionItemDecoration(
 					getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
-					getSectionCallback(items, sorter),
+					getSectionCallback(items),
 					true
 				);
 			while (listView.getItemDecorationCount() > 0) {
@@ -821,6 +816,8 @@ public class CollectionFragment extends Fragment implements
 		public final String heroImageUrl;
 		public final boolean isFavorite;
 		public final long timestamp;
+		public final Double rating;
+		public final String ratingText;
 		public final String displayInfo;
 		public final String headerText;
 		public final boolean customPlayerSort;
@@ -843,6 +840,8 @@ public class CollectionFragment extends Fragment implements
 			heroImageUrl = CursorUtils.getString(cursor, Query.HERO_IMAGE_URL);
 			isFavorite = cursor.getInt(Query.STARRED) == 1;
 			timestamp = sorter.getTimestamp(cursor);
+			rating = sorter.getRating(cursor);
+			ratingText = sorter.getRatingText(cursor);
 			displayInfo = sorter == null ? "" : sorter.getDisplayInfo(cursor);
 			headerText = sorter == null ? "" : sorter.getHeaderText(cursor, cursor.getPosition());
 			customPlayerSort = cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1;
@@ -850,14 +849,12 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.CollectionItemViewHolder> {
-		@NonNull private final LayoutInflater inflater;
 		private final List<CollectionItem> items = new ArrayList<>();
 		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 		@DebugLog
-		public CollectionAdapter(Context context) {
+		public CollectionAdapter() {
 			setHasStableIds(true);
-			inflater = LayoutInflater.from(context);
 		}
 
 		public void clearItems() {
@@ -923,7 +920,7 @@ public class CollectionFragment extends Fragment implements
 		@NonNull
 		@Override
 		public CollectionItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			return new CollectionItemViewHolder(inflater.inflate(R.layout.row_collection, parent, false));
+			return new CollectionItemViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.row_collection, parent, false));
 		}
 
 		@Override
@@ -937,6 +934,7 @@ public class CollectionFragment extends Fragment implements
 			@BindView(R.id.year) TextView yearView;
 			@BindView(R.id.info) TextView infoView;
 			@BindView(R.id.timestamp) TimestampView timestampView;
+			@BindView(R.id.rating) TextView ratingView;
 			@BindView(R.id.thumbnail) ImageView thumbnailView;
 			@BindView(R.id.favorite) ImageView favoriteView;
 
@@ -950,39 +948,42 @@ public class CollectionFragment extends Fragment implements
 				yearView.setText(PresentationUtils.describeYear(getActivity(), item.year));
 				timestampView.setTimestamp(item.timestamp);
 				favoriteView.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
-				PresentationUtils.setTextOrHide(infoView, item.displayInfo);
+				if (!TextUtils.isEmpty(item.ratingText)) {
+					ratingView.setText(item.ratingText);
+					ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(item.rating));
+					ratingView.setVisibility(View.VISIBLE);
+					infoView.setVisibility(View.GONE);
+				} else {
+					PresentationUtils.setTextOrHide(infoView, item.displayInfo);
+					infoView.setVisibility(View.VISIBLE);
+					ratingView.setVisibility(View.GONE);
+				}
 				ImageUtils.loadThumbnail(thumbnailView, item.collectionThumbnailUrl, item.thumbnailUrl);
 
 				itemView.setActivated(selectedItems.get(position, false));
 
-				itemView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						if (isCreatingShortcut) {
-							EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
-						} else if (actionMode == null) {
-							GameActivity.start(getContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
-						} else {
-							adapter.toggleSelection(position);
-						}
+				itemView.setOnClickListener(v -> {
+					if (isCreatingShortcut) {
+						EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
+					} else if (actionMode == null) {
+						GameActivity.start(getContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
+					} else {
+						adapter.toggleSelection(position);
 					}
 				});
-				itemView.setOnLongClickListener(new OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View v) {
-						if (isCreatingShortcut) return false;
-						if (actionMode != null) return false;
-						actionMode = getActivity().startActionMode(CollectionFragment.this);
-						if (actionMode == null) return false;
-						toggleSelection(position);
-						return true;
-					}
+				itemView.setOnLongClickListener(v -> {
+					if (isCreatingShortcut) return false;
+					if (actionMode != null) return false;
+					actionMode = getActivity().startActionMode(CollectionFragment.this);
+					if (actionMode == null) return false;
+					toggleSelection(position);
+					return true;
 				});
 			}
 		}
 	}
 
-	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<CollectionItem> items, final CollectionSorter sorter) {
+	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<CollectionItem> items) {
 		return new RecyclerSectionItemDecoration.SectionCallback() {
 			@Override
 			public boolean isSection(int position) {
