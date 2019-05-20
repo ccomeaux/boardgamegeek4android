@@ -49,6 +49,7 @@ public interface BggService {
 	String COLLECTION_QUERY_KEY_SUBTYPE = "subtype";
 	String COLLECTION_QUERY_STATUS_OWN = "own";
 	String COLLECTION_QUERY_STATUS_PLAYED = "played";
+	String COLLECTION_QUERY_STATUS_RATED = "rated";
 	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 

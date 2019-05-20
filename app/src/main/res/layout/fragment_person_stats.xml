@@ -97,6 +97,27 @@
 				app:layout_constraintTop_toBottomOf="@id/whitmoreScore"
 				tools:text="55"/>
 
+			<TextView
+				android:id="@+id/collectionStatusLabel"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="@dimen/padding_standard"
+				android:text="@string/person_stat_collection_status"
+				app:layout_constraintBottom_toBottomOf="@id/collectionStatusButton"
+				app:layout_constraintEnd_toStartOf="@id/collectionStatusButton"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/collectionStatusButton"/>
+
+			<Button
+				android:id="@+id/collectionStatusButton"
+				style="@style/ColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				android:text="@string/modify"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/whitmoreScoreWithExpansions"/>
+
 			<androidx.constraintlayout.widget.Group
 				android:id="@+id/averageRatingGroup"
 				android:layout_width="wrap_content"
@@ -108,6 +129,12 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				app:constraint_referenced_ids="whitmoreScoreWithExpansionsLabel,whitmoreScoreWithExpansions"/>
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/collectionStatusGroup"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:constraint_referenced_ids="collectionStatusLabel,collectionStatusButton"/>
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</FrameLayout>
 </androidx.core.widget.NestedScrollView>

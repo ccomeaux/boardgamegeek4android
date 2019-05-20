@@ -11,7 +11,10 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.io.BggService
+import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
+import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_person_stats.*
 
 class PersonStatsFragment : Fragment() {
@@ -26,6 +29,22 @@ class PersonStatsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        collectionStatusButton.setOnClickListener {
+            requireActivity().createThemedBuilder()
+                    .setTitle(R.string.title_modify_collection_status)
+                    .setMessage(R.string.msg_modify_collection_status)
+                    .setPositiveButton(R.string.modify) { _, _ ->
+                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_RATED)
+                        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                        bindCollectionStatusMessage()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .setCancelable(true)
+                    .show()
+        }
+
+        bindCollectionStatusMessage()
+
         viewModel.stats.observe(this, Observer {
             when (it) {
                 null -> showEmpty()
@@ -33,6 +52,10 @@ class PersonStatsFragment : Fragment() {
             }
             progress.hide()
         })
+    }
+
+    private fun bindCollectionStatusMessage() {
+        collectionStatusGroup.isVisible = !PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_RATED)
     }
 
     private fun showEmpty() {
