@@ -72,7 +72,7 @@ class PublisherRepository(val application: BggApplication) {
     fun calculateStats(id: Int): LiveData<PersonStatsEntity> {
         val mediatorLiveData = MediatorLiveData<PersonStatsEntity>()
         mediatorLiveData.addSource(publisherDao.loadCollectionAsLiveData(id)) { collection ->
-            mediatorLiveData.value = PersonStatsEntity.fromLinkedCollection(collection)
+            mediatorLiveData.value = PersonStatsEntity.fromLinkedCollection(collection, application)
         }
         return mediatorLiveData
     }

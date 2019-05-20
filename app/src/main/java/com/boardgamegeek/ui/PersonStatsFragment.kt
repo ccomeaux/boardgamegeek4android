@@ -18,6 +18,8 @@ import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_person_stats.*
 
 class PersonStatsFragment : Fragment() {
+    private var objectDescription = ""
+
     private val viewModel: PersonViewModel by lazy {
         ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
     }
@@ -34,6 +36,7 @@ class PersonStatsFragment : Fragment() {
                     .setTitle(R.string.title_modify_collection_status)
                     .setMessage(R.string.msg_modify_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
+                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
                         PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_RATED)
                         SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         bindCollectionStatusMessage()
@@ -44,6 +47,15 @@ class PersonStatsFragment : Fragment() {
         }
 
         bindCollectionStatusMessage()
+
+        objectDescription = getString(R.string.title_person).toLowerCase()
+        viewModel.person.observe(this, Observer {
+            objectDescription = when (it.type) {
+                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
+                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
+                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+            }
+        })
 
         viewModel.stats.observe(this, Observer {
             when (it) {
@@ -79,9 +91,23 @@ class PersonStatsFragment : Fragment() {
         } else {
             whitmoreScoreWithExpansionsGroup.isVisible = false
         }
+        whitmoreScoreLabel.setOnClickListener {
+            context?.showClickableAlertDialog(
+                    R.string.whitmore_score,
+                    R.string.whitmore_score_info,
+                    objectDescription,
+                    stats.hIndex.toString())
+        }
 
         playCount.text = stats.playCount.toString()
         hIndex.text = stats.hIndex.toString()
+        hIndexLabel.setOnClickListener {
+            context?.showClickableAlertDialog(
+                    R.string.h_index,
+                    R.plurals.peron_game_h_index_info,
+                    stats.hIndex,
+                    stats.hIndex.toString())
+        }
 
         statsView.fadeIn()
         emptyMessageView.fadeOut()

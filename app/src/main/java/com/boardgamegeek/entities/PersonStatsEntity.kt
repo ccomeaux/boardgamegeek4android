@@ -1,5 +1,8 @@
 package com.boardgamegeek.entities
 
+import android.content.Context
+import com.boardgamegeek.util.PreferencesUtils
+
 class PersonStatsEntity(
         val averageRating: Double,
         val whitmoreScore: Int,
@@ -8,7 +11,7 @@ class PersonStatsEntity(
         val hIndex: Int
 ) {
     companion object {
-        fun fromLinkedCollection(collection: List<BriefGameEntity>): PersonStatsEntity {
+        fun fromLinkedCollection(collection: List<BriefGameEntity>, context: Context): PersonStatsEntity {
             val baseGameCollection = collection.filter { it.subtype == "boardgame" }
 
             val averageRating =
@@ -27,9 +30,14 @@ class PersonStatsEntity(
 
             val playCount = baseGameCollection.sumBy { it.playCount } // TODO handle expansions
 
-            val hIndexList = baseGameCollection
-                    .distinctBy { it.gameId }
-                    .sortedByDescending { it.playCount }
+            val exp = PreferencesUtils.logPlayStatsExpansions(context)
+            val acc = PreferencesUtils.logPlayStatsAccessories(context)
+            val hIndexList = when {
+                exp && acc -> collection
+                acc -> collection.filter { it.subtype != "boardgameexpansion" }
+                acc -> collection.filter { it.subtype != "boardgameaccessory" }
+                else -> baseGameCollection
+            }.distinctBy { it.gameId }.sortedByDescending { it.playCount }
 
             var hIndexCounter = 0
             var hIndex = 0

@@ -61,6 +61,8 @@
 				tools:text="7.89"/>
 
 			<TextView
+				android:id="@+id/whitmoreScoreLabel"
+				style="@style/InfoText"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/whitmore_score"
@@ -116,6 +118,8 @@
 				tools:text="23"/>
 
 			<TextView
+				android:id="@+id/hIndexLabel"
+				style="@style/InfoText"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/h_index"

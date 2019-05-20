@@ -688,9 +688,10 @@
 	<string name="information">Information</string>
 	<string name="whitmore_score">Whitmore Score</string>
 	<string name="whitmore_score_with_expansions">&#8230;with Expansions</string>
-	<string name="person_stat_collection_status">These stats work much better if you sync your rated games.</string>
+	<string name="person_stat_collection_status">These stats work much better if you sync your rated and played games.</string>
 	<string name="play_count">Play Count</string>
 	<string name="h_index">H-Index</string>
+	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/geeklist/37832/my-favorite-designers</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -820,4 +821,9 @@
 		<item quantity="one">%1$s vote for \"%2$s\"</item>
 		<item quantity="other">%1$s votes for \"%2$s\"</item>
 	</plurals>
+	<plurals name="peron_game_h_index_info">
+		<item quantity="one">You\'ve played at least %1$s game %1$s time or more. This calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+		<item quantity="other">You\'ve played at least %1$s games %1$s times or more. This calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+
 </resources>

@@ -2,16 +2,11 @@ package com.boardgamegeek.ui
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.method.LinkMovementMethod
-import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
-import android.widget.TextView
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -69,7 +64,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             } else {
                 bindUi(entity)
                 gameHIndexInfoView.setOnClickListener {
-                    showAlertDialog(R.string.play_stat_game_h_index,
+                    context?.showClickableAlertDialog(
+                            R.string.play_stat_game_h_index,
                             R.string.play_stat_game_h_index_info,
                             entity.hIndex.toString())
                 }
@@ -79,11 +75,11 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             if (entity == null) return@Observer
             bindPlayerUi(entity)
             playerHIndexInfoView.setOnClickListener {
-                showAlertDialog(R.string.play_stat_player_h_index,
+                context?.showClickableAlertDialog(
+                        R.string.play_stat_player_h_index,
                         R.string.play_stat_player_h_index_info,
                         entity.hIndex.toString())
             }
-
         })
 
         bindCollectionStatusMessage()
@@ -261,16 +257,6 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             this.setBackgroundResource(R.color.dark_blue)
             container.addView(this)
         }
-    }
-
-    private fun showAlertDialog(@StringRes titleResId: Int, @StringRes messageResId: Int, vararg formatArgs: Any) {
-        val spannableMessage = SpannableString(getString(messageResId, *formatArgs))
-        Linkify.addLinks(spannableMessage, Linkify.WEB_URLS)
-        val dialog = AlertDialog.Builder(requireContext())
-                .setTitle(titleResId)
-                .setMessage(spannableMessage)
-                .show()
-        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
