@@ -9,5 +9,6 @@ data class BriefGameEntity(
         val gameThumbnailUrl: String,
         val gameHeroImageUrl: String,
         val personalRating: Double = 0.0,
-        val isFavorite: Boolean = false
+        val isFavorite: Boolean = false,
+        val subtype: String = "boardgame"
 )

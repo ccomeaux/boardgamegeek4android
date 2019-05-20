@@ -63,7 +63,6 @@ class PersonCollectionFragment : Fragment() {
             sortType = it ?: PersonViewModel.CollectionSort.RATING
             activity?.invalidateOptionsMenu()
         })
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {

@@ -137,6 +137,19 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    val stats: LiveData<PersonStatsEntity> = Transformations.switchMap(_person) { person ->
+        when (person.id) {
+            BggContract.INVALID_ID -> AbsentLiveData.create()
+            else -> {
+                when (person.type) {
+                    PersonType.ARTIST -> artistRepository.calculateStats(person.id)
+                    PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
+                    PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
+                }
+            }
+        }
+    }
+
     fun refresh() {
         _person.value?.let { _person.value = Person(it.type, it.id) }
     }

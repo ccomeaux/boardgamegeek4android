@@ -142,7 +142,7 @@ class ArtistDao(private val context: BggApplication) {
         return 0
     }
 
-    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
         val uri = BggContract.Artists.buildArtistCollectionUri(id)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)

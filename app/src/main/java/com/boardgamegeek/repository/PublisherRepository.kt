@@ -7,8 +7,9 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.BriefGameEntity
+import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
@@ -66,5 +67,13 @@ class PublisherRepository(val application: BggApplication) {
 
     fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
         return publisherDao.loadCollectionAsLiveData(id, sortBy)
+    }
+
+    fun calculateStats(id: Int): LiveData<PersonStatsEntity> {
+        val mediatorLiveData = MediatorLiveData<PersonStatsEntity>()
+        mediatorLiveData.addSource(publisherDao.loadCollectionAsLiveData(id)) { collection ->
+            mediatorLiveData.value = PersonStatsEntity.fromLinkedCollection(collection)
+        }
+        return mediatorLiveData
     }
 }

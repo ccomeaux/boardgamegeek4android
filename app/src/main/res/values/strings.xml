@@ -175,6 +175,7 @@
 	<string name="title_thread">Thread</string>
 	<string name="title_plays">Plays</string>
 	<string name="title_play_stats">Play Stats</string>
+	<string name="title_stats">Stats</string>
 	<string name="title_in_progress">In Progress</string>
 	<string name="title_recent">Recent</string>
 	<string name="title_play">Play</string>
@@ -284,6 +285,7 @@
 	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website is up and you still see this message, please let us know about the error below. Otherwise, please check back later.\n\n%s</string>
 	<string name="empty_person">No %s by that ID.</string>
 	<string name="empty_person_description">This %s is indescribable.</string>
+	<string name="empty_person_stats">No stats have been calculated yet.</string>
 	<string name="empty_linked_collection">No games for this %s.</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
@@ -684,6 +686,8 @@
 	<string name="error_account_set_auth_token_security_exception">Uh-oh! This isn\'t an error we expect to see. If you have ScorePal installed, there\'s a known problem that one prevents the other from signing in. We\'re working to resolve the issue.</string>
 	<string name="error_field_required">This field is required</string>
 	<string name="information">Information</string>
+	<string name="whitmore_score">Whitmore Score</string>
+	<string name="whitmore_score_with_expansions">&#8230;with Expansions</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

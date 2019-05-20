@@ -6,10 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.ui.PersonActivity
-import com.boardgamegeek.ui.ForumsFragment
-import com.boardgamegeek.ui.PersonCollectionFragment
-import com.boardgamegeek.ui.PersonDescriptionFragment
+import com.boardgamegeek.ui.*
 
 class PersonPagerAdapter(
         fragmentManager: FragmentManager,
@@ -21,8 +18,9 @@ class PersonPagerAdapter(
     override fun getItem(position: Int): Fragment? {
         return when (position) {
             0 -> PersonDescriptionFragment.newInstance()
-            1 -> PersonCollectionFragment.newInstance()
-            2 -> {
+            1 -> PersonStatsFragment.newInstance()
+            2 -> PersonCollectionFragment.newInstance()
+            3 -> {
                 when (type) {
                     PersonActivity.PersonType.ARTIST -> ForumsFragment.newInstanceForArtist(id, name)
                     PersonActivity.PersonType.DESIGNER -> ForumsFragment.newInstanceForDesigner(id, name)
@@ -42,8 +40,9 @@ class PersonPagerAdapter(
                     PersonActivity.PersonType.PUBLISHER -> R.string.title_publisher
                 }
             }
-            1 -> R.string.title_collection
-            2 -> R.string.title_forums
+            1 -> R.string.title_stats
+            2 -> R.string.title_collection
+            3 -> R.string.title_forums
             else -> 0
         }
         if (resId == 0) return ""
@@ -51,6 +50,6 @@ class PersonPagerAdapter(
     }
 
     override fun getCount(): Int {
-        return 3
+        return 4
     }
 }

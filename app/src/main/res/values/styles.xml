@@ -361,7 +361,7 @@
 		<item name="android:ellipsize">none</item>
 		<item name="android:padding">4dp</item>
 	</style>
-	
+
 	<style name="Toolbar">
 		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
@@ -380,11 +380,16 @@
 		<item name="android:background">@color/no_image</item>
 	</style>
 
-	<style name="RatingLarge" parent="@style/Text.Subtitle">
+	<style name="RatingLarge">
+		<item name="android:textAppearance">@style/Text.Subtitle</item>
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
 		<item name="android:paddingTop">@dimen/padding_half</item>
+	</style>
+
+	<style name="RatingLarge.Huge">
+		<item name="android:textAppearance">@style/Text.Huge</item>
 	</style>
 
 	<style name="RatingSmall" parent="@style/Text">

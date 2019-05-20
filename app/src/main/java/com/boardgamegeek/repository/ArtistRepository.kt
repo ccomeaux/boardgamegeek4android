@@ -7,10 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.BriefGameEntity
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonImagesEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
@@ -94,5 +91,13 @@ class ArtistRepository(val application: BggApplication) {
 
     fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
         return artistDao.loadCollectionAsLiveData(id, sortBy)
+    }
+
+    fun calculateStats(id: Int): LiveData<PersonStatsEntity> {
+        val mediatorLiveData = MediatorLiveData<PersonStatsEntity>()
+        mediatorLiveData.addSource(artistDao.loadCollectionAsLiveData(id)) { collection ->
+            mediatorLiveData.value = PersonStatsEntity.fromLinkedCollection(collection)
+        }
+        return mediatorLiveData
     }
 }

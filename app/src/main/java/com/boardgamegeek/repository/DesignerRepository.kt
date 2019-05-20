@@ -7,10 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.BriefGameEntity
-import com.boardgamegeek.entities.PersonImagesEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
@@ -94,5 +91,13 @@ class DesignerRepository(val application: BggApplication) {
 
     fun loadCollection(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>>? {
         return designerDao.loadCollectionAsLiveData(id, sortBy)
+    }
+
+    fun calculateStats(id: Int): LiveData<PersonStatsEntity> {
+        val mediatorLiveData = MediatorLiveData<PersonStatsEntity>()
+        mediatorLiveData.addSource(designerDao.loadCollectionAsLiveData(id)) { collection ->
+            mediatorLiveData.value = PersonStatsEntity.fromLinkedCollection(collection)
+        }
+        return mediatorLiveData
     }
 }
