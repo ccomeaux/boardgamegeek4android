@@ -689,6 +689,8 @@
 	<string name="whitmore_score">Whitmore Score</string>
 	<string name="whitmore_score_with_expansions">&#8230;with Expansions</string>
 	<string name="person_stat_collection_status">These stats work much better if you sync your rated games.</string>
+	<string name="play_count">Play Count</string>
+	<string name="h_index">H-Index</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

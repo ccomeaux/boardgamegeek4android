@@ -98,9 +98,45 @@
 				tools:text="55"/>
 
 			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/play_count"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/playCount"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/playCount"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/whitmoreScoreWithExpansions"
+				tools:text="23"/>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/h_index"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/hIndex"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/hIndex"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/playCount"
+				tools:text="4"/>
+
+			<TextView
 				android:id="@+id/collectionStatusLabel"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
+				android:layout_marginEnd="@dimen/padding_standard"
 				android:layout_marginRight="@dimen/padding_standard"
 				android:text="@string/person_stat_collection_status"
 				app:layout_constraintBottom_toBottomOf="@id/collectionStatusButton"
@@ -116,7 +152,7 @@
 				android:layout_marginTop="24dp"
 				android:text="@string/modify"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/whitmoreScoreWithExpansions"/>
+				app:layout_constraintTop_toBottomOf="@id/hIndex"/>
 
 			<androidx.constraintlayout.widget.Group
 				android:id="@+id/averageRatingGroup"

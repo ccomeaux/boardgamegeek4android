@@ -242,7 +242,8 @@ class CollectionDao(private val context: BggApplication) {
                         Collection.HERO_IMAGE_URL,
                         Collection.RATING,
                         Collection.STARRED,
-                        Collection.SUBTYPE
+                        Collection.SUBTYPE,
+                        Collection.NUM_PLAYS
                 ),
                 sortOrder = sortOrder
         )?.use {
@@ -258,7 +259,8 @@ class CollectionDao(private val context: BggApplication) {
                             it.getStringOrEmpty(Collection.HERO_IMAGE_URL),
                             it.getDoubleOrZero(Collection.RATING),
                             it.getBoolean(Collection.STARRED),
-                            it.getStringOrEmpty(Collection.SUBTYPE)
+                            it.getStringOrEmpty(Collection.SUBTYPE),
+                            it.getIntOrZero(Collection.NUM_PLAYS)
                     )
                 } while (it.moveToNext())
             }

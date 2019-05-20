@@ -3,7 +3,9 @@ package com.boardgamegeek.entities
 class PersonStatsEntity(
         val averageRating: Double,
         val whitmoreScore: Int,
-        val whitmoreScoreWithExpansions: Int
+        val whitmoreScoreWithExpansions: Int,
+        val playCount: Int,
+        val hIndex: Int
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<BriefGameEntity>): PersonStatsEntity {
@@ -23,7 +25,24 @@ class PersonStatsEntity(
                     .sumByDouble { it.personalRating * 2.0 - 13.0 }
                     .toInt()
 
-            return PersonStatsEntity(averageRating, whitmoreScore, whitmoreScoreWithExpansions)
+            val playCount = baseGameCollection.sumBy { it.playCount } // TODO handle expansions
+
+            val hIndexList = baseGameCollection
+                    .distinctBy { it.gameId }
+                    .sortedByDescending { it.playCount }
+
+            var hIndexCounter = 0
+            var hIndex = 0
+            for (value in hIndexList) {
+                hIndexCounter++
+                if (hIndexCounter > value.playCount) {
+                    hIndex = hIndexCounter - 1
+                    break
+                }
+            }
+            if (hIndex == 0) hIndex = hIndexCounter
+
+            return PersonStatsEntity(averageRating, whitmoreScore, whitmoreScoreWithExpansions, playCount, hIndex)
         }
     }
 }

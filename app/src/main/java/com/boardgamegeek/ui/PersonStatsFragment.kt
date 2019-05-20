@@ -80,6 +80,9 @@ class PersonStatsFragment : Fragment() {
             whitmoreScoreWithExpansionsGroup.isVisible = false
         }
 
+        playCount.text = stats.playCount.toString()
+        hIndex.text = stats.hIndex.toString()
+
         statsView.fadeIn()
         emptyMessageView.fadeOut()
     }
