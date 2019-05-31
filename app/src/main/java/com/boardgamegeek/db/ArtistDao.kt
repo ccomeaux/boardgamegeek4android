@@ -11,50 +11,53 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Artists
 import timber.log.Timber
 
 class ArtistDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
 
     enum class SortType {
-        NAME, ITEM_COUNT
+        NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    fun loadArtistsAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<PersonEntity>> {
-        return RegisteredLiveData(context, BggContract.Artists.CONTENT_URI, true) {
+    fun loadArtistsAsLiveData(sortBy: SortType): LiveData<List<PersonEntity>> {
+        return RegisteredLiveData(context, Artists.CONTENT_URI, true) {
             return@RegisteredLiveData loadArtists(sortBy)
         }
     }
 
     private fun loadArtists(sortBy: SortType): List<PersonEntity> {
         val results = arrayListOf<PersonEntity>()
-        val sortByName = BggContract.Artists.ARTIST_NAME.collateNoCase().ascending()
+        val sortByName = Artists.ARTIST_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> BggContract.Artists.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Artists.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.WHITMORE_SCORE -> Artists.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                BggContract.Artists.CONTENT_URI,
+                Artists.CONTENT_URI,
                 arrayOf(
-                        BggContract.Artists.ARTIST_ID,
-                        BggContract.Artists.ARTIST_NAME,
-                        BggContract.Artists.ARTIST_DESCRIPTION,
-                        BggContract.Artists.UPDATED,
-                        BggContract.Artists.ARTIST_THUMBNAIL_URL,
-                        BggContract.Artists.ITEM_COUNT
+                        Artists.ARTIST_ID,
+                        Artists.ARTIST_NAME,
+                        Artists.ARTIST_DESCRIPTION,
+                        Artists.UPDATED,
+                        Artists.ARTIST_THUMBNAIL_URL,
+                        Artists.ITEM_COUNT,
+                        Artists.WHITMORE_SCORE
                 ),
                 sortOrder = sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            it.getInt(BggContract.Artists.ARTIST_ID),
-                            it.getStringOrEmpty(BggContract.Artists.ARTIST_NAME),
-                            it.getStringOrEmpty(BggContract.Artists.ARTIST_DESCRIPTION),
-                            it.getLongOrZero(BggContract.Artists.UPDATED),
-                            it.getStringOrEmpty(BggContract.Artists.ARTIST_THUMBNAIL_URL),
-                            it.getIntOrZero(BggContract.Artists.ITEM_COUNT)
+                            it.getInt(Artists.ARTIST_ID),
+                            it.getStringOrEmpty(Artists.ARTIST_NAME),
+                            it.getStringOrEmpty(Artists.ARTIST_DESCRIPTION),
+                            it.getLongOrZero(Artists.UPDATED),
+                            it.getStringOrEmpty(Artists.ARTIST_THUMBNAIL_URL),
+                            it.getIntOrZero(Artists.ITEM_COUNT),
+                            it.getIntOrZero(Artists.WHITMORE_SCORE)
                     )
                 } while (it.moveToNext())
             }
@@ -63,27 +66,29 @@ class ArtistDao(private val context: BggApplication) {
     }
 
     fun loadArtistAsLiveData(id: Int): LiveData<PersonEntity> {
-        return RegisteredLiveData(context, BggContract.Artists.buildArtistUri(id), true) {
+        return RegisteredLiveData(context, Artists.buildArtistUri(id), true) {
             return@RegisteredLiveData loadArtist(id)
         }
     }
 
-    private fun loadArtist(id: Int): PersonEntity? {
+    fun loadArtist(id: Int): PersonEntity? {
         return context.contentResolver.load(
-                BggContract.Artists.buildArtistUri(id),
+                Artists.buildArtistUri(id),
                 arrayOf(
-                        BggContract.Artists.ARTIST_ID,
-                        BggContract.Artists.ARTIST_NAME,
-                        BggContract.Artists.ARTIST_DESCRIPTION,
-                        BggContract.Artists.UPDATED
+                        Artists.ARTIST_ID,
+                        Artists.ARTIST_NAME,
+                        Artists.ARTIST_DESCRIPTION,
+                        Artists.UPDATED,
+                        Artists.WHITMORE_SCORE
                 )
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        it.getInt(BggContract.Artists.ARTIST_ID),
-                        it.getStringOrEmpty(BggContract.Artists.ARTIST_NAME),
-                        it.getStringOrEmpty(BggContract.Artists.ARTIST_DESCRIPTION),
-                        it.getLongOrZero(BggContract.Artists.UPDATED)
+                        it.getInt(Artists.ARTIST_ID),
+                        it.getStringOrEmpty(Artists.ARTIST_NAME),
+                        it.getStringOrEmpty(Artists.ARTIST_DESCRIPTION),
+                        it.getLongOrZero(Artists.UPDATED),
+                        whitmoreScore = it.getIntOrZero(Artists.WHITMORE_SCORE)
                 )
             } else null
         }
@@ -92,9 +97,9 @@ class ArtistDao(private val context: BggApplication) {
     fun saveArtist(id: Int, artist: Person?, updateTime: Long = System.currentTimeMillis()): Int {
         if (artist != null && !artist.name.isNullOrBlank()) {
             val values = contentValuesOf(
-                    BggContract.Artists.ARTIST_NAME to artist.name,
-                    BggContract.Artists.ARTIST_DESCRIPTION to (if (artist.description == "This page does not exist. You can edit this page to create it.") "" else artist.description),
-                    BggContract.Artists.UPDATED to updateTime
+                    Artists.ARTIST_NAME to artist.name,
+                    Artists.ARTIST_DESCRIPTION to (if (artist.description == "This page does not exist. You can edit this page to create it.") "" else artist.description),
+                    Artists.UPDATED to updateTime
             )
             return upsert(values, id)
         }
@@ -102,29 +107,29 @@ class ArtistDao(private val context: BggApplication) {
     }
 
     fun loadArtistImagesAsLiveData(id: Int): LiveData<PersonImagesEntity> {
-        return RegisteredLiveData(context, BggContract.Artists.buildArtistUri(id), true) {
+        return RegisteredLiveData(context, Artists.buildArtistUri(id), true) {
             return@RegisteredLiveData loadArtistImages(id)
         }
     }
 
     private fun loadArtistImages(id: Int): PersonImagesEntity? {
         return context.contentResolver.load(
-                BggContract.Artists.buildArtistUri(id),
+                Artists.buildArtistUri(id),
                 arrayOf(
-                        BggContract.Artists.ARTIST_ID,
-                        BggContract.Artists.ARTIST_IMAGE_URL,
-                        BggContract.Artists.ARTIST_THUMBNAIL_URL,
-                        BggContract.Artists.ARTIST_HERO_IMAGE_URL,
-                        BggContract.Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP
+                        Artists.ARTIST_ID,
+                        Artists.ARTIST_IMAGE_URL,
+                        Artists.ARTIST_THUMBNAIL_URL,
+                        Artists.ARTIST_HERO_IMAGE_URL,
+                        Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP
                 )
         )?.use {
             if (it.moveToFirst()) {
                 PersonImagesEntity(
-                        it.getInt(BggContract.Artists.ARTIST_ID),
-                        it.getStringOrEmpty(BggContract.Artists.ARTIST_IMAGE_URL),
-                        it.getStringOrEmpty(BggContract.Artists.ARTIST_THUMBNAIL_URL),
-                        it.getStringOrEmpty(BggContract.Artists.ARTIST_HERO_IMAGE_URL),
-                        it.getLongOrZero(BggContract.Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP)
+                        it.getInt(Artists.ARTIST_ID),
+                        it.getStringOrEmpty(Artists.ARTIST_IMAGE_URL),
+                        it.getStringOrEmpty(Artists.ARTIST_THUMBNAIL_URL),
+                        it.getStringOrEmpty(Artists.ARTIST_HERO_IMAGE_URL),
+                        it.getLongOrZero(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP)
                 )
             } else null
         }
@@ -133,9 +138,9 @@ class ArtistDao(private val context: BggApplication) {
     fun saveArtistImage(id: Int, artist: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
         if (artist != null) {
             val values = contentValuesOf(
-                    BggContract.Artists.ARTIST_IMAGE_URL to artist.items[0].image,
-                    BggContract.Artists.ARTIST_THUMBNAIL_URL to artist.items[0].thumbnail,
-                    BggContract.Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to updateTime
+                    Artists.ARTIST_IMAGE_URL to artist.items[0].image,
+                    Artists.ARTIST_THUMBNAIL_URL to artist.items[0].thumbnail,
+                    Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to updateTime
             )
             return upsert(values, id)
         }
@@ -143,26 +148,31 @@ class ArtistDao(private val context: BggApplication) {
     }
 
     fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
-        val uri = BggContract.Artists.buildArtistCollectionUri(id)
+        val uri = Artists.buildArtistCollectionUri(id)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
         }
     }
 
+    fun loadCollection(id: Int): List<BriefGameEntity> {
+        val uri = Artists.buildArtistCollectionUri(id)
+        return collectionDao.loadLinkedCollection(uri)
+    }
+
     fun update(artistId: Int, values: ContentValues): Int {
-        return context.contentResolver.update(BggContract.Artists.buildArtistUri(artistId), values, null, null)
+        return context.contentResolver.update(Artists.buildArtistUri(artistId), values, null, null)
     }
 
     private fun upsert(values: ContentValues, artistId: Int): Int {
         val resolver = context.contentResolver
-        val uri = BggContract.Artists.buildArtistUri(artistId)
+        val uri = Artists.buildArtistUri(artistId)
         return if (resolver.rowExists(uri)) {
             val count = resolver.update(uri, values, null, null)
             Timber.d("Updated %,d artist rows at %s", count, uri)
             count
         } else {
-            values.put(BggContract.Artists.ARTIST_ID, artistId)
-            val insertedUri = resolver.insert(BggContract.Artists.CONTENT_URI, values)
+            values.put(Artists.ARTIST_ID, artistId)
+            val insertedUri = resolver.insert(Artists.CONTENT_URI, values)
             Timber.d("Inserted artist at %s", insertedUri)
             1
         }

@@ -85,6 +85,7 @@ public class BggContract {
 		String DESIGNER_THUMBNAIL_URL = "designer_thumbnail_url";
 		String DESIGNER_HERO_IMAGE_URL = "designer_hero_image_url";
 		String DESIGNER_IMAGES_UPDATED_TIMESTAMP = "designer_images_updated_timestamp";
+		String WHITMORE_SCORE = "whitmore_score";
 		String ITEM_COUNT = "item_count";
 	}
 
@@ -96,6 +97,7 @@ public class BggContract {
 		String ARTIST_THUMBNAIL_URL = "artist_thumbnail_url";
 		String ARTIST_HERO_IMAGE_URL = "artist_hero_image_url";
 		String ARTIST_IMAGES_UPDATED_TIMESTAMP = "artist_images_updated_timestamp";
+		String WHITMORE_SCORE = "whitmore_score";
 		String ITEM_COUNT = "item_count";
 	}
 
@@ -107,6 +109,7 @@ public class BggContract {
 		String PUBLISHER_THUMBNAIL_URL = "publisher_thumbnail_url";
 		String PUBLISHER_HERO_IMAGE_URL = "publisher_hero_image_url";
 		String PUBLISHER_SORT_NAME = "publisher_sort_name";
+		String WHITMORE_SCORE = "whitmore_score";
 		String ITEM_COUNT = "item_count";
 	}
 

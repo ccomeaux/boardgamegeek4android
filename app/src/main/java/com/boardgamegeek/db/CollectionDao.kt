@@ -221,7 +221,7 @@ class CollectionDao(private val context: BggApplication) {
         NAME, RATING
     }
 
-    fun loadLinkedCollection(uri: Uri, sortBy: SortType): List<BriefGameEntity> {
+    fun loadLinkedCollection(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> {
         val list = arrayListOf<BriefGameEntity>()
         val sortByName = Collection.GAME_SORT_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {

@@ -7,14 +7,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PublisherRepository
 
 class PublishersViewModel(application: Application) : AndroidViewModel(application) {
     enum class SortType {
-        NAME, ITEM_COUNT
+        NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
     private val publisherRepository = PublisherRepository(getApplication())
@@ -35,6 +34,7 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
         _sort.value = when (sortType) {
             SortType.NAME -> PublishersSortByName()
             SortType.ITEM_COUNT -> PublishersSortByItemCount()
+            SortType.WHITMORE_SCORE -> PublishersSortByWhitmoreScore()
         }
     }
 
@@ -63,5 +63,13 @@ class PublishersSortByItemCount : PublishersSort() {
     override val sortBy = PublisherDao.SortType.ITEM_COUNT
     override fun getSectionHeader(publisher: CompanyEntity?): String {
         return (publisher?.itemCount ?: 0).orderOfMagnitude()
+    }
+}
+
+class PublishersSortByWhitmoreScore : PublishersSort() {
+    override val sortType = PublishersViewModel.SortType.WHITMORE_SCORE
+    override val sortBy = PublisherDao.SortType.WHITMORE_SCORE
+    override fun getSectionHeader(publisher: CompanyEntity?): String {
+        return (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
     }
 }

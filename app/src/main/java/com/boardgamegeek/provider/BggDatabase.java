@@ -100,7 +100,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_ARTIST_IMAGES = 52;
 	private static final int VER_DESIGNER_IMAGES = 53;
 	private static final int VER_PUBLISHER_IMAGES = 54;
-	private static final int DATABASE_VERSION = VER_PUBLISHER_IMAGES;
+	private static final int VER_WHITSCORE_SCORE = 55;
+	private static final int DATABASE_VERSION = VER_WHITSCORE_SCORE;
 
 	private final Context context;
 
@@ -263,7 +264,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-			.addColumn(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+			.addColumn(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildArtistsTable() {
@@ -275,7 +277,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-			.addColumn(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+			.addColumn(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPublishersTable() {
@@ -287,7 +290,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-			.addColumn(Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.TEXT);
+			.addColumn(Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildMechanicsTable() {
@@ -855,6 +859,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
 					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.INTEGER);
 					version = VER_PUBLISHER_IMAGES;
+				case VER_PUBLISHER_IMAGES:
+					addColumn(db, Tables.DESIGNERS, Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.ARTISTS, Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.PUBLISHERS, Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
+					version = VER_WHITSCORE_SCORE;
 			}
 
 			if (version != DATABASE_VERSION) {

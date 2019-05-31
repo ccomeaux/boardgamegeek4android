@@ -40,6 +40,7 @@ class DesignersActivity : SimpleSinglePaneActivity() {
         when (sortBy) {
             DesignsViewModel.SortType.NAME -> menu.findItem(R.id.menu_sort_name)
             DesignsViewModel.SortType.ITEM_COUNT -> menu.findItem(R.id.menu_sort_item_count)
+            DesignsViewModel.SortType.WHITMORE_SCORE -> menu.findItem(R.id.menu_sort_whitmore_score)
         }.apply {
             isChecked = true
             menu.setActionBarCount(R.id.menu_list_count, numberOfDesigners, getString(R.string.by_prefix, title))
@@ -55,6 +56,10 @@ class DesignersActivity : SimpleSinglePaneActivity() {
             }
             R.id.menu_sort_item_count -> {
                 viewModel.sort(DesignsViewModel.SortType.ITEM_COUNT)
+                return true
+            }
+            R.id.menu_sort_whitmore_score -> {
+                viewModel.sort(DesignsViewModel.SortType.WHITMORE_SCORE)
                 return true
             }
         }

@@ -19,6 +19,9 @@
 				<item
 					android:id="@+id/menu_sort_item_count"
 					android:title="@string/menu_sort_item_count"/>
+				<item
+					android:id="@+id/menu_sort_whitmore_score"
+					android:title="@string/menu_sort_whitmore_score"/>
 			</group>
 		</menu>
 	</item>

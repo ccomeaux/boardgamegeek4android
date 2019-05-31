@@ -108,12 +108,13 @@ class PublishersFragment : Fragment() {
 
         inner class PublisherViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(publisher: CompanyEntity?) {
-                publisher?.let { a ->
-                    itemView.avatarView.loadThumbnail(a.thumbnailUrl)
-                    itemView.nameView.text = a.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                publisher?.let { p ->
+                    itemView.thumbnailView.loadThumbnail(p.thumbnailUrl)
+                    itemView.nameView.text = p.name
+                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, p.itemCount, p.itemCount)
+                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${p.whitmoreScore}")
                     itemView.setOnClickListener {
-                        PersonActivity.startForPublisher(itemView.context, a.id, a.name)
+                        PersonActivity.startForPublisher(itemView.context, p.id, p.name)
                     }
                 }
             }

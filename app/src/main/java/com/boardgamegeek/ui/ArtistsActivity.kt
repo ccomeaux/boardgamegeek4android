@@ -40,6 +40,7 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
         when (sortBy) {
             ArtistsViewModel.SortType.NAME -> menu.findItem(R.id.menu_sort_name)
             ArtistsViewModel.SortType.ITEM_COUNT -> menu.findItem(R.id.menu_sort_item_count)
+            ArtistsViewModel.SortType.WHITMORE_SCORE -> menu.findItem(R.id.menu_sort_whitmore_score)
         }.apply {
             isChecked = true
             menu.setActionBarCount(R.id.menu_list_count, numberOfArtists, getString(R.string.by_prefix, title))
@@ -55,6 +56,10 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
             }
             R.id.menu_sort_item_count -> {
                 viewModel.sort(ArtistsViewModel.SortType.ITEM_COUNT)
+                return true
+            }
+            R.id.menu_sort_whitmore_score -> {
+                viewModel.sort(ArtistsViewModel.SortType.WHITMORE_SCORE)
                 return true
             }
         }

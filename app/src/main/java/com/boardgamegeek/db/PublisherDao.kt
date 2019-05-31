@@ -10,53 +10,57 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.CompanyResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Publishers
 import timber.log.Timber
 
 class PublisherDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
 
     enum class SortType {
-        NAME, ITEM_COUNT
+        NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    fun loadPublishersAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<CompanyEntity>> {
-        return RegisteredLiveData(context, BggContract.Publishers.CONTENT_URI, true) {
+    fun loadPublishersAsLiveData(sortBy: SortType): LiveData<List<CompanyEntity>> {
+        return RegisteredLiveData(context, Publishers.CONTENT_URI, true) {
             return@RegisteredLiveData loadPublishers(sortBy)
         }
     }
 
     private fun loadPublishers(sortBy: SortType): List<CompanyEntity> {
         val results = arrayListOf<CompanyEntity>()
-        val sortByName = BggContract.Publishers.PUBLISHER_NAME.collateNoCase().ascending()
+        val sortByName = Publishers.PUBLISHER_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> BggContract.Publishers.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Publishers.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.WHITMORE_SCORE -> Publishers.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                BggContract.Publishers.CONTENT_URI,
+                Publishers.CONTENT_URI,
                 arrayOf(
-                        BggContract.Publishers.PUBLISHER_ID,
-                        BggContract.Publishers.PUBLISHER_NAME,
-                        BggContract.Publishers.PUBLISHER_DESCRIPTION,
-                        BggContract.Publishers.PUBLISHER_IMAGE_URL,
-                        BggContract.Publishers.PUBLISHER_THUMBNAIL_URL,
-                        BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL,
-                        BggContract.Publishers.UPDATED,
-                        BggContract.Publishers.ITEM_COUNT
+                        Publishers.PUBLISHER_ID,
+                        Publishers.PUBLISHER_NAME,
+                        Publishers.PUBLISHER_DESCRIPTION,
+                        Publishers.PUBLISHER_IMAGE_URL,
+                        Publishers.PUBLISHER_THUMBNAIL_URL,
+                        Publishers.PUBLISHER_HERO_IMAGE_URL,
+                        Publishers.UPDATED,
+                        Publishers.ITEM_COUNT,
+                        Publishers.WHITMORE_SCORE
                 ),
                 sortOrder = sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += CompanyEntity(
-                            it.getInt(BggContract.Publishers.PUBLISHER_ID),
-                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_NAME),
-                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_DESCRIPTION),
-                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_IMAGE_URL),
-                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_THUMBNAIL_URL),
-                            it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL),
-                            it.getLongOrZero(BggContract.Publishers.UPDATED),
-                            it.getIntOrZero(BggContract.Publishers.ITEM_COUNT)
+                            it.getInt(Publishers.PUBLISHER_ID),
+                            it.getStringOrEmpty(Publishers.PUBLISHER_NAME),
+                            it.getStringOrEmpty(Publishers.PUBLISHER_DESCRIPTION),
+                            it.getStringOrEmpty(Publishers.PUBLISHER_IMAGE_URL),
+                            it.getStringOrEmpty(Publishers.PUBLISHER_THUMBNAIL_URL),
+                            it.getStringOrEmpty(Publishers.PUBLISHER_HERO_IMAGE_URL),
+                            it.getLongOrZero(Publishers.UPDATED),
+                            it.getIntOrZero(Publishers.ITEM_COUNT),
+                            it.getIntOrZero(Publishers.WHITMORE_SCORE)
                     )
                 } while (it.moveToNext())
             }
@@ -65,33 +69,35 @@ class PublisherDao(private val context: BggApplication) {
     }
 
     fun loadPublisherAsLiveData(id: Int): LiveData<CompanyEntity> {
-        return RegisteredLiveData(context, BggContract.Publishers.buildPublisherUri(id), true) {
+        return RegisteredLiveData(context, Publishers.buildPublisherUri(id), true) {
             return@RegisteredLiveData loadPublisher(id)
         }
     }
 
-    private fun loadPublisher(id: Int): CompanyEntity? {
+    fun loadPublisher(id: Int): CompanyEntity? {
         return context.contentResolver.load(
-                BggContract.Publishers.buildPublisherUri(id),
+                Publishers.buildPublisherUri(id),
                 arrayOf(
-                        BggContract.Publishers.PUBLISHER_ID,
-                        BggContract.Publishers.PUBLISHER_NAME,
-                        BggContract.Publishers.PUBLISHER_DESCRIPTION,
-                        BggContract.Publishers.PUBLISHER_IMAGE_URL,
-                        BggContract.Publishers.PUBLISHER_THUMBNAIL_URL,
-                        BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL,
-                        BggContract.Publishers.UPDATED
+                        Publishers.PUBLISHER_ID,
+                        Publishers.PUBLISHER_NAME,
+                        Publishers.PUBLISHER_DESCRIPTION,
+                        Publishers.PUBLISHER_IMAGE_URL,
+                        Publishers.PUBLISHER_THUMBNAIL_URL,
+                        Publishers.PUBLISHER_HERO_IMAGE_URL,
+                        Publishers.UPDATED,
+                        Publishers.WHITMORE_SCORE
                 )
         )?.use {
             if (it.moveToFirst()) {
                 CompanyEntity(
-                        it.getInt(BggContract.Publishers.PUBLISHER_ID),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_NAME),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_DESCRIPTION),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_IMAGE_URL),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_THUMBNAIL_URL),
-                        it.getStringOrEmpty(BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL),
-                        it.getLongOrZero(BggContract.Publishers.UPDATED)
+                        it.getInt(Publishers.PUBLISHER_ID),
+                        it.getStringOrEmpty(Publishers.PUBLISHER_NAME),
+                        it.getStringOrEmpty(Publishers.PUBLISHER_DESCRIPTION),
+                        it.getStringOrEmpty(Publishers.PUBLISHER_IMAGE_URL),
+                        it.getStringOrEmpty(Publishers.PUBLISHER_THUMBNAIL_URL),
+                        it.getStringOrEmpty(Publishers.PUBLISHER_HERO_IMAGE_URL),
+                        it.getLongOrZero(Publishers.UPDATED),
+                        whitmoreScore = it.getIntOrZero(Publishers.WHITMORE_SCORE)
                 )
             } else null
         }
@@ -102,12 +108,12 @@ class PublisherDao(private val context: BggApplication) {
             publisher.items[0]?.let {
                 val sortName = if (it.nameType == "primary") it.name.sortName(it.sortindex) else it.name
                 val values = contentValuesOf(
-                        BggContract.Publishers.PUBLISHER_NAME to it.name,
-                        BggContract.Publishers.PUBLISHER_SORT_NAME to sortName,
-                        BggContract.Publishers.PUBLISHER_DESCRIPTION to it.description,
-                        BggContract.Publishers.PUBLISHER_IMAGE_URL to it.image,
-                        BggContract.Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnail,
-                        BggContract.Publishers.UPDATED to updateTime
+                        Publishers.PUBLISHER_NAME to it.name,
+                        Publishers.PUBLISHER_SORT_NAME to sortName,
+                        Publishers.PUBLISHER_DESCRIPTION to it.description,
+                        Publishers.PUBLISHER_IMAGE_URL to it.image,
+                        Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnail,
+                        Publishers.UPDATED to updateTime
                 )
                 return upsert(values, it.id.toIntOrNull() ?: BggContract.INVALID_ID)
             }
@@ -116,26 +122,31 @@ class PublisherDao(private val context: BggApplication) {
     }
 
     fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
-        val uri = BggContract.Publishers.buildCollectionUri(id)
+        val uri = Publishers.buildCollectionUri(id)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
         }
     }
 
+    fun loadCollection(id: Int): List<BriefGameEntity> {
+        val uri = Publishers.buildCollectionUri(id)
+        return collectionDao.loadLinkedCollection(uri)
+    }
+
     fun update(publisherId: Int, values: ContentValues): Int {
-        return context.contentResolver.update(BggContract.Publishers.buildPublisherUri(publisherId), values, null, null)
+        return context.contentResolver.update(Publishers.buildPublisherUri(publisherId), values, null, null)
     }
 
     private fun upsert(values: ContentValues, publisherId: Int): Int {
         val resolver = context.contentResolver
-        val uri = BggContract.Publishers.buildPublisherUri(publisherId)
+        val uri = Publishers.buildPublisherUri(publisherId)
         return if (resolver.rowExists(uri)) {
             val count = resolver.update(uri, values, null, null)
             Timber.d("Updated %,d publisher rows at %s", count, uri)
             count
         } else {
-            values.put(BggContract.Publishers.PUBLISHER_ID, publisherId)
-            val insertedUri = resolver.insert(BggContract.Publishers.CONTENT_URI, values)
+            values.put(Publishers.PUBLISHER_ID, publisherId)
+            val insertedUri = resolver.insert(Publishers.CONTENT_URI, values)
             Timber.d("Inserted publisher at %s", insertedUri)
             1
         }

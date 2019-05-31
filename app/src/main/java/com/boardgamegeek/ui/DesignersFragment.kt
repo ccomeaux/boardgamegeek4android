@@ -112,6 +112,7 @@ class DesignersFragment : Fragment() {
                     itemView.avatarView.loadThumbnail(d.thumbnailUrl, R.drawable.person_image_empty)
                     itemView.nameView.text = d.name
                     itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
+                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForDesigner(itemView.context, d.id, d.name)
                     }

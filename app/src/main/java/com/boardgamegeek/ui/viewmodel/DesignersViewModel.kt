@@ -13,7 +13,7 @@ import com.boardgamegeek.repository.DesignerRepository
 
 class DesignsViewModel(application: Application) : AndroidViewModel(application) {
     enum class SortType {
-        NAME, ITEM_COUNT
+        NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
     private val designerRepository = DesignerRepository(getApplication())
@@ -34,6 +34,7 @@ class DesignsViewModel(application: Application) : AndroidViewModel(application)
         _sort.value = when (sortType) {
             SortType.NAME -> DesignersSortByName()
             SortType.ITEM_COUNT -> DesignersSortByItemCount()
+            SortType.WHITMORE_SCORE -> DesignersSortByWhitmoreScore()
         }
     }
 
@@ -62,5 +63,13 @@ class DesignersSortByItemCount : DesignersSort() {
     override val sortBy = DesignerDao.SortType.ITEM_COUNT
     override fun getSectionHeader(designer: PersonEntity?): String {
         return (designer?.itemCount ?: 0).orderOfMagnitude()
+    }
+}
+
+class DesignersSortByWhitmoreScore : DesignersSort() {
+    override val sortType = DesignsViewModel.SortType.WHITMORE_SCORE
+    override val sortBy = DesignerDao.SortType.WHITMORE_SCORE
+    override fun getSectionHeader(designer: PersonEntity?): String {
+        return (designer?.whitmoreScore ?: 0).orderOfMagnitude()
     }
 }

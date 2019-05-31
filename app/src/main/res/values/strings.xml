@@ -375,6 +375,7 @@
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_item_count">Games</string>
+	<string name="menu_sort_whitmore_score">Whitmore score</string>
 	<string name="menu_sort_quantity">Play count</string>
 	<string name="menu_sort_wins">Wins</string>
 	<string name="menu_sort_comments">Comments</string>

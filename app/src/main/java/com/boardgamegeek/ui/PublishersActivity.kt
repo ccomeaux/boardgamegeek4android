@@ -40,6 +40,7 @@ class PublishersActivity : SimpleSinglePaneActivity() {
         when (sortBy) {
             PublishersViewModel.SortType.NAME -> menu.findItem(R.id.menu_sort_name)
             PublishersViewModel.SortType.ITEM_COUNT -> menu.findItem(R.id.menu_sort_item_count)
+            PublishersViewModel.SortType.WHITMORE_SCORE -> menu.findItem(R.id.menu_sort_whitmore_score)
         }.apply {
             isChecked = true
             menu.setActionBarCount(R.id.menu_list_count, numberOfPublishers, getString(R.string.by_prefix, title))
@@ -55,6 +56,10 @@ class PublishersActivity : SimpleSinglePaneActivity() {
             }
             R.id.menu_sort_item_count -> {
                 viewModel.sort(PublishersViewModel.SortType.ITEM_COUNT)
+                return true
+            }
+            R.id.menu_sort_whitmore_score -> {
+                viewModel.sort(PublishersViewModel.SortType.WHITMORE_SCORE)
                 return true
             }
         }

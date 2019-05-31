@@ -17,6 +17,7 @@
 		android:clickable="false"
 		android:contentDescription="@string/avatar"
 		android:src="@drawable/person_image_empty"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:maskDrawable="@drawable/circle_mask"/>
@@ -27,11 +28,12 @@
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="8dp"
 		android:layout_marginStart="8dp"
+		android:layout_marginTop="@dimen/padding_half"
 		android:textAppearance="@style/TextAppearance.RowTitle"
 		app:layout_constraintBottom_toTopOf="@id/countView"
 		app:layout_constraintStart_toEndOf="@id/avatarView"
-		app:layout_constraintVertical_chainStyle="packed"
 		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
 		tools:text="Klemenz Franz"/>
 
 	<TextView
@@ -40,10 +42,23 @@
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="8dp"
 		android:layout_marginStart="8dp"
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		app:layout_constraintStart_toEndOf="@+id/avatarView"
+		app:layout_constraintTop_toBottomOf="@+id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="42 games"/>
+
+	<TextView
+		android:id="@+id/whitmoreScoreView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="@dimen/padding_half"
+		android:layout_marginLeft="8dp"
+		android:layout_marginStart="8dp"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/avatarView"
-		app:layout_constraintTop_toBottomOf="@+id/nameView"
-		tools:text="42 games"/>
+		app:layout_constraintTop_toBottomOf="@+id/countView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Whitmore score 17"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

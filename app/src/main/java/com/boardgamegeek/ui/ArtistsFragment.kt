@@ -112,6 +112,7 @@ class ArtistsFragment : Fragment() {
                     itemView.avatarView.loadThumbnail(a.thumbnailUrl, R.drawable.person_image_empty)
                     itemView.nameView.text = a.name
                     itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForArtist(itemView.context, a.id, a.name)
                     }

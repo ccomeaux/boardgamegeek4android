@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
@@ -16,15 +17,27 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.CompanyResponse2
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Publishers
 import retrofit2.Call
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class PublisherRepository(val application: BggApplication) {
-    private val publisherDao = PublisherDao(application)
+    private val dao = PublisherDao(application)
 
     fun loadPublishers(sortBy: PublisherDao.SortType = PublisherDao.SortType.NAME): LiveData<List<CompanyEntity>> {
-        return publisherDao.loadPublishersAsLiveData(sortBy)
+        val mediatorLiveData = MediatorLiveData<List<CompanyEntity>>()
+        mediatorLiveData.addSource(dao.loadPublishersAsLiveData(sortBy)) {
+            mediatorLiveData.value = it
+            application.appExecutors.diskIO.execute {
+                for (company in it) {
+                    val collection = dao.loadCollection(company.id)
+                    val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+                    updateWhitmoreScore(company.id, statsEntity.whitmoreScore, company.whitmoreScore)
+                }
+            }
+        }
+        return mediatorLiveData
     }
 
     fun loadPublisher(id: Int): LiveData<RefreshableResource<CompanyEntity>> {
@@ -32,7 +45,7 @@ class PublisherRepository(val application: BggApplication) {
         val mediatorLiveData = MediatorLiveData<RefreshableResource<CompanyEntity>>()
         val liveData = object : RefreshableResourceLoader<CompanyEntity, CompanyResponse2>(application) {
             override fun loadFromDatabase(): LiveData<CompanyEntity> {
-                return publisherDao.loadPublisherAsLiveData(id)
+                return dao.loadPublisherAsLiveData(id)
             }
 
             override fun shouldRefresh(data: CompanyEntity?): Boolean {
@@ -49,14 +62,14 @@ class PublisherRepository(val application: BggApplication) {
             }
 
             override fun saveCallResult(result: CompanyResponse2) {
-                publisherDao.savePublisher(result)
+                dao.savePublisher(result)
             }
         }.asLiveData()
         mediatorLiveData.addSource(liveData) {
             it?.data?.maybeRefreshHeroImageUrl("publisher", started) { url ->
                 application.appExecutors.diskIO.execute {
-                    publisherDao.update(id, ContentValues().apply {
-                        put(BggContract.Publishers.PUBLISHER_HERO_IMAGE_URL, url)
+                    dao.update(id, ContentValues().apply {
+                        put(Publishers.PUBLISHER_HERO_IMAGE_URL, url)
                     })
                 }
             }
@@ -66,14 +79,28 @@ class PublisherRepository(val application: BggApplication) {
     }
 
     fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
-        return publisherDao.loadCollectionAsLiveData(id, sortBy)
+        return dao.loadCollectionAsLiveData(id, sortBy)
     }
 
     fun calculateStats(id: Int): LiveData<PersonStatsEntity> {
         val mediatorLiveData = MediatorLiveData<PersonStatsEntity>()
-        mediatorLiveData.addSource(publisherDao.loadCollectionAsLiveData(id)) { collection ->
-            mediatorLiveData.value = PersonStatsEntity.fromLinkedCollection(collection, application)
+        mediatorLiveData.addSource(dao.loadCollectionAsLiveData(id)) { collection ->
+            val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
+            mediatorLiveData.value = linkedCollection
+            application.appExecutors.diskIO.execute {
+                updateWhitmoreScore(id, linkedCollection.whitmoreScore, -1)
+            }
         }
         return mediatorLiveData
+    }
+
+    @WorkerThread
+    private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int) {
+        val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore ?: 0 else oldScore
+        if (newScore != realOldScore) {
+            dao.update(id, ContentValues().apply {
+                put(Publishers.WHITMORE_SCORE, newScore)
+            })
+        }
     }
 }
