@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
 import com.boardgamegeek.extensions.firstChar
+import com.boardgamegeek.extensions.isStatusSetToSync
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PublisherRepository
 
@@ -23,7 +25,11 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
         get() = _sort
 
     init {
-        sort(SortType.ITEM_COUNT)
+        val initialSort = if (application.isStatusSetToSync(COLLECTION_STATUS_RATED))
+            SortType.WHITMORE_SCORE
+        else
+            SortType.NAME
+        sort(initialSort)
     }
 
     val publishers: LiveData<List<CompanyEntity>> = Transformations.switchMap(sort) {

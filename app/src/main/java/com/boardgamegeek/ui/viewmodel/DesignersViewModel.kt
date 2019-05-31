@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
 import com.boardgamegeek.extensions.firstChar
+import com.boardgamegeek.extensions.isStatusSetToSync
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.DesignerRepository
 
@@ -23,7 +25,11 @@ class DesignsViewModel(application: Application) : AndroidViewModel(application)
         get() = _sort
 
     init {
-        sort(SortType.ITEM_COUNT)
+        val initialSort = if (application.isStatusSetToSync(COLLECTION_STATUS_RATED))
+            SortType.WHITMORE_SCORE
+        else
+            SortType.NAME
+        sort(initialSort)
     }
 
     val designers: LiveData<List<PersonEntity>> = Transformations.switchMap(sort) {
