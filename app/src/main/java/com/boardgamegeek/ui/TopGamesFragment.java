@@ -30,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rx.Single;
+import rx.Single.OnSubscribe;
 import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -68,15 +69,12 @@ public class TopGamesFragment extends Fragment {
 
 	private void loadTopGames() {
 		Single
-			.create(new Single.OnSubscribe<List<TopGame>>() {
-				@Override
-				public void call(SingleSubscriber<? super List<TopGame>> singleSubscriber) {
-					try {
-						List<TopGame> topGames = findTopGames();
-						singleSubscriber.onSuccess(topGames);
-					} catch (Throwable t) {
-						singleSubscriber.onError(t);
-					}
+			.create((OnSubscribe<List<TopGame>>) singleSubscriber -> {
+				try {
+					List<TopGame> topGames = findTopGames();
+					singleSubscriber.onSuccess(topGames);
+				} catch (Throwable t) {
+					singleSubscriber.onError(t);
 				}
 			})
 			.subscribeOn(Schedulers.io())
