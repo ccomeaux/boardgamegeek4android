@@ -2,12 +2,12 @@ package com.boardgamegeek.auth;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
 
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 public class AccountUtils {
 	private static final String KEY_PREFIX = "account_";

@@ -1,7 +1,7 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import java.util.*
 
