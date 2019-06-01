@@ -50,7 +50,7 @@ import okhttp3.ResponseBody;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-	private BggApplication application;
+	private final BggApplication application;
 	private SyncTask currentTask;
 	private boolean isCancelled;
 
@@ -60,12 +60,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		application = context;
 
 		if (!BuildConfig.DEBUG) {
-			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-				@Override
-				public void uncaughtException(Thread thread, Throwable throwable) {
-					Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build.");
-				}
-			});
+			Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build."));
 		}
 	}
 
