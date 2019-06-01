@@ -47,9 +47,9 @@ class RemoteConfig {
         fun init() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
             val configSettings = FirebaseRemoteConfigSettings.Builder()
-                    .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                    .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 0L else 3600L)
                     .build()
-            firebaseRemoteConfig.setConfigSettings(configSettings)
+            firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
             firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults)
             fetch()
         }
@@ -57,8 +57,7 @@ class RemoteConfig {
         @JvmStatic
         fun fetch() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-            val cacheExpiration = if (firebaseRemoteConfig.info.configSettings.isDeveloperModeEnabled) 0L else 43200L
-            firebaseRemoteConfig.fetch(cacheExpiration).addOnCompleteListener { task ->
+            firebaseRemoteConfig.fetch().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.i("Successfully fetched Firebase remote config.")
                     firebaseRemoteConfig.activate()
@@ -74,10 +73,8 @@ class RemoteConfig {
         @JvmStatic
         fun getInt(key: String) = FirebaseRemoteConfig.getInstance().getLong(key).toInt()
 
-        @JvmStatic
         fun getLong(key: String) = FirebaseRemoteConfig.getInstance().getLong(key)
 
-        @JvmStatic
         fun getDouble(key: String) = FirebaseRemoteConfig.getInstance().getDouble(key)
     }
 }

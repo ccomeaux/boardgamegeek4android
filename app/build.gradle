@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
-        classpath 'io.fabric.tools:gradle:1.28.1'
+        classpath 'io.fabric.tools:gradle:1.29.0'
     }
 }
 
@@ -144,9 +144,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 
-    implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-config:16.5.0'
-    implementation 'com.google.firebase:firebase-messaging:17.6.0'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation 'com.google.firebase:firebase-config:17.0.0'
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
