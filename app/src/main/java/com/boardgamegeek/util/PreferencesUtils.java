@@ -14,7 +14,6 @@ import com.boardgamegeek.ui.PlayStatsActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -184,31 +183,11 @@ public class PreferencesUtils {
 		return statuses != null && statuses.size() > 0;
 	}
 
-	/**
-	 * Determines if the specified status is set to be synced.
-	 */
-	public static boolean isStatusSetToSync(Context context, String status) {
-		if (context == null) return false;
-		if (TextUtils.isEmpty(status)) return false;
-		Set<String> statuses = getSyncStatuses(context);
-		return statuses.contains(status);
-	}
-
 	public static boolean setSyncStatuses(Context context, String[] statuses) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
 		editor.putStringSet(KEY_SYNC_STATUSES, new HashSet<>(Arrays.asList(statuses)));
 		return editor.commit();
-	}
-
-	public static boolean addSyncStatus(Context context, String status) {
-		if (TextUtils.isEmpty(status)) return false;
-		if (isStatusSetToSync(context, status)) return false;
-
-		Set<String> statuses = getSyncStatuses(context, null);
-		if (statuses == null) statuses = Collections.emptySet();
-		statuses.add(status);
-		return putStringSet(context, KEY_SYNC_STATUSES, statuses);
 	}
 
 	public static boolean getSyncPlays(Context context) {
@@ -386,7 +365,7 @@ public class PreferencesUtils {
 
 	@NonNull
 	private static String getThreadKey(long threadId) {
-		return "THREAD-" + String.valueOf(threadId);
+		return "THREAD-" + threadId;
 	}
 
 	private static boolean remove(Context context, String key) {
@@ -421,13 +400,6 @@ public class PreferencesUtils {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
 		editor.putString(key, value);
-		return editor.commit();
-	}
-
-	private static boolean putStringSet(Context context, String key, Set<String> value) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		Editor editor = sharedPreferences.edit();
-		editor.putStringSet(key, value);
 		return editor.commit();
 	}
 

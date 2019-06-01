@@ -16,7 +16,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
@@ -44,8 +43,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                     .setTitle(R.string.title_modify_collection_status)
                     .setMessage(R.string.msg_modify_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
-                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN)
-                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
+                        context.addSyncStatus(COLLECTION_STATUS_OWN)
+                        context.addSyncStatus(COLLECTION_STATUS_PLAYED)
                         SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         bindCollectionStatusMessage()
                     }
@@ -97,8 +96,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun bindCollectionStatusMessage() {
-        isOwnedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_OWN)
-        isPlayedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
+        isOwnedSynced = context.isStatusSetToSync(COLLECTION_STATUS_OWN)
+        isPlayedSynced = context.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
         collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 
