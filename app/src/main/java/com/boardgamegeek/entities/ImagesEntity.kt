@@ -2,7 +2,7 @@ package com.boardgamegeek.entities
 
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.Image
-import com.boardgamegeek.util.ImageUtils
+import com.boardgamegeek.util.ImageUtils.getImageId
 import retrofit2.Call
 import retrofit2.Response
 import timber.log.Timber
@@ -15,8 +15,8 @@ interface ImagesEntity {
     val heroImageUrl: String
 
     fun maybeRefreshHeroImageUrl(entityTypeDescription: String, started: AtomicBoolean, successListener: (String) -> Unit = {}) {
-        val heroImageId = ImageUtils.getImageId(heroImageUrl)
-        val thumbnailId = ImageUtils.getImageId(thumbnailUrl)
+        val heroImageId = heroImageUrl.getImageId()
+        val thumbnailId = thumbnailUrl.getImageId()
         if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
             val call = Adapter.createGeekdoApi().image(thumbnailId)
             call.enqueue(object : retrofit2.Callback<Image> {

@@ -33,8 +33,6 @@ object ImageUtils {
      * Loads an image into the [android.widget.ImageView] by attempting various sizes and image formats. Applies
      * fit/center crop and will load a [androidx.palette.graphics.Palette].
      */
-    @JvmStatic
-    @JvmOverloads
     fun ImageView.safelyLoadImage(imageId: Int, callback: Callback? = null) {
         RemoteConfig.fetch()
         if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
@@ -75,7 +73,7 @@ object ImageUtils {
             queue.add(heroImageUrl)
             loadImages(thumbnailUrl, imageUrl, callback, queue)
         } else if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-            val imageId = getImageId(imageUrl)
+            val imageId = imageUrl.getImageId()
             if (imageId > 0) {
                 val call = Adapter.createGeekdoApi().image(imageId)
                 call.enqueue(object : retrofit2.Callback<Image> {
@@ -111,20 +109,31 @@ object ImageUtils {
         safelyLoadImage(queue, callback)
     }
 
-    fun getImageId(imageUrl: String): Int {
-        if (imageUrl.isBlank()) return 0
-        var partialUrl = imageUrl
-        val imageIdPrefix = "/pic"
-        val lastSlashIndex = partialUrl.lastIndexOf(imageIdPrefix)
-        if (lastSlashIndex > -1)
-            partialUrl = partialUrl.substring(lastSlashIndex + imageIdPrefix.length)
-        val lastDotIndex = partialUrl.lastIndexOf('.')
-        if (lastDotIndex != -1)
-            partialUrl = partialUrl.substring(0, lastDotIndex)
+    fun String.getImageId(): Int {
+        if (isBlank()) return 0
+
+        val picRegex = "/pic\\d+.".toRegex()
+        val picMatch = picRegex.find(this)
+        if (picMatch != null) {
+            return getNumberFromString(picMatch.value)
+        }
+
+        val avatarRegex = "/avatar_\\d+.".toRegex()
+        val avatarMatch = avatarRegex.find(this)
+        if (avatarMatch != null) {
+            return getNumberFromString(avatarMatch.value)
+        }
+
+        return 0
+    }
+
+    private fun getNumberFromString(stringValue: String): Int {
+        val numberRegex = "\\d+".toRegex()
+        val intValue = numberRegex.find(stringValue)?.value
         return try {
-            partialUrl.toInt()
+            return intValue?.toInt() ?: 0
         } catch (e: NumberFormatException) {
-            Timber.w("Didn't find an image ID in the URL [$imageUrl]")
+            Timber.w("Didn't find an image ID in the URL [$stringValue]")
             0
         }
     }

@@ -19,7 +19,7 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.util.ImageUtils
+import com.boardgamegeek.util.ImageUtils.getImageId
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
 import retrofit2.Response
@@ -144,8 +144,8 @@ class GameCollectionRepository(val application: BggApplication) {
      * never been fetched, or if the collection's image has changed.
      */
     fun maybeRefreshHeroImageUrl(internalId: Long, thumbnailUrl: String?, heroImageUrl: String?, started: AtomicBoolean) {
-        val heroImageId = if (heroImageUrl == null) 0 else ImageUtils.getImageId(heroImageUrl)
-        val thumbnailId = if (thumbnailUrl == null) 0 else ImageUtils.getImageId(thumbnailUrl)
+        val heroImageId = heroImageUrl?.getImageId() ?: 0
+        val thumbnailId = thumbnailUrl?.getImageId() ?: 0
         if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
             val call = Adapter.createGeekdoApi().image(thumbnailId)
             call.enqueue(object : retrofit2.Callback<Image> {
