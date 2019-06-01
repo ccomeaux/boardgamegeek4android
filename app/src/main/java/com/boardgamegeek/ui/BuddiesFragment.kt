@@ -18,7 +18,6 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_buddies.*
 import kotlinx.android.synthetic.main.row_buddy.view.*

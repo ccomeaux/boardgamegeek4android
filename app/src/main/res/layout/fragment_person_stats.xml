@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:context=".ui.PersonActivity">
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/padding_standard">
+
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:padding="@dimen/material_margin_horizontal"
+			tools:visibility="gone"/>
+
+		<TextView
+			android:id="@+id/emptyMessageView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/empty_person_stats"
+			android:textAppearance="@style/Text.Empty"
+			android:visibility="gone"/>
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:id="@+id/statsView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingTop="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<TextView
+				android:id="@+id/averageRatingLabel"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/average_rating"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/averageRating"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/averageRating"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				tools:text="7.89"/>
+
+			<TextView
+				android:id="@+id/whitmoreScoreLabel"
+				style="@style/InfoText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/whitmore_score"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/whitmoreScore"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/whitmoreScore"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/averageRating"
+				app:layout_goneMarginTop="0dp"
+				tools:text="42"/>
+
+			<TextView
+				android:id="@+id/whitmoreScoreWithExpansionsLabel"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/whitmore_score_with_expansions"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/whitmoreScoreWithExpansions"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/whitmoreScoreWithExpansions"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/whitmoreScore"
+				tools:text="55"/>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/play_count"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/playCount"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/playCount"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/whitmoreScoreWithExpansions"
+				tools:text="23"/>
+
+			<TextView
+				android:id="@+id/hIndexLabel"
+				style="@style/InfoText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/h_index"
+				android:textAppearance="@style/Text.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/hIndex"
+				app:layout_constraintStart_toStartOf="parent"/>
+
+			<TextView
+				android:id="@+id/hIndex"
+				style="@style/RatingLarge.Huge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/playCount"
+				tools:text="4"/>
+
+			<TextView
+				android:id="@+id/collectionStatusLabel"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="@dimen/padding_standard"
+				android:layout_marginRight="@dimen/padding_standard"
+				android:text="@string/person_stat_collection_status"
+				app:layout_constraintBottom_toBottomOf="@id/collectionStatusButton"
+				app:layout_constraintEnd_toStartOf="@id/collectionStatusButton"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/collectionStatusButton"/>
+
+			<Button
+				android:id="@+id/collectionStatusButton"
+				style="@style/ColoredButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="24dp"
+				android:text="@string/modify"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/hIndex"/>
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/averageRatingGroup"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:constraint_referenced_ids="averageRatingLabel,averageRating"/>
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/whitmoreScoreWithExpansionsGroup"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:constraint_referenced_ids="whitmoreScoreWithExpansionsLabel,whitmoreScoreWithExpansions"/>
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/collectionStatusGroup"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:constraint_referenced_ids="collectionStatusLabel,collectionStatusButton"/>
+		</androidx.constraintlayout.widget.ConstraintLayout>
+	</FrameLayout>
+</androidx.core.widget.NestedScrollView>

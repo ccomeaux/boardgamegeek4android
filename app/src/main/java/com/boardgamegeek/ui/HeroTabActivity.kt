@@ -32,7 +32,7 @@ abstract class HeroTabActivity : DrawerActivity() {
         return null
     }
 
-    override fun getLayoutResId() = R.layout.activity_hero_tab
+    override val layoutResId = R.layout.activity_hero_tab
 
     protected fun safelySetTitle(title: String?) {
         if (!title.isNullOrBlank()) {

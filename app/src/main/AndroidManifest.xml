@@ -51,6 +51,62 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
+		<activity
+			android:name=".ui.CollectionDetailsActivity"
+			android:label="@string/title_collection_details">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.DesignersActivity"
+			android:label="@string/title_designers">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.ArtistsActivity"
+			android:label="@string/title_artists">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.PublishersActivity"
+			android:label="@string/title_publishers">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.MechanicsActivity"
+			android:label="@string/title_mechanics">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.MechanicActivity"
+			android:label="@string/title_mechanic">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.CategoriesActivity"
+			android:label="@string/title_categories">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.CategoryActivity"
+			android:label="@string/title_category">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
 
 		<activity-alias
 			android:name=".CreateShortcutActivity"

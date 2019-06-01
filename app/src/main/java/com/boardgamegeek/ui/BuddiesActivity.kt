@@ -67,5 +67,5 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun getDrawerResId() = R.string.title_buddies
+    override val navigationItemId = R.id.geek_buddies
 }

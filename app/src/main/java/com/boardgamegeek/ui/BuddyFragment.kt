@@ -18,7 +18,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_buddy.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx

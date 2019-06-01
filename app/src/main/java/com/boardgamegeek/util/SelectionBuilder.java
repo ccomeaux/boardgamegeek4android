@@ -169,6 +169,11 @@ public class SelectionBuilder {
 		return this;
 	}
 
+	public SelectionBuilder mapAsCount(String fromColumn) {
+		projectionMap.put(fromColumn, String.format("count(*) AS %s", fromColumn));
+		return this;
+	}
+
 	public SelectionBuilder groupBy(String... groupArgs) {
 		groupBy.clear();
 		if (groupArgs != null) {

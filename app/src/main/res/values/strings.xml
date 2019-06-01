@@ -130,6 +130,7 @@
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
+	<string name="title_collection_details">Collection Details</string>
 	<string name="title_filtered_collection">Filtered Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>
@@ -174,12 +175,20 @@
 	<string name="title_thread">Thread</string>
 	<string name="title_plays">Plays</string>
 	<string name="title_play_stats">Play Stats</string>
+	<string name="title_stats">Stats</string>
 	<string name="title_in_progress">In Progress</string>
 	<string name="title_recent">Recent</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
+	<string name="title_designers">Designers</string>
 	<string name="title_artist">Artist</string>
+	<string name="title_artists">Artists</string>
 	<string name="title_publisher">Publisher</string>
+	<string name="title_publishers">Publishers</string>
+	<string name="title_mechanic">Mechanic</string>
+	<string name="title_mechanics">Mechanics</string>
+	<string name="title_category">Category</string>
+	<string name="title_categories">Categories</string>
 	<string name="title_user">User</string>
 	<string name="title_users">Users</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
@@ -236,6 +245,11 @@
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
+	<string name="empty_designers">No designers.</string>
+	<string name="empty_artists">No artists.</string>
+	<string name="empty_publishers">No publishers.</string>
+	<string name="empty_mechanics">No mechanics.</string>
+	<string name="empty_categories">No categories.</string>
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
@@ -271,7 +285,8 @@
 	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website is up and you still see this message, please let us know about the error below. Otherwise, please check back later.\n\n%s</string>
 	<string name="empty_person">No %s by that ID.</string>
 	<string name="empty_person_description">This %s is indescribable.</string>
-	<string name="empty_person_collection">No games for this %s.</string>
+	<string name="empty_person_stats">No stats have been calculated yet.</string>
+	<string name="empty_linked_collection">No games for this %s.</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_dates">Dates</string>
@@ -359,10 +374,13 @@
 	<string name="menu_plays_filter_in_progress">Edits and Drafts</string>
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
+	<string name="menu_sort_item_count">Games</string>
+	<string name="menu_sort_whitmore_score">Whitmore score</string>
 	<string name="menu_sort_quantity">Play count</string>
 	<string name="menu_sort_wins">Wins</string>
 	<string name="menu_sort_comments">Comments</string>
 	<string name="menu_sort_rating">Rating</string>
+	<string name="menu_sort_my_rating">My rating</string>
 	<string name="menu_sort_username">Username</string>
 	<string name="menu_sort_first_name">First name</string>
 	<string name="menu_sort_last_name">Last name</string>
@@ -611,8 +629,8 @@
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
 	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games.</string>
-	<string name="play_stat_title_collection_status">Modify sync statuses?</string>
-	<string name="play_stat_msg_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
+	<string name="title_modify_collection_status">Modify sync statuses?</string>
+	<string name="msg_modify_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
 	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
@@ -669,6 +687,12 @@
 	<string name="error_account_set_auth_token_security_exception">Uh-oh! This isn\'t an error we expect to see. If you have ScorePal installed, there\'s a known problem that one prevents the other from signing in. We\'re working to resolve the issue.</string>
 	<string name="error_field_required">This field is required</string>
 	<string name="information">Information</string>
+	<string name="whitmore_score">Whitmore Score</string>
+	<string name="whitmore_score_with_expansions">&#8230;with Expansions</string>
+	<string name="person_stat_collection_status">These stats work much better if you sync your rated and played games.</string>
+	<string name="play_count">Play Count</string>
+	<string name="h_index">H-Index</string>
+	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/geeklist/37832/my-favorite-designers</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -738,6 +762,10 @@
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
+	<plurals name="games_suffix">
+		<item quantity="one"><b>%,d</b> game</item>
+		<item quantity="other"><b>%,d</b> games</item>
+	</plurals>
 	<plurals name="collection_items_suffix">
 		<item quantity="one"><b>%,d</b> collection item</item>
 		<item quantity="other"><b>%,d</b> collection items</item>
@@ -794,4 +822,9 @@
 		<item quantity="one">%1$s vote for \"%2$s\"</item>
 		<item quantity="other">%1$s votes for \"%2$s\"</item>
 	</plurals>
+	<plurals name="peron_game_h_index_info">
+		<item quantity="one">You\'ve played at least %1$s game %1$s time or more. This calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+		<item quantity="other">You\'ve played at least %1$s games %1$s times or more. This calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+
 </resources>

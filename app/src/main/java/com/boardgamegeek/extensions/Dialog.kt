@@ -5,6 +5,11 @@ package com.boardgamegeek.extensions
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
+import android.widget.TextView
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -75,4 +80,23 @@ fun createDiscardDialog(
 
 fun Context.createThemedBuilder(): AlertDialog.Builder {
     return AlertDialog.Builder(this, R.style.Theme_bgglight_Dialog_Alert)
+}
+
+fun Context.showClickableAlertDialog(@StringRes titleResId: Int, @StringRes messageResId: Int, vararg formatArgs: Any) {
+    val spannableMessage = SpannableString(getString(messageResId, *formatArgs))
+    showClickableAlertDialog(spannableMessage, titleResId)
+}
+
+fun Context.showClickableAlertDialog(@StringRes titleResId: Int, @PluralsRes messageResId: Int, quantity: Int, vararg formatArgs: Any) {
+    val spannableMessage = SpannableString(resources.getQuantityString(messageResId, quantity, *formatArgs))
+    showClickableAlertDialog(spannableMessage, titleResId)
+}
+
+private fun Context.showClickableAlertDialog(spannableMessage: SpannableString, titleResId: Int) {
+    Linkify.addLinks(spannableMessage, Linkify.WEB_URLS)
+    val dialog = AlertDialog.Builder(this)
+            .setTitle(titleResId)
+            .setMessage(spannableMessage)
+            .show()
+    dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
 }

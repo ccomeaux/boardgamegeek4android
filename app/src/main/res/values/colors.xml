@@ -15,15 +15,11 @@
 	<color name="primary_text">#de000000</color>
 	<color name="secondary_text">#8a000000</color>
 	<color name="inverse_text">#ffffff</color>
-	<color name="inverse_text_body">#deffffff</color>
+	<color name="inverse_secondary_text">#b3ffffff</color>
 
 	<color name="black_overlay">#CC000000</color>
-	<color name="white_overlay">#CCFFFFFF</color>
 	<color name="black_overlay_light">#6000</color>
 	<color name="no_image">#808080</color>
-	<color name="navdrawer_icon_tint">#75ffffff</color>
-	<color name="navdrawer_selected_row">#eeeeee</color>
-	<color name="disabled">#eee</color>
 	<color name="empty_tint">#aaaaaa</color>
 
 	<color name="best">#00a550</color>

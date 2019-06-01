@@ -41,8 +41,6 @@ class PlayersActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun getDrawerResId() = R.string.title_players
-
     override fun onCreatePane(intent: Intent): Fragment {
         return PlayersFragment()
     }

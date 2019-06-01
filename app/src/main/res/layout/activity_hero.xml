@@ -97,15 +97,11 @@
 			tools:visibility="visible"/>
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-	<ScrollView
-		android:id="@+id/drawer_container"
-		style="@style/DrawerListContainer"
-		android:layout_marginTop="@dimen/drawer_status_bar_buffer_negative"
-		android:fitsSystemWindows="true">
-
-		<LinearLayout
-			android:id="@+id/left_drawer"
-			style="@style/DrawerList"/>
-	</ScrollView>
-
+	<com.google.android.material.navigation.NavigationView
+		android:id="@+id/navigation"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="start|left"
+		app:headerLayout="@layout/header_drawer"
+		app:menu="@menu/navigation_drawer"/>
 </androidx.drawerlayout.widget.DrawerLayout>

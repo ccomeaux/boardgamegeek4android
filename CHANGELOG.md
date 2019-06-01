@@ -3,9 +3,10 @@ Release Notes
 
 Version 6.7
 -----------
- * UI changes
+ * See details of designers, artists, publishers, mechanics, and categories
  * View and edit inventory location
  * Improve search usability
+ * UI changes
  * Ability to specify negative scores more easily
  * Show collection status of expansion and base games
  * Lots of under the hood improvements

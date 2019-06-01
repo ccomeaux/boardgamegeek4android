@@ -170,13 +170,6 @@ object ImageUtils {
         safelyLoadThumbnail(queue)
     }
 
-    @JvmStatic
-    fun ImageView.loadThumbnail(path: String, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
-        val queue = LinkedList<String>()
-        queue.add(path)
-        safelyLoadThumbnail(queue, errorResId)
-    }
-
     private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
         var url: String? = null
         val savedUrl = getTag(R.id.url) as String?

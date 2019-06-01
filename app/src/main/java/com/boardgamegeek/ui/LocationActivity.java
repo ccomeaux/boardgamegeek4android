@@ -56,7 +56,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 	}
 
 	@Override
-	protected void readIntent(Intent intent) {
+	protected void readIntent(@NotNull Intent intent) {
 		locationName = intent.getStringExtra(KEY_LOCATION_NAME);
 	}
 
@@ -72,7 +72,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 	@NonNull
 	@DebugLog
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
+	protected Fragment onCreatePane(@NotNull Intent intent) {
 		return PlaysFragment.newInstanceForLocation(locationName);
 	}
 
@@ -114,11 +114,10 @@ public class LocationActivity extends SimpleSinglePaneActivity implements EditTe
 		getIntent().putExtra(KEY_LOCATION_NAME, locationName);
 		setSubtitle();
 		// recreate fragment to load the list with the new location
-		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
-		createFragment();
+		recreateFragment();
 
-		if (!TextUtils.isEmpty(event.getMessage()) && rootContainer != null) {
-			Snackbar.make(rootContainer, event.getMessage(), Snackbar.LENGTH_LONG).show();
+		if (!TextUtils.isEmpty(event.getMessage()) && getRootContainer() != null) {
+			Snackbar.make(getRootContainer(), event.getMessage(), Snackbar.LENGTH_LONG).show();
 		}
 	}
 

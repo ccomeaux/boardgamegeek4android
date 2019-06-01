@@ -2,16 +2,12 @@ package com.boardgamegeek.ui
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.method.LinkMovementMethod
-import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
-import android.widget.TextView
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -20,7 +16,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
@@ -45,11 +40,11 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
         collectionStatusSettingsButton.setOnClickListener {
             requireActivity().createThemedBuilder()
-                    .setTitle(R.string.play_stat_title_collection_status)
-                    .setMessage(R.string.play_stat_msg_collection_status)
+                    .setTitle(R.string.title_modify_collection_status)
+                    .setMessage(R.string.msg_modify_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
-                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_OWN)
-                        PreferencesUtils.addSyncStatus(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
+                        context.addSyncStatus(COLLECTION_STATUS_OWN)
+                        context.addSyncStatus(COLLECTION_STATUS_PLAYED)
                         SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         bindCollectionStatusMessage()
                     }
@@ -68,7 +63,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             } else {
                 bindUi(entity)
                 gameHIndexInfoView.setOnClickListener {
-                    showAlertDialog(R.string.play_stat_game_h_index,
+                    context?.showClickableAlertDialog(
+                            R.string.play_stat_game_h_index,
                             R.string.play_stat_game_h_index_info,
                             entity.hIndex.toString())
                 }
@@ -78,11 +74,11 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             if (entity == null) return@Observer
             bindPlayerUi(entity)
             playerHIndexInfoView.setOnClickListener {
-                showAlertDialog(R.string.play_stat_player_h_index,
+                context?.showClickableAlertDialog(
+                        R.string.play_stat_player_h_index,
                         R.string.play_stat_player_h_index_info,
                         entity.hIndex.toString())
             }
-
         })
 
         bindCollectionStatusMessage()
@@ -100,9 +96,9 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun bindCollectionStatusMessage() {
-        isOwnedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_OWN)
-        isPlayedSynced = PreferencesUtils.isStatusSetToSync(context, BggService.COLLECTION_QUERY_STATUS_PLAYED)
-        collectionStatusContainer.visibility = if (isOwnedSynced && isPlayedSynced) View.GONE else View.VISIBLE
+        isOwnedSynced = context.isStatusSetToSync(COLLECTION_STATUS_OWN)
+        isPlayedSynced = context.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
+        collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 
     private fun bindAccuracyMessage() {
@@ -204,8 +200,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         } else {
             val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
-            val nextHighestHIndex = entries.findLast { it.second > hIndex }?.second ?: hIndex+1
-            val nextLowestHIndex = entries.find { it.second < hIndex }?.second ?: hIndex-1
+            val nextHighestHIndex = entries.findLast { it.second > hIndex }?.second ?: hIndex + 1
+            val nextLowestHIndex = entries.find { it.second < hIndex }?.second ?: hIndex - 1
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
             prefix.forEach {
@@ -260,16 +256,6 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             this.setBackgroundResource(R.color.dark_blue)
             container.addView(this)
         }
-    }
-
-    private fun showAlertDialog(@StringRes titleResId: Int, @StringRes messageResId: Int, vararg formatArgs: Any) {
-        val spannableMessage = SpannableString(getString(messageResId, *formatArgs))
-        Linkify.addLinks(spannableMessage, Linkify.WEB_URLS)
-        val dialog = AlertDialog.Builder(requireContext())
-                .setTitle(titleResId)
-                .setMessage(spannableMessage)
-                .show()
-        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {

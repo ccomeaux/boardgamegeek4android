@@ -56,6 +56,8 @@ class SettingsActivity : DrawerActivity() {
         }
     }
 
+    override val navigationItemId = R.id.settings
+
     internal fun replaceFragment(key: String) {
         val args = Bundle()
         args.putString(KEY_SETTINGS_FRAGMENT, key)

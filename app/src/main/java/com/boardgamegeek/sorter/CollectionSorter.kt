@@ -36,4 +36,8 @@ abstract class CollectionSorter(context: Context) : Sorter(context) {
     open fun getDisplayInfo(cursor: Cursor) = getHeaderText(cursor)
 
     open fun getTimestamp(cursor: Cursor) = 0L
+
+    open fun getRating(cursor: Cursor) = 0.0
+
+    open fun getRatingText(cursor: Cursor) = ""
 }

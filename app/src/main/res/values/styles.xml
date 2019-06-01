@@ -29,8 +29,9 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 	</style>
 
-	<style name="ColoredButton" parent="Widget.MaterialComponents.Button">
-	</style>
+	<style name="ColoredButton" parent="Widget.MaterialComponents.Button"/>
+
+	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon"/>
 
 	<style name="ColoredButton.Small">
 		<item name="android:minHeight">32dp</item>
@@ -82,27 +83,6 @@
 		<item name="android:textColor">@color/inverse_text</item>
 	</style>
 
-	<style name="Text.Primary.DrawerHeader">
-		<item name="android:fontFamily">sans-serif-medium</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">#fff</item>
-	</style>
-
-	<style name="Text.Secondary.DrawerHeader">
-		<item name="android:fontFamily">sans-serif</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">#fff</item>
-	</style>
-
-	<style name="DrawerItem" parent="TextAppearance.AppCompat">
-		<item name="android:fontFamily">sans-serif-medium</item>
-		<item name="android:textSize">14sp</item>
-		<item name="android:textColor">#de000000</item>
-		<item name="android:gravity">left|center_vertical</item>
-		<item name="android:textIsSelectable">false</item>
-		<item name="android:layout_gravity">left|center_vertical</item>
-	</style>
-
 	<style name="Text.Secondary" parent="@style/TextAppearance.MaterialComponents.Body1">
 		<item name="android:textColor">@color/secondary_text</item>
 		<item name="android:textSize">14sp</item>
@@ -113,7 +93,7 @@
 	</style>
 
 	<style name="Text.Secondary.Inverse">
-		<item name="android:textColor">@color/inverse_text_body</item>
+		<item name="android:textColor">@color/inverse_secondary_text</item>
 	</style>
 
 	<style name="Text.FilterButton">
@@ -127,10 +107,6 @@
 
 	<style name="Text.Footnote2" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/secondary_text</item>
-	</style>
-
-	<style name="Text.Footnote2.Inverse">
-		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
 	<style name="Text.Footnote2.Hidden">
@@ -151,9 +127,7 @@
 
 	<style name="Text.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
 
-	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
-		<item name="android:textColor">@color/primary_text</item>
-	</style>
+	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
 	<style name="Text.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5"/>
 
@@ -200,14 +174,6 @@
 		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:scaleType">center</item>
-	</style>
-
-	<style name="DrawerItemContainer">
-		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:minHeight">@dimen/drawer_item_height</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
 	<style name="RowContainer">
@@ -395,23 +361,10 @@
 		<item name="android:ellipsize">none</item>
 		<item name="android:padding">4dp</item>
 	</style>
-	
+
 	<style name="Toolbar">
 		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
-	</style>
-
-	<style name="DrawerListContainer">
-		<item name="android:layout_width">@dimen/drawer_width</item>
-		<item name="android:layout_height">match_parent</item>
-		<item name="android:layout_gravity">start</item>
-		<item name="android:background">@android:color/white</item>
-	</style>
-
-	<style name="DrawerList">
-		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">match_parent</item>
-		<item name="android:orientation">vertical</item>
 	</style>
 
 	<style name="HeroContainer">
@@ -427,11 +380,16 @@
 		<item name="android:background">@color/no_image</item>
 	</style>
 
-	<style name="RatingLarge" parent="@style/Text.Subtitle">
+	<style name="RatingLarge">
+		<item name="android:textAppearance">@style/Text.Subtitle</item>
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
 		<item name="android:paddingTop">@dimen/padding_half</item>
+	</style>
+
+	<style name="RatingLarge.Huge">
+		<item name="android:textAppearance">@style/Text.Huge</item>
 	</style>
 
 	<style name="RatingSmall" parent="@style/Text">
@@ -681,5 +639,12 @@
 
 	<style name="EditSpinnerDropDownItemStyle" parent="Base.Widget.AppCompat.DropDownItem.Spinner">
 		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="InfoText">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:drawableEnd">@drawable/ic_action_info_light</item>
+		<item name="android:drawablePadding">@dimen/padding_standard</item>
+		<item name="android:drawableRight">@drawable/ic_action_info_light</item>
 	</style>
 </resources>

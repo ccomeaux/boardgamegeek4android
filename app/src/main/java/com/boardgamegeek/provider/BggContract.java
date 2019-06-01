@@ -85,6 +85,8 @@ public class BggContract {
 		String DESIGNER_THUMBNAIL_URL = "designer_thumbnail_url";
 		String DESIGNER_HERO_IMAGE_URL = "designer_hero_image_url";
 		String DESIGNER_IMAGES_UPDATED_TIMESTAMP = "designer_images_updated_timestamp";
+		String WHITMORE_SCORE = "whitmore_score";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface ArtistsColumns {
@@ -95,6 +97,8 @@ public class BggContract {
 		String ARTIST_THUMBNAIL_URL = "artist_thumbnail_url";
 		String ARTIST_HERO_IMAGE_URL = "artist_hero_image_url";
 		String ARTIST_IMAGES_UPDATED_TIMESTAMP = "artist_images_updated_timestamp";
+		String WHITMORE_SCORE = "whitmore_score";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface PublishersColumns {
@@ -105,16 +109,20 @@ public class BggContract {
 		String PUBLISHER_THUMBNAIL_URL = "publisher_thumbnail_url";
 		String PUBLISHER_HERO_IMAGE_URL = "publisher_hero_image_url";
 		String PUBLISHER_SORT_NAME = "publisher_sort_name";
+		String WHITMORE_SCORE = "whitmore_score";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface MechanicsColumns {
 		String MECHANIC_ID = "mechanic_id";
 		String MECHANIC_NAME = "mechanic_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface CategoriesColumns {
 		String CATEGORY_ID = "category_id";
 		String CATEGORY_NAME = "category_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface GamesExpansionsColumns {
@@ -614,14 +622,6 @@ public class BggContract {
 		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
-	public static boolean isUri(Uri uri, String path) {
-		if (uri == null || TextUtils.isEmpty(path)) {
-			return false;
-		}
-		List<String> pathSegments = uri.getPathSegments();
-		return pathSegments != null && pathSegments.size() > 0 && path.equals(pathSegments.get(0));
-	}
-
 	public static class Artists implements ArtistsColumns, BaseColumns, SyncColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ARTISTS).build();
 
@@ -673,11 +673,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildMechanicUri(int mechanicId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId)).build();
+			return createMechanicUri(mechanicId).build();
+		}
+
+		private static Builder createMechanicUri(int mechanicId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId));
 		}
 
 		public static int getMechanicId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static Uri buildCollectionUri(int mechanicId) {
+			return createMechanicUri(mechanicId).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -690,11 +698,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildCategoryUri(int categoryId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId)).build();
+			return createCategoryUri(categoryId).build();
 		}
 
 		public static int getCategoryId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static Uri buildCollectionUri(int categoryId) {
+			return createCategoryUri(categoryId).appendPath(PATH_COLLECTION).build();
+		}
+
+		private static Builder createCategoryUri(int categoryId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId));
 		}
 	}
 

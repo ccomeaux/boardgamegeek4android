@@ -6,14 +6,10 @@ import android.database.Cursor
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.CollectionItemGameEntity
-import com.boardgamegeek.entities.WISHLIST_PRIORITY_UNKNOWN
-import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.FileUtils
@@ -110,7 +106,7 @@ class CollectionDao(private val context: BggApplication) {
     }
 
     fun load(gameId: Int, includeDeletedItems: Boolean = false): LiveData<List<CollectionItemEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Collection.CONTENT_URI
         val projection = arrayOf(
                 Collection._ID,
@@ -170,7 +166,7 @@ class CollectionDao(private val context: BggApplication) {
                         val item = CollectionItemEntity(
                                 internalId = it.getLong(Collection._ID),
                                 gameId = it.getInt(Collection.GAME_ID),
-                                collectionId = it.getIntOrNull(Collection.COLLECTION_ID) ?: BggContract.INVALID_ID,
+                                collectionId = it.getIntOrNull(Collection.COLLECTION_ID) ?: INVALID_ID,
                                 collectionName = it.getStringOrEmpty(Collection.COLLECTION_NAME),
                                 sortName = it.getStringOrEmpty(Collection.COLLECTION_SORT_NAME),
                                 gameName = it.getStringOrEmpty(Collection.GAME_NAME),
@@ -221,8 +217,59 @@ class CollectionDao(private val context: BggApplication) {
         }
     }
 
+    enum class SortType {
+        NAME, RATING
+    }
+
+    fun loadLinkedCollection(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> {
+        val list = arrayListOf<BriefGameEntity>()
+        val sortByName = Collection.GAME_SORT_NAME.collateNoCase().ascending()
+        val sortOrder = when (sortBy) {
+            SortType.NAME -> sortByName
+            SortType.RATING -> Collection.RATING.descending()
+                    .plus(", ${Collection.STARRED}").descending()
+                    .plus(", $sortByName")
+        }
+        context.contentResolver.load(
+                uri,
+                arrayOf(
+                        "games." + Collection.GAME_ID,
+                        Collection.GAME_NAME,
+                        Collection.COLLECTION_NAME,
+                        Collection.COLLECTION_YEAR_PUBLISHED,
+                        Collection.COLLECTION_THUMBNAIL_URL,
+                        Collection.THUMBNAIL_URL,
+                        Collection.HERO_IMAGE_URL,
+                        Collection.RATING,
+                        Collection.STARRED,
+                        Collection.SUBTYPE,
+                        Collection.NUM_PLAYS
+                ),
+                sortOrder = sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list += BriefGameEntity(
+                            it.getInt(Collection.GAME_ID),
+                            it.getStringOrEmpty(Collection.GAME_NAME),
+                            it.getStringOrEmpty(Collection.COLLECTION_NAME),
+                            it.getIntOrNull(Collection.COLLECTION_YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
+                            it.getStringOrEmpty(Collection.COLLECTION_THUMBNAIL_URL),
+                            it.getStringOrEmpty(Collection.THUMBNAIL_URL),
+                            it.getStringOrEmpty(Collection.HERO_IMAGE_URL),
+                            it.getDoubleOrZero(Collection.RATING),
+                            it.getBoolean(Collection.STARRED),
+                            it.getStringOrEmpty(Collection.SUBTYPE),
+                            it.getIntOrZero(Collection.NUM_PLAYS)
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return list
+    }
+
     fun update(internalId: Long, values: ContentValues): Int {
-        return resolver.update(BggContract.Collection.buildUri(internalId), values, null, null)
+        return resolver.update(Collection.buildUri(internalId), values, null, null)
     }
 
     /**
@@ -318,7 +365,7 @@ class CollectionDao(private val context: BggApplication) {
         }
         values.put(Collection.UPDATED_LIST, timestamp)
         values.put(Collection.GAME_ID, item.gameId)
-        if (item.collectionId != BggContract.INVALID_ID) {
+        if (item.collectionId != INVALID_ID) {
             values.put(Collection.COLLECTION_ID, item.collectionId)
         }
         values.put(Collection.COLLECTION_NAME, item.collectionName)
@@ -362,7 +409,7 @@ class CollectionDao(private val context: BggApplication) {
 
     @DebugLog
     private fun upsertItem(candidate: SyncCandidate, values: ContentValues, isBrief: Boolean) {
-        if (candidate.internalId != BggContract.INVALID_ID.toLong()) {
+        if (candidate.internalId != INVALID_ID.toLong()) {
             removeDirtyValues(values, candidate)
             val uri = Collection.buildUri(candidate.internalId)
             if (!isBrief) maybeDeleteThumbnail(values, uri)
@@ -420,7 +467,7 @@ class CollectionDao(private val context: BggApplication) {
     }
 
     internal class SyncCandidate(
-            val internalId: Long = BggContract.INVALID_ID.toLong(),
+            val internalId: Long = INVALID_ID.toLong(),
             val dirtyTimestamp: Long = 0,
             val statusDirtyTimestamp: Long = 0,
             val ratingDirtyTimestamp: Long = 0,
@@ -435,7 +482,7 @@ class CollectionDao(private val context: BggApplication) {
             val PROJECTION = arrayOf(Collection._ID, Collection.COLLECTION_DIRTY_TIMESTAMP, Collection.STATUS_DIRTY_TIMESTAMP, Collection.RATING_DIRTY_TIMESTAMP, Collection.COMMENT_DIRTY_TIMESTAMP, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, Collection.WANT_PARTS_DIRTY_TIMESTAMP, Collection.HAS_PARTS_DIRTY_TIMESTAMP)
 
             fun find(resolver: ContentResolver, collectionId: Int, gameId: Int): SyncCandidate {
-                if (collectionId != BggContract.INVALID_ID) {
+                if (collectionId != INVALID_ID) {
                     resolver.query(Collection.CONTENT_URI,
                             PROJECTION,
                             Collection.COLLECTION_ID + "=?",
