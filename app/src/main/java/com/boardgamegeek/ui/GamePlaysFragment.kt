@@ -103,7 +103,7 @@ class GamePlaysFragment : Fragment() {
             if (plays.isNotEmpty()) {
                 val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
                 if (inProgressPlays.isNotEmpty()) {
-                    inProgressPlaysList?.removeAllViews()
+                    inProgressPlaysList.removeAllViews()
                     inProgressPlays.forEach { play ->
                         val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
                         val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateForDisplay(requireContext())
@@ -114,48 +114,52 @@ class GamePlaysFragment : Fragment() {
                         }
                         inProgressPlaysList?.addView(row)
                     }
-                    inProgressPlaysContainer?.fadeIn()
+                    inProgressPlaysContainer.fadeIn()
                 } else {
-                    inProgressPlaysContainer?.fadeOut()
+                    inProgressPlaysContainer.fadeOut()
                 }
+            } else {
+                inProgressPlaysContainer.fadeOut()
             }
 
             val playCount = plays.sumBy { it.quantity }
             val description = playCount.asPlayCount(requireContext())
-            playCountIcon?.text = description.first.toString()
-            playCountView?.text = context?.getQuantityText(R.plurals.play_title_suffix, playCount, playCount) ?: ""
-            playCountDescriptionView?.setTextOrHide(description.second)
-            playCountBackground?.setColorViewValue(description.third)
-            playCountContainer?.setOnClickListener {
+            playCountIcon.text = description.first.toString()
+            playCountView.text = requireContext().getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
+            playCountDescriptionView.setTextOrHide(description.second)
+            playCountBackground.setColorViewValue(description.third)
+            playCountContainer.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
                     GamePlaysActivity.start(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
-            playCountContainer?.fadeIn()
+            playCountContainer.fadeIn()
 
             if (plays.isNotEmpty()) {
                 val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
                 if (lastPlay != null) {
-                    lastPlayDateView?.text = context?.getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext())) ?: ""
-                    lastPlayInfoView?.setTextOrHide(lastPlay.describe(requireContext()))
-                    lastPlayContainer?.setOnClickListener {
+                    lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
+                    lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
+                    lastPlayContainer.setOnClickListener {
                         PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
                     }
-                    lastPlayContainer?.fadeIn()
+                    lastPlayContainer.fadeIn()
                 } else {
-                    lastPlayContainer?.fadeOut()
+                    lastPlayContainer.fadeOut()
                 }
 
-                playStatsContainer?.setOnClickListener {
+                playStatsContainer.setOnClickListener {
                     if (gameId != BggContract.INVALID_ID)
                         GamePlayStatsActivity.start(context, gameId, gameName, iconColor)
                 }
-                playStatsContainer?.fadeIn()
+                playStatsContainer.fadeIn()
+            } else {
+                playStatsContainer.fadeOut()
+                lastPlayContainer.fadeOut()
             }
-
         } else {
-            playCountContainer?.fadeOut()
-            lastPlayContainer?.fadeOut()
-            playStatsContainer?.fadeOut()
+            playCountContainer.fadeOut()
+            lastPlayContainer.fadeOut()
+            playStatsContainer.fadeOut()
         }
     }
 
