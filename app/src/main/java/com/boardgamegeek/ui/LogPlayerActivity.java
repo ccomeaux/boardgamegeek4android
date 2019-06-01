@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import android.annotation.SuppressLint;
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -12,11 +11,10 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -39,6 +37,7 @@ import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.AddFieldEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -95,9 +94,9 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	@BindView(R.id.log_player_team_color) AutoCompleteTextView teamColorView;
 	@BindView(R.id.color_view) ImageView colorView;
 	@BindView(R.id.log_player_position) EditText positionView;
-	@BindView(R.id.log_player_position_button) Button positionButton;
+	@BindView(R.id.log_player_position_button) ImageButton positionButton;
 	@BindView(R.id.log_player_score) EditText scoreView;
-	@BindView(R.id.log_player_score_button) Button scoreButton;
+	@BindView(R.id.log_player_score_button) ImageButton scoreButton;
 	@BindView(R.id.log_player_rating) EditText ratingView;
 	@BindView(R.id.log_player_new) SwitchCompat newView;
 	@BindView(R.id.log_player_win) SwitchCompat winView;
@@ -122,17 +121,14 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	private ArrayList<String> usedColors;
 	private ArrayList<String> colors;
 
-	private final View.OnClickListener actionBarListener = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			switch (v.getId()) {
-				case R.id.menu_done:
-					save();
-					break;
-				case R.id.menu_cancel:
-					cancel();
-					break;
-			}
+	private final View.OnClickListener actionBarListener = v -> {
+		switch (v.getId()) {
+			case R.id.menu_done:
+				save();
+				break;
+			case R.id.menu_cancel:
+				cancel();
+				break;
 		}
 	};
 
@@ -153,26 +149,23 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 				return;
 			}
 
-			switch (token) {
-				case TOKEN_COLORS:
-					if (cursor.getCount() == 0) {
-						cursor.close();
-						return;
-					}
-					try {
-						if (cursor.moveToFirst()) {
-							colors = new ArrayList<>();
-							do {
-								colors.add(cursor.getString(0));
-							} while (cursor.moveToNext());
-						}
-					} finally {
-						cursor.close();
-					}
-					break;
-				default:
+			if (token == TOKEN_COLORS) {
+				if (cursor.getCount() == 0) {
 					cursor.close();
-					break;
+					return;
+				}
+				try {
+					if (cursor.moveToFirst()) {
+						colors = new ArrayList<>();
+						do {
+							colors.add(cursor.getString(0));
+						} while (cursor.moveToNext());
+					}
+				} finally {
+					cursor.close();
+				}
+			} else {
+				cursor.close();
 			}
 		}
 	}
@@ -225,11 +218,11 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		}
 
 		this.usedColors = (usedColors == null) ?
-			new ArrayList<String>() :
+			new ArrayList<>() :
 			new ArrayList<>(Arrays.asList(usedColors));
 		this.usedColors.remove(player.color);
 
-		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl, thumbnailUrl, heroImageUrl);
+		ImageUtils.safelyLoadImage(findViewById(R.id.thumbnail), imageUrl, thumbnailUrl, heroImageUrl);
 		bindUi();
 
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),
@@ -271,22 +264,12 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 
 	@DebugLog
 	private OnItemClickListener nameClickListener() {
-		return new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				usernameView.setText((String) view.getTag());
-			}
-		};
+		return (parent, view, position, id) -> usernameView.setText((String) view.getTag());
 	}
 
 	@DebugLog
 	private OnItemClickListener userNameClickListener() {
-		return new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				nameView.setText((String) view.getTag());
-			}
-		};
+		return (parent, view, position, id) -> nameView.setText((String) view.getTag());
 	}
 
 	@DebugLog
@@ -310,7 +293,7 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 
 	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
-	public void onNumberToTextClick(Button button) {
+	public void onNumberToTextClick(ImageButton button) {
 		EditText editText = null;
 		if (button == positionButton) {
 			editText = positionView;
@@ -320,17 +303,26 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		if (editText == null) {
 			return;
 		}
+
 		int type = editText.getInputType();
 		if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
-			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
-				| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-			button.setText(R.string.text_to_number);
+			editText.setInputType(
+				InputType.TYPE_CLASS_TEXT |
+					InputType.TYPE_TEXT_FLAG_CAP_WORDS |
+					InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+			button.setImageResource(R.drawable.ic_dialpad);
 		} else {
-			editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
-				| InputType.TYPE_NUMBER_FLAG_SIGNED);
-			button.setText(R.string.number_to_text);
+			editText.setInputType(
+				InputType.TYPE_CLASS_NUMBER |
+					InputType.TYPE_NUMBER_FLAG_DECIMAL);
+			if (editText == scoreView) {
+				editText.setInputType(editText.getInputType() | InputType.TYPE_NUMBER_FLAG_SIGNED);
+			} else {
+				editText.setInputType(editText.getInputType() & ~InputType.TYPE_NUMBER_FLAG_SIGNED);
+			}
+			button.setImageResource(R.drawable.ic_keyboard);
 		}
-		editText.requestFocus();
+		UIUtils.focusWithKeyboard(editText);
 	}
 
 	@DebugLog
@@ -435,55 +427,47 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			return;
 		}
 		new AlertDialog.Builder(this).setTitle(R.string.add_field)
-			.setItems(array, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					Resources r = getResources();
-					View viewToFocus = null;
-					View viewToScroll = null;
+			.setItems(array, (dialog, which) -> {
+				Resources r = getResources();
+				View viewToFocus = null;
+				View viewToScroll = null;
 
-					String selection = array[which].toString();
-					if (selection.equals(r.getString(R.string.team_color))) {
-						userHasShownTeamColor = true;
-						viewToFocus = teamColorView;
-						viewToScroll = findViewById(R.id.log_player_team_color_container);
-					} else if (selection.equals(r.getString(R.string.starting_position))) {
-						userHasShownPosition = true;
-						viewToFocus = positionView;
-						viewToScroll = findViewById(R.id.log_player_position_container);
-					} else if (selection.equals(r.getString(R.string.score))) {
-						userHasShownScore = true;
-						viewToFocus = scoreView;
-						viewToScroll = findViewById(R.id.log_player_score_container);
-					} else if (selection.equals(r.getString(R.string.rating))) {
-						userHasShownRating = true;
-						viewToFocus = ratingView;
-						viewToScroll = findViewById(R.id.log_player_rating);
-					} else if (selection.equals(r.getString(R.string.new_label))) {
-						userHasShownNew = true;
-						newView.setChecked(true);
-						viewToScroll = newView;
-						viewToFocus = newView;
-					} else if (selection.equals(r.getString(R.string.win))) {
-						userHasShownWin = true;
-						winView.setChecked(true);
-						viewToScroll = winView;
-						viewToFocus = winView;
-					}
-					AddFieldEvent.log("Player", selection);
-					setViewVisibility();
-					if (viewToFocus != null) {
-						viewToFocus.requestFocus();
-					}
-					if (viewToScroll != null) {
-						final View finalView = viewToScroll;
-						scrollContainer.post(new Runnable() {
-							@Override
-							public void run() {
-								scrollContainer.smoothScrollTo(0, finalView.getBottom());
-							}
-						});
-					}
+				String selection = array[which].toString();
+				if (selection.equals(r.getString(R.string.team_color))) {
+					userHasShownTeamColor = true;
+					viewToFocus = teamColorView;
+					viewToScroll = findViewById(R.id.log_player_team_color_container);
+				} else if (selection.equals(r.getString(R.string.starting_position))) {
+					userHasShownPosition = true;
+					viewToFocus = positionView;
+					viewToScroll = findViewById(R.id.log_player_position_container);
+				} else if (selection.equals(r.getString(R.string.score))) {
+					userHasShownScore = true;
+					viewToFocus = scoreView;
+					viewToScroll = findViewById(R.id.log_player_score_container);
+				} else if (selection.equals(r.getString(R.string.rating))) {
+					userHasShownRating = true;
+					viewToFocus = ratingView;
+					viewToScroll = findViewById(R.id.log_player_rating);
+				} else if (selection.equals(r.getString(R.string.new_label))) {
+					userHasShownNew = true;
+					newView.setChecked(true);
+					viewToScroll = newView;
+					viewToFocus = newView;
+				} else if (selection.equals(r.getString(R.string.win))) {
+					userHasShownWin = true;
+					winView.setChecked(true);
+					viewToScroll = winView;
+					viewToFocus = winView;
+				}
+				AddFieldEvent.log("Player", selection);
+				setViewVisibility();
+				if (viewToFocus != null) {
+					viewToFocus.requestFocus();
+				}
+				if (viewToScroll != null) {
+					final View finalView = viewToScroll;
+					scrollContainer.post(() -> scrollContainer.smoothScrollTo(0, finalView.getBottom()));
 				}
 			}).show();
 	}

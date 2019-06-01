@@ -532,8 +532,6 @@
 	<string name="one_more">1 more</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…and %,d more</string>
-	<string name="number_to_text">ABC</string>
-	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>

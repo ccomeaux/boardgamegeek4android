@@ -14,6 +14,8 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import javax.annotation.Nonnull;
+
 /**
  * Various static methods for use on views and fragments.
  */
@@ -67,8 +69,12 @@ public class UIUtils {
 		timer.start();
 	}
 
-	public static void finishingEditing(EditText editText) {
+	public static void finishingEditing(@Nonnull EditText editText) {
 		editText.setSelection(0, editText.getText().length());
+		focusWithKeyboard(editText);
+	}
+
+	public static void focusWithKeyboard(@Nonnull EditText editText) {
 		editText.requestFocus();
 		InputMethodManager inputMethodManager = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		if (inputMethodManager != null)
