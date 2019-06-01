@@ -6,6 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.extensions.COLLECTION_STATUS_PLAYED
+import com.boardgamegeek.extensions.hoursAgo
 import com.boardgamegeek.extensions.isStatusSetToSync
 import com.boardgamegeek.extensions.queryInts
 import com.boardgamegeek.io.BggService
@@ -58,7 +59,7 @@ class SyncGamesRemove(application: BggApplication, service: BggService, syncResu
      * 3. and have 0 plays (if plays are being synced
      */
     private fun fetchGameIds(): List<Int> {
-        val hoursAgo = DateTimeUtils.hoursAgo(lastViewedAgeInHours)
+        val hoursAgo = lastViewedAgeInHours.hoursAgo()
 
         val date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("Fetching games that aren't in the collection and have not been viewed since $date")

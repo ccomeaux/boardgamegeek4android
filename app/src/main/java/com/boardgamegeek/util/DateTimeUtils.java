@@ -81,14 +81,6 @@ public class DateTimeUtils {
 	}
 
 	/**
-	 * Returns the long representation of the time "hours" ago.
-	 */
-	public static long hoursAgo(int hours) {
-		long timeInMillis = hours * DateUtils.HOUR_IN_MILLIS;
-		return System.currentTimeMillis() - timeInMillis;
-	}
-
-	/**
 	 * Formats a date for use in the API (<code>yyyy-mm-dd</code>)
 	 */
 	public static String formatDateForApi(int year, int month, int day) {

@@ -2,6 +2,7 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.graphics.Color
+import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
@@ -124,6 +125,14 @@ fun Int.asMinutes(context: Context): String {
         context.resources.getQuantityString(R.plurals.mins_suffix, this, this)
     }
 }
+
+/**
+ * Returns the long representation of the time <code>this</<code> hours ago.
+ */
+fun Int.hoursAgo(): Long {
+    return System.currentTimeMillis() - (this * DateUtils.HOUR_IN_MILLIS)
+}
+
 
 /**
  * Format a list of integers as a range.
