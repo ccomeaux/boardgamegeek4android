@@ -20,6 +20,8 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
+import com.boardgamegeek.events.SyncCompleteEvent
+import com.boardgamegeek.events.SyncEvent
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
@@ -101,6 +103,16 @@ abstract class DrawerActivity : BaseActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: SignOutEvent) {
         viewModel.setUsername("")
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onEvent(event: SyncEvent) {
+        invalidateOptionsMenu()
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onEvent(event: SyncCompleteEvent) {
+        invalidateOptionsMenu()
     }
 
     override fun onBackPressed() {
