@@ -51,5 +51,4 @@ abstract class AbstractEditTextDialogFragment : DialogFragment() {
         get() = null
 
     protected abstract fun onPositiveButton()
-
 }

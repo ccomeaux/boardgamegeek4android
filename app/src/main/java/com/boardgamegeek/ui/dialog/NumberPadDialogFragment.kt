@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
@@ -18,25 +17,14 @@ import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_number_pad.*
 import org.jetbrains.anko.childrenRecursiveSequence
 
-class NumberPadDialogFragment : DialogFragment() {
-    private var listener: Listener? = null
+abstract class NumberPadDialogFragment : DialogFragment() {
     private var minValue = DEFAULT_MIN_VALUE
     private var maxValue = DEFAULT_MAX_VALUE
     private var maxMantissa = DEFAULT_MAX_MANTISSA
 
-    interface Listener {
-        fun onNumberPadDone(output: Double, requestCode: Int)
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        listener = context as? Listener
-        if (listener == null) throw ClassCastException("$context must implement Listener")
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(DialogFragment.STYLE_NO_TITLE, 0)
+        setStyle(STYLE_NO_TITLE, 0)
     }
 
     override fun onResume() {
@@ -99,7 +87,7 @@ class NumberPadDialogFragment : DialogFragment() {
 
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: DEFAULT_REQUEST_CODE
         doneView.setOnClickListener {
-            listener?.onNumberPadDone(parseDouble(outputView.text.toString()), requestCode)
+            done(parseDouble(outputView.text.toString()), requestCode)
             dismiss()
         }
 
@@ -120,6 +108,8 @@ class NumberPadDialogFragment : DialogFragment() {
             }
         }
     }
+
+    abstract fun done(output: Double, requestCode: Int)
 
     private fun maybeUpdateOutput(output: String, view: View) {
         if (isWithinLength(output) && isWithinRange(output)) {
@@ -189,53 +179,37 @@ class NumberPadDialogFragment : DialogFragment() {
         private const val KEY_MAX_VALUE = "MAX_VALUE"
         private const val KEY_MAX_MANTISSA = "MAX_MANTISSA"
         private const val KEY_REQUEST_CODE = "REQUEST_CODE"
-        private val DEFAULT_MIN_VALUE = -Double.MAX_VALUE
-        private val DEFAULT_MAX_VALUE = Double.MAX_VALUE
-        private const val DEFAULT_MAX_MANTISSA = 10
-        private const val DEFAULT_REQUEST_CODE = 0
+        val DEFAULT_MIN_VALUE = -Double.MAX_VALUE
+        val DEFAULT_MAX_VALUE = Double.MAX_VALUE
+        const val DEFAULT_MAX_MANTISSA = 10
+        const val DEFAULT_REQUEST_CODE = 0
 
-        @JvmStatic
-        @JvmOverloads
-        fun newInstance(
+        fun createBundle(
                 requestCode: Int,
                 @StringRes titleResId: Int,
                 initialValue: String,
-                colorDescription: String? = null,
-                subtitle: String? = null,
-                minValue: Double = DEFAULT_MIN_VALUE,
-                maxValue: Double = DEFAULT_MAX_VALUE,
-                maxMantissa: Int = DEFAULT_MAX_MANTISSA
-        ): NumberPadDialogFragment {
-            return NumberPadDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(KEY_TITLE, titleResId)
-                    if (!subtitle.isNullOrBlank()) {
-                        putString(KEY_SUBTITLE, subtitle)
-                    }
-                    if (initialValue.toDoubleOrNull() != null) {
-                        putString(KEY_INITIAL_VALUE, initialValue)
-                    }
-                    val color = colorDescription.asColorRgb()
-                    if (color != Color.TRANSPARENT) {
-                        putInt(KEY_COLOR, color)
-                    }
-                    putDouble(KEY_MIN_VALUE, minValue)
-                    putDouble(KEY_MAX_VALUE, maxValue)
-                    putInt(KEY_MAX_MANTISSA, maxMantissa)
-                    putInt(KEY_REQUEST_CODE, requestCode)
+                colorDescription: String?,
+                subtitle: String?,
+                minValue: Double,
+                maxValue: Double,
+                maxMantissa: Int): Bundle {
+            return Bundle().apply {
+                putInt(KEY_TITLE, titleResId)
+                if (!subtitle.isNullOrBlank()) {
+                    putString(KEY_SUBTITLE, subtitle)
                 }
+                if (initialValue.toDoubleOrNull() != null) {
+                    putString(KEY_INITIAL_VALUE, initialValue)
+                }
+                val color = colorDescription.asColorRgb()
+                if (color != Color.TRANSPARENT) {
+                    putInt(KEY_COLOR, color)
+                }
+                putDouble(KEY_MIN_VALUE, minValue)
+                putDouble(KEY_MAX_VALUE, maxValue)
+                putInt(KEY_MAX_MANTISSA, maxMantissa)
+                putInt(KEY_REQUEST_CODE, requestCode)
             }
-        }
-
-        @JvmStatic
-        @JvmOverloads
-        fun newInstanceForRating(requestCode: Int,
-                                 @StringRes titleResId: Int,
-                                 initialValue: String,
-                                 colorDescription: String? = null,
-                                 subtitle: String? = null
-        ): NumberPadDialogFragment {
-            return newInstance(requestCode, titleResId, initialValue, colorDescription, subtitle, 1.0, 10.0, 6)
         }
     }
 }

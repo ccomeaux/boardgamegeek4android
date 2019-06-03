@@ -60,6 +60,8 @@ import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
 import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
+import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment;
+import com.boardgamegeek.ui.dialog.ScoreNumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -124,7 +126,8 @@ import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity implements
 	ColorPickerWithListenerDialogFragment.Listener,
-	NumberPadDialogFragment.Listener {
+	ScoreNumberPadDialogFragment.Listener,
+	PlayRatingNumberPadDialogFragment.Listener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -1889,35 +1892,25 @@ public class LogPlayActivity extends AppCompatActivity implements
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});
-				row.setOnRatingListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						final Player player = play.getPlayers().get(position);
-						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstanceForRating(
-							position * 2 + 1,
-							R.string.rating,
-							player.getRatingDescription(),
-							player.color,
-							player.getDescription()
-						);
-						DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
-					}
+				row.setOnRatingListener(v -> {
+					final Player player = play.getPlayers().get(position);
+					final NumberPadDialogFragment fragment = PlayRatingNumberPadDialogFragment.newInstance(
+						position * 2 + 1,
+						player.getRatingDescription(),
+						player.color,
+						player.getDescription()
+					);
+					DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
 				});
-				row.setOnScoreListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							final Player player = play.getPlayers().get(position);
-							final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-								position * 2,
-								R.string.score,
-								player.score,
-								player.color,
-								player.getDescription());
-							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
-						}
-					}
-				);
+				row.setOnScoreListener(v -> {
+					final Player player = play.getPlayers().get(position);
+					final NumberPadDialogFragment fragment = ScoreNumberPadDialogFragment.newInstance(
+						position * 2,
+						player.score,
+						player.color,
+						player.getDescription());
+					DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
+				});
 			}
 		}
 	}

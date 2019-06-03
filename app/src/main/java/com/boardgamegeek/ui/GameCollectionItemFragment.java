@@ -579,7 +579,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		wantToPlayView.setChecked(item.isWantToPlay());
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
 
-		ratingView.setContent(item.getRating(), item.getRatingTimestamp());
+		ratingView.setContent(item.getRating(), item.getRatingTimestamp(), gameId, collectionId, item.getInternalId());
 
 		commentView.setContent(item.getComment(), item.getCommentTimestamp());
 	}

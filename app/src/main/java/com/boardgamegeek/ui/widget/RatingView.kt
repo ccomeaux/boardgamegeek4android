@@ -5,11 +5,12 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.ui.dialog.NumberPadDialogFragment
+import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.dialog.CollectionRatingNumberPadDialogFragment
 import kotlinx.android.synthetic.main.widget_rating.view.*
 import java.text.DecimalFormat
 
@@ -20,6 +21,9 @@ class RatingView @JvmOverloads constructor(
     : ForegroundLinearLayout(context, attrs) {
     private val hideWhenZero: Boolean
     private var isEditMode: Boolean = false
+    private var gameId = BggContract.INVALID_ID
+    private var collectionId = BggContract.INVALID_ID
+    private var internalId = BggContract.INVALID_ID.toLong()
 
     init {
         LayoutInflater.from(getContext()).inflate(R.layout.widget_rating, this, true)
@@ -27,7 +31,7 @@ class RatingView @JvmOverloads constructor(
         visibility = View.GONE
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = resources.getDimensionPixelSize(R.dimen.edit_row_height)
-        orientation = LinearLayout.VERTICAL
+        orientation = VERTICAL
         setSelectableBackgroundBorderless()
 
         val a = getContext().obtainStyledAttributes(attrs, R.styleable.RatingView, defStyleAttr, 0)
@@ -40,7 +44,7 @@ class RatingView @JvmOverloads constructor(
         setOnClickListener {
             var output = RATING_EDIT_FORMAT.format(ratingView.tag as Double)
             if ("0" == output) output = ""
-            val fragment = NumberPadDialogFragment.newInstanceForRating(0, R.string.rating, output)
+            val fragment = CollectionRatingNumberPadDialogFragment.newInstance(gameId, collectionId, internalId, output)
             (context as? FragmentActivity)?.showAndSurvive(fragment)
         }
     }
@@ -49,16 +53,19 @@ class RatingView @JvmOverloads constructor(
         get() {
             return ratingView.tag as Double? ?: return 0.0
         }
-        set(rating) {
-            val constrainedRating = rating.coerceIn(0.0, 10.0)
+        set(value) {
+            val constrainedRating = value.coerceIn(0.0, 10.0)
             ratingView.text = constrainedRating.asPersonalRating(context)
             ratingView.tag = constrainedRating
             ratingView.setTextViewBackground(constrainedRating.toColor(ratingColors))
         }
 
-    fun setContent(rating: Double, timestamp: Long) {
+    fun setContent(rating: Double, timestamp: Long, gameId: Int, collectionId: Int, internalId: Long) {
         this.rating = rating
         timestampView.timestamp = timestamp
+        this.gameId = gameId
+        this.collectionId = collectionId
+        this.internalId = internalId
         setEditMode()
     }
 
@@ -68,13 +75,8 @@ class RatingView @JvmOverloads constructor(
     }
 
     private fun setEditMode() {
-        if (isEditMode) {
-            isClickable = true
-            visibility = View.VISIBLE
-        } else {
-            isClickable = false
-            visibility = if (hideWhenZero && rating == 0.0) View.GONE else View.VISIBLE
-        }
+        isClickable = isEditMode
+        isVisible = isEditMode || !hideWhenZero || rating != 0.0
     }
 
     companion object {

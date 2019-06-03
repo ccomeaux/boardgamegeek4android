@@ -132,16 +132,13 @@ fun View.setSelectableBackgroundBorderless() {
     }
 }
 
-fun View.setSelectableBackground() {
-    setSelectableBackground(android.R.attr.selectableItemBackground)
-}
-
-private fun View.setSelectableBackground(backgroundResId: Int) {
+@JvmOverloads
+fun View.setSelectableBackground(backgroundResId: Int = android.R.attr.selectableItemBackground) {
     val outValue = TypedValue()
     context.theme.resolveAttribute(backgroundResId, outValue, true)
     setBackgroundResource(outValue.resourceId)
     isClickable = true
-    visibility = View.VISIBLE
+    visibility = VISIBLE
 }
 
 fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {
