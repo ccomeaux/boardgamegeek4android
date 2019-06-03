@@ -59,8 +59,11 @@ class PublishersSortByName : PublishersSort() {
     override val sortType = PublishersViewModel.SortType.NAME
     override val sortBy = PublisherDao.SortType.NAME
     override fun getSectionHeader(publisher: CompanyEntity?): String {
-        return if (publisher?.name == "(Uncredited)") "-"
-        else publisher?.name.firstChar()
+        return when {
+            publisher == null -> ""
+            publisher.name.startsWith("(") -> "-"
+            else -> publisher.name.firstChar()
+        }
     }
 }
 
