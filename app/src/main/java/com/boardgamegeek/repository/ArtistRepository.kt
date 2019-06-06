@@ -45,7 +45,10 @@ class ArtistRepository(val application: BggApplication) {
 
             override fun shouldCalculate(data: List<PersonEntity>?) = data != null
 
+            override fun sortList(data: List<PersonEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
+
             override fun calculate(data: PersonEntity) {
+                if (data.statsUpdatedTimestamp > data.updatedTimestamp) return
                 val collection = dao.loadCollection(data.id)
                 val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
                 updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
@@ -138,6 +141,7 @@ class ArtistRepository(val application: BggApplication) {
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Artists.WHITMORE_SCORE, newScore)
+                put(Artists.ARTIST_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
             })
         }
     }

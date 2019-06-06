@@ -45,7 +45,10 @@ class DesignerRepository(val application: BggApplication) {
 
             override fun shouldCalculate(data: List<PersonEntity>?) = data != null
 
+            override fun sortList(data: List<PersonEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
+
             override fun calculate(data: PersonEntity) {
+                if (data.statsUpdatedTimestamp > data.updatedTimestamp) return
                 val collection = dao.loadCollection(data.id)
                 val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
                 updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
@@ -128,7 +131,6 @@ class DesignerRepository(val application: BggApplication) {
             application.appExecutors.diskIO.execute {
                 updateWhitmoreScore(id, linkedCollection.whitmoreScore, -1)
             }
-
         }
         return mediatorLiveData
     }
@@ -139,8 +141,8 @@ class DesignerRepository(val application: BggApplication) {
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Designers.WHITMORE_SCORE, newScore)
+                put(Designers.DESIGNER_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
             })
         }
     }
-
 }

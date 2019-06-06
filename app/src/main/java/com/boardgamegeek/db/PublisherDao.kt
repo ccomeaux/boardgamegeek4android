@@ -45,7 +45,8 @@ class PublisherDao(private val context: BggApplication) {
                         Publishers.PUBLISHER_HERO_IMAGE_URL,
                         Publishers.UPDATED,
                         Publishers.ITEM_COUNT,
-                        Publishers.WHITMORE_SCORE
+                        Publishers.WHITMORE_SCORE,
+                        Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP
                 ),
                 sortOrder = sortOrder
         )?.use {
@@ -60,7 +61,8 @@ class PublisherDao(private val context: BggApplication) {
                             it.getStringOrEmpty(Publishers.PUBLISHER_HERO_IMAGE_URL),
                             it.getLongOrZero(Publishers.UPDATED),
                             it.getIntOrZero(Publishers.ITEM_COUNT),
-                            it.getIntOrZero(Publishers.WHITMORE_SCORE)
+                            it.getIntOrZero(Publishers.WHITMORE_SCORE),
+                            it.getLongOrZero(Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP)
                     )
                 } while (it.moveToNext())
             }

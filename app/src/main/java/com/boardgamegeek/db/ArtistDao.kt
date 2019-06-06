@@ -44,7 +44,8 @@ class ArtistDao(private val context: BggApplication) {
                         Artists.UPDATED,
                         Artists.ARTIST_THUMBNAIL_URL,
                         Artists.ITEM_COUNT,
-                        Artists.WHITMORE_SCORE
+                        Artists.WHITMORE_SCORE,
+                        Artists.ARTIST_STATS_UPDATED_TIMESTAMP
                 ),
                 sortOrder = sortOrder
         )?.use {
@@ -57,7 +58,8 @@ class ArtistDao(private val context: BggApplication) {
                             it.getLongOrZero(Artists.UPDATED),
                             it.getStringOrEmpty(Artists.ARTIST_THUMBNAIL_URL),
                             it.getIntOrZero(Artists.ITEM_COUNT),
-                            it.getIntOrZero(Artists.WHITMORE_SCORE)
+                            it.getIntOrZero(Artists.WHITMORE_SCORE),
+                            it.getLongOrZero(Artists.ARTIST_STATS_UPDATED_TIMESTAMP)
                     )
                 } while (it.moveToNext())
             }

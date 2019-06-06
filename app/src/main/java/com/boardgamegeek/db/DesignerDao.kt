@@ -44,7 +44,8 @@ class DesignerDao(private val context: BggApplication) {
                         Designers.UPDATED,
                         Designers.DESIGNER_THUMBNAIL_URL,
                         Designers.ITEM_COUNT,
-                        Designers.WHITMORE_SCORE
+                        Designers.WHITMORE_SCORE,
+                        Designers.DESIGNER_STATS_UPDATED_TIMESTAMP
                 ),
                 sortOrder = sortOrder
         )?.use {
@@ -57,7 +58,8 @@ class DesignerDao(private val context: BggApplication) {
                             it.getLongOrZero(Designers.UPDATED),
                             it.getStringOrEmpty(Designers.DESIGNER_THUMBNAIL_URL),
                             it.getIntOrZero(Designers.ITEM_COUNT),
-                            it.getIntOrZero(Designers.WHITMORE_SCORE)
+                            it.getIntOrZero(Designers.WHITMORE_SCORE),
+                            it.getLongOrZero(Designers.DESIGNER_STATS_UPDATED_TIMESTAMP)
                     )
                 } while (it.moveToNext())
             }

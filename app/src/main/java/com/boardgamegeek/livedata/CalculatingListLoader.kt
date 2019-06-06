@@ -23,12 +23,13 @@ abstract class CalculatingListLoader<T>(val application: BggApplication) {
             if (shouldCalculate(list)) {
                 result.removeSource(dbSource)
                 application.appExecutors.diskIO.execute {
-                    list?.forEachIndexed { index, item ->
+                    val sortedList = sortList(list)
+                    sortedList?.forEachIndexed { index, item ->
                         if (result.shouldCancel) {
                             _progress.postValue(0 to 0)
                             return@execute
                         }
-                        _progress.postValue(index to list.size)
+                        _progress.postValue(index to sortedList.size)
                         calculate(item)
                     }
                     application.appExecutors.mainThread.execute {
@@ -56,6 +57,9 @@ abstract class CalculatingListLoader<T>(val application: BggApplication) {
 
     @MainThread
     protected open fun shouldCalculate(data: List<T>?): Boolean = true
+
+    @WorkerThread
+    protected open fun sortList(data: List<T>?): List<T>? = data
 
     @WorkerThread
     protected abstract fun calculate(data: T)

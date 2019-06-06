@@ -7,5 +7,6 @@ data class PersonEntity(
         val updatedTimestamp: Long,
         val thumbnailUrl: String = "",
         val itemCount: Int = 0,
-        val whitmoreScore: Int = 0
+        val whitmoreScore: Int = 0,
+        val statsUpdatedTimestamp: Long = 0L
 )

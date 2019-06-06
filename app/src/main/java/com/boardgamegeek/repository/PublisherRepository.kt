@@ -10,7 +10,10 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.BriefGameEntity
+import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.PersonStatsEntity
+import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.CompanyResponse2
@@ -43,7 +46,10 @@ class PublisherRepository(val application: BggApplication) {
 
             override fun shouldCalculate(data: List<CompanyEntity>?) = data != null
 
+            override fun sortList(data: List<CompanyEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
+
             override fun calculate(data: CompanyEntity) {
+                if (data.statsUpdatedTimestamp > data.updatedTimestamp) return
                 val collection = dao.loadCollection(data.id)
                 val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
                 updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
@@ -111,6 +117,7 @@ class PublisherRepository(val application: BggApplication) {
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Publishers.WHITMORE_SCORE, newScore)
+                put(Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
             })
         }
     }
