@@ -7,23 +7,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<FrameLayout
-		android:id="@+id/progressView"
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/material_progress_bar_height"
-		android:visibility="gone"
-		tools:visibility="visible">
-
-		<!-- External FrameLayout required to clip ProgressBar top and bottom asset spacing. -->
-
-		<ProgressBar
-			style="?android:attr/progressBarStyleHorizontal"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/material_progress_bar_unclipped_height"
-			android:layout_gravity="center"
-			android:indeterminate="true"/>
-
-	</FrameLayout>
+	<include layout="@layout/include_horizontal_progress"/>
 
 	<TextView
 		android:id="@+id/emptyView"

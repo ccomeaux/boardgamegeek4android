@@ -36,6 +36,8 @@ class ArtistsViewModel(application: Application) : AndroidViewModel(application)
         artistRepository.loadArtists(it.sortBy)
     }
 
+    val progress: LiveData<Pair<Int, Int>> = artistRepository.progress
+
     fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
             SortType.NAME -> ArtistsSortByName()

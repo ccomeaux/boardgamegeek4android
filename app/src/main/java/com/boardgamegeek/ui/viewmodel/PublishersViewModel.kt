@@ -36,6 +36,8 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
         publisherRepository.loadPublishers(it.sortBy)
     }
 
+    val progress: LiveData<Pair<Int, Int>> = publisherRepository.progress
+
     fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
             SortType.NAME -> PublishersSortByName()

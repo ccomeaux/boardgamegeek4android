@@ -43,4 +43,6 @@
 			android:text="@string/empty_designers"
 			android:visibility="gone"/>
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+	<include layout="@layout/include_horizontal_progress"/>
 </FrameLayout>

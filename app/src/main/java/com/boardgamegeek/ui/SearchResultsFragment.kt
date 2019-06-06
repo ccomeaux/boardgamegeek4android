@@ -25,11 +25,11 @@ import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_search_results.*
+import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import org.jetbrains.anko.toast
 import java.util.*
 
 class SearchResultsFragment : Fragment(), ActionMode.Callback {
-
     private var showcaseView: ShowcaseView? = null
     private var actionMode: ActionMode? = null
 
@@ -77,12 +77,12 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
+        progressView.isIndeterminate = true
         viewModel.searchResults.observe(this, Observer { resource ->
             if (resource == null) return@Observer
 
             when (resource.status) {
-                Status.REFRESHING -> progressView.fadeIn()
+                Status.REFRESHING -> progressContainer.fadeIn()
                 Status.ERROR -> {
                     if (resource.message.isBlank()) {
                         emptyView.setText(R.string.empty_http_error) // TODO better message?
@@ -91,7 +91,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     }
                     emptyView.fadeIn()
                     recyclerView.fadeOut()
-                    progressView.fadeOut()
+                    progressContainer.fadeOut()
                 }
                 Status.SUCCESS -> {
                     val data = resource.data
@@ -115,7 +115,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     if (query != null) {
                         showSnackbar(query.first, query.second, data?.size ?: 0)
                     }
-                    progressView.fadeOut()
+                    progressContainer.fadeOut()
                 }
             }
 

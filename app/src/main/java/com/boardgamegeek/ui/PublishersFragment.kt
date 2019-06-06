@@ -16,6 +16,7 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PublishersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import kotlinx.android.synthetic.main.fragment_publishers.*
+import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import kotlinx.android.synthetic.main.row_publisher.view.*
 import kotlin.properties.Delegates
 
@@ -44,6 +45,16 @@ class PublishersFragment : Fragment() {
         viewModel.publishers.observe(this, Observer {
             showData(it)
             progressBar.hide()
+        })
+
+        viewModel.progress.observe(this, Observer {
+            if (it == null) {
+                progressContainer.isVisible = false
+            } else {
+                progressContainer.isVisible = it.second > 0
+                progressView.max = it.second
+                progressView.progress = it.first
+            }
         })
     }
 

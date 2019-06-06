@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- External FrameLayout required to clip ProgressBar top and bottom asset spacing. -->
+<FrameLayout
+	android:id="@+id/progressContainer"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/material_progress_bar_height"
+	android:visibility="gone"
+	tools:visibility="visible">
+
+	<ProgressBar
+		android:id="@+id/progressView"
+		style="?android:attr/progressBarStyleHorizontal"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/material_progress_bar_unclipped_height"
+		android:layout_gravity="center"
+		android:indeterminate="false"/>
+</FrameLayout>

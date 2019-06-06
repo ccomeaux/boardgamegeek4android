@@ -4,6 +4,8 @@ import android.content.ContentValues
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
@@ -14,6 +16,7 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonResponse2
+import com.boardgamegeek.livedata.CalculatingListLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Designers
@@ -23,20 +26,31 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class DesignerRepository(val application: BggApplication) {
     private val dao = DesignerDao(application)
+    private var loader = getLoader(DesignerDao.SortType.NAME)
+    private val sort = MutableLiveData<DesignerDao.SortType>()
 
     fun loadDesigners(sortBy: DesignerDao.SortType): LiveData<List<PersonEntity>> {
-        val mediatorLiveData = MediatorLiveData<List<PersonEntity>>()
-        mediatorLiveData.addSource(dao.loadDesignersAsLiveData(sortBy)) {
-            mediatorLiveData.value = it
-            application.appExecutors.diskIO.execute {
-                for (person in it) {
-                    val collection = dao.loadCollection(person.id)
-                    val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
-                    updateWhitmoreScore(person.id, statsEntity.whitmoreScore, person.whitmoreScore)
-                }
+        loader = getLoader(sortBy)
+        sort.value = sortBy
+        return loader.asLiveData()
+    }
+
+    val progress: LiveData<Pair<Int, Int>> = Transformations.switchMap(sort) {
+        loader.progress
+    }
+
+    private fun getLoader(sortBy: DesignerDao.SortType): CalculatingListLoader<PersonEntity> {
+        return object : CalculatingListLoader<PersonEntity>(application) {
+            override fun loadFromDatabase() = dao.loadDesignersAsLiveData(sortBy)
+
+            override fun shouldCalculate(data: List<PersonEntity>?) = data != null
+
+            override fun calculate(data: PersonEntity) {
+                val collection = dao.loadCollection(data.id)
+                val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+                updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
             }
         }
-        return mediatorLiveData
     }
 
     fun loadDesigner(id: Int): LiveData<RefreshableResource<PersonEntity>> {

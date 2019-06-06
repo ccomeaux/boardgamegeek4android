@@ -36,6 +36,8 @@ class DesignsViewModel(application: Application) : AndroidViewModel(application)
         designerRepository.loadDesigners(it.sortBy)
     }
 
+    val progress: LiveData<Pair<Int, Int>> = designerRepository.progress
+
     fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
             SortType.NAME -> DesignersSortByName()

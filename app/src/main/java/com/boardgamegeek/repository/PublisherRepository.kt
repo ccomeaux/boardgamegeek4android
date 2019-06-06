@@ -4,17 +4,17 @@ import android.content.ContentValues
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.BriefGameEntity
-import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.entities.PersonStatsEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.CompanyResponse2
+import com.boardgamegeek.livedata.CalculatingListLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
@@ -24,20 +24,31 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class PublisherRepository(val application: BggApplication) {
     private val dao = PublisherDao(application)
+    private var loader = getLoader(PublisherDao.SortType.NAME)
+    private val sort = MutableLiveData<PublisherDao.SortType>()
 
-    fun loadPublishers(sortBy: PublisherDao.SortType = PublisherDao.SortType.NAME): LiveData<List<CompanyEntity>> {
-        val mediatorLiveData = MediatorLiveData<List<CompanyEntity>>()
-        mediatorLiveData.addSource(dao.loadPublishersAsLiveData(sortBy)) {
-            mediatorLiveData.value = it
-            application.appExecutors.diskIO.execute {
-                for (company in it) {
-                    val collection = dao.loadCollection(company.id)
-                    val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
-                    updateWhitmoreScore(company.id, statsEntity.whitmoreScore, company.whitmoreScore)
-                }
+    fun loadPublishers(sortBy: PublisherDao.SortType): LiveData<List<CompanyEntity>> {
+        loader = getLoader(sortBy)
+        sort.value = sortBy
+        return loader.asLiveData()
+    }
+
+    val progress: LiveData<Pair<Int, Int>> = Transformations.switchMap(sort) {
+        loader.progress
+    }
+
+    private fun getLoader(sortBy: PublisherDao.SortType): CalculatingListLoader<CompanyEntity> {
+        return object : CalculatingListLoader<CompanyEntity>(application) {
+            override fun loadFromDatabase() = dao.loadPublishersAsLiveData(sortBy)
+
+            override fun shouldCalculate(data: List<CompanyEntity>?) = data != null
+
+            override fun calculate(data: CompanyEntity) {
+                val collection = dao.loadCollection(data.id)
+                val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+                updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
             }
         }
-        return mediatorLiveData
     }
 
     fun loadPublisher(id: Int): LiveData<RefreshableResource<CompanyEntity>> {
