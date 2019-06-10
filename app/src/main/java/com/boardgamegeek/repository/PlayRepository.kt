@@ -200,11 +200,23 @@ class PlayRepository(val application: BggApplication) {
     }
 
     fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
-        playDao.savePlayerColors(playerName, colors)
+        application.appExecutors.diskIO.execute {
+            playDao.savePlayerColors(playerName, colors)
+        }
     }
 
     fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
-        playDao.saveUserColors(username, colors)
+        application.appExecutors.diskIO.execute {
+            playDao.saveUserColors(username, colors)
+        }
+    }
+
+    fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
+        return playDao.loadUserPlayerDetail(username)
+    }
+
+    fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
+        return playDao.loadNonUserPlayerDetail(playerName)
     }
 
     fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): LiveData<List<LocationEntity>> {

@@ -47,14 +47,42 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
         load()
     }
 
-    fun createRandom() {
-        val newColors = mutableListOf<PlayerColorEntity>()
-        val colors = ColorUtils.getLimitedColorList() // TODO
-        val r = RandomUtils.getRandom()
+    fun generate() {
         var order = 1
-        while (colors.size > 0) {
-            val i = r.nextInt(colors.size)
-            val color = PlayerColorEntity(colors.removeAt(i).first, order++)
+        val newColors = mutableListOf<PlayerColorEntity>()
+        val r = RandomUtils.getRandom()
+
+        val availableColors = ColorUtils.getLimitedColorList()
+
+        val playerDetail = user.value?.let {
+            val name = it.first
+            when {
+                name == null || name.isBlank() -> null
+                it.second == TYPE_USER -> playRepository.loadUserPlayerDetail(name)
+                it.second == TYPE_PLAYER -> playRepository.loadNonUserPlayerDetail(name)
+                else -> null
+            }
+        }
+        if (playerDetail != null) {
+            val colorNames = availableColors.map { it.first }
+            val playedColors = playerDetail.asSequence()
+                    .filter { colorNames.contains(it.color) } // only include known colors
+                    .groupBy { it.color }
+                    .map { it.key to it.value.size }
+                    .sortedByDescending { it.second }
+                    .map { it.first }
+                    .toMutableList()
+            while (playedColors.isNotEmpty()) {
+                val description = playedColors.removeAt(0)
+                val color = PlayerColorEntity(description, order++)
+                availableColors.remove(availableColors.find { it.first == description })
+                newColors.add(color)
+            }
+        }
+
+        while (availableColors.size > 0) {
+            val i = r.nextInt(availableColors.size)
+            val color = PlayerColorEntity(availableColors.removeAt(i).first, order++)
             newColors.add(color)
         }
         _colors.value = newColors

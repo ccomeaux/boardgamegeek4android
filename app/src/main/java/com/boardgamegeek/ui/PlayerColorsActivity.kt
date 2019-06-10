@@ -156,9 +156,10 @@ class PlayerColorsActivity : BaseActivity() {
             finish()
         }
 
-        setSubtitle(if (buddyName.isNullOrBlank()) playerName else buddyName)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setSubtitle(if (buddyName.isNullOrBlank()) playerName else buddyName)
+
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -166,7 +167,7 @@ class PlayerColorsActivity : BaseActivity() {
 
         emptyButton.setOnClickListener {
             PlayerColorsManipulationEvent.log("Generate")
-            viewModel.createRandom()
+            viewModel.generate()
         }
 
         fab.setOnClickListener {
@@ -236,11 +237,11 @@ class PlayerColorsActivity : BaseActivity() {
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerColorsAdapter.ColorViewHolder {
-            return PlayerColorsAdapter.ColorViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.row_player_color, parent, false), itemTouchHelper)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ColorViewHolder {
+            return ColorViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.row_player_color, parent, false), itemTouchHelper)
         }
 
-        override fun onBindViewHolder(holder: PlayerColorsAdapter.ColorViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ColorViewHolder, position: Int) {
             val color = getItem(position) ?: return
             holder.bind(color)
         }

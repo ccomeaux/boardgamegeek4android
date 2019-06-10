@@ -5,14 +5,10 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
-import com.boardgamegeek.entities.LocationEntity
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.util.ResolverUtils
 import timber.log.Timber
@@ -26,7 +22,7 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun loadPlaysByGame(gameId: Int): LiveData<List<PlayEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Plays.CONTENT_URI
         return RegisteredLiveData(context, uri, false) {
             return@RegisteredLiveData loadPlays(uri, createGamePlaySelectionAndArgs(gameId))
@@ -95,7 +91,7 @@ class PlayDao(private val context: BggApplication) {
         val selection = arrayListOf<String>().apply {
             add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
             if (!AccountUtils.getUsername(context).isNullOrBlank()) {
-                add(BggContract.PlayPlayers.USER_NAME + "!=?")
+                add(PlayPlayers.USER_NAME + "!=?")
             }
             if (!includeIncompletePlays) {
                 add(Plays.INCOMPLETE.whereZeroOrNull())
@@ -123,7 +119,7 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerEntity(
-                            it.getLongOrNull(PlayPlayers._ID) ?: BggContract.INVALID_ID.toLong(),
+                            it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
                             it.getStringOrEmpty(PlayPlayers.NAME),
                             it.getStringOrEmpty(PlayPlayers.USER_NAME),
                             it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
@@ -156,7 +152,7 @@ class PlayDao(private val context: BggApplication) {
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadPlayer(
                     uri,
-                    "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=?",
+                    "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
                     arrayOf("", playerName))
         }
     }
@@ -176,7 +172,7 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             return if (it.moveToFirst()) {
                 PlayerEntity(
-                        it.getLongOrNull(PlayPlayers._ID) ?: BggContract.INVALID_ID.toLong(),
+                        it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
                         it.getStringOrEmpty(PlayPlayers.NAME),
                         it.getStringOrEmpty(PlayPlayers.USER_NAME),
                         it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
@@ -188,26 +184,26 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun loadPlayerColorsAsLiveData(playerName: String): LiveData<List<PlayerColorEntity>> {
-        val uri = BggContract.PlayerColors.buildPlayerUri(playerName)
+        val uri = PlayerColors.buildPlayerUri(playerName)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadColors(uri)
         }
     }
 
     fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
-        val uri = BggContract.PlayerColors.buildPlayerUri(playerName)
+        val uri = PlayerColors.buildPlayerUri(playerName)
         return loadColors(uri)
     }
 
     fun loadUserColorsAsLiveData(username: String): LiveData<List<PlayerColorEntity>> {
-        val uri = BggContract.PlayerColors.buildUserUri(username)
+        val uri = PlayerColors.buildUserUri(username)
         return RegisteredLiveData(context, uri, true) {
             return@RegisteredLiveData loadColors(uri)
         }
     }
 
     fun loadUserColors(playerName: String): List<PlayerColorEntity> {
-        val uri = BggContract.PlayerColors.buildUserUri(playerName)
+        val uri = PlayerColors.buildUserUri(playerName)
         return loadColors(uri)
     }
 
@@ -216,21 +212,62 @@ class PlayDao(private val context: BggApplication) {
         context.contentResolver.load(
                 uri,
                 arrayOf(
-                        BggContract.PlayerColors._ID,
-                        BggContract.PlayerColors.PLAYER_COLOR,
-                        BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER
+                        PlayerColors._ID,
+                        PlayerColors.PLAYER_COLOR,
+                        PlayerColors.PLAYER_COLOR_SORT_ORDER
                 )
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerColorEntity(
-                            it.getStringOrEmpty(BggContract.PlayerColors.PLAYER_COLOR),
-                            it.getIntOrNull(BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER) ?: 0
+                            it.getStringOrEmpty(PlayerColors.PLAYER_COLOR),
+                            it.getIntOrNull(PlayerColors.PLAYER_COLOR_SORT_ORDER) ?: 0
                     )
                 } while (it.moveToNext())
             }
         }
         return results
+    }
+
+    fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
+        val uri = Plays.buildPlayerUri()
+        return loadPlayerDetail(uri,
+                "${PlayPlayers.USER_NAME}=?",
+                arrayOf(username))
+    }
+
+    fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
+        val uri = Plays.buildPlayerUri()
+        return loadPlayerDetail(uri,
+                "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=?",
+                arrayOf("", playerName))
+    }
+
+    private fun loadPlayerDetail(uri: Uri, selection: String, selectionArgs: Array<String>): List<PlayerDetailEntity> {
+        val list = mutableListOf<PlayerDetailEntity>()
+        context.contentResolver.load(
+                uri,
+                arrayOf(
+                        PlayPlayers._ID,
+                        PlayPlayers.NAME,
+                        PlayPlayers.USER_NAME,
+                        PlayPlayers.COLOR
+                ),
+                selection,
+                selectionArgs
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list.add(PlayerDetailEntity(
+                            it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
+                            it.getStringOrEmpty(PlayPlayers.NAME),
+                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                            it.getStringOrEmpty(PlayPlayers.COLOR)
+                    ))
+                } while (it.moveToNext())
+            } else list
+        }
+        return list
     }
 
     enum class LocationSortBy {
@@ -261,8 +298,8 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += LocationEntity(
-                            it.getStringOrEmpty(BggContract.Plays.LOCATION),
-                            it.getIntOrNull(BggContract.Plays.SUM_QUANTITY) ?: 0
+                            it.getStringOrEmpty(Plays.LOCATION),
+                            it.getIntOrNull(Plays.SUM_QUANTITY) ?: 0
                     )
                 } while (it.moveToNext())
             }
@@ -301,11 +338,11 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerEntity(
-                            it.getLongOrNull(BggContract.PlayPlayers._ID) ?: BggContract.INVALID_ID.toLong(),
-                            it.getStringOrEmpty(BggContract.PlayPlayers.NAME),
-                            it.getStringOrEmpty(BggContract.PlayPlayers.USER_NAME),
-                            it.getIntOrNull(BggContract.PlayPlayers.SUM_QUANTITY) ?: 0,
-                            it.getIntOrNull(BggContract.PlayPlayers.SUM_WINS) ?: 0
+                            it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
+                            it.getStringOrEmpty(PlayPlayers.NAME),
+                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                            it.getIntOrNull(PlayPlayers.SUM_QUANTITY) ?: 0,
+                            it.getIntOrNull(PlayPlayers.SUM_WINS) ?: 0
                     )
                 } while (it.moveToNext())
             }
@@ -334,7 +371,7 @@ class PlayDao(private val context: BggApplication) {
                     } else {
                         ContentProviderOperation.newInsert(uri).withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
                     }
-                    batch.add(builder.withValue(BggContract.PlayerColors.PLAYER_COLOR, it.description).build())
+                    batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, it.description).build())
                 }
             }
             ResolverUtils.applyBatch(context, batch)
@@ -376,26 +413,26 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun createCopyPlayerColorsOperations(oldName: String, newName: String): ArrayList<ContentProviderOperation> {
-        val colors = loadColors(BggContract.PlayerColors.buildPlayerUri(oldName))
+        val colors = loadColors(PlayerColors.buildPlayerUri(oldName))
         val batch = arrayListOf<ContentProviderOperation>()
         colors.forEach {
             batch.add(ContentProviderOperation
-                    .newInsert(BggContract.PlayerColors.buildPlayerUri(newName))
-                    .withValue(BggContract.PlayerColors.PLAYER_COLOR, it.description)
-                    .withValue(BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                    .newInsert(PlayerColors.buildPlayerUri(newName))
+                    .withValue(PlayerColors.PLAYER_COLOR, it.description)
+                    .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
                     .build())
         }
         return batch
     }
 
     fun createCopyPlayerColorsToUserOperations(playerName: String, username: String): ArrayList<ContentProviderOperation> {
-        val colors = loadColors(BggContract.PlayerColors.buildPlayerUri(playerName))
+        val colors = loadColors(PlayerColors.buildPlayerUri(playerName))
         val batch = arrayListOf<ContentProviderOperation>()
         colors.forEach {
             batch.add(ContentProviderOperation
-                    .newInsert(BggContract.PlayerColors.buildUserUri(username))
-                    .withValue(BggContract.PlayerColors.PLAYER_COLOR, it.description)
-                    .withValue(BggContract.PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                    .newInsert(PlayerColors.buildUserUri(username))
+                    .withValue(PlayerColors.PLAYER_COLOR, it.description)
+                    .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
                     .build())
         }
         return batch
@@ -418,7 +455,7 @@ class PlayDao(private val context: BggApplication) {
                 "(${selection.first}) AND ${Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
                 selection.second)
         val batch = arrayListOf<ContentProviderOperation>()
-        internalIds.filter { it != BggContract.INVALID_ID.toLong() }.forEach {
+        internalIds.filter { it != INVALID_ID.toLong() }.forEach {
             batch += ContentProviderOperation
                     .newUpdate(Plays.buildPlayUri(it))
                     .withValue(Plays.UPDATE_TIMESTAMP, timestamp)
@@ -470,7 +507,7 @@ class PlayDao(private val context: BggApplication) {
      * Create an operation to delete the colors of the specified player
      */
     fun createDeletePlayerColorsOperation(playerName: String): ContentProviderOperation {
-        return ContentProviderOperation.newDelete(BggContract.PlayerColors.buildPlayerUri(playerName)).build()
+        return ContentProviderOperation.newDelete(PlayerColors.buildPlayerUri(playerName)).build()
     }
 
     /**
