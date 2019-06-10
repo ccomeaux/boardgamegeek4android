@@ -77,7 +77,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        progressView.isIndeterminate = true
         viewModel.searchResults.observe(this, Observer { resource ->
             if (resource == null) return@Observer
 
@@ -147,6 +146,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        progressView.isIndeterminate = true
         recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = searchResultsAdapter
     }
