@@ -7,8 +7,10 @@ import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -56,6 +58,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private boolean isCancelled;
 	private final ConnectivityMonitor connectivityMonitor;
 	private boolean isOffline = true;
+	private final CancelReceiver cancelReceiver = new CancelReceiver();
 
 	@DebugLog
 	public SyncAdapter(BggApplication context) {
@@ -67,6 +70,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		connectivityMonitor = ConnectivityMonitor.getInstance(context);
+		context.registerReceiver(cancelReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	/**
@@ -147,6 +151,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
 		if (connectivityMonitor != null) connectivityMonitor.stopListening();
+		if (cancelReceiver != null) getContext().unregisterReceiver(cancelReceiver);
 	}
 
 	/**

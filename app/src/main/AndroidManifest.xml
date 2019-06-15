@@ -405,14 +405,7 @@
 
 		<receiver
 			android:name=".service.CancelReceiver"
-			android:exported="false">
-			<intent-filter>
-				<action android:name="com.boardgamegeek.ACTION_SYNC_CANCEL"/>
-				<action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
-				<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
-				<action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-			</intent-filter>
-		</receiver>
+			android:exported="false"/>
 
 		<meta-data
 			android:name="android.app.default_searchable"
