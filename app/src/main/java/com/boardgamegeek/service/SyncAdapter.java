@@ -21,6 +21,7 @@ import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.extensions.BatteryUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.ConnectivityMonitor;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NetworkUtils;
@@ -53,6 +54,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private final BggApplication application;
 	private SyncTask currentTask;
 	private boolean isCancelled;
+	private final ConnectivityMonitor connectivityMonitor;
+	private boolean isOffline = true;
 
 	@DebugLog
 	public SyncAdapter(BggApplication context) {
@@ -62,6 +65,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build."));
 		}
+
+		connectivityMonitor = ConnectivityMonitor.getInstance(context);
 	}
 
 	/**
@@ -73,6 +78,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@Override
 	public void onPerformSync(@NonNull Account account, @NonNull Bundle extras, String authority, ContentProviderClient provider, @NonNull SyncResult syncResult) {
 		RemoteConfig.fetch();
+		connectivityMonitor.startListening((isConnected) -> {
+			isOffline = !isConnected;
+			return null;
+		});
 
 		isCancelled = false;
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
@@ -137,6 +146,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
+		if (connectivityMonitor != null) connectivityMonitor.stopListening();
 	}
 
 	/**
@@ -156,7 +166,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	private boolean shouldContinueSync() {
-		if (NetworkUtils.isOffline(getContext())) {
+		if (isOffline) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}

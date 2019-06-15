@@ -8,14 +8,14 @@ import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.util.NetworkUtils
+import com.boardgamegeek.io.ConnectivityMonitor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) {
-    private val result = CancelableMediatorLiveData<RefreshableResource<T>>()
-    var page = 0
+    private val result = CancelableMediatorLiveData<RefreshableResource<T>>(application)
+    private var page = 0
 
     init {
         @Suppress("LeakingThis")
@@ -48,15 +48,14 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     protected abstract fun shouldRefresh(data: T?): Boolean
 
     private fun refresh(dbSource: LiveData<T>) {
-        val isOffline = NetworkUtils.isOffline(application)
         result.addSource(dbSource) { newData ->
-            if (isOffline) {
+            if (result.isOffline) {
                 setValue(RefreshableResource.error(application.getString(R.string.msg_offline), newData))
             } else {
                 setValue(RefreshableResource.refreshing(newData))
             }
         }
-        if (!isOffline) {
+        if (!result.isOffline) {
             page = 1
             makeCall(page, dbSource)
         }
@@ -150,16 +149,24 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
         return application.getString(resId, httpCode.toString())
     }
 
-    class CancelableMediatorLiveData<T> : MediatorLiveData<T>() {
+    private class CancelableMediatorLiveData<T>(private val application: BggApplication) : MediatorLiveData<T>() {
+        val connectivityMonitor = ConnectivityMonitor.getInstance(application)
+        var isOffline = true
         var call: Call<*>? = null
 
         fun updateCall(call: Call<*>) {
             this.call = call
         }
 
+        override fun onActive() {
+            super.onActive()
+            connectivityMonitor.startListening { isOffline = !it }
+        }
+
         override fun onInactive() {
             super.onInactive()
             call?.cancel()
+            connectivityMonitor.stopListening()
         }
     }
 }
