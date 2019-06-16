@@ -33,7 +33,7 @@
 			android:id="@+id/rankView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Subtitle"
+			android:textAppearance="@style/Text.Primary"
 			tools:text="#42 Board Game"/>
 
 		<TextView

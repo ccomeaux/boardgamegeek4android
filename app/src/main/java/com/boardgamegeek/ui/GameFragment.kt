@@ -168,16 +168,18 @@ class GameFragment : Fragment() {
 
         playerAgeView?.text = game.minimumAge.asAge(context)
 
-        weightView?.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
-        weightView?.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
-        weightScoreView?.setTextOrHide(game.averageWeight.asScore(context))
-        weightVotesView?.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
+        weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
+        weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+        val textColor = weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
+        weightView.setTextColor(textColor)
+        weightScoreView.setTextColor(textColor)
+        weightVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
 
-        gameIdView?.text = game.id.toString()
-        lastModifiedView?.timestamp = game.updated
+        gameIdView.text = game.id.toString()
+        lastModifiedView.timestamp = game.updated
 
-        emptyMessage?.fadeOut()
-        dataContainer?.fadeIn()
+        emptyMessage.fadeOut()
+        dataContainer.fadeIn()
     }
 
     private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
@@ -192,12 +194,17 @@ class GameFragment : Fragment() {
 
     private fun onLanguagePollQueryComplete(entity: GamePollEntity?) {
         val score = entity?.calculateScore() ?: 0.0
-        languageView?.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
-        languageView?.setTextViewBackground(score.toColor(fiveStageColors))
-        languageScoreView?.setTextOrHide(score.asScore(context))
         val totalVotes = entity?.totalVotes ?: 0
-        languageVotesView?.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
-        languageContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+
+        languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
+        languageScoreView.setTextOrHide(score.asScore(context))
+        languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
+
+        val textColor = languageColorView.setTextViewBackground(score.toColor(fiveStageColors))
+        languageView.setTextColor(textColor)
+        languageScoreView.setTextColor(textColor)
+
+        languageContainer.setOrClearOnClickListener(totalVotes > 0) {
             PollFragment.launchLanguageDependence(this)
         }
     }

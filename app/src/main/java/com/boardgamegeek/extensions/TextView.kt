@@ -4,6 +4,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.ColorInt
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.text = text
@@ -39,9 +40,15 @@ fun TextView.setTextMaybeHtml(text: String?) {
     }
 }
 
-fun TextView.setTextViewBackground(color: Int) {
+fun TextView.setTextViewBackground(@ColorInt color: Int) {
     this.setViewBackground(color)
     this.setTextColor(color.getTextColor())
+}
+
+@ColorInt
+fun View.setTextViewBackground(color: Int): Int {
+    this.setViewBackground(color)
+    return color.getTextColor()
 }
 
 private fun fixInternalLinks(html: String): String {

@@ -27,7 +27,7 @@
 			android:id="@+id/playerAgeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text"
+			android:textAppearance="@style/Text.Primary"
 			tools:text="Ages 13+"/>
 
 		<TextView

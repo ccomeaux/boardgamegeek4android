@@ -46,14 +46,15 @@
 					android:id="@+id/recyclerView"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+					app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+					tools:itemCount="1"
+					tools:listitem="@layout/widget_collection_row"/>
 
 				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/syncTimestamp"
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="right"
 					android:paddingLeft="@dimen/material_margin_horizontal"
 					android:paddingRight="@dimen/material_margin_horizontal"
 					app:emptyMessage="@string/needs_updating"
