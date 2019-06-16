@@ -6,16 +6,16 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
-	android:descendantFocusability="blocksDescendants">
+	android:descendantFocusability="blocksDescendants"
+	android:paddingBottom="@dimen/padding_extra"
+	android:paddingTop="@dimen/padding_extra">
 
 	<ImageView
 		android:id="@+id/thumbnail"
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
-		android:layout_marginBottom="16dp"
 		android:layout_marginLeft="@dimen/activity_horizontal_margin"
 		android:layout_marginStart="@dimen/activity_horizontal_margin"
-		android:layout_marginTop="16dp"
 		android:contentDescription="@string/image"
 		android:scaleType="centerCrop"
 		app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +79,6 @@
 		android:id="@+id/comment"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="16dp"
 		android:layout_marginEnd="@dimen/activity_horizontal_margin"
 		android:layout_marginLeft="@dimen/activity_horizontal_margin"
 		android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -115,7 +114,6 @@
 		android:id="@+id/privateComment"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="16dp"
 		android:layout_marginEnd="@dimen/activity_horizontal_margin"
 		android:layout_marginLeft="@dimen/activity_horizontal_margin"
 		android:layout_marginRight="@dimen/activity_horizontal_margin"
