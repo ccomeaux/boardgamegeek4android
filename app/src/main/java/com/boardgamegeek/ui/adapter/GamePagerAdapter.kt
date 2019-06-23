@@ -12,7 +12,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.colorize
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.*
@@ -94,20 +93,18 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         tabs.add(Tab(R.string.links))
 
         viewModel.game.observe(activity, Observer { resource ->
-            if (resource?.status == Status.SUCCESS) {
-                resource.data?.let { entity ->
-                    gameName = entity.name
-                    imageUrl = entity.imageUrl
-                    thumbnailUrl = entity.thumbnailUrl
-                    heroImageUrl = entity.heroImageUrl
-                    arePlayersCustomSorted = entity.customPlayerSort
-                    iconColor = entity.iconColor
-                    isFavorite = entity.isFavorite
-                    updateFavIcon(isFavorite)
-                    fab.colorize(iconColor)
-                    fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
-                    displayFab(false)
-                }
+            resource.data?.let { entity ->
+                gameName = entity.name
+                imageUrl = entity.imageUrl
+                thumbnailUrl = entity.thumbnailUrl
+                heroImageUrl = entity.heroImageUrl
+                arePlayersCustomSorted = entity.customPlayerSort
+                iconColor = entity.iconColor
+                isFavorite = entity.isFavorite
+                updateFavIcon(isFavorite)
+                fab.colorize(iconColor)
+                fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
+                displayFab(false)
             }
         })
     }
