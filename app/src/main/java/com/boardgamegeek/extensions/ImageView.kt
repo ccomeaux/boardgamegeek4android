@@ -20,8 +20,8 @@ fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
     if (color == Color.TRANSPARENT) clearColorFilter() else setColorFilter(color)
 }
 
-fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
-    val isSameImage = getTag(R.id.image) == url.getImageId()
+fun ImageView.loadUrl(url: String?, callback: ImageUtils.Callback? = null) {
+    val isSameImage = getTag(R.id.image) == url?.getImageId()
     val requestCreator = Picasso.with(context)
             .load(url.ensureHttpsScheme())
             .transform(PaletteTransformation.instance())
@@ -31,7 +31,7 @@ fun ImageView.loadUrl(url: String, callback: ImageUtils.Callback? = null) {
     requestCreator
             .into(this, object : com.squareup.picasso.Callback {
                 override fun onSuccess() {
-                    setTag(R.id.image, url.getImageId())
+                    setTag(R.id.image, url?.getImageId())
                     if (callback != null) {
                         val bitmap = (drawable as BitmapDrawable).bitmap
                         val palette = PaletteTransformation.getPalette(bitmap)
