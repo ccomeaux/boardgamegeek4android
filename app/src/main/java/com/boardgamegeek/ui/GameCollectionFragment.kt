@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
@@ -41,7 +40,7 @@ class GameCollectionFragment : Fragment() {
         swipeRefresh?.setBggColors()
         syncTimestamp?.timestamp = 0L
 
-        recyclerView?.setHasFixedSize(true)
+        recyclerView?.setHasFixedSize(false)
         recyclerView?.adapter = adapter
 
         viewModel.game.observe(this, Observer {
