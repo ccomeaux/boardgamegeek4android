@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.ColorUtils
-import com.boardgamegeek.util.RandomUtils
 import timber.log.Timber
 
 class PlayerColorsViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,7 +49,6 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
     fun generate() {
         var order = 1
         val newColors = mutableListOf<PlayerColorEntity>()
-        val r = RandomUtils.getRandom()
 
         val availableColors = ColorUtils.getLimitedColorList()
 
@@ -80,11 +78,13 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
             }
         }
 
-        while (availableColors.size > 0) {
-            val i = r.nextInt(availableColors.size)
-            val color = PlayerColorEntity(availableColors.removeAt(i).first, order++)
-            newColors.add(color)
+        if (availableColors.isNotEmpty()) {
+            availableColors.shuffle()
+            for (color in availableColors) {
+                newColors.add(PlayerColorEntity(color.first, order++))
+            }
         }
+
         _colors.value = newColors
     }
 

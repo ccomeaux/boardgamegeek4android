@@ -64,7 +64,6 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
@@ -87,6 +86,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 
 import androidx.annotation.NonNull;
@@ -362,13 +362,15 @@ public class CollectionFragment extends Fragment implements
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
 					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
-					final CollectionItem ci = adapter.getItem(RandomUtils.getRandom().nextInt(adapter.getItemCount()));
-					GameActivity.start(getContext(),
-						ci.gameId,
-						ci.gameName,
-						ci.thumbnailUrl,
-						ci.heroImageUrl
-					);
+					final CollectionItem ci = adapter.getRandomItem();
+					if (ci != null) {
+						GameActivity.start(requireContext(),
+							ci.gameId,
+							ci.gameName,
+							ci.thumbnailUrl,
+							ci.heroImageUrl
+						);
+					}
 					return true;
 				case R.id.menu_create_shortcut:
 					if (viewId > 0) {
@@ -851,6 +853,7 @@ public class CollectionFragment extends Fragment implements
 	public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.CollectionItemViewHolder> {
 		private final List<CollectionItem> items = new ArrayList<>();
 		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
+		private final Random random = new Random();
 
 		@DebugLog
 		public CollectionAdapter() {
@@ -871,6 +874,10 @@ public class CollectionFragment extends Fragment implements
 		public CollectionItem getItem(int position) {
 			if (position < 0 || position >= items.size()) return null;
 			return items.get(position);
+		}
+
+		public CollectionItem getRandomItem() {
+			return getItem(random.nextInt(getItemCount()));
 		}
 
 		public int getSelectedItemCount() {

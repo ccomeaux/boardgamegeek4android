@@ -9,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -27,7 +26,6 @@ import com.boardgamegeek.ui.loader.SafeResponse;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
@@ -37,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,7 +84,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		buddyName = getArguments().getString(KEY_BUDDY_NAME);
+		buddyName = getArguments() != null ? getArguments().getString(KEY_BUDDY_NAME) : null;
 
 		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Missing buddy name.");
@@ -178,13 +177,11 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		if (i >= 0 && i < statusValues.length) {
 			status = statusValues[i];
 		} else if (id == R.id.menu_collection_random_game) {
-			final int index = RandomUtils.getRandom().nextInt(adapter.getItemCount());
-			if (index < adapter.getItemCount()) {
-				CollectionItemEntity ci = adapter.getItemAt(index);
-				if (ci != null) {
-					GameActivity.start(getContext(), ci.getGameId(), ci.getGameName(), ci.getThumbnailUrl());
-					return true;
-				}
+			CollectionItemEntity ci = adapter.getRandomItem();
+			if (ci != null) {
+				GameActivity.start(requireContext(), ci.getGameId(), ci.getGameName(), ci.getThumbnailUrl());
+				return true;
+			} else {
 				return false;
 			}
 		}
@@ -205,7 +202,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		progressBar.show();
 		EventBus.getDefault().postSticky(new CollectionStatusChangedEvent(statusLabel));
 		if (adapter != null) adapter.clear();
-		getActivity().invalidateOptionsMenu();
+		requireActivity().invalidateOptionsMenu();
 		setListShown(false);
 		LoaderManager.getInstance(this).restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
@@ -320,6 +317,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	public static class BuddyCollectionAdapter extends RecyclerView.Adapter<BuddyCollectionAdapter.BuddyGameViewHolder> {
 		private final LayoutInflater inflater;
 		private final List<CollectionItemEntity> items = new ArrayList<>();
+		private final Random random = new Random();
 
 		public BuddyCollectionAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
@@ -342,7 +340,15 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		}
 
 		public CollectionItemEntity getItemAt(int position) {
-			return items.get(position);
+			if (position >= 0 && position < items.size()) {
+				return items.get(position);
+			} else {
+				return null;
+			}
+		}
+
+		public CollectionItemEntity getRandomItem() {
+			return getItemAt(random.nextInt(getItemCount()));
 		}
 
 		@NonNull
@@ -372,12 +378,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 				title.setText(item.getGameName());
 				text.setText(String.valueOf(item.getGameId()));
 
-				itemView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						GameActivity.start(itemView.getContext(), item.getGameId(), item.getGameName());
-					}
-				});
+				itemView.setOnClickListener(v -> GameActivity.start(itemView.getContext(), item.getGameId(), item.getGameName()));
 			}
 		}
 	}
