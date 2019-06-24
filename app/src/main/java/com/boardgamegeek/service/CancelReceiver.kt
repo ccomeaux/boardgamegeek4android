@@ -5,9 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.widget.Toast
-
 import com.boardgamegeek.BuildConfig
-import com.boardgamegeek.util.NetworkUtils
+import com.boardgamegeek.extensions.isOnWiFi
 import com.boardgamegeek.util.PreferencesUtils
 import timber.log.Timber
 
@@ -24,7 +23,7 @@ class CancelReceiver : BroadcastReceiver() {
                 }
             @Suppress("deprecation")
             ConnectivityManager.CONNECTIVITY_ACTION ->
-                if (PreferencesUtils.getSyncOnlyWifi(context) && !NetworkUtils.isOnWiFi(context)) {
+                if (PreferencesUtils.getSyncOnlyWifi(context) && !context.isOnWiFi()) {
                     cancelSync(context, "Cancelling sync because device lost Wifi and user asked for this behavior.")
                 }
             else -> notifyCause(context, "Not cancelling sync due to an unexpected action: " + intent.action)

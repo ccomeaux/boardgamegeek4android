@@ -5,9 +5,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.NetworkUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.ConnectivityMonitor;
 import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RemoteConfig;
@@ -27,19 +27,10 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 	protected BggService bggService;
 	private Call<T> call;
 	private int page = 1;
-	private ConnectivityMonitor connectivityMonitor;
-	private boolean isOffline = true;
 
 	SyncTask(@Nullable Context context) {
 		this.context = context == null ? null : context.getApplicationContext();
 		startTime = System.currentTimeMillis();
-		if (context != null) {
-			connectivityMonitor = ConnectivityMonitor.getInstance(context);
-			connectivityMonitor.startListening((isConnected) -> {
-				isOffline = !isConnected;
-				return null;
-			});
-		}
 	}
 
 	@DebugLog
@@ -49,7 +40,7 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 		bggService = createService();
 		if (!isRequestParamsValid())
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
-		if (isOffline) return context.getString(R.string.msg_offline);
+		if (NetworkUtils.isOffline(context)) return context.getString(R.string.msg_offline);
 		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED))
 			return context.getString(R.string.msg_sync_remotely_disabled);
 		try {
@@ -85,7 +76,6 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 	protected void onPostExecute(String errorMessage) {
 		Timber.w(errorMessage);
 		EventBus.getDefault().post(createEvent(errorMessage));
-		if (connectivityMonitor != null) connectivityMonitor.stopListening();
 	}
 
 	@Override
