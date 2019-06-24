@@ -1,11 +1,11 @@
 package com.boardgamegeek.ui
 
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.widget.SearchView
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
@@ -63,8 +63,8 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
     }
 
     private fun setUpSearchView(searchView: SearchView) {
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        val searchManager = getSystemService<SearchManager>()
+        searchView.setSearchableInfo(searchManager?.getSearchableInfo(componentName))
         searchView.isIconified = false
         searchView.setOnCloseListener {
             finish()
