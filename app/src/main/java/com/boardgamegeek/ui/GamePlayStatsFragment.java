@@ -35,7 +35,6 @@ import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.MathUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
@@ -1055,7 +1054,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public double calculateUtilization() {
-			return MathUtils.cdf(playCount, lambda);
+			return DoubleUtils.cdf(playCount, lambda);
 		}
 
 		public int calculateFhm() {

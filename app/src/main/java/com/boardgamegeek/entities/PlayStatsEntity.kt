@@ -1,6 +1,8 @@
 package com.boardgamegeek.entities
 
-import com.boardgamegeek.util.MathUtils
+import com.boardgamegeek.extensions.cdf
+import com.boardgamegeek.extensions.invcdf
+import kotlin.math.ln
 
 class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private val isOwnedSynced: Boolean) {
     companion object {
@@ -8,7 +10,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         const val INVALID_UTILIZATION = -1.0
         const val INVALID_CFM = -1.0
         private const val PLAY_COUNT_TO_EARN_KEEP = 10
-        val lambda = Math.log(0.1) / -10
+        val lambda = ln(0.1) / -10
     }
 
     val numberOfPlays: Int by lazy {
@@ -77,7 +79,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         when {
             !isOwnedSynced -> INVALID_CFM
             numberOfOwnedGames == 0 -> 0.0
-            else -> MathUtils.invcdf(totalCdf / numberOfOwnedGames, lambda)
+            else -> (totalCdf / numberOfOwnedGames).invcdf(lambda)
         }
     }
 
@@ -106,6 +108,6 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
     }
 
     private val totalCdf: Double by lazy {
-        games.asSequence().filter { it.isOwned }.sumByDouble { MathUtils.cdf(it.playCount.toDouble(), lambda) }
+        games.asSequence().filter { it.isOwned }.sumByDouble { it.playCount.toDouble().cdf(lambda) }
     }
 }
