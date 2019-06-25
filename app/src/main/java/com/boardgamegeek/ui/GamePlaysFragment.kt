@@ -130,7 +130,7 @@ class GamePlaysFragment : Fragment() {
             playCountBackground.setColorViewValue(description.third)
             playCountContainer.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
-                    GamePlaysActivity.start(context, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
+                    GamePlaysActivity.start(requireContext(), gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
             }
             playCountContainer.fadeIn()
 
