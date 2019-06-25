@@ -69,7 +69,7 @@ class PlayersFragment : Fragment() {
         }
 
         override fun getItemId(position: Int): Long {
-            return players.getOrNull(position)?.id ?: RecyclerView.NO_ID
+            return players.getOrNull(position)?.id?.hashCode()?.toLong() ?: RecyclerView.NO_ID
         }
 
         override fun getItemCount() = players.size

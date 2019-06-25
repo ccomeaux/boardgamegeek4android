@@ -173,6 +173,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_JOIN_PLAYS = Tables.GAMES + createJoinSuffix(GAMES, PLAYS, Games.GAME_ID, Plays.OBJECT_ID);
 		String PLAYS_JOIN_GAMES = Tables.PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID);
+		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_USERS = Tables.PLAY_PLAYERS +
+			createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID) +
+			createJoinSuffix(PLAY_PLAYERS, BUDDIES, PlayPlayers.USER_NAME, Buddies.BUDDY_NAME);
 		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_GAMES = Tables.PLAY_PLAYERS +
 			createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID) +
 			createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);

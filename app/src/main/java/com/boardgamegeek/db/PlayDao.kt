@@ -107,7 +107,6 @@ class PlayDao(private val context: BggApplication) {
         context.contentResolver.load(
                 Plays.buildPlayersByUniquePlayerUri(),
                 arrayOf(
-                        PlayPlayers._ID,
                         PlayPlayers.NAME,
                         PlayPlayers.USER_NAME,
                         PlayPlayers.SUM_QUANTITY,
@@ -119,7 +118,6 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerEntity(
-                            it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
                             it.getStringOrEmpty(PlayPlayers.NAME),
                             it.getStringOrEmpty(PlayPlayers.USER_NAME),
                             it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
@@ -161,7 +159,6 @@ class PlayDao(private val context: BggApplication) {
         context.contentResolver.load(
                 uri,
                 arrayOf(
-                        PlayPlayers._ID,
                         PlayPlayers.NAME,
                         PlayPlayers.USER_NAME,
                         PlayPlayers.SUM_QUANTITY,
@@ -172,7 +169,6 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             return if (it.moveToFirst()) {
                 PlayerEntity(
-                        it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
                         it.getStringOrEmpty(PlayPlayers.NAME),
                         it.getStringOrEmpty(PlayPlayers.USER_NAME),
                         it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
@@ -327,7 +323,6 @@ class PlayDao(private val context: BggApplication) {
         context.contentResolver.load(
                 Plays.buildPlayersByUniquePlayerUri(),
                 arrayOf(
-                        PlayPlayers._ID,
                         PlayPlayers.NAME,
                         PlayPlayers.USER_NAME,
                         PlayPlayers.SUM_QUANTITY,
@@ -338,7 +333,6 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerEntity(
-                            it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
                             it.getStringOrEmpty(PlayPlayers.NAME),
                             it.getStringOrEmpty(PlayPlayers.USER_NAME),
                             it.getIntOrNull(PlayPlayers.SUM_QUANTITY) ?: 0,
