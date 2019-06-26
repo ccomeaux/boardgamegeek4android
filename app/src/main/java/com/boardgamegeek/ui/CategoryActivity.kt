@@ -25,7 +25,7 @@ class CategoryActivity : SimpleSinglePaneActivity() {
         id = intent.getIntExtra(KEY_CATEGORY_ID, BggContract.INVALID_ID)
         val name = intent.getStringExtra(KEY_CATEGORY_NAME)
         title = name
-        setSubtitle(getString(R.string.title_category))
+        supportActionBar?.subtitle = getString(R.string.title_category)
         viewModel.setId(id)
     }
 

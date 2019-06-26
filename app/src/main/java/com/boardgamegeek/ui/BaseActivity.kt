@@ -35,10 +35,6 @@ abstract class BaseActivity : AppCompatActivity() {
         return true
     }
 
-    protected fun setSubtitle(text: String?) {
-        supportActionBar?.subtitle = text ?: ""
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
