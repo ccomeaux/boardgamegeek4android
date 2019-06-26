@@ -17,10 +17,6 @@ public class ToolbarUtils {
 	private ToolbarUtils() {
 	}
 
-	public static void setActionBarText(Menu menu, int id, String text) {
-		setActionBarText(menu, id, text, null);
-	}
-
 	public static void setActionBarText(Menu menu, int id, String text1, String text2) {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
