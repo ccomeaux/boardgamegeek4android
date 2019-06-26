@@ -5,7 +5,6 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.content.ContentProviderOperation;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -18,8 +17,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
@@ -79,7 +76,6 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -207,8 +203,6 @@ public class PlaysFragment extends Fragment implements
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		unbinder = ButterKnife.bind(this, view);
-
-		listView.setLayoutManager(new LinearLayoutManager(getContext()));
 		listView.setHasFixedSize(true);
 	}
 
@@ -235,12 +229,12 @@ public class PlaysFragment extends Fragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		int sortType = PlaysSorterFactory.TYPE_DEFAULT;
-		sorter = PlaysSorterFactory.create(getContext(), sortType);
+		sorter = PlaysSorterFactory.create(requireContext(), sortType);
 
 		uri = Plays.CONTENT_URI;
 		Bundle bundle = getArguments();
 
-		mode = bundle.getInt(KEY_MODE, mode);
+		mode = bundle != null ? bundle.getInt(KEY_MODE, mode) : MODE_ALL;
 		switch (mode) {
 			case MODE_GAME:
 				gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
@@ -263,7 +257,7 @@ public class PlaysFragment extends Fragment implements
 				modeValue = bundle.getString(PlaysFragment.KEY_MODE_VALUE);
 				break;
 		}
-		@ColorInt int iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
+		@ColorInt int iconColor = bundle != null ? bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) : Color.TRANSPARENT;
 
 		PresentationUtils.colorFab(fabView, iconColor);
 		showFab(mode == MODE_GAME);
@@ -345,7 +339,7 @@ public class PlaysFragment extends Fragment implements
 			case R.id.menu_refresh_on:
 				DatePickerFragment datePickerFragment = new DatePickerFragment();
 				datePickerFragment.setListener(this);
-				datePickerFragment.show(getActivity().getSupportFragmentManager(), "datePicker");
+				datePickerFragment.show(requireFragmentManager(), "datePicker");
 				return true;
 			case R.id.menu_help:
 				showHelp();
@@ -369,12 +363,9 @@ public class PlaysFragment extends Fragment implements
 	protected void isSyncing(boolean value) {
 		isSyncing = value;
 		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) {
-						swipeRefreshLayout.setRefreshing(isSyncing);
-					}
+			swipeRefreshLayout.post(() -> {
+				if (swipeRefreshLayout != null) {
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
@@ -406,12 +397,9 @@ public class PlaysFragment extends Fragment implements
 			showcaseView = builder
 				.setContentText(R.string.help_plays)
 				.setTarget(Target.NONE)
-				.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						showcaseView.hide();
-						HelpUtils.updateHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION);
-					}
+				.setOnClickListener(v -> {
+					showcaseView.hide();
+					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION);
 				})
 				.build();
 			showcaseView.show();
@@ -420,12 +408,7 @@ public class PlaysFragment extends Fragment implements
 
 	private void maybeShowHelp() {
 		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_PLAYS_KEY, HELP_VERSION)) {
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					showHelp();
-				}
-			}, 100);
+			new Handler().postDelayed(this::showHelp, 100);
 		}
 	}
 
@@ -458,7 +441,7 @@ public class PlaysFragment extends Fragment implements
 			sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		}
 		SortEvent.log("Plays", String.valueOf(sortType));
-		sorter = PlaysSorterFactory.create(getContext(), sortType);
+		sorter = PlaysSorterFactory.create(requireContext(), sortType);
 		requery();
 	}
 
@@ -469,7 +452,7 @@ public class PlaysFragment extends Fragment implements
 		@NonNull
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			final Calendar calendar = Calendar.getInstance();
-			return new DatePickerDialog(getActivity(),
+			return new DatePickerDialog(requireContext(),
 				listener,
 				calendar.get(Calendar.YEAR),
 				calendar.get(Calendar.MONTH),
@@ -485,7 +468,7 @@ public class PlaysFragment extends Fragment implements
 	public void onDateSet(DatePicker view, int year, int month, int day) {
 		isSyncing(true);
 		String date = DateTimeUtils.formatDateForApi(year, month, day);
-		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask((BggApplication) getActivity().getApplication(), date));
+		TaskUtils.executeAsyncTask(new SyncPlaysByDateTask((BggApplication) requireActivity().getApplication(), date));
 	}
 
 	private int getEmptyStringResource() {
@@ -526,7 +509,7 @@ public class PlaysFragment extends Fragment implements
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAY_QUERY_TOKEN:
-				loader = new CursorLoader(getContext(),
+				loader = new CursorLoader(requireContext(),
 					uri,
 					sorter == null ? PlayModel.getProjection() : StringUtils.unionArrays(PlayModel.getProjection(), sorter.getColumns()),
 					selection(),
@@ -535,11 +518,11 @@ public class PlaysFragment extends Fragment implements
 				loader.setUpdateThrottle(2000);
 				break;
 			case GameQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Games.buildGameUri(gameId), GameQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(requireContext(), Games.buildGameUri(gameId), GameQuery.PROJECTION, null, null, null);
 				loader.setUpdateThrottle(0);
 				break;
 			case SumQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(), selectionArgs(), null);
+				loader = new CursorLoader(requireContext(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(), selectionArgs(), null);
 				loader.setUpdateThrottle(0);
 				break;
 			case PlayerSumQuery._TOKEN:
@@ -547,7 +530,7 @@ public class PlaysFragment extends Fragment implements
 				if (mode == MODE_BUDDY) {
 					uri = Plays.buildPlayersByUniqueUserUri();
 				}
-				loader = new CursorLoader(getContext(), uri, PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
+				loader = new CursorLoader(requireContext(), uri, PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
 				loader.setUpdateThrottle(0);
 				break;
 		}
@@ -605,7 +588,7 @@ public class PlaysFragment extends Fragment implements
 			List<PlayModel> plays = new ArrayList<>();
 			if (cursor.moveToFirst()) {
 				do {
-					plays.add(PlayModel.fromCursor(cursor, getContext()));
+					plays.add(PlayModel.fromCursor(cursor, requireContext()));
 				} while (cursor.moveToNext());
 			}
 			adapter.changeData(plays);
@@ -692,7 +675,7 @@ public class PlaysFragment extends Fragment implements
 			case MODE_GAME:
 				isSyncing(true);
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) getActivity().getApplication(), gameId));
+				TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) requireActivity().getApplication(), gameId));
 				break;
 		}
 	}
@@ -832,25 +815,19 @@ public class PlaysFragment extends Fragment implements
 
 			holder.itemView.setActivated(selectedItems.get(position, false));
 
-			holder.itemView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (actionMode == null) {
-						PlayActivity.start(getContext(), play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
-					} else {
-						toggleSelection(position);
-					}
+			holder.itemView.setOnClickListener(v -> {
+				if (actionMode == null) {
+					PlayActivity.start(getContext(), play.getInternalId(), play.getGameId(), play.getName(), play.getThumbnailUrl(), play.getImageUrl(), play.getHeroImageUrl());
+				} else {
+					toggleSelection(position);
 				}
 			});
-			holder.itemView.setOnLongClickListener(new OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					if (actionMode != null) return false;
-					actionMode = getActivity().startActionMode(PlaysFragment.this);
-					if (actionMode == null) return false;
-					toggleSelection(position);
-					return true;
-				}
+			holder.itemView.setOnLongClickListener(v -> {
+				if (actionMode != null) return false;
+				actionMode = requireActivity().startActionMode(PlaysFragment.this);
+				if (actionMode == null) return false;
+				toggleSelection(position);
+				return true;
 			});
 		}
 
@@ -939,16 +916,13 @@ public class PlaysFragment extends Fragment implements
 		if (!adapter.getSelectedItemPositions().iterator().hasNext()) return false;
 		switch (item.getItemId()) {
 			case R.id.menu_send:
-				new AlertDialog.Builder(getContext())
+				new AlertDialog.Builder(requireContext())
 					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_send_play, adapter.getSelectedItemCount()))
 					.setCancelable(true)
 					.setNegativeButton(R.string.cancel, null)
-					.setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int id) {
-							updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
-							mode.finish();
-						}
+					.setPositiveButton(R.string.send, (dialog, id) -> {
+						updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis());
+						mode.finish();
 					})
 					.show();
 				return true;
@@ -958,16 +932,13 @@ public class PlaysFragment extends Fragment implements
 				mode.finish();
 				return true;
 			case R.id.menu_delete:
-				new AlertDialog.Builder(getContext())
+				new AlertDialog.Builder(requireContext())
 					.setMessage(getResources().getQuantityString(R.plurals.are_you_sure_delete_play, adapter.getSelectedItemCount()))
 					.setCancelable(true)
 					.setNegativeButton(R.string.cancel, null)
-					.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int id) {
-							updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
-							mode.finish();
-						}
+					.setPositiveButton(R.string.delete, (dialog, id) -> {
+						updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis());
+						mode.finish();
 					})
 					.show();
 				return true;
