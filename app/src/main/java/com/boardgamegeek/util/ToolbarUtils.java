@@ -17,23 +17,6 @@ public class ToolbarUtils {
 	private ToolbarUtils() {
 	}
 
-	public static void setActionBarText(Menu menu, int id, String text1, String text2) {
-		MenuItem item = menu.findItem(id);
-		if (item != null) {
-			View actionView = item.getActionView();
-			if (actionView != null) {
-				TextView tv1 = actionView.findViewById(android.R.id.text1);
-				if (tv1 != null) {
-					tv1.setText(text1);
-				}
-				TextView tv2 = actionView.findViewById(android.R.id.text2);
-				if (tv2 != null) {
-					tv2.setText(text2);
-				}
-			}
-		}
-	}
-
 	public static void setDoneCancelActionBarView(AppCompatActivity activity, View.OnClickListener listener) {
 		Toolbar toolbar = activity.findViewById(R.id.toolbar_done_cancel);
 		if (toolbar == null) return;
