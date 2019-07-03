@@ -37,9 +37,9 @@ class LinkedCollectionAdapter : RecyclerView.Adapter<LinkedCollectionAdapter.Det
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(gameDetail: BriefGameEntity?) {
             gameDetail?.let { entity ->
-                itemView.name.text = entity.collectionName
-                itemView.year.text = entity.yearPublished.asYear(itemView.context)
-                itemView.thumbnail.loadUrl(entity.collectionThumbnailUrl)
+                itemView.name.text = entity.name
+                itemView.year.text = entity.year.asYear(itemView.context)
+                itemView.thumbnail.loadThumbnail(entity.thumbnailUrl)
                 itemView.favorite.isVisible = entity.isFavorite
                 val personalRating = entity.personalRating.asPersonalRating(itemView.context, 0)
                 if (personalRating.isNotBlank()) {

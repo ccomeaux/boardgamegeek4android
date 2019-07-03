@@ -51,7 +51,7 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: CollectionItemEntity?, gameYearPublished: Int) {
             if (item == null) return
-            itemView.thumbnail.loadUrl(item.thumbnailUrl)
+            itemView.thumbnail.loadThumbnail(item.thumbnailUrl)
             itemView.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
             itemView.comment.setTextOrHide(item.comment)
 
