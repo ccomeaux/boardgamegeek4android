@@ -9,10 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import com.boardgamegeek.util.ActivityUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
@@ -93,7 +93,7 @@ class BuddyActivity : SimpleSinglePaneActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_view -> {
-                ActivityUtils.linkToBgg(this, "user/$username")
+                linkToBgg("user/$username")
                 return true
             }
             R.id.add_username -> {

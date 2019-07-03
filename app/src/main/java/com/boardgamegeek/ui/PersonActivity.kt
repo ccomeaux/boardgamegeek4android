@@ -3,11 +3,13 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
@@ -94,6 +96,21 @@ class PersonActivity : HeroTabActivity() {
                     .putContentId(id.toString())
                     .putContentName(name))
         }
+    }
+
+    override val optionsMenuId = R.menu.person
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_view) {
+            val path = when (personType) {
+                PersonType.DESIGNER -> "boardgamedesigner"
+                PersonType.ARTIST -> "boardgameartist"
+                PersonType.PUBLISHER -> "boardgamepublisher"
+            }
+            linkToBgg(path, id)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun createAdapter(): FragmentPagerAdapter {

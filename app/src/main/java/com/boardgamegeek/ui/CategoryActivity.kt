@@ -3,13 +3,17 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.CategoryViewModel
 import org.jetbrains.anko.startActivity
 
 class CategoryActivity : SimpleSinglePaneActivity() {
+    private var id = BggContract.INVALID_ID
+
     private val viewModel: CategoryViewModel by lazy {
         ViewModelProviders.of(this).get(CategoryViewModel::class.java)
     }
@@ -18,11 +22,20 @@ class CategoryActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val id = intent.getIntExtra(KEY_CATEGORY_ID, BggContract.INVALID_ID)
+        id = intent.getIntExtra(KEY_CATEGORY_ID, BggContract.INVALID_ID)
         val name = intent.getStringExtra(KEY_CATEGORY_NAME)
         title = name
         setSubtitle(getString(R.string.title_category))
         viewModel.setId(id)
+    }
+
+    override val optionsMenuId = R.menu.category
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_view) {
+            linkToBgg("boardgamecategory", id)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {
