@@ -32,7 +32,7 @@ class AutoCompleteAdapter @JvmOverloads constructor(
         return context.contentResolver.query(uri,
                 arrayOf(BaseColumns._ID, columnName, extraColumnName),
                 if (constraint.isEmpty()) null else "$columnName LIKE ?",
-                if (constraint.isEmpty()) null else arrayOf(constraint.toString() + "%"),
+                if (constraint.isEmpty()) null else arrayOf("$constraint%"),
                 sortOrder)
     }
 }
