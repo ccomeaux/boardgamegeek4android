@@ -37,7 +37,10 @@ class PersonStatsEntity(
                 acc -> collection.filter { it.subtype != "boardgameexpansion" }
                 acc -> collection.filter { it.subtype != "boardgameaccessory" }
                 else -> baseGameCollection
-            }.distinctBy { it.gameId }.sortedByDescending { it.playCount }
+            }
+                    .distinctBy { it.gameId }
+                    .filter { it.playCount > 0 }
+                    .sortedByDescending { it.playCount }
 
             var hIndexCounter = 0
             var hIndex = 0
