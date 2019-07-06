@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.getSyncBuddies
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.util.PreferencesUtils
 import org.jetbrains.anko.intentFor
@@ -18,7 +19,7 @@ class HomeActivity : TopLevelActivity() {
                 }
                 isCollectionSetToSync() -> intentFor<CollectionActivity>()
                 PreferencesUtils.getSyncPlays(this) -> intentFor<PlaysSummaryActivity>()
-                PreferencesUtils.getSyncBuddies(this) -> intentFor<BuddiesActivity>()
+                getSyncBuddies() -> intentFor<BuddiesActivity>()
                 else -> intentFor<HotnessActivity>()
             }
         } else {

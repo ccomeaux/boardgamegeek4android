@@ -43,7 +43,6 @@ public class PreferencesUtils {
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	public static final String KEY_SYNC_PLAYS = "syncPlays";
 	public static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
-	public static final String KEY_SYNC_BUDDIES = "syncBuddies";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
 	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
@@ -174,14 +173,6 @@ public class PreferencesUtils {
 
 	public static boolean setSyncPlaysTimestamp(Context context) {
 		return putLong(context, KEY_SYNC_PLAYS_TIMESTAMP, System.currentTimeMillis());
-	}
-
-	public static boolean getSyncBuddies(Context context) {
-		return getBoolean(context, KEY_SYNC_BUDDIES, false);
-	}
-
-	public static boolean setSyncBuddies(Context context) {
-		return putBoolean(context, KEY_SYNC_BUDDIES, true);
 	}
 
 	public static boolean getPlayUploadNotifications(Context context) {

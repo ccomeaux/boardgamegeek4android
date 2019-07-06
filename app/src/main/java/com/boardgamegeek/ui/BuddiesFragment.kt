@@ -18,11 +18,9 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_buddies.*
 import kotlinx.android.synthetic.main.row_buddy.view.*
 import org.jetbrains.anko.design.indefiniteSnackbar
-import org.jetbrains.anko.support.v4.ctx
 import kotlin.properties.Delegates
 
 class BuddiesFragment : Fragment() {
@@ -81,13 +79,13 @@ class BuddiesFragment : Fragment() {
     }
 
     private fun showEmpty() {
-        if (PreferencesUtils.getSyncBuddies(ctx)) {
+        if (requireContext().getSyncBuddies()) {
             emptyTextView.setText(R.string.empty_buddies)
             emptyButton.isGone = true
         } else {
             emptyTextView.setText(R.string.empty_buddies_sync_off)
             emptyButton.setOnClickListener {
-                PreferencesUtils.setSyncBuddies(ctx)
+                requireContext().setSyncBuddies()
                 triggerRefresh()
                 showEmpty()
             }

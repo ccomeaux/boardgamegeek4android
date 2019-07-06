@@ -68,6 +68,26 @@ fun Context?.isCollectionSetToSync(): Boolean {
     return statuses != null && statuses.isNotEmpty()
 }
 
+fun Context.getSyncBuddies(): Boolean {
+    return getBoolean(PREFERENCES_KEY_SYNC_BUDDIES, false)
+}
+
+fun Context.setSyncBuddies(): Boolean {
+    return putBoolean(PREFERENCES_KEY_SYNC_BUDDIES, true)
+}
+
+private fun Context.getBoolean(key: String, defaultValue: Boolean): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    return sharedPreferences.getBoolean(key, defaultValue)
+}
+
+private fun Context.putBoolean(key: String, value: Boolean): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val editor = sharedPreferences.edit()
+    editor.putBoolean(key, value)
+    return editor.commit()
+}
+
 private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     val editor = sharedPreferences.edit()
@@ -76,6 +96,7 @@ private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
 }
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
+const val PREFERENCES_KEY_SYNC_BUDDIES = "syncBuddies"
 
 const val COLLECTION_STATUS_OWN = "own"
 const val COLLECTION_STATUS_PREVIOUSLY_OWNED = "prevowned"

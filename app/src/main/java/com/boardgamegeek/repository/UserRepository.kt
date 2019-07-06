@@ -7,13 +7,13 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.extensions.getSyncBuddies
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.PreferencesUtils
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -56,7 +56,7 @@ class UserRepository(val application: BggApplication) {
             }
 
             override fun shouldRefresh(data: List<UserEntity>?): Boolean {
-                if (!PreferencesUtils.getSyncBuddies(application)) return false
+                if (!application.getSyncBuddies()) return false
                 accountName = Authenticator.getAccount(application)?.name
                 if (accountName == null) return false
                 if (data == null) return true

@@ -6,12 +6,12 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
+import com.boardgamegeek.extensions.getSyncBuddies
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
@@ -34,7 +34,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         Timber.i("Syncing list of buddies...")
         try {
-            if (!PreferencesUtils.getSyncBuddies(context)) {
+            if (!context.getSyncBuddies()) {
                 Timber.i("...buddies not set to sync")
                 return
             }
