@@ -7,7 +7,9 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
-	android:orientation="horizontal">
+	android:orientation="horizontal"
+	android:paddingBottom="@dimen/padding_half"
+	android:paddingTop="@dimen/padding_half">
 
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/avatarView"
@@ -28,7 +30,6 @@
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="8dp"
 		android:layout_marginStart="8dp"
-		android:layout_marginTop="@dimen/padding_half"
 		android:textAppearance="@style/TextAppearance.RowTitle"
 		app:layout_constraintBottom_toTopOf="@id/countView"
 		app:layout_constraintStart_toEndOf="@id/avatarView"
@@ -43,6 +44,7 @@
 		android:layout_marginLeft="8dp"
 		android:layout_marginStart="8dp"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		app:layout_constraintBottom_toTopOf="@id/whitmoreScoreView"
 		app:layout_constraintStart_toEndOf="@+id/avatarView"
 		app:layout_constraintTop_toBottomOf="@+id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
@@ -52,7 +54,6 @@
 		android:id="@+id/whitmoreScoreView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/padding_half"
 		android:layout_marginLeft="8dp"
 		android:layout_marginStart="8dp"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
