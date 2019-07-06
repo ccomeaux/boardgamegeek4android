@@ -36,6 +36,17 @@ private fun encodeArgs(args: Array<out Any?>): List<Any?> {
     return encodedArgs
 }
 
+/**
+ * Get the version name of the package, or "?.?" if not found.
+ */
+fun Context.versionName(): String {
+    return try {
+        packageManager.getPackageInfo(packageName, 0).versionName
+    } catch (e: PackageManager.NameNotFoundException) {
+        "?.?"
+    }
+}
+
 fun Context.logQuickPlay(gameId: Int, gameName: String) {
     val play = Play(gameId, gameName)
     play.setCurrentDate()
