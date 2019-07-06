@@ -76,6 +76,10 @@ fun Context.setSyncPlays(): Boolean {
     return putBoolean(PREFERENCES_KEY_SYNC_PLAYS, true)
 }
 
+fun Context.setSyncPlaysTimestamp(): Boolean {
+    return putLong(PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP, System.currentTimeMillis())
+}
+
 fun Context.getSyncBuddies(): Boolean {
     return getBoolean(PREFERENCES_KEY_SYNC_BUDDIES, false)
 }
@@ -96,6 +100,13 @@ private fun Context.putBoolean(key: String, value: Boolean): Boolean {
     return editor.commit()
 }
 
+private fun Context.putLong(key: String, value: Long): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val editor = sharedPreferences.edit()
+    editor.putLong(key, value)
+    return editor.commit()
+}
+
 private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     val editor = sharedPreferences.edit()
@@ -105,6 +116,7 @@ private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
+const val PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp"
 const val PREFERENCES_KEY_SYNC_BUDDIES = "syncBuddies"
 
 const val COLLECTION_STATUS_OWN = "own"

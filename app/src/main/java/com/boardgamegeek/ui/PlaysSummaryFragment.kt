@@ -17,7 +17,6 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
-import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
 import org.jetbrains.anko.support.v4.startActivity
 
@@ -45,12 +44,12 @@ class PlaysSummaryFragment : Fragment() {
 
         syncButton.setOnClickListener {
             requireContext().setSyncPlays()
-            PreferencesUtils.setSyncPlaysTimestamp(context)
+            requireContext().setSyncPlaysTimestamp()
             viewModel.refresh()
         }
 
         syncCancelButton.setOnClickListener {
-            PreferencesUtils.setSyncPlaysTimestamp(context)
+            requireContext().setSyncPlaysTimestamp()
         }
 
         viewModel.plays.observe(this, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })

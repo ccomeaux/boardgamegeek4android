@@ -9,6 +9,7 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
@@ -72,7 +73,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
     val newestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
 
     val syncPlays: LiveSharedPreference<Boolean> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    val syncPlaysTimestamp: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_SYNC_PLAYS_TIMESTAMP)
+    val syncPlaysTimestamp: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
 
     fun refresh(): Boolean {
         SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
