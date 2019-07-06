@@ -54,7 +54,7 @@ class RetryInterceptor : Interceptor {
     }
 
     private fun nextBackOffMillis(response: Response): Long {
-        return when (response.code()) {
+        return when (response.code) {
             COLLECTION_REQUEST_PROCESSING -> backOff202.nextBackOffMillis()
             RATE_LIMIT_EXCEEDED -> backOff429.nextBackOffMillis()
             API_RATE_EXCEEDED -> backOff503.nextBackOffMillis()
