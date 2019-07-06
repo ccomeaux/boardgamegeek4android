@@ -8,17 +8,17 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
+import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -35,7 +35,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     private val syncableStatuses: List<String>
         get() {
-            val statuses = ArrayList(PreferencesUtils.getSyncStatuses(context))
+            val statuses = context.getSyncStatuses()?.toMutableList() ?: mutableListOf()
             // Played games should be synced first - they don't respect the "exclude" flag
             if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
                 statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED)
@@ -54,7 +54,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 return
             }
 
-            if (!PreferencesUtils.isCollectionSetToSync(context)) {
+            if (!context.isCollectionSetToSync()) {
                 Timber.i("Collection sync not set in preferences")
                 return
             }

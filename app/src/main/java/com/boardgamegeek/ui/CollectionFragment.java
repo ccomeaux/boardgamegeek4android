@@ -31,6 +31,7 @@ import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
@@ -501,61 +502,9 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	private String buildDefaultWhereClause() {
-		if (!TextUtils.isEmpty(defaultWhereClause)) {
-			return defaultWhereClause;
+		if (TextUtils.isEmpty(defaultWhereClause)) {
+			defaultWhereClause = PreferenceUtils.getSyncStatusesAsSql(requireContext());
 		}
-		Set<String> statuses = PreferencesUtils.getSyncStatuses(getActivity());
-		if (statuses == null || statuses.size() == 0) {
-			defaultWhereClause = "";
-			return defaultWhereClause;
-		}
-		StringBuilder where = new StringBuilder();
-		for (String status : statuses) {
-			if (TextUtils.isEmpty(status)) continue;
-			if (where.length() > 0) where.append(" OR ");
-			switch (status) {
-				case "own":
-					where.append(Collection.STATUS_OWN).append("=1");
-					break;
-				case "played":
-					where.append(Games.NUM_PLAYS).append(">0");
-					break;
-				case "rated":
-					where.append(Collection.RATING).append(">0");
-					break;
-				case "comment":
-					where.append(Collection.COMMENT).append("='' OR ").append(Collection.COMMENT).append(" IS NULL");
-					break;
-				case "prevowned":
-					where.append(Collection.STATUS_PREVIOUSLY_OWNED).append("=1");
-					break;
-				case "trade":
-					where.append(Collection.STATUS_FOR_TRADE).append("=1");
-					break;
-				case "want":
-					where.append(Collection.STATUS_WANT).append("=1");
-					break;
-				case "wanttobuy":
-					where.append(Collection.STATUS_WANT_TO_BUY).append("=1");
-					break;
-				case "wishlist":
-					where.append(Collection.STATUS_WISHLIST).append("=1");
-					break;
-				case "wanttoplay":
-					where.append(Collection.STATUS_WANT_TO_PLAY).append("=1");
-					break;
-				case "preordered":
-					where.append(Collection.STATUS_PREORDERED).append("=1");
-					break;
-				case "hasparts":
-					where.append(Collection.HASPARTS_LIST).append("='' OR ").append(Collection.HASPARTS_LIST).append(" IS NULL");
-					break;
-				case "wantparts":
-					where.append(Collection.WANTPARTS_LIST).append("='' OR ").append(Collection.WANTPARTS_LIST).append(" IS NULL");
-					break;
-			}
-		}
-		defaultWhereClause = where.toString();
 		return defaultWhereClause;
 	}
 
@@ -661,9 +610,9 @@ public class CollectionFragment extends Fragment implements
 	@DebugLog
 	private void setEmptyText() {
 		if (emptyButton == null) return;
-		if (PreferencesUtils.isCollectionSetToSync(getContext())) {
-			final Set<String> syncedStatuses = PreferencesUtils.getSyncStatuses(getContext());
-			if (SyncPrefs.noPreviousCollectionSync(getContext())) {
+		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
+			final Set<String> syncedStatuses = PreferenceUtils.getSyncStatuses(getContext());
+			if (SyncPrefs.noPreviousCollectionSync(requireContext())) {
 				setEmptyStateForNoAction(R.string.empty_collection_sync_never);
 			} else if (hasFiltersApplied()) {
 				if (isAtLeastOneSyncOff(syncedStatuses, getListOfVisibleStatuses())) {

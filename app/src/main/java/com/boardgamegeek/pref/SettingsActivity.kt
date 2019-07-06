@@ -11,6 +11,8 @@ import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
+import com.boardgamegeek.extensions.getSyncStatuses
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.util.PreferencesUtils
@@ -87,7 +89,7 @@ class SettingsActivity : DrawerActivity() {
                     entryValues = resources.getStringArray(R.array.pref_sync_status_values) ?: emptyArray()
                     entries = resources.getStringArray(R.array.pref_sync_status_entries) ?: emptyArray()
 
-                    updateSyncStatusSummary(PreferencesUtils.KEY_SYNC_STATUSES)
+                    updateSyncStatusSummary(PREFERENCES_KEY_SYNC_STATUSES)
                 }
                 ACTION_ABOUT -> {
                     findPreference("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
@@ -142,7 +144,7 @@ class SettingsActivity : DrawerActivity() {
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
             when (key) {
-                PreferencesUtils.KEY_SYNC_STATUSES -> {
+                PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
                     SyncPrefs.requestPartialSync(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
@@ -164,7 +166,7 @@ class SettingsActivity : DrawerActivity() {
 
         private fun updateSyncStatusSummary(key: String) {
             val pref = findPreference(key) ?: return
-            val statuses = PreferencesUtils.getSyncStatuses(activity)
+            val statuses = activity.getSyncStatuses()
             pref.summary = if (statuses == null || statuses.isEmpty()) {
                 getString(R.string.pref_list_empty)
             } else {

@@ -22,6 +22,7 @@ import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.extensions.BatteryUtils;
 import com.boardgamegeek.extensions.NetworkUtils;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -88,7 +89,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
-		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(getContext())));
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferenceUtils.getSyncStatuses(getContext())));
 		if (PreferencesUtils.getSyncPlays(getContext())) statuses += " | plays";
 		if (PreferencesUtils.getSyncBuddies(getContext())) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);

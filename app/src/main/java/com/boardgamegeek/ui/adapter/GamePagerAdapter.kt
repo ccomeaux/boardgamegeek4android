@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.colorize
+import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
@@ -37,7 +38,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
 
-    private val fab: FloatingActionButton by lazy { activity.findViewById<FloatingActionButton>(R.id.fab) }
+    private val fab: FloatingActionButton by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
     private val viewModel: GameViewModel by lazy { ViewModelProviders.of(activity).get(GameViewModel::class.java) }
 
     private inner class Tab(
@@ -150,7 +151,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
 
     private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && PreferencesUtils.getSyncPlays(activity)
 
-    private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && PreferencesUtils.isCollectionSetToSync(activity)
+    private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && activity.isCollectionSetToSync()
 
     companion object {
         const val INVALID_RES_ID = 0

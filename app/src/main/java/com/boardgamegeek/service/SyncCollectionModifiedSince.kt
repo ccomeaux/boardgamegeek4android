@@ -8,11 +8,12 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
@@ -23,7 +24,7 @@ import java.util.*
  */
 class SyncCollectionModifiedSince(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
-    private val statusesToSync = PreferencesUtils.getSyncStatuses(context) ?: arrayListOf<String>()
+    private val statusesToSync = context.getSyncStatuses() ?: arrayListOf<String>()
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
     override val notificationSummaryMessageId = R.string.sync_notification_collection_partial
@@ -35,7 +36,7 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 return
             }
 
-            if (!PreferencesUtils.isCollectionSetToSync(context)) {
+            if (!context.isCollectionSetToSync()) {
                 Timber.i("...collection not set to sync")
                 return
             }

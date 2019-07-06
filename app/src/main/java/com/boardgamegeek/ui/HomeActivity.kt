@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.util.PreferencesUtils
 import org.jetbrains.anko.intentFor
 
@@ -15,7 +16,7 @@ class HomeActivity : TopLevelActivity() {
                     Authenticator.signOut(this)
                     intentFor<HotnessActivity>()
                 }
-                PreferencesUtils.isCollectionSetToSync(this) -> intentFor<CollectionActivity>()
+                isCollectionSetToSync() -> intentFor<CollectionActivity>()
                 PreferencesUtils.getSyncPlays(this) -> intentFor<PlaysSummaryActivity>()
                 PreferencesUtils.getSyncBuddies(this) -> intentFor<BuddiesActivity>()
                 else -> intentFor<HotnessActivity>()

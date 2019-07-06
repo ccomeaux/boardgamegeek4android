@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
@@ -19,9 +20,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
@@ -83,12 +82,9 @@ public class BggApplication extends MultiDexApplication {
 		migrateCollectionStatusSettings();
 		SyncPrefs.migrate(this);
 
-		FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
-			@Override
-			public void onSuccess(InstanceIdResult instanceIdResult) {
-				String deviceToken = instanceIdResult.getToken();
-				Timber.i("Firebase token is %s", deviceToken);
-			}
+		FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
+			String deviceToken = instanceIdResult.getToken();
+			Timber.i("Firebase token is %s", deviceToken);
 		});
 	}
 
@@ -119,11 +115,11 @@ public class BggApplication extends MultiDexApplication {
 	}
 
 	private void migrateCollectionStatusSettings() {
-		Set<String> set = PreferencesUtils.getSyncStatuses(this, null);
+		Set<String> set = PreferenceUtils.getSyncStatuses(this, null);
 		if (set == null) {
 			String[] oldSyncStatuses = PreferencesUtils.getOldSyncStatuses(getApplicationContext());
 			if (oldSyncStatuses != null && oldSyncStatuses.length > 0) {
-				PreferencesUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
+				PreferenceUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
 			}
 		}
 	}

@@ -12,10 +12,7 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.ui.PlayStatsActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,7 +40,6 @@ public class PreferencesUtils {
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
 	public static final String KEY_LOGIN = "login";
 	public static final String KEY_LOGOUT = "logout";
-	public static final String KEY_SYNC_STATUSES = "sync_statuses";
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	public static final String KEY_SYNC_PLAYS = "syncPlays";
 	public static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
@@ -164,30 +160,8 @@ public class PreferencesUtils {
 		return getBoolean(context, "logPlayerWin", !getBoolean(context, "logHideWin", true));
 	}
 
-	public static Set<String> getSyncStatuses(Context context) {
-		return getSyncStatuses(context, context.getResources().getStringArray(R.array.pref_sync_status_default));
-	}
-
-	public static Set<String> getSyncStatuses(Context context, String[] defValues) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		final HashSet<String> defSet = defValues == null ? null : new HashSet<>(Arrays.asList(defValues));
-		return sharedPreferences.getStringSet(KEY_SYNC_STATUSES, defSet);
-	}
-
 	public static String[] getOldSyncStatuses(Context context) {
 		return getStringArray(context, KEY_SYNC_STATUSES_OLD, context.getResources().getStringArray(R.array.pref_sync_status_default));
-	}
-
-	public static boolean isCollectionSetToSync(Context context) {
-		Set<String> statuses = getSyncStatuses(context);
-		return statuses != null && statuses.size() > 0;
-	}
-
-	public static boolean setSyncStatuses(Context context, String[] statuses) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		Editor editor = sharedPreferences.edit();
-		editor.putStringSet(KEY_SYNC_STATUSES, new HashSet<>(Arrays.asList(statuses)));
-		return editor.commit();
 	}
 
 	public static boolean getSyncPlays(Context context) {

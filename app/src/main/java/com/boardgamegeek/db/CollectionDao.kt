@@ -223,6 +223,30 @@ class CollectionDao(private val context: BggApplication) {
 
     fun loadLinkedCollection(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> {
         val list = arrayListOf<BriefGameEntity>()
+
+        val selection = StringBuilder()
+        val statuses = context.getSyncStatuses() ?: emptySet()
+        for (status in statuses) {
+            if (status.isBlank()) continue
+            if (selection.isNotBlank()) selection.append(" OR ")
+            selection.append(when (status) {
+                COLLECTION_STATUS_OWN -> Collection.STATUS_OWN.isTrue()
+                COLLECTION_STATUS_PREVIOUSLY_OWNED -> Collection.STATUS_PREVIOUSLY_OWNED.isTrue()
+                COLLECTION_STATUS_PREORDERED -> Collection.STATUS_PREORDERED.isTrue()
+                COLLECTION_STATUS_FOR_TRADE -> Collection.STATUS_FOR_TRADE.isTrue()
+                COLLECTION_STATUS_WANT -> Collection.STATUS_WANT.isTrue()
+                COLLECTION_STATUS_WANT_TO_BUY -> Collection.STATUS_WANT_TO_BUY.isTrue()
+                COLLECTION_STATUS_WANT_TO_PLAY -> Collection.STATUS_WANT_TO_PLAY.isTrue()
+                COLLECTION_STATUS_WISHLIST -> Collection.STATUS_WISHLIST.isTrue()
+                COLLECTION_STATUS_RATED -> Collection.RATING.greaterThanZero()
+                COLLECTION_STATUS_PLAYED -> Collection.NUM_PLAYS.greaterThanZero()
+                COLLECTION_STATUS_COMMENTED -> Collection.COMMENT.notBlank()
+                COLLECTION_STATUS_HAS_PARTS -> Collection.HASPARTS_LIST.notBlank()
+                COLLECTION_STATUS_WANT_PARTS -> Collection.WANTPARTS_LIST.notBlank()
+                else -> ""
+            })
+        }
+
         val sortByName = Collection.GAME_SORT_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
@@ -247,7 +271,9 @@ class CollectionDao(private val context: BggApplication) {
                         Collection.SUBTYPE,
                         Collection.NUM_PLAYS
                 ),
-                sortOrder = sortOrder
+                selection.toString(),
+                emptyArray(),
+                sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
