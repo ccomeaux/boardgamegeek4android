@@ -11,6 +11,8 @@ class MechanicsIdCollectionProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val mechanicId = Mechanics.getMechanicId(uri)
         return SelectionBuilder()
+                .mapToTable(BggContract.Collection._ID, Tables.COLLECTION)
+                .mapToTable(BggContract.Collection.GAME_ID, Tables.GAMES)
                 .table(Tables.MECHANIC_JOIN_GAMES_JOIN_COLLECTION)
                 .whereEquals(Mechanics.MECHANIC_ID, mechanicId)
     }

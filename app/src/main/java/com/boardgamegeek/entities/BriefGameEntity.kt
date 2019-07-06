@@ -1,6 +1,7 @@
 package com.boardgamegeek.entities
 
 data class BriefGameEntity(
+        val internalId: Long,
         val gameId: Int,
         val gameName: String,
         val collectionName: String,

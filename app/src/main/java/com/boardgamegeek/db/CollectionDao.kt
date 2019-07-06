@@ -233,7 +233,8 @@ class CollectionDao(private val context: BggApplication) {
         context.contentResolver.load(
                 uri,
                 arrayOf(
-                        "games." + Collection.GAME_ID,
+                        Collection._ID,
+                        Collection.GAME_ID,
                         Collection.GAME_NAME,
                         Collection.COLLECTION_NAME,
                         Collection.YEAR_PUBLISHED,
@@ -251,6 +252,7 @@ class CollectionDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     list += BriefGameEntity(
+                            it.getLong(Collection._ID),
                             it.getInt(Collection.GAME_ID),
                             it.getStringOrEmpty(Collection.GAME_NAME),
                             it.getStringOrEmpty(Collection.COLLECTION_NAME),

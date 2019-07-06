@@ -11,6 +11,8 @@ class CategoriesIdCollectionProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val categoryId = Categories.getCategoryId(uri)
         return SelectionBuilder()
+                .mapToTable(BggContract.Collection._ID, Tables.COLLECTION)
+                .mapToTable(BggContract.Collection.GAME_ID, Tables.GAMES)
                 .table(Tables.CATEGORY_JOIN_GAMES_JOIN_COLLECTION)
                 .whereEquals(Categories.CATEGORY_ID, categoryId)
     }

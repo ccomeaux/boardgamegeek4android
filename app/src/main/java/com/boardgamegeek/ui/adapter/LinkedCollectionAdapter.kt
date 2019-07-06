@@ -32,7 +32,7 @@ class LinkedCollectionAdapter : RecyclerView.Adapter<LinkedCollectionAdapter.Det
 
     override fun getItemCount(): Int = items.size
 
-    override fun getItemId(position: Int): Long = items.getOrNull(position)?.gameId?.toLong() ?: RecyclerView.NO_ID
+    override fun getItemId(position: Int): Long = items.getOrNull(position)?.internalId ?: RecyclerView.NO_ID
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(gameDetail: BriefGameEntity?) {
