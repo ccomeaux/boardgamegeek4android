@@ -68,6 +68,14 @@ fun Context?.isCollectionSetToSync(): Boolean {
     return statuses != null && statuses.isNotEmpty()
 }
 
+fun Context.getSyncPlays(): Boolean {
+    return getBoolean(PREFERENCES_KEY_SYNC_PLAYS, false)
+}
+
+fun Context.setSyncPlays(): Boolean {
+    return putBoolean(PREFERENCES_KEY_SYNC_PLAYS, true)
+}
+
 fun Context.getSyncBuddies(): Boolean {
     return getBoolean(PREFERENCES_KEY_SYNC_BUDDIES, false)
 }
@@ -96,6 +104,7 @@ private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
 }
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
+const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
 const val PREFERENCES_KEY_SYNC_BUDDIES = "syncBuddies"
 
 const val COLLECTION_STATUS_OWN = "own"

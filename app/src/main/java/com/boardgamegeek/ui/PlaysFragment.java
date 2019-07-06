@@ -32,6 +32,7 @@ import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -48,7 +49,6 @@ import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -511,7 +511,7 @@ public class PlaysFragment extends Fragment implements
 						return R.string.empty_plays_pending;
 					case FILTER_TYPE_STATUS_ALL:
 					default:
-						if (PreferencesUtils.getSyncPlays(getActivity())) {
+						if (PreferenceUtils.getSyncPlays(getActivity())) {
 							return R.string.empty_plays_sync_off;
 						} else {
 							return R.string.empty_plays_sync_off;

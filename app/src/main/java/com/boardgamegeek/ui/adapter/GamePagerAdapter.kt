@@ -13,12 +13,12 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.colorize
+import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.PreferencesUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
@@ -149,7 +149,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         fab.setTag(R.id.res_id, resId)
     }
 
-    private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && PreferencesUtils.getSyncPlays(activity)
+    private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && activity.getSyncPlays()
 
     private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && activity.isCollectionSetToSync()
 

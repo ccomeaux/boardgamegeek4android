@@ -13,6 +13,7 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.applyBatch
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.executeAsyncTask
+import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -57,7 +58,7 @@ class PlayRepository(val application: BggApplication) {
 
             @DebugLog
             override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
-                if (!PreferencesUtils.getSyncPlays(application)) return false
+                if (!application.getSyncPlays()) return false
                 return data == null || data.isEmpty() || playsRateLimiter.shouldProcess(0)
             }
 

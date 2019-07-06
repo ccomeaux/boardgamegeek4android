@@ -15,10 +15,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.createSmallCircle
-import com.boardgamegeek.extensions.getText
-import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.extensions.setColorViewValue
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
@@ -47,7 +44,7 @@ class PlaysSummaryFragment : Fragment() {
         }
 
         syncButton.setOnClickListener {
-            PreferencesUtils.setSyncPlays(context)
+            requireContext().setSyncPlays()
             PreferencesUtils.setSyncPlaysTimestamp(context)
             viewModel.refresh()
         }

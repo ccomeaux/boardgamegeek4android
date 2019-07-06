@@ -41,7 +41,6 @@ public class PreferencesUtils {
 	public static final String KEY_LOGIN = "login";
 	public static final String KEY_LOGOUT = "logout";
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
-	public static final String KEY_SYNC_PLAYS = "syncPlays";
 	public static final String KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
@@ -161,14 +160,6 @@ public class PreferencesUtils {
 
 	public static String[] getOldSyncStatuses(Context context) {
 		return getStringArray(context, KEY_SYNC_STATUSES_OLD, context.getResources().getStringArray(R.array.pref_sync_status_default));
-	}
-
-	public static boolean getSyncPlays(Context context) {
-		return getBoolean(context, KEY_SYNC_PLAYS, false);
-	}
-
-	public static boolean setSyncPlays(Context context) {
-		return putBoolean(context, KEY_SYNC_PLAYS, true);
 	}
 
 	public static boolean setSyncPlaysTimestamp(Context context) {

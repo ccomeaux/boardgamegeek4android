@@ -7,6 +7,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.executeAsyncTask
+import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
@@ -14,7 +15,6 @@ import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Response
 import timber.log.Timber
@@ -33,7 +33,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
     override fun execute() {
         Timber.i("Syncing plays...")
         try {
-            if (!PreferencesUtils.getSyncPlays(context)) {
+            if (!context.getSyncPlays()) {
                 Timber.i("...plays not set to sync")
                 return
             }

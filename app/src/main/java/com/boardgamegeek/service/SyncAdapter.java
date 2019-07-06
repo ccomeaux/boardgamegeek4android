@@ -90,7 +90,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
 		String statuses = StringUtils.formatList(Collections.singletonList(PreferenceUtils.getSyncStatuses(getContext())));
-		if (PreferencesUtils.getSyncPlays(getContext())) statuses += " | plays";
+		if (PreferenceUtils.getSyncPlays(getContext())) statuses += " | plays";
 		if (PreferenceUtils.getSyncBuddies(getContext())) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 

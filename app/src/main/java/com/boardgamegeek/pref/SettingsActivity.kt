@@ -12,6 +12,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
 import com.boardgamegeek.extensions.getSyncStatuses
 import com.boardgamegeek.service.SyncService
@@ -154,7 +155,7 @@ class SettingsActivity : DrawerActivity() {
                     SyncPrefs.requestPartialSync(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
-                PreferencesUtils.KEY_SYNC_PLAYS -> {
+                PREFERENCES_KEY_SYNC_PLAYS -> {
                     SyncPrefs.clearPlaysTimestamps(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
