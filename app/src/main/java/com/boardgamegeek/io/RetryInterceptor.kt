@@ -1,6 +1,5 @@
 package com.boardgamegeek.io
 
-
 import com.boardgamegeek.util.RemoteConfig
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -32,6 +31,8 @@ class RetryInterceptor : Interceptor {
         var response = chain.proceed(originalRequest)
         var millis = nextBackOffMillis(response)
         while (millis != BackOff.STOP) {
+            response.close()
+
             Timber.d("...sleeping for %,d ms", millis)
             try {
                 Thread.sleep(millis)
