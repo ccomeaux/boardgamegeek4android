@@ -143,7 +143,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
-		getContext().unregisterReceiver(cancelReceiver);
+		try {
+			getContext().unregisterReceiver(cancelReceiver);
+		} catch (Exception e) {
+			Timber.w(e);
+		}
 	}
 
 	/**
