@@ -5,10 +5,21 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.annotation.StringRes
+import androidx.core.view.isVisible
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.text = text
     visibility = if (text.isNullOrEmpty()) View.GONE else View.VISIBLE
+}
+
+fun TextView.setTextOrHide(@StringRes textResId: Int) {
+    isVisible = if (textResId == 0) {
+        false
+    } else {
+        this.setText(textResId)
+        true
+    }
 }
 
 fun TextView.setTextMaybeHtml(text: String?) {

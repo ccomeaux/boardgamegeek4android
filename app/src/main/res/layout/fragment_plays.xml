@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+	android:id="@+id/swipeRefreshLayout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -13,7 +13,7 @@
 		android:background="@android:color/white">
 
 		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-			android:id="@+id/progress"
+			android:id="@+id/progressBar"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
 			android:layout_height="match_parent">
 
 			<androidx.recyclerview.widget.RecyclerView
-				android:id="@android:id/list"
+				android:id="@+id/recyclerView"
 				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
@@ -34,7 +34,7 @@
 				tools:listitem="@layout/row_play"/>
 
 			<LinearLayout
-				android:id="@+id/empty_container"
+				android:id="@+id/emptyContainer"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
@@ -46,16 +46,16 @@
 				android:visibility="gone">
 
 				<TextView
-					android:id="@android:id/empty"
+					android:id="@+id/emptyTextView"
 					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center"
-					android:text="@string/empty"/>
+					android:text="@string/empty_plays"/>
 			</LinearLayout>
 
 			<com.google.android.material.floatingactionbutton.FloatingActionButton
-				android:id="@+id/fab"
+				android:id="@+id/fabView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="bottom|right"

@@ -10,7 +10,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.util.ResolverUtils
 import timber.log.Timber
 
 class PlayDao(private val context: BggApplication) {
@@ -368,7 +367,7 @@ class PlayDao(private val context: BggApplication) {
                     batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, it.description).build())
                 }
             }
-            ResolverUtils.applyBatch(context, batch)
+            resolver.applyBatch(context, batch)
         }
     }
 

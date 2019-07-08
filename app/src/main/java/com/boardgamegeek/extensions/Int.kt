@@ -97,6 +97,9 @@ fun Pair<Int, Int>.asRange(errorText: String = "?"): String {
     }
 }
 
+/**
+ * Format minutes as "H:MM"
+ */
 fun Int.asTime(): String {
     if (this > 0) {
         val hours = this / 60
