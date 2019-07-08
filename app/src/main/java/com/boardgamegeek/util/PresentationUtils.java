@@ -21,7 +21,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
 
 /**
@@ -77,28 +76,6 @@ public class PresentationUtils {
 		return "";
 	}
 
-	@DebugLog
-	@NonNull
-	public static String describePlayDetails(Context context, String date, String location, int quantity, int length, int playerCount) {
-		String info = "";
-		if (quantity > 1) {
-			info += quantity + " " + context.getString(R.string.times) + " ";
-		}
-		if (!TextUtils.isEmpty(date)) {
-			info += context.getString(R.string.on) + " " + date + " ";
-		}
-		if (!TextUtils.isEmpty(location)) {
-			info += context.getString(R.string.at) + " " + location + " ";
-		}
-		if (length > 0) {
-			info += context.getString(R.string.for_) + " " + DateTimeUtils.formatMinutes(length) + " ";
-		}
-		if (playerCount > 0) {
-			info += context.getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
-		}
-		return info.trim();
-	}
-
 	public static void setTextOrHide(@Nullable TextView view, int number) {
 		if (view != null) {
 			view.setText(String.valueOf(number));
@@ -134,15 +111,6 @@ public class PresentationUtils {
 
 	public static int[] getColorSchemeResources() {
 		return new int[] { R.color.orange, R.color.light_blue, R.color.dark_blue, R.color.light_blue };
-	}
-
-	public static void ensureFabIsShown(final FloatingActionButton fab) {
-		fab.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				fab.show();
-			}
-		}, 2000);
 	}
 
 	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {

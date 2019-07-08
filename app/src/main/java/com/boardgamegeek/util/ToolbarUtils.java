@@ -1,9 +1,6 @@
 package com.boardgamegeek.util;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
