@@ -7,14 +7,15 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.extensions.getSyncBuddies
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 /**
  * Syncs the list of buddies. Only runs every few days.
@@ -40,7 +41,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
             }
 
             val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(context)
-            if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < fetchIntervalInDays) {
+            if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
                 Timber.i("...skipping; we synced already within the last $fetchIntervalInDays days")
                 return
             }

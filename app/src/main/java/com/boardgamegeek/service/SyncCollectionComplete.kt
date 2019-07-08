@@ -10,11 +10,11 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.getSyncStatuses
 import com.boardgamegeek.extensions.isCollectionSetToSync
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.RemoteConfig
 import hugo.weaving.DebugLog
 import timber.log.Timber
@@ -61,7 +61,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
             if (SyncPrefs.getCurrentCollectionSyncTimestamp(context) == 0L) {
                 val lastCompleteSync = SyncPrefs.getLastCompleteCollectionTimestamp(context)
-                if (lastCompleteSync > 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < fetchIntervalInDays) {
+                if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
                     Timber.i("Not currently syncing and it's been less than $fetchIntervalInDays days since we synced completely")
                     return
                 }
