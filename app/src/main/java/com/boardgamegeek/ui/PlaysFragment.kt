@@ -25,6 +25,7 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.events.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -35,7 +36,6 @@ import com.boardgamegeek.sorter.PlaysSorterFactory
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.model.PlayModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.fabric.FilterEvent
@@ -338,7 +338,7 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
                 }
                 loader = CursorLoader(requireContext(),
                         uri,
-                        PlayModel.projection.union(sorter?.columns?.asIterable() ?: emptyList()).toTypedArray(),
+                        PlayEntity.projection.union(sorter?.columns?.asIterable() ?: emptyList()).toTypedArray(),
                         selection(),
                         selectionArgs(),
                         sorter?.orderByClause)
@@ -400,10 +400,10 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
 
         val token = loader.id
         if (token == PLAY_QUERY_TOKEN) {
-            val plays = ArrayList<PlayModel>()
+            val plays = ArrayList<PlayEntity>()
             if (cursor?.moveToFirst() == true) {
                 do {
-                    plays.add(PlayModel.fromCursor(cursor, requireContext()))
+                    plays.add(PlayEntity.fromCursor(cursor))
                 } while (cursor.moveToNext())
             }
             adapter.items = plays
@@ -511,13 +511,13 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
             setHasStableIds(true)
         }
 
-        var items: List<PlayModel> by Delegates.observable(emptyList()) { _, old, new ->
+        var items: List<PlayEntity> by Delegates.observable(emptyList()) { _, old, new ->
             autoNotify(old, new) { o, n ->
                 o.internalId == n.internalId
             }
         }
 
-        fun getItem(position: Int): PlayModel? {
+        fun getItem(position: Int): PlayEntity? {
             return items.getOrNull(position)
         }
 
@@ -566,28 +566,11 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
         }
 
         internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            fun bind(play: PlayModel?, position: Int) {
+            fun bind(play: PlayEntity?, position: Int) {
                 if (play == null) return
 
-                var info = ""
-                if (play.quantity > 1) {
-                    info += "${play.quantity} ${getString(R.string.times)} "
-                }
-                if (mode != MODE_GAME) {
-                    info += "${getString(R.string.on)} ${play.date} "
-                }
-                if (play.location.isNotBlank()) {
-                    info += "${getString(R.string.at)} ${play.location} "
-                }
-                if (play.length > 0) {
-                    info += "${getString(R.string.for_)} ${play.length.asTime()} "
-                }
-                if (play.playerCount > 0) {
-                    info += resources.getQuantityString(R.plurals.player_description, play.playerCount, play.playerCount)
-                }
-
-                itemView.titleView.text = if (mode != MODE_GAME) play.name else play.date
-                itemView.infoView.setTextOrHide(info.trim())
+                itemView.titleView.text = if (mode != MODE_GAME) play.gameName else play.dateForDisplay(requireContext())
+                itemView.infoView.setTextOrHide(play.describe(requireContext(), mode != MODE_GAME))
                 itemView.commentView.setTextOrHide(play.comments)
 
                 @StringRes val statusMessageId = when {
@@ -602,7 +585,7 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
 
                 itemView.setOnClickListener {
                     if (actionMode == null) {
-                        PlayActivity.start(context, play.internalId, play.gameId, play.name, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                        PlayActivity.start(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
                     } else {
                         toggleSelection(position)
                     }
@@ -622,7 +605,7 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
         }
     }
 
-    private fun getSectionCallback(plays: List<PlayModel>?, sorter: PlaysSorter?): RecyclerSectionItemDecoration.SectionCallback {
+    private fun getSectionCallback(plays: List<PlayEntity>?, sorter: PlaysSorter?): RecyclerSectionItemDecoration.SectionCallback {
         return object : RecyclerSectionItemDecoration.SectionCallback {
             override fun isSection(position: Int): Boolean {
                 if (position == RecyclerView.NO_POSITION) return false
@@ -706,7 +689,7 @@ open class PlaysFragment : Fragment(), LoaderCallbacks<Cursor>, ActionMode.Callb
             R.id.menu_edit -> {
                 val play = adapter.getItem(adapter.selectedItemPositions.iterator().next())
                 if (play != null)
-                    LogPlayActivity.editPlay(activity, play.internalId, play.gameId, play.name, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                    LogPlayActivity.editPlay(activity, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
                 mode.finish()
                 return true
             }

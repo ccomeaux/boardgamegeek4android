@@ -3,8 +3,8 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.ui.model.PlayModel
 import java.text.NumberFormat
 
 class PlaysLengthSorter(context: Context) : PlaysSorter(context) {
@@ -26,7 +26,7 @@ class PlaysLengthSorter(context: Context) : PlaysSorter(context) {
     override val isSortDescending: Boolean
         get() = true
 
-    override fun getSectionText(play: PlayModel): String {
+    override fun getSectionText(play: PlayEntity): String {
         val minutes = play.length
         return when {
             minutes == 0 -> noLength

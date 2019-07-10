@@ -1,10 +1,11 @@
 package com.boardgamegeek.sorter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.ui.model.PlayModel
 import com.boardgamegeek.util.DateTimeUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,12 +23,13 @@ class PlaysDateSorter(context: Context) : PlaysSorter(context) {
     override val columns: Array<String>
         get() = arrayOf(Plays.DATE)
 
-    override fun getSectionText(play: PlayModel): String {
+    override fun getSectionText(play: PlayEntity): String {
         val time = play.dateInMillis
         return if (time == DateTimeUtils.UNKNOWN_DATE) defaultValue else DATE_FORMAT.format(time)
     }
 
     companion object {
+        @SuppressLint("ConstantLocale")
         private val DATE_FORMAT = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
     }
 }

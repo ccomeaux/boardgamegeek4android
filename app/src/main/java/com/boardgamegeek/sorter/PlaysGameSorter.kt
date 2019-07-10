@@ -3,8 +3,8 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.ui.model.PlayModel
 
 class PlaysGameSorter(context: Context) : PlaysSorter(context) {
 
@@ -21,7 +21,7 @@ class PlaysGameSorter(context: Context) : PlaysSorter(context) {
     override val columns: Array<String>
         get() = arrayOf(Plays.ITEM_NAME, Plays.OBJECT_ID)
 
-    override fun getSectionText(play: PlayModel): String {
-        return play.name
+    override fun getSectionText(play: PlayEntity): String {
+        return play.gameName
     }
 }
