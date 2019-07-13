@@ -98,7 +98,9 @@ class PlayDao(private val context: BggApplication) {
                         Plays.START_TIME,
                         Games.THUMBNAIL_URL,
                         Games.IMAGE_URL,
-                        Games.HERO_IMAGE_URL),
+                        Games.HERO_IMAGE_URL,
+                        Games.UPDATED_PLAYS
+                ),
                 selection.first,
                 selection.second,
                 sortOrder
@@ -125,7 +127,8 @@ class PlayDao(private val context: BggApplication) {
                             startTime = it.getLong(Plays.START_TIME),
                             imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
                             thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
-                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL)
+                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL),
+                            updatedPlaysTimestamp = it.getLongOrZero(Games.UPDATED_PLAYS)
                     ))
                 } while (it.moveToNext())
             }

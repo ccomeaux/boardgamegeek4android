@@ -126,14 +126,13 @@ class GameRepository(val application: BggApplication) {
                 if (isFullRefresh) return false
                 if (gameId == BggContract.INVALID_ID || username.isNullOrBlank()) return false
                 if (data == null) return true
-                // TODO - use Games.UPDATED_PLAYS instead
-                val oldestSyncTimestamp = data.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
-                return if (oldestSyncTimestamp.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS)) {
+                val syncTimestamp = data.firstOrNull()?.updatedPlaysTimestamp ?: 0L
+                return if (syncTimestamp.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS)) {
                     isFullRefresh = true
                     true
                 } else {
                     isFullRefresh = false
-                    oldestSyncTimestamp.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES)
+                    syncTimestamp.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES)
                 }
             }
 
