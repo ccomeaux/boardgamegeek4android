@@ -60,8 +60,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
 
     val colors: LiveData<List<PlayerColorEntity>>
         get() {
-            val username = AccountUtils.getUsername(getApplication())
-            return when (username) {
+            return when (val username = AccountUtils.getUsername(getApplication())) {
                 null -> AbsentLiveData.create()
                 else -> playRepository.loadUserColorsAsLiveData(username)
             }

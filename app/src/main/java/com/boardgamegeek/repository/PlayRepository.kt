@@ -24,112 +24,62 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RateLimiter
-import hugo.weaving.DebugLog
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class PlayRepository(val application: BggApplication) {
+open class PlayRefresher
+
+class PlayRepository(val application: BggApplication) : PlayRefresher() {
     private val playDao = PlayDao(application)
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
-    private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
-    private val username: String? by lazy {
-        AccountUtils.getUsername(application)
+
+    fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadPlays(sortBy)
+            }
+        }.asLiveData()
     }
 
-    fun getPlays(): LiveData<RefreshableResource<List<PlayEntity>>> {
-        return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
-            val persister = PlayPersister(application)
-            var timestamp = 0L
-            val newestTimestamp: Long? = SyncPrefs.getPlaysNewestTimestamp(application)
-            val oldestTimestamp = SyncPrefs.getPlaysOldestTimestamp(application)
-            val mapper = PlayMapper()
-            var sortingNewest = false
-            var lastNewPage = 0
-
-            override val typeDescriptionResId: Int
-                get() = R.string.title_plays
-
-            @DebugLog
+    fun getPendingPlays(): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
-                return playDao.loadPlays()
+                return playDao.loadPendingPlays()
+            }
+        }.asLiveData()
+    }
+
+    fun getDraftPlays(): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadDraftPlays()
+            }
+        }.asLiveData()
+    }
+
+    fun loadPlaysByLocation(location: String): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadPlaysByLocation(location)
             }
 
-            @DebugLog
-            override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
-                if (!application.getSyncPlays()) return false
-                return data == null || data.isEmpty() || playsRateLimiter.shouldProcess(0)
-            }
+        }.asLiveData()
+    }
 
-            @DebugLog
-            override fun createCall(page: Int): Call<PlaysResponse> {
-                if (page == 1) {
-                    timestamp = System.currentTimeMillis()
-                    sortingNewest = true
-                }
-                if (sortingNewest) lastNewPage = page
-                return if (sortingNewest) {
-                    Adapter.createForXml().plays(username,
-                            newestTimestamp?.asDateForApi(),
-                            null,
-                            page)
-                } else {
-                    Adapter.createForXml().plays(username,
-                            null,
-                            oldestTimestamp.asDateForApi(),
-                            page - lastNewPage)
-                }
+    fun loadPlaysByUsername(username: String): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadPlaysByUsername(username)
             }
+        }.asLiveData()
+    }
 
-            @DebugLog
-            override fun saveCallResult(result: PlaysResponse) {
-                val plays = mapper.map(result.plays)
-                persister.save(plays, timestamp)
-                updateTimestamps(plays)
-                Timber.i("Synced page %,d of plays", 1)
-            }
-
-            @DebugLog
-            override fun hasMorePages(result: PlaysResponse): Boolean {
-                return when {
-                    result.hasMorePages() -> true
-                    sortingNewest -> {
-                        sortingNewest = false
-                        oldestTimestamp > 0L
-                    }
-                    else -> false
-                }
-            }
-
-            override fun onRefreshSucceeded() {
-                newestTimestamp?.let { playDao.deleteUnupdatedPlaysSince(timestamp, it) }
-                if (oldestTimestamp > 0L) {
-                    playDao.deleteUnupdatedPlaysBefore(timestamp, oldestTimestamp)
-                } else {
-                    SyncPrefs.setPlaysOldestTimestamp(application, 0L)
-                }
-                CalculatePlayStatsTask(application).executeAsyncTask()
-            }
-
-            override fun onRefreshFailed() {
-                playsRateLimiter.reset(0)
-            }
-
-            override fun onRefreshCancelled() {
-                playsRateLimiter.reset(0)
-            }
-
-            @DebugLog
-            private fun updateTimestamps(plays: List<Play>?) {
-                val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
-                if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
-                    SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
-                }
-                val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
-                if (oldestDate < SyncPrefs.getPlaysOldestTimestamp(application)) {
-                    SyncPrefs.setPlaysOldestTimestamp(application, oldestDate)
-                }
+    fun loadPlaysByPlayerName(playerName: String): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadPlaysByPlayerName(playerName)
             }
         }.asLiveData()
     }
@@ -264,5 +214,94 @@ class PlayRepository(val application: BggApplication) {
 
     fun updatePlayerHIndex(hIndex: Int) {
         PreferencesUtils.updatePlayerHIndex(application, hIndex)
+    }
+
+    abstract class PlayRefreshableResourceLoader(application: BggApplication) : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
+        private val username: String? by lazy {
+            AccountUtils.getUsername(application)
+        }
+
+        private val persister = PlayPersister(application)
+        private var syncInitiatedTimestamp = 0L
+        private val newestTimestamp: Long? = SyncPrefs.getPlaysNewestTimestamp(application)
+        private val oldestTimestamp = SyncPrefs.getPlaysOldestTimestamp(application)
+        private val mapper = PlayMapper()
+        private var refreshingNewest = false
+        private var lastNewPage = 0
+        private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
+        private val playDao = PlayDao(application)
+
+        override val typeDescriptionResId: Int
+            get() = R.string.title_plays
+
+        override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
+            return application.getSyncPlays() && playsRateLimiter.shouldProcess(0)
+        }
+
+        override fun createCall(page: Int): Call<PlaysResponse> {
+            if (page == 1) {
+                syncInitiatedTimestamp = System.currentTimeMillis()
+                refreshingNewest = true
+            }
+            if (refreshingNewest) lastNewPage = page
+            return if (refreshingNewest) {
+                Adapter.createForXml().plays(username,
+                        newestTimestamp?.asDateForApi(),
+                        null,
+                        page)
+            } else {
+                Adapter.createForXml().plays(username,
+                        null,
+                        oldestTimestamp.asDateForApi(),
+                        page - lastNewPage)
+            }
+        }
+
+        override fun saveCallResult(result: PlaysResponse) {
+            val plays = mapper.map(result.plays)
+            persister.save(plays, syncInitiatedTimestamp)
+            updateTimestamps(plays)
+            Timber.i("Synced page %,d of plays", 1)
+        }
+
+        override fun hasMorePages(result: PlaysResponse): Boolean {
+            return when {
+                result.hasMorePages() -> true
+                refreshingNewest -> {
+                    refreshingNewest = false
+                    oldestTimestamp > 0L
+                }
+                else -> false
+            }
+        }
+
+        override fun onRefreshSucceeded() {
+            newestTimestamp?.let { playDao.deleteUnupdatedPlaysSince(syncInitiatedTimestamp, it) }
+            if (oldestTimestamp > 0L) {
+                playDao.deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
+            } else {
+                SyncPrefs.setPlaysOldestTimestamp(application, 0L)
+            }
+            CalculatePlayStatsTask(application).executeAsyncTask()
+        }
+
+        override fun onRefreshFailed() {
+            playsRateLimiter.reset(0)
+        }
+
+        override fun onRefreshCancelled() {
+            playsRateLimiter.reset(0)
+        }
+
+        private fun updateTimestamps(plays: List<Play>?) {
+            val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
+            if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
+                SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
+            }
+            val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+            if (oldestDate < SyncPrefs.getPlaysOldestTimestamp(application)) {
+                SyncPrefs.setPlaysOldestTimestamp(application, oldestDate)
+            }
+        }
     }
 }

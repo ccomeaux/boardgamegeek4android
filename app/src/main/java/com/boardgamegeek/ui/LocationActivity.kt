@@ -6,14 +6,16 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.events.PlaysCountChangedEvent
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.tasks.RenameLocationTask
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
+import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.util.fabric.DataManipulationEvent
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
@@ -23,6 +25,10 @@ import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.startActivity
 
 class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+    }
+
     private var locationName = ""
     private var playCount = -1
 
@@ -39,10 +45,16 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
                     .putContentType("Location")
                     .putContentName(locationName))
         }
+
+        viewModel.plays.observe(this, Observer {
+            playCount = it.data?.sumBy { play -> play.quantity } ?: 0
+            invalidateOptionsMenu()
+        })
     }
 
     override fun readIntent(intent: Intent) {
         locationName = intent.getStringExtra(KEY_LOCATION_NAME) ?: ""
+        viewModel.setLocation(locationName)
     }
 
     private fun setSubtitle() {
@@ -50,7 +62,7 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForLocation(locationName)
+        return PlaysFragment.newInstanceForLocation()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
@@ -68,17 +80,12 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
         return super.onOptionsItemSelected(item)
     }
 
-    @Subscribe(sticky = true)
-    fun onEvent(event: PlaysCountChangedEvent) {
-        playCount = event.count
-        invalidateOptionsMenu()
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: RenameLocationTask.Event) {
         locationName = event.locationName
         intent.putExtra(KEY_LOCATION_NAME, locationName)
         setSubtitle()
+        viewModel.setLocation(locationName)
         // recreate fragment to load the list with the new location
         recreateFragment()
 

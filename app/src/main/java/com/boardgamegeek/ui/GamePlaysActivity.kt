@@ -8,14 +8,19 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.events.PlaysCountChangedEvent
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.provider.BggContract
-import org.greenrobot.eventbus.Subscribe
+import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import org.jetbrains.anko.intentFor
 
 class GamePlaysActivity : SimpleSinglePaneActivity() {
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+    }
+
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var imageUrl = ""
@@ -35,6 +40,12 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
         if (gameName.isNotBlank()) {
             supportActionBar?.subtitle = gameName
         }
+
+        viewModel.setGame(gameId)
+        viewModel.plays.observe(this, Observer {
+            playCount = it.data?.sumBy { play -> play.quantity } ?: 0
+            invalidateOptionsMenu()
+        })
     }
 
     override fun readIntent(intent: Intent) {
@@ -66,12 +77,6 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @Subscribe(sticky = true)
-    fun onEvent(event: PlaysCountChangedEvent) {
-        playCount = event.count
-        invalidateOptionsMenu()
     }
 
     companion object {

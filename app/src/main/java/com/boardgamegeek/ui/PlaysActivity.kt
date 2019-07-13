@@ -1,22 +1,32 @@
 package com.boardgamegeek.ui
 
+import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
+import android.widget.DatePicker
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.events.PlaysCountChangedEvent
-import com.boardgamegeek.events.PlaysFilterChangedEvent
-import com.boardgamegeek.events.PlaysSortChangedEvent
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
+import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
+import com.boardgamegeek.ui.viewmodel.PlaysViewModel
+import com.boardgamegeek.util.fabric.FilterEvent
+import com.boardgamegeek.util.fabric.SortEvent
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import java.util.*
 
-class PlaysActivity : SimpleSinglePaneActivity() {
-    private var playCount: Int = 0
-    private var sortName: String? = null
+class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
+    val viewModel by lazy {
+        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+    }
 
     override val optionsMenuId: Int
         get() = R.menu.plays
@@ -26,6 +36,25 @@ class PlaysActivity : SimpleSinglePaneActivity() {
         if (savedInstanceState == null) {
             Answers.getInstance().logContentView(ContentViewEvent().putContentType("Plays"))
         }
+
+        viewModel.plays.observe(this, Observer {
+            invalidateOptionsMenu()
+        })
+
+        viewModel.filterType.observe(this, Observer { type ->
+            supportActionBar?.subtitle = when (type) {
+                PlaysViewModel.FilterType.PENDING -> getString(R.string.menu_plays_filter_pending)
+                PlaysViewModel.FilterType.DIRTY -> getString(R.string.menu_plays_filter_in_progress)
+                else -> ""
+            }
+            invalidateOptionsMenu()
+        })
+
+        viewModel.sortType.observe(this, Observer {
+            invalidateOptionsMenu()
+        })
+
+        viewModel.setFilter(PlaysViewModel.FilterType.ALL)
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -34,24 +63,102 @@ class PlaysActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
+
+        val playCount = viewModel.plays.value?.data?.sumBy { play -> play.quantity } ?: 0
+        val sortName = when (viewModel.sortType.value) {
+            PlaysViewModel.SortType.DATE -> getString(R.string.menu_plays_sort_date)
+            PlaysViewModel.SortType.LOCATION -> getString(R.string.menu_plays_sort_location)
+            PlaysViewModel.SortType.GAME -> getString(R.string.menu_plays_sort_game)
+            PlaysViewModel.SortType.LENGTH -> getString(R.string.menu_plays_sort_length)
+            null -> getString(R.string.text_unknown)
+        }
         menu.setActionBarCount(R.id.menu_list_count, playCount, getString(R.string.by_prefix, sortName))
+
+        menu.findItem(when (viewModel.filterType.value) {
+            PlaysViewModel.FilterType.DIRTY -> R.id.menu_filter_in_progress
+            PlaysViewModel.FilterType.PENDING -> R.id.menu_filter_pending
+            PlaysViewModel.FilterType.ALL -> R.id.menu_filter_all
+            else -> R.id.menu_filter_all
+        })?.isChecked = true
+        menu.findItem(when (viewModel.sortType.value) {
+            PlaysViewModel.SortType.DATE -> R.id.menu_sort_date
+            PlaysViewModel.SortType.GAME -> R.id.menu_sort_game
+            PlaysViewModel.SortType.LENGTH -> R.id.menu_sort_length
+            PlaysViewModel.SortType.LOCATION -> R.id.menu_sort_location
+            else -> R.id.menu_sort_date
+        })?.isChecked = true
         return true
     }
 
-    @Subscribe(sticky = true)
-    fun onEvent(event: PlaysCountChangedEvent) {
-        playCount = event.count
-        invalidateOptionsMenu()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_sort_date -> {
+                setSort(PlaysViewModel.SortType.DATE)
+                return true
+            }
+            R.id.menu_sort_location -> {
+                setSort(PlaysViewModel.SortType.LOCATION)
+                return true
+            }
+            R.id.menu_sort_game -> {
+                setSort(PlaysViewModel.SortType.GAME)
+                return true
+            }
+            R.id.menu_sort_length -> {
+                setSort(PlaysViewModel.SortType.LENGTH)
+                return true
+            }
+            R.id.menu_filter_all -> {
+                filter(PlaysViewModel.FilterType.ALL)
+                return true
+            }
+            R.id.menu_filter_in_progress -> {
+                filter(PlaysViewModel.FilterType.DIRTY)
+                return true
+            }
+            R.id.menu_filter_pending -> {
+                filter(PlaysViewModel.FilterType.PENDING)
+                return true
+            }
+            R.id.menu_refresh_on -> {
+                val datePickerFragment = DatePickerFragment()
+                datePickerFragment.setListener(this)
+                datePickerFragment.show(supportFragmentManager, "datePicker")
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(event: PlaysFilterChangedEvent) {
-        supportActionBar?.subtitle = if (event.type == PlaysFragment.FILTER_TYPE_STATUS_ALL) "" else event.description
+    fun setSort(type: PlaysViewModel.SortType) {
+        SortEvent.log("Plays", type.toString())
+        viewModel.setSort(type)
     }
 
-    @Subscribe(sticky = true)
-    fun onEvent(event: PlaysSortChangedEvent) {
-        sortName = event.description
-        invalidateOptionsMenu()
+    fun filter(type: PlaysViewModel.FilterType) {
+        FilterEvent.log("Plays", type.toString())
+        viewModel.setFilter(type)
+    }
+
+    class DatePickerFragment : DialogFragment() {
+        private var listener: DatePickerDialog.OnDateSetListener? = null
+
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val calendar = Calendar.getInstance()
+            return DatePickerDialog(requireContext(),
+                    listener,
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH))
+        }
+
+        fun setListener(listener: DatePickerDialog.OnDateSetListener) {
+            this.listener = listener
+        }
+    }
+
+    override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
+        (fragment as PlaysFragment?)?.isSyncing(true)
+        SyncPlaysByDateTask(application as BggApplication, year, month, day).executeAsyncTask()
     }
 }

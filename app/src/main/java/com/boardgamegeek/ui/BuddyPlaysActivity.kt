@@ -6,15 +6,20 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.events.PlaysCountChangedEvent
 import com.boardgamegeek.extensions.setActionBarCount
+import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
-import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.startActivity
 
 class BuddyPlaysActivity : SimpleSinglePaneActivity() {
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+    }
+
     private var buddyName = ""
     private var numberOfPlays = -1
 
@@ -32,6 +37,12 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
                     .putContentType("BuddyPlays")
                     .putContentId(buddyName))
         }
+
+        viewModel.setUsername(buddyName)
+        viewModel.plays.observe(this, Observer {
+            numberOfPlays = it.data?.sumBy { play -> play.quantity } ?: 0
+            invalidateOptionsMenu()
+        })
     }
 
     override fun readIntent(intent: Intent) {
@@ -39,7 +50,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForBuddy(buddyName)
+        return PlaysFragment.newInstanceForBuddy()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
@@ -57,12 +68,6 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @Subscribe(sticky = true)
-    fun onEvent(event: PlaysCountChangedEvent) {
-        numberOfPlays = event.count
-        invalidateOptionsMenu()
     }
 
     companion object {

@@ -268,8 +268,6 @@
 	<string name="empty_plays_location">You haven\'t logged any plays at this location.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
-	<string name="empty_plays_update">No plays are waiting to be updated.</string>
-	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
 	<string name="empty_play">No play found (ID=%s)."</string>
