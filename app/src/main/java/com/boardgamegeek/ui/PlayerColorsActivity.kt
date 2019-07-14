@@ -158,7 +158,7 @@ class PlayerColorsActivity : BaseActivity() {
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setSubtitle(if (buddyName.isNullOrBlank()) playerName else buddyName)
+        supportActionBar?.subtitle = if (buddyName.isNullOrBlank()) playerName else buddyName
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)

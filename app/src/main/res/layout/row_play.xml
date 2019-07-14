@@ -19,7 +19,7 @@
 			android:layout_height="wrap_content">
 
 			<TextView
-				android:id="@android:id/title"
+				android:id="@+id/titleView"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -29,7 +29,7 @@
 				tools:text="Horus Heresy"/>
 
 			<TextView
-				android:id="@android:id/message"
+				android:id="@+id/statusView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:textAppearance="@style/TextAppearance.Caption.Secondary"
@@ -37,7 +37,7 @@
 		</LinearLayout>
 
 		<TextView
-			android:id="@android:id/text1"
+			android:id="@+id/infoView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="marquee"
@@ -46,7 +46,7 @@
 			tools:text="at Home for 3.5 hours"/>
 
 		<TextView
-			android:id="@android:id/text2"
+			android:id="@+id/commentView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"

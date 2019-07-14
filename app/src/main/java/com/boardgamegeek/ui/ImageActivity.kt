@@ -57,7 +57,7 @@ class ImageActivity : AppCompatActivity() {
     private fun setBackgroundColor() {
         val bitmap = (imageView.drawable as BitmapDrawable).bitmap
         val palette = PaletteTransformation.getPalette(bitmap)
-        val swatch: Palette.Swatch? = palette.darkMutedSwatch ?: palette.darkVibrantSwatch ?: palette.mutedSwatch
+        val swatch: Palette.Swatch? = palette?.darkMutedSwatch ?: palette?.darkVibrantSwatch ?: palette?.mutedSwatch
         imageView.setBackgroundColor(swatch?.rgb ?: Color.BLACK)
     }
 

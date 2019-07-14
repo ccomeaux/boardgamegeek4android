@@ -12,6 +12,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask.CompletedEvent;
+import com.boardgamegeek.util.DateTimeUtils;
 
 import java.util.List;
 
@@ -25,10 +26,10 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 	private final String date;
 	private final String username;
 
-	public SyncPlaysByDateTask(BggApplication application, String date) {
+	public SyncPlaysByDateTask(BggApplication application, Integer year, Integer month, Integer day) {
 		super(application.getApplicationContext());
 		this.application = application;
-		this.date = date;
+		this.date = DateTimeUtils.formatDateForApi(year, month, day);
 		username = AccountUtils.getUsername(context);
 	}
 

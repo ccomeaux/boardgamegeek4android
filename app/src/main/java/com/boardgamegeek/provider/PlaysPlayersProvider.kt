@@ -57,6 +57,7 @@ class PlaysPlayersProvider : BaseProvider() {
         }
         builder
                 .mapAsCount(PlayPlayers.COUNT)
+                .mapToTable(Plays.SYNC_TIMESTAMP, Tables.PLAYS)
                 .map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
                 .map(PlayPlayers.DESCRIPTION, "name || IFNULL(NULLIF(' ('||user_name||')', ' ()'), '')")
         return builder

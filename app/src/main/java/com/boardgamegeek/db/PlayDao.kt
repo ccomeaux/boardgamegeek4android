@@ -10,14 +10,31 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.util.ResolverUtils
 import timber.log.Timber
 
 class PlayDao(private val context: BggApplication) {
-    fun loadPlays(): LiveData<List<PlayEntity>> {
+    enum class PlaysSortBy {
+        DATE, LOCATION, GAME, LENGTH
+    }
+
+    fun loadPlays(sortBy: PlaysSortBy): LiveData<List<PlayEntity>> {
         val uri = Plays.CONTENT_URI
         return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlays(uri, createPlaySelectionAndArgs())
+            return@RegisteredLiveData loadPlays(uri, createPlaySelectionAndArgs(), sortBy)
+        }
+    }
+
+    fun loadPendingPlays(): LiveData<List<PlayEntity>> {
+        val uri = Plays.CONTENT_URI
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData loadPlays(uri, createPendingPlaySelectionAndArgs())
+        }
+    }
+
+    fun loadDraftPlays(): LiveData<List<PlayEntity>> {
+        val uri = Plays.CONTENT_URI
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData loadPlays(uri, createDraftPlaySelectionAndArgs())
         }
     }
 
@@ -29,8 +46,38 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    private fun loadPlays(uri: Uri, selection: Pair<String, Array<String>>): ArrayList<PlayEntity> {
+    fun loadPlaysByLocation(locationName: String): LiveData<List<PlayEntity>> {
+        if (locationName.isBlank()) return AbsentLiveData.create()
+        val uri = Plays.CONTENT_URI
+        return RegisteredLiveData(context, uri, false) {
+            return@RegisteredLiveData loadPlays(uri, createLocationPlaySelectionAndArgs(locationName))
+        }
+    }
+
+    fun loadPlaysByUsername(username: String): LiveData<List<PlayEntity>> {
+        if (username.isBlank()) return AbsentLiveData.create()
+        val uri = Plays.buildPlayersByPlayUri()
+        return RegisteredLiveData(context, uri, false) {
+            return@RegisteredLiveData loadPlays(uri, createUsernamePlaySelectionAndArgs(username))
+        }
+    }
+
+    fun loadPlaysByPlayerName(playerName: String): LiveData<List<PlayEntity>> {
+        if (playerName.isBlank()) return AbsentLiveData.create()
+        val uri = Plays.buildPlayersByPlayUri()
+        return RegisteredLiveData(context, uri, false) {
+            return@RegisteredLiveData loadPlays(uri, createPlayerNamePlaySelectionAndArgs(playerName))
+        }
+    }
+
+    private fun loadPlays(uri: Uri, selection: Pair<String?, Array<String>?>, sortBy: PlaysSortBy = PlaysSortBy.DATE): ArrayList<PlayEntity> {
         val list = arrayListOf<PlayEntity>()
+        val sortOrder = when (sortBy) {
+            PlaysSortBy.DATE -> ""
+            PlaysSortBy.LOCATION -> Plays.LOCATION.ascending()
+            PlaysSortBy.GAME -> Plays.ITEM_NAME.ascending()
+            PlaysSortBy.LENGTH -> Plays.LENGTH.descending()
+        }
         context.contentResolver.load(uri,
                 arrayOf(Plays._ID,
                         Plays.PLAY_ID,
@@ -46,12 +93,17 @@ class PlayDao(private val context: BggApplication) {
                         Plays.SYNC_TIMESTAMP,
                         Plays.PLAYER_COUNT,
                         Plays.DIRTY_TIMESTAMP,
+                        Plays.UPDATE_TIMESTAMP,
+                        Plays.DELETE_TIMESTAMP,
                         Plays.START_TIME,
                         Games.THUMBNAIL_URL,
                         Games.IMAGE_URL,
-                        Games.HERO_IMAGE_URL),
+                        Games.HERO_IMAGE_URL,
+                        Games.UPDATED_PLAYS
+                ),
                 selection.first,
-                selection.second
+                selection.second,
+                sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
@@ -70,10 +122,13 @@ class PlayDao(private val context: BggApplication) {
                             syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
                             playerCount = it.getInt(Plays.PLAYER_COUNT),
                             dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
+                            updateTimestamp = it.getLong(Plays.UPDATE_TIMESTAMP),
+                            deleteTimestamp = it.getLong(Plays.DELETE_TIMESTAMP),
                             startTime = it.getLong(Plays.START_TIME),
                             imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
                             thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
-                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL)
+                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL),
+                            updatedPlaysTimestamp = it.getLongOrZero(Games.UPDATED_PLAYS)
                     ))
                 } while (it.moveToNext())
             }
@@ -84,8 +139,23 @@ class PlayDao(private val context: BggApplication) {
     private fun createPlaySelectionAndArgs() =
             Plays.DELETE_TIMESTAMP.whereZeroOrNull() to emptyArray<String>()
 
+    private fun createPendingPlaySelectionAndArgs() =
+            "${Plays.DELETE_TIMESTAMP}>0 OR ${Plays.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
+
+    private fun createDraftPlaySelectionAndArgs() =
+            "${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
+
     private fun createGamePlaySelectionAndArgs(gameId: Int) =
             "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())
+
+    private fun createLocationPlaySelectionAndArgs(locationName: String) =
+            "${Plays.LOCATION}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(locationName)
+
+    private fun createUsernamePlaySelectionAndArgs(username: String) =
+            "${PlayPlayers.USER_NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(username)
+
+    private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
+            "${PlayPlayers.USER_NAME}='' AND play_players.${PlayPlayers.NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
 
     fun loadPlayers(includeIncompletePlays: Boolean): List<PlayerEntity> {
         val selection = arrayListOf<String>().apply {
@@ -368,7 +438,7 @@ class PlayDao(private val context: BggApplication) {
                     batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, it.description).build())
                 }
             }
-            ResolverUtils.applyBatch(context, batch)
+            resolver.applyBatch(context, batch)
         }
     }
 

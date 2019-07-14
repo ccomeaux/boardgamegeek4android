@@ -24,10 +24,13 @@ data class PlayEntity(
         val syncTimestamp: Long,
         val playerCount: Int,
         val dirtyTimestamp: Long,
+        val updateTimestamp: Long,
+        val deleteTimestamp: Long,
         val startTime: Long,
         val imageUrl: String = "",
         val thumbnailUrl: String = "",
-        val heroImageUrl: String = ""
+        val heroImageUrl: String = "",
+        val updatedPlaysTimestamp: Long = 0L
 ) {
     val dateInMillis: Long by lazy {
         rawDate.toMillis(FORMAT, UNKNOWN_DATE)

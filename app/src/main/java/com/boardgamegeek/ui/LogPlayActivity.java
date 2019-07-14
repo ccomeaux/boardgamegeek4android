@@ -547,7 +547,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 		setUpShowcaseViewWizard();
 		showcaseWizard.maybeShowHelp();
-		PresentationUtils.ensureFabIsShown(fab);
+		fab.postDelayed(() -> fab.show(), 2000);
 	}
 
 	@DebugLog

@@ -25,7 +25,7 @@ class MechanicActivity : SimpleSinglePaneActivity() {
         id = intent.getIntExtra(KEY_MECHANIC_ID, BggContract.INVALID_ID)
         val name = intent.getStringExtra(KEY_MECHANIC_NAME)
         title = name
-        setSubtitle(getString(R.string.title_mechanic))
+        supportActionBar?.subtitle = getString(R.string.title_mechanic)
         viewModel.setId(id)
     }
 
