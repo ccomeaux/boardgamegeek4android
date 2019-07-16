@@ -1,10 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
@@ -66,7 +63,18 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
             }
         }
 
-    val hIndex: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX)
+    private val h: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX)
+    private val n: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX + PreferencesUtils.KEY_H_INDEX_N_SUFFIX)
+    fun hIndex(): LiveData<HIndexEntity> {
+        val mld = MediatorLiveData<HIndexEntity>()
+        mld.addSource(h) {
+            mld.value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
+        }
+        mld.addSource(n) {
+            mld.value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
+        }
+        return mld
+    }
 
     val oldestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
     val newestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)

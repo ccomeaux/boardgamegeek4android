@@ -608,7 +608,7 @@
 	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttp://friendlessstats.dtdns.net/</string>
 	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
 	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttp://friendlessstats.dtdns.net/</string>
-	<string name="game_h_index_prefix">Game H-Index <b>%,d</b></string>
+	<string name="game_h_index_prefix">Game H-Index <b>%s</b></string>
 	<string name="title_players_skill">Skill Formula</string>
 	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
 	<string name="play_stat_fhm">FHM</string>

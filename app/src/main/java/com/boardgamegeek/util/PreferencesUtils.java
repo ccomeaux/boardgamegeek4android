@@ -26,7 +26,6 @@ import androidx.preference.PreferenceManager;
  */
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
-	public static final int INVALID_H_INDEX = -1;
 	public static final int INVALID_ARTICLE_ID = -1;
 
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
@@ -36,6 +35,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
 	public static final String KEY_GAME_H_INDEX = "hIndex";
 	private static final String KEY_PLAYER_H_INDEX = "play_stats_player_h_index";
+	public static final String KEY_H_INDEX_N_SUFFIX = "_n";
 	private static final String KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
@@ -206,7 +206,7 @@ public class PreferencesUtils {
 		if (context == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateHIndex(context, editor, gameHIndex.getH(), KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
+		updateHIndex(context, editor, gameHIndex, KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
 		editor.apply();
 	}
 
@@ -214,17 +214,21 @@ public class PreferencesUtils {
 		if (context == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateHIndex(context, editor, playerHIndex.getH(), KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
+		updateHIndex(context, editor, playerHIndex, KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
 		editor.apply();
 	}
 
-	private static void updateHIndex(@NonNull Context context, Editor editor, int hIndex, String key, @StringRes int typeResId, int notificationId) {
-		if (hIndex != INVALID_H_INDEX) {
+	private static void updateHIndex(@NonNull Context context, Editor editor, HIndexEntity hIndex, String key, @StringRes int typeResId, int notificationId) {
+		if (hIndex.getH() != HIndexEntity.INVALID_H_INDEX) {
 			int oldHIndex = getInt(context, key, 0);
-			if (oldHIndex != hIndex) {
-				editor.putInt(key, hIndex);
-				@StringRes int messageId = hIndex > oldHIndex ? R.string.sync_notification_h_index_increase : R.string.sync_notification_h_index_decrease;
-				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, context.getString(typeResId), hIndex), notificationId);
+			int oldN = getInt(context, key + KEY_H_INDEX_N_SUFFIX, 0);
+			if (oldHIndex != hIndex.getH() || oldN != hIndex.getN()) {
+				editor.putInt(key, hIndex.getH());
+				editor.putInt(key + KEY_H_INDEX_N_SUFFIX, hIndex.getN());
+				@StringRes int messageId = hIndex.getH() > oldHIndex || (hIndex.getH() == oldHIndex && hIndex.getN() < oldN) ?
+					R.string.sync_notification_h_index_increase :
+					R.string.sync_notification_h_index_decrease;
+				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, context.getString(typeResId), hIndex.getDescription()), notificationId);
 			}
 		}
 	}

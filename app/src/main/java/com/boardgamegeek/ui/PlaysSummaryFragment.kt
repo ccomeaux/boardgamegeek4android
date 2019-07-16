@@ -59,8 +59,8 @@ class PlaysSummaryFragment : Fragment() {
         viewModel.players.observe(this, Observer { playerEntities -> bindPlayers(playerEntities) })
         viewModel.locations.observe(this, Observer { locationEntities -> bindLocations(locationEntities) })
         viewModel.colors.observe(this, Observer { playerColorEntities -> bindColors(playerColorEntities) })
-        viewModel.hIndex.observe(this, Observer {
-            hIndexView.text = context?.getText(R.string.game_h_index_prefix, it ?: 0)
+        viewModel.hIndex().observe(this, Observer {
+            hIndexView.text = context?.getText(R.string.game_h_index_prefix, it.description)
             morePlayStatsButton.setOnClickListener {
                 startActivity<PlayStatsActivity>()
             }
