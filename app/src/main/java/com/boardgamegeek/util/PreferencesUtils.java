@@ -8,6 +8,7 @@ import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.HIndexEntity;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.ui.PlayStatsActivity;
 
@@ -201,19 +202,19 @@ public class PreferencesUtils {
 		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}
 
-	public static void updateGameHIndex(@Nullable Context context, int gameHIndex) {
+	public static void updateGameHIndex(@Nullable Context context, HIndexEntity gameHIndex) {
 		if (context == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateHIndex(context, editor, gameHIndex, KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
+		updateHIndex(context, editor, gameHIndex.getH(), KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX);
 		editor.apply();
 	}
 
-	public static void updatePlayerHIndex(@Nullable Context context, int playerHIndex) {
+	public static void updatePlayerHIndex(@Nullable Context context, HIndexEntity playerHIndex) {
 		if (context == null) return;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		updateHIndex(context, editor, playerHIndex, KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
+		updateHIndex(context, editor, playerHIndex.getH(), KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX);
 		editor.apply();
 	}
 

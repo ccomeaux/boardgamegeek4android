@@ -93,18 +93,18 @@ class PersonStatsFragment : Fragment() {
             context?.showClickableAlertDialog(
                     R.string.whitmore_score,
                     R.string.whitmore_score_info,
-                    objectDescription,
-                    stats.hIndex.toString())
+                    objectDescription)
         }
 
         playCount.text = stats.playCount.toString()
-        hIndex.text = stats.hIndex.toString()
+        hIndex.text = stats.hIndex.description
         hIndexLabel.setOnClickListener {
-            context?.showClickableAlertDialog(
+            context?.showClickableAlertDialogPlural(
                     R.string.h_index,
-                    R.plurals.peron_game_h_index_info,
-                    stats.hIndex,
-                    stats.hIndex.toString())
+                    R.plurals.person_game_h_index_info,
+                    stats.hIndex.h,
+                    stats.hIndex.h,
+                    stats.hIndex.n)
         }
 
         statsView.fadeIn()

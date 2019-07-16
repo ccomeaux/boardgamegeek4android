@@ -8,7 +8,7 @@ class PersonStatsEntity(
         val whitmoreScore: Int,
         val whitmoreScoreWithExpansions: Int,
         val playCount: Int,
-        val hIndex: Int
+        val hIndex: HIndexEntity
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<BriefGameEntity>, context: Context): PersonStatsEntity {
@@ -39,19 +39,9 @@ class PersonStatsEntity(
                 else -> baseGameCollection
             }
                     .distinctBy { it.gameId }
-                    .filter { it.playCount > 0 }
-                    .sortedByDescending { it.playCount }
+                    .map { it.playCount }
 
-            var hIndexCounter = 0
-            var hIndex = 0
-            for (value in hIndexList) {
-                hIndexCounter++
-                if (hIndexCounter > value.playCount) {
-                    hIndex = hIndexCounter - 1
-                    break
-                }
-            }
-            if (hIndex == 0) hIndex = hIndexCounter
+            val hIndex = HIndexEntity.fromList(hIndexList)
 
             return PersonStatsEntity(averageRating, whitmoreScore, whitmoreScoreWithExpansions, playCount, hIndex)
         }

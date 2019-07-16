@@ -87,7 +87,7 @@ fun Context.showClickableAlertDialog(@StringRes titleResId: Int, @StringRes mess
     showClickableAlertDialog(spannableMessage, titleResId)
 }
 
-fun Context.showClickableAlertDialog(@StringRes titleResId: Int, @PluralsRes messageResId: Int, quantity: Int, vararg formatArgs: Any) {
+fun Context.showClickableAlertDialogPlural(@StringRes titleResId: Int, @PluralsRes messageResId: Int, quantity: Int, vararg formatArgs: Any) {
     val spannableMessage = SpannableString(resources.getQuantityString(messageResId, quantity, *formatArgs))
     showClickableAlertDialog(spannableMessage, titleResId)
 }

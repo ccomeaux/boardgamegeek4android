@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
 import com.boardgamegeek.extensions.*
@@ -66,7 +67,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                     context?.showClickableAlertDialog(
                             R.string.play_stat_game_h_index,
                             R.string.play_stat_game_h_index_info,
-                            entity.hIndex.toString())
+                            entity.hIndex.h,
+                            entity.hIndex.n)
                 }
             }
         })
@@ -77,7 +79,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 context?.showClickableAlertDialog(
                         R.string.play_stat_player_h_index,
                         R.string.play_stat_player_h_index_info,
-                        entity.hIndex.toString())
+                        entity.hIndex.h,
+                        entity.hIndex.n)
             }
         })
 
@@ -138,7 +141,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             }
         }
 
-        gameHIndexView.text = stats.hIndex.toString()
+        gameHIndexView.text = stats.hIndex.description
         bindHIndexTable(gameHIndexTable, stats.hIndex, stats.getHIndexGames())
 
         advancedTable.removeAllViews()
@@ -186,22 +189,22 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun bindPlayerUi(stats: PlayerStatsEntity) {
-        playerHIndexView.text = stats.hIndex.toString()
+        playerHIndexView.text = stats.hIndex.description
         bindHIndexTable(playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
         playerHIndexTable.setOnClickListener {
             PlayersActivity.startByPlayCount(requireContext())
         }
     }
 
-    private fun bindHIndexTable(table: TableLayout, hIndex: Int, entries: List<Pair<String, Int>>?) {
+    private fun bindHIndexTable(table: TableLayout, hIndex: HIndexEntity, entries: List<Pair<String, Int>>?) {
         table.removeAllViews()
         if (entries == null || entries.isEmpty()) {
             table.visibility = View.GONE
         } else {
             val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
-            val nextHighestHIndex = entries.findLast { it.second > hIndex }?.second ?: hIndex + 1
-            val nextLowestHIndex = entries.find { it.second < hIndex }?.second ?: hIndex - 1
+            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second ?: hIndex.h + 1
+            val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: hIndex.h - 1
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
             prefix.forEach {
@@ -212,7 +215,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 }
             }
 
-            val list = rankedEntries.filter { it.second == hIndex }
+            val list = rankedEntries.filter { it.second == hIndex.h }
             if (list.isEmpty()) {
                 addDivider(table)
             } else {

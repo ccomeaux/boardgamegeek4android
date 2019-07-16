@@ -208,11 +208,11 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
     }
 
-    fun updateGameHIndex(hIndex: Int) {
+    fun updateGameHIndex(hIndex: HIndexEntity) {
         PreferencesUtils.updateGameHIndex(application, hIndex)
     }
 
-    fun updatePlayerHIndex(hIndex: Int) {
+    fun updatePlayerHIndex(hIndex: HIndexEntity) {
         PreferencesUtils.updatePlayerHIndex(application, hIndex)
     }
 

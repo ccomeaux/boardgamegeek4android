@@ -45,21 +45,12 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         games.filter { it.bggRank in 1..100 }.size
     }
 
-    val hIndex: Int by lazy {
-        var hIndexCounter = 0
-        var hIndex = 0
-        for (it in games) {
-            hIndexCounter++
-            if (hIndexCounter > it.playCount) {
-                hIndex = hIndexCounter - 1
-                break
-            }
-        }
-        if (hIndex == 0) hIndexCounter else hIndex
+    val hIndex: HIndexEntity by lazy {
+        HIndexEntity.fromList(games.map { it.playCount })
     }
 
     fun getHIndexGames(): List<Pair<String, Int>> {
-        if (hIndex == 0) return emptyList()
+        if (hIndex.h == 0) return emptyList()
         return games.map { it.name to it.playCount }
     }
 
