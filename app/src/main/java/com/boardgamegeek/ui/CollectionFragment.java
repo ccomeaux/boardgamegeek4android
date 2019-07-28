@@ -37,6 +37,7 @@ import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.pref.SyncPrefs;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -118,6 +119,7 @@ public class CollectionFragment extends Fragment implements
 	ActionMode.Callback,
 	CollectionFilterDialog.OnFilterChangedListener {
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
+	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
 	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
@@ -143,6 +145,7 @@ public class CollectionFragment extends Fragment implements
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
 	private boolean isCreatingShortcut;
+	private long changingGamePlayId;
 	private boolean isSyncing;
 	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
@@ -151,6 +154,14 @@ public class CollectionFragment extends Fragment implements
 	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
 		Bundle args = new Bundle();
 		args.putBoolean(KEY_IS_CREATING_SHORTCUT, isCreatingShortcut);
+		CollectionFragment fragment = new CollectionFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public static CollectionFragment newInstanceForPlayGameChange(long playId) {
+		Bundle args = new Bundle();
+		args.putLong(KEY_CHANGING_GAME_PLAY_ID, playId);
 		CollectionFragment fragment = new CollectionFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -201,6 +212,7 @@ public class CollectionFragment extends Fragment implements
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		isCreatingShortcut = bundle.getBoolean(KEY_IS_CREATING_SHORTCUT);
+		changingGamePlayId = bundle.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -217,6 +229,8 @@ public class CollectionFragment extends Fragment implements
 		super.onViewCreated(view, savedInstanceState);
 		if (isCreatingShortcut) {
 			Snackbar.make(swipeRefreshLayout, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
+		} else if (changingGamePlayId != BggContract.INVALID_ID) {
+			Snackbar.make(swipeRefreshLayout, R.string.msg_change_play_game, Snackbar.LENGTH_LONG).show();
 		}
 
 		footerToolbar.inflateMenu(R.menu.collection_fragment);
@@ -249,7 +263,7 @@ public class CollectionFragment extends Fragment implements
 
 		Icepick.restoreInstanceState(this, savedInstanceState);
 		sorter = getCollectionSorter(sortType);
-		if (savedInstanceState != null || isCreatingShortcut) {
+		if (savedInstanceState != null || isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 			requery();
 		}
 	}
@@ -329,7 +343,7 @@ public class CollectionFragment extends Fragment implements
 
 	private void invalidateMenu() {
 		final Menu menu = footerToolbar.getMenu();
-		if (isCreatingShortcut) {
+		if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
 			menu.findItem(R.id.menu_create_shortcut).setVisible(false);
 			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
@@ -921,14 +935,18 @@ public class CollectionFragment extends Fragment implements
 				itemView.setOnClickListener(v -> {
 					if (isCreatingShortcut) {
 						EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
+					} else if (changingGamePlayId != BggContract.INVALID_ID) {
+						LogPlayActivity.changeGame(getContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl);
+						getActivity().finish(); // don't want to come back to collection activity in "pick a new game" mode
 					} else if (actionMode == null) {
-						GameActivity.start(getContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
+						GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
 					} else {
 						adapter.toggleSelection(position);
 					}
 				});
 				itemView.setOnLongClickListener(v -> {
 					if (isCreatingShortcut) return false;
+					if (changingGamePlayId != BggContract.INVALID_ID) return false;
 					if (actionMode != null) return false;
 					actionMode = getActivity().startActionMode(CollectionFragment.this);
 					if (actionMode == null) return false;

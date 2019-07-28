@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentProviderOperation
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
@@ -21,6 +22,7 @@ import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.RateLimiter
@@ -172,6 +174,17 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
 
     fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): LiveData<List<LocationEntity>> {
         return playDao.loadLocationsAsLiveData(sortBy)
+    }
+
+    fun markAsDeleted(internalId: Long) {
+        val values = contentValuesOf(
+                BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.UPDATE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0
+        )
+        application.appExecutors.diskIO.execute {
+            application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
+        }
     }
 
     fun updatePlaysWithNickName(username: String, nickName: String): Int {

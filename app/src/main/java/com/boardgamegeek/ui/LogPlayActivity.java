@@ -42,6 +42,7 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
 import com.boardgamegeek.extensions.TaskUtils;
@@ -55,6 +56,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayLocations;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.repository.PlayRepository;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
@@ -137,6 +139,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_END_PLAY = "END_PLAY";
 	private static final String KEY_REMATCH = "REMATCH";
+	private static final String KEY_CHANGE_GAME = "CHANGE_GAME";
 	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 1;
 	private static final int REQUEST_EDIT_PLAYER = 2;
@@ -152,9 +155,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private String gameName;
 	private boolean isRequestingToEndPlay;
 	private boolean isRequestingRematch;
+	private boolean isChangingGame;
 	private String thumbnailUrl;
 	private String imageUrl;
 	private String heroImageUrl;
+	private long internalIdToDelete = BggContract.INVALID_ID;
 
 	private QueryHandler queryHandler;
 	private int outstandingQueries = TOKEN_UNINITIALIZED;
@@ -214,6 +219,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
 		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
+		context.startActivity(intent);
+	}
+
+	public static void changeGame(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
+		intent.putExtra(KEY_CHANGE_GAME, true);
 		context.startActivity(intent);
 	}
 
@@ -338,6 +349,13 @@ public class LogPlayActivity extends AppCompatActivity implements
 				}
 				if (isRequestingRematch) {
 					play = PlayBuilder.rematch(play);
+					internalId = BggContract.INVALID_ID;
+				} else if (isChangingGame) {
+					play = PlayBuilder.copy(play);
+					play.playId = BggContract.INVALID_ID;
+					play.gameId = gameId;
+					play.gameName = gameName;
+					internalIdToDelete = internalId;
 					internalId = BggContract.INVALID_ID;
 				}
 				originalPlay = PlayBuilder.copy(play);
@@ -521,6 +539,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		isRequestingToEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
 		isRequestingRematch = intent.getBooleanExtra(KEY_REMATCH, false);
+		isChangingGame = intent.getBooleanExtra(KEY_CHANGE_GAME, false);
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
@@ -701,7 +720,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 				// Editing or copying an existing play, so retrieve it
 				shouldDeletePlayOnActivityCancel = false;
 				outstandingQueries |= TOKEN_PLAY | TOKEN_PLAYERS;
-				if (isRequestingRematch) {
+				if (isRequestingRematch || isChangingGame) {
 					shouldDeletePlayOnActivityCancel = true;
 				}
 				queryHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
@@ -742,6 +761,10 @@ public class LogPlayActivity extends AppCompatActivity implements
 		play.deleteTimestamp = 0;
 		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
+			if (internalIdToDelete != BggContract.INVALID_ID) {
+				PlayRepository playRepository = new PlayRepository((BggApplication) getApplication());
+				playRepository.markAsDeleted(internalIdToDelete);
+			}
 			if (play.playId == 0 && DateUtils.isToday(play.dateInMillis + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);

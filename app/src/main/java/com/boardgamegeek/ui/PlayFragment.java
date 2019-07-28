@@ -290,6 +290,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
+			case R.id.menu_change_game:
+				PlayManipulationEvent.log("Change game", play.gameName);
+				startActivity(CollectionActivity.createIntentForGameChange(getContext(), internalId));
+				getActivity().finish(); // don't want to show the "old" play upon return
+				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), play.toShortDescription(getActivity()), play.toLongDescription(getActivity()), R.string.share_play_title);
 				Answers.getInstance().logShare(new ShareEvent()

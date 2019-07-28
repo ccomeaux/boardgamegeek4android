@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
@@ -60,11 +61,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	CollectionSortDialogFragment.Listener,
 	CollectionFilterDialogFragment.Listener {
 	private static final String KEY_VIEW_ID = "VIEW_ID";
+	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
 	private Spinner spinner;
 	private boolean isCreatingShortcut;
+	private long changingGamePlayId;
 
 	public static Intent createIntentAsShortcut(Context context, long viewId) {
 		return new Intent(context, CollectionActivity.class)
@@ -72,6 +75,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 			.putExtra(KEY_VIEW_ID, viewId)
 			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
 			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	}
+
+	public static Intent createIntentForGameChange(Context context, long playId) {
+		return new Intent(context, CollectionActivity.class)
+			.putExtra(KEY_CHANGING_GAME_PLAY_ID, playId);
 	}
 
 	@Override
@@ -84,7 +92,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (isCreatingShortcut) {
+			if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 				actionBar.setHomeButtonEnabled(false);
 				actionBar.setDisplayHomeAsUpEnabled(false);
 				actionBar.setTitle(R.string.app_name);
@@ -94,7 +102,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 				actionBar.setCustomView(R.layout.actionbar_collection);
 			}
 		}
-		if (!isCreatingShortcut) {
+		if (!isCreatingShortcut && changingGamePlayId == BggContract.INVALID_ID) {
 			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		}
 
@@ -106,6 +114,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	@Override
 	protected void readIntent(@NonNull Intent intent) {
 		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
+		changingGamePlayId = getIntent().getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -125,7 +134,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 
 	@Override
 	protected int getOptionsMenuId() {
-		if (isCreatingShortcut) {
+		if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 			return super.getOptionsMenuId();
 		} else {
 			return R.menu.search;
@@ -147,7 +156,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	@Override
 	@DebugLog
 	protected Fragment onCreatePane() {
-		return CollectionFragment.newInstance(isCreatingShortcut);
+		if (changingGamePlayId != BggContract.INVALID_ID) {
+			return CollectionFragment.newInstanceForPlayGameChange(changingGamePlayId);
+		} else {
+			return CollectionFragment.newInstance(isCreatingShortcut);
+		}
 	}
 
 	@Override
