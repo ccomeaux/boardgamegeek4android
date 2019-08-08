@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+	android:id="@+id/container"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:importantForAutofill="noExcludeDescendants">
+
+	<TextView
+		android:id="@+id/at"
+		android:layout_width="64dp"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:text="@string/at"
+		android:textAppearance="@style/Text"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+	<!-- left pad should cone from the actionbar constant -->
+
+	<EditText
+		android:id="@+id/filterView"
+		android:layout_width="0dp"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:hint="@string/new_play_location_hint"
+		android:imeOptions="actionNone"
+		android:inputType="textCapWords"
+		app:layout_constraintEnd_toStartOf="@id/next"
+		app:layout_constraintStart_toEndOf="@id/at"
+		app:layout_constraintTop_toTopOf="parent"/>
+	<!-- ime should be next OR done -->
+
+	<ImageView
+		android:id="@+id/next"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:foregroundGravity="center"
+		android:paddingRight="@dimen/activity_horizontal_margin"
+		android:src="@drawable/ic_check_circle"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recyclerView"
+		style="@style/RecyclerViewVerticalList"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:visibility="gone"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/filterView"
+		tools:listitem="@layout/row_new_play_location"
+		tools:visibility="visible"/>
+
+	<TextView
+		android:id="@+id/emptyView"
+		style="@style/EmptyMessage"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:text="@string/empty_new_play_locations"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/filterView"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

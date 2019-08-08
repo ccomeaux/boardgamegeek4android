@@ -187,6 +187,10 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
     }
 
+    fun loadPlayersByLocation(location: String = ""): LiveData<List<PlayerEntity>> {
+        return playDao.loadPlayersByLocationAsLiveData(location)
+    }
+
     fun updatePlaysWithNickName(username: String, nickName: String): Int {
         val count = playDao.countNickNameUpdatePlays(username, nickName)
         val batch = arrayListOf<ContentProviderOperation>()

@@ -373,6 +373,45 @@ class PlayDao(private val context: BggApplication) {
         return results
     }
 
+    fun loadPlayersByLocationAsLiveData(location: String = ""): LiveData<List<PlayerEntity>> {
+        return RegisteredLiveData(context, Plays.buildPlayersByUniqueNameUri(), false) {
+            return@RegisteredLiveData loadPlayersByLocation(location)
+        }
+    }
+
+    private fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> {
+        val results = mutableListOf<PlayerEntity>()
+        val selection = if (location.isNotBlank()) "${Plays.LOCATION}=?" else null
+        val selectionArgs = if (location.isNotBlank()) arrayOf(location) else null
+
+        context.contentResolver.load(
+                Plays.buildPlayersByUniqueNameUri(),
+                arrayOf(
+                        PlayPlayers.NAME,
+                        PlayPlayers.USER_NAME,
+                        Buddies.AVATAR_URL,
+                        PlayPlayers.SUM_QUANTITY,
+                        PlayPlayers.UNIQUE_NAME
+                ),
+                selection,
+                selectionArgs,
+                PlayPlayers.SORT_BY_SUM_QUANTITY
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    val count = it.getIntOrZero(PlayPlayers.SUM_QUANTITY)
+                    Timber.i(count.toString())
+                    results += PlayerEntity(
+                            it.getStringOrEmpty(PlayPlayers.NAME),
+                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                            avatarUrl = it.getStringOrNull(Buddies.AVATAR_URL)
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
+    }
+
     enum class PlayerSortBy {
         NAME, PLAY_COUNT, WIN_COUNT
     }

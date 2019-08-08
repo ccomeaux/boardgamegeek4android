@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
+	android:gravity="center"
+	android:orientation="vertical"
+	android:padding="@dimen/padding_standard">
+
+	<com.boardgamegeek.ui.widget.BezelImageView
+		android:id="@+id/avatarView"
+		android:layout_width="@dimen/thumbnail_grid_size"
+		android:layout_height="@dimen/thumbnail_grid_size"
+		android:contentDescription="@string/avatar"
+		android:scaleType="centerCrop"
+		android:src="@drawable/person_image_empty"
+		app:maskDrawable="@drawable/circle_mask"/>
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.RowTitle"
+		tools:text="@tools:sample/first_names"/>
+
+	<TextView
+		android:id="@+id/usernameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.RowDetail"
+		android:textSize="12sp"
+		tools:text="@tools:sample/last_names"/>
+</LinearLayout>

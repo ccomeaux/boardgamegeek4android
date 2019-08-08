@@ -77,7 +77,8 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private fun updateTabs() {
         tabs.clear()
         tabs.add(Tab(R.string.title_description, R.drawable.fab_log_play) {
-            LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+            //LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+            NewPlayActivity.start(activity, gameId, gameName)
         })
         tabs.add(Tab(R.string.title_info, R.drawable.fab_favorite_off) {
             viewModel.updateFavorite(!isFavorite)

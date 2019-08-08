@@ -28,6 +28,11 @@
 		android:theme="@style/Theme.bgglight.NavDrawer"
 		tools:ignore="GoogleAppIndexingWarning">
 		<activity
+			android:name=".ui.NewPlayActivity"
+			android:label="@string/title_new_play"
+			android:theme="@style/Theme.bgglight">
+		</activity>
+		<activity
 			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
 			android:launchMode="singleTop"
