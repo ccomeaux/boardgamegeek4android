@@ -13,11 +13,11 @@ public class ArticleElement {
 	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
 
 	@Attribute public int id;
-	@Attribute public String username;
+	@Attribute(required = false) public String username;
 	@Attribute public String link;
-	@Attribute public String postdate;
-	@Attribute public String editdate;
-	@Attribute public int numedits;
+	@Attribute(required = false) public String postdate;
+	@Attribute(required = false) public String editdate;
+	@Attribute(required = false) public int numedits;
 	@Element(required = false) public String subject;
 	@Element(required = false) public String body;
 }
