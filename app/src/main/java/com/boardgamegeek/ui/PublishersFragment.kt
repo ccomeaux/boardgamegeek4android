@@ -118,7 +118,7 @@ class PublishersFragment : Fragment() {
         inner class PublisherViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(publisher: CompanyEntity?) {
                 publisher?.let { p ->
-                    itemView.thumbnailView.loadThumbnail(p.thumbnailUrl)
+                    itemView.thumbnailView.loadThumbnailInList(p.thumbnailUrl)
                     itemView.nameView.text = p.name
                     val showWhitmoreScore = itemView.context.isStatusSetToSync(COLLECTION_STATUS_RATED)
                     if (showWhitmoreScore) {

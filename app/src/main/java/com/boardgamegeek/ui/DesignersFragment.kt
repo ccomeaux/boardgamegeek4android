@@ -118,7 +118,7 @@ class DesignersFragment : Fragment() {
         inner class DesignerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(designer: PersonEntity?) {
                 designer?.let { d ->
-                    itemView.avatarView.loadThumbnail(d.thumbnailUrl, R.drawable.person_image_empty)
+                    itemView.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
                     itemView.nameView.text = d.name
                     val showWhitmoreScore = itemView.context.isStatusSetToSync(COLLECTION_STATUS_RATED)
                     if (showWhitmoreScore) {

@@ -118,7 +118,7 @@ class ArtistsFragment : Fragment() {
         inner class ArtistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(artist: PersonEntity?) {
                 artist?.let { a ->
-                    itemView.avatarView.loadThumbnail(a.thumbnailUrl, R.drawable.person_image_empty)
+                    itemView.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
                     itemView.nameView.text = a.name
                     val showWhitmoreScore = itemView.context.isStatusSetToSync(COLLECTION_STATUS_RATED)
                     if (showWhitmoreScore) {
