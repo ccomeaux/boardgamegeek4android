@@ -94,7 +94,7 @@ class SettingsActivity : DrawerActivity() {
                     updateSyncStatusSummary(PREFERENCES_KEY_SYNC_STATUSES)
                 }
                 ACTION_ABOUT -> {
-                    findPreference("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    findPreference<Preference>("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                         LibsBuilder()
                                 .withFields(R.string::class.java.fields)
                                 .withLibraries(
@@ -167,7 +167,7 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateSyncStatusSummary(key: String) {
-            val pref = findPreference(key) ?: return
+            val pref = findPreference<Preference>(key) ?: return
             val statuses = activity.getSyncStatuses()
             pref.summary = if (statuses == null || statuses.isEmpty()) {
                 getString(R.string.pref_list_empty)
@@ -209,7 +209,7 @@ class SettingsActivity : DrawerActivity() {
 
             if (dialogFragment != null) {
                 dialogFragment.setTargetFragment(this, 0)
-                dialogFragment.show(fragmentManager, dialogFragmentTag)
+                dialogFragment.show(requireFragmentManager(), dialogFragmentTag)
             } else super.onDisplayPreferenceDialog(preference)
         }
 
@@ -225,8 +225,8 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateAccountPrefs(username: String) {
-            (findPreference(PreferencesUtils.KEY_LOGIN) as? LoginPreference)?.update(username)
-            (findPreference(PreferencesUtils.KEY_LOGOUT) as? SignOutPreference)?.update()
+            findPreference<LoginPreference>(PreferencesUtils.KEY_LOGIN)?.update(username)
+            findPreference<SignOutPreference>(PreferencesUtils.KEY_LOGOUT)?.update()
         }
     }
 
