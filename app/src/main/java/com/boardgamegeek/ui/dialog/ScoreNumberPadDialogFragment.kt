@@ -10,7 +10,7 @@ class ScoreNumberPadDialogFragment : NumberPadDialogFragment() {
         fun onNumberPadDone(output: Double, requestCode: Int)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? Listener
         if (listener == null) throw ClassCastException("$context must implement Listener")

@@ -33,7 +33,7 @@ class SaveViewDialogFragment : DialogFragment() {
         fun onUpdateRequested(name: String, isDefault: Boolean, viewId: Long)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? OnViewSavedListener
         if (listener == null) throw ClassCastException("$context must implement OnViewSavedListener")

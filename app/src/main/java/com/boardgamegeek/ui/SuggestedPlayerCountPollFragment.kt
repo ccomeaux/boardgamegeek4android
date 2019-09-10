@@ -32,7 +32,7 @@ class SuggestedPlayerCountPollFragment : DialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        dialog.setTitle(R.string.suggested_numplayers)
+        dialog?.setTitle(R.string.suggested_numplayers)
 
         addKeyRow(R.color.best, R.string.best)
         addKeyRow(R.color.recommended, R.string.recommended)
@@ -89,7 +89,7 @@ class SuggestedPlayerCountPollFragment : DialogFragment() {
     companion object {
         fun launch(host: Fragment) {
             val dialog = SuggestedPlayerCountPollFragment()
-            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             host.showAndSurvive(dialog)
         }
     }

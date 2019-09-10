@@ -11,6 +11,7 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel
 import kotlinx.android.synthetic.main.fragment_game_details.*
+import java.util.*
 
 class MechanicCollectionFragment : Fragment() {
     private var sortType = MechanicViewModel.CollectionSort.RATING
@@ -36,7 +37,7 @@ class MechanicCollectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).toLowerCase())
+        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).toLowerCase(Locale.getDefault()))
         viewModel.sort.observe(this, Observer {
             sortType = it
         })
@@ -54,20 +55,20 @@ class MechanicCollectionFragment : Fragment() {
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.linked_collection, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.linked_collection, menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?) {
-        menu?.findItem(when (sortType) {
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(when (sortType) {
             MechanicViewModel.CollectionSort.NAME -> R.id.menu_sort_name
             MechanicViewModel.CollectionSort.RATING -> R.id.menu_sort_rating
         })?.isChecked = true
         super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        viewModel.setSort(when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.setSort(when (item.itemId) {
             R.id.menu_sort_name -> MechanicViewModel.CollectionSort.NAME
             R.id.menu_sort_rating -> MechanicViewModel.CollectionSort.RATING
             else -> return super.onOptionsItemSelected(item)

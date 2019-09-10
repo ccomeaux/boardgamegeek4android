@@ -43,7 +43,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
         AutoCompleteAdapter(requireContext(), Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri())
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? PrivateInfoDialogListener
         if (listener == null) throw ClassCastException("$context must implement PrivateInfoDialogListener")
@@ -121,7 +121,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 showOrHideAcquisitionDateLabel()
             })
             datePickerDialogFragment.setCurrentDateInMillis(privateInfo.acquisitionDate.toMillisFromApiDate(System.currentTimeMillis()))
-            datePickerDialogFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG)
+            datePickerDialogFragment.show(requireFragmentManager(), DATE_PICKER_DIALOG_TAG)
         }
 
 

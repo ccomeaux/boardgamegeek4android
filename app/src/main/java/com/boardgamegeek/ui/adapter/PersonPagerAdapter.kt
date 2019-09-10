@@ -14,8 +14,8 @@ class PersonPagerAdapter(
         private val id: Int,
         private val name: String,
         private val type: PersonActivity.PersonType
-) : FragmentPagerAdapter(fragmentManager) {
-    override fun getItem(position: Int): Fragment? {
+) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    override fun getItem(position: Int): Fragment {
         return when (position) {
             0 -> PersonDescriptionFragment.newInstance()
             1 -> PersonStatsFragment.newInstance()
@@ -27,7 +27,7 @@ class PersonPagerAdapter(
                     PersonActivity.PersonType.PUBLISHER -> ForumsFragment.newInstanceForPublisher(id, name)
                 }
             }
-            else -> null
+            else -> ErrorFragment.newInstance()
         }
     }
 

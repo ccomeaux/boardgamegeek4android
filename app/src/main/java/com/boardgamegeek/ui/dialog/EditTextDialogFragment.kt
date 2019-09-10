@@ -12,7 +12,7 @@ class EditTextDialogFragment : AbstractEditTextDialogFragment() {
         fun onFinishEditDialog(text: String, originalText: String?)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? EditTextDialogListener
         if (listener == null) throw ClassCastException("$context must implement EditTextDialogListener")

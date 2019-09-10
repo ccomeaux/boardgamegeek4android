@@ -22,7 +22,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
-        FragmentPagerAdapter(fragmentManager) {
+        FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     var currentPosition = 0
         set(value) {
             field = value
@@ -60,7 +60,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         return if (resId != INVALID_RES_ID) activity.getString(resId) else ""
     }
 
-    override fun getItem(position: Int): Fragment? {
+    override fun getItem(position: Int): Fragment {
         return when (tabs.getOrNull(position)?.titleResId) {
             R.string.title_description -> GameDescriptionFragment.newInstance()
             R.string.title_info -> GameFragment.newInstance()
@@ -68,7 +68,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
             R.string.title_plays -> GamePlaysFragment.newInstance()
             R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
             R.string.links -> GameLinksFragment.newInstance()
-            else -> null
+            else -> ErrorFragment.newInstance()
         }
     }
 

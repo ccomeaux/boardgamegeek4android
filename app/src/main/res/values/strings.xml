@@ -118,6 +118,7 @@
 	<string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
 	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
+	<string name="msg_fragment_error">You shouldn\'t be seeing this message. But if you are, please send a screenshot of this to bgg4android@gmail.com. Thanks!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
 	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>

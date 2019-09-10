@@ -16,7 +16,7 @@ class DeleteViewDialogFragment : DialogFragment() {
         fun onViewDeleted(viewId: Long)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? OnViewDeletedListener
         if (listener == null) throw ClassCastException("$context must implement OnViewSavedListener")
