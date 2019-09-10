@@ -140,7 +140,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.0.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 
