@@ -50,14 +50,22 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             setRangePinsByValue(low.toFloat(), high.toFloat())
             if (low == high && supportsSlider) setRangeBarEnabled(false)
             setPinTextFormatter { value -> getPinText(context, value) }
-            setOnRangeBarChangeListener { _, leftPinIndex, rightPinIndex, _, _ ->
-                high = (rightPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
-                low = if (isRangeBar) {
-                    (leftPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
-                } else {
-                    high
+            setOnRangeBarChangeListener(object : RangeBar.OnRangeBarChangeListener {
+                override fun onRangeChangeListener(rangeBar: RangeBar?, leftPinIndex: Int, rightPinIndex: Int, leftPinValue: String?, rightPinValue: String?) {
+                    high = (rightPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
+                    low = if (isRangeBar) {
+                        (leftPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
+                    } else {
+                        high
+                    }
                 }
-            }
+
+                override fun onTouchStarted(rangeBar: RangeBar?) {
+                }
+
+                override fun onTouchEnded(rangeBar: RangeBar?) {
+                }
+            })
         }
 
         layout.minDownButton.setOnClickListener {
