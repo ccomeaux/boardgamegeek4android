@@ -73,9 +73,6 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
         if (action != null) {
             builder.addAction(action)
         }
-        if (largeIcon != null) {
-            builder.extend(NotificationCompat.WearableExtender().setBackground(largeIcon))
-        }
         NotificationUtils.notify(context, notificationMessageTag, id, builder)
         showNotificationSummary()
     }
@@ -90,8 +87,7 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
                 .setGroup(notificationMessageTag)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                 .setGroupSummary(true)
-        val messageCount = notificationMessages.size
-        when (messageCount) {
+        when (val messageCount = notificationMessages.size) {
             0 -> return
             1 -> builder.setContentText(notificationMessages[0])
             else -> {
