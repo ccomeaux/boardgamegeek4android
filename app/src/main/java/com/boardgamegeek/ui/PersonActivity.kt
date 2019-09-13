@@ -19,6 +19,7 @@ import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.toast
+import java.util.*
 
 class PersonActivity : HeroTabActivity() {
     enum class PersonType {
@@ -46,7 +47,7 @@ class PersonActivity : HeroTabActivity() {
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
         name = intent.getStringExtra(KEY_PERSON_NAME)
         personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase()
+        emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
 
         initializeViewPager()
         safelySetTitle(name)
@@ -54,15 +55,15 @@ class PersonActivity : HeroTabActivity() {
         emptyMessageDescription = when (personType) {
             PersonType.ARTIST -> {
                 viewModel.setArtistId(id)
-                getString(R.string.title_artist).toLowerCase()
+                getString(R.string.title_artist).toLowerCase(Locale.getDefault())
             }
             PersonType.DESIGNER -> {
                 viewModel.setDesignerId(id)
-                getString(R.string.title_designer).toLowerCase()
+                getString(R.string.title_designer).toLowerCase(Locale.getDefault())
             }
             PersonType.PUBLISHER -> {
                 viewModel.setPublisherId(id)
-                getString(R.string.title_publisher).toLowerCase()
+                getString(R.string.title_publisher).toLowerCase(Locale.getDefault())
             }
         }
 
@@ -101,16 +102,27 @@ class PersonActivity : HeroTabActivity() {
     override val optionsMenuId = R.menu.person
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_view) {
-            val path = when (personType) {
-                PersonType.DESIGNER -> "boardgamedesigner"
-                PersonType.ARTIST -> "boardgameartist"
-                PersonType.PUBLISHER -> "boardgamepublisher"
+        when (item.itemId) {
+            R.id.menu_view -> {
+                val path = when (personType) {
+                    PersonType.DESIGNER -> "boardgamedesigner"
+                    PersonType.ARTIST -> "boardgameartist"
+                    PersonType.PUBLISHER -> "boardgamepublisher"
+                }
+                linkToBgg(path, id)
+                return true
             }
-            linkToBgg(path, id)
-            return true
+            android.R.id.home -> {
+                when (personType) {
+                    PersonType.DESIGNER -> startActivity(intentFor<DesignersActivity>().clearTop())
+                    PersonType.ARTIST -> startActivity(intentFor<ArtistsActivity>().clearTop())
+                    PersonType.PUBLISHER -> startActivity(intentFor<PublishersActivity>().clearTop())
+                }
+                finish()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun createAdapter(): FragmentPagerAdapter {
