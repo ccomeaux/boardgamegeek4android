@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -11,7 +10,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PublishersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -20,17 +22,13 @@ import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import kotlinx.android.synthetic.main.row_publisher.view.*
 import kotlin.properties.Delegates
 
-class PublishersFragment : Fragment() {
+class PublishersFragment : Fragment(R.layout.fragment_publishers) {
     private val viewModel: PublishersViewModel by lazy {
         ViewModelProviders.of(requireActivity()).get(PublishersViewModel::class.java)
     }
 
     private val adapter: PublisherAdapter by lazy {
         PublisherAdapter(viewModel)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_publishers, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,14 +118,8 @@ class PublishersFragment : Fragment() {
                 publisher?.let { p ->
                     itemView.thumbnailView.loadThumbnailInList(p.thumbnailUrl)
                     itemView.nameView.text = p.name
-                    val showWhitmoreScore = itemView.context.isStatusSetToSync(COLLECTION_STATUS_RATED)
-                    if (showWhitmoreScore) {
-                        itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${p.whitmoreScore}")
-                    } else {
-                        itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, p.itemCount, p.itemCount)
-                    }
-                    itemView.countView.isVisible = !showWhitmoreScore
-                    itemView.whitmoreScoreView.isVisible = showWhitmoreScore
+                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, p.itemCount, p.itemCount)
+                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${p.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForPublisher(itemView.context, p.id, p.name)
                     }
