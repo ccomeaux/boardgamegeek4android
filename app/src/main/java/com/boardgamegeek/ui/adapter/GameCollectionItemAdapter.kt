@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
@@ -15,10 +14,6 @@ import kotlinx.android.synthetic.main.widget_collection_row.view.*
 import kotlin.properties.Delegates
 
 class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
-    init {
-        setHasStableIds(true)
-    }
-
     var gameYearPublished: Int by Delegates.observable(YEAR_UNKNOWN) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             notifyDataSetChanged()
@@ -35,8 +30,6 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
             }
         }
     }
-
-    override fun getItemId(position: Int) = items.getOrNull(position)?.collectionId?.toLong() ?: NO_ID
 
     override fun getItemCount() = items.size
 
