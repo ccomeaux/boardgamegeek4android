@@ -14,7 +14,9 @@ import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.getStatsCalculatedTimestampPublishers
 import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.setStatsCalculatedTimestampPublishers
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.CompanyResponse2
 import com.boardgamegeek.livedata.CalculatingListLoader
@@ -44,7 +46,9 @@ class PublisherRepository(val application: BggApplication) {
         return object : CalculatingListLoader<CompanyEntity>(application) {
             override fun loadFromDatabase() = dao.loadPublishersAsLiveData(sortBy)
 
-            override fun shouldCalculate(data: List<CompanyEntity>?) = data != null
+            override fun shouldCalculate(data: List<CompanyEntity>?): Boolean {
+                return data != null && application.getStatsCalculatedTimestampPublishers().isOlderThan(1, TimeUnit.HOURS)
+            }
 
             override fun sortList(data: List<CompanyEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
 
@@ -53,6 +57,10 @@ class PublisherRepository(val application: BggApplication) {
                 val collection = dao.loadCollection(data.id)
                 val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
                 updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
+            }
+
+            override fun finishCalculating() {
+                application.setStatsCalculatedTimestampPublishers()
             }
         }
     }
