@@ -88,9 +88,38 @@ fun Context.setSyncBuddies(): Boolean {
     return putBoolean(PREFERENCES_KEY_SYNC_BUDDIES, true)
 }
 
+fun Context.setStatsCalculatedTimestampArtists(): Boolean {
+    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, System.currentTimeMillis())
+}
+
+fun Context.setStatsCalculatedTimestampDesigners(): Boolean {
+    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, System.currentTimeMillis())
+}
+
+fun Context.setStatsCalculatedTimestampPublishers(): Boolean {
+    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, System.currentTimeMillis())
+}
+
+fun Context.getStatsCalculatedTimestampArtists(): Long {
+    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0)
+}
+
+fun Context.getStatsCalculatedTimestampDesigners(): Long {
+    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0)
+}
+
+fun Context.getStatsCalculatedTimestampPublishers(): Long {
+    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0)
+}
+
 private fun Context.getBoolean(key: String, defaultValue: Boolean): Boolean {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     return sharedPreferences.getBoolean(key, defaultValue)
+}
+
+private fun Context.getLong(key: String, defaultValue: Long): Long {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    return sharedPreferences.getLong(key, defaultValue)
 }
 
 private fun Context.putBoolean(key: String, value: Boolean): Boolean {
@@ -132,3 +161,7 @@ const val COLLECTION_STATUS_RATED = "rated"
 const val COLLECTION_STATUS_COMMENTED = "comment"
 const val COLLECTION_STATUS_HAS_PARTS = "hasparts"
 const val COLLECTION_STATUS_WANT_PARTS = "wantparts"
+
+private const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS = "statsCalculatedTimestampArtists"
+private const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS = "statsCalculatedTimestampDesigners"
+private const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS = "statsCalculatedTimestampPublishers"
