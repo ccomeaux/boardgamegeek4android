@@ -64,6 +64,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         return when (tabs.getOrNull(position)?.titleResId) {
             R.string.title_description -> GameDescriptionFragment.newInstance()
             R.string.title_info -> GameFragment.newInstance()
+            R.string.title_credits -> GameCreditsFragment.newInstance()
             R.string.title_collection -> GameCollectionFragment.newInstance()
             R.string.title_plays -> GamePlaysFragment.newInstance()
             R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
@@ -82,6 +83,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         tabs.add(Tab(R.string.title_info, R.drawable.fab_favorite_off) {
             viewModel.updateFavorite(!isFavorite)
         })
+        tabs.add(Tab(R.string.title_credits))
         if (shouldShowCollection())
             tabs.add(Tab(R.string.title_collection, R.drawable.fab_add) {
                 activity.showAndSurvive(CollectionStatusDialogFragment.newInstance())

@@ -15,7 +15,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.GameRanksFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.ui.widget.GameDetailRow
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.ShowcaseViewWizard
@@ -31,7 +30,7 @@ import kotlinx.android.synthetic.main.include_game_ratings.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
 
-class GameFragment : Fragment() {
+class GameFragment : Fragment(R.layout.fragment_game) {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var showcaseViewWizard: ShowcaseViewWizard? = null
@@ -45,10 +44,6 @@ class GameFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -81,20 +76,6 @@ class GameFragment : Fragment() {
             viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
 
             viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
-
-            viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
-
-            viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
-
-            viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
-
-            viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
-
-            viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
-
-            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
-
-            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
 
         showcaseViewWizard = setUpShowcaseViewWizard()
@@ -135,8 +116,6 @@ class GameFragment : Fragment() {
 
         listOf(ranksIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
                 .forEach { it?.setOrClearColorFilter(iconColor) }
-        listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics, game_info_expansions, game_info_base_games)
-                .forEach { it?.colorize(iconColor) }
     }
 
     private fun onGameContentChanged(game: GameEntity) {
@@ -180,10 +159,6 @@ class GameFragment : Fragment() {
 
         emptyMessage.fadeOut()
         dataContainer.fadeIn()
-    }
-
-    private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
-        view?.bindData(gameId, gameName, list)
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>?) {

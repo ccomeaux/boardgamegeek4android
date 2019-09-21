@@ -652,6 +652,7 @@
 	<string name="title_top_games">Top Games</string>
 	<string name="title_description">Description</string>
 	<string name="title_info">Info</string>
+	<string name="title_credits">Credits</string>
 	<string name="plays_sync_status_none">Plays have never been synced.</string>
 	<string name="plays_sync_status_new">Plays have been synced through %s.</string>
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
