@@ -608,14 +608,14 @@
 	<string name="play_stat_player_h_index">Player H-index</string>
 	<string name="play_stat_player_h_index_info">You\'ve played against at least %1$,d players %1$,d times or more. You need at least %2$,d more play(s) to increase this number.\n\nhttps://boardgamegeek.com/thread/1448479</string>
 	<string name="play_stat_friendless">Friendless metric</string>
-	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttp://friendlessstats.dtdns.net/</string>
+	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
-	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttp://friendlessstats.dtdns.net/</string>
+	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="game_h_index_prefix">Game H-Index <b>%s</b></string>
 	<string name="title_players_skill">Skill Formula</string>
 	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
 	<string name="play_stat_fhm">FHM</string>
-	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
+	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: https://extstats.drfriendless.com/\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>
 	<string name="play_stat_hhm_info">The Huber Happiness Metric (HHM) is a measure of the happiness this game has provided, as defined by Joe Huber (huber).\n\n(rating - 5) * hours played</string>
 	<string name="play_stat_ruhm">R!UHM</string>
