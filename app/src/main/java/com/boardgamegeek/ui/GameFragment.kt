@@ -15,6 +15,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.GameRanksFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import com.boardgamegeek.ui.widget.GameDetailRow
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.ShowcaseViewWizard
@@ -76,6 +77,10 @@ class GameFragment : Fragment(R.layout.fragment_game) {
             viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
 
             viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
+
+            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
+
+            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
 
         showcaseViewWizard = setUpShowcaseViewWizard()
@@ -209,6 +214,13 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         playerCountContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             SuggestedPlayerCountPollFragment.launch(this)
         }
+    }
+
+    private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
+        view?.bindData(
+                viewModel.gameId.value ?: BggContract.INVALID_ID,
+                viewModel.game.value?.data?.name ?: "",
+                list)
     }
 
     companion object {

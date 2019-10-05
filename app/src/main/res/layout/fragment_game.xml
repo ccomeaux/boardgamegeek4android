@@ -92,6 +92,24 @@
 						layout="@layout/include_game_language_dependence"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_expansions"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_expansions"
+						bgg:label="@string/expansions"
+						bgg:query_token="@integer/query_token_expansions"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_base_games"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_basegames"
+						bgg:label="@string/base_games"
+						bgg:query_token="@integer/query_token_base_games"/>
 				</LinearLayout>
 
 				<include layout="@layout/include_game_footer"/>
