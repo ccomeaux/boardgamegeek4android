@@ -121,6 +121,9 @@ class GameFragment : Fragment(R.layout.fragment_game) {
 
         listOf(ranksIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
                 .forEach { it?.setOrClearColorFilter(iconColor) }
+
+        listOf(game_info_expansions, game_info_base_games)
+                .forEach { it?.colorize(iconColor) }
     }
 
     private fun onGameContentChanged(game: GameEntity) {
