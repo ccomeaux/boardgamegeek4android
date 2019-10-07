@@ -22,10 +22,10 @@ In order to generate a `google-services.json` configuration file follow these st
 - Run app to verify that the configuration is picked up correctly.
 
 ## Translating
-If you want to help the project translating the app, you have to:
+If you want to help the project by translating the app, you have to:
 
 1. Go in [/app/src/main/res](https://github.com/ccomeaux/boardgamegeek4android/tree/develop/app/src/main/res);
-2. Copy and translate the following files in ```value``` folder:
+2. Copy and translate the following files in the ```value``` folder:
 
 - arrays.xml
 - strings.xml
@@ -33,4 +33,4 @@ If you want to help the project translating the app, you have to:
 - strings_prefs.xml
 - strings_sync_service.xml
 
-3. Create a folder named ```value-XX``` where ```XX``` is a valid [ISO 639-1 language code](https://developer.android.com/guide/topics/resources/providing-resources.html#AlternativeResources) and insert translated files there
+3. Create a folder named ```value-XX``` where ```XX``` is a valid [ISO 639-1 language code](https://developer.android.com/guide/topics/resources/providing-resources.html#AlternativeResources) and insert translated files there;
