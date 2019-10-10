@@ -458,16 +458,16 @@
 	<string name="share_thread_article_object_text">Znalazłem artykuł \"%1$s\" na forum \"%2$s\" gry \"%3$s\" w aplikacji BoardGameGeek on Android.</string>
 	<string name="share_geeklist_subject">GeekLista na BoardGameGeek</string>
 	<string name="share_geeklist_text">Znalazłem GeekListę \"%1$s\" w aplikacji BoardGameGeek on Android.</string>
-!	<string name="timer">Timer</string>
+	<string name="timer">Zegar</string>
 !	<string name="times">times</string>
-	<string name="on"></string>
+	<string name="on">dnia</string>
 	<string name="from">z</string>
 	<string name="with">razem z</string>
 	<string name="players">graczy</string>
-!	<string name="_players">…players</string>
+	<string name="_players">…graczy</string>
 	<string name="at">w</string>
-	<string name="for_">za</string>
-!	<string name="_with_">…with…</string>
+	<string name="for_">przez</string>
+	<string name="_with_">…z…</string>
 	<string name="minutes_abbr">min.</string>
 	<string name="hours_abbr">godz.</string>
 	<string name="text_not_available">B/D</string>
@@ -513,15 +513,15 @@
 	<string name="unranked">Nieoceniona</string>
 	<string name="unranked_prefix">Nieoceniona %s</string>
 	<string name="unranked_abbr">\?</string>
-!	<string name="updated_prefix">Zaktualizowano %s</string>
+	<string name="updated_prefix">Zaktualizowano %s</string>
 	<string name="saved_prefix">Zapisano %s</string>
 	<string name="synced_prefix">Zsynchronizowano %s</string>
 	<string name="update">Aktualizuj</string>
 	<string name="create">Utwórz</string>
 	<string name="standard_deviation_prefix">Odchylenie standardowe: <b>%.3f</b></string>
-!	<string name="by_prefix">od %s</string>
+	<string name="by_prefix">wg %s</string>
 	<string name="add_field">Dodaj pole…</string>
-!	<string name="menu_custom_player_order">Custom</string>
+	<string name="menu_custom_player_order">Niestandardowa</string>
 	<string name="menu_pick_start_player">Wybierz gracza rozpoczynającego&#8230;</string>
 	<string name="menu_random_start_player">Losowy gracz rozpoczynający</string>
 	<string name="menu_random_player_order">Losowa kolejność graczy</string>
@@ -535,7 +535,7 @@
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d więcej</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…i %,d więcej</string>
 	<string name="close">Zamknij</string>
-!	<string name="view">Pokaż</string>
+	<string name="view">Pokaż</string>
 	<string name="needs_updating">Wymaga aktualizacji</string>
 	<string name="set_as_default">Ustaw jako domyślny</string>
 	<string name="nickname">Nazwa</string>
@@ -610,12 +610,12 @@
 	<string name="play_stat_friendless">Wskaźnik Friendlessa</string>
 !	<string name="play_stat_friendless_info">Miara tego jak dobrze rozegrałeś swoją kolekcję. Liczba ujemna wskazuje na różnicę między niezagranymi grami a posiadanymi Dimes (grami zagranymi 10+ razy).\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="play_stat_cfm">Ciągły Wskaźnik Friendlessa (CFM)</string>
-!	<string name="play_stat_cfm_info">Podobnie jak Wskaźnik Friendlessa, stanowi średnią liczbę rozgrywek (ale bez ulg dla gier niezagranych).\n\nhttps://extstats.drfriendless.com/</string>
+	<string name="play_stat_cfm_info">Podobnie jak Wskaźnik Friendlessa, stanowi średnią liczbę rozgrywek (ale bez ulg dla gier niezagranych).\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="game_h_index_prefix">Wskaźnik H-index dla gier<b>%s</b></string>
 	<string name="title_players_skill">Skill Formula</string>
 	<string name="player_skill_info">Mierzy współczynnik wygranych za pomocą wzoru:\n\n 100 × WagaWygranych / (gry "Do wygrania")\n\nWagaWygranych = \u2211(l_wygranych × l_graczy_w_grze)</string>
 	<string name="play_stat_fhm">FHM</string>
-!	<string name="play_stat_fhm_info">Friendlessa Wskaźnik Szczęścia (FHM) jest miarą radości jaką ta gra wywołała, wg definicji Friendlessa.\n\nSprawdź więcej rozszerzonych statystyk na jego genialnej stronie: https://extstats.drfriendless.com/\n\nocena × 5 + rozgrywki + l_miesięcy_z_rozgrywkami × 4 + czas_gry_w_godz</string>
+	<string name="play_stat_fhm_info">Friendlessa Wskaźnik Szczęścia (FHM) jest miarą radości jaką ta gra wywołała, wg definicji Friendlessa.\n\nSprawdź więcej rozszerzonych statystyk na jego genialnej stronie: https://extstats.drfriendless.com/\n\nocena × 5 + rozgrywki + l_miesięcy_z_rozgrywkami × 4 + czas_gry_w_godz</string>
 	<string name="play_stat_hhm">HHM</string>
 	<string name="play_stat_hhm_info">Hubera Wskaźnik Szczęścia (HHM) jest miarą radości jaką ta gra wywołała, wg definicji Joe Hubera (huber).\n\n(ocena - 5) × czas_gry_w_godz</string>
 	<string name="play_stat_ruhm">R!UHM</string>
@@ -627,7 +627,7 @@
 	<string name="play_stat_hours_played">Godziny rozegrane</string>
 	<string name="play_stat_months_played">Miesiące z rozgrywakmi</string>
 	<string name="play_stat_play_rate">Rozgrywek w miesiącu</string>
-	<string name="play_stat_accuracy">Te statystyki nie zawierają %s.</string>
+	<string name="play_stat_accuracy">Do tych statystyk nie wliczają się %s.</string>
 	<string name="play_stat_collection_status">Te statystyki będą trafniejsze jeśli zsynchronizujesz i posiadane i zagrane gry.</string>
 	<string name="title_modify_collection_status">Zmienić statusy synchronizacji?</string>
 	<string name="msg_modify_collection_status">Możesz to cofnąć w Ustawieniach Synchronizacji.</string>
@@ -635,7 +635,7 @@
 	<string name="removed_suffix">%s usunięto.</string>
 	<string name="msg_invalid_username">Nieprawdiłowa nazwa użytkownika \"%1$s\".</string>
 	<string name="msg_color_deleted">Usunięto \"%s\"</string>
-!	<string name="incomplete_games">incomplete games</string>
+	<string name="incomplete_games">Niezakończone rozgrywki</string>
 	<string name="items">Pozycje</string>
 	<string name="accessories">Akcesoria</string>
 	<string name="show_missing_votes">Show missing votes</string>
@@ -663,7 +663,7 @@
 	<string name="msg_update_invalid_request">Zapytanie o pobranie %s jest nieprawidłowe.</string>
 	<string name="msg_update_invalid_response">Otrzymano nieprawdiłowe %s</string>
 	<string name="msg_sync_response_500">Jest problem z BoardGameGeek.com. Cierpliwie poczekaj aż naprawią błąd. (Kod HTTP: %s)</string>
-!	<string name="msg_sync_response_429">Rate limit exceeded.</string>
+	<string name="msg_sync_response_429">Przekroczono limit częstości żądań.</string>
 	<string name="msg_sync_response_202">BoardGameGeek.com wciąż przetwarza zapytanie.</string>
 	<string name="msg_sync_error_http_code">Problem w połączeniu z BoardGameGeek.com (kod HTTP: %s)</string>
 	<string name="msg_sync_error_null">Problem w połączeniu z BoardGameGeek.com (brak odpowiedzi)</string>
@@ -800,9 +800,9 @@
 		<item quantity="few">%1$s (%2$s edycje)</item>
 		<item quantity="other">%1$s (%2$s edycji)</item>
 	</plurals>
-!	<plurals name="times_suffix">
-		<item quantity="one">%,d time</item>
-		<item quantity="other">%,d times</item>
+	<plurals name="times_suffix">
+		<item quantity="one">%,d raz</item>
+		<item quantity="other">%,d razy</item>
 	</plurals>
 	<plurals name="players_suffix">
 		<item quantity="one">%,d gracz</item>
