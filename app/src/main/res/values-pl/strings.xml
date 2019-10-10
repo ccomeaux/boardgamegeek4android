@@ -608,7 +608,7 @@
 	<string name="play_stat_player_h_index">Wskaźnik H-index dla graczy</string>
 !	<string name="play_stat_player_h_index_info">Zagrałeś przeciwko min. %1$,d graczom %1$,d lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nhttps://boardgamegeek.com/thread/1448479</string>
 	<string name="play_stat_friendless">Wskaźnik Friendlessa</string>
-!	<string name="play_stat_friendless_info">Miara tego jak dobrze rozegrałeś swoją kolekcję. Liczba ujemna wskazuje na różnicę między niezagranymi grami a posiadanymi Dimes (grami zagranymi 10+ razy).\n\nhttps://extstats.drfriendless.com/</string>
+	<string name="play_stat_friendless_info">Miara tego jak dobrze rozegrałeś swoją kolekcję. Liczba ujemna wskazuje na różnicę między niezagranymi grami a posiadanymi Dimes (grami zagranymi 10+ razy).\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="play_stat_cfm">Ciągły Wskaźnik Friendlessa (CFM)</string>
 	<string name="play_stat_cfm_info">Podobnie jak Wskaźnik Friendlessa, stanowi średnią liczbę rozgrywek (ale bez ulg dla gier niezagranych).\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="game_h_index_prefix">Wskaźnik H-index dla gier<b>%s</b></string>
