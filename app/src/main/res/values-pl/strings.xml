@@ -129,7 +129,7 @@
 	<string name="are_you_sure_clear_colors">Na pewno chcessz wyczyścić listę kolorów?</string>
 	<string name="are_you_sure_delete_collection_item">Na pewno chcesz usunąć tę pozycję z Twojej kolekcji?</string>
 	<string name="app_name">BoardGameGeek</string>
-!	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
+	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Szukaj</string>
 	<string name="title_collection">Kolekcja</string>
 	<string name="title_collection_details">Szczegóły kolekcji</string>
@@ -459,7 +459,7 @@
 	<string name="share_geeklist_subject">GeekLista na BoardGameGeek</string>
 	<string name="share_geeklist_text">Znalazłem GeekListę \"%1$s\" w aplikacji BoardGameGeek on Android.</string>
 	<string name="timer">Zegar</string>
-!	<string name="times">times</string>
+	<string name="times">times</string>
 	<string name="on">dnia</string>
 	<string name="from">z</string>
 	<string name="with">razem z</string>
@@ -602,11 +602,11 @@
 	<string name="play_stat_last_play">Ostatnia rozgrywka</string>
 	<string name="play_stat_top_100">100 najczęściej granych gier</string>
 	<string name="play_stat_game_h_index">Wskaźnik H-index dla gier</string>
-!	<string name="play_stat_game_h_index_info">Zagrałeś w min. %1$,d gier %1$,d lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nhttps://boardgamegeek.com/thread/953084</string>
+	<string name="play_stat_game_h_index_info">Zagrałeś w min. %1$,d gier %1$,d lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nhttps://boardgamegeek.com/thread/953084</string>
 	<string name="play_stat_game_h_index_offset_in">Ta gra wlicza się do Twojego wskaźnika H-index.</string>
 	<string name="play_stat_game_h_index_offset_out">rozgrywek poza Twoim wskaźnikiem H-index.</string>
 	<string name="play_stat_player_h_index">Wskaźnik H-index dla graczy</string>
-!	<string name="play_stat_player_h_index_info">Zagrałeś przeciwko min. %1$,d graczom %1$,d lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nhttps://boardgamegeek.com/thread/1448479</string>
+	<string name="play_stat_player_h_index_info">Zagrałeś przeciwko min. %1$,d graczom %1$,d lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nhttps://boardgamegeek.com/thread/1448479</string>
 	<string name="play_stat_friendless">Wskaźnik Friendlessa</string>
 	<string name="play_stat_friendless_info">Miara tego jak dobrze rozegrałeś swoją kolekcję. Liczba ujemna wskazuje na różnicę między niezagranymi grami a posiadanymi Dimes (grami zagranymi 10+ razy).\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="play_stat_cfm">Ciągły Wskaźnik Friendlessa (CFM)</string>
@@ -847,6 +847,7 @@
 	</plurals>
 	<plurals name="person_game_h_index_info">
 		<item quantity="one">Zagrałeś w min. %1$,d grę %1$s lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nTen wynik zawiera również niezakończone rozgrywki, niezależnie od tego czy zaznaczyłeś, żeby je wliczać czy nie.\n\nhttps://boardgamegeek.com/thread/953084</item>
+		<item quantity="few">Zagrałeś w min. %1$,d gry %1$s lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nTen wynik zawiera również niezakończone rozgrywki, niezależnie od tego czy zaznaczyłeś, żeby je wliczać czy nie.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="other">Zagrałeś w min. %1$,d gier %1$s lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nTen wynik zawiera również niezakończone rozgrywki, niezależnie od tego czy zaznaczyłeś, żeby je wliczać czy nie.\n\nhttps://boardgamegeek.com/thread/953084</item>
 	</plurals>
 
