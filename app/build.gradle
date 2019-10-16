@@ -148,7 +148,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-config:19.0.2'
     implementation 'com.google.firebase:firebase-messaging:20.0.0'
 
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
