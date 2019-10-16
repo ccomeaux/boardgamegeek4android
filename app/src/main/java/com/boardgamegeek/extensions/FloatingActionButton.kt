@@ -6,8 +6,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 fun FloatingActionButton.colorize(color: Int): Boolean {
     if (color != Color.TRANSPARENT &&
-            backgroundTintList != ColorStateList.valueOf(color)) {
-        backgroundTintList = ColorStateList.valueOf(color)
+            supportBackgroundTintList != ColorStateList.valueOf(color)) {
+        supportBackgroundTintList = ColorStateList.valueOf(color)
         return true
     }
     return false
