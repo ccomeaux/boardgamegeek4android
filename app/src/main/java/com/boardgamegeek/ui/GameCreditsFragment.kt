@@ -66,10 +66,6 @@ class GameCreditsFragment : Fragment() {
             viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
 
             viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
-
-            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
-
-            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
     }
 
@@ -84,7 +80,7 @@ class GameCreditsFragment : Fragment() {
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
 
-        listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics, game_info_expansions, game_info_base_games)
+        listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics)
                 .forEach { it?.colorize(iconColor) }
     }
 
