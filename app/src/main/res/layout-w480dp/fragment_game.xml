@@ -33,12 +33,10 @@
 
 				<TextView
 					android:id="@+id/emptyMessage"
+					style="@style/EmptyMessage"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center"
-					android:padding="@dimen/material_margin_horizontal"
+					android:layout_height="match_parent"
 					android:text="@string/empty_game"
-					android:textAppearance="@style/Text.Headline"
 					android:visibility="gone"
 					tools:visibility="visible"/>
 
@@ -94,6 +92,25 @@
 						<include layout="@layout/include_game_language_dependence"/>
 					</LinearLayout>
 				</LinearLayout>
+
+
+				<com.boardgamegeek.ui.widget.GameDetailRow
+					android:id="@+id/game_info_expansions"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:minHeight="@dimen/card_row_height"
+					bgg:icon_res="@drawable/ic_expansions"
+					bgg:label="@string/expansions"
+					bgg:query_token="@integer/query_token_expansions"/>
+
+				<com.boardgamegeek.ui.widget.GameDetailRow
+					android:id="@+id/game_info_base_games"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:minHeight="@dimen/card_row_height"
+					bgg:icon_res="@drawable/ic_basegames"
+					bgg:label="@string/base_games"
+					bgg:query_token="@integer/query_token_base_games"/>
 
 				<include layout="@layout/include_game_footer"/>
 			</LinearLayout>
