@@ -129,7 +129,7 @@
 	<string name="are_you_sure_clear_colors">Na pewno chcessz wyczyścić listę kolorów?</string>
 	<string name="are_you_sure_delete_collection_item">Na pewno chcesz usunąć tę pozycję z Twojej kolekcji?</string>
 	<string name="app_name">BoardGameGeek</string>
-	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
+	<string name="provider_label">Kolekcja, Rozgrywki i Znajomi</string>
 	<string name="title_search">Szukaj</string>
 	<string name="title_collection">Kolekcja</string>
 	<string name="title_collection_details">Szczegóły kolekcji</string>
