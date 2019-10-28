@@ -2,6 +2,7 @@
 <manifest
 	package="com.boardgamegeek"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
@@ -24,7 +25,8 @@
 		android:logo="@drawable/title_logo"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="false"
-		android:theme="@style/Theme.bgglight.NavDrawer">
+		android:theme="@style/Theme.bgglight.NavDrawer"
+		tools:ignore="GoogleAppIndexingWarning">
 		<activity
 			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
@@ -35,8 +37,9 @@
 
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
-			<meta-data android:name="android.app.shortcuts"
-					   android:resource="@xml/shortcuts" />
+			<meta-data
+				android:name="android.app.shortcuts"
+				android:resource="@xml/shortcuts"/>
 		</activity>
 		<activity
 			android:name=".ui.CollectionActivity"
@@ -44,6 +47,62 @@
 			android:label="@string/title_collection"
 			android:uiOptions="splitActionBarWhenNarrow"
 			android:windowSoftInputMode="adjustNothing">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.CollectionDetailsActivity"
+			android:label="@string/title_collection_details">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.DesignersActivity"
+			android:label="@string/title_designers">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.ArtistsActivity"
+			android:label="@string/title_artists">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.PublishersActivity"
+			android:label="@string/title_publishers">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.MechanicsActivity"
+			android:label="@string/title_mechanics">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.MechanicActivity"
+			android:label="@string/title_mechanic">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.CategoriesActivity"
+			android:label="@string/title_categories">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.CategoryActivity"
+			android:label="@string/title_category">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -83,40 +142,18 @@
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"
-			android:label="@string/title_game">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"/>
-
-				<category android:name="android.intent.category.DEFAULT"/>
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game"/>
-			</intent-filter>
-		</activity>
+			android:label="@string/title_game"/>
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/Theme.AppCompat.NoActionBar"/>
+			android:theme="@style/Theme.MaterialComponents.NoActionBar"/>
 		<activity
 			android:name=".ui.GameDetailActivity"
 			android:label="@string/title_game_detail"/>
 		<activity
-			android:name=".ui.ProducerActivity"
+			android:name=".ui.PersonActivity"
 			android:exported="false"
-			android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"/>
-
-				<category android:name="android.intent.category.DEFAULT"/>
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.designer"/>
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.artist"/>
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.publisher"/>
-			</intent-filter>
-
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
-		</activity>
+			android:label="@string/title_artist"/>
 		<activity
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
@@ -213,16 +250,14 @@
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:exported="true"
-			android:label="@string/search_label"
+			android:label=""
 			android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH"/>
-
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 			<intent-filter>
 				<action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
-
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 
@@ -254,9 +289,6 @@
 		<activity
 			android:name=".ui.GameColorsActivity"
 			android:label="@string/title_colors"/>
-		<activity
-			android:name=".ui.GameForumsActivity"
-			android:label="@string/title_forums"/>
 		<activity
 			android:name=".ui.CommentsActivity"
 			android:label="@string/title_comments"/>
@@ -313,6 +345,18 @@
 				<action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
+			<intent-filter>
+				<action android:name="@string/intent_action_account"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="@string/intent_action_sync"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="@string/intent_action_data"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
 		</activity>
 		<activity
 			android:name=".ui.LoginActivity"
@@ -352,12 +396,6 @@
 				<action android:name="com.google.firebase.MESSAGING_EVENT"/>
 			</intent-filter>
 		</service>
-		<service
-			android:name=".firebase.BggFirebaseInstanceIDService">
-			<intent-filter>
-				<action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-			</intent-filter>
-		</service>
 
 		<provider
 			android:name=".provider.BggProvider"
@@ -367,14 +405,7 @@
 
 		<receiver
 			android:name=".service.CancelReceiver"
-			android:exported="false">
-			<intent-filter>
-				<action android:name="com.boardgamegeek.ACTION_SYNC_CANCEL"/>
-				<action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
-				<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
-				<action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-			</intent-filter>
-		</receiver>
+			android:exported="false"/>
 
 		<meta-data
 			android:name="android.app.default_searchable"

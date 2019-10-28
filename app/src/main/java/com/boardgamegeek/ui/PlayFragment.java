@@ -4,15 +4,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,9 +20,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -50,7 +43,6 @@ import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
@@ -62,6 +54,16 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.ListFragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.palette.graphics.Palette;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -185,7 +187,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		adapter = new PlayPlayerAdapter(getContext(), play);
 		playersView.setAdapter(adapter);
 
-		getLoaderManager().restartLoader(PLAY_QUERY_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, null, this);
 
 		return rootView;
 	}
@@ -286,6 +288,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			case R.id.menu_rematch:
 				PlayManipulationEvent.log("Rematch", play.gameName);
 				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
+				getActivity().finish(); // don't want to show the "old" play upon return
+				return true;
+			case R.id.menu_change_game:
+				PlayManipulationEvent.log("Change game", play.gameName);
+				startActivity(CollectionActivity.createIntentForGameChange(getContext(), internalId));
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -451,8 +458,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		locationView.setText(play.location);
 		locationContainer.setVisibility(TextUtils.isEmpty(play.location) ? View.GONE : View.VISIBLE);
 
-		incompleteView.setVisibility(play.Incomplete() ? View.VISIBLE : View.GONE);
-		noWinStatsView.setVisibility(play.NoWinStats() ? View.VISIBLE : View.GONE);
+		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
+		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
 
 		commentsView.setText(play.comments);
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
@@ -460,11 +467,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		if (play.deleteTimestamp > 0) {
 			pendingTimestampView.setVisibility(View.VISIBLE);
-			pendingTimestampView.setFormat(R.string.delete_pending_prefix);
+			pendingTimestampView.setFormat(getString(R.string.delete_pending_prefix));
 			pendingTimestampView.setTimestamp(play.deleteTimestamp);
 		} else if (play.updateTimestamp > 0) {
 			pendingTimestampView.setVisibility(View.VISIBLE);
-			pendingTimestampView.setFormat(R.string.update_pending_prefix);
+			pendingTimestampView.setFormat(getString(R.string.update_pending_prefix));
 			pendingTimestampView.setTimestamp(play.updateTimestamp);
 		} else {
 			pendingTimestampView.setVisibility(View.GONE);
@@ -484,7 +491,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		syncTimestampView.setTimestamp(play.syncTimestamp);
 
 		getActivity().invalidateOptionsMenu();
-		getLoaderManager().restartLoader(PLAYER_QUERY_TOKEN, null, this);
+		LoaderManager.getInstance(this).restartLoader(PLAYER_QUERY_TOKEN, null, this);
 
 		if (play.playId > 0 &&
 			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
@@ -512,7 +519,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	private void triggerRefresh() {
 		if (!isRefreshing) {
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask(getContext(), play.gameId));
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) getActivity().getApplication(), play.gameId));
 			updateRefreshStatus(true);
 		}
 	}

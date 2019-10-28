@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+Version 6.7
+-----------
+ * Lots more data for designers, artists, publishers, mechanics, and categories
+ * UI changes
+ * View and edit inventory location
+ * H-index includes rational value indicating how close you are to the next number
+ * Improve search usability
+ * Ability to specify negative scores more easily
+ * Show collection status of expansion and base games
+ * Lots of under the hood improvements
+
 Version 6.6.7
 -------------
  * Bug fixes

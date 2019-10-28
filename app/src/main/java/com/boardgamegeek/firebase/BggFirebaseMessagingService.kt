@@ -2,19 +2,25 @@ package com.boardgamegeek.firebase
 
 import android.content.Intent
 import android.net.Uri
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.HomeActivity
 import com.boardgamegeek.util.NotificationUtils
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.jetbrains.anko.intentFor
+import timber.log.Timber
 
 class BggFirebaseMessagingService : FirebaseMessagingService() {
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        Timber.i("Refreshed Firebase token to $token")
+    }
+
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        remoteMessage?.notification?.let {
-            val urlString = remoteMessage.data?.get("URL")
+        remoteMessage.notification?.let {
+            val urlString = remoteMessage.data["URL"]
             val intent = if (urlString != null) {
                 Intent(Intent.ACTION_VIEW, Uri.parse(urlString))
             } else {

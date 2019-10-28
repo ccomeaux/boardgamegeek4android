@@ -1,6 +1,6 @@
 package com.boardgamegeek.ui
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 
 class GeekListsActivity : TopLevelSinglePaneActivity() {
@@ -8,5 +8,5 @@ class GeekListsActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = GeekListsFragment()
 
-    override fun getDrawerResId() = R.string.title_geeklists
+    override val navigationItemId = R.id.geeklists
 }

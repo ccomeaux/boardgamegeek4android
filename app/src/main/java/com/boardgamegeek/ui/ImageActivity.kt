@@ -5,18 +5,17 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.graphics.Palette
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.util.PaletteTransformation
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_image.*
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
@@ -41,8 +40,8 @@ class ImageActivity : AppCompatActivity() {
                     .putContentId(imageId))
         }
 
-        Picasso.with(ctx)
-                .load(HttpUtils.ensureScheme(imageUrl))
+        Picasso.with(this)
+                .load(imageUrl.ensureHttpsScheme())
                 .error(R.drawable.thumbnail_image_empty)
                 .fit()
                 .centerInside()
@@ -58,7 +57,7 @@ class ImageActivity : AppCompatActivity() {
     private fun setBackgroundColor() {
         val bitmap = (imageView.drawable as BitmapDrawable).bitmap
         val palette = PaletteTransformation.getPalette(bitmap)
-        val swatch: Palette.Swatch? = palette.darkMutedSwatch ?: palette.darkVibrantSwatch ?: palette.mutedSwatch
+        val swatch: Palette.Swatch? = palette?.darkMutedSwatch ?: palette?.darkVibrantSwatch ?: palette?.mutedSwatch
         imageView.setBackgroundColor(swatch?.rgb ?: Color.BLACK)
     }
 

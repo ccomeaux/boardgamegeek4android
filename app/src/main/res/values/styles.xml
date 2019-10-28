@@ -29,10 +29,11 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 	</style>
 
-	<style name="ColoredButton" parent="Widget.AppCompat.Button.Colored">
-	</style>
+	<style name="ColoredButton" parent="Widget.MaterialComponents.Button"/>
 
-	<style name="SmallColoredButton" parent="Widget.AppCompat.Button.Colored">
+	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon"/>
+
+	<style name="ColoredButton.Small">
 		<item name="android:minHeight">32dp</item>
 		<item name="android:textSize">12sp</item>
 	</style>
@@ -42,7 +43,7 @@
 		<item name="android:typeface">monospace</item>
 	</style>
 
-	<style name="Text" parent="@style/TextAppearance.AppCompat.Body1">
+	<style name="Text" parent="@style/TextAppearance.MaterialComponents.Body1">
 		<item name="android:textColor">@color/primary_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
@@ -57,7 +58,7 @@
 	</style>
 
 	<style name="Text.Big">
-		<item name="android:textSize">16sp</item>
+		<item name="android:textSize">18sp</item>
 	</style>
 
 	<style name="Text.Huge">
@@ -67,13 +68,14 @@
 	<style name="Text.Pad">
 		<item name="android:textSize">34sp</item>
 		<item name="android:textColor">#888</item>
+		<item name="android:fontFamily">sans-serif-light</item>
 	</style>
 
 	<style name="Text.Readout">
 		<item name="android:textSize">45sp</item>
 	</style>
 
-	<style name="Text.Primary" parent="@style/TextAppearance.AppCompat.Subhead">
+	<style name="Text.Primary" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">#000</item>
 	</style>
 
@@ -81,11 +83,7 @@
 		<item name="android:textColor">@color/inverse_text</item>
 	</style>
 
-	<style name="Text.Primary.DrawerHeader">
-		<item name="android:textSize">14sp</item>
-	</style>
-
-	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
+	<style name="Text.Secondary" parent="@style/TextAppearance.MaterialComponents.Body1">
 		<item name="android:textColor">@color/secondary_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
@@ -95,10 +93,7 @@
 	</style>
 
 	<style name="Text.Secondary.Inverse">
-		<item name="android:textColor">@color/inverse_text_body</item>
-	</style>
-
-	<style name="Text.Secondary.DrawerHeader">
+		<item name="android:textColor">@color/inverse_secondary_text</item>
 	</style>
 
 	<style name="Text.FilterButton">
@@ -106,16 +101,12 @@
 		<item name="android:textSize">12sp</item>
 	</style>
 
-	<style name="Text.Footnote" parent="@style/TextAppearance.AppCompat.Caption">
+	<style name="Text.Footnote" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/primary_text</item>
 	</style>
 
-	<style name="Text.Footnote2" parent="@style/TextAppearance.AppCompat.Caption">
+	<style name="Text.Footnote2" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/secondary_text</item>
-	</style>
-
-	<style name="Text.Footnote2.Inverse">
-		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
 	<style name="Text.Footnote2.Hidden">
@@ -134,15 +125,13 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
+	<style name="Text.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
 
-	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
-		<item name="android:textColor">@color/primary_text</item>
-	</style>
+	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
-	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
+	<style name="Text.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5"/>
 
-	<style name="Text.Empty" parent="@style/TextAppearance.AppCompat.Subhead">
+	<style name="Text.Empty" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -158,11 +147,22 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="DrawerItem" parent="TextAppearance.AppCompat">
-		<item name="android:textSize">14sp</item>
-		<item name="android:gravity">left|center_vertical</item>
-		<item name="android:textIsSelectable">false</item>
-		<item name="android:layout_gravity">left|center_vertical</item>
+	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2"/>
+
+	<style name="TextAppearance.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+
+	<style name="TextAppearance.Caption.Secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
+		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
+	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1"/>
+
+	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Body2"/>
+
+	<style name="TextAppearance.RowDetail.Secondary">
+		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
 	<style name="DrawerIcon">
@@ -174,14 +174,6 @@
 		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:scaleType">center</item>
-	</style>
-
-	<style name="DrawerItemContainer">
-		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:minHeight">@dimen/drawer_item_height</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
 	<style name="RowContainer">
@@ -209,14 +201,13 @@
 		<item name="android:minHeight">88dp</item>
 	</style>
 
-	<style name="RowSeparator" parent="@style/TextAppearance.AppCompat.Menu">
+	<style name="RowSeparator" parent="@style/TextAppearance.MaterialComponents.Subtitle2">
 		<item name="android:background">@color/light_blue</item>
 		<item name="android:gravity">center</item>
-		<item name="android:minHeight">32dp</item>
+		<item name="android:minHeight">@dimen/recycler_section_header_height</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:textAllCaps">true</item>
-		<item name="android:textIsSelectable">false</item>
 	</style>
 
 	<style name="ImageList">
@@ -224,7 +215,7 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="Text.Body" parent="@style/TextAppearance.AppCompat.Body1">
+	<style name="Text.Body" parent="@style/TextAppearance.MaterialComponents.Body2">
 	</style>
 
 	<style name="Text.Clickable">
@@ -238,8 +229,7 @@
 		<item name="android:textAllCaps">true</item>
 	</style>
 
-	<style name="Text.Header" parent="@style/TextAppearance.AppCompat.Button">
-		<item name="android:textAllCaps">true</item>
+	<style name="Text.Header" parent="@style/TextAppearance.MaterialComponents.Button">
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
@@ -259,8 +249,7 @@
 		<item name="android:maxLines">1</item>
 	</style>
 
-	<style name="Text.Footer" parent="@style/TextAppearance.AppCompat.Button">
-		<item name="android:textAllCaps">true</item>
+	<style name="Text.Footer" parent="@style/TextAppearance.MaterialComponents.Button">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -299,22 +288,6 @@
 		<item name="android:shadowRadius">3</item>
 	</style>
 
-	<style name="Text.Headline.Overlay">
-		<item name="android:textColor">#fff</item>
-		<item name="android:shadowColor">#000</item>
-		<item name="android:shadowDx">0</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:shadowRadius">5</item>
-	</style>
-
-	<style name="Text.Footnote.Overlay">
-		<item name="android:textColor">#fff</item>
-		<item name="android:shadowColor">#000</item>
-		<item name="android:shadowDx">0</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:shadowRadius">1</item>
-	</style>
-
 	<style name="LoginFormContainer">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
@@ -333,14 +306,28 @@
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 	</style>
 
+	<style name="RowRank">
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6</item>
+		<item name="android:gravity">end|center_vertical</item>
+		<item name="android:minWidth">32dp</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
 	<style name="ActionBar">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:background">?attr/colorPrimary</item>
 		<item name="android:minHeight">?attr/actionBarSize</item>
-		<item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-		<item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+	</style>
+
+	<style name="BottomActionBar" parent="Widget.MaterialComponents.BottomAppBar">
+		<item name="android:backgroundTint">?attr/colorPrimary</item>
+		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 	</style>
 
 	<style name="ActionBarButtonContainer">
@@ -375,17 +362,9 @@
 		<item name="android:padding">4dp</item>
 	</style>
 
-	<style name="DrawerListContainer">
-		<item name="android:layout_width">@dimen/drawer_width</item>
-		<item name="android:layout_height">match_parent</item>
-		<item name="android:layout_gravity">start</item>
-		<item name="android:background">@android:color/white</item>
-	</style>
-
-	<style name="DrawerList">
-		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">match_parent</item>
-		<item name="android:orientation">vertical</item>
+	<style name="Toolbar">
+		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 	</style>
 
 	<style name="HeroContainer">
@@ -401,11 +380,16 @@
 		<item name="android:background">@color/no_image</item>
 	</style>
 
-	<style name="RatingLarge" parent="@style/Text.Subtitle">
+	<style name="RatingLarge">
+		<item name="android:textAppearance">@style/Text.Subtitle</item>
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
 		<item name="android:paddingTop">@dimen/padding_half</item>
+	</style>
+
+	<style name="RatingLarge.Huge">
+		<item name="android:textAppearance">@style/Text.Huge</item>
 	</style>
 
 	<style name="RatingSmall" parent="@style/Text">
@@ -413,6 +397,16 @@
 		<item name="android:paddingLeft">@dimen/padding_half</item>
 		<item name="android:paddingRight">@dimen/padding_half</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+
+	<style name="RatingSmall.Regular">
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
+	<style name="RatingSmall.Wide">
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
 	</style>
 
 	<style name="FormContainer">
@@ -517,11 +511,6 @@
 		<item name="android:textAppearance">@style/Text.Pad</item>
 	</style>
 
-	<style name="RaisedButtonTheme" parent="Theme.AppCompat">
-		<item name="colorButtonNormal">@color/medium_blue</item>
-		<item name="colorControlHighlight">@color/primary</item>
-	</style>
-
 	<style name="RaisedButton">
 		<item name="android:minHeight">48dp</item>
 		<item name="android:minWidth">88dp</item>
@@ -560,7 +549,15 @@
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
-		<item name="android:textAppearance">@style/Text</item>
+		<item name="android:textAppearance">@style/Text.Empty</item>
+	</style>
+
+	<style name="EmptyContainer">
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:paddingBottom">48dp</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">48dp</item>
 	</style>
 
 	<style name="RecyclerViewVerticalList">
@@ -570,11 +567,21 @@
 		<item name="android:scrollbars">vertical</item>
 	</style>
 
+	<style name="RecyclerViewVerticalList.StickyHeader">
+		<item name="android:paddingTop">0dp</item>
+	</style>
+
+	<style name="RecyclerViewVerticalList.StickyHeader.FastScroll">
+		<item name="fastScrollEnabled">true</item>
+		<item name="fastScrollHorizontalThumbDrawable">@drawable/fast_scroll_thumb</item>
+		<item name="fastScrollHorizontalTrackDrawable">@color/fast_scroll_track</item>
+		<item name="fastScrollVerticalThumbDrawable">@drawable/fast_scroll_thumb</item>
+		<item name="fastScrollVerticalTrackDrawable">@color/fast_scroll_track</item>
+	</style>
+
 	<style name="RecyclerViewVerticalList.Edit">
-		<item name="android:clipToPadding">false</item>
 		<item name="android:paddingBottom">@dimen/fab_buffer</item>
 		<item name="android:paddingTop">0dp</item>
-		<item name="android:scrollbars">vertical</item>
 	</style>
 
 	<style name="GeekListInfoBar">
@@ -589,15 +596,15 @@
 	</style>
 
 	<style name="TextWithImage">
-		<item name="android:drawablePadding">4dp</item>
+		<item name="android:drawablePadding">8dp</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:maxLines">1</item>
-		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Subhead</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
 	</style>
 
 	<style name="TextWithImage.Secondary">
 		<item name="android:drawableTint">@color/secondary_text</item>
-		<item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -632,5 +639,12 @@
 
 	<style name="EditSpinnerDropDownItemStyle" parent="Base.Widget.AppCompat.DropDownItem.Spinner">
 		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="InfoText">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:drawableEnd">@drawable/ic_action_info_light</item>
+		<item name="android:drawablePadding">@dimen/padding_standard</item>
+		<item name="android:drawableRight">@drawable/ic_action_info_light</item>
 	</style>
 </resources>

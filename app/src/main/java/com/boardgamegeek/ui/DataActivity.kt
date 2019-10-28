@@ -1,6 +1,6 @@
 package com.boardgamegeek.ui
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 
 import com.boardgamegeek.R
 
@@ -9,5 +9,5 @@ class DataActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = DataFragment()
 
-    override fun getDrawerResId(): Int = R.string.title_backup
+    override val navigationItemId: Int = R.id.data
 }

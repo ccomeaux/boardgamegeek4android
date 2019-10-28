@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	android:id="@+id/language_dependence_root"
+	android:id="@+id/languageContainer"
 	style="@style/CardRow.Clickable"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -11,35 +11,48 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_language_dependence"
+		android:id="@+id/languageIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_language"/>
 
 	<LinearLayout
 		style="@style/CardRowContent"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:gravity="center_vertical"
 		android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/language_dependence_message"
+		<LinearLayout
+			android:id="@+id/languageColorView"
+			style="@style/RatingSmall.Wide"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="2"
-			android:textAppearance="@style/Text"
-			tools:text="Unplayable in another language"/>
+			tools:background="#088">
+
+			<TextView
+				android:id="@+id/languageView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textAppearance="@style/Text.Primary"
+				tools:text="Unplayable in another language"/>
+
+			<TextView
+				android:id="@+id/languageScoreView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:paddingLeft="@dimen/padding_extra"
+				android:paddingStart="@dimen/padding_extra"
+				android:textAppearance="@style/Text.Secondary.Small"
+				android:visibility="gone"
+				tools:text="4.81"
+				tools:visibility="visible"/>
+		</LinearLayout>
 
 		<TextView
-			android:id="@+id/language_dependence_score"
-			style="@style/RatingSmall"
-			android:layout_width="64dp"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			tools:background="#088"
-			tools:text="4.81"/>
-
-		<TextView
-			android:id="@+id/language_dependence_votes"
+			android:id="@+id/languageVotesView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
@@ -49,4 +62,3 @@
 			tools:visibility="visible"/>
 	</LinearLayout>
 </LinearLayout>
-			

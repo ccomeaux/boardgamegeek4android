@@ -1,18 +1,19 @@
 package com.boardgamegeek.io;
 
+import com.boardgamegeek.io.model.CollectionResponse;
+import com.boardgamegeek.io.model.CompanyResponse2;
+import com.boardgamegeek.io.model.ForumListResponse;
 import com.boardgamegeek.io.model.GeekListResponse;
+import com.boardgamegeek.io.model.Person;
+import com.boardgamegeek.io.model.PersonResponse2;
+import com.boardgamegeek.io.model.PlaysResponse;
+import com.boardgamegeek.io.model.SearchResponse;
+import com.boardgamegeek.io.model.ThingResponse;
 import com.boardgamegeek.io.model.ThreadResponse;
-import com.boardgamegeek.model.CollectionResponse;
-import com.boardgamegeek.model.Company;
-import com.boardgamegeek.model.ForumListResponse;
+import com.boardgamegeek.io.model.User;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;
-import com.boardgamegeek.model.Person;
-import com.boardgamegeek.model.PlaysResponse;
-import com.boardgamegeek.model.SearchResponse;
-import com.boardgamegeek.model.ThingResponse;
-import com.boardgamegeek.model.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -46,7 +47,6 @@ public interface BggService {
 	String COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince";
 	String COLLECTION_QUERY_KEY_BRIEF = "brief";
 	String COLLECTION_QUERY_KEY_SUBTYPE = "subtype";
-	String COLLECTION_QUERY_STATUS_OWN = "own";
 	String COLLECTION_QUERY_STATUS_PLAYED = "played";
 	SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
@@ -87,10 +87,11 @@ public interface BggService {
 	@GET("/xmlapi/{type}/{id}")
 	Call<Person> person(@Path("type") String type, @Path("id") int id);
 
-	String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
+	@GET("/xmlapi2/person")
+	Call<PersonResponse2> person(@Query("id") int id);
 
-	@GET("/xmlapi/{type}/{id}")
-	Call<Company> company(@Path("type") String type, @Path("id") int id);
+	@GET("/xmlapi2/company/{id}")
+	Call<CompanyResponse2> company(@Query("id") int id);
 
 	String SEARCH_TYPE_BOARD_GAME = "boardgame";
 	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
@@ -109,6 +110,8 @@ public interface BggService {
 
 	String FORUM_TYPE_REGION = "region";
 	String FORUM_TYPE_THING = "thing";
+	String FORUM_TYPE_PERSON = "person";
+	String FORUM_TYPE_COMPANY = "company";
 
 	int FORUM_REGION_BOARDGAME = 1;
 	int FORUM_REGION_RPG = 2;

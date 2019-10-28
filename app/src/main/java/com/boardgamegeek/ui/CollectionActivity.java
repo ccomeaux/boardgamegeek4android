@@ -10,32 +10,29 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.CollectionViewRequestedEvent;
-import com.boardgamegeek.events.GameSelectedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
+import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
+import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
+import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
+import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
+import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
+import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
@@ -44,17 +41,33 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
-public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderCallbacks<Cursor> {
+public class CollectionActivity extends TopLevelSinglePaneActivity implements
+	LoaderCallbacks<Cursor>,
+	SaveViewDialogFragment.OnViewSavedListener,
+	DeleteViewDialogFragment.OnViewDeletedListener,
+	CollectionSortDialogFragment.Listener,
+	CollectionFilterDialogFragment.Listener {
 	private static final String KEY_VIEW_ID = "VIEW_ID";
+	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
 	private CollectionViewAdapter adapter;
 	private long viewId;
 	@State int viewIndex;
 	private Spinner spinner;
 	private boolean isCreatingShortcut;
+	private long changingGamePlayId;
 
 	public static Intent createIntentAsShortcut(Context context, long viewId) {
 		return new Intent(context, CollectionActivity.class)
@@ -62,6 +75,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			.putExtra(KEY_VIEW_ID, viewId)
 			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
 			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	}
+
+	public static Intent createIntentForGameChange(Context context, long playId) {
+		return new Intent(context, CollectionActivity.class)
+			.putExtra(KEY_CHANGING_GAME_PLAY_ID, playId);
 	}
 
 	@Override
@@ -74,7 +92,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (isCreatingShortcut) {
+			if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 				actionBar.setHomeButtonEnabled(false);
 				actionBar.setDisplayHomeAsUpEnabled(false);
 				actionBar.setTitle(R.string.app_name);
@@ -84,8 +102,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 				actionBar.setCustomView(R.layout.actionbar_collection);
 			}
 		}
-		if (!isCreatingShortcut) {
-			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
+		if (!isCreatingShortcut && changingGamePlayId == BggContract.INVALID_ID) {
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		}
 
 		if (savedInstanceState == null) {
@@ -96,6 +114,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	protected void readIntent(@NonNull Intent intent) {
 		isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
+		changingGamePlayId = getIntent().getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -115,7 +134,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@Override
 	protected int getOptionsMenuId() {
-		if (isCreatingShortcut) {
+		if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 			return super.getOptionsMenuId();
 		} else {
 			return R.menu.search;
@@ -137,26 +156,66 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	@DebugLog
 	protected Fragment onCreatePane() {
-		return CollectionFragment.newInstance(isCreatingShortcut);
+		if (changingGamePlayId != BggContract.INVALID_ID) {
+			return CollectionFragment.newInstanceForPlayGameChange(changingGamePlayId);
+		} else {
+			return CollectionFragment.newInstance(isCreatingShortcut);
+		}
 	}
 
 	@Override
-	protected int getDrawerResId() {
-		return R.string.title_collection;
+	protected int getNavigationItemId() {
+		return R.id.collection;
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(@NonNull GameSelectedEvent event) {
-		GameActivity.start(this, event.getId(), event.getName());
+	@Override
+	public void onInsertRequested(String name, boolean isDefault) {
+		viewId = ((CollectionFragment) getFragment()).insertView(name);
+		viewIndex = findViewIndex();
+		setOrRemoveDefault(viewId, isDefault);
+		notifyViewCreated(viewId, name);
+	}
+
+	@Override
+	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
+		this.viewId = viewId;
+		viewIndex = findViewIndex();
+		((CollectionFragment) getFragment()).updateView(viewId);
+		setOrRemoveDefault(viewId, isDefault);
+		notifyViewCreated(viewId, name);
+	}
+
+	@Override
+	public void onViewDeleted(long viewId) {
+		CollectionViewManipulationEvent.log("Delete");
+		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
+		if (viewId == this.viewId) {
+			this.viewId = PreferencesUtils.getViewDefaultId(this);
+			viewIndex = findViewIndex();
+		}
+	}
+
+	private void setOrRemoveDefault(long viewId, boolean isDefault) {
+		if (isDefault) {
+			// TODO: prompt the user if replacing a default
+			PreferencesUtils.putViewDefaultId(this, viewId);
+		} else {
+			if (viewId == PreferencesUtils.getViewDefaultId(this)) {
+				PreferencesUtils.removeViewDefaultId(this);
+			}
+		}
+	}
+
+	public void notifyViewCreated(long id, String name) {
+		CollectionViewManipulationEvent.log("Create", name);
+		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
 	}
 
 	@SuppressWarnings("unused")
 	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
-		Intent shortcutIntent = GameActivity.createIntentAsShortcut(event.getId(), event.getName());
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName(), event.getThumbnailUrl());
 		if (shortcutIntent != null) {
 			Intent intent;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -191,14 +250,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		return shortcutManager.createShortcutResultIntent(builder.build());
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
-	@Subscribe
-	public void onEvent(@NonNull CollectionViewRequestedEvent event) {
-		viewId = event.getViewId();
-		viewIndex = findViewIndex(viewId);
-	}
-
 	@Nullable
 	@Override
 	@DebugLog
@@ -219,9 +270,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			} else {
 				adapter.changeCursor(cursor);
 			}
-			if (viewId != -1) {
-				viewIndex = findViewIndex(viewId);
-			}
+			if (viewId != -1) viewIndex = findViewIndex();
 			bindSpinner();
 		} else {
 			cursor.close();
@@ -239,7 +288,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 					if (id != oldId) {
 						Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
 						viewId = id;
-						viewIndex = findViewIndex(id);
+						viewIndex = findViewIndex();
 						if (id < 0) {
 							fragment.clearView();
 						} else {
@@ -265,19 +314,34 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@DebugLog
-	private int findViewIndex(long viewId) {
+	private int findViewIndex() {
 		int index = 0;
 		if (viewId > 0) {
-			Cursor c = adapter.getCursor();
-			if (c != null && c.moveToFirst()) {
-				do {
-					if (viewId == c.getLong(Query._ID)) {
-						return c.getPosition() + 1;
-					}
-				} while (c.moveToNext());
+			Cursor cursor = adapter.getCursor();
+			if (cursor != null) {
+				int position = cursor.getPosition();
+				if (cursor.moveToFirst()) {
+					do {
+						if (viewId == cursor.getLong(Query._ID)) {
+							index = cursor.getPosition() + 1;
+							break;
+						}
+					} while (cursor.moveToNext());
+				}
+				cursor.moveToPosition(position);
 			}
 		}
 		return index;
+	}
+
+	@Override
+	public void onSortSelected(int sortType) {
+		((CollectionFragment) getFragment()).setSort(sortType);
+	}
+
+	@Override
+	public void onFilterSelected(int filterType) {
+		((CollectionFragment) getFragment()).launchFilterDialog(filterType);
 	}
 
 	private interface Query {

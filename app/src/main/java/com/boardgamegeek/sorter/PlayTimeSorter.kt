@@ -2,25 +2,22 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
-
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.getInt
+import com.boardgamegeek.extensions.asMinutes
+import com.boardgamegeek.extensions.getInt
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.util.PresentationUtils
 
 abstract class PlayTimeSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue = context.resources.getString(R.string.text_unknown)
 
-    override val descriptionId: Int
-        @StringRes
-        get() = R.string.collection_sort_play_time
+    @StringRes
+    override val descriptionResId = R.string.collection_sort_play_time
 
-    override val sortColumn: String
-        get() = Collection.PLAYING_TIME
+    override val sortColumn = Collection.PLAYING_TIME
 
     public override fun getHeaderText(cursor: Cursor): String {
-        val minutes = cursor.getInt(Collection.PLAYING_TIME)
+        val minutes = cursor.getInt(sortColumn)
         if (minutes == 0) return defaultValue
 
         return if (minutes >= 120) {
@@ -31,8 +28,5 @@ abstract class PlayTimeSorter(context: Context) : CollectionSorter(context) {
         }
     }
 
-    override fun getDisplayInfo(cursor: Cursor): String {
-        val minutes = cursor.getInt(Collection.PLAYING_TIME)
-        return PresentationUtils.describeMinutes(context, minutes).toString()
-    }
+    override fun getDisplayInfo(cursor: Cursor) = cursor.getInt(sortColumn).asMinutes(context)
 }

@@ -3,12 +3,14 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class BggContract {
 
@@ -59,6 +61,11 @@ public class BggContract {
 		String SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total";
 		String PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_";
 		String HERO_IMAGE_URL = "hero_image_url";
+		String ICON_COLOR = "ICON_COLOR";
+		String DARK_COLOR = "DARK_COLOR";
+		String WINS_COLOR = "WINS_COLOR";
+		String WINNABLE_PLAYS_COLOR = "WINNABLE_PLAYS_COLOR";
+		String ALL_PLAYS_COLOR = "ALL_PLAYS_COLOR";
 	}
 
 	interface GameRanksColumns {
@@ -74,28 +81,51 @@ public class BggContract {
 		String DESIGNER_ID = "designer_id";
 		String DESIGNER_NAME = "designer_name";
 		String DESIGNER_DESCRIPTION = "designer_description";
+		String DESIGNER_IMAGE_URL = "designer_image_url";
+		String DESIGNER_THUMBNAIL_URL = "designer_thumbnail_url";
+		String DESIGNER_HERO_IMAGE_URL = "designer_hero_image_url";
+		String DESIGNER_IMAGES_UPDATED_TIMESTAMP = "designer_images_updated_timestamp";
+		String WHITMORE_SCORE = "whitmore_score";
+		String DESIGNER_STATS_UPDATED_TIMESTAMP = "designer_stats_updated_timestamp";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface ArtistsColumns {
 		String ARTIST_ID = "artist_id";
 		String ARTIST_NAME = "artist_name";
 		String ARTIST_DESCRIPTION = "artist_description";
+		String ARTIST_IMAGE_URL = "artist_image_url";
+		String ARTIST_THUMBNAIL_URL = "artist_thumbnail_url";
+		String ARTIST_HERO_IMAGE_URL = "artist_hero_image_url";
+		String ARTIST_IMAGES_UPDATED_TIMESTAMP = "artist_images_updated_timestamp";
+		String WHITMORE_SCORE = "whitmore_score";
+		String ARTIST_STATS_UPDATED_TIMESTAMP = "artist_stats_updated_timestamp";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface PublishersColumns {
 		String PUBLISHER_ID = "publisher_id";
 		String PUBLISHER_NAME = "publisher_name";
 		String PUBLISHER_DESCRIPTION = "publisher_description";
+		String PUBLISHER_IMAGE_URL = "publisher_image_url";
+		String PUBLISHER_THUMBNAIL_URL = "publisher_thumbnail_url";
+		String PUBLISHER_HERO_IMAGE_URL = "publisher_hero_image_url";
+		String PUBLISHER_SORT_NAME = "publisher_sort_name";
+		String WHITMORE_SCORE = "whitmore_score";
+		String PUBLISHER_STATS_UPDATED_TIMESTAMP = "publisher_stats_updated_timestamp";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface MechanicsColumns {
 		String MECHANIC_ID = "mechanic_id";
 		String MECHANIC_NAME = "mechanic_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface CategoriesColumns {
 		String CATEGORY_ID = "category_id";
 		String CATEGORY_NAME = "category_name";
+		String ITEM_COUNT = "item_count";
 	}
 
 	interface GamesExpansionsColumns {
@@ -146,6 +176,7 @@ public class BggContract {
 		String WANT_PARTS_DIRTY_TIMESTAMP = "want_parts_dirty_timestamp";
 		String HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp";
 		String COLLECTION_HERO_IMAGE_URL = "collection_hero_image_url";
+		String PRIVATE_INFO_INVENTORY_LOCATION = "inventory_location";
 	}
 
 	interface BuddiesColumns {
@@ -280,7 +311,8 @@ public class BggContract {
 	public static final String PATH_PLAYS = "plays";
 	public static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
-	public static final String PATH_AQUIRED_FROM = "acquiredfrom";
+	public static final String PATH_ACQUIRED_FROM = "acquiredfrom";
+	public static final String PATH_INVENTORY_LOCATION = "inventorylocation";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
@@ -324,18 +356,18 @@ public class BggContract {
 
 		public static final String POLLS_COUNT = "polls_count";
 
-		public static boolean isGameUri(Uri uri) {
-			if (uri == null) {
-				return false;
-			}
+		public static boolean isGameUri(@Nullable Uri uri) {
+			if (uri == null) return false;
 			List<String> segments = uri.getPathSegments();
 			return segments != null && segments.size() > 0 && PATH_GAMES.equals(segments.get(0));
 		}
 
+		@NonNull
 		public static Uri buildGameUri(int gameId) {
 			return getUriBuilder(gameId).build();
 		}
 
+		@NonNull
 		public static Uri buildRanksUri(int gameId) {
 			return getUriBuilder(gameId, PATH_RANKS).build();
 		}
@@ -584,21 +616,13 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
-		public static boolean isDesignerUri(Uri uri) {
-			return isUri(uri, PATH_DESIGNERS);
+		public static Uri buildDesignerCollectionUri(int designerId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(designerId)).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
 	public static Uri buildBasicUri(String path, long id) {
 		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
-	}
-
-	public static boolean isUri(Uri uri, String path) {
-		if (uri == null || TextUtils.isEmpty(path)) {
-			return false;
-		}
-		List<String> pathSegments = uri.getPathSegments();
-		return pathSegments != null && pathSegments.size() > 0 && path.equals(pathSegments.get(0));
 	}
 
 	public static class Artists implements ArtistsColumns, BaseColumns, SyncColumns {
@@ -613,12 +637,12 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).build();
 		}
 
-		public static int getArtistId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		public static Uri buildArtistCollectionUri(int artistId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).appendPath(PATH_COLLECTION).build();
 		}
 
-		public static boolean isArtistUri(Uri uri) {
-			return isUri(uri, PATH_ARTISTS);
+		public static int getArtistId(Uri uri) {
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -638,8 +662,8 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 
-		public static boolean isPublisherUri(Uri uri) {
-			return isUri(uri, PATH_PUBLISHERS);
+		public static Uri buildCollectionUri(int publisherId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(publisherId)).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -652,11 +676,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildMechanicUri(int mechanicId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId)).build();
+			return createMechanicUri(mechanicId).build();
+		}
+
+		private static Builder createMechanicUri(int mechanicId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId));
 		}
 
 		public static int getMechanicId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static Uri buildCollectionUri(int mechanicId) {
+			return createMechanicUri(mechanicId).appendPath(PATH_COLLECTION).build();
 		}
 	}
 
@@ -669,11 +701,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildCategoryUri(int categoryId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId)).build();
+			return createCategoryUri(categoryId).build();
 		}
 
 		public static int getCategoryId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static Uri buildCollectionUri(int categoryId) {
+			return createCategoryUri(categoryId).appendPath(PATH_COLLECTION).build();
+		}
+
+		private static Builder createCategoryUri(int categoryId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId));
 		}
 	}
 
@@ -694,6 +734,7 @@ public class BggContract {
 
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC";
 		public static final String SORT_ACQUIRED_FROM = CollectionColumns.PRIVATE_INFO_ACQUIRED_FROM + COLLATE_NOCASE + " ASC";
+		public static final String SORT_INVENTORY_LOCATION = CollectionColumns.PRIVATE_INFO_INVENTORY_LOCATION + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildUri(long id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
@@ -705,7 +746,11 @@ public class BggContract {
 		}
 
 		public static Uri buildAcquiredFromUri() {
-			return CONTENT_URI.buildUpon().appendPath(PATH_AQUIRED_FROM).build();
+			return CONTENT_URI.buildUpon().appendPath(PATH_ACQUIRED_FROM).build();
+		}
+
+		public static Uri buildInventoryLocationUri() {
+			return CONTENT_URI.buildUpon().appendPath(PATH_INVENTORY_LOCATION).build();
 		}
 
 		public static long getId(Uri uri) {
@@ -759,6 +804,10 @@ public class BggContract {
 
 		public static Uri buildPlayerUri(String playerName, int sortOrder) {
 			return buildPlayerUri(playerName).buildUpon().appendPath(String.valueOf(sortOrder)).build();
+		}
+
+		public static Uri addSortUri(Uri uri, int sortOrder) {
+			return uri.buildUpon().appendPath(String.valueOf(sortOrder)).build();
 		}
 
 		@Nullable
@@ -825,7 +874,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
 
-		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
+		public static final String DEFAULT_SORT = POLL_RESULTS_SORT_INDEX + " ASC, " + POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
 	}
 
 	public static final class GameColors implements GameColorsColumns, GamesColumns, BaseColumns {
@@ -914,12 +963,17 @@ public class BggContract {
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
-			return Long.valueOf(uri.getLastPathSegment());
+			if (uri != null) {
+				String lastPathSegment = uri.getLastPathSegment();
+				return lastPathSegment == null ? BggContract.INVALID_ID : Long.valueOf(lastPathSegment);
+			}
+			return BggContract.INVALID_ID;
 		}
 	}
 
 	public static final class PlayLocations {
 		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + COLLATE_NOCASE + " ASC";
+		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY + " DESC, " + DEFAULT_SORT;
 	}
 
 	public static final class CollectionViews implements CollectionViewsColumns, BaseColumns {
@@ -956,7 +1010,11 @@ public class BggContract {
 		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + COLLATE_NOCASE + " ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {
-			return Integer.valueOf(uri.getLastPathSegment());
+			if (uri != null) {
+				String lastPathSegment = uri.getLastPathSegment();
+				return lastPathSegment == null ? BggContract.INVALID_ID : Integer.valueOf(lastPathSegment);
+			}
+			return BggContract.INVALID_ID;
 		}
 	}
 

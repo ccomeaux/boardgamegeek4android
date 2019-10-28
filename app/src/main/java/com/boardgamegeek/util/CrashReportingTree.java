@@ -1,10 +1,10 @@
 package com.boardgamegeek.util;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 /**

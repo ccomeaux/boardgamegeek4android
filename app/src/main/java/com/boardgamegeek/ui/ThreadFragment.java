@@ -3,24 +3,16 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract;
@@ -35,6 +27,16 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.ShowcaseView.Builder;
 import com.github.amlcurran.showcaseview.targets.Target;
 
+import org.jetbrains.annotations.NotNull;
+
+import androidx.annotation.Nullable;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -43,8 +45,9 @@ import hugo.weaving.DebugLog;
 public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
 	private static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_OBJECT_ID = "OBJECT_ID";
+	private static final String KEY_OBJECT_NAME = "OBJECT_NAME";
+	private static final String KEY_OBJECT_TYPE = "OBJECT_TYPE";
 	private static final String KEY_THREAD_ID = "THREAD_ID";
 	private static final int HELP_VERSION = 2;
 	private static final int LOADER_ID = 103;
@@ -53,8 +56,9 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	private int threadId;
 	private int forumId;
 	private String forumTitle;
-	private int gameId;
-	private String gameName;
+	private int objectId;
+	private String objectName;
+	private ForumType objectType;
 	private ShowcaseView showcaseView;
 	private int currentAdapterPosition = 0;
 	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
@@ -64,13 +68,14 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	public static ThreadFragment newInstance(int threadId, int forumId, String forumTitle, int gameId, String gameName) {
+	public static ThreadFragment newInstance(int threadId, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		Bundle args = new Bundle();
 		args.putInt(KEY_THREAD_ID, threadId);
 		args.putInt(KEY_FORUM_ID, forumId);
 		args.putString(KEY_FORUM_TITLE, forumTitle);
-		args.putInt(KEY_GAME_ID, gameId);
-		args.putString(KEY_GAME_NAME, gameName);
+		args.putInt(KEY_OBJECT_ID, objectId);
+		args.putString(KEY_OBJECT_NAME, objectName);
+		args.putSerializable(KEY_OBJECT_TYPE, objectType);
 
 		ThreadFragment fragment = new ThreadFragment();
 		fragment.setArguments(args);
@@ -85,7 +90,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
 		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
@@ -98,8 +103,9 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		threadId = bundle.getInt(KEY_THREAD_ID, BggContract.INVALID_ID);
 		forumId = bundle.getInt(KEY_FORUM_ID, BggContract.INVALID_ID);
 		forumTitle = bundle.getString(KEY_FORUM_TITLE);
-		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
-		gameName = bundle.getString(KEY_GAME_NAME);
+		objectId = bundle.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID);
+		objectName = bundle.getString(KEY_OBJECT_NAME);
+		objectType = (ForumType) bundle.getSerializable(KEY_OBJECT_TYPE);
 	}
 
 	@Override
@@ -107,7 +113,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 
 		latestArticleId = PreferencesUtils.getThreadArticle(getContext(), threadId);
 	}
@@ -183,12 +189,11 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@DebugLog
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setHasFixedSize(true);
 		recyclerView.addOnScrollListener(new OnScrollListener() {
 			@Override
-			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+			public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 				currentAdapterPosition = layoutManager.findLastCompletelyVisibleItemPosition();
 				if (currentAdapterPosition != RecyclerView.NO_POSITION) {
@@ -206,12 +211,9 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
 		if (builder != null) {
 			builder.setContentText(R.string.help_thread)
-				.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						showcaseView.hide();
-						HelpUtils.updateHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION);
-					}
+				.setOnClickListener(v -> {
+					showcaseView.hide();
+					HelpUtils.updateHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION);
 				});
 			Target viewTarget = getTarget();
 			builder.setTarget(viewTarget == null ? Target.NONE : viewTarget);
@@ -226,6 +228,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		return child == null ? null : new SafeViewTarget(child.findViewById(R.id.view_button));
 	}
 
+	@NotNull
 	@Override
 	@DebugLog
 	public Loader<ThreadSafeResponse> onCreateLoader(int id, Bundle data) {
@@ -234,13 +237,13 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@Override
 	@DebugLog
-	public void onLoadFinished(Loader<ThreadSafeResponse> loader, ThreadSafeResponse data) {
+	public void onLoadFinished(@NotNull Loader<ThreadSafeResponse> loader, ThreadSafeResponse data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, gameId, gameName);
+			adapter = new ThreadRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, objectId, objectName, objectType);
 			recyclerView.setAdapter(adapter);
 		}
 
@@ -266,18 +269,13 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@DebugLog
 	private void maybeShowHelp() {
 		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					showHelp();
-				}
-			}, 100);
+			new Handler().postDelayed(this::showHelp, 100);
 		}
 	}
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<ThreadSafeResponse> loader) {
+	public void onLoaderReset(@NotNull Loader<ThreadSafeResponse> loader) {
 	}
 
 	private static class ThreadLoader extends BggLoader<ThreadSafeResponse> {

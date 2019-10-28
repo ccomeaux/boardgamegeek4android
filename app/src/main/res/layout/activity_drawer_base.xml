@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<androidx.drawerlayout.widget.DrawerLayout
 	android:id="@+id/drawer_layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:fitsSystemWindows="true">
@@ -11,7 +12,7 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
-		<android.support.v7.widget.Toolbar
+		<androidx.appcompat.widget.Toolbar
 			android:id="@+id/toolbar"
 			style="@style/ActionBar"/>
 
@@ -21,15 +22,11 @@
 			android:layout_height="match_parent"/>
 	</LinearLayout>
 
-	<ScrollView
-		android:id="@+id/drawer_container"
-		style="@style/DrawerListContainer"
-		android:layout_marginTop="@dimen/drawer_status_bar_buffer_negative"
-		android:fitsSystemWindows="true">
-
-		<LinearLayout
-			android:id="@+id/left_drawer"
-			style="@style/DrawerList"/>
-	</ScrollView>
-
-</android.support.v4.widget.DrawerLayout>
+	<com.google.android.material.navigation.NavigationView
+		android:id="@+id/navigation"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="start|left"
+		app:headerLayout="@layout/header_drawer"
+		app:menu="@menu/navigation_drawer"/>
+</androidx.drawerlayout.widget.DrawerLayout>

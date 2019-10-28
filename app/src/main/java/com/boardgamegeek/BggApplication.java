@@ -5,11 +5,11 @@ import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
-import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Set;
 
+import androidx.multidex.MultiDexApplication;
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
@@ -36,10 +37,13 @@ import timber.log.Timber;
 import static timber.log.Timber.DebugTree;
 
 public class BggApplication extends MultiDexApplication {
+	private AppExecutors appExecutors;
+
 	@Override
 	@DebugLog
 	public void onCreate() {
 		super.onCreate();
+		appExecutors = new AppExecutors();
 		initializeFabric();
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
@@ -78,13 +82,15 @@ public class BggApplication extends MultiDexApplication {
 		migrateCollectionStatusSettings();
 		SyncPrefs.migrate(this);
 
-		String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-		Timber.i("Refreshed Firebase token to %s", refreshedToken);
+		FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
+			String deviceToken = instanceIdResult.getToken();
+			Timber.i("Firebase token is %s", deviceToken);
+		});
 	}
 
 	private void initializeFabric() {
 		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
-		Fabric.with(this, crashlytics, new Answers());
+		Fabric.with(this, crashlytics, new Answers(), new Crashlytics());
 	}
 
 	private void enableStrictMode() {
@@ -101,19 +107,24 @@ public class BggApplication extends MultiDexApplication {
 		}
 		StrictMode.setVmPolicy(builder.build());
 		StrictMode.setThreadPolicy(new Builder()
-			.detectAll()
+			.detectDiskWrites()
+			.detectNetwork()
 			.penaltyLog()
 			.penaltyFlashScreen()
 			.build());
 	}
 
 	private void migrateCollectionStatusSettings() {
-		Set<String> set = PreferencesUtils.getSyncStatuses(this, null);
+		Set<String> set = PreferenceUtils.getSyncStatuses(this, null);
 		if (set == null) {
 			String[] oldSyncStatuses = PreferencesUtils.getOldSyncStatuses(getApplicationContext());
 			if (oldSyncStatuses != null && oldSyncStatuses.length > 0) {
-				PreferencesUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
+				PreferenceUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
 			}
 		}
+	}
+
+	public AppExecutors getAppExecutors() {
+		return appExecutors;
 	}
 }

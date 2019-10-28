@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-												  xmlns:tools="http://schemas.android.com/tools"
-												  android:layout_width="match_parent"
-												  android:layout_height="wrap_content"
-												  android:background="@drawable/checkable_background">
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/activatable_background"
+	android:foreground="?android:attr/selectableItemBackground">
 
 	<LinearLayout
 		style="@style/RowContainer.VeryTall"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_gravity="left|center_vertical"
+		android:layout_gravity="start|center_vertical"
 		android:orientation="vertical">
 
 		<LinearLayout
@@ -17,40 +19,39 @@
 			android:layout_height="wrap_content">
 
 			<TextView
-				android:id="@android:id/title"
-				style="@style/Text.Primary"
+				android:id="@+id/titleView"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:ellipsize="end"
 				android:maxLines="1"
+				android:textAppearance="@style/TextAppearance.RowTitle"
 				tools:text="Horus Heresy"/>
 
 			<TextView
-				android:id="@android:id/message"
-				style="@style/Text.Footnote2"
+				android:id="@+id/statusView"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				android:textAppearance="@style/TextAppearance.Caption.Secondary"
+				tools:text="Draft"/>
 		</LinearLayout>
 
 		<TextView
-			android:id="@android:id/text1"
-			style="@style/Text.Secondary"
+			android:id="@+id/infoView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="marquee"
-			android:maxLines="1"
+			android:singleLine="true"
+			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 			tools:text="at Home for 3.5 hours"/>
 
 		<TextView
-			android:id="@android:id/text2"
-			style="@style/Text.Secondary"
+			android:id="@+id/commentView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.RowDetail"
 			tools:text="That was a fun time. A REAL fun time."/>
-
 	</LinearLayout>
-
-</com.boardgamegeek.ui.widget.CheckableFrameLayout>
+</FrameLayout>

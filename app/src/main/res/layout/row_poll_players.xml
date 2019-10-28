@@ -7,13 +7,13 @@
 			  android:orientation="horizontal">
 
 	<TextView
-		android:id="@+id/label"
-		style="@style/Text"
+		android:id="@+id/labelView"
 		android:layout_width="28dp"
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="4dp"
 		android:layout_marginRight="4dp"
 		android:gravity="center"
+		android:textAppearance="@style/Text"
 		android:textColor="@color/dialog_text"
 		tools:text="5+"/>
 
@@ -26,7 +26,7 @@
 		android:paddingTop="@dimen/padding_half">
 
 		<View
-			android:id="@+id/best"
+			android:id="@+id/bestSegment"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:background="@color/best"
@@ -34,7 +34,7 @@
 			tools:layout_weight="7"/>
 
 		<View
-			android:id="@+id/recommended"
+			android:id="@+id/recommendedSegment"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:background="@color/recommended"
@@ -42,7 +42,7 @@
 			tools:layout_weight="5"/>
 
 		<View
-			android:id="@+id/no_votes"
+			android:id="@+id/missingVotesSegment"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:background="@color/no_votes"
@@ -51,7 +51,7 @@
 			tools:visibility="visible"/>
 
 		<View
-			android:id="@+id/not_recommended"
+			android:id="@+id/notRecommendedSegment"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:background="@color/not_recommended"
@@ -60,7 +60,7 @@
 			tools:layout_weight="3"/>
 
 		<TextView
-			android:id="@+id/votes"
+			android:id="@+id/votesView"
 			style="@style/Text"
 			android:layout_width="28dp"
 			android:layout_height="wrap_content"

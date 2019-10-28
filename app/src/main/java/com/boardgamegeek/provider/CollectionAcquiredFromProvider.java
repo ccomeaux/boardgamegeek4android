@@ -22,6 +22,6 @@ public class CollectionAcquiredFromProvider extends BaseProvider {
 
 	@Override
 	protected String getPath() {
-		return String.format("%s/%s", BggContract.PATH_COLLECTION, BggContract.PATH_AQUIRED_FROM);
+		return String.format("%s/%s", BggContract.PATH_COLLECTION, BggContract.PATH_ACQUIRED_FROM);
 	}
 }

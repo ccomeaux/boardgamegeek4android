@@ -5,7 +5,25 @@
 	<item
 		android:id="@+id/menu_list_count"
 		android:title=""
-		app:actionLayout="@layout/actionbar_text"
+		app:actionLayout="@layout/actionbar_text_2line"
 		app:showAsAction="ifRoom"/>
-
+	<item
+		android:id="@+id/menu_sort"
+		android:icon="@drawable/menu_sort"
+		android:title="@string/menu_sort"
+		app:showAsAction="ifRoom">
+		<menu>
+			<group android:checkableBehavior="single">
+				<item
+					android:id="@+id/menu_sort_username"
+					android:title="@string/menu_sort_username"/>
+				<item
+					android:id="@+id/menu_sort_first_name"
+					android:title="@string/menu_sort_first_name"/>
+				<item
+					android:id="@+id/menu_sort_last_name"
+					android:title="@string/menu_sort_last_name"/>
+			</group>
+		</menu>
+	</item>
 </menu>

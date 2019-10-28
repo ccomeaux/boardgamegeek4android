@@ -5,8 +5,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -35,13 +35,13 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
 import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
 import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
-import com.boardgamegeek.util.TaskUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 public class BggDatabase extends SQLiteOpenHelper {
@@ -95,7 +95,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_SUGGESTED_PLAYER_COUNT_RESYNC = 47;
 	private static final int VER_GAME_HERO_IMAGE_URL = 48;
 	private static final int VER_COLLECTION_HERO_IMAGE_URL = 49;
-	private static final int DATABASE_VERSION = VER_COLLECTION_HERO_IMAGE_URL;
+	private static final int VER_GAME_PALETTE_COLORS = 50;
+	private static final int VER_PRIVATE_INFO_INVENTORY_LOCATION = 51;
+	private static final int VER_ARTIST_IMAGES = 52;
+	private static final int VER_DESIGNER_IMAGES = 53;
+	private static final int VER_PUBLISHER_IMAGES = 54;
+	private static final int VER_WHITSCORE_SCORE = 55;
+	private static final int VER_DAP_STATS_UPDATED_TIMESTAMP = 56;
+	private static final int DATABASE_VERSION = VER_DAP_STATS_UPDATED_TIMESTAMP;
 
 	private final Context context;
 
@@ -166,6 +173,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_JOIN_PLAYS = Tables.GAMES + createJoinSuffix(GAMES, PLAYS, Games.GAME_ID, Plays.OBJECT_ID);
 		String PLAYS_JOIN_GAMES = Tables.PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID);
+		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_USERS = Tables.PLAY_PLAYERS +
+			createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID) +
+			createJoinSuffix(PLAY_PLAYERS, BUDDIES, PlayPlayers.USER_NAME, Buddies.BUDDY_NAME);
 		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_GAMES = Tables.PLAY_PLAYERS +
 			createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID) +
 			createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID);
@@ -173,6 +183,18 @@ public class BggDatabase extends SQLiteOpenHelper {
 			CollectionViews._ID, CollectionViewFilters.VIEW_ID);
 		String POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS = createJoin(GAME_POLL_RESULTS_RESULT, GAME_POLL_RESULTS, GamePollResultsResult.POLL_RESULTS_ID, GamePollResults._ID) +
 			createJoinSuffix(Tables.GAME_POLL_RESULTS, Tables.GAME_POLLS, GamePollResults.POLL_ID, GamePolls._ID);
+
+		String ARTIST_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_ARTISTS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+		String DESIGNER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_DESIGNERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+		String PUBLISHER_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_PUBLISHERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+		String MECHANIC_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_MECHANICS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+		String CATEGORY_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_CATEGORIES, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
+
+		String ARTISTS_JOIN_COLLECTION = createJoin(ARTISTS, GAMES_ARTISTS, Artists.ARTIST_ID) + createInnerJoinSuffix(GAMES_ARTISTS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String DESIGNERS_JOIN_COLLECTION = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.DESIGNER_ID) + createInnerJoinSuffix(GAMES_DESIGNERS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String PUBLISHERS_JOIN_COLLECTION = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.PUBLISHER_ID) + createInnerJoinSuffix(GAMES_PUBLISHERS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String MECHANICS_JOIN_COLLECTION = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.MECHANIC_ID) + createInnerJoinSuffix(GAMES_MECHANICS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String CATEGORIES_JOIN_COLLECTION = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.CATEGORY_ID) + createInnerJoinSuffix(GAMES_CATEGORIES, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
 	}
 
 	@NonNull
@@ -188,6 +210,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 	@NonNull
 	private static String createJoinSuffix(String table1, String table2, String column1, String column2) {
 		return " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
+	}
+
+	@NonNull
+	private static String createInnerJoinSuffix(String table1, String table2, String column1, String column2) {
+		return " INNER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
 	}
 
 	public BggDatabase(Context context) {
@@ -242,7 +269,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Designers.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Designers.DESIGNER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Designers.DESIGNER_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT);
+			.addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
+			.addColumn(Designers.DESIGNER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildArtistsTable() {
@@ -250,7 +283,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Artists.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Artists.ARTIST_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Artists.ARTIST_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT);
+			.addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+			.addColumn(Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
+			.addColumn(Artists.ARTIST_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPublishersTable() {
@@ -258,7 +297,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Publishers.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Publishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Publishers.PUBLISHER_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT);
+			.addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.TEXT)
+			.addColumn(Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
+			.addColumn(Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildMechanicsTable() {
@@ -311,6 +356,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Games.ICON_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.DARK_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.WINS_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -408,6 +458,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.PRIVATE_INFO_INVENTORY_LOCATION, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -792,6 +843,44 @@ public class BggDatabase extends SQLiteOpenHelper {
 				case VER_GAME_HERO_IMAGE_URL:
 					addColumn(db, Tables.COLLECTION, Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
 					version = VER_COLLECTION_HERO_IMAGE_URL;
+				case VER_COLLECTION_HERO_IMAGE_URL:
+					addColumn(db, Tables.GAMES, Games.ICON_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.DARK_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.WINS_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.GAMES, Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER);
+					version = VER_GAME_PALETTE_COLORS;
+				case VER_GAME_PALETTE_COLORS:
+					addColumn(db, Tables.COLLECTION, Collection.PRIVATE_INFO_INVENTORY_LOCATION, COLUMN_TYPE.TEXT);
+					version = VER_PRIVATE_INFO_INVENTORY_LOCATION;
+				case VER_PRIVATE_INFO_INVENTORY_LOCATION:
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_ARTIST_IMAGES;
+				case VER_ARTIST_IMAGES:
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_DESIGNER_IMAGES;
+				case VER_DESIGNER_IMAGES:
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.INTEGER);
+					version = VER_PUBLISHER_IMAGES;
+				case VER_PUBLISHER_IMAGES:
+					addColumn(db, Tables.DESIGNERS, Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.ARTISTS, Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.PUBLISHERS, Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
+					version = VER_WHITSCORE_SCORE;
+				case VER_WHITSCORE_SCORE:
+					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.ARTISTS, Artists.ARTIST_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
+					version = VER_DAP_STATS_UPDATED_TIMESTAMP;
 			}
 
 			if (version != DATABASE_VERSION) {

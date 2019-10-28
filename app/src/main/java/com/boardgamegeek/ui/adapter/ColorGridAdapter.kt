@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.adapter
 
 import android.content.Context
 import android.graphics.Color
-import android.support.v4.content.ContextCompat
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
@@ -11,11 +10,15 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.boardgamegeek.R
-import com.boardgamegeek.setColorViewValue
+import com.boardgamegeek.extensions.setColorViewValue
 import java.util.*
 
-internal class ColorGridAdapter(private val context: Context, private val disabledColors: ArrayList<String>?, private val choices: List<Pair<String, Int>>) : BaseAdapter() {
-    private var selectedColor: String? = null
+internal class ColorGridAdapter(private val context: Context, private val choices: List<Pair<String, Int>>, private val disabledColors: ArrayList<String>?) : BaseAdapter() {
+    var selectedColor: String? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     override fun getCount() = choices.size
 
@@ -28,23 +31,11 @@ internal class ColorGridAdapter(private val context: Context, private val disabl
         val color = getItem(position)
 
         view.findViewById<TextView>(R.id.color_description)?.text = color?.first
-        view.findViewById<ImageView>(R.id.color_view)?.setColorViewValue(color?.second ?: Color.TRANSPARENT)
-
-        val frameColor = when {
-            color == null -> Color.TRANSPARENT
-            color.first == selectedColor -> ContextCompat.getColor(context, R.color.light_blue)
-            disabledColors != null && disabledColors.contains(color.first) -> ContextCompat.getColor(context, R.color.disabled)
-            else -> Color.TRANSPARENT
-        }
-        view.findViewById<View>(R.id.color_frame)?.setBackgroundColor(frameColor)
+        view.findViewById<ImageView>(R.id.color_view)?.setColorViewValue(
+                color?.second ?: Color.TRANSPARENT,
+                disabledColors?.contains(color?.first) == true)
+        view.findViewById<ImageView>(R.id.color_picker_selected).visibility = if (color?.first == selectedColor) View.VISIBLE else View.GONE
 
         return view
-    }
-
-    fun setSelectedColor(selectedColor: String?) {
-        if (this.selectedColor != selectedColor) {
-            this.selectedColor = selectedColor
-            notifyDataSetChanged()
-        }
     }
 }

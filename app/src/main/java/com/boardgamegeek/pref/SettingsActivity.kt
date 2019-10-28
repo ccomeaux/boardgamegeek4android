@@ -3,15 +3,18 @@ package com.boardgamegeek.pref
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.PreferenceScreen
-import android.support.v4.util.ArrayMap
 import android.view.MenuItem
-import android.widget.Toast
+import androidx.collection.ArrayMap
+import androidx.fragment.app.DialogFragment
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
+import com.boardgamegeek.extensions.getSyncStatuses
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.util.PreferencesUtils
@@ -21,6 +24,7 @@ import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.toast
 
 class SettingsActivity : DrawerActivity() {
 
@@ -28,7 +32,15 @@ class SettingsActivity : DrawerActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         if (savedInstanceState == null) {
-            fragmentManager.beginTransaction().add(R.id.root_container, PrefFragment(), TAG_SINGLE_PANE).commit()
+            val prefFragment = PrefFragment()
+            val args = Bundle()
+            when (intent.action) {
+                getString(R.string.intent_action_account) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_ACCOUNT)
+                getString(R.string.intent_action_sync) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_SYNC)
+                getString(R.string.intent_action_data) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_DATA)
+            }
+            prefFragment.arguments = args
+            supportFragmentManager.beginTransaction().add(R.id.root_container, prefFragment, TAG_SINGLE_PANE).commit()
         }
     }
 
@@ -43,63 +55,66 @@ class SettingsActivity : DrawerActivity() {
     }
 
     override fun onBackPressed() {
-        if (!fragmentManager.popBackStackImmediate()) {
+        if (!supportFragmentManager.popBackStackImmediate()) {
             super.onBackPressed()
         }
     }
+
+    override val navigationItemId = R.id.settings
 
     internal fun replaceFragment(key: String) {
         val args = Bundle()
         args.putString(KEY_SETTINGS_FRAGMENT, key)
         val fragment = PrefFragment()
         fragment.arguments = args
-        fragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
+        supportFragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
     }
 
-    class PrefFragment : PreferenceFragment(), OnSharedPreferenceChangeListener {
+    class PrefFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
-        private var syncType = 0
+        private var syncType = SyncService.FLAG_SYNC_NONE
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-
-            val fragment = arguments?.getString(KEY_SETTINGS_FRAGMENT)
-            if (fragment == null) {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
+            if (fragmentKey.isNullOrBlank()) {
                 addPreferencesFromResource(R.xml.preference_headers)
             } else {
-                val fragmentId = FRAGMENT_MAP[fragment]
+                val fragmentId = FRAGMENT_MAP[fragmentKey]
                 if (fragmentId != null) {
                     addPreferencesFromResource(fragmentId)
                 }
             }
 
-            entryValues = resources.getStringArray(R.array.pref_sync_status_values) ?: emptyArray()
-            entries = resources.getStringArray(R.array.pref_sync_status_entries) ?: emptyArray()
+            when (fragmentKey) {
+                ACTION_SYNC -> {
+                    entryValues = resources.getStringArray(R.array.pref_sync_status_values) ?: emptyArray()
+                    entries = resources.getStringArray(R.array.pref_sync_status_entries) ?: emptyArray()
 
-            updateSyncStatusSummary(PreferencesUtils.KEY_SYNC_STATUSES)
-
-            findPreference("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                LibsBuilder()
-                        .withFields(R.string::class.java.fields)
-                        .withLibraries(
-                                "AndroidIcons",
-                                "Hugo",
-                                "Jsoup",
-                                "LeakCanary",
-                                "MaterialRangeBar",
-                                "MPAndroidChart",
-                                "PhotoView")
-                        .withAutoDetect(true)
-                        .withLicenseShown(true)
-                        .withActivityTitle(getString(R.string.pref_about_licenses))
-                        .withActivityTheme(R.style.Theme_bgglight_About)
-                        .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
-                        .withAboutIconShown(true)
-                        .withAboutAppName(getString(R.string.app_name))
-                        .withAboutVersionShownName(true)
-                        .start(activity)
-                true
+                    updateSyncStatusSummary(PREFERENCES_KEY_SYNC_STATUSES)
+                }
+                ACTION_ABOUT -> {
+                    findPreference<Preference>("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                        LibsBuilder()
+                                .withFields(R.string::class.java.fields)
+                                .withLibraries(
+                                        "AndroidIcons",
+                                        "Hugo",
+                                        "MaterialRangeBar",
+                                        "NestedScrollWebView"
+                                )
+                                .withAutoDetect(true)
+                                .withLicenseShown(true)
+                                .withActivityTitle(getString(R.string.pref_about_licenses))
+                                .withActivityTheme(R.style.Theme_bgglight_About)
+                                .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                                .withAboutIconShown(true)
+                                .withAboutAppName(getString(R.string.app_name))
+                                .withAboutVersionShownName(true)
+                                .start(requireContext())
+                        true
+                    }
+                }
             }
         }
 
@@ -123,56 +138,79 @@ class SettingsActivity : DrawerActivity() {
         override fun onStop() {
             super.onStop()
             EventBus.getDefault().unregister(this)
-            if (syncType > 0) {
+            if (syncType != SyncService.FLAG_SYNC_NONE) {
                 SyncService.sync(activity, syncType)
-                syncType = 0
+                syncType = SyncService.FLAG_SYNC_NONE
             }
         }
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
             when (key) {
-                PreferencesUtils.KEY_SYNC_STATUSES -> {
+                PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefs.requestPartialSync(activity)
+                    SyncPrefs.requestPartialSync(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefs.requestPartialSync(activity)
+                    SyncPrefs.requestPartialSync(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
-                PreferencesUtils.KEY_SYNC_PLAYS -> {
-                    SyncPrefs.clearPlaysTimestamps(activity)
+                PREFERENCES_KEY_SYNC_PLAYS -> {
+                    SyncPrefs.clearPlaysTimestamps(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
-                PreferencesUtils.KEY_SYNC_BUDDIES -> {
-                    SyncPrefs.clearBuddyListTimestamps(activity)
+                PREFERENCES_KEY_SYNC_BUDDIES -> {
+                    SyncPrefs.clearBuddyListTimestamps(requireContext())
                     syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
                 }
             }
         }
 
         private fun updateSyncStatusSummary(key: String) {
-            val pref = findPreference(key) ?: return
-            val statuses = PreferencesUtils.getSyncStatuses(activity)
-            if (statuses == null || statuses.size == 0) {
-                pref.setSummary(R.string.pref_list_empty)
+            val pref = findPreference<Preference>(key) ?: return
+            val statuses = activity.getSyncStatuses()
+            pref.summary = if (statuses == null || statuses.isEmpty()) {
+                getString(R.string.pref_list_empty)
             } else {
-                val sb = StringBuilder()
                 entryValues.indices
                         .filter { statuses.contains(entryValues[it]) }
-                        .forEach { sb.append(entries[it]).append(", ") }
-                pref.summary = if (sb.length > 2) sb.substring(0, sb.length - 2) else sb.toString()
+                        .joinToString { entries[it] }
             }
         }
 
-        override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
-            with(preference) {
-                if (key != null && key.startsWith(ACTION_PREFIX)) {
-                    (activity as SettingsActivity).replaceFragment(key)
-                    return true
+        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+            preference?.key?.let {
+                return when {
+                    it.startsWith(ACTION_PREFIX) -> {
+                        (activity as SettingsActivity).replaceFragment(it)
+                        true
+                    }
+                    else -> {
+                        super.onPreferenceTreeClick(preference)
+                    }
                 }
             }
-            return super.onPreferenceTreeClick(preferenceScreen, preference)
+            return super.onPreferenceTreeClick(preference)
+        }
+
+        private val dialogFragmentTag = "PreferenceFragment.DIALOG"
+
+        override fun onDisplayPreferenceDialog(preference: Preference?) {
+            if (fragmentManager?.findFragmentByTag(dialogFragmentTag) != null) {
+                return
+            }
+
+            val dialogFragment: DialogFragment? = when (preference) {
+                is SignOutPreference -> SignOutDialogFragment.newInstance(preference.key)
+                is ConfirmDialogPreference -> ConfirmDialogFragment.newInstance(preference.key)
+                is SyncTimestampsDialogPreference -> SyncTimestampsDialogFragment.newInstance(preference.key)
+                else -> null
+            }
+
+            if (dialogFragment != null) {
+                dialogFragment.setTargetFragment(this, 0)
+                dialogFragment.show(requireFragmentManager(), dialogFragmentTag)
+            } else super.onDisplayPreferenceDialog(preference)
         }
 
         @Subscribe(threadMode = ThreadMode.MAIN)
@@ -182,13 +220,13 @@ class SettingsActivity : DrawerActivity() {
 
         @Subscribe(threadMode = ThreadMode.MAIN)
         fun onEvent(@Suppress("UNUSED_PARAMETER") event: SignOutEvent) {
-            Toast.makeText(activity, R.string.msg_sign_out_success, Toast.LENGTH_SHORT).show()
+            context?.toast(R.string.msg_sign_out_success)
             updateAccountPrefs("")
         }
 
         private fun updateAccountPrefs(username: String) {
-            (findPreference(PreferencesUtils.KEY_LOGIN) as? LoginPreference)?.update(username)
-            (findPreference(PreferencesUtils.KEY_LOGOUT) as? SignOutPreference)?.update()
+            findPreference<LoginPreference>(PreferencesUtils.KEY_LOGIN)?.update(username)
+            findPreference<SignOutPreference>(PreferencesUtils.KEY_LOGOUT)?.update()
         }
     }
 

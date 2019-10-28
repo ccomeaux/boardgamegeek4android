@@ -8,9 +8,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
@@ -30,6 +27,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import timber.log.Timber;
 
 public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, Integer, String> {

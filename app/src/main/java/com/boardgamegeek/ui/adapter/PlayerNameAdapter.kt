@@ -7,11 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.setTextOrHide
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.setTextOrHide
-import com.boardgamegeek.use
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
-import com.boardgamegeek.util.PresentationUtils
 import java.util.*
 
 class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player, emptyList<Result>()), Filterable {
@@ -40,7 +39,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
 
         view.findViewById<TextView>(R.id.player_title)?.setTextOrHide(result.title)
         view.findViewById<TextView>(R.id.player_subtitle)?.setTextOrHide(result.subtitle)
-        view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnail(result.avatarUrl, R.drawable.person_image_empty)
+        view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnailInList(result.avatarUrl, R.drawable.person_image_empty)
         view.tag = result.username
         return view
     }
@@ -48,7 +47,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     override fun getFilter() = PlayerFilter()
 
     inner class PlayerFilter : Filter() {
-        override fun performFiltering(constraint: CharSequence?): Filter.FilterResults? {
+        override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filter = constraint?.toString() ?: ""
             if (filter.isBlank()) return null
 
@@ -66,13 +65,13 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             }
             resultList.sortBy { -it.playCount }
 
-            val filterResults = Filter.FilterResults()
-            filterResults.values = resultList
-            filterResults.count = resultList.size
-            return filterResults
+            return FilterResults().apply {
+                values = resultList
+                count = resultList.size
+            }
         }
 
-        override fun publishResults(constraint: CharSequence?, results: Filter.FilterResults?) {
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             resultList.clear()
             var values: ArrayList<Result>? = null
             if (results != null && results.count > 0) {
@@ -125,7 +124,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                         val lastName = it.getString(3) ?: ""
                         val nickname = it.getString(4) ?: ""
                         val avatarUrl = it.getString(5) ?: ""
-                        val fullName = PresentationUtils.buildFullName(firstName, lastName)
+                        val fullName = "${firstName.trim()} ${lastName.trim()}".trim()
 
                         results.add(Result(
                                 if (nickname.isBlank()) fullName else nickname,

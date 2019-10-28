@@ -3,19 +3,19 @@ package com.boardgamegeek.tasks.sync;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.NetworkUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
-import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RemoteConfig;
 
 import org.greenrobot.eventbus.EventBus;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import hugo.weaving.DebugLog;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -41,7 +41,8 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 		if (!isRequestParamsValid())
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
 		if (NetworkUtils.isOffline(context)) return context.getString(R.string.msg_offline);
-		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)) return context.getString(R.string.msg_sync_remotely_disabled);
+		if (!RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED))
+			return context.getString(R.string.msg_sync_remotely_disabled);
 		try {
 			boolean hasMorePages;
 			page = 0;

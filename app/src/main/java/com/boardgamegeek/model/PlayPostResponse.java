@@ -1,6 +1,5 @@
 package com.boardgamegeek.model;
 
-import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,6 +9,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 
+import androidx.annotation.NonNull;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

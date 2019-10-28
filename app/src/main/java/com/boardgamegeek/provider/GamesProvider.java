@@ -8,6 +8,8 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
+import static com.boardgamegeek.entities.ConstantsKt.RANK_UNKNOWN;
+
 public class GamesProvider extends BasicProvider {
 
 	@Override
@@ -41,7 +43,7 @@ public class GamesProvider extends BasicProvider {
 		if (BggContract.FRAGMENT_PLAYS.equals(uri.getFragment())) {
 			builder
 				.table(Tables.GAMES_JOIN_PLAYS)
-				.mapIfNull(Games.GAME_RANK, String.valueOf(Integer.MAX_VALUE))
+				.mapIfNull(Games.GAME_RANK, String.valueOf(RANK_UNKNOWN))
 				.mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
 				.mapAsMax(Plays.MAX_DATE, Plays.DATE);
 		} else {
@@ -50,7 +52,6 @@ public class GamesProvider extends BasicProvider {
 				.mapToTable(Games.GAME_ID, Tables.GAMES);
 		}
 		builder.mapToTable(Games.UPDATED, Tables.GAMES);
-
 
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		if (!TextUtils.isEmpty(groupBy)) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<com.boardgamegeek.pref.BuddyPreference
 		android:summary="rjnfc"
 		android:title="Dennis Bond"/>
@@ -18,4 +18,4 @@
 	<com.boardgamegeek.pref.BuddyPreference
 		android:summary="nibuen"
 		android:title="Leif Norcott"/>
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

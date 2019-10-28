@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+	<style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">
 		<item name="android:windowBackground">@drawable/background_splash</item>
 	</style>
 
@@ -9,13 +9,13 @@
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
-		<item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
 		<item name="windowActionModeOverlay">true</item>
 		<item name="actionModeBackground">@color/primary</item>
-		<item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 	</style>
 
-	<style name="Theme.bgglight.Base" parent="@style/Theme.AppCompat.Light.NoActionBar"/>
+	<style name="Theme.bgglight.Base" parent="@style/Theme.MaterialComponents.Light.NoActionBar"/>
 
 	<style name="Theme.bgglight.NavDrawer"/>
 
@@ -29,14 +29,14 @@
 		<item name="color">@android:color/white</item>
 	</style>
 
-	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
+	<style name="Theme.bgglight.Dialog" parent="@style/Theme.MaterialComponents.Light.Dialog">
 		<item name="android:windowNoTitle">false</item>
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
 	</style>
 
-	<style name="Theme.bgglight.Dialog.Alert" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+	<style name="Theme.bgglight.Dialog.Alert" parent="@style/Theme.MaterialComponents.Light.Dialog.Alert">
 		<item name="android:windowNoTitle">true</item>
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>

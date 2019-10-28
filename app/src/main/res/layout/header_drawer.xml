@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@color/primary"
+	android:orientation="vertical"
+	android:paddingBottom="18dp"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/drawer_status_bar_buffer"
+	android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+
+	<com.boardgamegeek.ui.widget.BezelImageView
+		android:id="@+id/account_image"
+		android:layout_width="@dimen/drawer_header_image_size"
+		android:layout_height="@dimen/drawer_header_image_size"
+		android:elevation="2dp"
+		android:src="@drawable/person_image_empty"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:maskDrawable="@drawable/circle_mask"/>
+
+	<TextView
+		android:id="@+id/account_info_primary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="bottom"
+		android:minHeight="36dp"
+		android:textAppearance="@style/Text.Title"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/account_image"
+		tools:text="Chris Comeaux"/>
+
+	<TextView
+		android:id="@+id/account_info_secondary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="bottom"
+		android:minHeight="20dp"
+		android:textAppearance="@style/Text.Subtitle"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/account_info_primary"
+		tools:text="ccomeaux"/>
+
+	<Button
+		android:id="@+id/singInButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/action_sign_in"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<androidx.constraintlayout.widget.Group
+		android:id="@+id/signed_in"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:constraint_referenced_ids="account_image,account_info_primary,account_info_secondary"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

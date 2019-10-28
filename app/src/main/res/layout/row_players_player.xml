@@ -5,28 +5,29 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
 	android:orientation="vertical">
 
 	<TextView
-		android:id="@android:id/title"
-		style="@style/Text.Primary"
+		android:id="@+id/nameView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingTop="@dimen/padding_standard"
-		tools:text="Title"/>
+		android:textAppearance="@style/TextAppearance.RowTitle"
+		tools:text="Chris Comeaux"/>
 
 	<TextView
-		android:id="@android:id/text1"
-		style="@style/Text.Secondary"
+		android:id="@+id/usernameView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		tools:text="Text 1"/>
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		tools:text="ccomeaux"/>
 
 	<TextView
-		android:id="@android:id/text2"
-		style="@style/Text"
+		android:id="@+id/quantityView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/padding_standard"
-		tools:text="Text 2"/>
+		android:textAppearance="@style/TextAppearance.RowDetail"
+		tools:text="6 Plays"/>
 </LinearLayout>

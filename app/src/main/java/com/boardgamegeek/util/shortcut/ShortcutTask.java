@@ -11,8 +11,8 @@ import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -31,7 +31,7 @@ import timber.log.Timber;
 
 public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 	@SuppressLint("StaticFieldLeak") @Nullable protected final Context context;
-	private final String thumbnailUrl;
+	protected final String thumbnailUrl;
 
 	public ShortcutTask(@Nullable Context context) {
 		this(context, null);

@@ -6,10 +6,11 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
 	android:orientation="horizontal">
 
 	<com.boardgamegeek.ui.widget.BezelImageView
-		android:id="@+id/avatar"
+		android:id="@+id/avatarView"
 		style="@style/ImageList"
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
@@ -26,18 +27,17 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/full_name"
+			android:id="@+id/fullNameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+			android:textAppearance="@style/TextAppearance.RowTitle"
 			tools:text="Chris Comeaux"/>
 
 		<TextView
-			android:id="@+id/name"
+			android:id="@+id/usernameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-			android:textColor="@color/secondary_text"
+			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 			tools:text="ccomeaux"/>
 	</LinearLayout>
 

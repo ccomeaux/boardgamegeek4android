@@ -5,7 +5,7 @@
 		  android:layout_width="match_parent"
 		  android:layout_height="wrap_content"
 		  android:ellipsize="marquee"
-		  android:maxLines="1"
 		  android:textAlignment="inherit"
-		  android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-		  app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+		  android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+		  app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+		  android:singleLine="true"/>

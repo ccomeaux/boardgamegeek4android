@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.intentFor
@@ -11,7 +11,7 @@ class ForumsActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = ForumsFragment.newInstance()
 
-    override fun getDrawerResId() = R.string.title_forums
+    override val navigationItemId = R.id.forums
 
     companion object {
         @JvmStatic

@@ -1,7 +1,6 @@
 package com.boardgamegeek.service;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 

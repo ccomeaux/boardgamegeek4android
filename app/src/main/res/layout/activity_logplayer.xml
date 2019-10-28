@@ -176,13 +176,13 @@
 							android:inputType="numberDecimal|numberSigned"
 							android:maxLength="32"/>
 
-						<Button
+						<ImageButton
 							android:id="@+id/log_player_position_button"
-							style="@style/Text.Footnote"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/image_button_size"
 							android:layout_gravity="center_vertical"
-							android:text="@string/number_to_text"/>
+							android:background="?attr/selectableItemBackground"
+							android:src="@drawable/ic_keyboard"/>
 					</LinearLayout>
 
 					<LinearLayout
@@ -203,13 +203,13 @@
 							android:inputType="numberDecimal|numberSigned"
 							android:maxLength="32"/>
 
-						<Button
+						<ImageButton
 							android:id="@+id/log_player_score_button"
-							style="@style/Text.Footnote"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/image_button_size"
 							android:layout_gravity="center_vertical"
-							android:text="@string/number_to_text"/>
+							android:background="?attr/selectableItemBackground"
+							android:src="@drawable/ic_keyboard"/>
 					</LinearLayout>
 
 					<LinearLayout
@@ -231,7 +231,7 @@
 
 					</LinearLayout>
 
-					<android.support.v7.widget.SwitchCompat
+					<androidx.appcompat.widget.SwitchCompat
 						android:id="@+id/log_player_new"
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
@@ -241,7 +241,7 @@
 						android:paddingRight="@dimen/edit_label_width"
 						android:text="@string/new_label"/>
 
-					<android.support.v7.widget.SwitchCompat
+					<androidx.appcompat.widget.SwitchCompat
 						android:id="@+id/log_player_win"
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
@@ -259,7 +259,7 @@
 			</LinearLayout>
 		</ScrollView>
 
-		<android.support.design.widget.FloatingActionButton
+		<com.google.android.material.floatingactionbutton.FloatingActionButton
 			android:id="@+id/fab"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

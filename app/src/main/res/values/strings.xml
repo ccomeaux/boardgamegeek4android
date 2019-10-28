@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-	<string name="weight_1_text">Light</string>
-	<string name="weight_2_text">Medium Light</string>
-	<string name="weight_3_text">Medium</string>
-	<string name="weight_4_text">Medium Heavy</string>
-	<string name="weight_5_text">Heavy</string>
 	<string name="owning_meter_text">%s Owning</string>
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
@@ -17,11 +12,11 @@
 	<string name="publishers">Publishers</string>
 	<string name="categories">Categories</string>
 	<string name="mechanics">Mechanics</string>
+	<string name="games">Games</string>
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
 	<string name="collection_item">Collection Item</string>
 	<string name="published_prefix">Published %1$s %2$s</string>
-	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="average_weight">Weight</string>
 	<string name="sync_pending_update">Update pending</string>
@@ -57,6 +52,7 @@
 	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
+	<string name="select_range">Select a range</string>
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
@@ -69,6 +65,7 @@
 	<string name="rated">Rated</string>
 	<string name="commented">Commented</string>
 	<string name="rematch">Rematch</string>
+	<string name="menu_change_game">Change game</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
 	<string name="title_players_with_count">Players - %,d</string>
@@ -86,6 +83,7 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="geek_rating">Geek rating</string>
 	<string name="my_rating">My rating</string>
 	<string name="my_rating_abbr">Me</string>
 	<string name="rating_hint">Rating</string>
@@ -120,6 +118,7 @@
 	<string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
 	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
+	<string name="msg_fragment_error">You shouldn\'t be seeing this message. But if you are, please send a screenshot of this to bgg4android@gmail.com. Thanks!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
 	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>
@@ -133,6 +132,8 @@
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
+	<string name="title_my_games">My Games</string>
+	<string name="title_collection_details">Collection Details</string>
 	<string name="title_filtered_collection">Filtered Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>
@@ -177,12 +178,20 @@
 	<string name="title_thread">Thread</string>
 	<string name="title_plays">Plays</string>
 	<string name="title_play_stats">Play Stats</string>
+	<string name="title_stats">Stats</string>
 	<string name="title_in_progress">In Progress</string>
 	<string name="title_recent">Recent</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
+	<string name="title_designers">Designers</string>
 	<string name="title_artist">Artist</string>
+	<string name="title_artists">Artists</string>
 	<string name="title_publisher">Publisher</string>
+	<string name="title_publishers">Publishers</string>
+	<string name="title_mechanic">Mechanic</string>
+	<string name="title_mechanics">Mechanics</string>
+	<string name="title_category">Category</string>
+	<string name="title_categories">Categories</string>
 	<string name="title_user">User</string>
 	<string name="title_users">Users</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
@@ -228,7 +237,8 @@
 	<string name="backup_description_user">Users\' favorite colors, which includes both GeekBuddies and players you\'ve played against.</string>
 	<string name="msg_export_permission_rationale">To write the export files, the app needs permission to write to the external storage.</string>
 	<string name="msg_export_permission_denied">Can\'t export without the proper permission.</string>
-	<string name="msg_shortcut_create">Select a game  to place it on the home screen.</string>
+	<string name="msg_shortcut_create">Select a game to place it on the home screen.</string>
+	<string name="msg_change_play_game">Select a new game for this play</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
@@ -239,24 +249,29 @@
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
+	<string name="empty_designers">No designers.</string>
+	<string name="empty_artists">No artists.</string>
+	<string name="empty_publishers">No publishers.</string>
+	<string name="empty_mechanics">No mechanics.</string>
+	<string name="empty_categories">No categories.</string>
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
-	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection. If you\'ve already done that and you\'re still seeing this message, it\'s probably time to re-sync.</string>
-	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. If you think you should, you might want to try to re-sync.</string>
+	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
+	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. Maybe you should try different filters.</string>
+	<string name="empty_collection_filter_on_sync_partial">Collection sync for some of the filtered statuses is off. Try to enable it from Settings > Sync to display some games.</string>
 	<string name="sync">Sync</string>
 	<string name="empty_game_collection">This game isn\'t in your collection.</string>
 	<string name="re_sync">Re-sync</string>
 	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
+	<string name="empty_plays">You haven\'t logged any plays.</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
 	<string name="empty_plays_player">You haven\'t logged any plays with this player.</string>
 	<string name="empty_plays_location">You haven\'t logged any plays at this location.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
-	<string name="empty_plays_update">No plays are waiting to be updated.</string>
-	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
 	<string name="empty_play">No play found (ID=%s)."</string>
@@ -267,9 +282,14 @@
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_geeklist">No list here.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
+	<string name="empty_generic">Nothing to see here. Move along.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
 	<string name="empty_player_colors_button">Generate</string>
-	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website it up and you still see this message, please let us know about the error below. Otherwise, please check back here later.\n\n%s</string>
+	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website is up and you still see this message, please let us know about the error below. Otherwise, please check back later.\n\n%s</string>
+	<string name="empty_person">No %s by that ID.</string>
+	<string name="empty_person_description">This %s is indescribable.</string>
+	<string name="empty_person_stats">No stats have been calculated yet.</string>
+	<string name="empty_linked_collection">No games for this %s.</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_dates">Dates</string>
@@ -294,6 +314,7 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_favorite">Favorite</string>
 	<string name="menu_unfavorite">Unfavorite</string>
+	<string name="menu_users">Users</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_view_image">View image</string>
@@ -341,10 +362,12 @@
 	<string name="collection_sort_stats">Info</string>
 	<string name="collection_sort_community">Community</string>
 	<string name="collection_sort_personal">Collection</string>
+	<string name="collection_sort_private_info">Private Info</string>
 	<string name="collection_sort_local">Local</string>
 	<string name="collection_sort_acquired_from">Acquired From</string>
 	<string name="collection_sort_price_paid">Price Paid</string>
 	<string name="collection_sort_current_value">Current Value</string>
+	<string name="collection_sort_inventory_location">Inventory Location</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
@@ -354,8 +377,16 @@
 	<string name="menu_plays_filter_in_progress">Edits and Drafts</string>
 	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
+	<string name="menu_sort_item_count">Games</string>
+	<string name="menu_sort_whitmore_score">Whitmore score</string>
 	<string name="menu_sort_quantity">Play count</string>
 	<string name="menu_sort_wins">Wins</string>
+	<string name="menu_sort_comments">Comments</string>
+	<string name="menu_sort_rating">Rating</string>
+	<string name="menu_sort_my_rating">My rating</string>
+	<string name="menu_sort_username">Username</string>
+	<string name="menu_sort_first_name">First name</string>
+	<string name="menu_sort_last_name">Last name</string>
 	<string name="undo">Undo</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
@@ -409,6 +440,7 @@
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
+	<string name="msg_warning_private_info">Warning! Making any changes here will remove the inventory date.</string>
 	<string name="title_share">Share</string>
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
@@ -424,7 +456,7 @@
 	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
 	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
 	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
-	<string name="share_thread_article_game_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
+	<string name="share_thread_article_object_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
 	<string name="timer">Timer</string>
@@ -433,9 +465,10 @@
 	<string name="from">from</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
+	<string name="_players">…players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
-	<string name="minutes">minutes</string>
+	<string name="_with_">…with…</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
@@ -445,22 +478,19 @@
 	<string name="unknown_weight">Unknown weight</string>
 	<string name="unknown_language">Unknown language dependence</string>
 	<string name="ages">Ages</string>
+	<string name="player_ages">Player Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
-	<string name="and_up_suffix">%,d and up</string>
+	<string name="and_up_suffix" tools:ignore="PluralsCandidate">%,d and up</string>
 	<string name="and_up_suffix_abbr">%,d+</string>
-	<string name="player_range_unknown"><b>\?</b> players</string>
-	<string name="player_range_suffix" tools:ignore="PluralsCandidate"><b>%1$,d-%2$,d</b> players</string>
-	<string name="best_prefix">Best with <b>%s</b></string>
-	<string name="recommended_prefix">Good with <b>%s</b></string>
-	<string name="recommended_player_count_description_abbr">%s with %s</string>
-	<string name="mins_unknown"><b>\?</b> mins</string>
-	<string name="mins_suffix"><b>%,d</b> mins</string>
-	<string name="hrs_suffix"><b>%,d</b> hrs</string>
-	<string name="hrs_mins"><b>%1$d</b>h <b>%2$d</b>m</string>
-	<string name="mins_range_suffix"><b>%1$,d - %2$,d</b> mins</string>
-	<string name="rank_description"><b>#%d</b> %s</string>
-	<string name="rank_prefix">#%d</string>
-	<string name="rank_div">%1$s &#183; %2$s</string>
+	<string name="player_range">Player Range</string>
+	<string name="best_prefix">Best w/<b>%s</b></string>
+	<string name="recommended_prefix">Good w/<b>%s</b></string>
+	<string name="recommended_player_count_description_abbr">%1$s with %2$,d</string>
+	<string name="mins_unknown">\? mins</string>
+	<string name="hrs_suffix">%,d hrs</string>
+	<string name="hrs_mins">%1$,dh %2$dm</string>
+	<string name="rank_description"><b>#%,d</b> %s</string>
+	<string name="rank_prefix">#%,d</string>
 	<string name="play_description_game_segment">Played %s</string>
 	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>
@@ -474,16 +504,10 @@
 	<string name="player_description_score_segment">: %s</string>
 	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
-	<string name="language_1_text">No necessary in-game text</string>
-	<string name="language_2_text">Some necessary text</string>
-	<string name="language_3_text">Moderate in-game text</string>
-	<string name="language_4_text">Extensive use of text</string>
-	<string name="language_5_text">Unplayable in another language</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_prefix">Ages <b>%d+</b></string>
-	<string name="age_community">Community: <b>%s</b></string>
-	<string name="age_community_plus">Community: <b>%d+</b></string>
+	<string name="age_community">Community: <b>%s+</b></string>
 	<string name="name">Name</string>
 	<string name="named_prefix">Named \"%s\"</string>
 	<string name="ranked">Ranked</string>
@@ -502,7 +526,7 @@
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
 	<string name="menu_random_start_player">Random start player</string>
 	<string name="menu_random_player_order">Random player order</string>
-	<string name="generic_player">Player #%d</string>
+	<string name="generic_player">Player #%,d</string>
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
 	<string name="unrated_abbr">\?</string>
@@ -510,9 +534,7 @@
 	<string name="undefined_abbr">\?</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
-	<string name="and_more">…and %,d more</string>
-	<string name="number_to_text">ABC</string>
-	<string name="text_to_number">123</string>
+	<string name="and_more" tools:ignore="PluralsCandidate">…and %,d more</string>
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>
@@ -534,7 +556,6 @@
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
-	<string name="forum_last_post_in">Last post <b>%1$s</b> in <b>%2$s</b></string>
 	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
@@ -542,9 +563,11 @@
 	<string name="current_value">Current Price</string>
 	<string name="acquisition_date">Acquisition Date</string>
 	<string name="acquired_from">Acquired From</string>
+	<string name="inventory_location">Inventory Location</string>
 	<string name="private_comment">Private Comment</string>
 	<string name="acquired">Acquired</string>
 	<string name="currently_worth">currently worth</string>
+	<string name="located_in">Located in</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="wishlist_comment">Wishlist Comment</string>
 	<string name="title_trade">Trade</string>
@@ -564,6 +587,7 @@
 	<string name="play_stat_dollars">Dollars</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
+	<string name="play_stat_penny">Penny</string>
 	<string name="play_stat_win_percentage">%1$,d/%2$,d (%3$,d%%)</string>
 	<string name="percentage">%,d%%</string>
 	<string name="title_win_skill">Skill</string>
@@ -579,16 +603,16 @@
 	<string name="play_stat_last_play">Last play</string>
 	<string name="play_stat_top_100">Top 100 games played</string>
 	<string name="play_stat_game_h_index">Game H-index</string>
-	<string name="play_stat_game_h_index_info">You\'ve played at least %1$s games %1$s times or more.\n\nhttps://boardgamegeek.com/thread/953084</string>
+	<string name="play_stat_game_h_index_info">You\'ve played at least %1$,d games %1$,d times or more. You need at least %2$,d more play(s) to increase this number.\n\nhttps://boardgamegeek.com/thread/953084</string>
 	<string name="play_stat_game_h_index_offset_in">This game contributes to your H-index.</string>
 	<string name="play_stat_game_h_index_offset_out">plays outside of your H-index.</string>
 	<string name="play_stat_player_h_index">Player H-index</string>
-	<string name="play_stat_player_h_index_info">You\'ve played against at least %1$s players %1$s times or more.\n\nhttps://boardgamegeek.com/thread/1448479</string>
+	<string name="play_stat_player_h_index_info">You\'ve played against at least %1$,d players %1$,d times or more. You need at least %2$,d more play(s) to increase this number.\n\nhttps://boardgamegeek.com/thread/1448479</string>
 	<string name="play_stat_friendless">Friendless metric</string>
 	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttp://friendlessstats.dtdns.net/</string>
 	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
 	<string name="play_stat_cfm_info">Similar to the friendless metric, it is an average number of plays with no cheating.\n\nhttp://friendlessstats.dtdns.net/</string>
-	<string name="game_h_index_prefix">Game H-Index <b>%,d</b></string>
+	<string name="game_h_index_prefix">Game H-Index <b>%s</b></string>
 	<string name="title_players_skill">Skill Formula</string>
 	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
 	<string name="play_stat_fhm">FHM</string>
@@ -606,18 +630,16 @@
 	<string name="play_stat_play_rate">Plays per month</string>
 	<string name="play_stat_accuracy">These stats don\'t include %s.</string>
 	<string name="play_stat_collection_status">These stats work much better if you sync both your owned and played games.</string>
-	<string name="play_stat_title_collection_status">Modify sync statuses?</string>
-	<string name="play_stat_msg_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
-	<string name="pie_chart_click_description">%1$s votes for \"%2$s\"</string>
+	<string name="title_modify_collection_status">Modify sync statuses?</string>
+	<string name="msg_modify_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
 	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
 	<string name="msg_color_deleted">Deleted \"%s\"</string>
 	<string name="incomplete_games">incomplete games</string>
-	<string name="items">items</string>
-	<string name="accessories">accessories</string>
+	<string name="items">Items</string>
+	<string name="accessories">Accessories</string>
 	<string name="show_missing_votes">Show missing votes</string>
-	<string name="msg_invalid_token">Attempting to use an unrecognized query token: %s</string>
 	<string name="msg_collection_item_deleted">Deleted!</string>
 	<string name="collection_status_own">Own</string>
 	<string name="collection_status_prev_owned">Prev. Owned</string>
@@ -630,7 +652,9 @@
 	<string name="empty_top_games">Error loading top games</string>
 	<string name="title_top_games">Top Games</string>
 	<string name="title_description">Description</string>
+	<string name="title_descr">Descr</string>
 	<string name="title_info">Info</string>
+	<string name="title_credits">Credits</string>
 	<string name="plays_sync_status_none">Plays have never been synced.</string>
 	<string name="plays_sync_status_new">Plays have been synced through %s.</string>
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
@@ -645,10 +669,9 @@
 	<string name="msg_sync_response_429">Rate limit exceeded.</string>
 	<string name="msg_sync_response_202">BoardGameGeek is still processing this request.</string>
 	<string name="msg_sync_error_http_code">Problem communicating with BoardGameGeek (HTTP code: %s)</string>
+	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
 	<string name="profile_updated">Profile updated</string>
-	<string name="this_many">this many</string>
 	<string name="game">game</string>
-	<string name="games">games</string>
 	<string name="play">play</string>
 	<string name="player">player</string>
 	<string name="best">Best</string>
@@ -666,6 +689,13 @@
 	<string name="error_account_name_mismatch">The existing account for %s doesn\'t match the one requested for %s.</string>
 	<string name="error_account_set_auth_token_security_exception">Uh-oh! This isn\'t an error we expect to see. If you have ScorePal installed, there\'s a known problem that one prevents the other from signing in. We\'re working to resolve the issue.</string>
 	<string name="error_field_required">This field is required</string>
+	<string name="information">Information</string>
+	<string name="whitmore_score">Whitmore Score</string>
+	<string name="whitmore_score_with_expansions">&#8230;with Expansions</string>
+	<string name="person_stat_collection_status">These stats work much better if you sync your rated and played games.</string>
+	<string name="play_count">Play Count</string>
+	<string name="h_index">H-Index</string>
+	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/geeklist/37832/my-favorite-designers</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -691,9 +721,9 @@
 		<item quantity="one">Are you sure you want to send this play?</item>
 		<item quantity="other">Are you sure you want to send these plays?</item>
 	</plurals>
-	<plurals name="plays_prefix">
-		<item quantity="one"><b>%1$,d</b> Plays%2$s</item>
-		<item quantity="other"><b>%1$,d</b> Plays%2$s</item>
+	<plurals name="play_title_suffix">
+		<item quantity="one">%,d Play</item>
+		<item quantity="other">%,d Plays</item>
 	</plurals>
 	<plurals name="msg_updated_plays_buddy_nickname">
 		<item quantity="one">Updated %1$,d play for %2$s with nickname \"%3$s\".</item>
@@ -711,6 +741,10 @@
 		<item quantity="one"><b>%,d</b> color/team</item>
 		<item quantity="other"><b>%,d</b> colors/teams</item>
 	</plurals>
+	<plurals name="ratings_suffix">
+		<item quantity="one"><b>%,d</b> rating</item>
+		<item quantity="other"><b>%,d</b> ratings</item>
+	</plurals>
 	<plurals name="comments_suffix">
 		<item quantity="one"><b>%,d</b> comment</item>
 		<item quantity="other"><b>%,d</b> comments</item>
@@ -727,13 +761,17 @@
 		<item quantity="one">%1$s exact match for \"%2$s\"</item>
 		<item quantity="other">%1$s exact matches for \"%2$s\"</item>
 	</plurals>
-	<plurals name="users_suffix">
-		<item quantity="one"><b>%,d</b> User</item>
-		<item quantity="other"><b>%,d</b> Users</item>
-	</plurals>
 	<plurals name="plays_suffix">
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
+	</plurals>
+	<plurals name="games_suffix">
+		<item quantity="one"><b>%,d</b> game</item>
+		<item quantity="other"><b>%,d</b> games</item>
+	</plurals>
+	<plurals name="collection_items_suffix">
+		<item quantity="one"><b>%,d</b> collection item</item>
+		<item quantity="other"><b>%,d</b> collection items</item>
 	</plurals>
 	<plurals name="winnable_plays_suffix">
 		<item quantity="one"><b>%,d</b> winnable play</item>
@@ -756,12 +794,16 @@
 		<item quantity="other">%,d players</item>
 	</plurals>
 	<plurals name="player_range_suffix">
-		<item quantity="one"><b>%,d</b> player</item>
-		<item quantity="other"><b>%,d</b> players</item>
+		<item quantity="one"><b>%s</b> player</item>
+		<item quantity="other"><b>%s</b> players</item>
 	</plurals>
 	<plurals name="votes_suffix">
 		<item quantity="one"><b>%,d</b> vote</item>
 		<item quantity="other"><b>%,d</b> votes</item>
+	</plurals>
+	<plurals name="mins_suffix">
+		<item quantity="one"><b>%s</b> min</item>
+		<item quantity="other"><b>%s</b> mins</item>
 	</plurals>
 	<plurals name="play_description_quantity_segment">
 		<item quantity="one">\u0020%,d time</item>
@@ -775,4 +817,17 @@
 		<item quantity="one">%1$s with %2$,d player</item>
 		<item quantity="other">%1$s with %2$,d players</item>
 	</plurals>
+	<plurals name="more">
+		<item quantity="one">%,d more</item>
+		<item quantity="other">%,d more</item>
+	</plurals>
+	<plurals name="pie_chart_click_description">
+		<item quantity="one">%1$s vote for \"%2$s\"</item>
+		<item quantity="other">%1$s votes for \"%2$s\"</item>
+	</plurals>
+	<plurals name="person_game_h_index_info">
+		<item quantity="one">You\'ve played at least %1$,d game %1$s time or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+		<item quantity="other">You\'ve played at least %1$,d games %1$s times or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+
 </resources>

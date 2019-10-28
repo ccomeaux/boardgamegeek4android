@@ -1,10 +1,10 @@
 package com.boardgamegeek.service;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
 
 import com.boardgamegeek.service.model.CollectionItem;
 
+import androidx.annotation.NonNull;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 

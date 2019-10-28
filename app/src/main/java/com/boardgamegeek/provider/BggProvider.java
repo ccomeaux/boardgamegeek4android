@@ -7,11 +7,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.NonNull;
-import android.support.v4.util.SimpleArrayMap;
 
 import java.io.FileNotFoundException;
 
+import androidx.annotation.NonNull;
+import androidx.collection.SimpleArrayMap;
 import hugo.weaving.DebugLog;
 
 public class BggProvider extends ContentProvider {
@@ -68,18 +68,28 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new DesignersProvider());
 		addProvider(map, new DesignersIdProvider());
+		addProvider(map, new DesignersIdCollectionProvider());
+
 		addProvider(map, new ArtistsProvider());
 		addProvider(map, new ArtistsIdProvider());
+		addProvider(map, new ArtistsIdCollectionProvider());
+
 		addProvider(map, new PublishersProvider());
 		addProvider(map, new PublishersIdProvider());
+		addProvider(map, new PublishersIdCollectionProvider());
+
 		addProvider(map, new MechanicsProvider());
 		addProvider(map, new MechanicsIdProvider());
+		addProvider(map, new MechanicsIdCollectionProvider());
+
 		addProvider(map, new CategoriesProvider());
 		addProvider(map, new CategoriesIdProvider());
+		addProvider(map, new CategoriesIdCollectionProvider());
 
 		addProvider(map, new CollectionProvider());
 		addProvider(map, new CollectionIdProvider());
 		addProvider(map, new CollectionAcquiredFromProvider());
+		addProvider(map, new CollectionInventoryLocationProvider());
 
 		addProvider(map, new PlaysProvider());
 		addProvider(map, new PlaysIdProvider());
@@ -101,7 +111,6 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new GamesIdThumbnailProvider());
 		addProvider(map, new CollectionIdThumbnailProvider());
 		addProvider(map, new AvatarsProvider());
-		addProvider(map, new AvatarsIdProvider());
 		addProvider(map, new BuddiesIdAvatarProvider());
 
 		addProvider(map, new SearchSuggestProvider());

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<group android:checkableBehavior="all">
+		<item
+			android:id="@+id/win"
+			android:checkable="true"
+			android:title="@string/win"/>
+		<item
+			android:id="@+id/new_"
+			android:checkable="true"
+			android:title="@string/new_label"/>
+	</group>
+</menu>

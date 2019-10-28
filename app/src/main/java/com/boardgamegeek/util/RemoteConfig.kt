@@ -27,6 +27,11 @@ class RemoteConfig {
         const val KEY_SYNC_GAMES_DELETE_VIEW_HOURS = "sync_games_delete_view_hours"
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
+        const val KEY_REFRESH_GAME_MINUTES = "refresh_game_minutes"
+        const val KEY_REFRESH_GAME_COLLECTION_MINUTES = "refresh_game_collection_minutes"
+        const val KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES = "refresh_game_plays_partial_minutes"
+        const val KEY_REFRESH_GAME_PLAYS_FULL_HOURS = "refresh_game_plays_full_hours"
+
         const val KEY_RETRY_202_INITIAL_INTERVAL_MILLIS = "retry_202_initial_interval_millis"
         const val KEY_RETRY_202_RANDOMIZATION_FACTOR = "retry_202_randomization_factor"
         const val KEY_RETRY_202_MULTIPLIER = "retry_202_multiplier"
@@ -42,21 +47,20 @@ class RemoteConfig {
         fun init() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
             val configSettings = FirebaseRemoteConfigSettings.Builder()
-                    .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                    .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 0L else 3600L)
                     .build()
-            firebaseRemoteConfig.setConfigSettings(configSettings)
-            firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults)
+            firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
+            firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
             fetch()
         }
 
         @JvmStatic
         fun fetch() {
             val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-            val cacheExpiration = if (firebaseRemoteConfig.info.configSettings.isDeveloperModeEnabled) 0L else 43200L
-            firebaseRemoteConfig.fetch(cacheExpiration).addOnCompleteListener { task ->
+            firebaseRemoteConfig.fetch().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.i("Successfully fetched Firebase remote config.")
-                    firebaseRemoteConfig.activateFetched()
+                    firebaseRemoteConfig.activate()
                 } else {
                     Timber.i(task.exception, "Failed to fetch Firebase remote config.")
                 }
@@ -69,10 +73,8 @@ class RemoteConfig {
         @JvmStatic
         fun getInt(key: String) = FirebaseRemoteConfig.getInstance().getLong(key).toInt()
 
-        @JvmStatic
         fun getLong(key: String) = FirebaseRemoteConfig.getInstance().getLong(key)
 
-        @JvmStatic
         fun getDouble(key: String) = FirebaseRemoteConfig.getInstance().getDouble(key)
     }
 }

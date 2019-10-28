@@ -7,9 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.annotation.StringRes;
-import android.support.v4.app.ShareCompat;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -25,12 +22,11 @@ import com.crashlytics.android.answers.ShareEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.StringRes;
+import androidx.core.app.ShareCompat;
 import timber.log.Timber;
 
 public class ActivityUtils {
-	public static final String LINK_AMAZON_COM = "www.amazon.com";
-	public static final String LINK_AMAZON_UK = "www.amazon.co.uk";
-	public static final String LINK_AMAZON_DE = "www.amazon.de";
 	private static final String BOARDGAME_PATH = "boardgame";
 	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
 
@@ -67,7 +63,7 @@ public class ActivityUtils {
 		for (Pair<Integer, String> game : games) {
 			text.append(formatGameLink(game.first, game.second));
 			gameNames.add(game.second);
-			gameNames.add(String.valueOf(game.first));
+			gameIds.add(String.valueOf(game.first));
 		}
 		share(activity, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
 		Answers.getInstance().logShare(new ShareEvent()
@@ -100,34 +96,8 @@ public class ActivityUtils {
 	}
 
 	public static void linkBgg(Context context, int gameId) {
-		if (gameId == BggContract.INVALID_ID) {
-			return;
-		}
+		if (gameId == BggContract.INVALID_ID) return;
 		linkToBgg(context, BOARDGAME_PATH, gameId);
-	}
-
-	public static void linkBgPrices(Context context, String gameName) {
-		if (TextUtils.isEmpty(gameName)) return;
-		link(context, "http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName));
-	}
-
-	public static void linkBgPricesUk(Context context, String gameName) {
-		if (TextUtils.isEmpty(gameName)) return;
-		link(context, "https://boardgameprices.co.uk/item/search?search=" + HttpUtils.encode(gameName));
-	}
-
-	public static void linkAmazon(Context context, String gameName, String domain) {
-		if (TextUtils.isEmpty(gameName)) {
-			return;
-		}
-		link(context, String.format("http://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)));
-	}
-
-	public static void linkEbay(Context context, String gameName) {
-		if (TextUtils.isEmpty(gameName)) {
-			return;
-		}
-		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkToBgg(Context context, String path) {
@@ -167,7 +137,7 @@ public class ActivityUtils {
 		return BGG_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
-	public static boolean isIntentAvailable(Context context, Intent intent) {
+	private static boolean isIntentAvailable(Context context, Intent intent) {
 		final PackageManager packageManager = context.getPackageManager();
 		List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;

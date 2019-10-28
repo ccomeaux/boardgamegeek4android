@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	style="@style/RowContainer"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?android:attr/selectableItemBackground"
+	android:orientation="vertical"
+	tools:ignore="Overdraw">
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="2"
+		android:textAppearance="@style/TextAppearance.RowTitle"
+		tools:text="@tools:sample/lorem"/>
+
+	<TextView
+		android:id="@+id/descriptionView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="2"
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		tools:text="@tools:sample/lorem/random"/>
+</LinearLayout>

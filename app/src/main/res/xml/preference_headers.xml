@@ -3,25 +3,31 @@
 	<Preference
 		android:icon="@drawable/ic_account_circle_black_24dp"
 		android:key="com.boardgamegeek.prefs.ACCOUNT"
+		android:summary="@string/pref_account_summary"
 		android:title="@string/pref_account"/>
 	<Preference
 		android:icon="@drawable/ic_action_refresh_light"
 		android:key="com.boardgamegeek.prefs.SYNC"
+		android:summary="@string/pref_sync_summary"
 		android:title="@string/pref_sync"/>
 	<Preference
 		android:icon="@drawable/ic_storage"
 		android:key="com.boardgamegeek.prefs.DATA"
+		android:summary="@string/pref_data_summary"
 		android:title="@string/pref_data"/>
 	<Preference
 		android:icon="@drawable/ic_log_play"
 		android:key="com.boardgamegeek.prefs.LOG"
+		android:summary="@string/pref_log_summary"
 		android:title="@string/pref_log"/>
 	<Preference
 		android:icon="@drawable/ic_action_alert_light"
 		android:key="com.boardgamegeek.prefs.ADVANCED"
+		android:summary="@string/pref_advanced_summary"
 		android:title="@string/pref_advanced"/>
 	<Preference
 		android:icon="@drawable/ic_action_info_light"
 		android:key="com.boardgamegeek.prefs.ABOUT"
+		android:summary="@string/pref_about_summary"
 		android:title="@string/pref_about"/>
 </PreferenceScreen>

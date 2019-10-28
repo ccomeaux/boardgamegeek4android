@@ -18,6 +18,10 @@
 		android:title="@string/rematch"
 		app:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/menu_change_game"
+		android:title="@string/menu_change_game"
+		app:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/menu_send"
 		android:icon="@drawable/menu_send"
 		android:title="@string/send"

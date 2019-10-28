@@ -1,6 +1,6 @@
 package com.boardgamegeek.ui
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 
 class TopGamesActivity : TopLevelSinglePaneActivity() {
@@ -8,5 +8,5 @@ class TopGamesActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreatePane(): Fragment = TopGamesFragment()
 
-    override fun getDrawerResId() = R.string.title_top_games
+    override val navigationItemId = R.id.top_games
 }

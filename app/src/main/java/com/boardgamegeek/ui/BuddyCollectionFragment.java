@@ -1,12 +1,7 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,33 +10,50 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.CollectionItemEntity;
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
+import com.boardgamegeek.extensions.StringUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.CollectionItem;
-import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.io.model.CollectionItem;
+import com.boardgamegeek.io.model.CollectionResponse;
+import com.boardgamegeek.mappers.CollectionItemMapper;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.SafeResponse;
-import com.boardgamegeek.util.RandomUtils;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
+import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.collection.ArrayMap;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
-public class BuddyCollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
+public class BuddyCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
 	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 
@@ -52,6 +64,13 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	@State String statusLabel;
 	private String[] statusValues;
 	private String[] statusEntries;
+	private boolean isListShown = false;
+
+	Unbinder unbinder;
+	@BindView(R.id.empty_container) ViewGroup emptyContainer;
+	@BindView(android.R.id.empty) TextView emptyTextView;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(android.R.id.list) RecyclerView listView;
 
 	public static BuddyCollectionFragment newInstance(String username) {
 		Bundle args = new Bundle();
@@ -65,7 +84,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		buddyName = getArguments().getString(KEY_BUDDY_NAME);
+		buddyName = getArguments() != null ? getArguments().getString(KEY_BUDDY_NAME) : null;
 
 		if (TextUtils.isEmpty(buddyName)) {
 			Timber.w("Missing buddy name.");
@@ -85,19 +104,31 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 	}
 
+	@Nullable
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_buddy_collection));
-		reload();
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_buddy_collection, container, false);
 	}
 
 	@Override
-	public void onListItemClick(View convertView, int position, long id) {
-		super.onListItemClick(convertView, position, id);
-		int gameId = (int) convertView.getTag(R.id.id);
-		String gameName = (String) convertView.getTag(R.id.game_name);
-		GameActivity.start(getContext(), gameId, gameName);
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
+
+		listView.setLayoutManager(new LinearLayoutManager(getContext()));
+		listView.setHasFixedSize(true);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		reload();
 	}
 
 	@Override
@@ -124,7 +155,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		UIUtils.showMenuItem(menu, R.id.menu_collection_random_game, adapter != null && adapter.getCount() > 0);
+		UIUtils.showMenuItem(menu, R.id.menu_collection_random_game, adapter != null && adapter.getItemCount() > 0);
 		// check the proper submenu item
 		if (subMenu != null) {
 			for (int i = 0; i < subMenu.size(); i++) {
@@ -146,13 +177,11 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (i >= 0 && i < statusValues.length) {
 			status = statusValues[i];
 		} else if (id == R.id.menu_collection_random_game) {
-			final int index = RandomUtils.getRandom().nextInt(adapter.getCount());
-			if (index < adapter.getCount()) {
-				CollectionItem ci = adapter.getItem(index);
-				if (ci != null) {
-					GameActivity.start(getContext(), ci.gameId, ci.gameName());
-					return true;
-				}
+			CollectionItemEntity ci = adapter.getRandomItem();
+			if (ci != null) {
+				GameActivity.start(requireContext(), ci.getGameId(), ci.getGameName(), ci.getThumbnailUrl());
+				return true;
+			} else {
 				return false;
 			}
 		}
@@ -170,56 +199,99 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private void reload() {
+		progressBar.show();
 		EventBus.getDefault().postSticky(new CollectionStatusChangedEvent(statusLabel));
-		if (adapter != null) {
-			adapter.clear();
-		}
-		getActivity().invalidateOptionsMenu();
+		if (adapter != null) adapter.clear();
+		requireActivity().invalidateOptionsMenu();
 		setListShown(false);
-		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
 
+	private void setListShown(boolean animate) {
+		AnimationUtils.fadeOut(emptyContainer);
+		if (isListShown) return;
+		isListShown = true;
+		AnimationUtils.fadeIn(listView, animate);
+	}
+
+	@NonNull
 	@Override
 	public Loader<SafeResponse<CollectionResponse>> onCreateLoader(int id, Bundle data) {
 		return new BuddyGamesLoader(getActivity(), buddyName, statusValue);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
+	public void onLoadFinished(@NonNull Loader<SafeResponse<CollectionResponse>> loader, SafeResponse<CollectionResponse> data) {
 		if (getActivity() == null) return;
-
-		List<CollectionItem> list = (data == null || data.getBody() == null) ?
-			new ArrayList<CollectionItem>() :
-			data.getBody().items;
-		if (list == null) list = new ArrayList<>();
-
-		if (adapter == null) {
-			adapter = new BuddyCollectionAdapter(getActivity(), list);
-			setListAdapter(adapter);
-		} else {
-			adapter.setCollection(list);
+		ArrayList<CollectionItemEntity> list = new ArrayList<>();
+		if (data != null &&
+			data.getBody() != null &&
+			data.getBody().items != null) {
+			CollectionItemMapper mapper = new CollectionItemMapper();
+			for (CollectionItem item : data.getBody().items) {
+				list.add(mapper.map(item).getFirst());
+			}
 		}
-		adapter.notifyDataSetChanged();
+
+		setListAdapter(new BuddyCollectionAdapter(getActivity()));
+		adapter.setCollection(list);
+
+		RecyclerSectionItemDecoration sectionItemDecoration =
+			new RecyclerSectionItemDecoration(
+				getResources().getDimensionPixelSize(R.dimen.recycler_section_header_height),
+				getSectionCallback(list),
+				true
+			);
+		while (listView.getItemDecorationCount() > 0) {
+			listView.removeItemDecorationAt(0);
+		}
+		listView.addItemDecoration(sectionItemDecoration);
+
 		getActivity().invalidateOptionsMenu();
 
 		if (data == null) {
-			setEmptyText(getString(R.string.empty_buddy_collection));
+			showError(R.string.empty_buddy_collection);
 		} else if (data.hasError()) {
-			setEmptyText(data.getErrorMessage());
+			showError(data.getErrorMessage());
 		} else if (data.getBody().totalitems == 0) {
-			setEmptyText(getString(R.string.empty_buddy_collection));
+			showError(R.string.empty_buddy_collection);
 		} else {
 			if (isResumed()) {
 				setListShown(true);
 			} else {
-				setListShownNoAnimation(true);
+				setListShown(false);
 			}
-			restoreScrollState();
 		}
+		progressBar.hide();
+	}
+
+	private void showError(@StringRes int messageResId) {
+		showError(getString(messageResId));
+	}
+
+	private void showError(String message) {
+		isListShown = false;
+		AnimationUtils.fadeOut(listView);
+		emptyTextView.setText(message);
+		emptyContainer.setVisibility(View.VISIBLE);
+		AnimationUtils.fadeIn(emptyContainer);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<SafeResponse<CollectionResponse>> loader) {
+	public void onLoaderReset(@NonNull Loader<SafeResponse<CollectionResponse>> loader) {
+		if (adapter != null) adapter.clear();
+	}
+
+	public void setListAdapter(BuddyCollectionAdapter adapter) {
+		boolean hadAdapter = this.adapter != null;
+		this.adapter = adapter;
+		if (listView != null) {
+			listView.setAdapter(adapter);
+			if (!isListShown && !hadAdapter) {
+				// The list was hidden, and previously didn't have an adapter. It is now time to show it.
+				setListShown(listView.getWindowToken() != null);
+			}
+		}
 	}
 
 	private static class BuddyGamesLoader extends BggLoader<SafeResponse<CollectionResponse>> {
@@ -242,90 +314,95 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 	}
 
-	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
+	public static class BuddyCollectionAdapter extends RecyclerView.Adapter<BuddyCollectionAdapter.BuddyGameViewHolder> {
 		private final LayoutInflater inflater;
+		private final List<CollectionItemEntity> items = new ArrayList<>();
+		private final Random random = new Random();
 
-		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
-			super(activity, R.layout.row_text_2, collection);
-			inflater = activity.getLayoutInflater();
+		public BuddyCollectionAdapter(Context context) {
+			inflater = LayoutInflater.from(context);
 		}
 
-		public void setCollection(List<CollectionItem> games) {
-			clear();
-			addAll(games);
+		public void setCollection(List<CollectionItemEntity> games) {
+			items.clear();
+			items.addAll(games);
 			notifyDataSetChanged();
+		}
+
+		public void clear() {
+			items.clear();
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public int getItemCount() {
+			return items.size();
+		}
+
+		public CollectionItemEntity getItemAt(int position) {
+			if (position >= 0 && position < items.size()) {
+				return items.get(position);
+			} else {
+				return null;
+			}
+		}
+
+		public CollectionItemEntity getRandomItem() {
+			return getItemAt(random.nextInt(getItemCount()));
 		}
 
 		@NonNull
 		@Override
-		public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-			BuddyGameViewHolder holder;
-			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.row_text_2, parent, false);
-				holder = new BuddyGameViewHolder(convertView);
-				convertView.setTag(holder);
-			} else {
-				holder = (BuddyGameViewHolder) convertView.getTag();
-			}
-
-			CollectionItem game;
-			try {
-				game = getItem(position);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return convertView;
-			}
-			if (game != null) {
-				holder.title.setText(game.gameName());
-				holder.text.setText(String.valueOf(game.gameId));
-
-				convertView.setTag(R.id.id, game.gameId);
-				convertView.setTag(R.id.game_name, game.gameName());
-			}
-			return convertView;
+		public BuddyGameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			View row = inflater.inflate(R.layout.row_text_2, parent, false);
+			return new BuddyGameViewHolder(row);
 		}
 
 		@Override
-		public View getHeaderView(int position, View convertView, ViewGroup parent) {
-			HeaderViewHolder holder;
-			if (convertView == null) {
-				holder = new HeaderViewHolder();
-				convertView = inflater.inflate(R.layout.row_header, parent, false);
-				holder.text = convertView.findViewById(android.R.id.title);
-				convertView.setTag(holder);
-			} else {
-				holder = (HeaderViewHolder) convertView.getTag();
-			}
-			holder.text.setText(getHeaderText(position));
-			return convertView;
+		public void onBindViewHolder(@NonNull BuddyGameViewHolder holder, int position) {
+			final CollectionItemEntity item = items.get(position);
+			holder.bind(item);
 		}
 
-		@Override
-		public long getHeaderId(int position) {
-			return getHeaderText(position).charAt(0);
-		}
-
-		private String getHeaderText(int position) {
-			if (position < getCount()) {
-				CollectionItem game = getItem(position);
-				if (game != null) {
-					return game.gameSortName().substring(0, 1);
-				}
-			}
-			return "-";
-		}
-
-		class BuddyGameViewHolder {
+		class BuddyGameViewHolder extends RecyclerView.ViewHolder {
 			public final TextView title;
 			public final TextView text;
 
 			public BuddyGameViewHolder(View view) {
+				super(view);
 				title = view.findViewById(android.R.id.title);
 				text = view.findViewById(android.R.id.text1);
 			}
-		}
 
-		class HeaderViewHolder {
-			TextView text;
+			public void bind(final CollectionItemEntity item) {
+				title.setText(item.getGameName());
+				text.setText(String.valueOf(item.getGameId()));
+
+				itemView.setOnClickListener(v -> GameActivity.start(itemView.getContext(), item.getGameId(), item.getGameName()));
+			}
 		}
+	}
+
+	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<CollectionItemEntity> items) {
+		return new RecyclerSectionItemDecoration.SectionCallback() {
+			@Override
+			public boolean isSection(int position) {
+				if (position == RecyclerView.NO_POSITION) return false;
+				if (items == null || items.size() == 0) return false;
+				if (position == 0) return true;
+				String thisLetter = StringUtils.firstChar(items.get(position).getSortName());
+				String lastLetter = StringUtils.firstChar(items.get(position - 1).getSortName());
+				return !thisLetter.equals(lastLetter);
+			}
+
+			@NotNull
+			@Override
+			public CharSequence getSectionHeader(int position) {
+				if (position == RecyclerView.NO_POSITION) return "-";
+				if (items == null || items.size() == 0) return "-";
+				if (position < 0 || position >= items.size()) return "-";
+				return StringUtils.firstChar(items.get(position).getSortName());
+			}
+		};
 	}
 }

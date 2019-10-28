@@ -16,19 +16,19 @@
 		android:orientation="vertical">
 
 		<CheckBox
-			android:id="@+id/incomplete"
+			android:id="@+id/includeIncompleteGamesView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:text="@string/pref_log_stats_incomplete"/>
 
 		<CheckBox
-			android:id="@+id/expansions"
+			android:id="@+id/includeExpansionsView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:text="@string/pref_log_stats_expansions"/>
 
 		<CheckBox
-			android:id="@+id/accessories"
+			android:id="@+id/includeAccessoriesView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:text="@string/pref_log_stats_accessories"/>

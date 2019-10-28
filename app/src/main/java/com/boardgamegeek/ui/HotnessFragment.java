@@ -2,14 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -37,10 +29,18 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -70,7 +70,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
@@ -212,6 +212,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 		public class ViewHolder extends RecyclerView.ViewHolder {
 			private int gameId;
 			private String gameName;
+			private String thumbnailUrl;
 			@BindView(R.id.name) TextView name;
 			@BindView(R.id.year) TextView year;
 			@BindView(R.id.rank) TextView rank;
@@ -226,6 +227,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				if (game == null) return;
 				gameId = game.getId();
 				gameName = game.getName();
+				thumbnailUrl = game.getThumbnailUrl();
 				name.setText(game.getName());
 				year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
 				rank.setText(String.valueOf(game.getRank()));
@@ -241,7 +243,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 							handled = callback.onItemClick(position);
 						}
 						if (!handled) {
-							GameActivity.start(getContext(), gameId, gameName);
+							GameActivity.start(getContext(), gameId, gameName, thumbnailUrl);
 						}
 					}
 				});

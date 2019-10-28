@@ -2,21 +2,24 @@ package com.boardgamegeek.service
 
 import android.app.PendingIntent
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
-import android.support.annotation.StringRes
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationCompat.Action
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Action
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.executeAsyncTask
+import com.boardgamegeek.extensions.getLongOrNull
+import com.boardgamegeek.extensions.toOrdinal
+import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayDeleteResponse
 import com.boardgamegeek.model.PlaySaveResponse
 import com.boardgamegeek.model.builder.PlayBuilder
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -25,15 +28,17 @@ import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
-import com.boardgamegeek.use
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.util.PresentationUtils
+import com.boardgamegeek.util.SelectionBuilder
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
 import java.util.concurrent.TimeUnit
 
-class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncResult) : SyncUploadTask(context, service, syncResult) {
+class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private val persister = PlayPersister(context)
     private var currentPlay = PlayForNotification()
@@ -50,6 +55,8 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
     override val syncType = SyncService.FLAG_SYNC_PLAYS_UPLOAD
 
     override val notificationTitleResId = R.string.sync_notification_title_play_upload
+
+    override val summarySuffixResId = R.plurals.plays_suffix
 
     override val notificationSummaryIntent = context.intentFor<PlaysActivity>()
 
@@ -80,9 +87,7 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
-        if (SyncPrefs.isPlaysSyncUpToDate(context)) {
-            TaskUtils.executeAsyncTask(CalculatePlayStatsTask(context))
-        }
+        CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
     @DebugLog
@@ -105,11 +110,11 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 try {
-                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val internalId = it.getLongOrNull(Plays._ID) ?: BggContract.INVALID_ID.toLong()
                     val play = PlayBuilder.fromCursor(it)
                     val playerCursor = PlayBuilder.queryPlayers(context, internalId)
-                    playerCursor?.use {
-                        PlayBuilder.addPlayers(it, play)
+                    playerCursor?.use { cursor ->
+                        PlayBuilder.addPlayers(cursor, play)
                     }
 
                     val response = postPlayUpdate(play)
@@ -172,7 +177,7 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
 
                 try {
                     val play = PlayBuilder.fromCursor(it)
-                    val internalId = CursorUtils.getLong(it, Plays._ID, BggContract.INVALID_ID.toLong())
+                    val internalId = it.getLongOrNull(Plays._ID) ?: BggContract.INVALID_ID.toLong()
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                     if (play.playId > 0) {
                         val response = postPlayDelete(play.playId)
@@ -235,13 +240,13 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
             builder.add("playid", play.playId.toString())
         }
         builder.add("objectid", play.gameId.toString())
-                .add("playdate", play.date)
-                .add("dateinput", play.date)
+                .add("playdate", play.dateForApi)
+                .add("dateinput", play.dateForApi)
                 .add("length", play.length.toString())
                 .add("location", play.location)
                 .add("quantity", play.quantity.toString())
-                .add("incomplete", if (play.Incomplete()) "1" else "0")
-                .add("nowinstats", if (play.NoWinStats()) "1" else "0")
+                .add("incomplete", if (play.incomplete) "1" else "0")
+                .add("nowinstats", if (play.noWinStats) "1" else "0")
                 .add("comments", play.comments)
         val players = play.players
         for (i in players.indices) {
@@ -251,11 +256,11 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
                     .add(getMapKey(i, "name"), player.name)
                     .add(getMapKey(i, "username"), player.username)
                     .add(getMapKey(i, "color"), player.color)
-                    .add(getMapKey(i, "position"), player.startposition)
+                    .add(getMapKey(i, "position"), player.startingPosition)
                     .add(getMapKey(i, "score"), player.score)
                     .add(getMapKey(i, "rating"), player.rating.toString())
-                    .add(getMapKey(i, "new"), player.new_.toString())
-                    .add(getMapKey(i, "win"), player.win.toString())
+                    .add(getMapKey(i, "new"), if (player.isNew) "1" else "0")
+                    .add(getMapKey(i, "win"), if (player.isWin) "1" else "0")
         }
 
         val request = Builder()
@@ -289,9 +294,9 @@ class SyncPlaysUpload(context: Context, service: BggService, syncResult: SyncRes
 
     private fun getPlayCountDescription(count: Int, quantity: Int): String {
         return when (quantity) {
-            1 -> StringUtils.getOrdinal(count)
-            2 -> StringUtils.getOrdinal(count - 1) + " & " + StringUtils.getOrdinal(count)
-            else -> StringUtils.getOrdinal(count - quantity + 1) + " - " + StringUtils.getOrdinal(count)
+            1 -> count.toOrdinal()
+            2 -> "${(count - 1).toOrdinal()} & ${count.toOrdinal()}"
+            else -> "${(count - quantity + 1).toOrdinal()} - ${count.toOrdinal()}"
         }
     }
 

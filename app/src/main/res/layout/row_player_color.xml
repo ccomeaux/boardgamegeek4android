@@ -14,7 +14,7 @@
 		android:layout_gravity="left|center_vertical">
 
 		<ImageView
-			android:id="@+id/color_view"
+			android:id="@+id/colorView"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="left|center_vertical"
@@ -22,7 +22,7 @@
 			tools:background="#00f"/>
 
 		<ImageView
-			android:id="@+id/drag_handle"
+			android:id="@+id/dragHandle"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="match_parent"
 			android:scaleType="center"
@@ -30,11 +30,11 @@
 	</FrameLayout>
 
 	<TextView
-		android:id="@android:id/title"
-		style="@style/Text.Primary"
+		android:id="@+id/titleView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
+		android:textAppearance="@style/TextAppearance.RowTitle"
 		tools:text="Blue"/>
 
 </LinearLayout>

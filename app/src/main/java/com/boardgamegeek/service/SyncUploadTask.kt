@@ -1,13 +1,13 @@
 package com.boardgamegeek.service
 
-import android.content.Context
 import android.content.Intent
 import android.content.SyncResult
 import android.graphics.Bitmap
-import android.support.annotation.StringRes
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationCompat.Action
-import android.text.TextUtils
+import androidx.annotation.PluralsRes
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Action
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
@@ -19,7 +19,7 @@ import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.util.*
 
-abstract class SyncUploadTask(context: Context, service: BggService, syncResult: SyncResult) : SyncTask(context, service, syncResult) {
+abstract class SyncUploadTask(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val notificationMessages = ArrayList<CharSequence>()
 
     @get:StringRes
@@ -33,6 +33,9 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
     protected abstract val notificationMessageTag: String
 
     protected abstract val notificationErrorTag: String
+
+    @get:PluralsRes
+    protected abstract val summarySuffixResId: Int
 
     @DebugLog
     protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
@@ -70,9 +73,6 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
         if (action != null) {
             builder.addAction(action)
         }
-        if (largeIcon != null) {
-            builder.extend(NotificationCompat.WearableExtender().setBackground(largeIcon))
-        }
         NotificationUtils.notify(context, notificationMessageTag, id, builder)
         showNotificationSummary()
     }
@@ -87,12 +87,11 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
                 .setGroup(notificationMessageTag)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                 .setGroupSummary(true)
-        val messageCount = notificationMessages.size
-        when (messageCount) {
+        when (val messageCount = notificationMessages.size) {
             0 -> return
             1 -> builder.setContentText(notificationMessages[0])
             else -> {
-                val message = context.resources.getQuantityString(R.plurals.plays_suffix, notificationMessages.size, notificationMessages.size)
+                val message = context.resources.getQuantityString(summarySuffixResId, notificationMessages.size, notificationMessages.size)
                 builder.setContentText(message)
                 val detail = NotificationCompat.InboxStyle(builder).setSummaryText(message)
                 for (i in messageCount - 1 downTo 0) {
@@ -110,7 +109,7 @@ abstract class SyncUploadTask(context: Context, service: BggService, syncResult:
 
     @DebugLog
     protected fun notifyUploadError(errorMessage: CharSequence) {
-        if (TextUtils.isEmpty(errorMessage)) return
+        if (errorMessage.isBlank()) return
         Timber.e(errorMessage.toString())
         val builder = NotificationUtils
                 .createNotificationBuilder(context,

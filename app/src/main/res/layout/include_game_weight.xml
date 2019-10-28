@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	android:id="@+id/weight_root"
+	android:id="@+id/weightContainer"
 	style="@style/CardRow"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -11,7 +11,7 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_weight"
+		android:id="@+id/weightIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_weight"/>
 
@@ -19,33 +19,47 @@
 		style="@style/CardRowContent"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:gravity="center_vertical"
 		android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/game_weight_message"
+		<LinearLayout
+			android:id="@+id/weightColorView"
+			style="@style/RatingSmall.Wide"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:maxLines="2"
-			android:textAppearance="@style/Text"
-			tools:text="Light"/>
+			tools:background="#088">
+
+			<TextView
+				android:id="@+id/weightView"
+				android:layout_width="wrap_content"
+				android:textAppearance="@style/Text.Primary"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				tools:text="Light"/>
+
+			<TextView
+				android:id="@+id/weightScoreView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:paddingLeft="@dimen/padding_extra"
+				android:paddingStart="@dimen/padding_extra"
+				android:textAppearance="@style/Text.Secondary.Small"
+				android:textSize="12sp"
+				android:visibility="gone"
+				tools:text="1.50"
+				tools:visibility="visible"/>
+		</LinearLayout>
 
 		<TextView
-			android:id="@+id/game_weight_score"
-			style="@style/RatingSmall"
-			android:layout_width="64dp"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			tools:background="#088"
-			tools:text="1.23"/>
-
-		<TextView
-			android:id="@+id/game_weight_votes"
+			android:id="@+id/weightVotesView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
 			android:textAppearance="@style/Text.Secondary.Small"
-			tools:text="42,000 votes"/>
+			android:visibility="gone"
+			tools:text="42,000 votes"
+			tools:visibility="visible"/>
 	</LinearLayout>
 </LinearLayout>
-
-				

@@ -9,10 +9,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build.VERSION_CODES;
-import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -20,6 +16,11 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
+
+import androidx.annotation.StringRes;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 public class NotificationUtils {
 	private static final String TAG_PREFIX = "com.boardgamegeek.";
@@ -94,7 +95,7 @@ public class NotificationUtils {
 	}
 
 	/**
-	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * Creates a {@link androidx.core.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, String channelId) {
@@ -102,7 +103,7 @@ public class NotificationUtils {
 	}
 
 	/**
-	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * Creates a {@link androidx.core.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, String channelId) {
@@ -110,7 +111,7 @@ public class NotificationUtils {
 	}
 
 	/**
-	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * Creates a {@link androidx.core.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, String channelId, Class<?> cls) {
@@ -118,7 +119,7 @@ public class NotificationUtils {
 	}
 
 	/**
-	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * Creates a {@link androidx.core.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, String channelId, Class<?> cls) {
@@ -126,7 +127,7 @@ public class NotificationUtils {
 	}
 
 	/**
-	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * Creates a {@link androidx.core.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, @StringRes int titleResId, String channelId, Intent intent) {
@@ -134,7 +135,7 @@ public class NotificationUtils {
 	}
 
 	/**
-	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * Creates a {@link androidx.core.app.NotificationCompat.Builder} with the correct icons, specified title, and
 	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, String channelId, Intent intent) {

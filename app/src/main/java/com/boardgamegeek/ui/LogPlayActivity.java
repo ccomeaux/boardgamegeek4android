@@ -20,30 +20,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.ColorInt;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.Palette;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuBuilder.Callback;
-import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -61,11 +37,15 @@ import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -73,16 +53,19 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayLocations;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.repository.PlayRepository;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter;
-import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
+import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment;
 import com.boardgamegeek.ui.dialog.NumberPadDialogFragment;
+import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment;
+import com.boardgamegeek.ui.dialog.ScoreNumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -93,7 +76,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.AddFieldEvent;
@@ -101,15 +83,38 @@ import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.fragment.app.FragmentManager;
+import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -121,7 +126,10 @@ import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
 
-public class LogPlayActivity extends AppCompatActivity {
+public class LogPlayActivity extends AppCompatActivity implements
+	ColorPickerWithListenerDialogFragment.Listener,
+	ScoreNumberPadDialogFragment.Listener,
+	PlayRatingNumberPadDialogFragment.Listener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -131,6 +139,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_END_PLAY = "END_PLAY";
 	private static final String KEY_REMATCH = "REMATCH";
+	private static final String KEY_CHANGE_GAME = "CHANGE_GAME";
 	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 1;
 	private static final int REQUEST_EDIT_PLAYER = 2;
@@ -139,15 +148,18 @@ public class LogPlayActivity extends AppCompatActivity {
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_COLORS = 1 << 2;
 	private static final int TOKEN_UNINITIALIZED = 1 << 15;
+	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.#########");
 
 	@State long internalId = BggContract.INVALID_ID;
 	private int gameId;
 	private String gameName;
 	private boolean isRequestingToEndPlay;
 	private boolean isRequestingRematch;
+	private boolean isChangingGame;
 	private String thumbnailUrl;
 	private String imageUrl;
 	private String heroImageUrl;
+	private long internalIdToDelete = BggContract.INVALID_ID;
 
 	private QueryHandler queryHandler;
 	private int outstandingQueries = TOKEN_UNINITIALIZED;
@@ -207,6 +219,12 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
 		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
+		context.startActivity(intent);
+	}
+
+	public static void changeGame(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
+		intent.putExtra(KEY_CHANGE_GAME, true);
 		context.startActivity(intent);
 	}
 
@@ -332,6 +350,13 @@ public class LogPlayActivity extends AppCompatActivity {
 				if (isRequestingRematch) {
 					play = PlayBuilder.rematch(play);
 					internalId = BggContract.INVALID_ID;
+				} else if (isChangingGame) {
+					play = PlayBuilder.copy(play);
+					play.playId = BggContract.INVALID_ID;
+					play.gameId = gameId;
+					play.gameName = gameName;
+					internalIdToDelete = internalId;
+					internalId = BggContract.INVALID_ID;
 				}
 				originalPlay = PlayBuilder.copy(play);
 				finishDataLoad();
@@ -397,13 +422,29 @@ public class LogPlayActivity extends AppCompatActivity {
 						if (dX > 0) {
 							swipePaint.setColor(ContextCompat.getColor(LogPlayActivity.this, R.color.delete));
 							background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-							iconSrc = new Rect(0, 0, (int) (dX - itemView.getLeft() - horizontalPadding), icon.getHeight());
-							iconDst = new RectF((float) itemView.getLeft() + horizontalPadding, (float) itemView.getTop() + verticalPadding, Math.min(itemView.getLeft() + horizontalPadding + icon.getWidth(), dX), (float) itemView.getBottom() - verticalPadding);
+							iconSrc = new Rect(
+								0,
+								0,
+								Math.min((int) (dX - itemView.getLeft() - horizontalPadding), icon.getWidth()),
+								icon.getHeight());
+							iconDst = new RectF(
+								(float) itemView.getLeft() + horizontalPadding,
+								(float) itemView.getTop() + verticalPadding,
+								Math.min(itemView.getLeft() + horizontalPadding + icon.getWidth(), dX),
+								(float) itemView.getBottom() - verticalPadding);
 						} else {
 							swipePaint.setColor(ContextCompat.getColor(LogPlayActivity.this, R.color.edit));
 							background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
-							iconSrc = new Rect(Math.max(icon.getWidth() + (int) horizontalPadding + (int) dX, 0), 0, icon.getWidth(), icon.getHeight());
-							iconDst = new RectF(Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - icon.getWidth()), (float) itemView.getTop() + verticalPadding, (float) itemView.getRight() - horizontalPadding, (float) itemView.getBottom() - verticalPadding);
+							iconSrc = new Rect(
+								Math.max(icon.getWidth() + (int) horizontalPadding + (int) dX, 0),
+								0,
+								icon.getWidth(),
+								icon.getHeight());
+							iconDst = new RectF(
+								Math.max((float) itemView.getRight() + dX, (float) itemView.getRight() - horizontalPadding - icon.getWidth()),
+								(float) itemView.getTop() + verticalPadding,
+								(float) itemView.getRight() - horizontalPadding,
+								(float) itemView.getBottom() - verticalPadding);
 						}
 						c.drawRect(background, swipePaint);
 						c.drawBitmap(icon, iconSrc, iconDst, swipePaint);
@@ -498,6 +539,7 @@ public class LogPlayActivity extends AppCompatActivity {
 		gameName = intent.getStringExtra(KEY_GAME_NAME);
 		isRequestingToEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
 		isRequestingRematch = intent.getBooleanExtra(KEY_REMATCH, false);
+		isChangingGame = intent.getBooleanExtra(KEY_CHANGE_GAME, false);
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
@@ -524,7 +566,7 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		setUpShowcaseViewWizard();
 		showcaseWizard.maybeShowHelp();
-		PresentationUtils.ensureFabIsShown(fab);
+		fab.postDelayed(() -> fab.show(), 2000);
 	}
 
 	@DebugLog
@@ -539,7 +581,7 @@ public class LogPlayActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 		isLaunchingActivity = false;
-		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri());
+		locationAdapter = new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri(), PlayLocations.SORT_BY_SUM_QUANTITY, Plays.SUM_QUANTITY);
 		playAdapter.refresh();
 	}
 
@@ -587,20 +629,24 @@ public class LogPlayActivity extends AppCompatActivity {
 		if (resultCode == RESULT_OK) {
 			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
 			int position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION);
-			if (requestCode == REQUEST_ADD_PLAYER) {
-				play.addPlayer(player);
-				maybeShowNotification();
-				addNewPlayer();
-			} else if (requestCode == REQUEST_EDIT_PLAYER) {
-				if (position == LogPlayerActivity.INVALID_POSITION) {
-					Timber.w("Invalid player position after edit");
-				} else {
-					play.replaceOrAddPlayer(player, position);
-					playAdapter.notifyPlayerChanged(position);
-					recyclerView.smoothScrollToPosition(position);
-				}
-			} else {
-				Timber.w("Received invalid request code: %d", requestCode);
+			switch (requestCode) {
+				case REQUEST_ADD_PLAYER:
+					play.addPlayer(player);
+					maybeShowNotification();
+					addNewPlayer();
+					break;
+				case REQUEST_EDIT_PLAYER:
+					if (position == LogPlayerActivity.INVALID_POSITION) {
+						Timber.w("Invalid player position after edit");
+					} else {
+						play.replaceOrAddPlayer(player, position);
+						playAdapter.notifyPlayerChanged(position);
+						recyclerView.smoothScrollToPosition(position);
+					}
+					break;
+				default:
+					Timber.w("Received invalid request code: %d", requestCode);
+					break;
 			}
 		} else if (resultCode == RESULT_CANCELED) {
 			playAdapter.notifyPlayersChanged();
@@ -645,12 +691,12 @@ public class LogPlayActivity extends AppCompatActivity {
 
 	@DebugLog
 	private boolean shouldHideIncomplete() {
-		return play != null && !PreferencesUtils.showLogPlayIncomplete(this) && !isUserShowingIncomplete && !play.Incomplete();
+		return play != null && !PreferencesUtils.showLogPlayIncomplete(this) && !isUserShowingIncomplete && !play.incomplete;
 	}
 
 	@DebugLog
 	private boolean shouldHideNoWinStats() {
-		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.NoWinStats();
+		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.noWinStats;
 	}
 
 	@DebugLog
@@ -674,7 +720,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				// Editing or copying an existing play, so retrieve it
 				shouldDeletePlayOnActivityCancel = false;
 				outstandingQueries |= TOKEN_PLAY | TOKEN_PLAYERS;
-				if (isRequestingRematch) {
+				if (isRequestingRematch || isChangingGame) {
 					shouldDeletePlayOnActivityCancel = true;
 				}
 				queryHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
@@ -715,7 +761,11 @@ public class LogPlayActivity extends AppCompatActivity {
 		play.deleteTimestamp = 0;
 		play.dirtyTimestamp = System.currentTimeMillis();
 		if (save()) {
-			if (play.playId == 0 && DateUtils.isToday(play.getDateInMillis() + Math.max(60, play.length) * 60 * 1000)) {
+			if (internalIdToDelete != BggContract.INVALID_ID) {
+				PlayRepository playRepository = new PlayRepository((BggApplication) getApplication());
+				playRepository.markAsDeleted(internalIdToDelete);
+			}
+			if (play.playId == 0 && DateUtils.isToday(play.dateInMillis + Math.max(60, play.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());
@@ -816,11 +866,11 @@ public class LogPlayActivity extends AppCompatActivity {
 						playAdapter.insertRow(R.layout.row_log_play_quantity);
 					} else if (selection.equals(r.getString(R.string.incomplete))) {
 						isUserShowingIncomplete = true;
-						play.setIncomplete(true);
+						play.incomplete = true;
 						playAdapter.insertRow(R.layout.row_log_play_incomplete);
 					} else if (selection.equals(r.getString(R.string.noWinStats))) {
 						isUserShowingNoWinStats = true;
-						play.setNoWinStats(true);
+						play.noWinStats = true;
 						playAdapter.insertRow(R.layout.row_log_play_no_win_stats);
 					} else if (selection.equals(r.getString(R.string.comments))) {
 						isUserShowingComments = true;
@@ -949,80 +999,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		};
 	}
 
-	private Callback popupMenuCallback() {
-		return new MenuBuilder.Callback() {
-			@Override
-			public void onMenuModeChange(MenuBuilder menu) {
-			}
-
-			@Override
-			public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.menu_custom_player_order:
-						if (arePlayersCustomSorted) {
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
-							if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
-								DialogUtils.createConfirmationDialog(LogPlayActivity.this,
-									R.string.are_you_sure_player_sort_custom_off,
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											autoSortPlayers();
-										}
-									},
-									R.string.sort)
-									.show();
-							} else {
-								autoSortPlayers();
-							}
-						} else {
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
-							if (play.hasStartingPositions()) {
-								AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
-									.setMessage(R.string.message_custom_player_order)
-									.setPositiveButton(R.string.keep, new OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											arePlayersCustomSorted = true;
-											playAdapter.notifyPlayersChanged();
-										}
-									})
-									.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											arePlayersCustomSorted = true;
-											play.clearPlayerPositions();
-											playAdapter.notifyPlayersChanged();
-										}
-									})
-									.setCancelable(true);
-								builder.show();
-							}
-						}
-						return true;
-					case R.id.menu_pick_start_player:
-						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
-						promptPickStartPlayer();
-						return true;
-					case R.id.menu_random_start_player:
-						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
-						int newSeat = new Random().nextInt(play.getPlayerCount());
-						play.pickStartPlayer(newSeat);
-						playAdapter.notifyPlayersChanged();
-						notifyStartPlayer();
-						return true;
-					case R.id.menu_random_player_order:
-						Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
-						play.randomizePlayerOrder();
-						playAdapter.notifyPlayersChanged();
-						notifyStartPlayer();
-						return true;
-				}
-				return false;
-			}
-		};
-	}
-
 	private void autoSortPlayers() {
 		arePlayersCustomSorted = false;
 		play.pickStartPlayer(0);
@@ -1126,6 +1102,31 @@ public class LogPlayActivity extends AppCompatActivity {
 	@DebugLog
 	private void cancelNotification() {
 		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, internalId);
+	}
+
+	@Override
+	public void onColorSelected(@NotNull String description, int color, int requestCode) {
+		Player player = play.getPlayers().get(requestCode);
+		player.color = description;
+		playAdapter.notifyPlayerChanged(requestCode);
+	}
+
+	@Override
+	public void onNumberPadDone(double output, int requestCode) {
+		int position = requestCode / 2;
+		Player player = play.getPlayers().get(position);
+		if (requestCode % 2 == 0) {
+			player.score = SCORE_FORMAT.format(output);
+			double highScore = play.getHighScore();
+			for (Player p : play.getPlayers()) {
+				double score = StringUtils.parseDouble(p.score, Double.NaN);
+				p.isWin = (score == highScore);
+			}
+			playAdapter.notifyPlayersChanged();
+		} else {
+			player.rating = output;
+			playAdapter.notifyPlayerChanged(position);
+		}
 	}
 
 	public class PlayAdapter extends RecyclerView.Adapter<PlayAdapter.PlayViewHolder> {
@@ -1416,7 +1417,7 @@ public class LogPlayActivity extends AppCompatActivity {
 				}
 
 				fragmentManager.executePendingTransactions();
-				datePickerFragment.setCurrentDateInMillis(play.getDateInMillis());
+				datePickerFragment.setCurrentDateInMillis(play.dateInMillis);
 				datePickerFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 			}
 
@@ -1492,7 +1493,7 @@ public class LogPlayActivity extends AppCompatActivity {
 					if (play.hasStarted()) {
 						timerToggleView.setEnabled(true);
 						timerToggleView.setImageResource(R.drawable.ic_timer_off);
-					} else if (DateUtils.isToday(play.getDateInMillis() + play.length * 60 * 1000)) {
+					} else if (DateUtils.isToday(play.dateInMillis + play.length * 60 * 1000)) {
 						timerToggleView.setEnabled(true);
 						timerToggleView.setImageResource(R.drawable.ic_timer);
 					} else {
@@ -1597,13 +1598,13 @@ public class LogPlayActivity extends AppCompatActivity {
 			@Override
 			public void bind() {
 				if (play != null) {
-					incompleteView.setChecked(play.Incomplete());
+					incompleteView.setChecked(play.incomplete);
 				}
 			}
 
 			@OnCheckedChanged(R.id.log_play_incomplete)
 			public void onIncompleteCheckedChanged() {
-				play.setIncomplete(incompleteView.isChecked());
+				play.incomplete = incompleteView.isChecked();
 			}
 		}
 
@@ -1618,13 +1619,13 @@ public class LogPlayActivity extends AppCompatActivity {
 			@Override
 			public void bind() {
 				if (play != null) {
-					noWinStatsView.setChecked(play.NoWinStats());
+					noWinStatsView.setChecked(play.noWinStats);
 				}
 			}
 
 			@OnCheckedChanged(R.id.log_play_no_win_stats)
 			public void onIncompleteCheckedChanged() {
-				play.setNoWinStats(noWinStatsView.isChecked());
+				play.noWinStats = noWinStatsView.isChecked();
 			}
 		}
 
@@ -1717,8 +1718,6 @@ public class LogPlayActivity extends AppCompatActivity {
 		public class PlayerHeaderViewHolder extends PlayViewHolder {
 			@BindView(R.id.assign_colors) View assignColorsButton;
 			@BindView(R.id.log_play_players_label) TextView playerLabelView;
-			private MenuBuilder fullSortMenu;
-			private MenuBuilder shortSortMenu;
 
 			public PlayerHeaderViewHolder(ViewGroup parent) {
 				super(inflater.inflate(R.layout.row_log_play_player_header, parent, false));
@@ -1737,29 +1736,75 @@ public class LogPlayActivity extends AppCompatActivity {
 
 			@OnClick(R.id.player_sort)
 			public void onPlayerSort(View view) {
-				MenuPopupHelper popup;
-				if (!arePlayersCustomSorted && play.getPlayerCount() > 1) {
-					if (fullSortMenu == null) {
-						fullSortMenu = new MenuBuilder(LogPlayActivity.this);
-						MenuItem mi = fullSortMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
-						mi.setCheckable(true);
-						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_pick_start_player, 2, R.string.menu_pick_start_player);
-						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_random_start_player, 3, R.string.menu_random_start_player);
-						fullSortMenu.add(MenuBuilder.NONE, R.id.menu_random_player_order, 4, R.string.menu_random_player_order);
-						fullSortMenu.setCallback(popupMenuCallback());
+				PopupMenu popup = new PopupMenu(LogPlayActivity.this, view);
+				popup.inflate(!arePlayersCustomSorted && play.getPlayerCount() > 1 ? R.menu.log_play_player_sort : R.menu.log_play_player_sort_short);
+				popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						switch (item.getItemId()) {
+							case R.id.menu_custom_player_order:
+								if (arePlayersCustomSorted) {
+									Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
+									if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
+										DialogUtils.createConfirmationDialog(LogPlayActivity.this,
+											R.string.are_you_sure_player_sort_custom_off,
+											new DialogInterface.OnClickListener() {
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													autoSortPlayers();
+												}
+											},
+											R.string.sort)
+											.show();
+									} else {
+										autoSortPlayers();
+									}
+								} else {
+									Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
+									if (play.hasStartingPositions()) {
+										AlertDialog.Builder builder = new Builder(LogPlayActivity.this)
+											.setMessage(R.string.message_custom_player_order)
+											.setPositiveButton(R.string.keep, new OnClickListener() {
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													arePlayersCustomSorted = true;
+													playAdapter.notifyPlayersChanged();
+												}
+											})
+											.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													arePlayersCustomSorted = true;
+													play.clearPlayerPositions();
+													playAdapter.notifyPlayersChanged();
+												}
+											})
+											.setCancelable(true);
+										builder.show();
+									}
+								}
+								return true;
+							case R.id.menu_pick_start_player:
+								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+								promptPickStartPlayer();
+								return true;
+							case R.id.menu_random_start_player:
+								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
+								int newSeat = new Random().nextInt(play.getPlayerCount());
+								play.pickStartPlayer(newSeat);
+								playAdapter.notifyPlayersChanged();
+								notifyStartPlayer();
+								return true;
+							case R.id.menu_random_player_order:
+								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+								play.randomizePlayerOrder();
+								playAdapter.notifyPlayersChanged();
+								notifyStartPlayer();
+								return true;
+						}
+						return false;
 					}
-					fullSortMenu.getItem(0).setChecked(arePlayersCustomSorted);
-					popup = new MenuPopupHelper(LogPlayActivity.this, fullSortMenu, view);
-				} else {
-					if (shortSortMenu == null) {
-						shortSortMenu = new MenuBuilder(LogPlayActivity.this);
-						MenuItem mi = shortSortMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE, R.string.menu_custom_player_order);
-						mi.setCheckable(true);
-						shortSortMenu.setCallback(popupMenuCallback());
-					}
-					shortSortMenu.getItem(0).setChecked(arePlayersCustomSorted);
-					popup = new MenuPopupHelper(LogPlayActivity.this, shortSortMenu, view);
-				}
+				});
 				popup.show();
 			}
 
@@ -1794,7 +1839,6 @@ public class LogPlayActivity extends AppCompatActivity {
 
 		class PlayerViewHolder extends PlayViewHolder {
 			private final PlayerRow row;
-			private MenuBuilder moreMenu;
 
 			public PlayerViewHolder() {
 				super(new PlayerRow(LogPlayActivity.this));
@@ -1819,44 +1863,31 @@ public class LogPlayActivity extends AppCompatActivity {
 				row.setOnMoreListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						final int groupId = MenuBuilder.FIRST;
-						final int newItemId = MenuBuilder.FIRST;
-						final int winItemId = MenuBuilder.FIRST + 1;
-						if (moreMenu == null) {
-							moreMenu = new MenuBuilder(LogPlayActivity.this);
-							moreMenu.add(groupId, newItemId, MenuBuilder.NONE, R.string.new_label);
-							moreMenu.add(groupId, winItemId, MenuBuilder.NONE, R.string.win);
-							moreMenu.setGroupCheckable(groupId, true, false);
-							moreMenu.setCallback(new Callback() {
-								@Override
-								public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-									if (play.getPlayers() == null || play.getPlayers().size() <= position) {
-										Timber.w("Unable to set new/win on selected player");
-										return false;
-									}
-									final Player player = play.getPlayers().get(position);
-									switch (item.getItemId()) {
-										case newItemId:
-											player.New(!item.isChecked());
-											bind(position);
-											return true;
-										case winItemId:
-											player.Win(!item.isChecked());
-											bind(position);
-											return true;
-									}
-									return false;
-								}
-
-								@Override
-								public void onMenuModeChange(MenuBuilder menu) {
-								}
-							});
-						}
+						if (position < 0 ||
+							position > play.getPlayers().size())
+							return;
 						final Player player = play.getPlayers().get(position);
-						moreMenu.findItem(newItemId).setChecked(player.New());
-						moreMenu.findItem(winItemId).setChecked(player.Win());
-						MenuPopupHelper popup = new MenuPopupHelper(LogPlayActivity.this, moreMenu, row.getMoreButton());
+
+						PopupMenu popup = new PopupMenu(LogPlayActivity.this, row.getMoreButton());
+						popup.inflate(R.menu.log_play_player);
+						popup.getMenu().findItem(R.id.new_).setChecked(player.isNew);
+						popup.getMenu().findItem(R.id.win).setChecked(player.isWin);
+						popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								switch (item.getItemId()) {
+									case R.id.new_:
+										player.isNew = !item.isChecked();
+										bind(position);
+										return true;
+									case R.id.win:
+										player.isWin = !item.isChecked();
+										bind(position);
+										return true;
+								}
+								return false;
+							}
+						});
 						popup.show();
 					}
 				});
@@ -1880,66 +1911,29 @@ public class LogPlayActivity extends AppCompatActivity {
 						for (Player p : play.getPlayers()) {
 							if (p != player) usedColors.add(p.color);
 						}
-						ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(0,
-							ColorUtils.getColorList(), gameColors, player.color, usedColors, null, 4);
-						fragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
-							@Override
-							public void onColorSelected(String description, int color) {
-								player.color = description;
-								playAdapter.notifyPlayerChanged(position);
-							}
-						});
+						ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(gameColors, player.color, usedColors, position);
 						fragment.show(getSupportFragmentManager(), "color_picker");
 					}
 				});
-				row.setOnRatingListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						final Player player = play.getPlayers().get(position);
-						final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-							getString(R.string.rating),
-							player.getRatingDescription(),
-							player.color,
-							player.getDescription());
-						fragment.setMinValue(1.0);
-						fragment.setMaxValue(10.0);
-						fragment.setMaxMantissa(6);
-						fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-							@Override
-							public void onDoneClick(String output) {
-								player.rating = StringUtils.parseDouble(output);
-								playAdapter.notifyPlayerChanged(position);
-							}
-						});
-						DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
-					}
+				row.setOnRatingListener(v -> {
+					final Player player = play.getPlayers().get(position);
+					final NumberPadDialogFragment fragment = PlayRatingNumberPadDialogFragment.newInstance(
+						position * 2 + 1,
+						player.getRatingDescription(),
+						player.color,
+						player.getDescription()
+					);
+					DialogUtils.showFragment(LogPlayActivity.this, fragment, "rating_dialog");
 				});
-				row.setOnScoreListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							final Player player = play.getPlayers().get(position);
-							final NumberPadDialogFragment fragment = NumberPadDialogFragment.newInstance(
-								getString(R.string.score),
-								player.score,
-								player.color,
-								player.getDescription());
-							fragment.setOnDoneClickListener(new NumberPadDialogFragment.OnClickListener() {
-								@Override
-								public void onDoneClick(String output) {
-									player.score = output;
-									double highScore = play.getHighScore();
-									for (Player p : play.getPlayers()) {
-										double score = StringUtils.parseDouble(p.score, Double.MIN_VALUE);
-										p.Win(score == highScore);
-									}
-									playAdapter.notifyPlayersChanged();
-								}
-							});
-							DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
-						}
-					}
-				);
+				row.setOnScoreListener(v -> {
+					final Player player = play.getPlayers().get(position);
+					final NumberPadDialogFragment fragment = ScoreNumberPadDialogFragment.newInstance(
+						position * 2,
+						player.score,
+						player.color,
+						player.getDescription());
+					DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
+				});
 			}
 		}
 	}

@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +13,9 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
+import androidx.annotation.NonNull;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -45,7 +46,7 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	@Override
 	@DebugLog
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		//noinspection deprecation

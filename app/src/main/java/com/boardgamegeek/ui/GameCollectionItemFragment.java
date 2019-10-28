@@ -3,18 +3,13 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v7.graphics.Palette;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,35 +18,32 @@ import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
+import com.boardgamegeek.extensions.DialogUtils;
+import com.boardgamegeek.extensions.IntKt;
+import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask;
-import com.boardgamegeek.tasks.UpdateCollectionItemRatingTask;
+import com.boardgamegeek.tasks.ResetCollectionItemTask;
 import com.boardgamegeek.tasks.UpdateCollectionItemStatusTask;
-import com.boardgamegeek.tasks.UpdateCollectionItemTextTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask;
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask.CompletedEvent;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener;
+import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment;
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment;
-import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment.PrivateInfoDialogListener;
 import com.boardgamegeek.ui.model.CollectionItem;
 import com.boardgamegeek.ui.model.PrivateInfo;
 import com.boardgamegeek.ui.widget.RatingView;
-import com.boardgamegeek.ui.widget.RatingView.Listener;
 import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.TaskUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,6 +52,15 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.palette.graphics.Palette;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -115,7 +116,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
 	@BindView(R.id.private_info_hint) TextView privateInfoHintView;
 	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
-	@BindView(R.id.private_info_edit_container) ViewGroup privateInfoEditContainer;
 	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
 	@BindView(R.id.private_comment) TextEditorView privateInfoCommentView;
 
@@ -169,7 +169,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		R.id.for_trade,
 		R.id.wishlist
 	}) List<CheckBox> statusViews;
-	private PrivateInfoDialogFragment privateInfoDialogFragment;
 
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
@@ -180,6 +179,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private boolean needsUploading;
 	@State boolean isItemEditable;
 	private boolean isInEditMode;
+	private boolean isDirty = false;
 
 	public static GameCollectionItemFragment newInstance(int gameId, int collectionId) {
 		Bundle args = new Bundle();
@@ -194,6 +194,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		readBundle(getArguments());
 		Icepick.restoreInstanceState(this, savedInstanceState);
 	}
@@ -204,26 +205,20 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		collectionId = bundle.getInt(KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_collection_item, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		return inflater.inflate(R.layout.fragment_game_collection_item, container, false);
+	}
 
-		ratingView.setOnChangeListener(getActivity(), new Listener() {
-			@Override
-			public void onRatingChanged(double rating) {
-				UpdateCollectionItemRatingTask task = new UpdateCollectionItemRatingTask(getContext(), gameId, collectionId, internalId, rating);
-				TaskUtils.executeAsyncTask(task);
-			}
-		});
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		colorize(palette);
 
 		mightNeedRefreshing = true;
-		getLoaderManager().restartLoader(_TOKEN, getArguments(), this);
-
-		return rootView;
+		LoaderManager.getInstance(this).restartLoader(_TOKEN, getArguments(), this);
 	}
 
 	@DebugLog
@@ -255,12 +250,34 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		unbinder.unbind();
 	}
 
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.game_collection_fragment, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_discard).setVisible(!isInEditMode && isDirty);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_discard:
+				DialogUtils.createDiscardDialog(getActivity(), R.string.collection_item, false, false, R.string.keep,
+					() -> TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId))
+				).show();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != _TOKEN ||
-			collectionId == BggContract.INVALID_ID ||
-			getContext() == null) return null;
+		if (id != _TOKEN || getContext() == null) return null;
 
 		return new CursorLoader(getContext(),
 			CollectionItem.getUri(),
@@ -272,7 +289,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
 
 		if (loader.getId() == _TOKEN) {
@@ -283,6 +300,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 			CollectionItem item = CollectionItem.fromCursor(cursor);
 			internalId = item.getInternalId();
+			isDirty = item.isDirty();
 			updateUi(item);
 
 			if (mightNeedRefreshing) {
@@ -299,7 +317,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	public void enableEditMode(boolean enable) {
@@ -310,7 +328,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindVisibility() {
 		boolean isEdit = isInEditMode && isItemEditable;
 
-		ButterKnife.apply(editFields, PresentationUtils.setVisibility, isEdit);
+		for (View view : editFields) {
+			view.setVisibility(isEdit ? View.VISIBLE : View.GONE);
+		}
 
 		ratingView.enableEditMode(isEdit);
 		commentView.enableEditMode(isEdit);
@@ -321,12 +341,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		hasPartsView.enableEditMode(isEdit);
 
 		if (isEdit) {
-			ButterKnife.apply(visibleByTagOrGoneViews, PresentationUtils.setGone);
+			for (View view : visibleByTagOrGoneViews) {
+				view.setVisibility(View.GONE);
+			}
 		} else {
-			ButterKnife.apply(visibleByTagOrGoneViews, setVisibilityByTag);
+			for (View view : visibleByTagOrGoneViews) {
+				boolean isVisible = getVisibleTag(view);
+				view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+			}
 		}
 
-		ButterKnife.apply(visibleByChildrenViews, setVisibilityByChildren);
+		for (ViewGroup view : visibleByChildrenViews) {
+			setVisibilityByChildren(view);
+		}
 
 		invalidStatusView.setVisibility(getInvalidVisibility() ? View.VISIBLE : View.GONE);
 	}
@@ -360,7 +387,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	public void onEvent(CollectionItemResetEvent event) {
 		if (event.getInternalId() == internalId) {
 			needsUploading = false;
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask((BggApplication) getActivity().getApplication(), gameId));
 		}
 	}
 
@@ -373,9 +400,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@DebugLog
 	private void colorize(Palette palette) {
 		if (palette == null || !isAdded()) return;
+		if (colorizedHeaders == null || textEditorViews == null) return;
 		Palette.Swatch swatch = PaletteUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(colorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
-		ButterKnife.apply(textEditorViews, TextEditorView.headerColorSetter, swatch);
+		for (TextView view : colorizedHeaders) {
+			view.setTextColor(swatch.getRgb());
+		}
+		for (TextEditorView textEditorView : textEditorViews) {
+			textEditorView.setHeaderColor(swatch);
+		}
 	}
 
 	@OnCheckedChanged({
@@ -461,36 +493,29 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
-		EditTextDialogFragment dialogFragment = EditTextDialogFragment.newLongFormInstance(
+		EditCollectionTextDialogFragment dialogFragment = EditCollectionTextDialogFragment.newInstance(
 			view.getHeaderText(),
-			view,
-			new EditTextDialogListener() {
-				@Override
-				public void onFinishEditDialog(String inputText) {
-					UpdateCollectionItemTextTask task =
-						new UpdateCollectionItemTextTask(getContext(),
-							gameId, collectionId, internalId, inputText,
-							textColumn, timestampColumn);
-					TaskUtils.executeAsyncTask(task);
-				}
-			}
-		);
-		dialogFragment.setText(view.getContentText());
+			view.getContentText(),
+			textColumn,
+			timestampColumn);
 		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 
 	@DebugLog
 	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
-		ensurePrivateInfoDialogFragment();
-		privateInfoDialogFragment.setPriceCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.price_currency)));
-		privateInfoDialogFragment.setPrice(getDoubleFromTag(editPrivateInfoView, R.id.price));
-		privateInfoDialogFragment.setCurrentValueCurrency(String.valueOf(editPrivateInfoView.getTag(R.id.current_value_currency)));
-		privateInfoDialogFragment.setCurrentValue(getDoubleFromTag(editPrivateInfoView, R.id.current_value));
-		privateInfoDialogFragment.setQuantity(getIntFromTag(editPrivateInfoView, R.id.quantity));
-		privateInfoDialogFragment.setAcquisitionDate(String.valueOf(editPrivateInfoView.getTag(R.id.acquisition_date)));
-		privateInfoDialogFragment.setAcquiredFrom(String.valueOf(editPrivateInfoView.getTag(R.id.acquired_from)));
-		DialogUtils.showFragment(getActivity(), privateInfoDialogFragment, "private_info_dialog");
+		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance();
+		privateInfoDialogFragment.setPrivateInfo(new PrivateInfo(
+			String.valueOf(editPrivateInfoView.getTag(R.id.priceCurrencyView)),
+			getDoubleFromTag(editPrivateInfoView, R.id.priceView),
+			String.valueOf(editPrivateInfoView.getTag(R.id.currentValueCurrencyView)),
+			getDoubleFromTag(editPrivateInfoView, R.id.currentValueView),
+			getIntFromTag(editPrivateInfoView, R.id.quantityView),
+			String.valueOf(editPrivateInfoView.getTag(R.id.acquisitionDateView)),
+			String.valueOf(editPrivateInfoView.getTag(R.id.acquiredFromView)),
+			String.valueOf(editPrivateInfoView.getTag(R.id.inventoryLocationView))
+		));
+		DialogUtils.showAndSurvive(this, privateInfoDialogFragment);
 	}
 
 	private double getDoubleFromTag(View textView, @IdRes int key) {
@@ -506,28 +531,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@DebugLog
-	private void ensurePrivateInfoDialogFragment() {
-		if (privateInfoDialogFragment == null) {
-			privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-				privateInfoEditContainer,
-				new PrivateInfoDialogListener() {
-					@Override
-					public void onFinishEditDialog(PrivateInfo privateInfo) {
-						UpdateCollectionItemPrivateInfoTask task =
-							new UpdateCollectionItemPrivateInfoTask(getContext(), gameId, collectionId, internalId, privateInfo);
-						TaskUtils.executeAsyncTask(task);
-					}
-				}
-			);
-		}
-	}
-
-	@DebugLog
 	public boolean triggerRefresh() {
 		mightNeedRefreshing = false;
 		if (!isRefreshing && gameId != BggContract.INVALID_ID) {
 			isRefreshing = true;
-			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask(getContext(), gameId));
+			TaskUtils.executeAsyncTask(new SyncCollectionByGameTask((BggApplication) getActivity().getApplication(), gameId));
 			return true;
 		}
 		return false;
@@ -556,7 +564,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@DebugLog
 	private void notifyChange(CollectionItem item) {
-		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getImageUrl(), item.getThumbnailUrl(), item.getHeroImageUrl(), item.getYear());
+		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getThumbnailUrl(), item.getHeroImageUrl(), item.getYear());
 		EventBus.getDefault().post(event);
 	}
 
@@ -571,7 +579,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		wantToPlayView.setChecked(item.isWantToPlay());
 		previouslyOwnedView.setChecked(item.isPreviouslyOwned());
 
-		ratingView.setContent(item.getRating(), item.getRatingTimestamp());
+		ratingView.setContent(item.getRating(), item.getRatingTimestamp(), gameId, collectionId, item.getInternalId());
 
 		commentView.setContent(item.getComment(), item.getCommentTimestamp());
 	}
@@ -579,7 +587,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindWishlist(CollectionItem item) {
 		// view
 		if (item.isWishlist()) {
-			PresentationUtils.setTextOrHide(wishlistStatusView, PresentationUtils.describeWishlist(getContext(), item.getWishlistPriority()));
+			PresentationUtils.setTextOrHide(wishlistStatusView, IntKt.asWishListPriority(item.getWishlistPriority(), getContext()));
 		} else {
 			wishlistStatusView.setVisibility(View.GONE);
 		}
@@ -588,7 +596,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		// edit
 		if (wishlistPriorityView.getAdapter() == null)
 			wishlistPriorityView.setAdapter(new WishlistPriorityAdapter(getContext()));
-		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriorty() - 1);
+		if (item.isWishlist()) wishlistPriorityView.setSelection(item.getSafeWishlistPriority() - 1);
 		wishlistPriorityView.setEnabled(item.isWishlist());
 		wishlistView.setChecked(item.isWishlist());
 
@@ -622,13 +630,14 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		privateInfoHintView.setVisibility(hasPrivateInfo(item) ? View.GONE : View.VISIBLE);
 		editPrivateInfoView.setVisibility(hasPrivateInfo(item) ? View.VISIBLE : View.GONE);
 		editPrivateInfoView.setText(getPrivateInfo(item));
-		editPrivateInfoView.setTag(R.id.price_currency, item.getPriceCurrency());
-		editPrivateInfoView.setTag(R.id.price, item.getPrice());
-		editPrivateInfoView.setTag(R.id.current_value_currency, item.getCurrentValueCurrency());
-		editPrivateInfoView.setTag(R.id.current_value, item.getCurrentValue());
-		editPrivateInfoView.setTag(R.id.quantity, item.getQuantity());
-		editPrivateInfoView.setTag(R.id.acquisition_date, item.getAcquisitionDate());
-		editPrivateInfoView.setTag(R.id.acquired_from, item.getAcquiredFrom());
+		editPrivateInfoView.setTag(R.id.priceCurrencyView, item.getPriceCurrency());
+		editPrivateInfoView.setTag(R.id.priceView, item.getPrice());
+		editPrivateInfoView.setTag(R.id.currentValueCurrencyView, item.getCurrentValueCurrency());
+		editPrivateInfoView.setTag(R.id.currentValueView, item.getCurrentValue());
+		editPrivateInfoView.setTag(R.id.quantityView, item.getQuantity());
+		editPrivateInfoView.setTag(R.id.acquisitionDateView, item.getAcquisitionDate());
+		editPrivateInfoView.setTag(R.id.acquiredFromView, item.getAcquiredFrom());
+		editPrivateInfoView.setTag(R.id.inventoryLocationView, item.getInventoryLocation());
 
 		// both
 		privateInfoCommentView.setContent(item.getPrivateComment(), item.getPrivateInfoTimestamp());
@@ -699,10 +708,19 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getCurrentValueCurrency(), item.getCurrentValue()));
 			sb.append(")");
 		}
+		if (!TextUtils.isEmpty(item.getInventoryLocation())) {
+			if (sb.toString().equals(initialText)) {
+				sb.clear();
+			} else {
+				sb.append(". ");
+			}
+			sb.append(getString(R.string.located_in)).append(" ");
+			StringUtils.appendBold(sb, item.getInventoryLocation());
+		}
 
 		if (sb.toString().equals(initialText)) {
 			// shouldn't happen
-			return null;
+			return "";
 		}
 		return sb;
 	}
@@ -712,7 +730,8 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			!TextUtils.isEmpty(item.getAcquisitionDate()) ||
 			!TextUtils.isEmpty(item.getAcquiredFrom()) ||
 			item.getPrice() > 0.0 ||
-			item.getCurrentValue() > 0.0;
+			item.getCurrentValue() > 0.0 ||
+			!TextUtils.isEmpty(item.getInventoryLocation());
 	}
 
 	private static class WishlistPriorityAdapter extends ArrayAdapter<String> {
@@ -724,24 +743,13 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	private static final ButterKnife.Action<View> setVisibilityByTag = new ButterKnife.Action<View>() {
-		@Override
-		public void apply(@NonNull View view, int index) {
-			boolean isVisible = getVisibleTag(view);
-			view.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+	private void setVisibilityByChildren(ViewGroup view) {
+		for (int i = 0; i < view.getChildCount(); i++) {
+			final View child = view.getChildAt(i);
+			if (setVisibilityByChild(view, child)) return;
 		}
-	};
-
-	private final ButterKnife.Action<ViewGroup> setVisibilityByChildren = new ButterKnife.Action<ViewGroup>() {
-		@Override
-		public void apply(@NonNull ViewGroup view, int index) {
-			for (int i = 0; i < view.getChildCount(); i++) {
-				final View child = view.getChildAt(i);
-				if (setVisibilityByChild(view, child)) return;
-			}
-			view.setVisibility(View.GONE);
-		}
-	};
+		view.setVisibility(View.GONE);
+	}
 
 	private static boolean setVisibilityByChild(@NonNull ViewGroup view, View child) {
 		if (child instanceof ViewGroup) {

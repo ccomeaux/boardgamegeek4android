@@ -4,15 +4,24 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-public class AvatarsProvider extends BaseProvider {
-	// private static final String TAG = makeLogTag(AvatarsProvider.class);
+import com.boardgamegeek.util.FileUtils;
 
+import java.io.IOException;
+
+import timber.log.Timber;
+
+public class AvatarsProvider extends BaseProvider {
 	@Override
 	protected String getPath() {
 		return BggContract.PATH_AVATARS;
 	}
 
 	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
-		return 0;
+		try {
+			return FileUtils.deleteContents(FileUtils.generateContentPath(context, BggContract.PATH_AVATARS));
+		} catch (IOException e) {
+			Timber.e(e, "Couldn't delete avatars");
+			return 0;
+		}
 	}
 }

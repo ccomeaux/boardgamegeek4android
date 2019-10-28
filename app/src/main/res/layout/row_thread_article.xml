@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<android.support.v7.widget.CardView
+<androidx.cardview.widget.CardView
 	style="@style/Card.NoPadding"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,6 +14,7 @@
 		android:orientation="vertical">
 
 		<RelativeLayout
+			android:id="@+id/row_header"
 			style="@style/RowContainer"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -90,13 +91,13 @@
 
 		<TextView
 			android:id="@+id/body"
-			style="@style/Text.Body"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingBottom="@dimen/padding_standard"
 			android:paddingLeft="@dimen/material_margin_horizontal_card_contents"
 			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
 			android:paddingTop="@dimen/padding_standard"
-			tools:text="This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text."/>
+			android:textAppearance="@style/Text.Body"
+			tools:text="This is a lot of text. A whole lot of text. A bunch of really, long, somewhat interesting words. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text."/>
 	</LinearLayout>
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>

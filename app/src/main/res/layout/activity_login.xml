@@ -36,47 +36,50 @@
 		android:id="@+id/login_form"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:importantForAutofill="noExcludeDescendants"
 		android:minWidth="240dp">
 
 		<LinearLayout
 			style="@style/LoginFormContainer"
 			android:orientation="vertical">
 
-			<android.support.design.widget.TextInputLayout
+			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/username_container"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:hint="@string/prompt_username">
 
-				<android.support.design.widget.TextInputEditText
+				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/username"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/prompt_username"
 					android:inputType="textNoSuggestions"
 					android:maxLines="1"/>
-			</android.support.design.widget.TextInputLayout>
+			</com.google.android.material.textfield.TextInputLayout>
 
-			<android.support.design.widget.TextInputLayout
+			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/password_container"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:hint="@string/prompt_password"
 				app:passwordToggleEnabled="true">
 
-				<android.support.design.widget.TextInputEditText
+				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/password"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/prompt_password"
 					android:imeActionId="@integer/login_action_id"
 					android:imeActionLabel="@string/action_sign_in"
 					android:imeOptions="actionUnspecified"
 					android:inputType="textPassword"
 					android:maxLines="1"/>
-			</android.support.design.widget.TextInputLayout>
+			</com.google.android.material.textfield.TextInputLayout>
 
 			<Button
 				android:id="@+id/sign_in_button"
-				style="@style/Widget.AppCompat.Button.Colored"
+				style="@style/ColoredButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal"

@@ -2,23 +2,24 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.util.PreferencesUtils
-import org.jetbrains.anko.ctx
+import com.boardgamegeek.extensions.getSyncBuddies
+import com.boardgamegeek.extensions.getSyncPlays
+import com.boardgamegeek.extensions.isCollectionSetToSync
 import org.jetbrains.anko.intentFor
 
 class HomeActivity : TopLevelActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intent = if (Authenticator.isSignedIn(ctx)) {
+        val intent = if (Authenticator.isSignedIn(this)) {
             when {
-                Authenticator.isOldAuth(ctx) -> {
-                    Authenticator.signOut(ctx)
+                Authenticator.isOldAuth(this) -> {
+                    Authenticator.signOut(this)
                     intentFor<HotnessActivity>()
                 }
-                PreferencesUtils.isCollectionSetToSync(ctx) -> intentFor<CollectionActivity>()
-                PreferencesUtils.getSyncPlays(ctx) -> intentFor<PlaysSummaryActivity>()
-                PreferencesUtils.getSyncBuddies(ctx) -> intentFor<BuddiesActivity>()
+                isCollectionSetToSync() -> intentFor<CollectionActivity>()
+                getSyncPlays() -> intentFor<PlaysSummaryActivity>()
+                getSyncBuddies() -> intentFor<BuddiesActivity>()
                 else -> intentFor<HotnessActivity>()
             }
         } else {

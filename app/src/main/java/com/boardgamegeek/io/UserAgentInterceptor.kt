@@ -1,7 +1,7 @@
 package com.boardgamegeek.io
 
 import android.content.Context
-import com.boardgamegeek.util.HelpUtils
+import com.boardgamegeek.extensions.versionName
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
@@ -18,10 +18,11 @@ class UserAgentInterceptor(private val context: Context?) : Interceptor {
     }
 
     private fun constructUserAgent(): String {
-        var userAgent = "BGG4Android"
-        if (context != null) {
-            userAgent += "/" + HelpUtils.getVersionName(context)
+        val userAgent = "BGG4Android"
+        return if (context == null) {
+            userAgent
+        } else {
+            "$userAgent/${context.versionName()}"
         }
-        return userAgent
     }
 }

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:context=".ui.PersonActivity">
+
+	<androidx.coordinatorlayout.widget.CoordinatorLayout
+		android:id="@+id/containerView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progressView"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:padding="@dimen/material_margin_horizontal"/>
+
+		<TextView
+			android:id="@+id/emptyMessage"
+			style="@style/EmptyMessage"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_marginBottom="@dimen/padding_extra"
+			android:layout_marginTop="@dimen/padding_extra"
+			android:text="@string/empty_linked_collection"
+			android:visibility="gone"/>
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/recyclerView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:clipToPadding="false"
+			android:paddingBottom="@dimen/padding_standard"
+			android:paddingTop="@dimen/padding_standard"
+			android:visibility="gone"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.core.widget.NestedScrollView>

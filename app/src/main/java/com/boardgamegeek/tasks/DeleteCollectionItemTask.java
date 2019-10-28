@@ -5,7 +5,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.provider.BggContract.Collection;

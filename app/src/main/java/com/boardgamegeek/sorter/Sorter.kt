@@ -2,7 +2,7 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import android.database.Cursor
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.boardgamegeek.provider.BggContract
 import java.text.DecimalFormat
 
@@ -10,14 +10,14 @@ abstract class Sorter(protected val context: Context) {
     private val doubleFormat = DecimalFormat("#.0")
 
     @get:StringRes
-    protected abstract val descriptionId: Int
+    protected abstract val descriptionResId: Int
 
     /**
      * Gets the description to display in the UI when this sort is applied. Subclasses should set descriptionId
      * to control this value.
      */
     open val description: String
-        get() = context.getString(descriptionId)
+        get() = context.getString(descriptionResId)
 
     /**
      * Gets the sort order clause to use in the query.
@@ -31,17 +31,14 @@ abstract class Sorter(protected val context: Context) {
             "$sortColumn $collateNoCase $sortOrder, $defaultSort"
         }
 
-    protected open val sortColumn: String
-        get() = ""
+    protected open val sortColumn = ""
 
     /**
      * Whether this is sorting descending or ascending.
      */
-    protected open val isSortDescending: Boolean
-        get() = false
+    protected open val isSortDescending = false
 
-    protected open val shouldCollate: Boolean
-        get() = false
+    protected open val shouldCollate = false
 
     /**
      * The default sort order if the sort order isn't specified. Also applied as a secondary sort.
@@ -78,9 +75,7 @@ abstract class Sorter(protected val context: Context) {
     /**
      * Get the text to display in the section header for the current position in the cursor.
      */
-    protected open fun getHeaderText(cursor: Cursor): String {
-        return ""
-    }
+    protected open fun getHeaderText(cursor: Cursor) = ""
 
     /**
      * Get the ID for the header at the specified position of the cursor (as required by adapters).
@@ -101,7 +96,5 @@ abstract class Sorter(protected val context: Context) {
     /**
      * Get the ID for the header at the current position of the cursor (as required by adapters).
      */
-    protected open fun getHeaderId(cursor: Cursor): Long {
-        return getHeaderText(cursor).hashCode().toLong()
-    }
+    protected open fun getHeaderId(cursor: Cursor) = getHeaderText(cursor).hashCode().toLong()
 }

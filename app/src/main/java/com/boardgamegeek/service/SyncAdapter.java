@@ -6,27 +6,27 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.BatteryUtils;
+import com.boardgamegeek.extensions.NetworkUtils;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.util.BatteryUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
@@ -42,6 +42,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.BigTextStyle;
 import hugo.weaving.DebugLog;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -50,21 +53,21 @@ import okhttp3.ResponseBody;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
+	private final BggApplication application;
 	private SyncTask currentTask;
 	private boolean isCancelled;
+	private final CancelReceiver cancelReceiver = new CancelReceiver();
 
 	@DebugLog
-	public SyncAdapter(Context context) {
-		super(context, false);
+	public SyncAdapter(BggApplication context) {
+		super(context.getApplicationContext(), false);
+		application = context;
 
 		if (!BuildConfig.DEBUG) {
-			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-				@Override
-				public void uncaughtException(Thread thread, Throwable throwable) {
-					Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build.");
-				}
-			});
+			Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build."));
 		}
+
+		context.registerReceiver(cancelReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	/**
@@ -86,9 +89,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
-		String statuses = StringUtils.formatList(Collections.singletonList(PreferencesUtils.getSyncStatuses(getContext())));
-		if (PreferencesUtils.getSyncPlays(getContext())) statuses += " | plays";
-		if (PreferencesUtils.getSyncBuddies(getContext())) statuses += " | buddies";
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferenceUtils.getSyncStatuses(getContext())));
+		if (PreferenceUtils.getSyncPlays(getContext())) statuses += " | plays";
+		if (PreferenceUtils.getSyncBuddies(getContext())) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {
@@ -104,7 +107,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		toggleCancelReceiver(true);
-		List<SyncTask> tasks = createTasks(getContext(), type, uploadOnly, syncResult, account);
+		List<SyncTask> tasks = createTasks(application, type, uploadOnly, syncResult, account);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (isCancelled) {
 				Timber.i("Cancelling all sync tasks");
@@ -140,6 +143,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
+		try {
+			getContext().unregisterReceiver(cancelReceiver);
+		} catch (Exception e) {
+			Timber.w(e);
+		}
 	}
 
 	/**
@@ -234,32 +242,32 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 */
 	@DebugLog
 	@NonNull
-	private List<SyncTask> createTasks(Context context, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
-		BggService service = Adapter.createForXmlWithAuth(context);
+	private List<SyncTask> createTasks(BggApplication application, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
+		BggService service = Adapter.createForXmlWithAuth(application);
 		List<SyncTask> tasks = new ArrayList<>();
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-			tasks.add(new SyncCollectionUpload(context, service, syncResult));
+			tasks.add(new SyncCollectionUpload(application, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-			tasks.add(new SyncCollectionComplete(context, service, syncResult, account));
-			tasks.add(new SyncCollectionModifiedSince(context, service, syncResult, account));
-			tasks.add(new SyncCollectionUnupdated(context, service, syncResult, account));
+			tasks.add(new SyncCollectionComplete(application, service, syncResult, account));
+			tasks.add(new SyncCollectionModifiedSince(application, service, syncResult, account));
+			tasks.add(new SyncCollectionUnupdated(application, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-			tasks.add(new SyncGamesRemove(context, service, syncResult));
-			tasks.add(new SyncGamesOldest(context, service, syncResult));
-			tasks.add(new SyncGamesUnupdated(context, service, syncResult));
+			tasks.add(new SyncGamesRemove(application, service, syncResult));
+			tasks.add(new SyncGamesOldest(application, service, syncResult));
+			tasks.add(new SyncGamesUnupdated(application, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-			tasks.add(new SyncPlaysUpload(context, service, syncResult));
+			tasks.add(new SyncPlaysUpload(application, service, syncResult));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-			tasks.add(new SyncPlays(context, service, syncResult, account));
+			tasks.add(new SyncPlays(application, service, syncResult, account));
 		}
 		if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-			tasks.add(new SyncBuddiesList(context, service, syncResult, account));
-			tasks.add(new SyncBuddiesDetailOldest(context, service, syncResult));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service, syncResult));
+			tasks.add(new SyncBuddiesList(application, service, syncResult, account));
+			tasks.add(new SyncBuddiesDetailOldest(application, service, syncResult));
+			tasks.add(new SyncBuddiesDetailUnupdated(application, service, syncResult));
 		}
 		return tasks;
 	}

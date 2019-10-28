@@ -9,16 +9,16 @@
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
-		android:id="@+id/icon_game_year_published"
+		android:id="@+id/yearIcon"
 		style="@style/Icon"
 		android:src="@drawable/ic_calendar"/>
 
 	<TextView
-		android:id="@+id/game_year_published"
+		android:id="@+id/yearView"
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
 		android:gravity="center_vertical"
-		android:textAppearance="@style/Text"
+		android:textAppearance="@style/Text.Primary"
 		android:textStyle="bold"
 		tools:text="1996"/>
 </LinearLayout>

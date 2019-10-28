@@ -3,14 +3,6 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -19,6 +11,11 @@ import android.widget.RelativeLayout.LayoutParams;
 import com.boardgamegeek.R;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -52,20 +49,6 @@ public class HelpUtils {
 	public static void updateHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		preferences.edit().putInt(key, version).apply();
-	}
-
-	/**
-	 * Get the version name of the package, or "?.?" if not found.
-	 */
-	@DebugLog
-	public static String getVersionName(Context context) {
-		try {
-			PackageManager pm = context.getPackageManager();
-			PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), 0);
-			return pInfo.versionName;
-		} catch (NameNotFoundException e) {
-			return "?.?";
-		}
 	}
 
 	@DebugLog

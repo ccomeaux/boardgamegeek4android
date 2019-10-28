@@ -1,30 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
 	android:id="@+id/root_container"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<android.support.v4.widget.ContentLoadingProgressBar
+	<androidx.core.widget.ContentLoadingProgressBar
 		android:id="@android:id/progress"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:gravity="center"/>
+		android:gravity="center"
+		tools:visibility="gone"/>
 
-	<TextView
-		android:id="@android:id/empty"
-		style="@style/EmptyMessage"
+	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:text="@string/empty_comments"
-		android:visibility="gone"/>
+		android:fillViewport="true">
 
-	<android.support.v7.widget.RecyclerView
+		<LinearLayout
+			android:id="@android:id/empty"
+			style="@style/EmptyContainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<ImageView
+				android:layout_width="match_parent"
+				android:layout_height="108dp"
+				android:scaleType="fitCenter"
+				android:src="@drawable/ic_comment_large"
+				android:tint="@color/empty_tint"
+				tools:ignore="ContentDescription"/>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/empty_comments"
+				android:textAppearance="@style/Text.Big"/>
+		</LinearLayout>
+	</androidx.core.widget.NestedScrollView>
+
+	<androidx.recyclerview.widget.RecyclerView
 		android:id="@android:id/list"
 		style="@style/RecyclerViewVerticalList"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:visibility="gone"/>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
