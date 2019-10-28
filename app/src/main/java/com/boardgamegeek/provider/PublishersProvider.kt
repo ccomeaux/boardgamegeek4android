@@ -23,7 +23,7 @@ class PublishersProvider : BasicProvider() {
                 .mapToTable(Publishers.UPDATED, table)
         if (projection.contains(Publishers.ITEM_COUNT)) {
             builder
-                    .table(Tables.PUBLISHERS_JOIN_GAMES)
+                    .table(Tables.PUBLISHERS_JOIN_COLLECTION)
                     .groupBy("$table.${Publishers.PUBLISHER_ID}")
                     .mapAsCount(Publishers.ITEM_COUNT)
         } else {

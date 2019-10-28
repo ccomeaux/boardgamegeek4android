@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.text.Html;
 import android.text.SpannedString;
 import android.text.TextUtils;
@@ -20,6 +22,7 @@ import java.text.NumberFormat;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import hugo.weaving.DebugLog;
 
@@ -116,6 +119,18 @@ public class PresentationUtils {
 	public static void colorFab(FloatingActionButton fab, @ColorInt int iconColor) {
 		if (fab != null && iconColor != Color.TRANSPARENT) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(iconColor));
+			if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+				setFabImageTint(fab, iconColor);
+			}
+		}
+	}
+
+	@RequiresApi(api = VERSION_CODES.LOLLIPOP)
+	private static void setFabImageTint(FloatingActionButton fab, @ColorInt int iconColor) {
+		if (ColorUtils.isColorDark(iconColor)) {
+			fab.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+		} else {
+			fab.setImageTintList(ColorStateList.valueOf(Color.BLACK));
 		}
 	}
 

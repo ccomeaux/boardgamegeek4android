@@ -37,6 +37,7 @@ abstract class CalculatingListLoader<T>(val application: BggApplication) {
                         result.addSource(dbSource) { newValue ->
                             setValue(newValue)
                         }
+                        finishCalculating()
                     }
                 }
             }
@@ -63,6 +64,10 @@ abstract class CalculatingListLoader<T>(val application: BggApplication) {
 
     @WorkerThread
     protected abstract fun calculate(data: T)
+
+    @MainThread
+    protected open fun finishCalculating() {
+    }
 
     class CancelableMediatorLiveData<T> : MediatorLiveData<T>() {
         var shouldCancel = false

@@ -22,7 +22,7 @@ class CategoriesProvider : BasicProvider() {
                 .mapToTable(Categories.CATEGORY_ID, table)
         if (projection.contains(Categories.ITEM_COUNT)) {
             builder
-                    .table(Tables.CATEGORIES_JOIN_GAMES)
+                    .table(Tables.CATEGORIES_JOIN_COLLECTION)
                     .groupBy("$table.${Categories.CATEGORY_ID}")
                     .mapAsCount(Categories.ITEM_COUNT)
         } else {

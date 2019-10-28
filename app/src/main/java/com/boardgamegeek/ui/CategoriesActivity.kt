@@ -33,7 +33,7 @@ class CategoriesActivity : SimpleSinglePaneActivity() {
 
     override fun onCreatePane(intent: Intent): Fragment = CategoriesFragment.newInstance()
 
-    override val optionsMenuId = R.menu.artists
+    override val optionsMenuId = R.menu.categories
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

@@ -215,6 +215,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         @JvmStatic
         fun createIntentAsShortcut(context: Context, gameId: Int, gameName: String, thumbnailUrl: String): Intent? {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl) ?: return null
+            intent.action = Intent.ACTION_VIEW
             return intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
         }
 

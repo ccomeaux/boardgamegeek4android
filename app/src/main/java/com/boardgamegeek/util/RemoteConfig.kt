@@ -50,7 +50,7 @@ class RemoteConfig {
                     .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 0L else 3600L)
                     .build()
             firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
-            firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults)
+            firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
             fetch()
         }
 

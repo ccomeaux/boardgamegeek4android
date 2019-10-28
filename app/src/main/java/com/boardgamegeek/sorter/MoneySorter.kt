@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import com.boardgamegeek.extensions.asMoney
 import com.boardgamegeek.extensions.getDouble
+import com.boardgamegeek.extensions.getDoubleOrZero
 import com.boardgamegeek.extensions.getString
 import kotlin.math.ceil
 
@@ -22,11 +23,11 @@ abstract class MoneySorter(context: Context) : CollectionSorter(context) {
         get() = arrayOf(currencyColumnName, amountColumnName)
 
     override fun getDisplayInfo(cursor: Cursor): String {
-        return getInfoOrMissingInfo(cursor.getDouble(amountColumnName).asMoney(cursor.getString(currencyColumnName)))
+        return getInfoOrMissingInfo(cursor.getDoubleOrZero(amountColumnName).asMoney(cursor.getString(currencyColumnName)))
     }
 
     public override fun getHeaderText(cursor: Cursor): String {
-        return getInfoOrMissingInfo(round(cursor.getDouble(amountColumnName)).asMoney(cursor.getString(currencyColumnName)))
+        return getInfoOrMissingInfo(round(cursor.getDoubleOrZero(amountColumnName)).asMoney(cursor.getString(currencyColumnName)))
     }
 
     private fun getInfoOrMissingInfo(info: String): String {

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -11,7 +10,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.DesignsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -20,17 +22,13 @@ import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import kotlinx.android.synthetic.main.row_designer.view.*
 import kotlin.properties.Delegates
 
-class DesignersFragment : Fragment() {
+class DesignersFragment : Fragment(R.layout.fragment_designers) {
     private val viewModel: DesignsViewModel by lazy {
         ViewModelProviders.of(requireActivity()).get(DesignsViewModel::class.java)
     }
 
     private val adapter: DesignersAdapter by lazy {
         DesignersAdapter(viewModel)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_designers, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,14 +118,8 @@ class DesignersFragment : Fragment() {
                 designer?.let { d ->
                     itemView.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
                     itemView.nameView.text = d.name
-                    val showWhitmoreScore = itemView.context.isStatusSetToSync(COLLECTION_STATUS_RATED)
-                    if (showWhitmoreScore) {
-                        itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
-                    } else {
-                        itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
-                    }
-                    itemView.countView.isVisible = !showWhitmoreScore
-                    itemView.whitmoreScoreView.isVisible = showWhitmoreScore
+                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
+                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForDesigner(itemView.context, d.id, d.name)
                     }
