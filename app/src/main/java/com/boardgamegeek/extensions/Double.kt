@@ -24,7 +24,7 @@ fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.u
 
 fun Double.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#0.0#")): String {
     return when {
-        this > 0.0 -> format.format(this)
+        this != 0.0 -> format.format(this)
         defaultResId != 0 && context != null -> context.getString(defaultResId)
         else -> ""
     }
