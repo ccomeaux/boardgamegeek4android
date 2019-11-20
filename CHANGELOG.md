@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.7.1
+-------------
+ * Display negative scores
+
 Version 6.7
 -----------
  * Lots more data for designers, artists, publishers, mechanics, and categories
