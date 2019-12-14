@@ -104,7 +104,7 @@ class GamePlaysFragment : Fragment() {
                 val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
                 if (inProgressPlays.isNotEmpty()) {
                     inProgressPlaysList.removeAllViews()
-                    inProgressPlays.forEach { play ->
+                    inProgressPlays.take(3).forEach { play ->
                         val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
                         val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateForDisplay(requireContext())
                         row.findViewById<TextView>(R.id.line1)?.text = title
