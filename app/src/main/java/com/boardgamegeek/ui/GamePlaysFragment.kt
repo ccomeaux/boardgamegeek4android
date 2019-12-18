@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -106,7 +107,12 @@ class GamePlaysFragment : Fragment() {
                     inProgressPlaysList.removeAllViews()
                     inProgressPlays.take(3).forEach { play ->
                         val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
-                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateForDisplay(requireContext())
+                        val title =
+                                when {
+                                    play.startTime > 0 -> requireContext().getText(R.string.playing_for_prefix, DateUtils.formatElapsedTime((System.currentTimeMillis() - play.startTime) / 1000))
+                                    DateUtils.isToday(play.dateInMillis) -> requireContext().getText(R.string.playing_prefix, play.dateForDisplay(requireContext()))
+                                    else -> requireContext().getText(R.string.playing_since_prefix, play.dateForDisplay(requireContext()))
+                                }
                         row.findViewById<TextView>(R.id.line1)?.text = title
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
