@@ -7,7 +7,6 @@ import android.text.Html
 import android.text.SpannedString
 import android.util.AttributeSet
 import android.view.View
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
@@ -17,10 +16,8 @@ class TimestampView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = android.R.attr.textViewStyle
-) : AppCompatTextView(context, attrs, defStyleAttr) {
-    private var isVisible: Boolean = false
-    private var isRunning: Boolean = false
-    
+) : SelfUpdatingView(context, attrs, defStyleAttr) {
+
     var timestamp: Long = 0
         set(value) {
             field = value
@@ -62,23 +59,6 @@ class TimestampView @JvmOverloads constructor(
         updateText()
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        isVisible = false
-        updateRunning()
-    }
-
-    override fun onWindowVisibilityChanged(visibility: Int) {
-        super.onWindowVisibilityChanged(visibility)
-        isVisible = visibility == View.VISIBLE
-        updateRunning()
-    }
-
-    override fun onVisibilityChanged(changedView: View, visibility: Int) {
-        super.onVisibilityChanged(changedView, visibility)
-        updateRunning()
-    }
-
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
         return if (superState != null) {
@@ -101,8 +81,7 @@ class TimestampView @JvmOverloads constructor(
     }
 
     @Synchronized
-    @Suppress("DEPRECATION")
-    private fun updateText() {
+    override fun updateText() {
         if (!ViewCompat.isAttachedToWindow(this@TimestampView)) return
         if (timestamp <= 0) {
             if (hideWhenEmpty) visibility = View.GONE
@@ -111,6 +90,7 @@ class TimestampView @JvmOverloads constructor(
             if (hideWhenEmpty) visibility = View.VISIBLE
             val formattedTimestamp = timestamp.formatTimestamp(context, isForumTimeStamp, includeTime)
             text = if (format.isNotEmpty()) {
+                @Suppress("DEPRECATION")
                 Html.fromHtml(String.format(
                         Html.toHtml(SpannedString(this@TimestampView.format)),
                         formattedTimestamp,
@@ -118,28 +98,6 @@ class TimestampView @JvmOverloads constructor(
                 ).trimTrailingWhitespace()
             } else {
                 formattedTimestamp
-            }
-        }
-    }
-
-    private fun updateRunning() {
-        val running = isVisible && isShown
-        if (running != isRunning) {
-            if (running) {
-                updateText()
-                postDelayed(mTickRunnable, TIME_HINT_UPDATE_INTERVAL)
-            } else {
-                removeCallbacks(mTickRunnable)
-            }
-            isRunning = running
-        }
-    }
-
-    private val mTickRunnable = object : Runnable {
-        override fun run() {
-            if (isRunning) {
-                updateText()
-                postDelayed(this, TIME_HINT_UPDATE_INTERVAL)
             }
         }
     }
@@ -176,9 +134,5 @@ class TimestampView @JvmOverloads constructor(
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TIME_HINT_UPDATE_INTERVAL: Long = 30_000L
     }
 }
