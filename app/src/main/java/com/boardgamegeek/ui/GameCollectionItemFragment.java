@@ -24,8 +24,10 @@ import com.boardgamegeek.events.CollectionItemChangedEvent;
 import com.boardgamegeek.events.CollectionItemResetEvent;
 import com.boardgamegeek.events.CollectionItemUpdatedEvent;
 import com.boardgamegeek.extensions.DialogUtils;
-import com.boardgamegeek.extensions.IntKt;
+import com.boardgamegeek.extensions.DoubleUtils;
+import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
@@ -42,7 +44,6 @@ import com.boardgamegeek.ui.widget.TextEditorView;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PaletteUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -570,7 +571,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	private void bindMainContainer(CollectionItem item) {
 		final String statusDescription = getStatusDescription(item);
-		PresentationUtils.setTextOrHide(statusView, statusDescription);
+		TextViewUtils.setTextOrHide(statusView, statusDescription);
 		setVisibleTag(statusView, !TextUtils.isEmpty(statusDescription));
 
 		wantToBuyView.setChecked(item.isWantToBuy());
@@ -587,7 +588,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private void bindWishlist(CollectionItem item) {
 		// view
 		if (item.isWishlist()) {
-			PresentationUtils.setTextOrHide(wishlistStatusView, IntKt.asWishListPriority(item.getWishlistPriority(), getContext()));
+			TextViewUtils.setTextOrHide(wishlistStatusView, IntUtils.asWishListPriority(item.getWishlistPriority(), getContext()));
 		} else {
 			wishlistStatusView.setVisibility(View.GONE);
 		}
@@ -608,7 +609,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		List<String> statusDescriptions = new ArrayList<>();
 		if (item.isForTrade()) statusDescriptions.add(getString(R.string.collection_status_for_trade));
 		if (item.isWantInTrade()) statusDescriptions.add(getString(R.string.collection_status_want_in_trade));
-		PresentationUtils.setTextOrHide(tradeStatusView, StringUtils.formatList(statusDescriptions));
+		TextViewUtils.setTextOrHide(tradeStatusView, StringUtils.formatList(statusDescriptions));
 		setVisibleTag(tradeStatusView, item.isForTrade() || item.isWantInTrade());
 
 		// edit
@@ -623,7 +624,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	private void bindPrivateInfo(CollectionItem item) {
 		// view
-		PresentationUtils.setTextOrHide(viewPrivateInfoView, getPrivateInfo(item));
+		TextViewUtils.setTextOrHide(viewPrivateInfoView, getPrivateInfo(item));
 		setVisibleTag(viewPrivateInfoView, hasPrivateInfo(item));
 
 		// edit
@@ -648,7 +649,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		final long timestamp = item.getDirtyTimestamp() > 0 ? item.getDirtyTimestamp() : defaultTimestamp;
 		lastModifiedView.setTimestamp(timestamp);
 		updatedView.setTimestamp(item.getUpdated());
-		PresentationUtils.setTextOrHide(idView, item.getId());
+		TextViewUtils.setTextOrHide(idView, String.valueOf(item.getId()));
 	}
 
 	private static void setVisibleTag(View view, boolean isVisible) {
@@ -701,11 +702,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 		if (item.getPrice() > 0.0) {
 			sb.append(" ").append(getString(R.string.for_)).append(" ");
-			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getPriceCurrency(), item.getPrice()));
+			StringUtils.appendBold(sb, DoubleUtils.asMoney(item.getPrice(), item.getPriceCurrency()));
 		}
 		if (item.getCurrentValue() > 0.0) {
 			sb.append(" (").append(getString(R.string.currently_worth)).append(" ");
-			StringUtils.appendBold(sb, PresentationUtils.describeMoney(item.getCurrentValueCurrency(), item.getCurrentValue()));
+			StringUtils.appendBold(sb, DoubleUtils.asMoney(item.getCurrentValue(), item.getCurrentValueCurrency()));
 			sb.append(")");
 		}
 		if (!TextUtils.isEmpty(item.getInventoryLocation())) {

@@ -1,13 +1,15 @@
+@file:JvmName("IntUtils")
+
 package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.graphics.Color
 import android.text.format.DateUtils
+import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.RANK_UNKNOWN
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.util.PresentationUtils.getText
 import java.math.BigDecimal
 import java.math.MathContext
 
@@ -63,7 +65,7 @@ fun Int.isRankValid(): Boolean {
 fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {
     val subtype = name.asRankDescription(context, type)
     return when {
-        isRankValid() -> getText(context, R.string.rank_description, this, subtype)
+        isRankValid() -> context.getText(R.string.rank_description, this, subtype)
         else -> subtype
     }
 }
@@ -189,6 +191,16 @@ fun List<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = In
             return sb.toString()
         }
     }
+}
+
+fun Int.asHttpErrorMessage(context: Context): String {
+    @StringRes val resId: Int = when {
+        this >= 500 -> R.string.msg_sync_response_500
+        this == 429 -> R.string.msg_sync_response_429
+        this == 202 -> R.string.msg_sync_response_202
+        else -> R.string.msg_sync_error_http_code
+    }
+    return context.getString(resId, this.toString())
 }
 
 fun Int.significantDigits(digits: Int): Int {

@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.HIndexEntity;
+import com.boardgamegeek.extensions.ContextUtils;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.ui.PlayStatsActivity;
 
@@ -228,7 +229,7 @@ public class PreferencesUtils {
 				@StringRes int messageId = hIndex.getH() > oldHIndex || (hIndex.getH() == oldHIndex && hIndex.getN() < oldN) ?
 					R.string.sync_notification_h_index_increase :
 					R.string.sync_notification_h_index_decrease;
-				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, context.getString(typeResId), hIndex.getDescription()), notificationId);
+				notifyPlayStatChange(context, ContextUtils.getText(context, messageId, context.getString(typeResId), hIndex.getDescription()), notificationId);
 			}
 		}
 	}

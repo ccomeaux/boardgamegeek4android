@@ -9,12 +9,12 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.getText
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
 import com.boardgamegeek.util.LargeIconLoader.Callback
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.PresentationUtils
 import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.util.*
@@ -41,7 +41,7 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
         if (!PreferencesUtils.getPlayUploadNotifications(context)) return
 
-        notificationMessages.add(PresentationUtils.getText(context, R.string.msg_play_upload, title, message))
+        notificationMessages.add(context.getText(R.string.msg_play_upload, title, message))
 
         val loader = LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, object : Callback {
             override fun onSuccessfulIconLoad(bitmap: Bitmap) {

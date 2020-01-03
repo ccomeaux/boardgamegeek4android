@@ -31,7 +31,10 @@ import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
+import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
+import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
@@ -65,7 +68,6 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
@@ -239,7 +241,7 @@ public class CollectionFragment extends Fragment implements
 
 		setEmptyText();
 
-		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
 
 		createShowcaseViewWizard();
@@ -915,7 +917,7 @@ public class CollectionFragment extends Fragment implements
 
 			public void bindView(final CollectionItem item, final int position) {
 				nameView.setText(item.collectionName);
-				yearView.setText(PresentationUtils.describeYear(getActivity(), item.year));
+				yearView.setText(IntUtils.asYear(item.year, getContext()));
 				timestampView.setTimestamp(item.timestamp);
 				favoriteView.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
 				if (!TextUtils.isEmpty(item.ratingText)) {
@@ -924,7 +926,7 @@ public class CollectionFragment extends Fragment implements
 					ratingView.setVisibility(View.VISIBLE);
 					infoView.setVisibility(View.GONE);
 				} else {
-					PresentationUtils.setTextOrHide(infoView, item.displayInfo);
+					TextViewUtils.setTextOrHide(infoView, item.displayInfo);
 					infoView.setVisibility(View.VISIBLE);
 					ratingView.setVisibility(View.GONE);
 				}

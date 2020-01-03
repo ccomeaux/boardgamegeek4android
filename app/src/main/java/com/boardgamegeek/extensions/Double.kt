@@ -61,7 +61,7 @@ fun Double.invcdf(lambda: Double): Double {
     return -ln(1.0 - this) / lambda
 }
 
-
+@JvmOverloads
 fun Double.asMoney(currency: String, format: DecimalFormat = MONEY_FORMAT): String {
     return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + format.format(this)
 }
