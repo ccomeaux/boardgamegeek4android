@@ -762,9 +762,10 @@ public class CollectionFragment extends Fragment implements
 		if (viewId != 0) {
 			viewId = 0;
 			viewName = "";
+
+			filters.clear();
+			sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		}
-		filters.clear();
-		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
 		requery();
 	}
 
