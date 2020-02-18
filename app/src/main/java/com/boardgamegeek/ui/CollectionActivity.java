@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
@@ -20,24 +19,24 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
-import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.CollectionViews;
-import com.boardgamegeek.tasks.SelectCollectionViewTask;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
+import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -46,16 +45,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.ViewModelProviders;
 import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements
-	LoaderCallbacks<Cursor>,
 	SaveViewDialogFragment.OnViewSavedListener,
 	DeleteViewDialogFragment.OnViewDeletedListener,
 	CollectionSortDialogFragment.Listener,
@@ -63,11 +56,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	private static final String KEY_VIEW_ID = "VIEW_ID";
 	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
 	private CollectionViewAdapter adapter;
-	private long viewId;
-	@State int viewIndex;
-	private Spinner spinner;
 	private boolean isCreatingShortcut;
 	private long changingGamePlayId;
+	private CollectionViewViewModel viewModel;
 
 	public static Intent createIntentAsShortcut(Context context, long viewId) {
 		return new Intent(context, CollectionActivity.class)
@@ -86,9 +77,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	@DebugLog
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
 
-		viewId = getIntent().getLongExtra(KEY_VIEW_ID, savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this));
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -102,13 +91,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 				actionBar.setCustomView(R.layout.actionbar_collection);
 			}
 		}
-		if (!isCreatingShortcut && changingGamePlayId == BggContract.INVALID_ID) {
-			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
-		}
 
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Collection"));
 		}
+
+		long viewId = getIntent().getLongExtra(KEY_VIEW_ID, savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this));
+		viewModel = ViewModelProviders.of(this).get(CollectionViewViewModel.class);
+		viewModel.selectView(viewId);
 	}
 
 	@Override
@@ -118,17 +108,42 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	}
 
 	@Override
-	@DebugLog
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		spinner = findViewById(R.id.menu_spinner);
-		bindSpinner();
+		Spinner spinner = findViewById(R.id.menu_spinner);
+		if (spinner != null) {
+			spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
+					if (id < 0) {
+						viewModel.clearView();
+					} else {
+						viewModel.selectView(id);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+					// Do nothing
+				}
+			});
+
+			viewModel.getViews().observe(this, collectionViews -> {
+				if (adapter == null) {
+					adapter = new CollectionViewAdapter(CollectionActivity.this, collectionViews);
+					spinner.setAdapter(adapter);
+				} else if (!collectionViews.isEmpty()) {
+					// TODO sometimes on pull-to-refresh, the collectionViews is an empty list
+					adapter.clear();
+					adapter.addAll(collectionViews);
+				}
+				Long viewId = viewModel.getSelectedViewId().getValue();
+				int index = adapter.findIndexOf(viewId);
+				spinner.setSelection(index);
+			});
+		}
+
 		return true;
 	}
 
@@ -169,29 +184,26 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	}
 
 	@Override
-	public void onInsertRequested(String name, boolean isDefault) {
-		viewId = ((CollectionFragment) getFragment()).insertView(name);
-		viewIndex = findViewIndex();
+	public void onInsertRequested(@NotNull String name, boolean isDefault) {
+		long viewId = viewModel.insert(name);
 		setOrRemoveDefault(viewId, isDefault);
-		notifyViewCreated(viewId, name);
+		notifyViewCreated(name);
 	}
 
 	@Override
-	public void onUpdateRequested(String name, boolean isDefault, long viewId) {
-		this.viewId = viewId;
-		viewIndex = findViewIndex();
-		((CollectionFragment) getFragment()).updateView(viewId);
+	public void onUpdateRequested(@NotNull String name, boolean isDefault, long viewId) {
+		viewModel.update();
 		setOrRemoveDefault(viewId, isDefault);
-		notifyViewCreated(viewId, name);
+		notifyViewCreated(name);
 	}
 
 	@Override
 	public void onViewDeleted(long viewId) {
 		CollectionViewManipulationEvent.log("Delete");
 		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (viewId == this.viewId) {
-			this.viewId = PreferencesUtils.getViewDefaultId(this);
-			viewIndex = findViewIndex();
+		if (viewId == viewModel.getSelectedViewId().getValue()) {
+			// TODO: create selectDefaultView method
+			viewModel.selectView(PreferencesUtils.getViewDefaultId(this));
 		}
 	}
 
@@ -206,7 +218,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		}
 	}
 
-	public void notifyViewCreated(long id, String name) {
+	public void notifyViewCreated(String name) {
 		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
 	}
@@ -250,103 +262,15 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		return shortcutManager.createShortcutResultIntent(builder.build());
 	}
 
-	@Nullable
-	@Override
-	@DebugLog
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == Query._TOKEN) {
-			loader = new CursorLoader(this, CollectionViews.CONTENT_URI, Query.PROJECTION, null, null, null);
-		}
-		return loader;
-	}
-
-	@Override
-	@DebugLog
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
-		if (loader.getId() == Query._TOKEN) {
-			if (adapter == null) {
-				adapter = new CollectionViewAdapter(this, cursor);
-			} else {
-				adapter.changeCursor(cursor);
-			}
-			if (viewId != -1) viewIndex = findViewIndex();
-			bindSpinner();
-		} else {
-			cursor.close();
-		}
-	}
-
-	private void bindSpinner() {
-		if (spinner != null && adapter != null) {
-			spinner.setAdapter(adapter);
-			spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-				@Override
-				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-					CollectionFragment fragment = (CollectionFragment) getFragment();
-					long oldId = fragment != null ? fragment.getViewId() : id;
-					if (id != oldId) {
-						Answers.getInstance().logCustom(new CustomEvent("CollectionViewSelected"));
-						viewId = id;
-						viewIndex = findViewIndex();
-						if (id < 0) {
-							fragment.clearView();
-						} else {
-							fragment.setView(id);
-							TaskUtils.executeAsyncTask(new SelectCollectionViewTask(CollectionActivity.this, id));
-						}
-					}
-				}
-
-				@Override
-				public void onNothingSelected(AdapterView<?> parent) {
-					// Do nothing
-				}
-			});
-			spinner.setSelection(viewIndex);
-		}
-	}
-
-	@Override
-	@DebugLog
-	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.changeCursor(null);
-	}
-
-	@DebugLog
-	private int findViewIndex() {
-		int index = 0;
-		if (viewId > 0) {
-			Cursor cursor = adapter.getCursor();
-			if (cursor != null) {
-				int position = cursor.getPosition();
-				if (cursor.moveToFirst()) {
-					do {
-						if (viewId == cursor.getLong(Query._ID)) {
-							index = cursor.getPosition() + 1;
-							break;
-						}
-					} while (cursor.moveToNext());
-				}
-				cursor.moveToPosition(position);
-			}
-		}
-		return index;
-	}
 
 	@Override
 	public void onSortSelected(int sortType) {
-		((CollectionFragment) getFragment()).setSort(sortType);
+		viewModel.setSort(sortType);
+		SortEvent.log("Collection", String.valueOf(sortType));
 	}
 
 	@Override
 	public void onFilterSelected(int filterType) {
 		((CollectionFragment) getFragment()).launchFilterDialog(filterType);
-	}
-
-	private interface Query {
-		int _TOKEN = 0x01;
-		String[] PROJECTION = { CollectionViews._ID, CollectionViews.NAME, CollectionViews.SORT_TYPE, };
-		int _ID = 0;
 	}
 }

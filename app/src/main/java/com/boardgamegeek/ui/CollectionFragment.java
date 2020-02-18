@@ -1,10 +1,7 @@
 package com.boardgamegeek.ui;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -33,13 +30,11 @@ import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
@@ -52,6 +47,7 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.ui.widget.TimestampView;
@@ -71,7 +67,6 @@ import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
-import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -97,6 +92,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
@@ -135,6 +131,7 @@ public class CollectionFragment extends Fragment implements
 	@BindView(R.id.chipGroupScrollView) HorizontalScrollView chipGroupScrollView;
 	@BindView(R.id.chipGroup) ChipGroup chipGroup;
 
+	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
 	@State long viewId;
 	@State @Nullable String viewName = "";
@@ -173,28 +170,6 @@ public class CollectionFragment extends Fragment implements
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
 		setHasOptionsMenu(true);
-		if (savedInstanceState != null) {
-			Icepick.restoreInstanceState(this, savedInstanceState);
-
-			filters.clear();
-			if (types != null && data != null) {
-				if (types.size() != data.size()) {
-					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2$s", types.size(), data.size());
-				} else {
-					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
-					for (int i = 0; i < types.size(); i++) {
-						final Integer filterType = types.get(i);
-						CollectionFilterer filterer = factory.create(filterType);
-						if (filterer == null) {
-							Timber.w("Couldn't create filterer with type %s", filterType);
-						} else {
-							filterer.inflate(data.get(i));
-							filters.add(filterer);
-						}
-					}
-				}
-			}
-		}
 	}
 
 	@Override
@@ -261,11 +236,26 @@ public class CollectionFragment extends Fragment implements
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Icepick.restoreInstanceState(this, savedInstanceState);
 		sorter = getCollectionSorter(sortType);
 		if (savedInstanceState != null || isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 			requery();
 		}
+
+		viewModel = ViewModelProviders.of(getActivity()).get(CollectionViewViewModel.class);
+
+		viewModel.getSelectedViewName().observe(this, name -> viewName = name);
+
+		viewModel.getSortType().observe(this, sortType -> {
+			sorter = getCollectionSorter(sortType);
+			requery();
+		});
+
+		viewModel.getEffectiveFilters().observe(this, f -> {
+			filters.clear();
+			filters.addAll(f);
+			setEmptyText();
+			requery();
+		});
 	}
 
 	@Override
@@ -499,10 +489,6 @@ public class CollectionFragment extends Fragment implements
 				where.toString(),
 				args,
 				sorter == null ? null : sorter.getOrderByClause());
-		} else if (id == ViewQuery._TOKEN) {
-			if (viewId > 0) {
-				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId), ViewQuery.PROJECTION, null, null, null);
-			}
 		}
 		return loader;
 	}
@@ -569,21 +555,6 @@ public class CollectionFragment extends Fragment implements
 				AnimationUtils.fadeOut(listView);
 			}
 			progressBar.hide();
-		} else if (token == ViewQuery._TOKEN) {
-			if (cursor.moveToFirst()) {
-				viewName = cursor.getString(ViewQuery.NAME);
-				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
-				filters.clear();
-				do {
-					CollectionFilterer filter = new CollectionFiltererFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
-					if (filter != null) {
-						filter.inflate(cursor.getString(ViewQuery.DATA));
-						filters.add(filter);
-					}
-				} while (cursor.moveToNext());
-				setEmptyText();
-				requery();
-			}
 		} else {
 			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
@@ -599,26 +570,14 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	@DebugLog
 	public void removeFilter(int type) {
-		for (CollectionFilterer filter : filters) {
-			if (filter.getType() == type) {
-				filters.remove(filter);
-				break;
-			}
-		}
-		setEmptyText();
-		requery();
+		viewModel.removeFilter(type);
 	}
 
 	@Override
 	@DebugLog
 	public void addFilter(@NotNull CollectionFilterer filter) {
-		filters.remove(filter);
-		if (filter.isValid()) {
-			filters.add(filter);
-		}
+		viewModel.addFilter(filter);
 		FilterEvent.log("Collection", String.valueOf(filter.getType()));
-		setEmptyText();
-		requery();
 	}
 
 	@DebugLog
@@ -677,16 +636,6 @@ public class CollectionFragment extends Fragment implements
 
 	private boolean hasFiltersApplied() {
 		return filters.size() > 0;
-	}
-
-	@DebugLog
-	public void setSort(int sortType) {
-		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
-			sortType = CollectionSorterFactory.TYPE_DEFAULT;
-		}
-		SortEvent.log("Collection", String.valueOf(sortType));
-		sorter = getCollectionSorter(sortType);
-		requery();
 	}
 
 	@DebugLog
@@ -751,21 +700,17 @@ public class CollectionFragment extends Fragment implements
 	@DebugLog
 	public void setView(long viewId) {
 		if (this.viewId != viewId) {
-			progressBar.show();
 			this.viewId = viewId;
-			LoaderManager.getInstance(this).restartLoader(ViewQuery._TOKEN, null, this);
+			if (viewId > 0) {
+				progressBar.show();
+				viewModel.selectView(viewId);
+			}
 		}
 	}
 
 	@DebugLog
 	public void clearView() {
-		if (viewId != 0) {
-			viewId = 0;
-			viewName = "";
-		}
-		filters.clear();
-		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
-		requery();
+		viewModel.clearView();
 	}
 
 	public class CollectionItem {
@@ -1014,23 +959,6 @@ public class CollectionFragment extends Fragment implements
 		int HERO_IMAGE_URL = 12;
 	}
 
-	private interface ViewQuery {
-		int _TOKEN = 0x02;
-		String[] PROJECTION = {
-			CollectionViewFilters._ID,
-			CollectionViewFilters.NAME,
-			CollectionViewFilters.SORT_TYPE,
-			CollectionViewFilters.TYPE,
-			CollectionViewFilters.DATA
-		};
-
-		// int _ID = 0;
-		int NAME = 1;
-		int SORT_TYPE = 2;
-		int TYPE = 3;
-		int DATA = 4;
-	}
-
 	@Override
 	@DebugLog
 	public boolean onCreateActionMode(@NonNull ActionMode mode, @NonNull android.view.Menu menu) {
@@ -1118,54 +1046,5 @@ public class CollectionFragment extends Fragment implements
 		if (sortType != CollectionSorterFactory.TYPE_DEFAULT)
 			text.append(getString(R.string.sort_description, sort.getDescription()));
 		return text.toString();
-	}
-
-	/**
-	 * Add a new view with the current filters and sort with the specified name.
-	 *
-	 * @return The ID of the inserted view.
-	 */
-	public long insertView(String name) {
-		ContentValues values = new ContentValues();
-		values.put(CollectionViews.NAME, name);
-		values.put(CollectionViews.STARRED, false);
-		values.put(CollectionViews.SORT_TYPE, sorter.getType());
-		Uri filterUri = getActivity().getContentResolver().insert(CollectionViews.CONTENT_URI, values);
-
-		int filterId = CollectionViews.getViewId(filterUri);
-		Uri uri = CollectionViews.buildViewFilterUri(filterId);
-		insertDetails(uri, filters);
-		return StringUtils.parseLong(filterUri.getLastPathSegment());
-	}
-
-	/**
-	 * Update the specified view with current filters and sort.
-	 */
-	public void updateView(long viewId) {
-		ContentResolver resolver = getActivity().getContentResolver();
-
-		ContentValues values = new ContentValues();
-		values.put(CollectionViews.SORT_TYPE, sorter.getType());
-		resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
-
-		Uri uri = CollectionViews.buildViewFilterUri(viewId);
-		resolver.delete(uri, null, null);
-		insertDetails(uri, filters);
-	}
-
-	private void insertDetails(Uri viewFiltersUri, final List<CollectionFilterer> filters) {
-		List<ContentValues> cvs = new ArrayList<>(filters.size());
-		for (CollectionFilterer filter : filters) {
-			if (filter != null) {
-				ContentValues cv = new ContentValues();
-				cv.put(CollectionViewFilters.TYPE, filter.getType());
-				cv.put(CollectionViewFilters.DATA, filter.deflate());
-				cvs.add(cv);
-			}
-		}
-		if (cvs.size() > 0) {
-			ContentValues[] values = {};
-			getActivity().getContentResolver().bulkInsert(viewFiltersUri, cvs.toArray(values));
-		}
 	}
 }
