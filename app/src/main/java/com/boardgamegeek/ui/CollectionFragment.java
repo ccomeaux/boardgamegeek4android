@@ -104,9 +104,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 import timber.log.Timber;
 
 public class CollectionFragment extends Fragment implements
@@ -133,11 +130,8 @@ public class CollectionFragment extends Fragment implements
 
 	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
-	@State long viewId;
-	@State @Nullable String viewName = "";
-	@State int sortType;
-	@State ArrayList<Integer> types;
-	@State ArrayList<String> data;
+	private long viewId = PreferencesUtils.VIEW_ID_COLLECTION;
+	private String viewName = "";
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
@@ -165,7 +159,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
@@ -191,7 +184,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
 		unbinder = ButterKnife.bind(this, view);
@@ -199,7 +191,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if (isCreatingShortcut) {
@@ -232,29 +223,27 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		sorter = getCollectionSorter(sortType);
-		if (savedInstanceState != null || isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
-			requery();
-		}
+		viewModel = ViewModelProviders.of(requireActivity()).get(CollectionViewViewModel.class);
 
-		viewModel = ViewModelProviders.of(getActivity()).get(CollectionViewViewModel.class);
+		viewModel.getSelectedViewId().observe(this, id -> viewId = id);
 
 		viewModel.getSelectedViewName().observe(this, name -> viewName = name);
 
 		viewModel.getSortType().observe(this, sortType -> {
+			progressBar.show();
 			sorter = getCollectionSorter(sortType);
-			requery();
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		});
 
 		viewModel.getEffectiveFilters().observe(this, f -> {
+			progressBar.show();
 			filters.clear();
 			filters.addAll(f);
 			setEmptyText();
-			requery();
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		});
 	}
 
@@ -266,33 +255,13 @@ public class CollectionFragment extends Fragment implements
 
 	private CollectionSorter getCollectionSorter(int sortType) {
 		if (collectionSorterFactory == null) {
-			collectionSorterFactory = new CollectionSorterFactory(getActivity());
+			collectionSorterFactory = new CollectionSorterFactory(requireContext());
 		}
 		return collectionSorterFactory.create(sortType);
 	}
 
-	@DebugLog
-	private void requery() {
-		progressBar.show();
-		LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
-	}
-
 	@Override
-	@DebugLog
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		sortType = sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType();
-		types = new ArrayList<>();
-		data = new ArrayList<>();
-		for (CollectionFilterer filterer : filters) {
-			types.add(filterer.getType());
-			data.add(filterer.deflate());
-		}
-		Icepick.saveInstanceState(this, outState);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.help, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -361,7 +330,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	final OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
-		@DebugLog
 		@Override
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
@@ -459,38 +427,33 @@ public class CollectionFragment extends Fragment implements
 
 	@NonNull
 	@Override
-	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == Query._TOKEN) {
-			StringBuilder where = new StringBuilder();
-			String[] args = {};
-			StringBuilder having = new StringBuilder();
-			if (viewId == 0 && filters.size() == 0) {
-				where.append(buildDefaultWhereClause());
-			} else {
-				for (CollectionFilterer filter : filters) {
-					if (filter != null) {
-						if (!TextUtils.isEmpty(filter.getSelection())) {
-							if (where.length() > 0) where.append(" AND ");
-							where.append("(").append(filter.getSelection()).append(")");
-							args = StringUtils.concatenate(args, filter.getSelectionArgs());
-						}
-						if (!TextUtils.isEmpty(filter.getHaving())) {
-							if (having.length() > 0) having.append(" AND ");
-							having.append("(").append(filter.getHaving()).append(")");
-						}
+		StringBuilder where = new StringBuilder();
+		String[] args = {};
+		StringBuilder having = new StringBuilder();
+		if (viewId == 0 && filters.size() == 0) {
+			where.append(buildDefaultWhereClause());
+		} else {
+			for (CollectionFilterer filter : filters) {
+				if (filter != null) {
+					if (!TextUtils.isEmpty(filter.getSelection())) {
+						if (where.length() > 0) where.append(" AND ");
+						where.append("(").append(filter.getSelection()).append(")");
+						args = StringUtils.concatenate(args, filter.getSelectionArgs());
+					}
+					if (!TextUtils.isEmpty(filter.getHaving())) {
+						if (having.length() > 0) having.append(" AND ");
+						having.append("(").append(filter.getHaving()).append(")");
 					}
 				}
 			}
-			loader = new CursorLoader(getActivity(),
-				Collection.buildUri(having.toString()),
-				getProjection(),
-				where.toString(),
-				args,
-				sorter == null ? null : sorter.getOrderByClause());
 		}
-		return loader;
+		return new CursorLoader(requireContext(),
+			Collection.buildUri(having.toString()),
+			getProjection(),
+			where.toString(),
+			args,
+			sorter == null ? null : sorter.getOrderByClause());
 	}
 
 	private String[] getProjection() {
@@ -509,7 +472,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
 		if (getActivity() == null) return;
 
@@ -562,25 +524,21 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		if (adapter != null) adapter.clearItems();
 	}
 
 	@Override
-	@DebugLog
 	public void removeFilter(int type) {
 		viewModel.removeFilter(type);
 	}
 
 	@Override
-	@DebugLog
 	public void addFilter(@NotNull CollectionFilterer filter) {
 		viewModel.addFilter(filter);
 		FilterEvent.log("Collection", String.valueOf(filter.getType()));
 	}
 
-	@DebugLog
 	private void setEmptyText() {
 		if (emptyButton == null) return;
 		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
@@ -638,7 +596,6 @@ public class CollectionFragment extends Fragment implements
 		return filters.size() > 0;
 	}
 
-	@DebugLog
 	private CollectionFilterer findFilter(int type) {
 		for (CollectionFilterer filter : filters) {
 			if (filter != null && filter.getType() == type) {
@@ -648,12 +605,12 @@ public class CollectionFragment extends Fragment implements
 		return null;
 	}
 
-	@DebugLog
+	@SuppressWarnings("SameReturnValue")
 	private void bindFilterButtons() {
 		chipGroup.removeAllViews();
 		for (final CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.toShortDescription())) {
-				Chip chip = new Chip(getContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
+				Chip chip = new Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
 				chip.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 				chip.setText(filter.toShortDescription());
 				chip.setOnClickListener(v -> launchFilterDialog(filter.getType()));
@@ -679,12 +636,11 @@ public class CollectionFragment extends Fragment implements
 			show ? getResources().getDimensionPixelSize(R.dimen.chip_group_height) : 0);
 	}
 
-	@DebugLog
 	public boolean launchFilterDialog(int filterType) {
 		CollectionFilterDialogFactory factory = new CollectionFilterDialogFactory();
-		CollectionFilterDialog dialog = factory.create(getActivity(), filterType);
+		CollectionFilterDialog dialog = factory.create(requireContext(), filterType);
 		if (dialog != null) {
-			dialog.createDialog(getActivity(), this, findFilter(filterType));
+			dialog.createDialog(requireContext(), this, findFilter(filterType));
 			return true;
 		} else {
 			Timber.w("Couldn't find a filter dialog of type %s", filterType);
@@ -692,30 +648,8 @@ public class CollectionFragment extends Fragment implements
 		}
 	}
 
-	@DebugLog
-	public long getViewId() {
-		return viewId;
-	}
-
-	@DebugLog
-	public void setView(long viewId) {
-		if (this.viewId != viewId) {
-			this.viewId = viewId;
-			if (viewId > 0) {
-				progressBar.show();
-				viewModel.selectView(viewId);
-			}
-		}
-	}
-
-	@DebugLog
-	public void clearView() {
-		viewModel.clearView();
-	}
-
 	public class CollectionItem {
 		public final long internalId;
-		public final int collectionId;
 		public final String collectionName;
 		public final int gameId;
 		public final String gameName;
@@ -734,7 +668,6 @@ public class CollectionFragment extends Fragment implements
 
 		public CollectionItem(Cursor cursor, CollectionSorter sorter) {
 			internalId = cursor.getLong(Query._ID);
-			collectionId = cursor.getInt(Query.COLLECTION_ID);
 			collectionName = cursor.getString(Query.COLLECTION_NAME);
 			gameId = cursor.getInt(Query.GAME_ID);
 			gameName = cursor.getString(Query.GAME_NAME);
@@ -752,8 +685,8 @@ public class CollectionFragment extends Fragment implements
 			timestamp = sorter.getTimestamp(cursor);
 			rating = sorter.getRating(cursor);
 			ratingText = sorter.getRatingText(cursor);
-			displayInfo = sorter == null ? "" : sorter.getDisplayInfo(cursor);
-			headerText = sorter == null ? "" : sorter.getHeaderText(cursor, cursor.getPosition());
+			displayInfo = sorter.getDisplayInfo(cursor);
+			headerText = sorter.getHeaderText(cursor, cursor.getPosition());
 			customPlayerSort = cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1;
 		}
 	}
@@ -763,7 +696,6 @@ public class CollectionFragment extends Fragment implements
 		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 		private final Random random = new Random();
 
-		@DebugLog
 		public CollectionAdapter() {
 			setHasStableIds(true);
 		}
@@ -882,7 +814,7 @@ public class CollectionFragment extends Fragment implements
 						EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
 					} else if (changingGamePlayId != BggContract.INVALID_ID) {
 						LogPlayActivity.changeGame(getContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl);
-						getActivity().finish(); // don't want to come back to collection activity in "pick a new game" mode
+						requireActivity().finish(); // don't want to come back to collection activity in "pick a new game" mode
 					} else if (actionMode == null) {
 						GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
 					} else {
@@ -893,7 +825,7 @@ public class CollectionFragment extends Fragment implements
 					if (isCreatingShortcut) return false;
 					if (changingGamePlayId != BggContract.INVALID_ID) return false;
 					if (actionMode != null) return false;
-					actionMode = getActivity().startActionMode(CollectionFragment.this);
+					actionMode = requireActivity().startActionMode(CollectionFragment.this);
 					if (actionMode == null) return false;
 					toggleSelection(position);
 					return true;
@@ -945,7 +877,7 @@ public class CollectionFragment extends Fragment implements
 		};
 
 		int _ID = 0;
-		int COLLECTION_ID = 1;
+		// int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
 		int GAME_NAME = 4;
@@ -960,7 +892,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public boolean onCreateActionMode(@NonNull ActionMode mode, @NonNull android.view.Menu menu) {
 		mode.getMenuInflater().inflate(R.menu.game_context, menu);
 		adapter.clearSelection();
@@ -968,7 +899,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
 		int count = adapter.getSelectedItemCount();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
@@ -979,14 +909,12 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onDestroyActionMode(ActionMode mode) {
 		actionMode = null;
 		adapter.clearSelection();
 	}
 
 	@Override
-	@DebugLog
 	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull android.view.MenuItem item) {
 		if (!adapter.getSelectedItemPositions().iterator().hasNext()) {
 			return false;
@@ -1009,14 +937,14 @@ public class CollectionFragment extends Fragment implements
 			case R.id.menu_share:
 				final String shareMethod = "Collection";
 				if (adapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), ci.gameId, ci.gameName, shareMethod);
+					ActivityUtils.shareGame(requireActivity(), ci.gameId, ci.gameName, shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
 					for (int position : adapter.getSelectedItemPositions()) {
 						CollectionItem collectionItem = adapter.getItem(position);
 						games.add(new Pair<>(collectionItem.gameId, collectionItem.gameName));
 					}
-					ActivityUtils.shareGames(getActivity(), games, shareMethod);
+					ActivityUtils.shareGames(requireActivity(), games, shareMethod);
 				}
 				mode.finish();
 				return true;
@@ -1040,10 +968,11 @@ public class CollectionFragment extends Fragment implements
 					text.append(filter.toLongDescription());
 				}
 			}
-			if (sortType != CollectionSorterFactory.TYPE_DEFAULT && text.length() > 0) text.append("\n\n");
+			if (sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT && text.length() > 0)
+				text.append("\n\n");
 		}
 
-		if (sortType != CollectionSorterFactory.TYPE_DEFAULT)
+		if (sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT)
 			text.append(getString(R.string.sort_description, sort.getDescription()));
 		return text.toString();
 	}

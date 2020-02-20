@@ -46,7 +46,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import hugo.weaving.DebugLog;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	SaveViewDialogFragment.OnViewSavedListener,
@@ -59,6 +58,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	private boolean isCreatingShortcut;
 	private long changingGamePlayId;
 	private CollectionViewViewModel viewModel;
+	private long viewId;
 
 	public static Intent createIntentAsShortcut(Context context, long viewId) {
 		return new Intent(context, CollectionActivity.class)
@@ -74,7 +74,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	}
 
 	@Override
-	@DebugLog
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -96,9 +95,14 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 			Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Collection"));
 		}
 
-		long viewId = getIntent().getLongExtra(KEY_VIEW_ID, savedInstanceState != null ? -1 : PreferencesUtils.getViewDefaultId(this));
 		viewModel = ViewModelProviders.of(this).get(CollectionViewViewModel.class);
-		viewModel.selectView(viewId);
+		viewModel.getSelectedViewId().observe(this, id -> {
+			this.viewId = id;
+		});
+		if (savedInstanceState == null) {
+			long viewId = getIntent().getLongExtra(KEY_VIEW_ID, PreferencesUtils.getViewDefaultId(this));
+			viewModel.selectView(viewId);
+		}
 	}
 
 	@Override
@@ -169,7 +173,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 
 	@NonNull
 	@Override
-	@DebugLog
 	protected Fragment onCreatePane() {
 		if (changingGamePlayId != BggContract.INVALID_ID) {
 			return CollectionFragment.newInstanceForPlayGameChange(changingGamePlayId);
@@ -201,7 +204,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	public void onViewDeleted(long viewId) {
 		CollectionViewManipulationEvent.log("Delete");
 		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (viewId == viewModel.getSelectedViewId().getValue()) {
+		if (viewId == this.viewId) {
 			// TODO: create selectDefaultView method
 			viewModel.selectView(PreferencesUtils.getViewDefaultId(this));
 		}
@@ -224,7 +227,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe
 	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
 		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName(), event.getThumbnailUrl());
