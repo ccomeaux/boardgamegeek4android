@@ -352,7 +352,8 @@ public class CollectionFragment extends Fragment implements
 					}
 					break;
 				case R.id.menu_collection_view_save:
-					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(viewName, createViewDescription(sorter, filters));
+					String name = viewId <= 0 ? "" : viewName;
+					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(name, createViewDescription(sorter, filters));
 					DialogUtils.showAndSurvive(CollectionFragment.this, dialog);
 					return true;
 				case R.id.menu_collection_view_delete:
