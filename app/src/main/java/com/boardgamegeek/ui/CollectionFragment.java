@@ -1,7 +1,13 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -25,7 +31,6 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
-import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.extensions.PreferenceUtils;
@@ -79,6 +84,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -88,6 +94,7 @@ import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
@@ -105,6 +112,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import timber.log.Timber;
+
+import static android.app.Activity.RESULT_OK;
 
 public class CollectionFragment extends Fragment implements
 	LoaderCallbacks<Cursor>,
@@ -812,7 +821,7 @@ public class CollectionFragment extends Fragment implements
 
 				itemView.setOnClickListener(v -> {
 					if (isCreatingShortcut) {
-						EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
+						createShortcut(item.gameId, item.gameName, item.thumbnailUrl);
 					} else if (changingGamePlayId != BggContract.INVALID_ID) {
 						LogPlayActivity.changeGame(getContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl);
 						requireActivity().finish(); // don't want to come back to collection activity in "pick a new game" mode
@@ -833,6 +842,42 @@ public class CollectionFragment extends Fragment implements
 				});
 			}
 		}
+	}
+
+	public void createShortcut(int id, String name, String thumbnailUrl) {
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(requireContext(), id, name, thumbnailUrl);
+		if (shortcutIntent != null) {
+			Intent intent;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				intent = createShortcutForOreo(id, name, thumbnailUrl, shortcutIntent);
+			} else {
+				intent = ShortcutUtils.createShortcutIntent(getContext(), name, shortcutIntent);
+				File file = ShortcutUtils.getThumbnailFile(getContext(), thumbnailUrl);
+				if (file != null && file.exists()) {
+					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
+				}
+			}
+			if (intent != null) requireActivity().setResult(RESULT_OK, intent);
+		}
+		requireActivity().finish();
+	}
+
+	@RequiresApi(api = VERSION_CODES.O)
+	@Nullable
+	private Intent createShortcutForOreo(int id, String name, String thumbnailUrl, @NonNull Intent shortcutIntent) {
+		ShortcutManager shortcutManager = requireContext().getSystemService(ShortcutManager.class);
+		if (shortcutManager == null) return null;
+		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(getContext(), ShortcutUtils.createGameShortcutId(id))
+			.setShortLabel(StringUtils.limitText(name, ShortcutUtils.SHORT_LABEL_LENGTH))
+			.setLongLabel(StringUtils.limitText(name, ShortcutUtils.LONG_LABEL_LENGTH))
+			.setIntent(shortcutIntent);
+		File file = ShortcutUtils.getThumbnailFile(getContext(), thumbnailUrl);
+		if (file != null && file.exists()) {
+			builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
+		} else {
+			builder.setIcon(Icon.createWithResource(getContext(), R.drawable.ic_adaptive_game));
+		}
+		return shortcutManager.createShortcutResultIntent(builder.build());
 	}
 
 	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<CollectionItem> items) {

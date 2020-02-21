@@ -2,12 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
-import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +12,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
@@ -27,22 +20,16 @@ import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
-import com.boardgamegeek.util.ShortcutUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
 import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
 
-import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -209,45 +196,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		CollectionViewManipulationEvent.log("Create", name);
 		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
 	}
-
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEvent(@NonNull GameShortcutRequestedEvent event) {
-		Intent shortcutIntent = GameActivity.createIntentAsShortcut(this, event.getId(), event.getName(), event.getThumbnailUrl());
-		if (shortcutIntent != null) {
-			Intent intent;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-				intent = createShortcutForOreo(event, shortcutIntent);
-			} else {
-				intent = ShortcutUtils.createShortcutIntent(this, event.getName(), shortcutIntent);
-				File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
-				if (file != null && file.exists()) {
-					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
-				}
-			}
-			if (intent != null) setResult(RESULT_OK, intent);
-		}
-		finish();
-	}
-
-	@RequiresApi(api = VERSION_CODES.O)
-	@Nullable
-	private Intent createShortcutForOreo(@NonNull GameShortcutRequestedEvent event, @NonNull Intent shortcutIntent) {
-		ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-		if (shortcutManager == null) return null;
-		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, ShortcutUtils.createGameShortcutId(event.getId()))
-			.setShortLabel(StringUtils.limitText(event.getName(), ShortcutUtils.SHORT_LABEL_LENGTH))
-			.setLongLabel(StringUtils.limitText(event.getName(), ShortcutUtils.LONG_LABEL_LENGTH))
-			.setIntent(shortcutIntent);
-		File file = ShortcutUtils.getThumbnailFile(this, event.getThumbnailUrl());
-		if (file != null && file.exists()) {
-			builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
-		} else {
-			builder.setIcon(Icon.createWithResource(this, R.drawable.ic_adaptive_game));
-		}
-		return shortcutManager.createShortcutResultIntent(builder.build());
-	}
-
 
 	@Override
 	public void onSortSelected(int sortType) {
