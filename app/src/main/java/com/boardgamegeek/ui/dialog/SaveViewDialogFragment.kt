@@ -13,6 +13,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.getViewDefaultId
 import com.boardgamegeek.extensions.queryLong
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
@@ -81,7 +82,7 @@ class SaveViewDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         nameView.setAndSelectExistingText(name)
-        val viewDefaultId = PreferencesUtils.getViewDefaultId(context)
+        val viewDefaultId = requireContext().getViewDefaultId()
         defaultViewCheckBox.isChecked = viewDefaultId != PreferencesUtils.VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
         descriptionView.text = description
     }

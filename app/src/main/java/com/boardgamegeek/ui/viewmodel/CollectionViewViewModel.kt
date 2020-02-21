@@ -2,16 +2,19 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
+import com.boardgamegeek.extensions.getViewDefaultId
+import com.boardgamegeek.extensions.putViewDefaultId
+import com.boardgamegeek.extensions.removeViewDefaultId
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.tasks.SelectCollectionViewTask
-import com.boardgamegeek.util.PreferencesUtils
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CollectionViewRepository(getApplication())
@@ -57,7 +60,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                     it
             )
         }
-        _selectedViewId.value = PreferencesUtils.getViewDefaultId(application)
+        _selectedViewId.value = application.getViewDefaultId()
     }
 
     private fun createEffectiveFilters(loadedView: CollectionViewEntity?, addedFilters: List<CollectionFilterer>, removedFilters: List<Int>) {
@@ -142,7 +145,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
 
-    fun insert(name: String): Long {
+    fun insert(name: String, isDefault: Boolean): Long {
         val filterEntities = mutableListOf<CollectionViewFilterEntity>()
         effectiveFilters.value?.forEach { f ->
             filterEntities.add(CollectionViewFilterEntity(f.type, f.deflate()))
@@ -154,11 +157,12 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                 filterEntities
         )
         val viewId = repository.insertView(view)
+        setOrRemoveDefault(viewId, isDefault)
         selectView(viewId)
         return viewId
     }
 
-    fun update() {
+    fun update(isDefault: Boolean) {
         val filterEntities = mutableListOf<CollectionViewFilterEntity>()
         effectiveFilters.value?.forEach { f ->
             filterEntities.add(CollectionViewFilterEntity(f.type, f.deflate()))
@@ -170,5 +174,16 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                 filterEntities
         )
         repository.updateView(view)
+        setOrRemoveDefault(view.id, isDefault)
+    }
+
+    private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {
+        if (isDefault) {
+            getApplication<BggApplication>().putViewDefaultId(viewId)
+        } else {
+            if (viewId == getApplication<BggApplication>().getViewDefaultId()) {
+                getApplication<BggApplication>().removeViewDefaultId()
+            }
+        }
     }
 }

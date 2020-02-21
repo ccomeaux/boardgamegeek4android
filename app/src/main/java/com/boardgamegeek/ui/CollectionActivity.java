@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.GameShortcutRequestedEvent;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
@@ -26,7 +27,6 @@ import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
@@ -96,11 +96,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		}
 
 		viewModel = ViewModelProviders.of(this).get(CollectionViewViewModel.class);
-		viewModel.getSelectedViewId().observe(this, id -> {
-			this.viewId = id;
-		});
+		viewModel.getSelectedViewId().observe(this, id -> this.viewId = id);
 		if (savedInstanceState == null) {
-			long viewId = getIntent().getLongExtra(KEY_VIEW_ID, PreferencesUtils.getViewDefaultId(this));
+			long viewId = getIntent().getLongExtra(KEY_VIEW_ID, PreferenceUtils.getViewDefaultId(this));
 			viewModel.selectView(viewId);
 		}
 	}
@@ -142,7 +140,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 					adapter.clear();
 					adapter.addAll(collectionViews);
 				}
-				Long viewId = viewModel.getSelectedViewId().getValue();
 				int index = adapter.findIndexOf(viewId);
 				spinner.setSelection(index);
 			});
@@ -188,15 +185,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 
 	@Override
 	public void onInsertRequested(@NotNull String name, boolean isDefault) {
-		long viewId = viewModel.insert(name);
-		setOrRemoveDefault(viewId, isDefault);
+		viewModel.insert(name, isDefault);
 		notifyViewCreated(name);
 	}
 
 	@Override
 	public void onUpdateRequested(@NotNull String name, boolean isDefault, long viewId) {
-		viewModel.update();
-		setOrRemoveDefault(viewId, isDefault);
+		viewModel.update(isDefault);
 		notifyViewCreated(name);
 	}
 
@@ -206,18 +201,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (viewId == this.viewId) {
 			// TODO: create selectDefaultView method
-			viewModel.selectView(PreferencesUtils.getViewDefaultId(this));
-		}
-	}
-
-	private void setOrRemoveDefault(long viewId, boolean isDefault) {
-		if (isDefault) {
-			// TODO: prompt the user if replacing a default
-			PreferencesUtils.putViewDefaultId(this, viewId);
-		} else {
-			if (viewId == PreferencesUtils.getViewDefaultId(this)) {
-				PreferencesUtils.removeViewDefaultId(this);
-			}
+			viewModel.selectView(PreferenceUtils.getViewDefaultId(this));
 		}
 	}
 

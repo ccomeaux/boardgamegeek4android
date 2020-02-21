@@ -3,10 +3,24 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
+
+fun Context.getViewDefaultId(): Long {
+    return getLong(VIEW_DEFAULT_ID, PreferencesUtils.VIEW_ID_COLLECTION)
+}
+
+fun Context.putViewDefaultId(id: Long): Boolean {
+    return putLong(VIEW_DEFAULT_ID, id)
+}
+
+fun Context.removeViewDefaultId(): Boolean {
+    return remove(VIEW_DEFAULT_ID)
+}
 
 fun Context?.addSyncStatus(status: String): Boolean {
     if (this == null) return false
@@ -142,6 +156,15 @@ private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
     editor.putStringSet(key, value)
     return editor.commit()
 }
+
+private fun Context.remove(key: String): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val editor = sharedPreferences.edit()
+    editor.remove(key)
+    return editor.commit()
+}
+
+private const val VIEW_DEFAULT_ID = "viewDefaultId"
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
