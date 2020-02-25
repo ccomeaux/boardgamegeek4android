@@ -19,6 +19,7 @@ class DeleteViewDialogFragment : DialogFragment() {
         val cursor = contentResolver.load(CollectionViews.CONTENT_URI, arrayOf(CollectionViews._ID, CollectionViews.NAME))
         val viewModel = ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT) // TODO improve message
+        val msg = requireContext().getString(R.string.msg_collection_view_deleted_named)
 
         return Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_delete_view)
@@ -29,10 +30,13 @@ class DeleteViewDialogFragment : DialogFragment() {
                             .setCancelable(true)
                             .setPositiveButton(R.string.yes) { _, _ ->
                                 if (cursor?.moveToPosition(which) == true) {
-                                    toast.show()
-                                    CollectionViewManipulationEvent.log("Delete")
                                     val viewId = cursor.getLong(0)
                                     viewModel.deleteView(viewId)
+
+                                    val viewName = cursor.getString(1)
+                                    if (viewName.isNotBlank()) toast.setText(String.format(msg, viewName))
+                                    toast.show()
+                                    CollectionViewManipulationEvent.log("Delete", viewName)
                                 }
                             }
                             .setNegativeButton(R.string.no, null)
