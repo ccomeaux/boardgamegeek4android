@@ -48,4 +48,10 @@ class CollectionViewRepository(val context: BggApplication) {
             dao.update(view)
         }
     }
+
+    fun deleteView(viewId: Long) {
+        context.appExecutors.diskIO.execute {
+            dao.delete(viewId)
+        }
+    }
 }

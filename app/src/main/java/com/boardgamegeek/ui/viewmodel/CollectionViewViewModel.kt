@@ -139,11 +139,9 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         _removedFilters.value = removedFilters
     }
 
-
     val selectedViewName: LiveData<String> = Transformations.map(selectedView) {
         it?.name ?: application.getString(R.string.title_collection)
     }
-
 
     fun insert(name: String, isDefault: Boolean): Long {
         val filterEntities = mutableListOf<CollectionViewFilterEntity>()
@@ -175,6 +173,13 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         )
         repository.updateView(view)
         setOrRemoveDefault(view.id, isDefault)
+    }
+
+    fun deleteView(viewId: Long) {
+        repository.deleteView(viewId)
+        if (viewId == _selectedViewId.value) {
+            selectView(getApplication<BggApplication>().getViewDefaultId())
+        }
     }
 
     private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {

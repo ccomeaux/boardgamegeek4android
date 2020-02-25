@@ -9,24 +9,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter;
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
-import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
-import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
-import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent;
-import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
-
-import org.jetbrains.annotations.NotNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,9 +27,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements
-	SaveViewDialogFragment.OnViewSavedListener,
-	DeleteViewDialogFragment.OnViewDeletedListener,
-	CollectionSortDialogFragment.Listener,
 	CollectionFilterDialogFragment.Listener {
 	private static final String KEY_VIEW_ID = "VIEW_ID";
 	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
@@ -168,39 +157,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements
 	@Override
 	protected int getNavigationItemId() {
 		return R.id.collection;
-	}
-
-	@Override
-	public void onInsertRequested(@NotNull String name, boolean isDefault) {
-		viewModel.insert(name, isDefault);
-		notifyViewCreated(name);
-	}
-
-	@Override
-	public void onUpdateRequested(@NotNull String name, boolean isDefault, long viewId) {
-		viewModel.update(isDefault);
-		notifyViewCreated(name);
-	}
-
-	@Override
-	public void onViewDeleted(long viewId) {
-		CollectionViewManipulationEvent.log("Delete");
-		Toast.makeText(this, R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
-		if (viewId == this.viewId) {
-			// TODO: create selectDefaultView method
-			viewModel.selectView(PreferenceUtils.getViewDefaultId(this));
-		}
-	}
-
-	public void notifyViewCreated(String name) {
-		CollectionViewManipulationEvent.log("Create", name);
-		Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
-	}
-
-	@Override
-	public void onSortSelected(int sortType) {
-		viewModel.setSort(sortType);
-		SortEvent.log("Collection", String.valueOf(sortType));
 	}
 
 	@Override

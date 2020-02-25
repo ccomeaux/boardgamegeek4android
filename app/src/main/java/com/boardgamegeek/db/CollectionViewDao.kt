@@ -119,6 +119,10 @@ class CollectionViewDao(private val context: BggApplication) {
         insertDetails(viewFiltersUri, view.filters)
     }
 
+    fun delete(viewId: Long): Boolean {
+        return resolver.delete(CollectionViews.buildViewUri(viewId), null, null) > 0
+    }
+
     private fun insertDetails(viewFiltersUri: Uri, filters: List<CollectionViewFilterEntity>?) {
         if (filters == null) return
         val values = ArrayList<ContentValues>(filters.size)
