@@ -292,7 +292,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_change_game:
 				PlayManipulationEvent.log("Change game", play.gameName);
-				startActivity(CollectionActivity.createIntentForGameChange(getContext(), internalId));
+				startActivity(CollectionActivity.createIntentForGameChange(requireContext(), internalId));
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:

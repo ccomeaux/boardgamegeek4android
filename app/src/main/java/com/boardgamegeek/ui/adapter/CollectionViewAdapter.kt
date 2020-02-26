@@ -6,8 +6,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.util.PreferencesUtils.VIEW_ID_COLLECTION
 
-class CollectionViewAdapter(context: Context, views: List<CollectionViewEntity>) :
-        ArrayAdapter<CollectionViewEntity>(context, R.layout.actionbar_spinner_item, views) {
+class CollectionViewAdapter(context: Context) :
+        ArrayAdapter<CollectionViewEntity>(context,
+                R.layout.actionbar_spinner_item,
+                mutableListOf<CollectionViewEntity>()) {
 
     init {
         setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)

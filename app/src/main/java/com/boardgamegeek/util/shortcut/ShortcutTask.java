@@ -11,8 +11,6 @@ import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -27,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import timber.log.Timber;
 
 public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
@@ -44,7 +44,7 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 
 	protected abstract String getShortcutName();
 
-	protected abstract Intent createIntent();
+	protected abstract @Nullable Intent createIntent();
 
 	protected int getShortcutIconResId() {
 		return R.mipmap.ic_launcher_foreground;
@@ -76,21 +76,24 @@ public abstract class ShortcutTask extends AsyncTask<Void, Void, Void> {
 		if (context == null) return;
 		ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 		if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
-			ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
-				.setShortLabel(StringUtils.limitText(getShortcutName(), ShortcutUtils.SHORT_LABEL_LENGTH))
-				.setLongLabel(StringUtils.limitText(getShortcutName(), ShortcutUtils.LONG_LABEL_LENGTH))
-				.setIntent(createIntent());
-			if (!TextUtils.isEmpty(thumbnailUrl)) {
-				Bitmap bitmap = fetchThumbnail();
-				if (bitmap != null) {
-					builder.setIcon(Icon.createWithAdaptiveBitmap(bitmap));
+			Intent intent = createIntent();
+			if (intent != null) {
+				ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, getId())
+					.setShortLabel(StringUtils.limitText(getShortcutName(), ShortcutUtils.SHORT_LABEL_LENGTH))
+					.setLongLabel(StringUtils.limitText(getShortcutName(), ShortcutUtils.LONG_LABEL_LENGTH))
+					.setIntent(intent);
+				if (!TextUtils.isEmpty(thumbnailUrl)) {
+					Bitmap bitmap = fetchThumbnail();
+					if (bitmap != null) {
+						builder.setIcon(Icon.createWithAdaptiveBitmap(bitmap));
+					} else {
+						builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
+					}
 				} else {
 					builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
 				}
-			} else {
-				builder.setIcon(Icon.createWithResource(context, getShortcutIconResId()));
+				shortcutManager.requestPinShortcut(builder.build(), null);
 			}
-			shortcutManager.requestPinShortcut(builder.build(), null);
 		}
 	}
 

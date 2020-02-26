@@ -68,7 +68,7 @@ class SelectCollectionViewTask(context: Context?, private val viewId: Long) : As
             while (it.moveToNext()) {
                 val name = it.getString(1)
                 if (name.isNotBlank()) {
-                    shortcuts.add(createShortcutInfo(it.getLong(0), name))
+                    shortcuts.add(createShortcutInfo(context, it.getLong(0), name))
                     if (shortcuts.size >= SHORTCUT_COUNT) break
                 }
             }
@@ -77,7 +77,7 @@ class SelectCollectionViewTask(context: Context?, private val viewId: Long) : As
     }
 
     @RequiresApi(VERSION_CODES.N_MR1)
-    private fun createShortcutInfo(viewId: Long, viewName: String): ShortcutInfo {
+    private fun createShortcutInfo(context: Context, viewId: Long, viewName: String): ShortcutInfo {
         return ShortcutInfo.Builder(context, createShortcutName(viewId))
                 .setShortLabel(viewName.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
                 .setLongLabel(viewName.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
