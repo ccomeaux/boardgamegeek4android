@@ -22,27 +22,29 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val views: LiveData<List<CollectionViewEntity>> = repository.load()
 
     private val _selectedViewId = MutableLiveData<Long>()
-    val selectedViewId: LiveData<Long>
-        get() = _selectedViewId
-
     private val _sortType = MutableLiveData<Int>()
-    val sortType: LiveData<Int>
-        get() = _sortType
-
     private val _addedFilters = MutableLiveData<MutableList<CollectionFilterer>>()
     private val _removedFilters = MutableLiveData<MutableList<Int>>()
 
+    val effectiveSortType = MediatorLiveData<Int>()
     val effectiveFilters = MediatorLiveData<MutableList<CollectionFilterer>>()
 
     private val selectedView: LiveData<CollectionViewEntity> = Transformations.switchMap(_selectedViewId) {
+        _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
         _addedFilters.value?.clear()
         _removedFilters.value?.clear()
         repository.load(it)
     }
 
     init {
+        effectiveSortType.addSource(selectedView) {
+            createEffectiveSort(it, _sortType.value)
+        }
+        effectiveSortType.addSource(_sortType) {
+            createEffectiveSort(selectedView.value, it)
+        }
+
         effectiveFilters.addSource(selectedView) {
-            setSort(it.sortType)
             createEffectiveFilters(it,
                     _addedFilters.value ?: emptyList(),
                     _removedFilters.value ?: emptyList()
@@ -62,6 +64,9 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         }
         _selectedViewId.value = application.getViewDefaultId()
     }
+
+    val selectedViewId: LiveData<Long>
+        get() = _selectedViewId
 
     private fun createEffectiveFilters(loadedView: CollectionViewEntity?, addedFilters: List<CollectionFilterer>, removedFilters: List<Int>) {
         // inflate filters
@@ -88,6 +93,14 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         effectiveFilters.value = filters
     }
 
+    private fun createEffectiveSort(loadedView: CollectionViewEntity?, sortType: Int?) {
+        effectiveSortType.value = if (sortType == null || sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
+            loadedView?.sortType ?: CollectionSorterFactory.TYPE_DEFAULT
+        } else {
+            sortType
+        }
+    }
+
     fun selectView(viewId: Long) {
         if (_selectedViewId.value != viewId) {
             SelectCollectionViewTask(getApplication(), viewId).execute()
@@ -96,10 +109,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun clearView() {
-        if (_selectedViewId.value != 0L) {
-            _selectedViewId.value = 0L
-        }
-        setSort(CollectionSorterFactory.TYPE_DEFAULT)
+        selectView(getApplication<BggApplication>().getViewDefaultId())
     }
 
     fun setSort(sortType: Int) {

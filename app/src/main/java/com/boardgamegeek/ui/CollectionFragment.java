@@ -241,7 +241,7 @@ public class CollectionFragment extends Fragment implements
 
 		viewModel.getSelectedViewName().observe(this, name -> viewName = name);
 
-		viewModel.getSortType().observe(this, sortType -> {
+		viewModel.getEffectiveSortType().observe(this, sortType -> {
 			progressBar.show();
 			sorter = getCollectionSorter(sortType);
 			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
