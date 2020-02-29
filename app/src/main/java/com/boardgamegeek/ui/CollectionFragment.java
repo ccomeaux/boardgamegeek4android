@@ -15,7 +15,6 @@ import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,24 +58,20 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
-import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
-import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
@@ -124,7 +119,6 @@ public class CollectionFragment extends Fragment implements
 	CollectionFilterDialog.OnFilterChangedListener {
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
-	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
@@ -151,7 +145,6 @@ public class CollectionFragment extends Fragment implements
 	private boolean isSyncing;
 	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
-	private ShowcaseViewWizard showcaseViewWizard;
 
 	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
 		Bundle args = new Bundle();
@@ -218,19 +211,6 @@ public class CollectionFragment extends Fragment implements
 
 		SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
-
-		createShowcaseViewWizard();
-		showcaseViewWizard.maybeShowHelp();
-	}
-
-	private void createShowcaseViewWizard() {
-		showcaseViewWizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION);
-		showcaseViewWizard.addTarget(R.string.help_collection, Target.NONE);
-		showcaseViewWizard.addTarget(R.string.help_collection_sort, new ToolbarActionItemTarget(R.id.menu_collection_sort, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_filter, new ToolbarActionItemTarget(R.id.menu_collection_filter, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_save, new ToolbarActionItemTarget(R.id.menu_collection_view_save, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_random, new ToolbarActionItemTarget(R.id.menu_collection_random_game, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_long_click, Target.NONE);
 	}
 
 	@Override
@@ -269,21 +249,6 @@ public class CollectionFragment extends Fragment implements
 			collectionSorterFactory = new CollectionSorterFactory(requireContext());
 		}
 		return collectionSorterFactory.create(sortType);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.help, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.menu_help) {
-			showcaseViewWizard.showHelp();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@SuppressWarnings("unused")
