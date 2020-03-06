@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,24 +10,21 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.sorter.CollectionSorterFactory
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
+import com.boardgamegeek.util.fabric.SortEvent
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
+import org.jetbrains.anko.support.v4.act
 import timber.log.Timber
 
 class CollectionSortDialogFragment : DialogFragment() {
     private lateinit var layout: View
-    private var listener: Listener? = null
 
-    interface Listener {
-        fun onSortSelected(sortType: Int)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        listener = context as Listener?
-        if (listener == null) throw ClassCastException("$context must implement Listener")
+    private val viewModel: CollectionViewViewModel by lazy {
+        ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -56,7 +52,8 @@ class CollectionSortDialogFragment : DialogFragment() {
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val sortType = getTypeFromView(group.findViewById(checkedId))
             Timber.d("Sort by $sortType")
-            listener?.onSortSelected(sortType)
+            viewModel.setSort(sortType)
+            SortEvent.log("Collection", sortType.toString())
             dismiss()
         }
     }

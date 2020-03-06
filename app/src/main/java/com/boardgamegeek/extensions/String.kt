@@ -115,6 +115,17 @@ fun String?.ensureHttpsScheme(): String? {
     }
 }
 
+private const val TRUNCATED_TEXT_SUFFIX = ".."
+
+fun String.truncate(length: Int): String {
+    require(length > 0)
+    return when {
+        this.length <= length -> this
+        length > TRUNCATED_TEXT_SUFFIX.length -> this.take(length - TRUNCATED_TEXT_SUFFIX.length) + TRUNCATED_TEXT_SUFFIX
+        else -> this.take(length)
+    }
+}
+
 fun String.ascending(): String {
     return this.plus(" ASC")
 }
