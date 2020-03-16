@@ -68,6 +68,16 @@ fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.
     })
 }
 
+fun ImageView.loadThumbnailInList(imageUrl: String?, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
+    Picasso.with(context)
+            .load(imageUrl.ensureHttpsScheme())
+            .placeholder(errorResId)
+            .error(errorResId)
+            .fit()
+            .centerCrop()
+            .into(this)
+}
+
 fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {
     val colorChoiceDrawable = drawable as? GradientDrawable ?: GradientDrawable().apply {
         shape = GradientDrawable.OVAL

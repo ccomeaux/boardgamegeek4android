@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
-import com.boardgamegeek.extensions.isStatusSetToSync
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 
@@ -47,9 +45,6 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
             isChecked = true
             menu.setActionBarCount(R.id.menu_list_count, numberOfArtists, getString(R.string.by_prefix, title))
         }
-        val showWhitmoreScore = isStatusSetToSync(COLLECTION_STATUS_RATED)
-        val whitmoreScoreItem = menu.findItem(R.id.menu_sort_whitmore_score)
-        whitmoreScoreItem.isVisible = showWhitmoreScore || whitmoreScoreItem.isChecked
         return true
     }
 

@@ -28,7 +28,7 @@ class ArtistsViewModel(application: Application) : AndroidViewModel(application)
         val initialSort = if (application.isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
-            SortType.NAME
+            SortType.ITEM_COUNT
         sort(initialSort)
     }
 

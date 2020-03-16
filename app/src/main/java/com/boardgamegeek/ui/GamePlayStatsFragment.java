@@ -1095,7 +1095,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return S * S * Math.sqrt(intervalPlayCount) * calculateHhm();
 		}
 
-		public int calculateWhitemoreScore() {
+		public int calculatWhitemoreScore() {
 			// http://www.boardgamegeek.com/geeklist/37832/my-favorite-designers
 			int score = (int) (personalRating * 2 - 13);
 			if (score < 0) {

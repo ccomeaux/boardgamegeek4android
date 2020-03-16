@@ -31,7 +31,7 @@ import kotlinx.android.synthetic.main.include_game_ratings.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
 
-class GameFragment : Fragment() {
+class GameFragment : Fragment(R.layout.fragment_game) {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var showcaseViewWizard: ShowcaseViewWizard? = null
@@ -45,10 +45,6 @@ class GameFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,16 +78,6 @@ class GameFragment : Fragment() {
 
             viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
 
-            viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
-
-            viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
-
-            viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
-
-            viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
-
-            viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
-
             viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
 
             viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
@@ -101,13 +87,13 @@ class GameFragment : Fragment() {
         showcaseViewWizard?.maybeShowHelp()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.help, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.help, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.menu_help) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_help) {
             showcaseViewWizard?.showHelp()
             return true
         }
@@ -135,7 +121,8 @@ class GameFragment : Fragment() {
 
         listOf(ranksIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
                 .forEach { it?.setOrClearColorFilter(iconColor) }
-        listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics, game_info_expansions, game_info_base_games)
+
+        listOf(game_info_expansions, game_info_base_games)
                 .forEach { it?.colorize(iconColor) }
     }
 
@@ -180,10 +167,6 @@ class GameFragment : Fragment() {
 
         emptyMessage.fadeOut()
         dataContainer.fadeIn()
-    }
-
-    private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
-        view?.bindData(gameId, gameName, list)
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>?) {
@@ -234,6 +217,13 @@ class GameFragment : Fragment() {
         playerCountContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             SuggestedPlayerCountPollFragment.launch(this)
         }
+    }
+
+    private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
+        view?.bindData(
+                viewModel.gameId.value ?: BggContract.INVALID_ID,
+                viewModel.game.value?.data?.name ?: "",
+                list)
     }
 
     companion object {

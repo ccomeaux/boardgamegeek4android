@@ -7,7 +7,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.TopGameEntity
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnail
+import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
 import kotlinx.android.synthetic.main.row_top_game.view.*
@@ -42,7 +42,7 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
             itemView.nameView.text = game.name
             itemView.yearView.text = game.yearPublished.asYear(itemView.context)
             itemView.rankView.text = game.rank.toString()
-            itemView.thumbnailView.loadThumbnail(game.thumbnailUrl)
+            itemView.thumbnailView.loadThumbnailInList(game.thumbnailUrl)
 
             itemView.setOnClickListener {
                 GameActivity.start(itemView.context,

@@ -80,6 +80,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 	}
 
 	public class ArticleViewHolder extends RecyclerView.ViewHolder {
+		@BindView(R.id.row_header) View rowHeaderView;
 		@BindView(R.id.username) TextView usernameView;
 		@BindView(R.id.post_date) TimestampView postDateView;
 		@BindView(R.id.date_divider) View dateDivider;
@@ -96,15 +97,25 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 		public void bind(final Article article) {
 			if (article == null) return;
 
-			usernameView.setText(article.getUsername());
-			postDateView.setTimestamp(article.getPostTicks());
-			if (article.getEditTicks() != article.getPostTicks()) {
-				editDateView.setTimestamp(article.getEditTicks());
-				editDateView.setVisibility(View.VISIBLE);
-				dateDivider.setVisibility(View.VISIBLE);
+			if (article.getPostTicks() > 0L) {
+				rowHeaderView.setVisibility(View.VISIBLE);
+				if (TextUtils.isEmpty(article.getUsername())) {
+					usernameView.setVisibility(View.GONE);
+				} else {
+					usernameView.setText(article.getUsername());
+					usernameView.setVisibility(View.VISIBLE);
+				}
+				postDateView.setTimestamp(article.getPostTicks());
+				if (article.getEditTicks() != article.getPostTicks()) {
+					editDateView.setTimestamp(article.getEditTicks());
+					editDateView.setVisibility(View.VISIBLE);
+					dateDivider.setVisibility(View.VISIBLE);
+				} else {
+					editDateView.setVisibility(View.GONE);
+					dateDivider.setVisibility(View.GONE);
+				}
 			} else {
-				editDateView.setVisibility(View.GONE);
-				dateDivider.setVisibility(View.GONE);
+				rowHeaderView.setVisibility(View.GONE);
 			}
 			if (TextUtils.isEmpty(article.getBody())) {
 				bodyView.setText("");

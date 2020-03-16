@@ -141,7 +141,7 @@ class BuddiesFragment : Fragment() {
         inner class BuddyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(buddy: UserEntity?) {
                 buddy?.let { b ->
-                    itemView.avatarView.loadThumbnail(b.avatarUrl, R.drawable.person_image_empty)
+                    itemView.avatarView.loadThumbnailInList(b.avatarUrl, R.drawable.person_image_empty)
                     if (b.fullName.isBlank()) {
                         itemView.fullNameView.text = b.userName
                         itemView.usernameView.visibility = View.GONE

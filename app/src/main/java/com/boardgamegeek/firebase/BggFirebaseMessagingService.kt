@@ -12,15 +12,15 @@ import org.jetbrains.anko.intentFor
 import timber.log.Timber
 
 class BggFirebaseMessagingService : FirebaseMessagingService() {
-    override fun onNewToken(token: String?) {
+    override fun onNewToken(token: String) {
         super.onNewToken(token)
         Timber.i("Refreshed Firebase token to $token")
     }
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        remoteMessage?.notification?.let {
-            val urlString = remoteMessage.data?.get("URL")
+        remoteMessage.notification?.let {
+            val urlString = remoteMessage.data["URL"]
             val intent = if (urlString != null) {
                 Intent(Intent.ACTION_VIEW, Uri.parse(urlString))
             } else {

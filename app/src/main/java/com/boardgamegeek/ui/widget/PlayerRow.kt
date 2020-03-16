@@ -32,7 +32,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         isBaselineAligned = false
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = resources.getDimensionPixelSize(R.dimen.player_row_height)
-        orientation = LinearLayout.HORIZONTAL
+        orientation = HORIZONTAL
         val horizontalPadding = resources.getDimensionPixelSize(R.dimen.material_margin_horizontal)
         val verticalPadding = resources.getDimensionPixelSize(R.dimen.padding_standard)
         setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
@@ -57,27 +57,27 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         return dragHandle
     }
 
-    fun setOnScoreListener(l: View.OnClickListener) {
+    fun setOnScoreListener(l: OnClickListener) {
         scoreButton.setSelectableBackgroundBorderless()
         scoreButton.setOnClickListener(l)
     }
 
-    fun setOnRatingListener(l: View.OnClickListener) {
+    fun setOnRatingListener(l: OnClickListener) {
         ratingButton.setSelectableBackgroundBorderless()
         ratingButton.setOnClickListener(l)
     }
 
-    fun setOnColorListener(l: View.OnClickListener) {
+    fun setOnColorListener(l: OnClickListener) {
         colorView.setSelectableBackgroundBorderless()
         colorView.setOnClickListener(l)
     }
 
-    fun setNameListener(l: View.OnClickListener) {
+    fun setNameListener(l: OnClickListener) {
         nameContainer.setSelectableBackgroundBorderless()
         nameContainer.setOnClickListener(l)
     }
 
-    fun setOnMoreListener(l: View.OnClickListener) {
+    fun setOnMoreListener(l: OnClickListener) {
         moreButton.visibility = View.VISIBLE
         moreButton.setOnClickListener(l)
     }
@@ -114,7 +114,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 setText(usernameView, player.username, usernameTypeface, player.isNew, player.isWin)
             }
 
-            setText(scoreView, player.score, scoreTypeface, false, player.isWin)
+            setText(scoreView, player.scoreDescription, scoreTypeface, false, player.isWin)
             scoreButton.visibility = if (player.score.isNullOrEmpty()) View.GONE else View.VISIBLE
 
             ratingView.setTextOrHide(player.rating.asScore(context, format = ratingFormat))

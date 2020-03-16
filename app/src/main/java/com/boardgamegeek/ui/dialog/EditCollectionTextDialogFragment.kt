@@ -23,7 +23,7 @@ class EditCollectionTextDialogFragment : DialogFragment() {
         fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? EditCollectionTextDialogListener
         if (listener == null) throw ClassCastException("$context must implement EditTextDialogListener")

@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.dialog_game_users.*
 
 class GameUsersDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        dialog.setTitle(R.string.title_users)
+        dialog?.setTitle(R.string.title_users)
         return inflater.inflate(R.layout.dialog_game_users, container, false)
     }
 
@@ -46,7 +46,7 @@ class GameUsersDialogFragment : DialogFragment() {
     companion object {
         fun launch(host: FragmentActivity) {
             val dialog = GameUsersDialogFragment()
-            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             host.showAndSurvive(dialog)
         }
     }

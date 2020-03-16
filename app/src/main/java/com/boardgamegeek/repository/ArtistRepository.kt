@@ -11,7 +11,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.getStatsCalculatedTimestampArtists
 import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.setStatsCalculatedTimestampArtists
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Person
@@ -43,7 +45,9 @@ class ArtistRepository(val application: BggApplication) {
         return object : CalculatingListLoader<PersonEntity>(application) {
             override fun loadFromDatabase() = dao.loadArtistsAsLiveData(sortBy)
 
-            override fun shouldCalculate(data: List<PersonEntity>?) = data != null
+            override fun shouldCalculate(data: List<PersonEntity>?): Boolean {
+                return data != null && application.getStatsCalculatedTimestampArtists().isOlderThan(1, TimeUnit.HOURS)
+            }
 
             override fun sortList(data: List<PersonEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
 
@@ -52,6 +56,10 @@ class ArtistRepository(val application: BggApplication) {
                 val collection = dao.loadCollection(data.id)
                 val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
                 updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
+            }
+
+            override fun finishCalculating() {
+                application.setStatsCalculatedTimestampArtists()
             }
         }
     }

@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
@@ -15,10 +14,6 @@ import kotlinx.android.synthetic.main.widget_collection_row.view.*
 import kotlin.properties.Delegates
 
 class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
-    init {
-        setHasStableIds(true)
-    }
-
     var gameYearPublished: Int by Delegates.observable(YEAR_UNKNOWN) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             notifyDataSetChanged()
@@ -36,8 +31,6 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
         }
     }
 
-    override fun getItemId(position: Int) = items.getOrNull(position)?.collectionId?.toLong() ?: NO_ID
-
     override fun getItemCount() = items.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -51,7 +44,7 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: CollectionItemEntity?, gameYearPublished: Int) {
             if (item == null) return
-            itemView.thumbnail.loadThumbnail(item.thumbnailUrl)
+            itemView.thumbnail.loadThumbnailInList(item.thumbnailUrl)
             itemView.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
             itemView.comment.setTextOrHide(item.comment)
 

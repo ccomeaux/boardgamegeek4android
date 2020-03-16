@@ -12,6 +12,7 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_game_details.*
+import java.util.*
 
 class PersonCollectionFragment : Fragment() {
     private var sortType = PersonViewModel.CollectionSort.RATING
@@ -65,20 +66,20 @@ class PersonCollectionFragment : Fragment() {
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.linked_collection, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.linked_collection, menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?) {
-        menu?.findItem(when (sortType) {
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(when (sortType) {
             PersonViewModel.CollectionSort.NAME -> R.id.menu_sort_name
             PersonViewModel.CollectionSort.RATING -> R.id.menu_sort_rating
         })?.isChecked = true
         super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        viewModel.sort(when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.sort(when (item.itemId) {
             R.id.menu_sort_name -> PersonViewModel.CollectionSort.NAME
             R.id.menu_sort_rating -> PersonViewModel.CollectionSort.RATING
             else -> return super.onOptionsItemSelected(item)
@@ -87,7 +88,7 @@ class PersonCollectionFragment : Fragment() {
     }
 
     private fun setEmptyMessage(@StringRes resId: Int) {
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).toLowerCase())
+        emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).toLowerCase(Locale.getDefault()))
     }
 
     companion object {

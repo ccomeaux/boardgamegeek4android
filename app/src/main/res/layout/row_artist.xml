@@ -8,8 +8,8 @@
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
 	android:orientation="horizontal"
-	android:paddingBottom="@dimen/padding_half"
-	android:paddingTop="@dimen/padding_half">
+	android:paddingBottom="@dimen/padding_standard"
+	android:paddingTop="@dimen/padding_standard">
 
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/avatarView"

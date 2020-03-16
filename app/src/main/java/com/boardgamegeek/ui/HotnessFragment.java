@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
@@ -28,7 +29,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -229,7 +229,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 				gameName = game.getName();
 				thumbnailUrl = game.getThumbnailUrl();
 				name.setText(game.getName());
-				year.setText(PresentationUtils.describeYear(name.getContext(), game.getYearPublished()));
+				year.setText(IntUtils.asYear(game.getYearPublished(), name.getContext()));
 				rank.setText(String.valueOf(game.getRank()));
 				ImageUtils.loadThumbnail(thumbnail, game.getThumbnailUrl());
 

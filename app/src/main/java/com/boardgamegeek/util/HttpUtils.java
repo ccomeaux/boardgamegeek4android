@@ -2,7 +2,6 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.io.AuthInterceptor;
@@ -73,22 +72,9 @@ public class HttpUtils {
 	private static void addLoggingInterceptor(Builder builder) {
 		if (BuildConfig.DEBUG) {
 			HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-			httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+			httpLoggingInterceptor.level(HttpLoggingInterceptor.Level.BODY);
 			builder.addInterceptor(httpLoggingInterceptor);
 			builder.addNetworkInterceptor(new StethoInterceptor());
 		}
-	}
-
-	/**
-	 * Ensures the URL has a scheme, setting it to HTTPS if missing.
-	 */
-	public static String ensureScheme(String url) {
-		if (TextUtils.isEmpty(url)) {
-			return url;
-		}
-		if (url.startsWith("//")) {
-			return "https:" + url;
-		}
-		return url;
 	}
 }

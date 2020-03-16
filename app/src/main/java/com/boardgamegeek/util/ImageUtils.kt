@@ -189,7 +189,7 @@ object ImageUtils {
                 setTag(R.id.url, null)
             }
         }
-        if (url.isNullOrEmpty()) {
+        while (url.isNullOrEmpty() && imageUrls.isNotEmpty()) {
             url = imageUrls.poll()
         }
         if (url.isNullOrEmpty()) {

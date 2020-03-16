@@ -22,7 +22,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
-        FragmentPagerAdapter(fragmentManager) {
+        FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     var currentPosition = 0
         set(value) {
             field = value
@@ -60,15 +60,16 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
         return if (resId != INVALID_RES_ID) activity.getString(resId) else ""
     }
 
-    override fun getItem(position: Int): Fragment? {
+    override fun getItem(position: Int): Fragment {
         return when (tabs.getOrNull(position)?.titleResId) {
-            R.string.title_description -> GameDescriptionFragment.newInstance()
+            R.string.title_descr -> GameDescriptionFragment.newInstance()
             R.string.title_info -> GameFragment.newInstance()
-            R.string.title_collection -> GameCollectionFragment.newInstance()
+            R.string.title_credits -> GameCreditsFragment.newInstance()
+            R.string.title_my_games -> GameCollectionFragment.newInstance()
             R.string.title_plays -> GamePlaysFragment.newInstance()
             R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
             R.string.links -> GameLinksFragment.newInstance()
-            else -> null
+            else -> ErrorFragment.newInstance()
         }
     }
 
@@ -76,15 +77,18 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
 
     private fun updateTabs() {
         tabs.clear()
-        tabs.add(Tab(R.string.title_description, R.drawable.fab_log_play) {
+        tabs.add(Tab(R.string.title_info, R.drawable.fab_log_play) {
             //LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
             NewPlayActivity.start(activity, gameId, gameName)
         })
-        tabs.add(Tab(R.string.title_info, R.drawable.fab_favorite_off) {
+        tabs.add(Tab(R.string.title_credits, R.drawable.fab_favorite_off) {
+            viewModel.updateFavorite(!isFavorite)
+        })
+        tabs.add(Tab(R.string.title_descr, R.drawable.fab_favorite_off) {
             viewModel.updateFavorite(!isFavorite)
         })
         if (shouldShowCollection())
-            tabs.add(Tab(R.string.title_collection, R.drawable.fab_add) {
+            tabs.add(Tab(R.string.title_my_games, R.drawable.fab_add) {
                 activity.showAndSurvive(CollectionStatusDialogFragment.newInstance())
             })
         if (shouldShowPlays())
@@ -112,7 +116,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     }
 
     private fun updateFavIcon(isFavorite: Boolean) {
-        tabs.find { it.titleResId == R.string.title_info }?.let {
+        tabs.find { it.titleResId == R.string.title_credits || it.titleResId == R.string.title_descr }?.let {
             it.imageResId = if (isFavorite) R.drawable.fab_favorite_on else R.drawable.fab_favorite_off
         }
     }

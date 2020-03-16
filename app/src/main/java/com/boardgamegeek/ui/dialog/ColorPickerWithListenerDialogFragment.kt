@@ -12,7 +12,7 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
         fun onColorSelected(description: String, color: Int, requestCode: Int)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? Listener
         if (listener == null) throw ClassCastException("$context must implement Listener")

@@ -92,11 +92,11 @@ class PollFragment : DialogFragment() {
         super.onActivityCreated(savedInstanceState)
         when (pollType) {
             LANGUAGE_DEPENDENCE -> {
-                dialog.setTitle(R.string.language_dependence)
+                dialog?.setTitle(R.string.language_dependence)
                 viewModel.languagePoll.observe(this, Observer { showData(it, fiveStageColors) })
             }
             SUGGESTED_PLAYER_AGE -> {
-                dialog.setTitle(R.string.suggested_playerage)
+                dialog?.setTitle(R.string.suggested_playerage)
                 viewModel.agePoll.observe(this, Observer { showData(it, twelveStageColors) })
             }
         }
@@ -131,11 +131,11 @@ class PollFragment : DialogFragment() {
         private val FORMAT = DecimalFormat("#0")
 
         fun launchLanguageDependence(host: Fragment) {
-            launch(host, PollFragment.LANGUAGE_DEPENDENCE)
+            launch(host, LANGUAGE_DEPENDENCE)
         }
 
         fun launchSuggestedPlayerAge(host: Fragment) {
-            launch(host, PollFragment.SUGGESTED_PLAYER_AGE)
+            launch(host, SUGGESTED_PLAYER_AGE)
         }
 
         private fun launch(host: Fragment, type: Int) {
@@ -143,7 +143,7 @@ class PollFragment : DialogFragment() {
             arguments.putInt(KEY_TYPE, type)
             val dialog = PollFragment()
             dialog.arguments = arguments
-            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             host.showAndSurvive(dialog)
         }
     }

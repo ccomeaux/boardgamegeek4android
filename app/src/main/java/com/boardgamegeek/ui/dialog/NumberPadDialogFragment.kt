@@ -16,6 +16,7 @@ import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.dialog_number_pad.*
 import org.jetbrains.anko.childrenRecursiveSequence
+import kotlin.math.min
 
 abstract class NumberPadDialogFragment : DialogFragment() {
     private var minValue = DEFAULT_MIN_VALUE
@@ -29,10 +30,10 @@ abstract class NumberPadDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        val window = dialog.window
+        val window = dialog?.window
         if (window != null) {
             val dm = resources.displayMetrics
-            val width = Math.min(
+            val width = min(
                     requireActivity().resources.getDimensionPixelSize(R.dimen.dialog_width),
                     dm.widthPixels * 3 / 4)
             val height = window.attributes.height

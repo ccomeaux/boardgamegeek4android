@@ -1,3 +1,5 @@
+@file:JvmName("TextViewUtils")
+
 package com.boardgamegeek.extensions
 
 import android.text.Html

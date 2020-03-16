@@ -190,11 +190,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String MECHANIC_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_MECHANICS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 		String CATEGORY_JOIN_GAMES_JOIN_COLLECTION = createJoin(GAMES_CATEGORIES, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID);
 
-		String ARTISTS_JOIN_GAMES = createJoin(ARTISTS, GAMES_ARTISTS, Artists.ARTIST_ID) + createJoinSuffix(GAMES_ARTISTS, GAMES, Games.GAME_ID, Games.GAME_ID);
-		String DESIGNERS_JOIN_GAMES = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.DESIGNER_ID) + createJoinSuffix(GAMES_DESIGNERS, GAMES, Games.GAME_ID, Games.GAME_ID);
-		String PUBLISHERS_JOIN_GAMES = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.PUBLISHER_ID) + createJoinSuffix(GAMES_PUBLISHERS, GAMES, Games.GAME_ID, Games.GAME_ID);
-		String MECHANICS_JOIN_GAMES = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.MECHANIC_ID) + createJoinSuffix(GAMES_MECHANICS, GAMES, Games.GAME_ID, Games.GAME_ID);
-		String CATEGORIES_JOIN_GAMES = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.CATEGORY_ID) + createJoinSuffix(GAMES_CATEGORIES, GAMES, Games.GAME_ID, Games.GAME_ID);
+		String ARTISTS_JOIN_COLLECTION = createJoin(ARTISTS, GAMES_ARTISTS, Artists.ARTIST_ID) + createInnerJoinSuffix(GAMES_ARTISTS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String DESIGNERS_JOIN_COLLECTION = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.DESIGNER_ID) + createInnerJoinSuffix(GAMES_DESIGNERS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String PUBLISHERS_JOIN_COLLECTION = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.PUBLISHER_ID) + createInnerJoinSuffix(GAMES_PUBLISHERS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String MECHANICS_JOIN_COLLECTION = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.MECHANIC_ID) + createInnerJoinSuffix(GAMES_MECHANICS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
+		String CATEGORIES_JOIN_COLLECTION = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.CATEGORY_ID) + createInnerJoinSuffix(GAMES_CATEGORIES, COLLECTION, Collection.GAME_ID, Collection.GAME_ID);
 	}
 
 	@NonNull
@@ -210,6 +210,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 	@NonNull
 	private static String createJoinSuffix(String table1, String table2, String column1, String column2) {
 		return " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
+	}
+
+	@NonNull
+	private static String createInnerJoinSuffix(String table1, String table2, String column1, String column2) {
+		return " INNER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
 	}
 
 	public BggDatabase(Context context) {

@@ -26,7 +26,7 @@ class GameRanksFragment : DialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        dialog.setTitle(R.string.title_ranks_ratings)
+        dialog?.setTitle(R.string.title_ranks_ratings)
 
         viewModel.game.observe(this, Observer {
             val voteCount = it?.data?.numberOfRatings ?: 0
@@ -82,7 +82,7 @@ class GameRanksFragment : DialogFragment() {
     companion object {
         fun launch(host: Fragment) {
             val dialog = GameRanksFragment()
-            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             host.showAndSurvive(dialog)
         }
     }

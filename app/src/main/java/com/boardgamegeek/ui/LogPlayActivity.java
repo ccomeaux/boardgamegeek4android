@@ -45,6 +45,7 @@ import android.widget.Toast;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
+import com.boardgamegeek.extensions.FloatingActionButtonUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
@@ -73,7 +74,6 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -1367,7 +1367,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 						headerView.setBackgroundResource(R.color.black_overlay_light);
 
 						fabColor = PaletteUtils.getIconSwatch(palette).getRgb();
-						PresentationUtils.colorFab(fab, fabColor);
+						FloatingActionButtonUtils.colorize(fab, fabColor);
 						fab.post(new Runnable() {
 							@Override
 							public void run() {

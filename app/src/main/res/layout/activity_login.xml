@@ -45,6 +45,7 @@
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/username_container"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/prompt_username">
@@ -59,6 +60,7 @@
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/password_container"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/prompt_password"

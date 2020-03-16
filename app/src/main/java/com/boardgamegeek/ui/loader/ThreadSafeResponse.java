@@ -32,7 +32,7 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 			for (ArticleElement articleElement : body.articles) {
 				articles.add(new Article(
 					articleElement.id,
-					articleElement.username,
+					articleElement.username == null ? "" : articleElement.username,
 					articleElement.link,
 					DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, articleElement.postdate, ArticleElement.FORMAT),
 					DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, articleElement.editdate, ArticleElement.FORMAT),

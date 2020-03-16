@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.DoubleUtils;
 import com.boardgamegeek.util.StringUtils;
 
 import java.text.DecimalFormat;
@@ -72,6 +73,15 @@ public class Player implements Parcelable {
 			return new DecimalFormat("0.#").format(rating);
 		}
 		return "";
+	}
+
+	public String getScoreDescription() {
+		if (StringUtils.isNumeric(score)) {
+			double s = StringUtils.parseDouble(score);
+			return DoubleUtils.asScore(s, null, 0, new DecimalFormat("#,##0.#"));
+		} else {
+			return score;
+		}
 	}
 
 	public String getDescription() {
