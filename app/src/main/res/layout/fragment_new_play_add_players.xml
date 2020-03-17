@@ -59,7 +59,8 @@
 		android:src="@drawable/ic_check_circle"
 		app:layout_constraintBottom_toBottomOf="@id/filterView"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="@id/filterView"/>
+		app:layout_constraintTop_toTopOf="@id/filterView"
+		tools:ignore="ContentDescription" />
 	<!-- ime should be next OR add -->
 
 	<androidx.recyclerview.widget.RecyclerView

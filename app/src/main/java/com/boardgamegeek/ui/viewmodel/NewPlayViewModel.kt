@@ -22,7 +22,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     val location: LiveData<String>
         get() = _location
 
-    private val playDao = PlayRepository(getApplication())
+    private val playRepository = PlayRepository(getApplication())
 
     private val _currentStep = MutableLiveData<Int>()
     val currentStep: LiveData<Int>
@@ -31,13 +31,13 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     // Locations
     val locations = MediatorLiveData<List<LocationEntity>>()
     private var locationFilter = ""
-    private val rawLocations = playDao.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT)
+    private val rawLocations = playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT)
 
     // Players
     val availablePlayers = MediatorLiveData<List<PlayerEntity>>()
-    private val allPlayers = playDao.loadPlayersByLocation()
+    private val allPlayers = playRepository.loadPlayersByLocation()
     private val playersByLocation: LiveData<List<PlayerEntity>> = Transformations.switchMap(location) {
-        playDao.loadPlayersByLocation(it)
+        playRepository.loadPlayersByLocation(it)
     }
     private var playerFilter = ""
     private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()
