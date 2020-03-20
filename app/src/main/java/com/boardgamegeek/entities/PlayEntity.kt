@@ -33,7 +33,9 @@ data class PlayEntity(
         val heroImageUrl: String = "",
         val updatedPlaysTimestamp: Long = 0L
 ) {
-    private val players = mutableListOf<PlayerEntity>()
+    private val _players = mutableListOf<PlayPlayerEntity>()
+    val players: List<PlayPlayerEntity>
+        get() = _players
 
     val dateInMillis: Long by lazy {
         rawDate.toMillis(FORMAT, UNKNOWN_DATE)
@@ -47,8 +49,8 @@ data class PlayEntity(
         return dateInMillis.forDatabase()
     }
 
-    fun addPlayer(player: PlayerEntity) {
-        players.add(player)
+    fun addPlayer(player: PlayPlayerEntity) {
+        _players.add(player)
     }
 
     fun generateSyncHashCode(): Int {

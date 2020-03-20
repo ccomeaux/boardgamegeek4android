@@ -498,13 +498,13 @@ class PlayDao(private val context: BggApplication) {
             }
         }
 
-        // TODO players
-//			deletePlayerWithEmptyUserNameInBatch(internalId);
-//			List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
-//			addPlayersToBatch(play, existingPlayerIds, internalId);
-//			removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
-//
+        deletePlayerWithEmptyUserNameInBatch(internalId, batch)
+        val existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId, batch).toMutableList()
+        addPlayersToBatch(play, existingPlayerIds, internalId, batch)
+        removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
+
         if (play.playId > 0 || play.updateTimestamp > 0) {
+            // TODO players
 //				saveGamePlayerSortOrderToBatch(play);
 //				updateColorsInBatch(play);
 //				saveBuddyNicknamesToBatch(play);
@@ -517,6 +517,86 @@ class PlayDao(private val context: BggApplication) {
         }
         Timber.i("Saved play _ID=$insertedId")
         return insertedId
+    }
+
+    private fun deletePlayerWithEmptyUserNameInBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>) {
+        if (internalId == INVALID_ID.toLong()) return
+        batch.add(ContentProviderOperation
+                .newDelete(Plays.buildPlayerUri(internalId))
+                .withSelection(String.format("%1\$s IS NULL OR %1\$s=''", PlayPlayers.USER_NAME), null)
+                .build())
+    }
+
+    private fun removeDuplicateUserNamesFromBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>): List<String> {
+        if (internalId == INVALID_ID.toLong()) return emptyList()
+        val userNames = context.contentResolver.queryStrings(Plays.buildPlayerUri(internalId), PlayPlayers.USER_NAME)
+        if (userNames.isEmpty()) return emptyList()
+
+        val uniqueUserNames = mutableListOf<String>()
+        val userNamesToDelete = mutableListOf<String>()
+        userNames.forEach { userName ->
+            if (userName.isNotEmpty()) {
+                if (uniqueUserNames.contains(userName)) {
+                    userNamesToDelete.add(userName)
+                } else {
+                    uniqueUserNames.add(userName)
+                }
+            }
+        }
+        for (userName in userNamesToDelete) {
+            batch.add(ContentProviderOperation
+                    .newDelete(Plays.buildPlayerUri(internalId))
+                    .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(userName))
+                    .build())
+            uniqueUserNames.remove(userName)
+        }
+        return uniqueUserNames
+    }
+
+    private fun addPlayersToBatch(play: PlayEntity, playerUserNames: MutableList<String>, internalId: Long, batch: ArrayList<ContentProviderOperation>) {
+        for (player in play.players) {
+            val userName = player.username
+            val values = contentValuesOf(
+                    PlayPlayers.USER_NAME to userName,
+                    PlayPlayers.NAME to player.name
+            )
+            //values.put(PlayPlayers.USER_ID, player.userId)
+            //            values.put(PlayPlayers.START_POSITION, player.startingPosition)
+            //            values.put(PlayPlayers.COLOR, player.color)
+            //            values.put(PlayPlayers.SCORE, player.score)
+            //            values.put(PlayPlayers.NEW, player.isNew)
+            //            values.put(PlayPlayers.RATING, player.rating)
+            //            values.put(PlayPlayers.WIN, player.isWin)
+            if (playerUserNames.remove(userName)) {
+                batch.add(ContentProviderOperation
+                        .newUpdate(Plays.buildPlayerUri(internalId))
+                        .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(userName))
+                        .withValues(values).build())
+            } else {
+                if (internalId == INVALID_ID.toLong()) {
+                    batch.add(ContentProviderOperation
+                            .newInsert(Plays.buildPlayerUri())
+                            .withValueBackReference(PlayPlayers._PLAY_ID, 0)
+                            .withValues(values)
+                            .build())
+                } else {
+                    batch.add(ContentProviderOperation
+                            .newInsert(Plays.buildPlayerUri(internalId))
+                            .withValues(values)
+                            .build())
+                }
+            }
+        }
+    }
+
+    private fun removeUnusedPlayersFromBatch(internalId: Long, playerUserNames: List<String>, batch: ArrayList<ContentProviderOperation>) {
+        if (internalId == INVALID_ID.toLong()) return
+        for (playerUserName in playerUserNames) {
+            batch.add(ContentProviderOperation
+                    .newDelete(Plays.buildPlayerUri(internalId))
+                    .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(playerUserName))
+                    .build())
+        }
     }
 
     fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {

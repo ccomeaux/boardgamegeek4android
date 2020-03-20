@@ -6,6 +6,7 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.isToday
 import com.boardgamegeek.provider.BggContract
@@ -160,7 +161,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         )
 
         for (player in _addedPlayers.value ?: mutableListOf()) {
-            play.addPlayer(player)
+            play.addPlayer(PlayPlayerEntity(player.name, player.username))
         }
 
         playRepository.save(play, insertedId)
