@@ -5,6 +5,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asPastDaySpan
 import com.boardgamegeek.extensions.asTime
+import com.boardgamegeek.extensions.forDatabase
 import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,21 +24,55 @@ data class PlayEntity(
         val comments: String,
         val syncTimestamp: Long,
         val playerCount: Int,
-        val dirtyTimestamp: Long,
-        val updateTimestamp: Long,
-        val deleteTimestamp: Long,
-        val startTime: Long,
+        val dirtyTimestamp: Long = 0L,
+        val updateTimestamp: Long = 0L,
+        val deleteTimestamp: Long = 0L,
+        val startTime: Long = 0L,
         val imageUrl: String = "",
         val thumbnailUrl: String = "",
         val heroImageUrl: String = "",
         val updatedPlaysTimestamp: Long = 0L
 ) {
+    private val players = mutableListOf<PlayerEntity>()
+
     val dateInMillis: Long by lazy {
         rawDate.toMillis(FORMAT, UNKNOWN_DATE)
     }
 
     fun dateForDisplay(context: Context): CharSequence {
         return dateInMillis.asPastDaySpan(context, includeWeekDay = true)
+    }
+
+    fun dateForDatabase(): String {
+        return dateInMillis.forDatabase()
+    }
+
+    fun addPlayer(player: PlayerEntity) {
+        players.add(player)
+    }
+
+    fun generateSyncHashCode(): Int {
+        val sb = StringBuilder()
+        sb.append(dateForDatabase()).append("\n")
+        sb.append(quantity).append("\n")
+        sb.append(length).append("\n")
+        sb.append(incomplete).append("\n")
+        sb.append(noWinStats).append("\n")
+        sb.append(location).append("\n")
+        sb.append(comments).append("\n")
+        //TODO
+        for (player in players) {
+            sb.append(player.username).append("\n")
+            //sb.append(player.userId).append("\n")
+            sb.append(player.name).append("\n")
+//            sb.append(player.startingPosition).append("\n")
+//            sb.append(player.color).append("\n")
+//            sb.append(player.score).append("\n")
+//            sb.append(player.isNew).append("\n")
+//            sb.append(player.rating).append("\n")
+//            sb.append(player.isWin).append("\n")
+        }
+        return sb.toString().hashCode()
     }
 
     fun describe(context: Context, includeDate: Boolean = false): String {
@@ -56,5 +91,10 @@ data class PlayEntity(
     companion object {
         private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         private const val UNKNOWN_DATE: Long = -1L
+
+        fun currentDate(): String {
+            val c = Calendar.getInstance()
+            return FORMAT.format(c.timeInMillis)
+        }
     }
 }

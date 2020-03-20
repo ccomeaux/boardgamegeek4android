@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.Menu
@@ -10,7 +11,9 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.createDiscardDialog
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import com.boardgamegeek.util.NotificationUtils
 import kotlinx.android.synthetic.main.activity_new_play.*
 import org.jetbrains.anko.startActivity
 
@@ -32,6 +35,14 @@ class NewPlayActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = gameName
         supportActionBar?.setSubtitle(R.string.title_new_play)
+
+        viewModel.insertedId.observe(this, Observer {
+            cancelNotification(it)
+            SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+
+            setResult(Activity.RESULT_OK)
+            finish()
+        })
 
         viewModel.currentStep.observe(this, Observer {
             when (it) {
@@ -88,6 +99,10 @@ class NewPlayActivity : AppCompatActivity() {
     private fun maybeDiscard() {
         // TODO - improve cancel logic (like detect if there have been changes)
         createDiscardDialog(this, R.string.play, false).show()
+    }
+
+    private fun cancelNotification(internalId: Long) {
+        NotificationUtils.cancel(this, NotificationUtils.TAG_PLAY_TIMER, internalId)
     }
 
     companion object {

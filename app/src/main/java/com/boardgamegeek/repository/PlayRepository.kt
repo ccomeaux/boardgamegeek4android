@@ -3,6 +3,7 @@ package com.boardgamegeek.repository
 import android.content.ContentProviderOperation
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -222,6 +223,13 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         batch += playDao.createDeletePlayerColorsOperation(playerName)
         application.appExecutors.diskIO.execute {
             application.contentResolver.applyBatch(application, batch)
+        }
+    }
+
+    fun save(play: PlayEntity, insertedId: MutableLiveData<Long>) {
+        application.appExecutors.diskIO.execute {
+            val id = playDao.save(play)
+            insertedId.postValue(id)
         }
     }
 

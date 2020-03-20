@@ -2,6 +2,7 @@ package com.boardgamegeek.db
 
 import android.content.ContentProviderOperation
 import android.net.Uri
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
@@ -451,6 +452,71 @@ class PlayDao(private val context: BggApplication) {
             }
         }
         return results
+    }
+
+    fun save(play: PlayEntity): Long {
+        val batch = arrayListOf<ContentProviderOperation>()
+
+        val values = contentValuesOf(
+                Plays.PLAY_ID to play.playId,
+                Plays.DATE to play.dateForDatabase(),
+                Plays.ITEM_NAME to play.gameName,
+                Plays.OBJECT_ID to play.gameId,
+                Plays.QUANTITY to play.quantity,
+                Plays.LENGTH to play.length,
+                Plays.INCOMPLETE to play.incomplete,
+                Plays.NO_WIN_STATS to play.noWinStats,
+                Plays.LOCATION to play.location,
+                Plays.COMMENTS to play.comments,
+                Plays.PLAYER_COUNT to play.playerCount,
+                Plays.SYNC_TIMESTAMP to play.syncTimestamp,
+                Plays.START_TIME to if (play.length > 0) 0 else play.startTime,
+                Plays.SYNC_HASH_CODE to play.generateSyncHashCode(),
+                Plays.DELETE_TIMESTAMP to play.deleteTimestamp,
+                Plays.UPDATE_TIMESTAMP to play.updateTimestamp,
+                Plays.DIRTY_TIMESTAMP to play.dirtyTimestamp
+        )
+
+        val resolver = context.contentResolver
+        val internalId = play.internalId
+        when {
+            internalId != INVALID_ID.toLong() -> {
+                batch.add(ContentProviderOperation
+                        .newUpdate(Plays.buildPlayUri(internalId))
+                        .withValues(values)
+                        .build())
+            }
+            play.deleteTimestamp > 0 -> {
+                Timber.i("Skipping inserting a deleted play")
+                return INVALID_ID.toLong()
+            }
+            else -> {
+                batch.add(ContentProviderOperation
+                        .newInsert(Plays.CONTENT_URI)
+                        .withValues(values)
+                        .build())
+            }
+        }
+
+        // TODO players
+//			deletePlayerWithEmptyUserNameInBatch(internalId);
+//			List<String> existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId);
+//			addPlayersToBatch(play, existingPlayerIds, internalId);
+//			removeUnusedPlayersFromBatch(internalId, existingPlayerIds);
+//
+        if (play.playId > 0 || play.updateTimestamp > 0) {
+//				saveGamePlayerSortOrderToBatch(play);
+//				updateColorsInBatch(play);
+//				saveBuddyNicknamesToBatch(play);
+        }
+
+        val results = resolver.applyBatch(context, batch)
+        var insertedId = internalId
+        if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
+            insertedId = results[0].uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
+        }
+        Timber.i("Saved play _ID=$insertedId")
+        return insertedId
     }
 
     fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {

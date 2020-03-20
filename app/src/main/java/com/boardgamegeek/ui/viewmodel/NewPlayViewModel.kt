@@ -5,12 +5,15 @@ import androidx.lifecycle.*
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.LocationEntity
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.extensions.isToday
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
+import kotlin.math.max
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
     private var gameId: Int = BggContract.INVALID_ID
@@ -133,6 +136,42 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun setComments(input: String) {
         this.comments = input
+    }
+
+    val insertedId = MutableLiveData<Long>()
+
+    fun save() {
+        val play = PlayEntity(
+                BggContract.INVALID_ID.toLong(),
+                BggContract.INVALID_ID,
+                PlayEntity.currentDate(),
+                gameId,
+                gameName,
+                quantity = 1,
+                length = 0,
+                location = location.value ?: "",
+                incomplete = false,
+                noWinStats = false,
+                comments = comments,
+                syncTimestamp = 0,
+                playerCount = _addedPlayers.value?.size ?: 0,
+                updateTimestamp = System.currentTimeMillis(),
+                dirtyTimestamp = System.currentTimeMillis()
+        )
+
+        for (player in _addedPlayers.value ?: mutableListOf()) {
+            play.addPlayer(player)
+        }
+
+        playRepository.save(play, insertedId)
+
+        val date = play.dateInMillis + max(60, play.length) * 60 * 1000
+        if (play.playId == 0 && date.isToday()) {
+            // TODO extension
+            PreferencesUtils.putLastPlayTime(getApplication(), System.currentTimeMillis())
+            PreferencesUtils.putLastPlayLocation(getApplication(), play.location)
+            //PreferencesUtils.putLastPlayPlayers(getApplication(), _addedPlayers.value)
+        }
     }
 
     companion object {
