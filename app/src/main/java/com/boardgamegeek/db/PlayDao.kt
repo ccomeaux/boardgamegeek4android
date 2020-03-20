@@ -558,15 +558,15 @@ class PlayDao(private val context: BggApplication) {
             val userName = player.username
             val values = contentValuesOf(
                     PlayPlayers.USER_NAME to userName,
-                    PlayPlayers.NAME to player.name
+                    PlayPlayers.NAME to player.name,
+                    PlayPlayers.USER_ID to player.userId,
+                    PlayPlayers.START_POSITION to player.startingPosition,
+                    PlayPlayers.COLOR to player.color,
+                    PlayPlayers.SCORE to player.score,
+                    PlayPlayers.RATING to player.rating,
+                    PlayPlayers.NEW to player.isNew,
+                    PlayPlayers.WIN to player.isWin
             )
-            //values.put(PlayPlayers.USER_ID, player.userId)
-            //            values.put(PlayPlayers.START_POSITION, player.startingPosition)
-            //            values.put(PlayPlayers.COLOR, player.color)
-            //            values.put(PlayPlayers.SCORE, player.score)
-            //            values.put(PlayPlayers.NEW, player.isNew)
-            //            values.put(PlayPlayers.RATING, player.rating)
-            //            values.put(PlayPlayers.WIN, player.isWin)
             if (playerUserNames.remove(userName)) {
                 batch.add(ContentProviderOperation
                         .newUpdate(Plays.buildPlayerUri(internalId))

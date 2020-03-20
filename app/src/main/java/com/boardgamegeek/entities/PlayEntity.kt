@@ -62,17 +62,16 @@ data class PlayEntity(
         sb.append(noWinStats).append("\n")
         sb.append(location).append("\n")
         sb.append(comments).append("\n")
-        //TODO
         for (player in players) {
             sb.append(player.username).append("\n")
-            //sb.append(player.userId).append("\n")
+            sb.append(player.userId).append("\n")
             sb.append(player.name).append("\n")
-//            sb.append(player.startingPosition).append("\n")
-//            sb.append(player.color).append("\n")
-//            sb.append(player.score).append("\n")
-//            sb.append(player.isNew).append("\n")
-//            sb.append(player.rating).append("\n")
-//            sb.append(player.isWin).append("\n")
+            sb.append(player.startingPosition).append("\n")
+            sb.append(player.color).append("\n")
+            sb.append(player.score).append("\n")
+            sb.append(player.isNew).append("\n")
+            sb.append(player.rating).append("\n")
+            sb.append(player.isWin).append("\n")
         }
         return sb.toString().hashCode()
     }
