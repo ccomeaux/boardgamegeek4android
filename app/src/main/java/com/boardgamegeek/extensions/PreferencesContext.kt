@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
@@ -102,12 +103,38 @@ fun Context.setSyncBuddies(): Boolean {
     return putBoolean(PREFERENCES_KEY_SYNC_BUDDIES, true)
 }
 
+fun Context.getLastPlayTime(): Long {
+    return getLong(KEY_LAST_PLAY_TIME, 0)
+}
+
 fun Context.putLastPlayTime(millis: Long): Boolean {
     return putLong(KEY_LAST_PLAY_TIME, millis)
 }
 
+fun Context.getLastPlayLocation(): String? {
+    return getString(KEY_LAST_PLAY_LOCATION)
+}
+
 fun Context.putLastPlayLocation(location: String?): Boolean {
     return putString(KEY_LAST_PLAY_LOCATION, location)
+}
+
+fun Context.getLastPlayPlayers(): List<PlayerEntity>? {
+    val players = mutableListOf<PlayerEntity>()
+    val playerList = getString(KEY_LAST_PLAY_PLAYERS)?.split(SEPARATOR_RECORD) ?: emptyList()
+    playerList.forEach {
+        if (it.isNotBlank()) {
+            val playerSplit = it.split(SEPARATOR_FIELD)
+            when (playerSplit.size) {
+                1 -> PlayerEntity(playerSplit[0], "")
+                2 -> PlayerEntity(playerSplit[0], playerSplit[1])
+                else -> null
+            }?.let { entity ->
+                players.add(entity)
+            }
+        }
+    }
+    return players
 }
 
 fun Context.putLastPlayPlayers(players: List<PlayPlayerEntity>): Boolean {
@@ -150,6 +177,11 @@ private fun Context.getBoolean(key: String, defaultValue: Boolean): Boolean {
 private fun Context.getLong(key: String, defaultValue: Long): Long {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     return sharedPreferences.getLong(key, defaultValue)
+}
+
+private fun Context.getString(key: String, defaultValue: String? = ""): String? {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    return sharedPreferences.getString(key, defaultValue)
 }
 
 private fun Context.putBoolean(key: String, value: Boolean): Boolean {

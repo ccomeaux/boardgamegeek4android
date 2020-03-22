@@ -2,17 +2,21 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.extensions.getLastPlayLocation
+import com.boardgamegeek.extensions.getLastPlayPlayers
+import com.boardgamegeek.extensions.getLastPlayTime
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
     private var gameId: Int = BggContract.INVALID_ID
@@ -76,10 +80,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
         val newList = (list?.filter { it.name.isNotBlank() } ?: emptyList()).toMutableList()
-        //TODO convert these to extension methods
-        val lastPlay = PreferencesUtils.getLastPlayTime(getApplication())
-        if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) { // TODO make this longer probably
-            newList.find { it.name == PreferencesUtils.getLastPlayLocation(getApplication()) }?.let {
+        if (isLastPlayRecent()) {
+            newList.find { it.name == getApplication<BggApplication>().getLastPlayLocation() }?.let {
                 newList.remove(it)
                 newList.add(0, it)
             }
@@ -115,22 +117,40 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<PlayerEntity>?, filter: String): List<PlayerEntity> {
         val self = allPlayers?.find { it.username == AccountUtils.getUsername(getApplication()) }
         val newList = mutableListOf<PlayerEntity>()
+        // show players in this order:
+        // 1. me
         self?.let {
             newList.add(it)
         }
-        // TODO - add PreferencesUtils.getLastPlayPlayers()
-        locationPlayers?.let { list ->
-            newList.addAll(list.filter { it.username != self?.username }.asIterable())
+        //  2. last played at this location
+        if (isLastPlayRecent() && location.value == getApplication<BggApplication>().getLastPlayLocation()) {
+            val lastPlayers = getApplication<BggApplication>().getLastPlayPlayers()
+            lastPlayers?.forEach { lastPlayer ->
+                allPlayers?.find { it == lastPlayer && !newList.contains(it) }?.let {
+                    newList.add(it)
+                }
+            }
         }
+        // 3. previously played at this location
+        locationPlayers?.let { list ->
+            newList.addAll(list.filter { !newList.contains(it) }.asIterable())
+        }
+        // 4. all other players
         allPlayers?.let { list ->
             newList += list.filter {
-                it.username != self?.username && !(locationPlayers?.contains(it) ?: true)
+                (self == null || it.username != self.username) && !(newList.contains(it))
             }.asIterable()
         }
+        // then filter out added players and those not matching the current filter
         return newList.filter {
-            !(addedPlayers
-                    ?: emptyList()).contains(it) && (it.name.contains(filter, true) || it.username.contains(filter, true))
+            !(addedPlayers ?: emptyList()).contains(it) &&
+                    (it.name.contains(filter, true) || it.username.contains(filter, true))
         }
+    }
+
+    private fun isLastPlayRecent(): Boolean {
+        val lastPlayTime = getApplication<BggApplication>().getLastPlayTime()
+        return !lastPlayTime.isOlderThan(6, TimeUnit.HOURS)
     }
 
     fun setComments(input: String) {
