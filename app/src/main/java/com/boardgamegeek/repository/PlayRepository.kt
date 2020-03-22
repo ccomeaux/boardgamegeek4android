@@ -12,10 +12,7 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.applyBatch
-import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.getSyncPlays
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -30,6 +27,7 @@ import com.boardgamegeek.util.RateLimiter
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 open class PlayRefresher
 
@@ -229,6 +227,18 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
     fun save(play: PlayEntity, insertedId: MutableLiveData<Long>) {
         application.appExecutors.diskIO.execute {
             val id = playDao.save(play)
+
+            // is the play for today and about to be synced, remember some thing
+            val isUnsynced = play.playId <= 0
+            val isUpdating = play.updateTimestamp > 0
+            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
+            val isToday = play.dateInMillis.isToday() || endTime.isToday()
+            if (isUnsynced && isUpdating && isToday) {
+                application.putLastPlayTime(System.currentTimeMillis())
+                application.putLastPlayLocation(play.location)
+                application.putLastPlayPlayers(play.players)
+            }
+
             insertedId.postValue(id)
         }
     }

@@ -3,9 +3,9 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
@@ -102,6 +102,22 @@ fun Context.setSyncBuddies(): Boolean {
     return putBoolean(PREFERENCES_KEY_SYNC_BUDDIES, true)
 }
 
+fun Context.putLastPlayTime(millis: Long): Boolean {
+    return putLong(KEY_LAST_PLAY_TIME, millis)
+}
+
+fun Context.putLastPlayLocation(location: String?): Boolean {
+    return putString(KEY_LAST_PLAY_LOCATION, location)
+}
+
+fun Context.putLastPlayPlayers(players: List<PlayPlayerEntity>): Boolean {
+    val sb = StringBuilder()
+    for (player in players) {
+        sb.append("${player.name}$SEPARATOR_FIELD${player.username}$SEPARATOR_RECORD")
+    }
+    return putString(KEY_LAST_PLAY_PLAYERS, sb.toString())
+}
+
 fun Context.setStatsCalculatedTimestampArtists(): Boolean {
     return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, System.currentTimeMillis())
 }
@@ -150,6 +166,13 @@ private fun Context.putLong(key: String, value: Long): Boolean {
     return editor.commit()
 }
 
+private fun Context.putString(key: String, value: String?): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val editor = sharedPreferences.edit()
+    editor.putString(key, value)
+    return editor.commit()
+}
+
 private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     val editor = sharedPreferences.edit()
@@ -164,7 +187,14 @@ private fun Context.remove(key: String): Boolean {
     return editor.commit()
 }
 
+private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
+private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
+
 private const val VIEW_DEFAULT_ID = "viewDefaultId"
+
+private const val KEY_LAST_PLAY_TIME = "last_play_time"
+private const val KEY_LAST_PLAY_LOCATION = "last_play_location"
+private const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"

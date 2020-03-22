@@ -8,13 +8,11 @@ import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.extensions.isToday
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
-import kotlin.math.max
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
     private var gameId: Int = BggContract.INVALID_ID
@@ -165,14 +163,6 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
 
         playRepository.save(play, insertedId)
-
-        val date = play.dateInMillis + max(60, play.length) * 60 * 1000
-        if (play.playId == 0 && date.isToday()) {
-            // TODO extension
-            PreferencesUtils.putLastPlayTime(getApplication(), System.currentTimeMillis())
-            PreferencesUtils.putLastPlayLocation(getApplication(), play.location)
-            //PreferencesUtils.putLastPlayPlayers(getApplication(), _addedPlayers.value)
-        }
     }
 
     companion object {
