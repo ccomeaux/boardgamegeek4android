@@ -504,10 +504,10 @@ class PlayDao(private val context: BggApplication) {
         removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
 
         if (play.playId > 0 || play.updateTimestamp > 0) {
-            // TODO players
-//				saveGamePlayerSortOrderToBatch(play);
-//				updateColorsInBatch(play);
-//				saveBuddyNicknamesToBatch(play);
+            // Do these when the play has been is is about to be synced
+            saveGamePlayerSortOrderToBatch(play, batch)
+            updateColorsInBatch(play, batch)
+            saveBuddyNicknamesToBatch(play, batch)
         }
 
         val results = resolver.applyBatch(context, batch)
@@ -596,6 +596,65 @@ class PlayDao(private val context: BggApplication) {
                     .newDelete(Plays.buildPlayerUri(internalId))
                     .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(playerUserName))
                     .build())
+        }
+    }
+
+    /**
+     * Determine if the players are custom sorted or not, and save it to the game.
+     */
+    private fun saveGamePlayerSortOrderToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) {
+        // We can't determine the sort order without players
+        if (play.playerCount == 0) return
+
+        // We can't save the sort order if we aren't storing the game
+        val gameUri = Games.buildGameUri(play.gameId)
+        if (!context.contentResolver.rowExists(gameUri)) return
+
+        batch.add(ContentProviderOperation
+                .newUpdate(gameUri)
+                .withValue(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
+                .build())
+    }
+
+    /**
+     * Add the current players' team/colors to the permanent list for the game.
+     */
+    private fun updateColorsInBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) {
+        // There are no players, so there are no colors to save
+        if (play.playerCount == 0) return
+
+        // We can't save the colors if we aren't storing the game
+        if (!context.contentResolver.rowExists(Games.buildGameUri(play.gameId))) return
+
+        val insertUri = Games.buildColorsUri(play.gameId)
+        play.players.filter { !it.color.isNullOrBlank() }.distinctBy { it.color }.forEach {
+            if (!context.contentResolver.rowExists(Games.buildColorsUri(play.gameId, it.color))) {
+                batch.add(ContentProviderOperation
+                        .newInsert(insertUri)
+                        .withValue(GameColors.COLOR, it.color)
+                        .build())
+            }
+        }
+    }
+
+    /**
+     * Update GeekBuddies' nicknames with the names used here.
+     */
+    private fun saveBuddyNicknamesToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) {
+        play.players.forEach { player ->
+            if (player.username.isNotBlank() && player.name.isNotBlank()) {
+                val uri = Buddies.buildBuddyUri(player.username)
+                if (context.contentResolver.rowExists(uri)) {
+                    val nickname = context.contentResolver.queryString(uri, Buddies.PLAY_NICKNAME)
+                    if (nickname.isNullOrBlank()) {
+                        batch.add(ContentProviderOperation
+                                .newUpdate(Buddies.CONTENT_URI)
+                                .withSelection("${Buddies.BUDDY_NAME}=?", arrayOf(player.username))
+                                .withValue(Buddies.PLAY_NICKNAME, player.name)
+                                .build())
+                    }
+                }
+            }
         }
     }
 

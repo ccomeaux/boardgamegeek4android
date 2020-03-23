@@ -291,7 +291,7 @@ public class PlayPersister {
 	}
 
 	/**
-	 * Determine if the players are customer sorted or not, and save it to the game.
+	 * Determine if the players are custom sorted or not, and save it to the game.
 	 */
 	private void saveGamePlayerSortOrderToBatch(Play play) {
 		// We can't determine the sort order without players

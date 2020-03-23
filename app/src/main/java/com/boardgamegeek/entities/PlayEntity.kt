@@ -53,6 +53,23 @@ data class PlayEntity(
         _players.add(player)
     }
 
+    private fun hasStartingPositions(): Boolean {
+        return _players.all { !it.startingPosition.isNullOrBlank() }
+    }
+
+    /**
+     * Determine if the starting positions indicate the players are custom sorted.
+     */
+    fun arePlayersCustomSorted(): Boolean {
+        if (_players.size == 0) return false
+        if (!hasStartingPositions()) return true
+        for (i in 1.._players.size) {
+            val foundSeat = (_players.find { it.seat == i } != null)
+            if (!foundSeat) return true
+        }
+        return true
+    }
+
     fun generateSyncHashCode(): Int {
         val sb = StringBuilder()
         sb.append(dateForDatabase()).append("\n")

@@ -14,5 +14,15 @@ data class PlayPlayerEntity(
         get() {
             return if (username.isBlank()) name else username
         }
+
+    val seat: Int
+        get() {
+            return startingPosition?.toIntOrNull() ?: SEAT_UNKNOWN
+        }
+
     val description: String = if (username.isBlank()) name else "$name ($username)"
+
+    companion object {
+        const val SEAT_UNKNOWN = -1
+    }
 }
