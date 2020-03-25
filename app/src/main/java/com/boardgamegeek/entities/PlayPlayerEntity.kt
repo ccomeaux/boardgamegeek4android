@@ -11,14 +11,10 @@ data class PlayPlayerEntity(
         val isNew: Boolean = false,
         val isWin: Boolean = false) {
     val id: String
-        get() {
-            return if (username.isBlank()) name else username
-        }
+        get() = if (username.isBlank()) name else username
 
     val seat: Int
-        get() {
-            return startingPosition?.toIntOrNull() ?: SEAT_UNKNOWN
-        }
+        get() = startingPosition?.toIntOrNull() ?: SEAT_UNKNOWN
 
     val description: String = if (username.isBlank()) name else "$name ($username)"
 

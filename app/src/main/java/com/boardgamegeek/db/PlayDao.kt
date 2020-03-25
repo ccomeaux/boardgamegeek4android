@@ -405,7 +405,7 @@ class PlayDao(private val context: BggApplication) {
                     results += PlayerEntity(
                             it.getStringOrEmpty(PlayPlayers.NAME),
                             it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            avatarUrl = it.getStringOrNull(Buddies.AVATAR_URL)
+                            rawAvatarUrl = it.getStringOrEmpty(Buddies.AVATAR_URL)
                     )
                 } while (it.moveToNext())
             }

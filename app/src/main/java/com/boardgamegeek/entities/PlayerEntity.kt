@@ -5,11 +5,14 @@ data class PlayerEntity(
         val username: String,
         val playCount: Int = 0,
         val winCount: Int = 0,
-        val avatarUrl: String? = null) {
+        private val rawAvatarUrl: String = "") {
+
     val id: String
-        get() {
-            return if (username.isBlank()) name else username
-        }
+        get() = if (username.isBlank()) name else username
+
+    val avatarUrl: String = rawAvatarUrl
+        get() = if (field == "N/A") "" else field
+
     val description: String = if (username.isBlank()) name else "$name ($username)"
 
     override fun hashCode(): Int {
