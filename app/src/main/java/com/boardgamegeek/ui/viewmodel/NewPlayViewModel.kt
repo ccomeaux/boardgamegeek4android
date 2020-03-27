@@ -24,6 +24,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private var playDate: Long = Calendar.getInstance().timeInMillis
     private var comments: String = ""
 
+    val startTime = MutableLiveData<Long>()
+
     private val _location = MutableLiveData<String>()
     val location: LiveData<String>
         get() = _location
@@ -69,6 +71,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    val insertedId = MutableLiveData<Long>()
+
     fun setGame(id: Int, name: String) {
         gameId = id
         gameName = name
@@ -90,7 +94,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun setLocation(name: String) {
-        _location.value = name
+        if (_location.value != name) _location.value = name
         _currentStep.value = STEP_PLAYERS
     }
 
@@ -157,9 +161,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         this.comments = input
     }
 
-    val insertedId = MutableLiveData<Long>()
+    fun startTimer() {
+        if ((startTime.value ?: 0L) == 0L) {
+            startTime.value = System.currentTimeMillis()
+        }
+    }
 
     fun save() {
+        val startTime = startTime.value ?: 0L
         val play = PlayEntity(
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,
@@ -174,7 +183,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 comments = comments,
                 syncTimestamp = 0,
                 playerCount = _addedPlayers.value?.size ?: 0,
-                updateTimestamp = System.currentTimeMillis(),
+                startTime = startTime,
+                updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
                 dirtyTimestamp = System.currentTimeMillis()
         )
 

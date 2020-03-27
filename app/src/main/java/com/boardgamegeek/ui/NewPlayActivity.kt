@@ -10,12 +10,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.createDiscardDialog
+import com.boardgamegeek.extensions.launchPlayingNotification
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.util.NotificationUtils
 import kotlinx.android.synthetic.main.activity_new_play.*
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 
 class NewPlayActivity : AppCompatActivity() {
     private val viewModel: NewPlayViewModel by lazy {
@@ -37,11 +39,25 @@ class NewPlayActivity : AppCompatActivity() {
         supportActionBar?.setSubtitle(R.string.title_new_play)
 
         viewModel.insertedId.observe(this, Observer {
-            cancelNotification(it)
-            SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-
+            if ((viewModel.startTime.value ?: 0L) == 0L) {
+                cancelNotification(it)
+                SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+            } else {
+                launchPlayingNotification(it,
+                        gameId,
+                        gameName,
+                        viewModel.location.value ?: "",
+                        viewModel.addedPlayers.value?.size ?: 0,
+                        viewModel.startTime.value ?: 0L)
+                // TODO: add thumbnailUrl, imageUrl, heroImageUrl
+            }
             setResult(Activity.RESULT_OK)
             finish()
+        })
+
+        viewModel.startTime.observe(this, Observer {
+            // TODO
+            if (it > 0L) toast("Started!")
         })
 
         viewModel.currentStep.observe(this, Observer {
@@ -82,6 +98,10 @@ class NewPlayActivity : AppCompatActivity() {
         return when (item?.itemId) {
             android.R.id.home -> {
                 maybeDiscard()
+                true
+            }
+            R.id.timer -> {
+                viewModel.startTimer()
                 true
             }
             else -> super.onOptionsItemSelected(item)
