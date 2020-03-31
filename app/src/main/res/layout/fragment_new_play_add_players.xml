@@ -8,28 +8,14 @@
 	android:layout_height="match_parent"
 	android:importantForAutofill="noExcludeDescendants">
 
-	<TextView
-		android:id="@+id/with"
-		android:layout_width="wrap_content"
-		android:layout_height="48dp"
-		android:layout_marginLeft="@dimen/padding_extra"
-		android:layout_marginStart="@dimen/padding_extra"
-		android:gravity="center_vertical"
-		android:text="@string/with"
-		android:textAppearance="@style/Text"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"/>
-
 	<com.google.android.material.chip.ChipGroup
 		android:id="@+id/chipGroup"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/padding_standard"
-		android:layout_marginEnd="@dimen/padding_extra"
-		android:layout_marginRight="@dimen/padding_extra"
+		android:layout_marginLeft="@dimen/padding_extra"
 		android:minHeight="48dp"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@id/with"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:singleLine="false"/>
 
@@ -95,5 +81,5 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		app:barrierDirection="bottom"
-		app:constraint_referenced_ids="with,chipGroup"/>
+		app:constraint_referenced_ids="chipGroup"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

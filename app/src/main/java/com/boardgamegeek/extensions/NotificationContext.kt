@@ -65,6 +65,13 @@ private fun Context.buildAndNotifyPlaying(
     notify(NotificationUtils.TAG_PLAY_TIMER, internalId.toInt(), builder)
 }
 
+/**
+ * Cancel the notification by a unique ID.
+ */
+fun Context.cancel(tag: String?, id: Long) {
+    NotificationManagerCompat.from(this).cancel(tag, id.toInt())
+}
+
 private fun Context.notify(tag: String?, id: Int, builder: NotificationCompat.Builder) {
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
 }

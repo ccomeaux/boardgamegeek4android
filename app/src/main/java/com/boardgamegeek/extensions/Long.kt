@@ -24,6 +24,10 @@ fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.ne
     }
 }
 
+fun Long.howManyMinutesOld(): Int {
+    return ((System.currentTimeMillis() - this + 30_000) / 60_000).toInt()
+}
+
 fun Long.asPastMinuteSpan(context: Context): CharSequence {
     return if (this == 0L) context.getString(R.string.never) else getRelativeTimeSpanString(this, System.currentTimeMillis(), MINUTE_IN_MILLIS)
 }
@@ -34,7 +38,7 @@ fun Long.forDatabase(): String {
     return FORMAT_DATABASE.format(c.time)
 }
 
-fun Long.formatTimestamp(context: Context, isForumTimestamp: Boolean, includeTime: Boolean): CharSequence {
+fun Long.formatTimestamp(context: Context, includeTime: Boolean, isForumTimestamp: Boolean = false): CharSequence {
     var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_MONTH
     if (includeTime) flags = flags or FORMAT_SHOW_TIME
     return if (isForumTimestamp && PreferencesUtils.getForumDates(context)) {
