@@ -24,6 +24,8 @@ import kotlinx.android.synthetic.main.activity_new_play.*
 import org.jetbrains.anko.startActivity
 
 class NewPlayActivity : AppCompatActivity() {
+    var startTime = 0L
+
     private val viewModel: NewPlayViewModel by lazy {
         ViewModelProviders.of(this).get(NewPlayViewModel::class.java)
     }
@@ -52,7 +54,7 @@ class NewPlayActivity : AppCompatActivity() {
                         gameName,
                         viewModel.location.value ?: "",
                         viewModel.addedPlayers.value?.size ?: 0,
-                        viewModel.startTime.value ?: 0L)
+                        startTime)
                 // TODO: add thumbnailUrl, imageUrl, heroImageUrl
             }
             setResult(Activity.RESULT_OK)
@@ -60,8 +62,12 @@ class NewPlayActivity : AppCompatActivity() {
         })
 
         viewModel.startTime.observe(this, Observer {
+            startTime = viewModel.startTime.value ?: 0L
             updateSummary()
+            invalidateOptionsMenu()
         })
+
+        viewModel.length.observe(this, Observer { updateSummary() })
 
         viewModel.location.observe(this, Observer { updateSummary() })
 
@@ -100,6 +106,11 @@ class NewPlayActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        menu?.findItem(R.id.timer)?.setIcon(if (startTime > 0L) R.drawable.menu_timer_off else R.drawable.menu_timer)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             android.R.id.home -> {
@@ -107,7 +118,7 @@ class NewPlayActivity : AppCompatActivity() {
                 true
             }
             R.id.timer -> {
-                viewModel.startTimer()
+                viewModel.toggleTimer()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -128,17 +139,16 @@ class NewPlayActivity : AppCompatActivity() {
     }
 
     private fun updateSummary() {
-        //val summary = createSummary()
-
         val summaryView = findViewById<PlaySummary>(R.id.summaryView)
         summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.STEP_LOCATION
-        summaryView.startTime = viewModel.startTime.value ?: 0L
+        summaryView.startTime = startTime
+        summaryView.length = viewModel.length.value ?: 0
         summaryView.location = viewModel.location.value ?: ""
         summaryView.playerCount = viewModel.addedPlayers.value?.size ?: 0
 
         summaryView.updateText()
     }
-    
+
     class PlaySummary @JvmOverloads constructor(
             context: Context,
             attrs: AttributeSet? = null,
@@ -146,6 +156,7 @@ class NewPlayActivity : AppCompatActivity() {
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
         var step = NewPlayViewModel.STEP_LOCATION
         var startTime = 0L
+        var length = 0
         var location = ""
         var playerCount = 0
 
@@ -156,9 +167,9 @@ class NewPlayActivity : AppCompatActivity() {
 
         private fun createSummary(): String {
             var summary = ""
-            if (startTime > 0L) {
-                val length = startTime.howManyMinutesOld()
-                summary += " ${context.getString(R.string.for_)} $length ${context.getString(R.string.minutes_abbr)}"
+            if (startTime > 0L || length > 0) {
+                val totalLength = length + if (startTime > 0L) startTime.howManyMinutesOld() else 0
+                summary += " ${context.getString(R.string.for_)} $totalLength ${context.getString(R.string.minutes_abbr)}"
             }
 
             summary += when {

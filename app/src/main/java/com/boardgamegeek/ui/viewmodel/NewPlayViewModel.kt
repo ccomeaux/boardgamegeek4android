@@ -24,17 +24,24 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private var playDate: Long = Calendar.getInstance().timeInMillis
     private var comments: String = ""
 
-    val startTime = MutableLiveData<Long>()
-
-    private val _location = MutableLiveData<String>()
-    val location: LiveData<String>
-        get() = _location
-
     private val playRepository = PlayRepository(getApplication())
 
     private val _currentStep = MutableLiveData<Int>()
     val currentStep: LiveData<Int>
         get() = _currentStep
+
+    private val _startTime = MutableLiveData<Long>()
+    val startTime: LiveData<Long>
+        get() = _startTime
+
+    private val _lengthInMillis = MutableLiveData<Long>()
+    val length: LiveData<Int> = Transformations.map(_lengthInMillis) {
+        (it / 60_000).toInt()
+    }
+
+    private val _location = MutableLiveData<String>()
+    val location: LiveData<String>
+        get() = _location
 
     // Locations
     val locations = MediatorLiveData<List<LocationEntity>>()
@@ -161,9 +168,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         this.comments = input
     }
 
-    fun startTimer() {
-        if ((startTime.value ?: 0L) == 0L) {
-            startTime.value = System.currentTimeMillis()
+    fun toggleTimer() {
+        val lengthInMillis = _lengthInMillis.value ?: 0L
+        if (startTime.value ?: 0L == 0L) {
+            _startTime.value = System.currentTimeMillis() - lengthInMillis
+            _lengthInMillis.value = 0
+        } else {
+            _lengthInMillis.value = System.currentTimeMillis() - (startTime.value ?: 0L) + lengthInMillis
+            _startTime.value = 0L
         }
     }
 
@@ -176,7 +188,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 gameId,
                 gameName,
                 quantity = 1,
-                length = 0,
+                length = if (startTime == 0L) length.value ?: 0 else 0,
                 location = location.value ?: "",
                 incomplete = false,
                 noWinStats = false,
