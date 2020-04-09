@@ -5,10 +5,7 @@ import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.LocationEntity
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.getLastPlayLocation
 import com.boardgamegeek.extensions.getLastPlayPlayers
 import com.boardgamegeek.extensions.getLastPlayTime
@@ -55,8 +52,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         playRepository.loadPlayersByLocation(it)
     }
     private var playerFilter = ""
-    private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()
-    val addedPlayers: LiveData<MutableList<PlayerEntity>>
+    private val _addedPlayers = MutableLiveData<MutableList<NewPlayPlayerEntity>>()
+    val addedPlayers: LiveData<MutableList<NewPlayPlayerEntity>>
         get() = _addedPlayers
 
     init {
@@ -107,12 +104,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun addPlayer(player: PlayerEntity) {
         val newList = addedPlayers.value ?: mutableListOf()
-        newList.add(player)
+        val newPlayer = NewPlayPlayerEntity(player)
+        if (!newList.contains(newPlayer))
+            newList.add(newPlayer)
         _addedPlayers.value = newList
     }
 
-    fun removePlayer(player: PlayerEntity) {
-        val newList = addedPlayers.value ?: mutableListOf()
+    fun removePlayer(player: NewPlayPlayerEntity) {
+        val newList = _addedPlayers.value ?: mutableListOf()
         newList.remove(player)
         _addedPlayers.value = newList
     }
@@ -125,7 +124,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, addedPlayers.value, filter)
     }.also { playerFilter = filter }
 
-    private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<PlayerEntity>?, filter: String): List<PlayerEntity> {
+    private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<NewPlayPlayerEntity>?, filter: String): List<PlayerEntity> {
         val self = allPlayers?.find { it.username == AccountUtils.getUsername(getApplication()) }
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
@@ -154,7 +153,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
         // then filter out added players and those not matching the current filter
         return newList.filter {
-            !(addedPlayers ?: emptyList()).contains(it) &&
+            val p = NewPlayPlayerEntity(it)
+            !(addedPlayers ?: emptyList()).contains(p) &&
                     (it.name.contains(filter, true) || it.username.contains(filter, true))
         }
     }
