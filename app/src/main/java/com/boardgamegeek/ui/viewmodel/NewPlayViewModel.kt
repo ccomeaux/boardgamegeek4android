@@ -16,12 +16,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var playDate: Long = Calendar.getInstance().timeInMillis
     private var comments: String = ""
 
     private val playRepository = PlayRepository(getApplication())
+
+    private var gameId = MutableLiveData<Int>()
 
     private val _currentStep = MutableLiveData<Step>()
     val currentStep: LiveData<Step>
@@ -78,7 +79,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     val insertedId = MutableLiveData<Long>()
 
     fun setGame(id: Int, name: String) {
-        gameId = id
+        gameId.value = id
         gameName = name
     }
 
@@ -185,7 +186,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,
                 PlayEntity.currentDate(),
-                gameId,
+                gameId.value ?: BggContract.INVALID_ID,
                 gameName,
                 quantity = 1,
                 length = if (startTime == 0L) length.value ?: 0 else 0,
