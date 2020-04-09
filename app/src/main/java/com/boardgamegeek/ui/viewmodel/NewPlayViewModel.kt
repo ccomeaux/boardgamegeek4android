@@ -23,8 +23,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private val playRepository = PlayRepository(getApplication())
 
-    private val _currentStep = MutableLiveData<Int>()
-    val currentStep: LiveData<Int>
+    private val _currentStep = MutableLiveData<Step>()
+    val currentStep: LiveData<Step>
         get() = _currentStep
 
     private val _startTime = MutableLiveData<Long>()
@@ -57,7 +57,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         get() = _addedPlayers
 
     init {
-        _currentStep.value = STEP_LOCATION
+        _currentStep.value = Step.LOCATION
         playDate = Calendar.getInstance().timeInMillis
 
         locations.addSource(rawLocations) { result ->
@@ -99,7 +99,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun setLocation(name: String) {
         if (_location.value != name) _location.value = name
-        _currentStep.value = STEP_PLAYERS
+        _currentStep.value = Step.PLAYERS
     }
 
     fun addPlayer(player: PlayerEntity) {
@@ -117,7 +117,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishAddingPlayers() {
-        _currentStep.value = STEP_COMMENTS
+        _currentStep.value = Step.PLAYERS_COLOR
     }
 
     fun filterPlayers(filter: String) = availablePlayers.value?.let {
@@ -207,9 +207,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         playRepository.save(play, insertedId)
     }
 
-    companion object {
-        const val STEP_LOCATION = 1
-        const val STEP_PLAYERS = 2
-        const val STEP_COMMENTS = 3
+    enum class Step {
+        LOCATION,
+        PLAYERS,
+        PLAYERS_COLOR,
+        COMMENTS
     }
 }

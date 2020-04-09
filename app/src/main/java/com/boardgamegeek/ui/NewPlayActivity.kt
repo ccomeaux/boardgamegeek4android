@@ -73,20 +73,20 @@ class NewPlayActivity : AppCompatActivity() {
 
         viewModel.currentStep.observe(this, Observer {
             when (it) {
-                NewPlayViewModel.STEP_LOCATION -> {
+                NewPlayViewModel.Step.LOCATION -> {
                     supportFragmentManager
                             .beginTransaction()
                             .add(R.id.fragmentContainer, NewPlayLocationsFragment.newInstance())
                             .commit()
                 }
-                NewPlayViewModel.STEP_PLAYERS -> {
+                NewPlayViewModel.Step.PLAYERS -> {
                     supportFragmentManager
                             .beginTransaction()
                             .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment.newInstance())
                             .addToBackStack(null)
                             .commit()
                 }
-                NewPlayViewModel.STEP_COMMENTS -> {
+                NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
                             .beginTransaction()
                             .replace(R.id.fragmentContainer, NewPlayCommentsFragment.newInstance())
@@ -140,7 +140,7 @@ class NewPlayActivity : AppCompatActivity() {
 
     private fun updateSummary() {
         val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-        summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.STEP_LOCATION
+        summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.Step.LOCATION
         summaryView.startTime = startTime
         summaryView.length = viewModel.length.value ?: 0
         summaryView.location = viewModel.location.value ?: ""
@@ -154,7 +154,7 @@ class NewPlayActivity : AppCompatActivity() {
             attrs: AttributeSet? = null,
             defStyleAttr: Int = android.R.attr.textViewStyle
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
-        var step = NewPlayViewModel.STEP_LOCATION
+        var step = NewPlayViewModel.Step.LOCATION
         var startTime = 0L
         var length = 0
         var location = ""
@@ -173,13 +173,13 @@ class NewPlayActivity : AppCompatActivity() {
             }
 
             summary += when {
-                step == NewPlayViewModel.STEP_LOCATION -> " ${context.getString(R.string.at)}"
-                step > NewPlayViewModel.STEP_LOCATION -> if (location.isNotBlank()) " ${context.getString(R.string.at)} $location" else ""
+                step == NewPlayViewModel.Step.LOCATION -> " ${context.getString(R.string.at)}"
+                step > NewPlayViewModel.Step.LOCATION -> if (location.isNotBlank()) " ${context.getString(R.string.at)} $location" else ""
                 else -> ""
             }
             summary += when {
-                step == NewPlayViewModel.STEP_PLAYERS -> " ${context.getString(R.string.with)}"
-                step > NewPlayViewModel.STEP_PLAYERS -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
+                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR -> " ${context.getString(R.string.with)}"
+                step > NewPlayViewModel.Step.PLAYERS -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
                 else -> ""
             }
 
