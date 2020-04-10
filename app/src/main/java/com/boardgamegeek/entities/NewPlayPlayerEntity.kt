@@ -4,7 +4,7 @@ data class NewPlayPlayerEntity(
         val name: String,
         val username: String,
         private val rawAvatarUrl: String = "") {
-    constructor(player: PlayerEntity) : this(player.name, player.username)
+    constructor(player: PlayerEntity) : this(player.name, player.username, player.rawAvatarUrl)
 
     val id: String
         get() = if (username.isBlank()) name else username
@@ -13,6 +13,8 @@ data class NewPlayPlayerEntity(
         get() = if (field == "N/A") "" else field
 
     val description: String = if (username.isBlank()) name else "$name ($username)"
+
+    var color: String = ""
 
     override fun hashCode(): Int {
         var hash = 3

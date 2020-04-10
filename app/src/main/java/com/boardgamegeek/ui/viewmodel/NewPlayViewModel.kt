@@ -11,6 +11,7 @@ import com.boardgamegeek.extensions.getLastPlayPlayers
 import com.boardgamegeek.extensions.getLastPlayTime
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -21,6 +22,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private var comments: String = ""
 
     private val playRepository = PlayRepository(getApplication())
+    private val gameRepository = GameRepository(getApplication())
 
     private var gameId = MutableLiveData<Int>()
 
@@ -56,6 +58,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val _addedPlayers = MutableLiveData<MutableList<NewPlayPlayerEntity>>()
     val addedPlayers: LiveData<MutableList<NewPlayPlayerEntity>>
         get() = _addedPlayers
+
+    val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
+        gameRepository.getPlayColors(it)
+    }
 
     init {
         _currentStep.value = Step.LOCATION
@@ -121,6 +127,22 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         _currentStep.value = Step.PLAYERS_COLOR
     }
 
+    fun addColorToPlayer(playerIndex: Int, color: String) {
+        _addedPlayers.value?.let { list ->
+            val newList = list.toMutableList()
+            newList.getOrNull(playerIndex)?.let {
+                newList[playerIndex] = it.copy(name = it.name, username = it.username, rawAvatarUrl = it.avatarUrl).apply {
+                    this.color = color
+                }
+                _addedPlayers.value = newList
+            }
+        }
+    }
+
+    fun finishPlayerColors() {
+        _currentStep.value = Step.COMMENTS
+    }
+
     fun filterPlayers(filter: String) = availablePlayers.value?.let {
         availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, addedPlayers.value, filter)
     }.also { playerFilter = filter }
@@ -175,7 +197,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             _startTime.value = System.currentTimeMillis() - lengthInMillis
             _lengthInMillis.value = 0
         } else {
-            _lengthInMillis.value = System.currentTimeMillis() - (startTime.value ?: 0L) + lengthInMillis
+            _lengthInMillis.value =
+                    System.currentTimeMillis() - (startTime.value ?: 0L) + lengthInMillis
             _startTime.value = 0L
         }
     }

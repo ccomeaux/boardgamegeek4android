@@ -5,7 +5,7 @@ data class PlayerEntity(
         val username: String,
         val playCount: Int = 0,
         val winCount: Int = 0,
-        private val rawAvatarUrl: String = "") {
+        val rawAvatarUrl: String = "") {
 
     val id: String
         get() = if (username.isBlank()) name else username

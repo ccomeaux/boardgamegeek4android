@@ -86,6 +86,13 @@ class NewPlayActivity : AppCompatActivity() {
                             .addToBackStack(null)
                             .commit()
                 }
+                NewPlayViewModel.Step.PLAYERS_COLOR -> {
+                    supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment.newInstance())
+                            .addToBackStack(null)
+                            .commit()
+                }
                 NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
                             .beginTransaction()

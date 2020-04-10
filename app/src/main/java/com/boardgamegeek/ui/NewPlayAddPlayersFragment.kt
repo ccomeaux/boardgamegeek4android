@@ -95,7 +95,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                     chipGroup.addView(Chip(context).apply {
                         text = player.description
                         isCloseIconVisible = true
-                        if (player.avatarUrl.isNullOrBlank()) {
+                        if (player.avatarUrl.isBlank()) {
                             setChipIconResource(R.drawable.ic_account_circle_black_24dp)
                             // TODO use non-user's favorite color if available
                             setChipIconTintResource(R.color.dark_blue)
@@ -122,7 +122,7 @@ class NewPlayAddPlayersFragment : Fragment() {
     private class PlayersAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
         var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
-                old.name == new.name
+                old.name == new.name && old.username == new.username && old.avatarUrl == new.avatarUrl
             }
         }
 
