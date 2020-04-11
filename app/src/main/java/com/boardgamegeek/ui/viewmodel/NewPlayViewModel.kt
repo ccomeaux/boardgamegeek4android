@@ -55,9 +55,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         playRepository.loadPlayersByLocation(it)
     }
     private var playerFilter = ""
-    private val _addedPlayers = MutableLiveData<MutableList<NewPlayPlayerEntity>>()
-    val addedPlayers: LiveData<MutableList<NewPlayPlayerEntity>>
-        get() = _addedPlayers
+    private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()
+    val addedPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
+    private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -72,13 +72,24 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
 
         availablePlayers.addSource(allPlayers) { result ->
-            result?.let { availablePlayers.value = filterPlayers(result, playersByLocation.value, addedPlayers.value, playerFilter) }
+            result?.let { availablePlayers.value = filterPlayers(result, playersByLocation.value, _addedPlayers.value, playerFilter) }
         }
         availablePlayers.addSource(playersByLocation) { result ->
-            result?.let { availablePlayers.value = filterPlayers(allPlayers.value, result, addedPlayers.value, playerFilter) }
+            result?.let { availablePlayers.value = filterPlayers(allPlayers.value, result, _addedPlayers.value, playerFilter) }
         }
         availablePlayers.addSource(_addedPlayers) { result ->
             result?.let { availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, result, playerFilter) }
+        }
+
+        addedPlayers.addSource(_addedPlayers) { result ->
+            result?.let {
+                assemblePlayers(result, playerColorMap.value ?: mapOf())
+            }
+        }
+        addedPlayers.addSource(playerColorMap) { result ->
+            result?.let {
+                assemblePlayers(_addedPlayers.value ?: emptyList(), it)
+            }
         }
     }
 
@@ -110,17 +121,22 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun addPlayer(player: PlayerEntity) {
-        val newList = addedPlayers.value ?: mutableListOf()
-        val newPlayer = NewPlayPlayerEntity(player)
-        if (!newList.contains(newPlayer))
-            newList.add(newPlayer)
+        val newList = _addedPlayers.value ?: mutableListOf()
+        if (!newList.contains(player))
+            newList.add(player)
         _addedPlayers.value = newList
     }
 
     fun removePlayer(player: NewPlayPlayerEntity) {
+        val p = PlayerEntity(player.name, player.username)
+
         val newList = _addedPlayers.value ?: mutableListOf()
-        newList.remove(player)
+        newList.remove(p)
         _addedPlayers.value = newList
+
+        val newMap = playerColorMap.value ?: mutableMapOf()
+        newMap.remove(p.description)
+        playerColorMap.value = newMap
     }
 
     fun finishAddingPlayers() {
@@ -128,15 +144,22 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun addColorToPlayer(playerIndex: Int, color: String) {
-        _addedPlayers.value?.let { list ->
-            val newList = list.toMutableList()
-            newList.getOrNull(playerIndex)?.let {
-                newList[playerIndex] = it.copy(name = it.name, username = it.username, rawAvatarUrl = it.avatarUrl).apply {
-                    this.color = color
-                }
-                _addedPlayers.value = newList
-            }
+        val colorMap = playerColorMap.value ?: mutableMapOf()
+        val player = _addedPlayers.value?.getOrNull(playerIndex)
+        if (player != null) {
+            colorMap[player.description] = color
+            playerColorMap.value = colorMap
         }
+    }
+
+    private fun assemblePlayers(players: List<PlayerEntity>, playerColors: Map<String, String>) {
+        val p = mutableListOf<NewPlayPlayerEntity>()
+        players.forEach {
+            val newPlayer = NewPlayPlayerEntity(it)
+            newPlayer.color = playerColors[newPlayer.description] ?: ""
+            p.add(newPlayer)
+        }
+        addedPlayers.value = p
     }
 
     fun finishPlayerColors() {
@@ -144,10 +167,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun filterPlayers(filter: String) = availablePlayers.value?.let {
-        availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, addedPlayers.value, filter)
+        availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, _addedPlayers.value, filter)
     }.also { playerFilter = filter }
 
-    private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<NewPlayPlayerEntity>?, filter: String): List<PlayerEntity> {
+    private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<PlayerEntity>?, filter: String): List<PlayerEntity> {
         val self = allPlayers?.find { it.username == AccountUtils.getUsername(getApplication()) }
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
@@ -176,8 +199,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
         // then filter out added players and those not matching the current filter
         return newList.filter {
-            val p = NewPlayPlayerEntity(it)
-            !(addedPlayers ?: emptyList()).contains(p) &&
+            !(addedPlayers ?: emptyList()).contains(it) &&
                     (it.name.contains(filter, true) || it.username.contains(filter, true))
         }
     }
