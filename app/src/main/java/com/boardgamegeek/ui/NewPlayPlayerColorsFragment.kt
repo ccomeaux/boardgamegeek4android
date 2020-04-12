@@ -27,7 +27,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
     }
 
     private val adapter: PlayersAdapter by lazy {
-        PlayersAdapter(requireActivity())
+        PlayersAdapter(requireActivity(), viewModel)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -58,7 +58,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
         }
     }
 
-    private class PlayersAdapter(private val activity: FragmentActivity)
+    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
         : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
@@ -91,6 +91,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
                                 activity,
                                 featuredColors,
                                 adapterPosition)
+                    }
+                    itemView.colorView.setOnClickListener {
+                        viewModel.addColorToPlayer(adapterPosition, "")
                     }
                 }
             }
