@@ -16,21 +16,5 @@ data class NewPlayPlayerEntity(
 
     var color: String = ""
 
-    override fun hashCode(): Int {
-        var hash = 3
-        hash = 53 * hash + name.hashCode()
-        hash = 53 * hash + username.hashCode()
-        return hash
-    }
-
-    override fun equals(other: Any?): Boolean {
-        val otherPlayerEntity = other as? NewPlayPlayerEntity
-        return when {
-            otherPlayerEntity == null -> return false
-            username.isBlank() -> {
-                otherPlayerEntity.username.isBlank() && name == otherPlayerEntity.name
-            }
-            else -> username == otherPlayerEntity.username
-        }
-    }
+    var favoriteColors = emptyList<String>()
 }

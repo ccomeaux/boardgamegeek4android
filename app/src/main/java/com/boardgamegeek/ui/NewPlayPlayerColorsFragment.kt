@@ -1,9 +1,11 @@
 package com.boardgamegeek.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -63,7 +65,10 @@ class NewPlayPlayerColorsFragment : Fragment() {
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
-                old.name == new.name && old.username == new.username && old.color == new.color
+                old.name == new.name &&
+                        old.username == new.username &&
+                        old.avatarUrl == new.avatarUrl &&
+                        old.favoriteColors == new.favoriteColors
             }
         }
 
@@ -85,15 +90,29 @@ class NewPlayPlayerColorsFragment : Fragment() {
                 player?.let { p ->
                     itemView.nameView.text = p.name
                     itemView.usernameView.text = p.username
+
                     itemView.colorView.setColorViewValue(color)
+                    itemView.colorView.setOnClickListener {
+                        viewModel.addColorToPlayer(adapterPosition, "")
+                    }
+
+                    val favoriteColor = p.favoriteColors.firstOrNull() ?: ""
+                    val favoriteColorRgb = favoriteColor.asColorRgb()
+                    if (p.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
+                        itemView.favoriteColorView.setColorViewValue(favoriteColorRgb)
+                        itemView.favoriteColorView.setOnClickListener {
+                            viewModel.addColorToPlayer(adapterPosition, favoriteColor)
+                        }
+                        itemView.favoriteColorView.isVisible = true
+                    } else {
+                        itemView.favoriteColorView.isVisible = false
+                    }
+
                     itemView.colorPickerButton.setOnClickListener {
                         NewPlayPlayerColorPickerDialogFragment.launch(
                                 activity,
                                 featuredColors,
                                 adapterPosition)
-                    }
-                    itemView.colorView.setOnClickListener {
-                        viewModel.addColorToPlayer(adapterPosition, "")
                     }
                 }
             }

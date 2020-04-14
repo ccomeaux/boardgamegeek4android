@@ -47,6 +47,19 @@
 		tools:text="underhill" />
 
 	<ImageView
+		android:id="@+id/favoriteColorView"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:scaleType="fitXY"
+		android:layout_marginEnd="@dimen/padding_extra"
+		android:layout_marginRight="@dimen/padding_extra"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/colorPickerButton"
+		app:layout_constraintRight_toLeftOf="@+id/colorPickerButton"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:background="#00f" />
+
+	<ImageView
 		android:id="@+id/colorPickerButton"
 		style="@style/Icon.Right"
 		android:layout_width="@dimen/color_circle_diameter"

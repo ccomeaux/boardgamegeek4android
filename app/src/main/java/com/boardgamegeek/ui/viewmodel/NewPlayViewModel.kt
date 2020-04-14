@@ -58,6 +58,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()
     val addedPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
     private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
+    private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColorEntity>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -83,12 +84,17 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
         addedPlayers.addSource(_addedPlayers) { result ->
             result?.let {
-                assemblePlayers(result, playerColorMap.value ?: mapOf())
+                assemblePlayers(addedPlayers = result)
             }
         }
         addedPlayers.addSource(playerColorMap) { result ->
             result?.let {
-                assemblePlayers(_addedPlayers.value ?: emptyList(), it)
+                assemblePlayers(playerColors = it)
+            }
+        }
+        addedPlayers.addSource(gameColors) { result ->
+            result?.let {
+                assemblePlayers(gameColorList = it)
             }
         }
     }
@@ -122,8 +128,21 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun addPlayer(player: PlayerEntity) {
         val newList = _addedPlayers.value ?: mutableListOf()
-        if (!newList.contains(player))
+        if (!newList.contains(player)) {
             newList.add(player)
+            val colors = if (player.username.isNotBlank()) {
+                playRepository.loadUserColorsAsLiveData(player.username)
+            } else {
+                playRepository.loadPlayerColorsAsLiveData(player.name)
+            }
+            addedPlayers.addSource(colors) { result ->
+                result?.let {
+                    // TODO make this LiveData
+                    playerFavoriteColorMap[player.description] = it
+                    assemblePlayers()
+                }
+            }
+        }
         _addedPlayers.value = newList
     }
 
@@ -150,16 +169,6 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             colorMap[player.description] = color
             playerColorMap.value = colorMap
         }
-    }
-
-    private fun assemblePlayers(players: List<PlayerEntity>, playerColors: Map<String, String>) {
-        val p = mutableListOf<NewPlayPlayerEntity>()
-        players.forEach {
-            val newPlayer = NewPlayPlayerEntity(it)
-            newPlayer.color = playerColors[newPlayer.description] ?: ""
-            p.add(newPlayer)
-        }
-        addedPlayers.value = p
     }
 
     fun finishPlayerColors() {
@@ -202,6 +211,31 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             !(addedPlayers ?: emptyList()).contains(it) &&
                     (it.name.contains(filter, true) || it.username.contains(filter, true))
         }
+    }
+
+    private fun assemblePlayers(
+            addedPlayers: List<PlayerEntity> = _addedPlayers.value ?: emptyList(),
+            playerColors: Map<String, String> = playerColorMap.value ?: emptyMap(),
+            favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
+            gameColorList: List<String> = gameColors.value ?: emptyList()) {
+        val players = mutableListOf<NewPlayPlayerEntity>()
+        addedPlayers.forEach { playerEntity ->
+            val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
+                color = playerColors[description] ?: ""
+                val favoriteForPlayer = favoriteColorsMap[description]?.map { it.description }
+                        ?: emptyList()
+                val rankedChoices = favoriteForPlayer
+                        .filter { gameColorList.contains(it) }
+                        .filterNot { playerColors.containsValue(it) }
+                        .toMutableList()
+                rankedChoices += gameColorList
+                        .filterNot { favoriteForPlayer.contains(it) }
+                        .filterNot { playerColors.containsValue(it) }
+                favoriteColors = rankedChoices
+            }
+            players.add(newPlayer)
+        }
+        this.addedPlayers.value = players
     }
 
     private fun isLastPlayRecent(): Boolean {
