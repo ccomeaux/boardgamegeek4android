@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -29,7 +30,7 @@ class NewPlayAddPlayersFragment : Fragment() {
     }
 
     private val adapter: PlayersAdapter by lazy {
-        PlayersAdapter(viewModel)
+        PlayersAdapter(viewModel, filterView)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -119,7 +120,8 @@ class NewPlayAddPlayersFragment : Fragment() {
         }
     }
 
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
+    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val filterView: TextView) :
+            RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
         var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name && old.username == new.username && old.avatarUrl == new.avatarUrl
@@ -142,7 +144,10 @@ class NewPlayAddPlayersFragment : Fragment() {
                     itemView.nameView.text = p.name
                     itemView.usernameView.text = p.username
                     itemView.avatarView.loadThumbnail(p.avatarUrl, R.drawable.person_image_empty)
-                    itemView.setOnClickListener { viewModel.addPlayer(p) }
+                    itemView.setOnClickListener {
+                        viewModel.addPlayer(p)
+                        filterView.setText("")
+                    }
                 }
             }
         }
