@@ -45,10 +45,6 @@ class NewPlayPlayerColorsFragment : Fragment() {
             adapter.players = it
         })
 
-        viewModel.gameColors.observe(this, Observer {
-            adapter.featuredColors = ArrayList(it ?: emptyList())
-        })
-
         doneButton.setOnClickListener {
             viewModel.finishPlayerColors()
         }
@@ -63,6 +59,18 @@ class NewPlayPlayerColorsFragment : Fragment() {
     private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
         : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
 
+        private var featuredColors = emptyList<String>()
+        private var selectedColors = emptyList<String>()
+
+        init {
+            viewModel.gameColors.observe(activity, Observer {
+                featuredColors = it
+            })
+            viewModel.selectedColors.observe(activity, Observer {
+                selectedColors = it
+            })
+        }
+
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name &&
@@ -71,8 +79,6 @@ class NewPlayPlayerColorsFragment : Fragment() {
                         old.favoriteColors == new.favoriteColors
             }
         }
-
-        var featuredColors: ArrayList<String> = ArrayList(emptyList())
 
         override fun getItemCount() = players.size
 
@@ -111,7 +117,10 @@ class NewPlayPlayerColorsFragment : Fragment() {
                     itemView.colorPickerButton.setOnClickListener {
                         NewPlayPlayerColorPickerDialogFragment.launch(
                                 activity,
+                                p.description,
                                 featuredColors,
+                                p.color,
+                                selectedColors,
                                 adapterPosition)
                     }
                 }

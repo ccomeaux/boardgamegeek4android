@@ -59,6 +59,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     val addedPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
     private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
     private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColorEntity>>()
+    val selectedColors = MediatorLiveData<List<String>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -82,20 +83,24 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             result?.let { availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, result, playerFilter) }
         }
 
-        addedPlayers.addSource(_addedPlayers) { result ->
-            result?.let {
-                assemblePlayers(addedPlayers = result)
+        addedPlayers.addSource(_addedPlayers) { list ->
+            list?.let {
+                assemblePlayers(addedPlayers = it)
             }
         }
-        addedPlayers.addSource(playerColorMap) { result ->
-            result?.let {
+        addedPlayers.addSource(playerColorMap) { map ->
+            map?.let {
                 assemblePlayers(playerColors = it)
             }
         }
-        addedPlayers.addSource(gameColors) { result ->
-            result?.let {
+        addedPlayers.addSource(gameColors) { list ->
+            list?.let {
                 assemblePlayers(gameColorList = it)
             }
+        }
+
+        selectedColors.addSource(addedPlayers) { result ->
+            selectedColors.value = result.map { it.color }
         }
     }
 

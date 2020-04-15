@@ -25,7 +25,12 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
         @StringRes val titleResId = arguments?.getInt(KEY_TITLE_ID) ?: 0
-        if (titleResId != 0) builder.setTitle(titleResId)
+        if (titleResId != 0) {
+            builder.setTitle(titleResId)
+        } else {
+            val title = arguments?.getString(KEY_TITLE) ?: ""
+            if (title.isNotBlank()) builder.setTitle(title)
+        }
         return builder.create()
     }
 
@@ -114,6 +119,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
 
     companion object {
         private const val KEY_TITLE_ID = "title_id"
+        private const val KEY_TITLE = "title"
         private const val KEY_COLOR_COUNT = "color_count"
         private const val KEY_COLORS_DESCRIPTION = "colors_desc"
         private const val KEY_COLORS = "colors"
@@ -148,19 +154,49 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
                          hiddenColors: ArrayList<String>? = null): Bundle {
             return Bundle().apply {
                 putInt(KEY_TITLE_ID, titleResId)
-                putInt(KEY_COLOR_COUNT, colors.size)
-                for (i in colors.indices) {
-                    val color = colors[i]
-                    putString(KEY_COLORS_DESCRIPTION + i, color.first)
-                    putInt(KEY_COLORS + i, color.second)
-                }
-                putStringArrayList(KEY_FEATURED_COLORS, featuredColors)
-                putString(KEY_SELECTED_COLOR, selectedColor)
-                putStringArrayList(KEY_DISABLED_COLORS, disabledColors)
-                putStringArrayList(KEY_HIDDEN_COLORS, hiddenColors)
-                putInt(KEY_COLUMNS, columns)
-                putInt(KEY_REQUEST_CODE, requestCode)
+                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode)
             }
+        }
+
+        /**
+         * Constructor
+         *
+         * @param title          title
+         * @param colors         list of colors and their description
+         * @param featuredColors subset of the list of colors that should be featured above the rest
+         * @param selectedColor  selected color
+         * @param disabledColors colors that should be displayed as disabled (but still selectable
+         * @param hiddenColors   colors that should be hidden
+         * @param columns        number of columns
+         * @return new ColorPickerDialog
+         */
+        fun createBundle(title: String,
+                         colors: List<Pair<String, Int>>,
+                         featuredColors: ArrayList<String>?,
+                         selectedColor: String?,
+                         disabledColors: ArrayList<String>?,
+                         columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
+                         requestCode: Int = 0,
+                         hiddenColors: ArrayList<String>? = null): Bundle {
+            return Bundle().apply {
+                putString(KEY_TITLE, title)
+                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode)
+            }
+        }
+
+        private fun Bundle.buildBundle(colors: List<Pair<String, Int>>, featuredColors: ArrayList<String>?, selectedColor: String?, disabledColors: ArrayList<String>?, hiddenColors: ArrayList<String>?, columns: Int, requestCode: Int) {
+            putInt(KEY_COLOR_COUNT, colors.size)
+            for (i in colors.indices) {
+                val color = colors[i]
+                putString(KEY_COLORS_DESCRIPTION + i, color.first)
+                putInt(KEY_COLORS + i, color.second)
+            }
+            putStringArrayList(KEY_FEATURED_COLORS, featuredColors)
+            putString(KEY_SELECTED_COLOR, selectedColor)
+            putStringArrayList(KEY_DISABLED_COLORS, disabledColors)
+            putStringArrayList(KEY_HIDDEN_COLORS, hiddenColors)
+            putInt(KEY_COLUMNS, columns)
+            putInt(KEY_REQUEST_CODE, requestCode)
         }
     }
 }

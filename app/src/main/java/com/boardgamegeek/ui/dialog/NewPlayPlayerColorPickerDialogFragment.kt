@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.dialog
 import android.util.Pair
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProviders
-import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.util.ColorUtils
@@ -22,14 +21,14 @@ class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     }
 
     companion object {
-        fun launch(activity: FragmentActivity, featuredColors: ArrayList<String>, playerIndex: Int) {
+        fun launch(activity: FragmentActivity, playerDescription: String, featuredColors: List<String>, selectedColor: String?, disabledColors: List<String>, playerIndex: Int) {
             val df = NewPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
-                        R.string.title_add_color,
+                        playerDescription,
                         ColorUtils.getColorList(),
-                        featuredColors,
-                        null,
-                        null,
+                        ArrayList(featuredColors),
+                        selectedColor,
+                        ArrayList(disabledColors),
                         requestCode = playerIndex)
             }
             activity.showAndSurvive(df)
