@@ -286,7 +286,12 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         )
 
         for (player in _addedPlayers.value ?: mutableListOf()) {
-            play.addPlayer(PlayPlayerEntity(player.name, player.username))
+            val p = PlayPlayerEntity(
+                    player.name,
+                    player.username,
+                    color = (playerColorMap.value ?: emptyMap<String, String>())[player.description]
+            )
+            play.addPlayer(p)
         }
 
         playRepository.save(play, insertedId)
