@@ -76,12 +76,12 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
                     featured.add(0, pair)
                 }
             }
-            ColorGridAdapter(requireContext(), featured, disabledColors)
+            ColorGridAdapter(featured, disabledColors)
         } else {
             null
         }
 
-        val colorGridAdapter = ColorGridAdapter(requireContext(), choices, disabledColors)
+        val colorGridAdapter = ColorGridAdapter(choices, disabledColors)
         colorGridAdapter.selectedColor = selectedColor
         colorGrid.adapter = colorGridAdapter
 
