@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Coming Soon
+-----------
+ * Set up for easier translation
+ * Rework how collection views work under the hood
+
 Version 6.7.1
 -------------
  * Display negative scores
