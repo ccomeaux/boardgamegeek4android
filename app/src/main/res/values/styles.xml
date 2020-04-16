@@ -397,6 +397,7 @@
 		<item name="android:paddingLeft">@dimen/padding_half</item>
 		<item name="android:paddingRight">@dimen/padding_half</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:lines">1</item>
 	</style>
 
 	<style name="RatingSmall.Regular">
