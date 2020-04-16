@@ -35,7 +35,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         companion object {
             private val map = values().associateBy(ProducerType::value)
-            fun fromInt(value: Int) = map[value]
+            fun fromInt(value: Int?) = map[value] ?: UNKNOWN
         }
     }
 
