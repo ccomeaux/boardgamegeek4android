@@ -5,6 +5,7 @@ Coming Soon
 -----------
  * Set up for easier translation
  * Rework how collection views work under the hood
+ * Correct refreshing collection when viewing an accessory
 
 Version 6.7.1
 -------------
