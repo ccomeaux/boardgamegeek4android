@@ -341,7 +341,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					play.setCurrentDate();
 
 					long lastPlay = PreferencesUtils.getLastPlayTime(this);
-					if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
+					if (DateTimeUtils.howManyHoursOld(lastPlay) < 12) {
 						play.location = PreferencesUtils.getLastPlayLocation(this);
 						play.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
 						play.pickStartPlayer(0);
@@ -765,7 +765,10 @@ public class LogPlayActivity extends AppCompatActivity implements
 				PlayRepository playRepository = new PlayRepository((BggApplication) getApplication());
 				playRepository.markAsDeleted(internalIdToDelete);
 			}
-			if (play.playId == 0 && DateUtils.isToday(play.dateInMillis + Math.max(60, play.length) * 60 * 1000)) {
+			if (play.playId == 0 &&
+				(DateUtils.isToday(play.dateInMillis) ||
+					DateUtils.isToday(System.currentTimeMillis() - play.length * 60_000))
+			) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, play.location);
 				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());
