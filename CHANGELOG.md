@@ -6,6 +6,7 @@ Coming Soon
  * Set up for easier translation
  * Prevent rating on the collection list from wrapping
  * Logging a play will recall the location and players from the last play within 12 hours
+ * Sort and filter by Geek Rating again
  * Rework how collection views work under the hood
  * Correct refreshing collection when viewing an accessory
 
