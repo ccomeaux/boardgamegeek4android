@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Coming Soon
+Version 6.8
 -----------
  * Collection text fields now support mark down
  * Set up for easier translation
