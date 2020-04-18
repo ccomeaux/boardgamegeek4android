@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Collection text fields now support mark down
  * Set up for easier translation
  * Prevent rating on the collection list from wrapping
  * Logging a play will recall the location and players from the last play within 12 hours
