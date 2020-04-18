@@ -6,24 +6,11 @@ import com.boardgamegeek.service.model.CollectionItem
 import okhttp3.OkHttpClient
 
 class CollectionWantPartsUploadTask(client: OkHttpClient) : CollectionTextUploadTask(client) {
+    override fun getTimestampColumn() = Collection.WANT_PARTS_DIRTY_TIMESTAMP
 
-    override fun getTextColumn(): String {
-        return Collection.WANTPARTS_LIST
-    }
+    override fun getFieldName() = "wantpartslist"
 
-    override fun getTimestampColumn(): String {
-        return Collection.WANT_PARTS_DIRTY_TIMESTAMP
-    }
+    override fun getValue(collectionItem: CollectionItem) = collectionItem.wantParts.orEmpty()
 
-    override fun getFieldName(): String {
-        return "wantpartslist"
-    }
-
-    override fun getValue(collectionItem: CollectionItem): String {
-        return collectionItem.wantParts ?: ""
-    }
-
-    override fun isDirty(): Boolean {
-        return collectionItem.wantPartsDirtyTimestamp > 0
-    }
+    override fun isDirty() = collectionItem.wantPartsDirtyTimestamp > 0
 }
