@@ -3,8 +3,12 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.text.Html
 import android.text.TextUtils
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -35,6 +39,7 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var showcaseViewWizard: ShowcaseViewWizard? = null
+
     @Suppress("DEPRECATION")
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
@@ -156,7 +161,11 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         playerAgeView?.text = game.minimumAge.asAge(context)
 
         weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
-        weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+        if (game.averageWeight == 0.0) {
+            weightScoreView.isVisible = false
+        } else {
+            weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+        }
         val textColor = weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
         weightView.setTextColor(textColor)
         weightScoreView.setTextColor(textColor)
@@ -180,7 +189,11 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         val totalVotes = entity?.totalVotes ?: 0
 
         languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
-        languageScoreView.setTextOrHide(score.asScore(context))
+        if (score == 0.0) {
+            languageScoreView.isVisible = false
+        } else {
+            languageScoreView.setTextOrHide(score.asScore(context))
+        }
         languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
 
         val textColor = languageColorView.setTextViewBackground(score.toColor(fiveStageColors))
