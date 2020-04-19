@@ -8,10 +8,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.asHttpErrorMessage
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.PresentationUtils
 import com.boardgamegeek.util.fabric.CrashKeys
 import com.crashlytics.android.Crashlytics
 import timber.log.Timber
@@ -100,7 +100,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
      * existing error notification.
      */
     protected fun showError(detailMessage: String, httpCode: Int) {
-        showError(detailMessage, PresentationUtils.getHttpErrorMessage(context, httpCode))
+        showError(detailMessage, httpCode.asHttpErrorMessage(context))
     }
 
     /**

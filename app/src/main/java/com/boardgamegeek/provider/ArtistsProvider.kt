@@ -23,7 +23,7 @@ class ArtistsProvider : BasicProvider() {
                 .mapToTable(Artists.UPDATED, table)
         if (projection.contains(Artists.ITEM_COUNT)) {
             builder
-                    .table(Tables.ARTISTS_JOIN_GAMES)
+                    .table(Tables.ARTISTS_JOIN_COLLECTION)
                     .groupBy("$table.${Artists.ARTIST_ID}")
                     .mapAsCount(Artists.ITEM_COUNT)
         } else {

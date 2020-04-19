@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:tools="http://schemas.android.com/tools"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:importantForAutofill="noExcludeDescendants"
 		android:orientation="vertical"
-		android:paddingBottom="@dimen/material_margin_vertical"
 		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
 		android:paddingTop="@dimen/material_margin_vertical"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingBottom="@dimen/material_margin_vertical"
 		tools:ignore="UnusedAttribute">
 
 		<TextView
@@ -20,8 +21,8 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_extra"
 			android:background="@drawable/warning"
-			android:drawableLeft="@drawable/ic_action_warning"
 			android:drawableStart="@drawable/ic_action_warning"
+			android:drawableLeft="@drawable/ic_action_warning"
 			android:gravity="center"
 			android:padding="@dimen/padding_standard"
 			android:text="@string/msg_warning_private_info"
@@ -41,6 +42,7 @@
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/input_price"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -68,6 +70,7 @@
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/input_current_value"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/current_value">
@@ -83,6 +86,7 @@
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/input_quantity"
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/quantity">
@@ -100,8 +104,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/acquisition_date"
-			android:paddingEnd="4dp"
 			android:paddingStart="4dp"
+			android:paddingEnd="4dp"
 			android:textColor="?attr/colorControlActivated"
 			android:textSize="12sp"/>
 
@@ -122,8 +126,8 @@
 				android:gravity="start|center_vertical"
 				android:hint="@string/acquisition_date"
 				android:minHeight="48dp"
-				android:paddingEnd="4dp"
 				android:paddingStart="4dp"
+				android:paddingEnd="4dp"
 				android:textAppearance="@style/Text.Big"
 				tools:text="January 1, 1970"/>
 
@@ -139,12 +143,14 @@
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/input_acquired_from"
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/acquired_from">
 
 			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/acquiredFromView"
+				style="?attr/editTextStyle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:completionThreshold="1"
@@ -156,12 +162,14 @@
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/input_inventory_location"
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/inventory_location">
 
 			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/inventoryLocationView"
+				style="?attr/editTextStyle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:completionThreshold="1"

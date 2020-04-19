@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer
 
 import android.content.Context
-
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Collection
 
@@ -18,7 +17,7 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
             startsWith = false
         } else {
             filterText = data.substring(0, lastIndex)
-            startsWith = data.substring(lastIndex) == "1"
+            startsWith = data.substring(lastIndex + 1) == "1"
         }
     }
 

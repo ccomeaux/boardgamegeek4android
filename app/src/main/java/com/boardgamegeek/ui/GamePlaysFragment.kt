@@ -1,7 +1,10 @@
 package com.boardgamegeek.ui
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateUtils
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +20,7 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import com.boardgamegeek.ui.widget.SelfUpdatingView
 import kotlinx.android.synthetic.main.fragment_game_plays.*
 
 class GamePlaysFragment : Fragment() {
@@ -104,10 +108,10 @@ class GamePlaysFragment : Fragment() {
                 val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
                 if (inProgressPlays.isNotEmpty()) {
                     inProgressPlaysList.removeAllViews()
-                    inProgressPlays.forEach { play ->
-                        val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary, inProgressPlaysList, false)
-                        val title = if (play.startTime > 0) play.startTime.asPastMinuteSpan(requireContext()) else play.dateForDisplay(requireContext())
-                        row.findViewById<TextView>(R.id.line1)?.text = title
+                    inProgressPlays.take(3).forEach { play ->
+                        val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary_updating, inProgressPlaysList, false)
+                        row.findViewById<InProgressPlay>(R.id.line1).play = play
+                        row.findViewById<InProgressPlay>(R.id.line1).timeHintUpdateInterval = 1_000L
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
                             PlayActivity.start(context, play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
@@ -172,6 +176,24 @@ class GamePlaysFragment : Fragment() {
     companion object {
         fun newInstance(): GamePlaysFragment {
             return GamePlaysFragment()
+        }
+    }
+
+    class InProgressPlay @JvmOverloads constructor(
+            context: Context,
+            attrs: AttributeSet? = null,
+            defStyleAttr: Int = android.R.attr.textViewStyle
+    ) : SelfUpdatingView(context, attrs, defStyleAttr) {
+        var play: PlayEntity? = null
+
+        override fun updateText() {
+            play?.let {
+                text = when {
+                    it.startTime > 0 -> context.getText(R.string.playing_for_prefix, DateUtils.formatElapsedTime((System.currentTimeMillis() - it.startTime) / 1000))
+                    DateUtils.isToday(it.dateInMillis) -> context.getText(R.string.playing_prefix, it.dateForDisplay(context))
+                    else -> context.getText(R.string.playing_since_prefix, it.dateForDisplay(context))
+                }
+            }
         }
     }
 }

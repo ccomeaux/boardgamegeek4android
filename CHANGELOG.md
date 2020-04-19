@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+Coming Soon
+-----------
+ * Collection text fields now support mark down
+ * Set up for easier translation
+ * Prevent rating on the collection list from wrapping
+ * Logging a play will recall the location and players from the last play within 12 hours
+ * Sort and filter by Geek Rating again
+ * Rework how collection views work under the hood
+ * Correct refreshing collection when viewing an accessory
+
+Version 6.7.1
+-------------
+ * Display negative scores
+
 Version 6.7
 -----------
  * Lots more data for designers, artists, publishers, mechanics, and categories

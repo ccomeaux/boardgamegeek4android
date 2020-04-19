@@ -3,10 +3,24 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
+
+fun Context.getViewDefaultId(): Long {
+    return getLong(VIEW_DEFAULT_ID, PreferencesUtils.VIEW_ID_COLLECTION)
+}
+
+fun Context.putViewDefaultId(id: Long): Boolean {
+    return putLong(VIEW_DEFAULT_ID, id)
+}
+
+fun Context.removeViewDefaultId(): Boolean {
+    return remove(VIEW_DEFAULT_ID)
+}
 
 fun Context?.addSyncStatus(status: String): Boolean {
     if (this == null) return false
@@ -88,9 +102,38 @@ fun Context.setSyncBuddies(): Boolean {
     return putBoolean(PREFERENCES_KEY_SYNC_BUDDIES, true)
 }
 
+fun Context.setStatsCalculatedTimestampArtists(): Boolean {
+    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, System.currentTimeMillis())
+}
+
+fun Context.setStatsCalculatedTimestampDesigners(): Boolean {
+    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, System.currentTimeMillis())
+}
+
+fun Context.setStatsCalculatedTimestampPublishers(): Boolean {
+    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, System.currentTimeMillis())
+}
+
+fun Context.getStatsCalculatedTimestampArtists(): Long {
+    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0)
+}
+
+fun Context.getStatsCalculatedTimestampDesigners(): Long {
+    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0)
+}
+
+fun Context.getStatsCalculatedTimestampPublishers(): Long {
+    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0)
+}
+
 private fun Context.getBoolean(key: String, defaultValue: Boolean): Boolean {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     return sharedPreferences.getBoolean(key, defaultValue)
+}
+
+private fun Context.getLong(key: String, defaultValue: Long): Long {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    return sharedPreferences.getLong(key, defaultValue)
 }
 
 private fun Context.putBoolean(key: String, value: Boolean): Boolean {
@@ -114,6 +157,15 @@ private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
     return editor.commit()
 }
 
+private fun Context.remove(key: String): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val editor = sharedPreferences.edit()
+    editor.remove(key)
+    return editor.commit()
+}
+
+private const val VIEW_DEFAULT_ID = "viewDefaultId"
+
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
 const val PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp"
@@ -132,3 +184,7 @@ const val COLLECTION_STATUS_RATED = "rated"
 const val COLLECTION_STATUS_COMMENTED = "comment"
 const val COLLECTION_STATUS_HAS_PARTS = "hasparts"
 const val COLLECTION_STATUS_WANT_PARTS = "wantparts"
+
+private const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS = "statsCalculatedTimestampArtists"
+private const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS = "statsCalculatedTimestampDesigners"
+private const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS = "statsCalculatedTimestampPublishers"
