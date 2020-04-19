@@ -119,8 +119,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:tag="@string/collection_filter_type_geek_rating"
-			android:text="@string/menu_geek_rating"
-			android:visibility="gone"/>
+			android:text="@string/menu_geek_rating"/>
 
 		<CheckBox
 			android:id="@+id/average_rating"

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.boardgamegeek.R
+import java.util.*
 
 fun FragmentActivity.showAndSurvive(dialog: DialogFragment) {
     val fragmentManager = supportFragmentManager
@@ -24,7 +25,7 @@ fun FragmentActivity.showAndSurvive(dialog: DialogFragment) {
 }
 
 fun Fragment.showAndSurvive(dialog: DialogFragment) {
-    val fragmentManager = fragmentManager
+    val fragmentManager = parentFragmentManager
     showAndSurvive(dialog, fragmentManager)
 }
 
@@ -65,7 +66,7 @@ fun createDiscardDialog(
     else
         R.string.discard_changes_message)
     return activity.createThemedBuilder()
-            .setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
+            .setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase(Locale.getDefault())))
             .setPositiveButton(positiveButtonResId, null)
             .setNegativeButton(R.string.discard) { _, _ ->
                 discardListener?.onDiscard()

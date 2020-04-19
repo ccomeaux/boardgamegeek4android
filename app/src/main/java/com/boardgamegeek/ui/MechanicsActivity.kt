@@ -33,7 +33,7 @@ class MechanicsActivity : SimpleSinglePaneActivity() {
 
     override fun onCreatePane(intent: Intent): Fragment = MechanicsFragment.newInstance()
 
-    override val optionsMenuId = R.menu.artists
+    override val optionsMenuId = R.menu.mechanics
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

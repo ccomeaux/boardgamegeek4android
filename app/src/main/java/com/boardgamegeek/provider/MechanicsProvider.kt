@@ -22,7 +22,7 @@ class MechanicsProvider : BasicProvider() {
                 .mapToTable(Mechanics.MECHANIC_ID, table)
         if (projection.contains(Mechanics.ITEM_COUNT)) {
             builder
-                    .table(Tables.MECHANICS_JOIN_GAMES)
+                    .table(Tables.MECHANICS_JOIN_COLLECTION)
                     .groupBy("$table.${Mechanics.MECHANIC_ID}")
                     .mapAsCount(Mechanics.ITEM_COUNT)
         } else {

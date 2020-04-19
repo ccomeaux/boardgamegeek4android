@@ -22,7 +22,6 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.jakewharton.picasso.OkHttp3Downloader;
-import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -62,7 +61,6 @@ public class BggApplication extends MultiDexApplication {
 			Crashlytics.setString("GIT_SHA", BuildConfig.GIT_SHA);
 			Timber.plant(new CrashReportingTree());
 		}
-		LeakCanary.install(this);
 
 		RemoteConfig.init();
 

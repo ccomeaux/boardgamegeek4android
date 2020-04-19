@@ -13,7 +13,7 @@ import com.boardgamegeek.extensions.use
 import com.boardgamegeek.provider.BggContract.*
 import java.util.*
 
-class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player, ArrayList<Result>()), Filterable {
+class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
     private val resolver = context.contentResolver
     private val inflater = LayoutInflater.from(context)
     private val resultList = ArrayList<Result>()

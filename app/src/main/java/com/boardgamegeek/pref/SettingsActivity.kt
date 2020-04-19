@@ -111,7 +111,7 @@ class SettingsActivity : DrawerActivity() {
                                 .withAboutIconShown(true)
                                 .withAboutAppName(getString(R.string.app_name))
                                 .withAboutVersionShownName(true)
-                                .start(activity)
+                                .start(requireContext())
                         true
                     }
                 }

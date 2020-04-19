@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.HIndexEntity;
+import com.boardgamegeek.extensions.ContextUtils;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.ui.PlayStatsActivity;
 
@@ -29,7 +30,6 @@ public class PreferencesUtils {
 	public static final int INVALID_ARTICLE_ID = -1;
 
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
-	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
@@ -228,7 +228,7 @@ public class PreferencesUtils {
 				@StringRes int messageId = hIndex.getH() > oldHIndex || (hIndex.getH() == oldHIndex && hIndex.getN() < oldN) ?
 					R.string.sync_notification_h_index_increase :
 					R.string.sync_notification_h_index_decrease;
-				notifyPlayStatChange(context, PresentationUtils.getText(context, messageId, context.getString(typeResId), hIndex.getDescription()), notificationId);
+				notifyPlayStatChange(context, ContextUtils.getText(context, messageId, context.getString(typeResId), hIndex.getDescription()), notificationId);
 			}
 		}
 	}
@@ -241,18 +241,6 @@ public class PreferencesUtils {
 			.setContentText(message)
 			.setContentIntent(pi);
 		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, id, builder);
-	}
-
-	public static long getViewDefaultId(Context context) {
-		return getLong(context, VIEW_DEFAULT_ID, VIEW_ID_COLLECTION);
-	}
-
-	public static boolean putViewDefaultId(Context context, long id) {
-		return putLong(context, VIEW_DEFAULT_ID, id);
-	}
-
-	public static boolean removeViewDefaultId(Context context) {
-		return remove(context, VIEW_DEFAULT_ID);
 	}
 
 	public static long getLastPlayTime(Context context) {

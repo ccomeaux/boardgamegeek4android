@@ -1,16 +1,18 @@
+@file:JvmName("TextViewUtils")
+
 package com.boardgamegeek.extensions
 
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.text = text
-    visibility = if (text.isNullOrEmpty()) View.GONE else View.VISIBLE
+    isVisible = !text.isNullOrBlank()
 }
 
 fun TextView.setTextOrHide(@StringRes textResId: Int) {
@@ -22,12 +24,13 @@ fun TextView.setTextOrHide(@StringRes textResId: Int) {
     }
 }
 
-fun TextView.setTextMaybeHtml(text: String?) {
+@JvmOverloads
+fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY) {
     when {
         text == null -> this.text = ""
         text.isBlank() -> this.text = ""
         text.contains("<") && text.contains(">") || text.contains("&") && text.contains(";") -> {
-            var html = text
+            var html = text.trim()
             // Fix up problematic HTML
             // replace DIVs with BR
             html = html.replace("[<]div[^>]*[>]".toRegex(), "")
@@ -42,8 +45,7 @@ fun TextView.setTextMaybeHtml(text: String?) {
             html = html.replace("\n".toRegex(), "<br/>")
             html = fixInternalLinks(html)
 
-            @Suppress("DEPRECATION")
-            val spanned = Html.fromHtml(html)
+            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags)
             this.text = spanned
             this.movementMethod = LinkMovementMethod.getInstance()
         }

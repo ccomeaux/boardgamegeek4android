@@ -24,6 +24,7 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
+import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
@@ -42,7 +43,6 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
@@ -180,8 +180,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		unbinder = ButterKnife.bind(this, rootView);
 
 		if (swipeRefreshLayout != null) {
+			SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
 			swipeRefreshLayout.setOnRefreshListener(this);
-			swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
 		}
 
 		adapter = new PlayPlayerAdapter(getContext(), play);
@@ -292,7 +292,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			case R.id.menu_change_game:
 				PlayManipulationEvent.log("Change game", play.gameName);
-				startActivity(CollectionActivity.createIntentForGameChange(getContext(), internalId));
+				startActivity(CollectionActivity.createIntentForGameChange(requireContext(), internalId));
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:

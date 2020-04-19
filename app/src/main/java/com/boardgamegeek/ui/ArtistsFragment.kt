@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -11,7 +10,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.fadeIn
+import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -20,17 +22,13 @@ import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import kotlinx.android.synthetic.main.row_artist.view.*
 import kotlin.properties.Delegates
 
-class ArtistsFragment : Fragment() {
+class ArtistsFragment : Fragment(R.layout.fragment_artists) {
     private val viewModel: ArtistsViewModel by lazy {
         ViewModelProviders.of(requireActivity()).get(ArtistsViewModel::class.java)
     }
 
     private val adapter: ArtistsAdapter by lazy {
         ArtistsAdapter(viewModel)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_artists, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,14 +118,8 @@ class ArtistsFragment : Fragment() {
                 artist?.let { a ->
                     itemView.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
                     itemView.nameView.text = a.name
-                    val showWhitmoreScore = itemView.context.isStatusSetToSync(COLLECTION_STATUS_RATED)
-                    if (showWhitmoreScore) {
-                        itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
-                    } else {
-                        itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
-                    }
-                    itemView.countView.isVisible = !showWhitmoreScore
-                    itemView.whitmoreScoreView.isVisible = showWhitmoreScore
+                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForArtist(itemView.context, a.id, a.name)
                     }

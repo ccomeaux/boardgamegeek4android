@@ -16,24 +16,6 @@
 		<item>Has Parts</item>
 		<item>Want Parts</item>
 	</string-array>
-	<string-array name="pref_sync_status_values">
-		<item>own</item>
-		<item>prevowned</item>
-		<item>trade</item>
-		<item>want</item>
-		<item>wanttobuy</item>
-		<item>wishlist</item>
-		<item>wanttoplay</item>
-		<item>preordered</item>
-		<item>played</item>
-		<item>rated</item>
-		<item>comment</item>
-		<item>hasparts</item>
-		<item>wantparts</item>
-	</string-array>
-	<string-array name="pref_sync_status_default">
-		<item>own</item>
-	</string-array>
 	<string-array name="collection_status_filter_entries">
 		<item>Own</item>
 		<item>Previously Owned</item>
@@ -44,27 +26,11 @@
 		<item>Want to Play</item>
 		<item>Preordered</item>
 	</string-array>
-	<string-array name="collection_status_filter_values">
-		<item>own</item>
-		<item>previously_owned</item>
-		<item>for_trade</item>
-		<item>want</item>
-		<item>want_to_buy</item>
-		<item>wishlist</item>
-		<item>want_to_play</item>
-		<item>preordered</item>
-	</string-array>
 	<string-array name="expansion_status_filter">
 		<item>All</item>
 		<item>Base games</item>
 		<item>Expansions</item>
 		<item>Accessories</item>
-	</string-array>
-	<string-array name="expansion_status_filter_values">
-		<item/>
-		<item>boardgame</item>
-		<item>boardgameexpansion</item>
-		<item>boardgameaccessory</item>
 	</string-array>
 	<string-array name="wishlist_priority">
 		<item>Unknown</item>
@@ -81,15 +47,6 @@
 		<item>Like to have</item>
 		<item>Thinking about it</item>
 		<item>Don\'t buy this</item>
-	</string-array>
-	<string-array name="currency">
-		<item>USD</item>
-		<item>EUR</item>
-		<item>GBP</item>
-		<item>CAD</item>
-		<item>AUD</item>
-		<item>YEN</item>
-		<item>Other</item>
 	</string-array>
 	<string-array name="game_weight">
 		<item>Light</item>

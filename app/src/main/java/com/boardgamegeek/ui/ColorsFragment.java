@@ -18,10 +18,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.FloatingActionButtonUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -33,7 +33,6 @@ import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter.Callback;
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -103,7 +102,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
-		PresentationUtils.colorFab(fab, iconColor);
+		FloatingActionButtonUtils.colorize(fab, iconColor);
 		setUpRecyclerView();
 		return rootView;
 	}
@@ -126,12 +125,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 				int count = getActivity().getContentResolver().delete(Games.buildColorsUri(gameId, color), null, null);
 				if (count > 0) {
 					Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
-						.setAction(R.string.undo, new OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								addColor(color);
-							}
-						})
+						.setAction(R.string.undo, v -> addColor(color))
 						.show();
 				}
 			}
@@ -199,7 +193,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		readBundle(getArguments());
-		PresentationUtils.colorFab(fab, iconColor);
+		FloatingActionButtonUtils.colorize(fab, iconColor);
 		LoaderManager.getInstance(this).restartLoader(TOKEN, getArguments(), this);
 	}
 

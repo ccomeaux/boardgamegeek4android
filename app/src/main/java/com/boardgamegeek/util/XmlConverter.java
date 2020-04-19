@@ -3,6 +3,8 @@ package com.boardgamegeek.util;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
+import com.boardgamegeek.extensions.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -390,7 +392,7 @@ public class XmlConverter {
 			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
-				String url = HttpUtils.ensureScheme(matcher.group(1));
+				String url = StringUtils.ensureHttpsScheme(matcher.group(1));
 				matcher.appendReplacement(result, "<a href=\"" + url + "\">" + url + "</a>");
 			}
 			matcher.appendTail(result);
@@ -402,7 +404,7 @@ public class XmlConverter {
 			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
-				matcher.appendReplacement(result, HttpUtils.ensureScheme(matcher.group(1)));
+				matcher.appendReplacement(result, StringUtils.ensureHttpsScheme(matcher.group(1)));
 			}
 			matcher.appendTail(result);
 			return result.toString();
@@ -421,7 +423,7 @@ public class XmlConverter {
 			Matcher matcher = pattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
-				String url = HttpUtils.ensureScheme(matcher.group(1));
+				String url = StringUtils.ensureHttpsScheme(matcher.group(1));
 				String displayText = matcher.group(2);
 				if (TextUtils.isEmpty(displayText)) {
 					matcher.appendReplacement(result, "<a href=\"" + url + "\">" + url + "</a>");
@@ -440,7 +442,7 @@ public class XmlConverter {
 			while (matcher.find()) {
 				String displayText = matcher.group(2);
 				if (TextUtils.isEmpty(displayText)) {
-					matcher.appendReplacement(result, HttpUtils.ensureScheme(matcher.group(1)));
+					matcher.appendReplacement(result, StringUtils.ensureHttpsScheme(matcher.group(1)));
 				} else {
 					matcher.appendReplacement(result, displayText);
 				}

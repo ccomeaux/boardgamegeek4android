@@ -61,7 +61,7 @@ public class ShortcutUtils {
 		return shortcut;
 	}
 
-	public static String createGameShortcutId(int gameId) {
+	public static @NonNull String createGameShortcutId(int gameId) {
 		return "game-" + gameId;
 	}
 }

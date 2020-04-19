@@ -1,10 +1,13 @@
 package com.boardgamegeek.ui;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -12,7 +15,6 @@ import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,18 +30,18 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
-import com.boardgamegeek.events.GameShortcutRequestedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
+import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
+import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.filterer.CollectionFilterer;
-import com.boardgamegeek.filterer.CollectionFiltererFactory;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.pref.SettingsActivity;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
@@ -52,29 +54,24 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment;
 import com.boardgamegeek.ui.dialog.CollectionSortDialogFragment;
 import com.boardgamegeek.ui.dialog.DeleteViewDialogFragment;
 import com.boardgamegeek.ui.dialog.SaveViewDialogFragment;
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.ui.widget.TimestampView;
-import com.boardgamegeek.ui.widget.ToolbarActionItemTarget;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
-import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.fabric.FilterEvent;
-import com.boardgamegeek.util.fabric.SortEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
-import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
@@ -84,6 +81,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -93,10 +91,12 @@ import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
@@ -108,10 +108,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 import timber.log.Timber;
+
+import static android.app.Activity.RESULT_OK;
 
 public class CollectionFragment extends Fragment implements
 	LoaderCallbacks<Cursor>,
@@ -120,7 +119,6 @@ public class CollectionFragment extends Fragment implements
 	CollectionFilterDialog.OnFilterChangedListener {
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
-	private static final int HELP_VERSION = 2;
 
 	private Unbinder unbinder;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
@@ -135,12 +133,10 @@ public class CollectionFragment extends Fragment implements
 	@BindView(R.id.chipGroupScrollView) HorizontalScrollView chipGroupScrollView;
 	@BindView(R.id.chipGroup) ChipGroup chipGroup;
 
+	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
-	@State long viewId;
-	@State @Nullable String viewName = "";
-	@State int sortType;
-	@State ArrayList<Integer> types;
-	@State ArrayList<String> data;
+	private long viewId = PreferencesUtils.VIEW_ID_COLLECTION;
+	private String viewName = "";
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
 	private String defaultWhereClause;
@@ -149,7 +145,6 @@ public class CollectionFragment extends Fragment implements
 	private boolean isSyncing;
 	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
-	private ShowcaseViewWizard showcaseViewWizard;
 
 	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
 		Bundle args = new Bundle();
@@ -168,33 +163,10 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
 		setHasOptionsMenu(true);
-		if (savedInstanceState != null) {
-			Icepick.restoreInstanceState(this, savedInstanceState);
-
-			filters.clear();
-			if (types != null && data != null) {
-				if (types.size() != data.size()) {
-					Timber.w("Mismatched size of arrays: types.size() = %1$s; data.size() = %2$s", types.size(), data.size());
-				} else {
-					CollectionFiltererFactory factory = new CollectionFiltererFactory(getActivity());
-					for (int i = 0; i < types.size(); i++) {
-						final Integer filterType = types.get(i);
-						CollectionFilterer filterer = factory.create(filterType);
-						if (filterer == null) {
-							Timber.w("Couldn't create filterer with type %s", filterType);
-						} else {
-							filterer.inflate(data.get(i));
-							filters.add(filterer);
-						}
-					}
-				}
-			}
-		}
 	}
 
 	@Override
@@ -216,7 +188,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
 		unbinder = ButterKnife.bind(this, view);
@@ -224,7 +195,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if (isCreatingShortcut) {
@@ -239,33 +209,33 @@ public class CollectionFragment extends Fragment implements
 
 		setEmptyText();
 
-		swipeRefreshLayout.setColorSchemeResources(PresentationUtils.getColorSchemeResources());
+		SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
-
-		createShowcaseViewWizard();
-		showcaseViewWizard.maybeShowHelp();
-	}
-
-	private void createShowcaseViewWizard() {
-		showcaseViewWizard = new ShowcaseViewWizard(getActivity(), HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION);
-		showcaseViewWizard.addTarget(R.string.help_collection, Target.NONE);
-		showcaseViewWizard.addTarget(R.string.help_collection_sort, new ToolbarActionItemTarget(R.id.menu_collection_sort, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_filter, new ToolbarActionItemTarget(R.id.menu_collection_filter, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_save, new ToolbarActionItemTarget(R.id.menu_collection_view_save, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_random, new ToolbarActionItemTarget(R.id.menu_collection_random_game, footerToolbar));
-		showcaseViewWizard.addTarget(R.string.help_collection_long_click, Target.NONE);
 	}
 
 	@Override
-	@DebugLog
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Icepick.restoreInstanceState(this, savedInstanceState);
-		sorter = getCollectionSorter(sortType);
-		if (savedInstanceState != null || isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
-			requery();
-		}
+		viewModel = ViewModelProviders.of(requireActivity()).get(CollectionViewViewModel.class);
+
+		viewModel.getSelectedViewId().observe(this, id -> viewId = id);
+
+		viewModel.getSelectedViewName().observe(this, name -> viewName = name);
+
+		viewModel.getEffectiveSortType().observe(this, sortType -> {
+			progressBar.show();
+			sorter = getCollectionSorter(sortType);
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
+		});
+
+		viewModel.getEffectiveFilters().observe(this, f -> {
+			progressBar.show();
+			filters.clear();
+			filters.addAll(f);
+			setEmptyText();
+			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
+		});
 	}
 
 	@Override
@@ -276,44 +246,9 @@ public class CollectionFragment extends Fragment implements
 
 	private CollectionSorter getCollectionSorter(int sortType) {
 		if (collectionSorterFactory == null) {
-			collectionSorterFactory = new CollectionSorterFactory(getActivity());
+			collectionSorterFactory = new CollectionSorterFactory(requireContext());
 		}
 		return collectionSorterFactory.create(sortType);
-	}
-
-	@DebugLog
-	private void requery() {
-		progressBar.show();
-		LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
-	}
-
-	@Override
-	@DebugLog
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		sortType = sorter == null ? CollectionSorterFactory.TYPE_UNKNOWN : sorter.getType();
-		types = new ArrayList<>();
-		data = new ArrayList<>();
-		for (CollectionFilterer filterer : filters) {
-			types.add(filterer.getType());
-			data.add(filterer.deflate());
-		}
-		Icepick.saveInstanceState(this, outState);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.help, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.menu_help) {
-			showcaseViewWizard.showHelp();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@SuppressWarnings("unused")
@@ -371,7 +306,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	final OnMenuItemClickListener footerMenuListener = new OnMenuItemClickListener() {
-		@DebugLog
 		@Override
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
@@ -394,7 +328,8 @@ public class CollectionFragment extends Fragment implements
 					}
 					break;
 				case R.id.menu_collection_view_save:
-					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(viewName, createViewDescription(sorter, filters));
+					String name = viewId <= 0 ? "" : viewName;
+					SaveViewDialogFragment dialog = SaveViewDialogFragment.newInstance(name, createViewDescription(sorter, filters));
 					DialogUtils.showAndSurvive(CollectionFragment.this, dialog);
 					return true;
 				case R.id.menu_collection_view_delete:
@@ -469,42 +404,33 @@ public class CollectionFragment extends Fragment implements
 
 	@NonNull
 	@Override
-	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == Query._TOKEN) {
-			StringBuilder where = new StringBuilder();
-			String[] args = {};
-			StringBuilder having = new StringBuilder();
-			if (viewId == 0 && filters.size() == 0) {
-				where.append(buildDefaultWhereClause());
-			} else {
-				for (CollectionFilterer filter : filters) {
-					if (filter != null) {
-						if (!TextUtils.isEmpty(filter.getSelection())) {
-							if (where.length() > 0) where.append(" AND ");
-							where.append("(").append(filter.getSelection()).append(")");
-							args = StringUtils.concatenate(args, filter.getSelectionArgs());
-						}
-						if (!TextUtils.isEmpty(filter.getHaving())) {
-							if (having.length() > 0) having.append(" AND ");
-							having.append("(").append(filter.getHaving()).append(")");
-						}
+		StringBuilder where = new StringBuilder();
+		String[] args = {};
+		StringBuilder having = new StringBuilder();
+		if (viewId == 0 && filters.size() == 0) {
+			where.append(buildDefaultWhereClause());
+		} else {
+			for (CollectionFilterer filter : filters) {
+				if (filter != null) {
+					if (!TextUtils.isEmpty(filter.getSelection())) {
+						if (where.length() > 0) where.append(" AND ");
+						where.append("(").append(filter.getSelection()).append(")");
+						args = StringUtils.concatenate(args, filter.getSelectionArgs());
+					}
+					if (!TextUtils.isEmpty(filter.getHaving())) {
+						if (having.length() > 0) having.append(" AND ");
+						having.append("(").append(filter.getHaving()).append(")");
 					}
 				}
 			}
-			loader = new CursorLoader(getActivity(),
-				Collection.buildUri(having.toString()),
-				getProjection(),
-				where.toString(),
-				args,
-				sorter == null ? null : sorter.getOrderByClause());
-		} else if (id == ViewQuery._TOKEN) {
-			if (viewId > 0) {
-				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(viewId), ViewQuery.PROJECTION, null, null, null);
-			}
 		}
-		return loader;
+		return new CursorLoader(requireContext(),
+			Collection.buildUri(having.toString()),
+			getProjection(),
+			where.toString(),
+			args,
+			sorter == null ? null : sorter.getOrderByClause());
 	}
 
 	private String[] getProjection() {
@@ -523,7 +449,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
 		if (getActivity() == null) return;
 
@@ -569,21 +494,6 @@ public class CollectionFragment extends Fragment implements
 				AnimationUtils.fadeOut(listView);
 			}
 			progressBar.hide();
-		} else if (token == ViewQuery._TOKEN) {
-			if (cursor.moveToFirst()) {
-				viewName = cursor.getString(ViewQuery.NAME);
-				sorter = getCollectionSorter(cursor.getInt(ViewQuery.SORT_TYPE));
-				filters.clear();
-				do {
-					CollectionFilterer filter = new CollectionFiltererFactory(getActivity()).create(cursor.getInt(ViewQuery.TYPE));
-					if (filter != null) {
-						filter.inflate(cursor.getString(ViewQuery.DATA));
-						filters.add(filter);
-					}
-				} while (cursor.moveToNext());
-				setEmptyText();
-				requery();
-			}
 		} else {
 			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
@@ -591,37 +501,21 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		if (adapter != null) adapter.clearItems();
 	}
 
 	@Override
-	@DebugLog
 	public void removeFilter(int type) {
-		for (CollectionFilterer filter : filters) {
-			if (filter.getType() == type) {
-				filters.remove(filter);
-				break;
-			}
-		}
-		setEmptyText();
-		requery();
+		viewModel.removeFilter(type);
 	}
 
 	@Override
-	@DebugLog
 	public void addFilter(@NotNull CollectionFilterer filter) {
-		filters.remove(filter);
-		if (filter.isValid()) {
-			filters.add(filter);
-		}
+		viewModel.addFilter(filter);
 		FilterEvent.log("Collection", String.valueOf(filter.getType()));
-		setEmptyText();
-		requery();
 	}
 
-	@DebugLog
 	private void setEmptyText() {
 		if (emptyButton == null) return;
 		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
@@ -679,17 +573,6 @@ public class CollectionFragment extends Fragment implements
 		return filters.size() > 0;
 	}
 
-	@DebugLog
-	public void setSort(int sortType) {
-		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
-			sortType = CollectionSorterFactory.TYPE_DEFAULT;
-		}
-		SortEvent.log("Collection", String.valueOf(sortType));
-		sorter = getCollectionSorter(sortType);
-		requery();
-	}
-
-	@DebugLog
 	private CollectionFilterer findFilter(int type) {
 		for (CollectionFilterer filter : filters) {
 			if (filter != null && filter.getType() == type) {
@@ -699,12 +582,12 @@ public class CollectionFragment extends Fragment implements
 		return null;
 	}
 
-	@DebugLog
+	@SuppressWarnings("SameReturnValue")
 	private void bindFilterButtons() {
 		chipGroup.removeAllViews();
 		for (final CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.toShortDescription())) {
-				Chip chip = new Chip(getContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
+				Chip chip = new Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
 				chip.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 				chip.setText(filter.toShortDescription());
 				chip.setOnClickListener(v -> launchFilterDialog(filter.getType()));
@@ -730,12 +613,11 @@ public class CollectionFragment extends Fragment implements
 			show ? getResources().getDimensionPixelSize(R.dimen.chip_group_height) : 0);
 	}
 
-	@DebugLog
 	public boolean launchFilterDialog(int filterType) {
 		CollectionFilterDialogFactory factory = new CollectionFilterDialogFactory();
-		CollectionFilterDialog dialog = factory.create(getActivity(), filterType);
+		CollectionFilterDialog dialog = factory.create(requireContext(), filterType);
 		if (dialog != null) {
-			dialog.createDialog(getActivity(), this, findFilter(filterType));
+			dialog.createDialog(requireContext(), this, findFilter(filterType));
 			return true;
 		} else {
 			Timber.w("Couldn't find a filter dialog of type %s", filterType);
@@ -743,34 +625,8 @@ public class CollectionFragment extends Fragment implements
 		}
 	}
 
-	@DebugLog
-	public long getViewId() {
-		return viewId;
-	}
-
-	@DebugLog
-	public void setView(long viewId) {
-		if (this.viewId != viewId) {
-			progressBar.show();
-			this.viewId = viewId;
-			LoaderManager.getInstance(this).restartLoader(ViewQuery._TOKEN, null, this);
-		}
-	}
-
-	@DebugLog
-	public void clearView() {
-		if (viewId != 0) {
-			viewId = 0;
-			viewName = "";
-		}
-		filters.clear();
-		sorter = getCollectionSorter(CollectionSorterFactory.TYPE_DEFAULT);
-		requery();
-	}
-
 	public class CollectionItem {
 		public final long internalId;
-		public final int collectionId;
 		public final String collectionName;
 		public final int gameId;
 		public final String gameName;
@@ -789,7 +645,6 @@ public class CollectionFragment extends Fragment implements
 
 		public CollectionItem(Cursor cursor, CollectionSorter sorter) {
 			internalId = cursor.getLong(Query._ID);
-			collectionId = cursor.getInt(Query.COLLECTION_ID);
 			collectionName = cursor.getString(Query.COLLECTION_NAME);
 			gameId = cursor.getInt(Query.GAME_ID);
 			gameName = cursor.getString(Query.GAME_NAME);
@@ -807,8 +662,8 @@ public class CollectionFragment extends Fragment implements
 			timestamp = sorter.getTimestamp(cursor);
 			rating = sorter.getRating(cursor);
 			ratingText = sorter.getRatingText(cursor);
-			displayInfo = sorter == null ? "" : sorter.getDisplayInfo(cursor);
-			headerText = sorter == null ? "" : sorter.getHeaderText(cursor, cursor.getPosition());
+			displayInfo = sorter.getDisplayInfo(cursor);
+			headerText = sorter.getHeaderText(cursor, cursor.getPosition());
 			customPlayerSort = cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1;
 		}
 	}
@@ -818,7 +673,6 @@ public class CollectionFragment extends Fragment implements
 		private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 		private final Random random = new Random();
 
-		@DebugLog
 		public CollectionAdapter() {
 			setHasStableIds(true);
 		}
@@ -915,7 +769,7 @@ public class CollectionFragment extends Fragment implements
 
 			public void bindView(final CollectionItem item, final int position) {
 				nameView.setText(item.collectionName);
-				yearView.setText(PresentationUtils.describeYear(getActivity(), item.year));
+				yearView.setText(IntUtils.asYear(item.year, getContext()));
 				timestampView.setTimestamp(item.timestamp);
 				favoriteView.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
 				if (!TextUtils.isEmpty(item.ratingText)) {
@@ -924,7 +778,7 @@ public class CollectionFragment extends Fragment implements
 					ratingView.setVisibility(View.VISIBLE);
 					infoView.setVisibility(View.GONE);
 				} else {
-					PresentationUtils.setTextOrHide(infoView, item.displayInfo);
+					TextViewUtils.setTextOrHide(infoView, item.displayInfo);
 					infoView.setVisibility(View.VISIBLE);
 					ratingView.setVisibility(View.GONE);
 				}
@@ -934,10 +788,10 @@ public class CollectionFragment extends Fragment implements
 
 				itemView.setOnClickListener(v -> {
 					if (isCreatingShortcut) {
-						EventBus.getDefault().post(new GameShortcutRequestedEvent(item.gameId, item.gameName, item.thumbnailUrl));
+						createShortcut(item.gameId, item.gameName, item.thumbnailUrl);
 					} else if (changingGamePlayId != BggContract.INVALID_ID) {
 						LogPlayActivity.changeGame(getContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl);
-						getActivity().finish(); // don't want to come back to collection activity in "pick a new game" mode
+						requireActivity().finish(); // don't want to come back to collection activity in "pick a new game" mode
 					} else if (actionMode == null) {
 						GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl);
 					} else {
@@ -948,13 +802,49 @@ public class CollectionFragment extends Fragment implements
 					if (isCreatingShortcut) return false;
 					if (changingGamePlayId != BggContract.INVALID_ID) return false;
 					if (actionMode != null) return false;
-					actionMode = getActivity().startActionMode(CollectionFragment.this);
+					actionMode = requireActivity().startActionMode(CollectionFragment.this);
 					if (actionMode == null) return false;
 					toggleSelection(position);
 					return true;
 				});
 			}
 		}
+	}
+
+	public void createShortcut(int id, String name, String thumbnailUrl) {
+		Intent shortcutIntent = GameActivity.createIntentAsShortcut(requireContext(), id, name, thumbnailUrl);
+		if (shortcutIntent != null) {
+			Intent intent;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				intent = createShortcutForOreo(id, name, thumbnailUrl, shortcutIntent);
+			} else {
+				intent = ShortcutUtils.createShortcutIntent(getContext(), name, shortcutIntent);
+				File file = ShortcutUtils.getThumbnailFile(getContext(), thumbnailUrl);
+				if (file != null && file.exists()) {
+					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
+				}
+			}
+			if (intent != null) requireActivity().setResult(RESULT_OK, intent);
+		}
+		requireActivity().finish();
+	}
+
+	@RequiresApi(api = VERSION_CODES.O)
+	@Nullable
+	private Intent createShortcutForOreo(int id, String name, String thumbnailUrl, @NonNull Intent shortcutIntent) {
+		ShortcutManager shortcutManager = requireContext().getSystemService(ShortcutManager.class);
+		if (shortcutManager == null) return null;
+		ShortcutInfo.Builder builder = new ShortcutInfo.Builder(getContext(), ShortcutUtils.createGameShortcutId(id))
+			.setShortLabel(StringUtils.limitText(name, ShortcutUtils.SHORT_LABEL_LENGTH))
+			.setLongLabel(StringUtils.limitText(name, ShortcutUtils.LONG_LABEL_LENGTH))
+			.setIntent(shortcutIntent);
+		File file = ShortcutUtils.getThumbnailFile(getContext(), thumbnailUrl);
+		if (file != null && file.exists()) {
+			builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.getAbsolutePath())));
+		} else {
+			builder.setIcon(Icon.createWithResource(getContext(), R.drawable.ic_adaptive_game));
+		}
+		return shortcutManager.createShortcutResultIntent(builder.build());
 	}
 
 	private RecyclerSectionItemDecoration.SectionCallback getSectionCallback(final List<CollectionItem> items) {
@@ -1000,7 +890,7 @@ public class CollectionFragment extends Fragment implements
 		};
 
 		int _ID = 0;
-		int COLLECTION_ID = 1;
+		// int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
 		int GAME_NAME = 4;
@@ -1014,25 +904,7 @@ public class CollectionFragment extends Fragment implements
 		int HERO_IMAGE_URL = 12;
 	}
 
-	private interface ViewQuery {
-		int _TOKEN = 0x02;
-		String[] PROJECTION = {
-			CollectionViewFilters._ID,
-			CollectionViewFilters.NAME,
-			CollectionViewFilters.SORT_TYPE,
-			CollectionViewFilters.TYPE,
-			CollectionViewFilters.DATA
-		};
-
-		// int _ID = 0;
-		int NAME = 1;
-		int SORT_TYPE = 2;
-		int TYPE = 3;
-		int DATA = 4;
-	}
-
 	@Override
-	@DebugLog
 	public boolean onCreateActionMode(@NonNull ActionMode mode, @NonNull android.view.Menu menu) {
 		mode.getMenuInflater().inflate(R.menu.game_context, menu);
 		adapter.clearSelection();
@@ -1040,7 +912,6 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
 		int count = adapter.getSelectedItemCount();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
@@ -1051,14 +922,12 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	@Override
-	@DebugLog
 	public void onDestroyActionMode(ActionMode mode) {
 		actionMode = null;
 		adapter.clearSelection();
 	}
 
 	@Override
-	@DebugLog
 	public boolean onActionItemClicked(@NonNull ActionMode mode, @NonNull android.view.MenuItem item) {
 		if (!adapter.getSelectedItemPositions().iterator().hasNext()) {
 			return false;
@@ -1081,14 +950,14 @@ public class CollectionFragment extends Fragment implements
 			case R.id.menu_share:
 				final String shareMethod = "Collection";
 				if (adapter.getSelectedItemCount() == 1) {
-					ActivityUtils.shareGame(getActivity(), ci.gameId, ci.gameName, shareMethod);
+					ActivityUtils.shareGame(requireActivity(), ci.gameId, ci.gameName, shareMethod);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<>(adapter.getSelectedItemCount());
 					for (int position : adapter.getSelectedItemPositions()) {
 						CollectionItem collectionItem = adapter.getItem(position);
 						games.add(new Pair<>(collectionItem.gameId, collectionItem.gameName));
 					}
-					ActivityUtils.shareGames(getActivity(), games, shareMethod);
+					ActivityUtils.shareGames(requireActivity(), games, shareMethod);
 				}
 				mode.finish();
 				return true;
@@ -1112,60 +981,12 @@ public class CollectionFragment extends Fragment implements
 					text.append(filter.toLongDescription());
 				}
 			}
-			if (sortType != CollectionSorterFactory.TYPE_DEFAULT && text.length() > 0) text.append("\n\n");
+			if (sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT && text.length() > 0)
+				text.append("\n\n");
 		}
 
-		if (sortType != CollectionSorterFactory.TYPE_DEFAULT)
+		if (sorter.getType() != CollectionSorterFactory.TYPE_DEFAULT)
 			text.append(getString(R.string.sort_description, sort.getDescription()));
 		return text.toString();
-	}
-
-	/**
-	 * Add a new view with the current filters and sort with the specified name.
-	 *
-	 * @return The ID of the inserted view.
-	 */
-	public long insertView(String name) {
-		ContentValues values = new ContentValues();
-		values.put(CollectionViews.NAME, name);
-		values.put(CollectionViews.STARRED, false);
-		values.put(CollectionViews.SORT_TYPE, sorter.getType());
-		Uri filterUri = getActivity().getContentResolver().insert(CollectionViews.CONTENT_URI, values);
-
-		int filterId = CollectionViews.getViewId(filterUri);
-		Uri uri = CollectionViews.buildViewFilterUri(filterId);
-		insertDetails(uri, filters);
-		return StringUtils.parseLong(filterUri.getLastPathSegment());
-	}
-
-	/**
-	 * Update the specified view with current filters and sort.
-	 */
-	public void updateView(long viewId) {
-		ContentResolver resolver = getActivity().getContentResolver();
-
-		ContentValues values = new ContentValues();
-		values.put(CollectionViews.SORT_TYPE, sorter.getType());
-		resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
-
-		Uri uri = CollectionViews.buildViewFilterUri(viewId);
-		resolver.delete(uri, null, null);
-		insertDetails(uri, filters);
-	}
-
-	private void insertDetails(Uri viewFiltersUri, final List<CollectionFilterer> filters) {
-		List<ContentValues> cvs = new ArrayList<>(filters.size());
-		for (CollectionFilterer filter : filters) {
-			if (filter != null) {
-				ContentValues cv = new ContentValues();
-				cv.put(CollectionViewFilters.TYPE, filter.getType());
-				cv.put(CollectionViewFilters.DATA, filter.deflate());
-				cvs.add(cv);
-			}
-		}
-		if (cvs.size() > 0) {
-			ContentValues[] values = {};
-			getActivity().getContentResolver().bulkInsert(viewFiltersUri, cvs.toArray(values));
-		}
 	}
 }

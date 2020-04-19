@@ -6,24 +6,11 @@ import com.boardgamegeek.service.model.CollectionItem
 import okhttp3.OkHttpClient
 
 class CollectionCommentUploadTask(client: OkHttpClient) : CollectionTextUploadTask(client) {
+    override fun getTimestampColumn() = Collection.COMMENT_DIRTY_TIMESTAMP
 
-    override fun getTextColumn(): String {
-        return Collection.COMMENT
-    }
+    override fun getFieldName() = "comment"
 
-    override fun getTimestampColumn(): String {
-        return Collection.COMMENT_DIRTY_TIMESTAMP
-    }
+    override fun getValue(collectionItem: CollectionItem) = collectionItem.comment.orEmpty()
 
-    override fun getFieldName(): String {
-        return "comment"
-    }
-
-    override fun getValue(collectionItem: CollectionItem): String {
-        return collectionItem.comment ?: ""
-    }
-
-    override fun isDirty(): Boolean {
-        return collectionItem.commentTimestamp > 0
-    }
+    override fun isDirty() = collectionItem.commentTimestamp > 0
 }
