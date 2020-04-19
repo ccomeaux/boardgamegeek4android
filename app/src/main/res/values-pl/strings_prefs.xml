@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--suppress CheckTagEmptyBody -->
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+<?xml version="1.0" encoding="utf-8"?><!--suppress CheckTagEmptyBody -->
+<resources>
 
 	<string name="pref_log">Zapisywanie rozgrywek</string>
 	<string name="pref_log_summary">Opcje zapisywania rozgrywek</string>
@@ -38,7 +37,6 @@
 	<string name="pref_sync_group_how">Jak</string>
 	<string name="pref_sync_group_tasks">Zadania</string>
 	<string name="pref_sync_statuses">Kolekcja</string>
-	<string name="pref_sync_buddies">znajomi (GeekBuddy)</string>
 	<string name="pref_sync_plays">Rozgrywki</string>
 	<string name="pref_sync_upload">Pokazuj powiadomienia przesyłania</string>
 	<string name="pref_sync_notifications">Pokazuj powiadomienia postępu</string>
@@ -61,11 +59,11 @@
 	<string name="pref_sync_clear_failure">Czyszczenie nieudane – czy na pewno jesteś zalogowany\?</string>
 	<string name="pref_sync_reset_collection">Zsynchronizuj ponownie całą kolekcję</string>
 	<string name="pref_sync_re_sync_plays">Zsynchronizuj ponownie wszystkie rozgrywki</string>
-	<string name="pref_sync_reset_buddies">Zsynchronizuj ponownie wszystkich GeekBuddy</string>
+	<string name="pref_sync_reset_buddies">Zsynchronizuj ponownie wszystkich GeekBuddies</string>
 	<string name="pref_sync_reset_pos">Zsynchronizuj ponownie</string>
 	<string name="pref_sync_reset_collection_info_message">Nastąpi wymuszona pełna synchronizacja wszystkich danych całej kolekcji. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszystkie pozycje z kolekcji są widoczne.</string>
 	<string name="pref_sync_re_sync_plays_info_message">Nastąpi wymuszona pełna synchronizacja wszystkich danych rozgrywek. (Zazwyczaj synchronizowane są tylko ostatnio rozgrywki). Może to trochę potrwać, ale jest zalecane jeśli nie wszystkie rozgrywki są widoczne.</string>
-	<string name="pref_sync_reset_buddies_info_message">Nastąpi usunięcie wszystkich GeekBuddy a potem wymuszona pełna synchronizacja. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszyscy GeekBudyy są widoczni.</string>
+	<string name="pref_sync_reset_buddies_info_message">Nastąpi usunięcie wszystkich GeekBuddies a potem wymuszona pełna synchronizacja. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszyscy GeekBudyy są widoczni.</string>
 	<string name="pref_sync_reset_success">Synchronizacja rozpoczęta</string>
 	<string name="pref_sync_reset_failure">Synchronizacja nieudana – czy na pewno jesteś zalogowany\?</string>
 	<string name="pref_sync_timestamps">Pokaż stan sychronizacji</string>
@@ -74,7 +72,7 @@
 	<string name="pref_sync_timestamps_collection_partial">Częściowa</string>
 	<string name="pref_sync_timestamps_plays_newest_date">Data najnowszej zsynchronizowanej rozgrywki</string>
 	<string name="pref_sync_timestamps_plays_oldest_date">Data najstarszej zsynchronizowanej rozgrywki</string>
-	<string name="pref_sync_timestamps_buddy">Ostatnia synchronizacja GeekBuddy</string>
+	<string name="pref_sync_timestamps_buddy">Ostatnia synchronizacja GeekBuddies</string>
 	<string name="pref_list_empty">&lt;Puste&gt;</string>
 	<string name="pref_advanced">Zaawansowane</string>
 	<string name="pref_advanced_summary">Ustawienia, których prawdopodobnie nie powinieneś zmieniać</string>
@@ -99,58 +97,9 @@
 	<string name="pref_about_authors">Autorzy</string>
 	<string name="pref_about_licenses">Licencje otwarte (open source)</string>
 	<string name="pref_about_contact_us">Skontaktuj się z nami</string>
-	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
 	<string name="pref_feedback_title">Opinia</string>
 	<string name="pref_about_privacy_policy">Polityka Prywatności</string>
 	<string name="pref_about_trello_board">Tablica Trello</string>
 	<string name="pref_about_bgg_guild">Gildia BGG for Android</string>
 
-	<string name="intent_action_account">com.boardgamegeek.intent.action.ACCOUNT</string>
-	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
-	<string name="intent_action_data">com.boardgamegeek.intent.action.DATA</string>
-
-	<string name="define_int_Hugo"></string>
-	<string name="library_Hugo_author">Jake Wharton</string>
-	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
-	<string name="library_Hugo_libraryName">Hugo</string>
-	<string name="library_Hugo_libraryDescription">Annotation-triggered method call logging for your debug builds.</string>
-	<string name="library_Hugo_libraryVersion">1.2.1</string>
-	<string name="library_Hugo_licenseId">apache_2_0</string>
-	<string name="library_Hugo_isOpenSource">true</string>
-	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
-
-	<string name="define_int_AndroidIcons"></string>
-	<string name="library_AndroidIcons_author">Opoloo</string>
-	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
-	<string name="library_AndroidIcons_libraryName">Android Developer Icons</string>
-	<string name="library_AndroidIcons_libraryDescription">Androidicons is a professional, handcrafted icon set with 250 icons in 14 different colors and 5 sizes, including an icon font and all sources.</string>
-	<string name="library_AndroidIcons_libraryWebsite">http://www.androidicons.com</string>
-	<string name="library_AndroidIcons_libraryVersion">1.0</string>
-	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
-	<string name="library_AndroidIcons_isOpenSource">true</string>
-	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
-
-	<string name="define_int_NestedScrollWebView"></string>
-	<string name="library_NestedScrollWebView_author">Tobias Rohloff</string>
-	<string name="library_NestedScrollWebView_authorWebsite">https://github.com/tobiasrohloff</string>
-	<string name="library_NestedScrollWebView_libraryName">NestedScrollWebView for Android</string>
-	<string name="library_NestedScrollWebView_libraryDescription">An Android WebView that implements NestedScrollingChild, in order to use it with CoordinatorLayout and AppBarLayout.</string>
-	<string name="library_NestedScrollWebView_libraryVersion">1.0.2</string>
-	<string name="library_NestedScrollWebView_licenseId">apache_2_0</string>
-	<string name="library_NestedScrollWebView_isOpenSource">true</string>
-	<string name="library_NestedScrollWebView_repositoryLink">https://github.com/tobiasrohloff/NestedScrollWebView</string>
-
-	<string name="define_license_CCBYSA_4_0"></string>
-	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
-	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
-	<string name="license_CCBYSA_4_0_licenseShortDescription">
-		Creative Commons Uznanie autorstwa-Na tych samych warunkach 4.0 Międzynarodowe
-	</string>
-	<string name="license_CCBYSA_4_0_licenseDescription">
-        Opublikowane pod licencją Uznanie autorstwa-Na tych samych warunkach 4.0 Międzynarodowe CC BY-SA 4.0
-		Wolno:
-		Dzielenie się — kopiuj i rozpowszechniaj utwór w dowolnym medium i formacie
-		Adaptacje — remiksuj, zmieniaj i twórz na bazie utworu dla dowolnego celu, także komercyjnego.
-		Licencjodawca nie może odwołać udzielonych praw, o ile są przestrzegane warunki licencji.
-	</string>
 </resources>

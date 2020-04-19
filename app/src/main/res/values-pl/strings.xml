@@ -5,7 +5,6 @@
 	<string name="trading_meter_text">%s sprzedaje</string>
 	<string name="wanting_meter_text">%s szuka</string>
 	<string name="wishing_meter_text">%s ma na Liście Życzeń</string>
-	<string name="id_list_text">ID: %s</string>
 	<string name="play_id_prefix">ID rozgrywki: %s</string>
 	<string name="designers">Projektanci</string>
 	<string name="artists">Artyści</string>
@@ -31,7 +30,6 @@
 	<string name="quantity_hint">Ilość</string>
 	<string name="length">Czas trwania</string>
 	<string name="length_hint">Czas trwania w minutach</string>
-	<string name="no_length">\?</string>
 	<string name="location">Lokalizacja</string>
 	<string name="location_hint">Lokalizacja</string>
 	<string name="no_location">&lt;Brak lokalizacji&gt;</string>
@@ -42,7 +40,6 @@
 	<string name="send">Wyślij</string>
 	<string name="save">zapisz</string>
 	<string name="done">Zakończone</string>
-	<string name="ok">OK</string>
 	<string name="cancel">Anuluj</string>
 	<string name="discard">Odrzuć</string>
 	<string name="continue_">Kontynuuj</string>
@@ -104,7 +101,6 @@
 	<string name="more">Więcej</string>
 	<string name="more_suffix">%,d więcej</string>
 	<string name="image">Obraz</string>
-	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Miniatura</string>
 	<string name="in">w</string>
 	<string name="before">przed</string>
@@ -128,7 +124,6 @@
 	<string name="are_you_sure_timer_reset">Chcesz aby zegar kontynuował tam gdzie przerwałeś czy chcesz zresetować i stracić obecny czas trwania gry?</string>
 	<string name="are_you_sure_clear_colors">Na pewno chcessz wyczyścić listę kolorów?</string>
 	<string name="are_you_sure_delete_collection_item">Na pewno chcesz usunąć tę pozycję z Twojej kolekcji?</string>
-	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Kolekcja, Rozgrywki i Znajomi</string>
 	<string name="title_search">Szukaj</string>
 	<string name="title_collection">Kolekcja</string>
@@ -146,9 +141,9 @@
 	<string name="title_board_game_designer">Projektant gier</string>
 	<string name="title_expansion">Rozszerzenie</string>
 	<string name="title_accessory">Akcesorium</string>
-	<string name="title_abstract">Logiczne</string>
+	<string name="title_abstract">Abstrakcyjne</string>
 	<string name="title_childrens">Dziecięce</string>
-	<string name="title_customizable">Kolekcjonerskie</string>
+	<string name="title_customizable">Konfigurowalne</string>
 	<string name="title_party">Imprezowe</string>
 	<string name="title_strategy">Strategiczne</string>
 	<string name="title_thematic">Tematyczne</string>
@@ -161,7 +156,7 @@
 	<string name="title_file">Plik</string>
 	<string name="title_game_detail">Szczegóły gry</string>
 	<string name="title_image">Obraz</string>
-	<string name="title_buddies">Znajomi GeekBuddy</string>
+	<string name="title_buddies">GeekBuddies</string>
 	<string name="title_buddy">Użytkownik</string>
 	<string name="title_log_play">Zapisz rozgrywkę</string>
 	<string name="title_log_player">Zapisz gracza</string>
@@ -173,7 +168,6 @@
 	<string name="title_colors">Kolory</string>
 	<string name="title_favorite_colors">Ulubione kolory</string>
 	<string name="title_forums">Fora</string>
-	<string name="title_forum">Forum</string>
 	<string name="title_thread">Wątki</string>
 	<string name="title_plays">Rozgrywki</string>
 	<string name="title_play_stats">Statystyki rozgrywek</string>
@@ -204,7 +198,6 @@
 	<string name="title_add_color">Dodaj kolor</string>
 	<string name="title_backup">Kopia zapasowa</string>
 	<string name="title_export">Eksport</string>
-	<string name="title_import">Import</string>
 	<string name="comment">Komentarz</string>
 	<string name="title_sort">Sortuj wg</string>
 	<string name="title_filter">Filtruj wg</string>
@@ -233,19 +226,19 @@
 	<string name="backup_type_user">Użytkownik</string>
 	<string name="backup_description_collection_view">Sortowanie i filtry zastosowano do Twojej kolekcji i zapisane jako widoki.</string>
 	<string name="backup_description_game">Lista kolorów powiązana z każdą grą.</string>
-	<string name="backup_description_user">Ulubione kolory uzytkowników, włączając znajomych GeekBuddy oraz graczy, z którymi grałeś.</string>
+	<string name="backup_description_user">Ulubione kolory użytkowników, włączając GeekBuddies oraz graczy, z którymi grałeś.</string>
 	<string name="msg_export_permission_rationale">Aplikacja potrzebuje uprawnień zapisywania w pamięci zewnętrznej, aby zapisywać pliki eksportu.</string>
 	<string name="msg_export_permission_denied">Nie można wyeksportować bez odpowiedniego uprawnienia.</string>
 	<string name="msg_shortcut_create">Wybierz grę do umieszczenie na ekranie głównym.</string>
 	<string name="msg_change_play_game">Wybierz grę do tej rozgrywki</string>
 	<string name="msg_missing_nickname">Musisz podać nazwę aby zaktualizować rozgrywki</string>
-	<string name="msg_updated_nickname">Imię Twojego znajomego GeekBuddy zostało zmienione na \"%s\".</string>
+	<string name="msg_updated_nickname">Imię Twojego GeekBuddy-ego zostało zmienione na \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">Już istnieje widok kolekcji o tej nazwie. Zaktualizować istniejący widok czy utworzyć nowy?</string>
 	<string name="title_signin">Zaloguj się</string>
 	<string name="loading">Ładowanie…</string>
 	<string name="empty">Nic tu nie ma</string>
 	<string name="empty_game">Brak informacji</string>
-	<string name="empty_buddies">Wygląda na to, że nie masz znajomych GeekBuddies.</string>
+	<string name="empty_buddies">Wygląda na to, że nie masz GeekBuddies.</string>
 	<string name="empty_players">Wygląda na to, że z nikim jeszcze nie grałeś.</string>
 	<string name="empty_locations">Wygląda na to, że nigdzie jeszcze nie grałeś.</string>
 	<string name="empty_designers">Brak projektantów.</string>
@@ -253,7 +246,7 @@
 	<string name="empty_publishers">Brak wydawców.</string>
 	<string name="empty_mechanics">Brak mechanik.</string>
 	<string name="empty_categories">Brak kategorii.</string>
-	<string name="empty_buddies_sync_off">Obecnie nie synchronizujesz swoich znajomych GeekBuddy. Chciałbyś włączyć tę funkcję?</string>
+	<string name="empty_buddies_sync_off">Obecnie nie synchronizujesz swoich GeekBuddies. Chciałbyś włączyć tę funkcję?</string>
 	<string name="empty_collection">Brak zsynchronizowanych gier w Twojej kolekcji. Może powinieneś wejść w Ustawienia > Synchronizacja i zaznaczyć jakieś inne statusy pod "Kolekcja".</string>
 	<string name="empty_collection_sync_never">Synchronizacja pierwszorazowa. Idź, pograj sobie. Kiedy wrócisz prawdopodobnie zobaczysz tu swoją kolekcję.</string>
 	<string name="empty_collection_sync_off">Jeśli chcesz zobaczyć swoją kolekcję, w Ustawieniach > Synchronizacja zaznacz jakieś statusy pod "Kolekcja".</string>
@@ -262,11 +255,11 @@
 	<string name="sync">Synchronizacja</string>
 	<string name="empty_game_collection">Ta gra nie jest w Twojej kolekcji.</string>
 	<string name="re_sync">Ponowna synchronizacja</string>
-	<string name="empty_buddy_collection">Brak gier w kolekcji tego GeekBuddy.</string>
+	<string name="empty_buddy_collection">Brak gier w kolekcji tego GeekBuddy-ego.</string>
 	<string name="empty_colors">Brak ustawionych drużyn/kolorów dla tej gry.</string>
 	<string name="empty_plays">Nie zapisałeś żadych rozgrywek.</string>
 	<string name="empty_plays_sync_off">Jeśli chcesz zobaczyć swoje rozgrywki, w Ustawieniach > Synchronizacja zaznacz okienko przy Rozgrywkach.</string>
-	<string name="empty_plays_buddy">Nie zapisałeś żadnych rozgrywek z tym znajomym GeekBuddy.</string>
+	<string name="empty_plays_buddy">Nie zapisałeś żadnych rozgrywek z tym GeekBuddym.</string>
 	<string name="empty_plays_player">Nie zapisałeś żadnych rozgrywek z tym graczem.</string>
 	<string name="empty_plays_location">Nie zapisałeś żadnych rozgrywek w tej lokalizacji.</string>
 	<string name="empty_plays_game">Nie zapisałeś żadnych rozgrywek tej gry.</string>
@@ -277,12 +270,12 @@
 	<string name="empty_geeklists">Błąd podczas ładowania GeekList.</string>
 	<string name="empty_forums">Brak forum.</string>
 	<string name="empty_forum">Brak wątków na tym forum.</string>
-	<string name="empty_thread">Brak postó w tym wątku.</string>
+	<string name="empty_thread">Brak postów w tym wątku.</string>
 	<string name="empty_comments">Nikt nie ma nic do powiedzenia.</string>
 	<string name="empty_geeklist">Brak list.</string>
 	<string name="empty_hotness">Popularność gry spadła.</string>
 	<string name="empty_generic">Nic tu nie ma. Idź gdzie indziej…</string>
-	<string name="empty_player_colors">Ten znajomy GeekBuddy nie ustalił swoich ulubionych kolorów. Rozpocznij od wygenerowania listy losowych kolorów.</string>
+	<string name="empty_player_colors">Ten GeekBuddy nie ustalił swoich ulubionych kolorów. Rozpocznij od wygenerowania listy losowych kolorów.</string>
 	<string name="empty_player_colors_button">Generuj</string>
 	<string name="empty_http_error">Łoo! Wygląda na to, że BoardGameGeek.com ma problemy. Jeśli strona BGG działa a Ty wciąż widzisz ten komunikat daj nam znać o poniższym błędzie. W przeciwnym wypadku sprawdź później.\n\n%s</string>
 	<string name="empty_person">Nie istnieje %s z tym ID.</string>
@@ -298,7 +291,6 @@
 	<string name="title_scores">Wyniki</string>
 	<string name="title_low_scorers">Najniżej punktujący</string>
 	<string name="title_high_scorers">Najwyżej punktujący</string>
-	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Szukaj…</string>
 	<string name="search_voice_prompt">Nazwij grę…</string>
 	<string name="search_settings_description">Gry w kolekcji</string>
@@ -318,21 +310,13 @@
 	<string name="menu_discard_changes">Odrzuć zmiany</string>
 	<string name="menu_view_image">Pokaż obraz</string>
 	<string name="links">Linki</string>
-	<string name="link_geekbuddy_analysis">GeekBuddy Analysis</string>
-	<string name="link_bgg">BoardGameGeek</string>
-	<string name="link_bg_prices">BoardGamePrices.com</string>
-	<string name="link_bg_prices_uk">BoardGamePrices.co.uk</string>
-	<string name="link_amazon">Amazon.com</string>
-	<string name="link_amazon_uk">Amazon.co.uk</string>
-	<string name="link_amazon_de">Amazon.de</string>
-	<string name="link_ebay">eBay</string>
+	<string name="link_geekbuddy_analysis">Analiza GeekBuddies</string>
 	<string name="menu_share">Udostępnij</string>
 	<string name="menu_sort">Sortuj</string>
 	<string name="menu_collection_filter_add">Dodaj filtr…</string>
 	<string name="menu_collection_view_save">Zapisz widok…</string>
 	<string name="menu_collection_view_delete">Usuń widok…</string>
 	<string name="menu_collection_status_">Status kolekcji…</string>
-	<string name="menu_collection_status">Status</string>
 	<string name="menu_collection_name">Nazwa</string>
 	<string name="menu_expansion_status">Gra/Rozszerzenie/Dodatek</string>
 	<string name="menu_number_of_players">Liczba graczy</string>
@@ -377,7 +361,7 @@
 	<string name="menu_plays_filter_pending">Oczekujące na przesłanie</string>
 	<string name="menu_sort_name">Nazwa</string>
 	<string name="menu_sort_item_count">Liczba gier</string>
-	<string name="menu_sort_whitmore_score">Whitmore score</string>
+	<string name="menu_sort_whitmore_score">Punkty Whitmore</string>
 	<string name="menu_sort_quantity">Liczba rozgrywek</string>
 	<string name="menu_sort_wins">Liczba wygranych</string>
 	<string name="menu_sort_comments">Komentarze</string>
@@ -394,8 +378,6 @@
 	<string name="youngest">Najmłodsze</string>
 	<string name="heaviest">Najtrudniejsze</string>
 	<string name="lightest">Najłatwiejsze</string>
-	<string name="year_positive">%s</string>
-	<string name="year_zero">\?</string>
 	<string name="year_negative">%s p.n.e.</string>
 	<string name="menu_play_time">Czas rozgrywki</string>
 	<string name="menu_play_count">Liczba rozgrywek</string>
@@ -430,7 +412,6 @@
 	<string name="msg_play_deleted">Usunięto rozgrywkę</string>
 	<string name="msg_play_deleted_draft">Usunięto wersję roboczą</string>
 	<string name="msg_play_update_bad_id">Rozgrywka <b>%s</b> nie istnieje!</string>
-	<string name="msg_play_upload"><b>%1$s</b> - %2$s</string>
 	<string name="msg_play_update_null_response">Błąd komunikacji z BGG.</string>
 	<string name="msg_play_player_change">Zmieniono nazwę gracza z \"%1$s\" na \"%2$s\"</string>
 	<string name="msg_player_add_username">Dodano nazwę użytkownika \"%1$s\" do gracza \"%2$s\"</string>
@@ -459,10 +440,9 @@
 	<string name="share_geeklist_subject">GeekLista na BoardGameGeek</string>
 	<string name="share_geeklist_text">Znalazłem GeekListę \"%1$s\" w aplikacji BoardGameGeek on Android.</string>
 	<string name="timer">Zegar</string>
-	<string name="times">razy</string>
 	<string name="on">dnia</string>
 	<string name="from">z</string>
-	<string name="with">razem z</string>
+	<string name="with">z</string>
 	<string name="players">graczy</string>
 	<string name="_players">…graczy</string>
 	<string name="at">w</string>
@@ -471,36 +451,26 @@
 	<string name="minutes_abbr">min.</string>
 	<string name="hours_abbr">godz.</string>
 	<string name="text_not_available">B/D</string>
-	<string name="text_unknown">\?</string>
 	<string name="unknown">Nieznane</string>
-	<string name="unknown_abbr">\?</string>
 	<string name="unknown_weight">Nieznana trudność</string>
 	<string name="unknown_language">Nieznana zależność językowa</string>
 	<string name="ages">Wiek</string>
 	<string name="player_ages">Wiek graczy</string>
 	<string name="ages_unknown">Nieznany wiek graczy</string>
 	<string name="and_up_suffix" tools:ignore="PluralsCandidate">%,d i więcej</string>
-	<string name="and_up_suffix_abbr">%,d+</string>
 	<string name="player_range">Liczba graczy</string>
 	<string name="best_prefix">Najlepsza dla <b>%s</b></string>
 	<string name="recommended_prefix">Dobra dla <b>%s</b></string>
 	<string name="recommended_player_count_description_abbr">%1$ dla %2$,d</string>
 	<string name="mins_unknown">\? min.</string>
 	<string name="hrs_suffix">%,d godz.</string>
-	<string name="hrs_mins">%1$,dh %2$dm</string>
-	<string name="rank_description"><b>#%,d</b> %s</string>
-	<string name="rank_prefix">#%,d</string>
+	<string name="hrs_mins">%1$,d godz. %2$d min.</string>
 	<string name="play_description_game_segment">Zagrano w %s</string>
 	<string name="play_description_length_segment">\u0020przez %s</string>
 	<string name="play_description_date_segment">\u0020%s</string>
 	<string name="play_description_location_segment">\u0020w %s</string>
-	<string name="play_description_game_url_segment">www.boardgamegeek.com/game/%s</string>
-	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
-	<string name="player_description_starting_position_segment">%d)\u0020</string>
-	<string name="player_description_username_segment">\u0020(%s)</string>
 	<string name="player_description_new_segment">\u0020(nowy)</string>
 	<string name="player_description_color_segment">\u0020jako %s</string>
-	<string name="player_description_score_segment">: %s</string>
 	<string name="player_description_win_segment">\u0020- Zwycięzca!</string>
 	<string name="language_dependence">Zależność językowa</string>
 	<string name="suggested_playerage">Zalecany minimalny wiek</string>
@@ -512,7 +482,6 @@
 	<string name="ranked">Oceniona</string>
 	<string name="unranked">Nieoceniona</string>
 	<string name="unranked_prefix">Nieoceniona %s</string>
-	<string name="unranked_abbr">\?</string>
 	<string name="updated_prefix">Zaktualizowano %s</string>
 	<string name="saved_prefix">Zapisano %s</string>
 	<string name="synced_prefix">Zsynchronizowano %s</string>
@@ -528,9 +497,7 @@
 	<string name="generic_player">Gracz #%,d</string>
 	<string name="notification_start_player">%s zaczyna!</string>
 	<string name="unrated">Nieoceniona</string>
-	<string name="unrated_abbr">\?</string>
 	<string name="undefined">Nieokreślone</string>
-	<string name="undefined_abbr">\?</string>
 	<string name="one_more">1 więcej</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d więcej</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…i %,d więcej</string>
@@ -568,7 +535,7 @@
 	<string name="currently_worth">obecnie warta</string>
 	<string name="located_in">Zlokalizowana w</string>
 	<string name="wishlist">Lista Życzeń</string>
-	<string name="wishlist_comment">Koemntarz do Listy Życzeń</string>
+	<string name="wishlist_comment">Komentarz do Listy Życzeń</string>
 	<string name="title_trade">Handel</string>
 	<string name="trade_condition">Stan gry</string>
 	<string name="want_parts_list">Lista chcianych częśći</string>
@@ -578,17 +545,6 @@
 	<string name="drawer_close">Zamknij menu nawigacyjne</string>
 	<string name="message_custom_player_order">Chcesz zostawić obecnie pozycje startowe czy je wyczyścić?</string>
 	<string name="play_stat_distinct_games">Różne gry</string>
-	<string name="play_stat_quarters">Quarters</string>
-	<string name="play_stat_quarter">Quarter</string>
-	<string name="play_stat_half_dollar">Half-dollar</string>
-	<string name="play_stat_half_dollars">Half-dollars</string>
-	<string name="play_stat_dollar">Dollar</string>
-	<string name="play_stat_dollars">Dollars</string>
-	<string name="play_stat_dimes">Dimes</string>
-	<string name="play_stat_dime">Dime</string>
-	<string name="play_stat_penny">Penny</string>
-	<string name="play_stat_win_percentage">%1$,d/%2$,d (%3$,d%%)</string>
-	<string name="percentage">%,d%%</string>
 	<string name="title_win_skill">Biegłość</string>
 	<string name="winnable">Do wygrania</string>
 	<string name="all">Wszystkie</string>
@@ -596,8 +552,6 @@
 	<string name="play_stat_average_play_time_faster">Szybciej niż przewidywano</string>
 	<string name="play_stat_average_play_time_slower">Wolniej niż przewidywano</string>
 	<string name="play_stat_average_play_time_per_player">Średni czas gry na gracza</string>
-	<string name="play_stat_nickels">Nickels</string>
-	<string name="play_stat_nickel">Nickel</string>
 	<string name="play_stat_first_play">Pierwsza rozgrywka</string>
 	<string name="play_stat_last_play">Ostatnia rozgrywka</string>
 	<string name="play_stat_top_100">100 najczęściej granych gier</string>
@@ -612,13 +566,10 @@
 	<string name="play_stat_cfm">Ciągły Wskaźnik Friendlessa (CFM)</string>
 	<string name="play_stat_cfm_info">Podobnie jak Wskaźnik Friendlessa, stanowi średnią liczbę rozgrywek (ale bez ulg dla gier niezagranych).\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="game_h_index_prefix">Wskaźnik H-index dla gier<b>%s</b></string>
-	<string name="title_players_skill">Skill Formula</string>
+	<string name="title_players_skill">Wzór na Biegłość</string>
 	<string name="player_skill_info">Mierzy współczynnik wygranych za pomocą wzoru:\n\n 100 × WagaWygranych / (gry "Do wygrania")\n\nWagaWygranych = \u2211(l_wygranych × l_graczy_w_grze)</string>
-	<string name="play_stat_fhm">FHM</string>
 	<string name="play_stat_fhm_info">Friendlessa Wskaźnik Szczęścia (FHM) jest miarą radości jaką ta gra wywołała, wg definicji Friendlessa.\n\nSprawdź więcej rozszerzonych statystyk na jego genialnej stronie: https://extstats.drfriendless.com/\n\nocena × 5 + rozgrywki + l_miesięcy_z_rozgrywkami × 4 + czas_gry_w_godz</string>
-	<string name="play_stat_hhm">HHM</string>
 	<string name="play_stat_hhm_info">Hubera Wskaźnik Szczęścia (HHM) jest miarą radości jaką ta gra wywołała, wg definicji Joe Hubera (huber).\n\n(ocena - 5) × czas_gry_w_godz</string>
-	<string name="play_stat_ruhm">R!UHM</string>
 	<string name="play_stat_ruhm_info">Randy-ego Coxa Wskaźnik Nie-nieszczęścia (R!UHM) jest miarą radości jaką ta gra wywołała, wg definicji Randy-ego Coxa.\n\nln(mig / opóźnienie × l_miesięcy_z_rozgrywkami × ocena)\nmig = czas między 1. i ost. rozgrywką\nopóźnienie = czas pomiędzy ost. rozgrywką i dziś</string>
 	<string name="play_stat_utilization">Używalność</string>
 	<string name="play_stat_utilization_info">Używalność (zaproponowana przez Friendlessa) zakłada, że jeśli zagrasz w grę kolejne 10× to otrzymasz 90% pozostałej używalności.</string>
@@ -638,7 +589,7 @@
 	<string name="incomplete_games">Niezakończone rozgrywki</string>
 	<string name="items">Pozycje</string>
 	<string name="accessories">Akcesoria</string>
-	<string name="show_missing_votes">Show missing votes</string>
+	<string name="show_missing_votes">Pokaż brakujące głosy</string>
 	<string name="msg_collection_item_deleted">Usunięto!</string>
 	<string name="collection_status_own">W Posiadaniu</string>
 	<string name="collection_status_prev_owned">Kiedyś W Posiadaniu<</string>
@@ -658,7 +609,6 @@
 	<string name="plays_sync_status_range">Zsynchronizowano rozgrywki pomiędzy %1$s i %2$s.</string>
 	<string name="starts_with">Zaczyna się od</string>
 	<string name="starts_with_prefix">Zaczyna się od \"%s\"</string>
-	<string name="msg_offline">Offline</string>
 	<string name="msg_sync_remotely_disabled">Synchronizacja została wyłączona zdalnie.</string>
 	<string name="msg_update_invalid_request">Zapytanie o pobranie %s jest nieprawidłowe.</string>
 	<string name="msg_update_invalid_response">Otrzymano nieprawdiłowe %s</string>
@@ -820,7 +770,6 @@
 		<item quantity="other"><b>%,d</b> głosów</item>
 	</plurals>
 	<plurals name="mins_suffix">
-		<item quantity="one"><b>%s</b> min.</item>
 		<item quantity="other"><b>%s</b> min.</item>
 	</plurals>
 	<plurals name="play_description_quantity_segment">
@@ -837,7 +786,6 @@
 		<item quantity="other">%1$s with %2$,d graczami</item>
 	</plurals>
 	<plurals name="more">
-		<item quantity="one">%,d więcej</item>
 		<item quantity="other">%,d więcej</item>
 	</plurals>
 	<plurals name="pie_chart_click_description">
