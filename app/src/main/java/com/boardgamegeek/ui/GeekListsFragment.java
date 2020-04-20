@@ -33,17 +33,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 
 public class GeekListsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
+	private static final String KEY_SORT_TYPE = "KEY_SORT_TYPE";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 3;
 	private static final int SORT_TYPE_INVALID = -1;
 	private static final int SORT_TYPE_HOT = 0;
 	private static final int SORT_TYPE_RECENT = 1;
 	private static final int SORT_TYPE_ACTIVE = 2;
-	@State int sortType = 0;
+	private int sortType = 0;
 	private GeekListsRecyclerViewAdapter adapter;
 
 	Unbinder unbinder;
@@ -55,7 +54,9 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(KEY_SORT_TYPE);
+		}
 		setHasOptionsMenu(true);
 	}
 
@@ -79,7 +80,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putInt(KEY_SORT_TYPE, sortType);
 	}
 
 	@DebugLog

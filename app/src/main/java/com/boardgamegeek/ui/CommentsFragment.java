@@ -2,14 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,22 +20,29 @@ import com.boardgamegeek.util.AnimationUtils;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 import retrofit2.Call;
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_SORT_BY_RATING = "SORT";
+	private static final String KEY_IS_SORTED_BY_RATING = "IS_SORTED_BY_RATING";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 5;
 	private GameCommentsRecyclerViewAdapter adapter;
 	private int gameId;
-	@State boolean isSortedByRating = false;
+	private boolean isSortedByRating = false;
 
 	private Unbinder unbinder;
 	@BindView(android.R.id.progress) View progressView;
@@ -63,7 +62,9 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			isSortedByRating = savedInstanceState.getBoolean(KEY_IS_SORTED_BY_RATING);
+		}
 		View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
@@ -85,7 +86,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putBoolean(KEY_IS_SORTED_BY_RATING, isSortedByRating);
 	}
 
 	@Override

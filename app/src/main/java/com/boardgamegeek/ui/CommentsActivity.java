@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,8 +15,9 @@ import com.boardgamegeek.util.UIUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
-import icepick.Icepick;
-import icepick.State;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 
 public class CommentsActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -29,7 +27,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 
 	private int gameId;
 	private String gameName;
-	@State int sortType;
+	private int sortType;
 
 	public static void startRating(Context context, Uri gameUri, String gameName) {
 		Intent starter = new Intent(context, CommentsActivity.class);
@@ -42,7 +40,9 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(KEY_SORT_TYPE);
+		}
 
 		updateActionBar();
 
@@ -57,7 +57,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	@Override
 	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
 		super.onSaveInstanceState(outState, outPersistentState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putInt(KEY_SORT_TYPE, sortType);
 	}
 
 	private void updateActionBar() {

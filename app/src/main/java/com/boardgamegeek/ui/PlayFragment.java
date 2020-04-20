@@ -69,8 +69,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_ID = "ID";
@@ -79,6 +77,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
+	private static final String KEY_HAS_BEEN_NOTIFIED = "HAS_BEEN_NOTIFIED";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
@@ -116,7 +115,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	private PlayPlayerAdapter adapter;
-	@State boolean hasBeenNotified;
+	private boolean hasBeenNotified;
 
 	final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
@@ -149,7 +148,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			hasBeenNotified = savedInstanceState.getBoolean(KEY_HAS_BEEN_NOTIFIED);
+		}
 		setHasOptionsMenu(true);
 	}
 
@@ -230,7 +231,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putBoolean(KEY_HAS_BEEN_NOTIFIED, hasBeenNotified);
 	}
 
 	@Override
