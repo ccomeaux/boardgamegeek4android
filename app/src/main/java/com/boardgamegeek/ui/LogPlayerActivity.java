@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.FloatingActionButtonUtils;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -33,7 +34,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -202,7 +202,7 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			scoreView.requestFocus();
 		}
 		isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false);
-		PresentationUtils.colorFab(fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
+		FloatingActionButtonUtils.colorize(fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
 
 		if (savedInstanceState == null) {
 			player = intent.getParcelableExtra(KEY_PLAYER);

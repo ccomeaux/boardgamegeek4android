@@ -1,7 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
-import androidx.collection.ArrayMap
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -38,7 +38,7 @@ class GameCollectionRepository(val application: BggApplication) {
     /**
      * Get a game from the database and potentially refresh it from BGG.
      */
-    fun getCollectionItems(gameId: Int): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
+    fun getCollectionItems(gameId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
         return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
             private var timestamp = 0L
 
@@ -54,10 +54,12 @@ class GameCollectionRepository(val application: BggApplication) {
 
             override fun createCall(page: Int): Call<CollectionResponse> {
                 timestamp = System.currentTimeMillis()
-                val options = ArrayMap<String, String>()
-                options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
-                options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
-                options[BggService.COLLECTION_QUERY_KEY_ID] = gameId.toString()
+                val options = mutableMapOf(
+                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                        BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+                        BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
+                )
                 return Adapter.createForXmlWithAuth(application).collection(username, options)
             }
 
@@ -81,7 +83,7 @@ class GameCollectionRepository(val application: BggApplication) {
     fun addCollectionItem(gameId: Int, statuses: List<String>, wishListPriority: Int?) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
-            val values = ContentValues()
+            val values = contentValuesOf()
             values.put(BggContract.Collection.GAME_ID, gameId)
             putValue(statuses, values, BggContract.Collection.STATUS_OWN)
             putValue(statuses, values, BggContract.Collection.STATUS_PREORDERED)
@@ -132,7 +134,7 @@ class GameCollectionRepository(val application: BggApplication) {
     private fun putWishList(statuses: List<String>, wishListPriority: Int?, values: ContentValues) {
         if (statuses.contains(BggContract.Collection.STATUS_WISHLIST)) {
             values.put(BggContract.Collection.STATUS_WISHLIST, 1)
-            values.put(BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3) // live to have
+            values.put(BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3) // like to have
             return
         } else {
             values.put(BggContract.Collection.STATUS_WISHLIST, 0)

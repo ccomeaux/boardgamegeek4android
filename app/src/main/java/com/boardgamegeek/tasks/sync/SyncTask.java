@@ -5,11 +5,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.NetworkUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.RemoteConfig;
 
 import org.greenrobot.eventbus.EventBus;
@@ -59,7 +59,7 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 					}
 				} else {
 					Timber.w("Received response %s while syncing %s.", response.code(), context.getString(getTypeDescriptionResId()));
-					return PresentationUtils.getHttpErrorMessage(context, response.code());
+					return IntUtils.asHttpErrorMessage(response.code(), context);
 				}
 				if (isCancelled()) break;
 				hasMorePages = hasMorePages(response.body());

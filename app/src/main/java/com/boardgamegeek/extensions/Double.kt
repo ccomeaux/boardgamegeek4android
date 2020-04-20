@@ -22,9 +22,9 @@ fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.u
     return asScore(context, defaultResId)
 }
 
-fun Double.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#0.0#")): String {
+fun Double?.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#0.0#")): String {
     return when {
-        this != 0.0 -> format.format(this)
+        this != null -> format.format(this)
         defaultResId != 0 && context != null -> context.getString(defaultResId)
         else -> ""
     }
@@ -61,7 +61,7 @@ fun Double.invcdf(lambda: Double): Double {
     return -ln(1.0 - this) / lambda
 }
 
-
+@JvmOverloads
 fun Double.asMoney(currency: String, format: DecimalFormat = MONEY_FORMAT): String {
     return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + format.format(this)
 }
