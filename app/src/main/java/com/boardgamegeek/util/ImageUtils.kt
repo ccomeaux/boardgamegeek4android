@@ -140,6 +140,10 @@ object ImageUtils {
 
     @JvmStatic
     fun ImageView.loadThumbnail(imageId: Int) {
+        if (imageId == 0) {
+            Timber.i(" Not attempting to fetch invalid image ID of 0.")
+            return
+        }
         RemoteConfig.fetch()
         if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             val call = Adapter.createGeekdoApi().image(imageId)

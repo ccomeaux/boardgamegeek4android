@@ -1,5 +1,6 @@
 package com.boardgamegeek.model;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -35,10 +36,11 @@ public class GeekListItem {
 	@Attribute private String thumbs;
 	@Attribute private String username;
 	@Element(required = false) private String body;
-	@ElementList(name = "comment", inline = true, required = false) private ArrayList<GeekListComment> comments;
+	@ElementList(name = "comment", inline = true, required = false)
+	private ArrayList<GeekListComment> comments;
 
 	public int imageId() {
-		return Integer.valueOf(imageid);
+		return StringUtils.parseInt(imageid);
 	}
 
 	public int getObjectId() {
@@ -49,7 +51,13 @@ public class GeekListItem {
 		return objectname;
 	}
 
-	public int getObjectTypeResId() {
+	public String getObjectType(Context context) {
+		int objectTypeResId = getObjectTypeResId();
+		if (objectTypeResId == INVALID_OBJECT_TYPE_RES_ID) return "";
+		return context.getString(objectTypeResId);
+	}
+
+	private int getObjectTypeResId() {
 		if (objecttype == null) return INVALID_OBJECT_TYPE_RES_ID;
 
 		switch (objecttype) {
