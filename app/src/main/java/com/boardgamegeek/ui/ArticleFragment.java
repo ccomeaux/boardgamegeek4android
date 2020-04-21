@@ -8,7 +8,7 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.ui.model.Article;
+import com.boardgamegeek.entities.ArticleEntity;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
 
@@ -24,7 +24,7 @@ import hugo.weaving.DebugLog;
 public class ArticleFragment extends Fragment {
 	private static final String KEY_ARTICLE = "ARTICLE";
 
-	private Article article;
+	private ArticleEntity article;
 
 	private Unbinder unbinder;
 	@BindView(R.id.username) TextView usernameView;
@@ -32,7 +32,7 @@ public class ArticleFragment extends Fragment {
 	@BindView(R.id.edit_date) TimestampView editDateView;
 	@BindView(R.id.body) WebView bodyView;
 
-	public static ArticleFragment newInstance(Article article) {
+	public static ArticleFragment newInstance(ArticleEntity article) {
 		Bundle args = new Bundle();
 		args.putParcelable(KEY_ARTICLE, article);
 		ArticleFragment fragment = new ArticleFragment();

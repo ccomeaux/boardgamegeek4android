@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.model.Article;
+import com.boardgamegeek.entities.ArticleEntity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -37,9 +37,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private int objectId;
 	private String objectName;
 	private ForumType objectType;
-	private Article article;
+	private ArticleEntity article;
 
-	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType, Article article) {
+	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType, ArticleEntity article) {
 		Intent starter = new Intent(context, ArticleActivity.class);
 		starter.putExtra(KEY_THREAD_ID, threadId);
 		starter.putExtra(KEY_THREAD_SUBJECT, threadSubject);

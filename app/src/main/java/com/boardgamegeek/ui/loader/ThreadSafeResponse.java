@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.loader;
 
 import com.boardgamegeek.io.model.ArticleElement;
 import com.boardgamegeek.io.model.ThreadResponse;
-import com.boardgamegeek.ui.model.Article;
+import com.boardgamegeek.entities.ArticleEntity;
 import com.boardgamegeek.util.DateTimeUtils;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import retrofit2.Call;
 public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 	private int threadId;
 	private String threadSubject;
-	private List<Article> articles;
+	private List<ArticleEntity> articles;
 
 	public ThreadSafeResponse(Call<ThreadResponse> call) {
 		super(call);
@@ -30,7 +30,7 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 		} else {
 			articles = new ArrayList<>(body.articles.size());
 			for (ArticleElement articleElement : body.articles) {
-				articles.add(new Article(
+				articles.add(new ArticleEntity(
 					articleElement.id,
 					articleElement.username == null ? "" : articleElement.username,
 					articleElement.link,
@@ -51,7 +51,7 @@ public class ThreadSafeResponse extends SafeResponse<ThreadResponse> {
 		return threadSubject;
 	}
 
-	public List<Article> getArticles() {
+	public List<ArticleEntity> getArticles() {
 		return articles;
 	}
 }
