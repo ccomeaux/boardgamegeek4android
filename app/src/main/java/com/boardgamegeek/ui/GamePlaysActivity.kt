@@ -6,10 +6,10 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.provider.BggContract
@@ -17,9 +17,7 @@ import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import org.jetbrains.anko.intentFor
 
 class GamePlaysActivity : SimpleSinglePaneActivity() {
-    private val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
-    }
+    private val viewModel by viewModels<PlaysViewModel>()
 
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
@@ -27,6 +25,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
     private var thumbnailUrl = ""
     private var heroImageUrl = ""
     private var arePlayersCustomSorted = false
+
     @ColorInt
     private var iconColor = Color.TRANSPARENT
     private var playCount = -1

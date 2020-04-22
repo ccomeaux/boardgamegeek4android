@@ -10,8 +10,8 @@ import android.widget.TextView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
@@ -26,9 +26,7 @@ class PlaysSummaryFragment : Fragment() {
     private var oldestSyncDate = Long.MAX_VALUE
     private var newestSyncDate = 0L
 
-    val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysSummaryViewModel::class.java)
-    }
+    val viewModel by activityViewModels<PlaysSummaryViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_plays_summary, container, false)
@@ -52,32 +50,32 @@ class PlaysSummaryFragment : Fragment() {
             requireContext().setSyncPlaysTimestamp()
         }
 
-        viewModel.plays.observe(this, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })
-        viewModel.playsInProgress.observe(this, Observer { playEntities -> bindInProgressPlays(playEntities) })
-        viewModel.playsNotInProgress.observe(this, Observer { playEntities -> bindRecentPlays(playEntities) })
-        viewModel.playCount.observe(this, Observer { playCount -> bindPlayCount(playCount ?: 0) })
-        viewModel.players.observe(this, Observer { playerEntities -> bindPlayers(playerEntities) })
-        viewModel.locations.observe(this, Observer { locationEntities -> bindLocations(locationEntities) })
-        viewModel.colors.observe(this, Observer { playerColorEntities -> bindColors(playerColorEntities) })
-        viewModel.hIndex().observe(this, Observer {
+        viewModel.plays.observe(viewLifecycleOwner, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })
+        viewModel.playsInProgress.observe(viewLifecycleOwner, Observer { playEntities -> bindInProgressPlays(playEntities) })
+        viewModel.playsNotInProgress.observe(viewLifecycleOwner, Observer { playEntities -> bindRecentPlays(playEntities) })
+        viewModel.playCount.observe(viewLifecycleOwner, Observer { playCount -> bindPlayCount(playCount ?: 0) })
+        viewModel.players.observe(viewLifecycleOwner, Observer { playerEntities -> bindPlayers(playerEntities) })
+        viewModel.locations.observe(viewLifecycleOwner, Observer { locationEntities -> bindLocations(locationEntities) })
+        viewModel.colors.observe(viewLifecycleOwner, Observer { playerColorEntities -> bindColors(playerColorEntities) })
+        viewModel.hIndex().observe(viewLifecycleOwner, Observer {
             hIndexView.text = context?.getText(R.string.game_h_index_prefix, it.description)
             morePlayStatsButton.setOnClickListener {
                 startActivity<PlayStatsActivity>()
             }
         })
-        viewModel.syncPlays.observe(this, Observer {
+        viewModel.syncPlays.observe(viewLifecycleOwner, Observer {
             syncPlays = it ?: false
             bindSyncCard()
         })
-        viewModel.syncPlaysTimestamp.observe(this, Observer {
+        viewModel.syncPlaysTimestamp.observe(viewLifecycleOwner, Observer {
             syncPlaysTimestamp = it ?: 0L
             bindSyncCard()
         })
-        viewModel.oldestSyncDate.observe(this, Observer {
+        viewModel.oldestSyncDate.observe(viewLifecycleOwner, Observer {
             oldestSyncDate = it ?: Long.MAX_VALUE
             bindStatusMessage()
         })
-        viewModel.newestSyncDate.observe(this, Observer {
+        viewModel.newestSyncDate.observe(viewLifecycleOwner, Observer {
             newestSyncDate = it ?: 0L
             bindStatusMessage()
         })

@@ -10,8 +10,8 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -43,9 +43,7 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     @Suppress("DEPRECATION")
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,12 +58,12 @@ class GameFragment : Fragment(R.layout.fragment_game) {
 
         lastModifiedView?.timestamp = 0
 
-        viewModel.gameId.observe(this, Observer { gameId ->
+        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
             this.gameId = gameId
             gameIdView?.text = gameId.toString()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -75,17 +73,17 @@ class GameFragment : Fragment(R.layout.fragment_game) {
             }
             progress.hide()
 
-            viewModel.ranks.observe(this, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
+            viewModel.ranks.observe(viewLifecycleOwner, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
 
-            viewModel.languagePoll.observe(this, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
+            viewModel.languagePoll.observe(viewLifecycleOwner, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
 
-            viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
+            viewModel.agePoll.observe(viewLifecycleOwner, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
 
-            viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
+            viewModel.playerPoll.observe(viewLifecycleOwner, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
 
-            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
+            viewModel.expansions.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
 
-            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
+            viewModel.baseGames.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
 
         showcaseViewWizard = setUpShowcaseViewWizard()

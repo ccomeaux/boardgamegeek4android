@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.Status
@@ -16,13 +16,12 @@ import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_person_description.*
+import java.util.*
 
 class PersonDescriptionFragment : Fragment() {
     private var emptyMessageDescription = ""
 
-    private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PersonViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_person_description, container, false)
@@ -34,19 +33,20 @@ class PersonDescriptionFragment : Fragment() {
         swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh?.setBggColors()
 
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase()
+        emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
         lastUpdated.timestamp = 0L
 
-        viewModel.person.observe(this, Observer {
+        viewModel.person.observe(viewLifecycleOwner, Observer {
             idView.text = it.id.toString()
-            emptyMessageDescription = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
-                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
-                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+            val resourceId = when (it.type) {
+                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             }
+            emptyMessageDescription = getString(resourceId).toLowerCase(Locale.getDefault())
         })
 
-        viewModel.details.observe(this, Observer {
+        viewModel.details.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_person, emptyMessageDescription))

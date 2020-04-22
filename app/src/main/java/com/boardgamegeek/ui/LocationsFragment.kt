@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.LocationEntity
@@ -22,9 +22,7 @@ import kotlinx.android.synthetic.main.row_location.view.*
 import kotlin.properties.Delegates
 
 class LocationsFragment : Fragment() {
-    private val viewModel: LocationsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(LocationsViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<LocationsViewModel>()
 
     private val adapter: LocationsAdapter by lazy {
         LocationsAdapter(viewModel)
@@ -43,7 +41,7 @@ class LocationsFragment : Fragment() {
                 adapter)
         recyclerView.addItemDecoration(sectionItemDecoration)
 
-        viewModel.locations.observe(this, Observer {
+        viewModel.locations.observe(viewLifecycleOwner, Observer {
             adapter.locations = it
             progressBar?.hide()
             if (adapter.itemCount == 0) {

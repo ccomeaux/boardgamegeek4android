@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
@@ -33,9 +33,7 @@ class PersonActivity : HeroTabActivity() {
     private var personType = PersonType.DESIGNER
     private var emptyMessageDescription = ""
 
-    private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(this).get(PersonViewModel::class.java)
-    }
+    private val viewModel by viewModels<PersonViewModel>()
 
     private val adapter: PersonPagerAdapter by lazy {
         PersonPagerAdapter(supportFragmentManager, this, id, name, personType)

@@ -7,10 +7,10 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.DatePicker
+import androidx.activity.viewModels
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.executeAsyncTask
@@ -24,9 +24,7 @@ import com.crashlytics.android.answers.ContentViewEvent
 import java.util.*
 
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
-    val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
-    }
+    val viewModel by viewModels<PlaysViewModel>()
 
     override val optionsMenuId: Int
         get() = R.menu.plays
