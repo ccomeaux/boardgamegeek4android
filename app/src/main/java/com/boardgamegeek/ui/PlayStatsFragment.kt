@@ -105,19 +105,19 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
         if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-            messages.add(getString(R.string.incomplete_games).toLowerCase())
+            messages.add(getString(R.string.incomplete_games).toLowerCase(Locale.getDefault()))
         }
         if (!PreferencesUtils.logPlayStatsExpansions(context)) {
-            messages.add(getString(R.string.expansions).toLowerCase())
+            messages.add(getString(R.string.expansions).toLowerCase(Locale.getDefault()))
         }
         if (!PreferencesUtils.logPlayStatsAccessories(context)) {
-            messages.add(getString(R.string.accessories).toLowerCase())
+            messages.add(getString(R.string.accessories).toLowerCase(Locale.getDefault()))
         }
         if (messages.isEmpty()) {
             accuracyContainer.visibility = View.GONE
         } else {
             accuracyContainer.visibility = View.VISIBLE
-            accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).toLowerCase()))
+            accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).toLowerCase(Locale.getDefault())))
         }
     }
 

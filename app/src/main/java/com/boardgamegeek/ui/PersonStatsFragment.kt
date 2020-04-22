@@ -14,6 +14,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_person_stats.*
+import java.util.*
 
 class PersonStatsFragment : Fragment() {
     private var objectDescription = ""
@@ -44,13 +45,14 @@ class PersonStatsFragment : Fragment() {
 
         bindCollectionStatusMessage()
 
-        objectDescription = getString(R.string.title_person).toLowerCase()
+        objectDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
         viewModel.person.observe(viewLifecycleOwner, Observer {
-            objectDescription = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
-                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
-                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+            val resourceId = when (it.type) {
+                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             }
+            objectDescription = getString(resourceId).toLowerCase(Locale.getDefault())
         })
 
         viewModel.stats.observe(viewLifecycleOwner, Observer {
