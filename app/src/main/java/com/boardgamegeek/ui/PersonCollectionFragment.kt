@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -21,9 +21,7 @@ class PersonCollectionFragment : Fragment() {
         LinkedCollectionAdapter()
     }
 
-    private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PersonViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_linked_collection, container, false)
@@ -41,14 +39,14 @@ class PersonCollectionFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         setEmptyMessage(R.string.title_person)
-        viewModel.person.observe(this, Observer {
+        viewModel.person.observe(viewLifecycleOwner, Observer {
             setEmptyMessage(when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
                 PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
                 PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             })
         })
-        viewModel.collection.observe(this, Observer {
+        viewModel.collection.observe(viewLifecycleOwner, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()
@@ -60,7 +58,7 @@ class PersonCollectionFragment : Fragment() {
             }
             progressView?.hide()
         })
-        viewModel.sort.observe(this, Observer {
+        viewModel.sort.observe(viewLifecycleOwner, Observer {
             sortType = it ?: PersonViewModel.CollectionSort.RATING
             activity?.invalidateOptionsMenu()
         })

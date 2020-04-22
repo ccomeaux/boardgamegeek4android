@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.MechanicEntity
@@ -20,9 +20,7 @@ import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
 class MechanicsFragment : Fragment() {
-    private val viewModel: MechanicsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(MechanicsViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<MechanicsViewModel>()
 
     private val adapter: MechanicsAdapter by lazy {
         MechanicsAdapter()
@@ -38,7 +36,7 @@ class MechanicsFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.mechanics.observe(this, Observer {
+        viewModel.mechanics.observe(viewLifecycleOwner, Observer {
             showData(it)
             progressBar.hide()
         })
@@ -86,7 +84,7 @@ class MechanicsFragment : Fragment() {
 
         inner class MechanicViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             fun bind(mechanic: MechanicEntity?) {
-                mechanic?.let {m ->
+                mechanic?.let { m ->
                     itemView.nameView.text = m.name
                     itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, m.itemCount, m.itemCount)
                     itemView.setOnClickListener {

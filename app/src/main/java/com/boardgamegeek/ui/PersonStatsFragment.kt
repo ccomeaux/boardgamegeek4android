@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -18,9 +18,7 @@ import kotlinx.android.synthetic.main.fragment_person_stats.*
 class PersonStatsFragment : Fragment() {
     private var objectDescription = ""
 
-    private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PersonViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_person_stats, container, false)
@@ -47,7 +45,7 @@ class PersonStatsFragment : Fragment() {
         bindCollectionStatusMessage()
 
         objectDescription = getString(R.string.title_person).toLowerCase()
-        viewModel.person.observe(this, Observer {
+        viewModel.person.observe(viewLifecycleOwner, Observer {
             objectDescription = when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
                 PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
@@ -55,7 +53,7 @@ class PersonStatsFragment : Fragment() {
             }
         })
 
-        viewModel.stats.observe(this, Observer {
+        viewModel.stats.observe(viewLifecycleOwner, Observer {
             when (it) {
                 null -> showEmpty()
                 else -> showData(it)

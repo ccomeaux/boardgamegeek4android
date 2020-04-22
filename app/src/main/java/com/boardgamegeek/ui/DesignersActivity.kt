@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.DesignsViewModel
@@ -15,9 +15,7 @@ class DesignersActivity : SimpleSinglePaneActivity() {
     private var numberOfDesigners = -1
     private var sortBy = DesignsViewModel.SortType.ITEM_COUNT
 
-    private val viewModel: DesignsViewModel by lazy {
-        ViewModelProviders.of(this).get(DesignsViewModel::class.java)
-    }
+    private val viewModel by viewModels<DesignsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

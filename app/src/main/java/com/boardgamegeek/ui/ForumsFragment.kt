@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
@@ -27,9 +27,7 @@ class ForumsFragment : Fragment() {
         ForumsRecyclerViewAdapter(objectId, objectName, forumType)
     }
 
-    private val viewModel: ForumsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(ForumsViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<ForumsViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_forums, container, false)
@@ -55,7 +53,7 @@ class ForumsFragment : Fragment() {
             ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
             ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
-        viewModel.forums.observe(this, Observer {
+        viewModel.forums.observe(viewLifecycleOwner, Observer {
             when (it?.status) {
                 null, Status.REFRESHING -> {
                     progressView?.show()

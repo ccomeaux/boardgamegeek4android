@@ -130,6 +130,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.2.0'
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.fragment:fragment-ktx:1.2.4'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.palette:palette:1.0.0'
@@ -144,9 +145,8 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.1.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.2.0'
 
     implementation 'com.google.firebase:firebase-core:17.3.0'
     implementation 'com.google.firebase:firebase-config:19.1.3'

@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.colorize
@@ -39,7 +39,7 @@ class GamePagerAdapter(fragmentManager: FragmentManager, private val activity: F
     private val tabs = arrayListOf<Tab>()
 
     private val fab: FloatingActionButton by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
-    private val viewModel: GameViewModel by lazy { ViewModelProviders.of(activity).get(GameViewModel::class.java) }
+    private val viewModel by lazy { ViewModelProvider(activity).get(GameViewModel::class.java) }
 
     private inner class Tab(
             @field:StringRes val titleResId: Int,

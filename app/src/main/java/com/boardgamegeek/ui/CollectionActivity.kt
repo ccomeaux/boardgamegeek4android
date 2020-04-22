@@ -8,10 +8,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.extensions.getViewDefaultId
@@ -31,9 +31,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
 
-    private val viewModel: CollectionViewViewModel by lazy {
-        ViewModelProviders.of(this).get(CollectionViewViewModel::class.java)
-    }
+    private val viewModel by viewModels<CollectionViewViewModel>()
 
     private val adapter: CollectionViewAdapter by lazy {
         CollectionViewAdapter(this@CollectionActivity)

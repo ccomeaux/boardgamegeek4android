@@ -3,8 +3,8 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -15,13 +15,10 @@ import java.util.*
 
 class CategoryCollectionFragment : Fragment() {
     private var sortType = CategoryViewModel.CollectionSort.RATING
+    private val viewModel by activityViewModels<CategoryViewModel>()
 
     private val adapter: LinkedCollectionAdapter by lazy {
         LinkedCollectionAdapter()
-    }
-
-    private val viewModel: CategoryViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(CategoryViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -38,10 +35,10 @@ class CategoryCollectionFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).toLowerCase(Locale.getDefault()))
-        viewModel.sort.observe(this, Observer {
+        viewModel.sort.observe(viewLifecycleOwner, Observer {
             sortType = it
         })
-        viewModel.collection.observe(this, Observer {
+        viewModel.collection.observe(viewLifecycleOwner, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()

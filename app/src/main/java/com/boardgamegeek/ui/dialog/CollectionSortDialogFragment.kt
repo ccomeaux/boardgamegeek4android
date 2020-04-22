@@ -10,22 +10,19 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.util.fabric.SortEvent
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
-import org.jetbrains.anko.support.v4.act
 import timber.log.Timber
 
 class CollectionSortDialogFragment : DialogFragment() {
     private lateinit var layout: View
 
-    private val viewModel: CollectionViewViewModel by lazy {
-        ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<CollectionViewViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")

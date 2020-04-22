@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.core.app.NavUtils
 import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.palette.graphics.Palette
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.boardgamegeek.R
@@ -37,9 +37,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(this).get(GameViewModel::class.java)
-    }
+    private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
         GamePagerAdapter(supportFragmentManager, this, gameId, intent.getStringExtra(KEY_GAME_NAME))

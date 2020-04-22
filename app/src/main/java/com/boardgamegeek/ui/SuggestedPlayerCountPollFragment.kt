@@ -10,8 +10,8 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.setViewBackground
@@ -21,9 +21,7 @@ import com.boardgamegeek.ui.widget.PlayerNumberRow
 import kotlinx.android.synthetic.main.fragment_poll_suggested_player_count.*
 
 class SuggestedPlayerCountPollFragment : DialogFragment() {
-    val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
+    val viewModel by activityViewModels<GameViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_poll_suggested_player_count, container, false)
@@ -38,7 +36,7 @@ class SuggestedPlayerCountPollFragment : DialogFragment() {
         addKeyRow(R.color.recommended, R.string.recommended)
         addKeyRow(R.color.not_recommended, R.string.not_recommended)
 
-        viewModel.playerPoll.observe(this, Observer { entity ->
+        viewModel.playerPoll.observe(viewLifecycleOwner, Observer { entity ->
             val totalVoteCount = entity?.totalVotes ?: 0
             totalVoteView?.text = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
 

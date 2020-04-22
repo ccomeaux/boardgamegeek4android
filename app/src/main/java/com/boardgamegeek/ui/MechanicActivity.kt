@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.lifecycle.ViewModelProviders
+import androidx.activity.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
@@ -14,9 +14,7 @@ import org.jetbrains.anko.startActivity
 class MechanicActivity : SimpleSinglePaneActivity() {
     private var id = BggContract.INVALID_ID
 
-    private val viewModel: MechanicViewModel by lazy {
-        ViewModelProviders.of(this).get(MechanicViewModel::class.java)
-    }
+    private val viewModel by viewModels<MechanicViewModel>()
 
     override fun onCreatePane(intent: Intent) = MechanicCollectionFragment()
 

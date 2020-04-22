@@ -9,8 +9,8 @@ import android.widget.TableLayout
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.HIndexEntity
@@ -28,9 +28,7 @@ import java.util.*
 class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
-    private val viewModel: PlayStatsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PlayStatsViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PlayStatsViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_play_stats, container, false)
@@ -58,7 +56,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
             activity?.showFragment(PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
         }
 
-        viewModel.getPlays().observe(this, Observer { entity ->
+        viewModel.getPlays().observe(viewLifecycleOwner, Observer { entity ->
             if (entity == null) {
                 showEmpty()
             } else {
@@ -72,7 +70,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 }
             }
         })
-        viewModel.getPlayers().observe(this, Observer { entity ->
+        viewModel.getPlayers().observe(viewLifecycleOwner, Observer { entity ->
             if (entity == null) return@Observer
             bindPlayerUi(entity)
             playerHIndexInfoView.setOnClickListener {
