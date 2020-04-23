@@ -8,7 +8,7 @@
 	android:orientation="vertical">
 
 	<TextView
-		android:id="@+id/username"
+		android:id="@+id/usernameView"
 		style="@style/TextWithImage"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
 		tools:text="ccomeaux"/>
 
 	<TextView
-		android:id="@+id/description"
+		android:id="@+id/descriptionView"
 		style="@style/Text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
 		android:orientation="horizontal">
 
 		<TextView
-			android:id="@+id/items"
+			android:id="@+id/itemCountView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
 			android:background="@color/list_divider"/>
 
 		<TextView
-			android:id="@+id/thumbs"
+			android:id="@+id/thumbCountView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
 		android:orientation="horizontal">
 
 		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/posted_date"
+			android:id="@+id/postedDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
 			android:background="@color/list_divider"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/edited_date"
+			android:id="@+id/editedDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
