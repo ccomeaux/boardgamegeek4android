@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-	android:id="@+id/root_container"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/root_container"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<androidx.core.widget.ContentLoadingProgressBar
-		android:id="@android:id/progress"
+		android:id="@+id/progressView"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:gravity="center"
-		tools:visibility="gone"/>
+		tools:visibility="gone" />
 
 	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
@@ -21,7 +21,7 @@
 		android:fillViewport="true">
 
 		<LinearLayout
-			android:id="@android:id/empty"
+			android:id="@+id/emptyView"
 			style="@style/EmptyContainer"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -35,20 +35,21 @@
 				android:scaleType="fitCenter"
 				android:src="@drawable/ic_comment_large"
 				android:tint="@color/empty_tint"
-				tools:ignore="ContentDescription"/>
+				tools:ignore="ContentDescription" />
 
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/empty_comments"
-				android:textAppearance="@style/Text.Big"/>
+				android:textAppearance="@style/Text.Big" />
 		</LinearLayout>
 	</androidx.core.widget.NestedScrollView>
 
 	<androidx.recyclerview.widget.RecyclerView
-		android:id="@android:id/list"
+		android:id="@+id/recyclerView"
 		style="@style/RecyclerViewVerticalList"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
