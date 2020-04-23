@@ -70,7 +70,9 @@ public class GeekListCommentsFragment extends Fragment {
 	}
 
 	private void bindData() {
-		GeekListCommentsRecyclerViewAdapter adapter = new GeekListCommentsRecyclerViewAdapter(getContext(), comments);
+		GeekListCommentsRecyclerViewAdapter adapter = new GeekListCommentsRecyclerViewAdapter();
+		if (comments != null)
+			adapter.setComments(comments);
 		recyclerView.setAdapter(adapter);
 		if (comments == null || comments.size() == 0) {
 			AnimationUtils.fadeIn(emptyView);
