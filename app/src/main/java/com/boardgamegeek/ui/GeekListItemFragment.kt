@@ -25,7 +25,7 @@ class GeekListItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        savedInstanceState?.let {
+        arguments?.let {
             order = it.getInt(KEY_ORDER, 0)
             geekListTitle = it.getString(KEY_TITLE).orEmpty()
             type = it.getString(KEY_TYPE).orEmpty()
@@ -38,8 +38,11 @@ class GeekListItemFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_geeklist_item, container, false) as ViewGroup
+        return inflater.inflate(R.layout.fragment_geeklist_item, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         orderView.text = order.toString()
         geekListTitleView.text = geekListTitle
         typeView.text = type
@@ -50,8 +53,6 @@ class GeekListItemFragment : Fragment() {
         editedDateView.timestamp = editedDate
         datetimeDividerView.isVisible = editedDate != postedDate
         editedDateView.isVisible = editedDate != postedDate
-
-        return rootView
     }
 
     companion object {
