@@ -8,14 +8,13 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.entities.RefreshableResource;
+import com.boardgamegeek.entities.Status;
 import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.GeekListSafeResponse;
 import com.boardgamegeek.ui.model.GeekList;
+import com.boardgamegeek.ui.viewmodel.GeekListViewModel;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -32,13 +31,12 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
-public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<GeekListSafeResponse> {
+public class GeekListActivity extends TabActivity {
 	private static final String KEY_ID = "GEEK_LIST_ID";
 	private static final String KEY_TITLE = "GEEK_LIST_TITLE";
-	private static final int LOADER_ID = 1;
 	private int geekListId;
 	private String geekListTitle;
 	private GeekList geekList;
@@ -47,6 +45,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	private String descriptionFragmentTag;
 	private String itemsFragmentTag;
 	private GeekListPagerAdapter adapter;
+	private GeekListViewModel viewModel;
 
 	public static void start(Context context, int id, String title) {
 		Intent starter = createIntent(context, id, title);
@@ -70,6 +69,9 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		viewModel = new ViewModelProvider(this).get(GeekListViewModel.class);
+
 		final Intent intent = getIntent();
 		geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID);
 		geekListTitle = intent.getStringExtra(KEY_TITLE);
@@ -81,12 +83,18 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 				.putContentId(String.valueOf(geekListId))
 				.putContentName(geekListTitle));
 		}
-	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
+		viewModel.setId(geekListId);
+		viewModel.getGeekList().observe(this, resource -> {
+			if (resource.getStatus() == Status.REFRESHING) {
+				errorMessage = "";
+			} else if (resource.getStatus() == Status.ERROR) {
+				errorMessage = resource.getMessage();
+			} else if (resource.getStatus() == Status.SUCCESS) {
+				errorMessage = "";
+				loadBody(resource.getData());
+			}
+		});
 	}
 
 	@Override
@@ -112,19 +120,13 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	@Override
 	protected FragmentPagerAdapter createAdapter() {
 		adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
-		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description, new ItemInstantiatedCallback() {
-			@Override
-			public void itemInstantiated(String tag) {
-				descriptionFragmentTag = tag;
-				setDescription();
-			}
+		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description, tag -> {
+			descriptionFragmentTag = tag;
+			setDescription();
 		});
-		adapter.addTab(GeekListItemsFragment.newInstance(), R.string.title_items, new ItemInstantiatedCallback() {
-			@Override
-			public void itemInstantiated(String tag) {
-				itemsFragmentTag = tag;
-				setItems();
-			}
+		adapter.addTab(GeekListItemsFragment.newInstance(), R.string.title_items, tag -> {
+			itemsFragmentTag = tag;
+			setItems();
 		});
 		return adapter;
 	}
@@ -191,25 +193,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		}
 	}
 
-	@Override
-	@NonNull
-	public Loader<GeekListSafeResponse> onCreateLoader(int id, Bundle data) {
-		return new GeekListLoader(this, geekListId);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<GeekListSafeResponse> loader, GeekListSafeResponse data) {
-		GeekListResponse body = data.getBody();
-		if (body == null) {
-			errorMessage = getString(R.string.empty_geeklist);
-		} else if (data.hasParseError()) {
-			errorMessage = getString(R.string.parse_error);
-		} else if (data.hasError()) {
-			errorMessage = data.getErrorMessage();
-		} else {
-			errorMessage = "";
-		}
-
+	private void loadBody(GeekListResponse body) {
 		if (body == null) return;
 
 		geekList = new GeekList(
@@ -250,23 +234,4 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		}
 	}
 
-	@Override
-	public void onLoaderReset(@NonNull Loader<GeekListSafeResponse> loader) {
-	}
-
-	private static class GeekListLoader extends BggLoader<GeekListSafeResponse> {
-		private final BggService service;
-		private final int geekListId;
-
-		public GeekListLoader(Context context, int geekListId) {
-			super(context);
-			service = Adapter.createForXml();
-			this.geekListId = geekListId;
-		}
-
-		@Override
-		public GeekListSafeResponse loadInBackground() {
-			return new GeekListSafeResponse(service.geekList(geekListId, 1));
-		}
-	}
 }
