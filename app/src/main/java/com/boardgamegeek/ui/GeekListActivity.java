@@ -14,7 +14,7 @@ import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.loader.BggLoader;
-import com.boardgamegeek.ui.loader.SafeResponse;
+import com.boardgamegeek.ui.loader.GeekListSafeResponse;
 import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -35,7 +35,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
-public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<SafeResponse<GeekListResponse>> {
+public class GeekListActivity extends TabActivity implements LoaderManager.LoaderCallbacks<GeekListSafeResponse> {
 	private static final String KEY_ID = "GEEK_LIST_ID";
 	private static final String KEY_TITLE = "GEEK_LIST_TITLE";
 	private static final int LOADER_ID = 1;
@@ -150,7 +150,7 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		private final ArrayList<TabInfo> tabs = new ArrayList<>();
 
 		public GeekListPagerAdapter(FragmentManager fragmentManager, Context context) {
-			super(fragmentManager);
+			super(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 			this.context = context;
 			tabs.clear();
 		}
@@ -193,12 +193,12 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 
 	@Override
 	@NonNull
-	public Loader<SafeResponse<GeekListResponse>> onCreateLoader(int id, Bundle data) {
+	public Loader<GeekListSafeResponse> onCreateLoader(int id, Bundle data) {
 		return new GeekListLoader(this, geekListId);
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<SafeResponse<GeekListResponse>> loader, SafeResponse<GeekListResponse> data) {
+	public void onLoadFinished(@NonNull Loader<GeekListSafeResponse> loader, GeekListSafeResponse data) {
 		GeekListResponse body = data.getBody();
 		if (body == null) {
 			errorMessage = getString(R.string.empty_geeklist);
@@ -251,10 +251,10 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onLoaderReset(@NonNull Loader<SafeResponse<GeekListResponse>> loader) {
+	public void onLoaderReset(@NonNull Loader<GeekListSafeResponse> loader) {
 	}
 
-	private static class GeekListLoader extends BggLoader<SafeResponse<GeekListResponse>> {
+	private static class GeekListLoader extends BggLoader<GeekListSafeResponse> {
 		private final BggService service;
 		private final int geekListId;
 
@@ -265,8 +265,8 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		}
 
 		@Override
-		public SafeResponse<GeekListResponse> loadInBackground() {
-			return new SafeResponse<>(service.geekList(geekListId, 1));
+		public GeekListSafeResponse loadInBackground() {
+			return new GeekListSafeResponse(service.geekList(geekListId, 1));
 		}
 	}
 }
