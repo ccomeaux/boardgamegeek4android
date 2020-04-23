@@ -2,24 +2,30 @@ package com.boardgamegeek.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.Status;
+import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.model.GeekList;
+import com.boardgamegeek.ui.viewmodel.GeekListViewModel;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.util.List;
 
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -35,6 +41,7 @@ public class GeekListItemsFragment extends Fragment {
 	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
+	GeekListViewModel viewModel;
 
 	public static GeekListItemsFragment newInstance() {
 		return new GeekListItemsFragment();
@@ -45,6 +52,35 @@ public class GeekListItemsFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
+
+		viewModel = new ViewModelProvider(requireActivity()).get(GeekListViewModel.class);
+
+		viewModel.getGeekList().observe(getViewLifecycleOwner(), response -> {
+			GeekListResponse body = response.getData();
+			List<GeekListItem> geekListItems = null;
+			if (body != null)
+				geekListItems = body.getItems();
+			if (response.getStatus() == Status.ERROR) {
+				setError(response.getMessage());
+			} else if (response.getStatus() == Status.SUCCESS) {
+				if (geekListItems == null || geekListItems.size() == 0) {
+					setError();
+				} else {
+					GeekList geekList = new GeekList(
+						body.id,
+						TextUtils.isEmpty(body.title) ? "" : body.title.trim(),
+						body.username,
+						body.description,
+						StringUtils.parseInt(body.numitems),
+						StringUtils.parseInt(body.thumbs),
+						DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekListResponse.FORMAT),
+						DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT)
+					);
+					setData(geekList, geekListItems);
+				}
+			}
+		});
+
 		return rootView;
 	}
 
@@ -150,12 +186,9 @@ public class GeekListItemsFragment extends Fragment {
 					usernameView.setVisibility(View.VISIBLE);
 				}
 
-				itemView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						if (item.getObjectId() != BggContract.INVALID_ID) {
-							GeekListItemActivity.start(context, geekList, item, order);
-						}
+				itemView.setOnClickListener(v -> {
+					if (item.getObjectId() != BggContract.INVALID_ID) {
+						GeekListItemActivity.start(context, geekList, item, order);
 					}
 				});
 			}

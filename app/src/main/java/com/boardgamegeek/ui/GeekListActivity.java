@@ -3,35 +3,25 @@ package com.boardgamegeek.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.entities.Status;
-import com.boardgamegeek.io.model.GeekListResponse;
-import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 public class GeekListActivity extends TabActivity {
@@ -39,11 +29,6 @@ public class GeekListActivity extends TabActivity {
 	private static final String KEY_TITLE = "GEEK_LIST_TITLE";
 	private int geekListId;
 	private String geekListTitle;
-	private GeekList geekList;
-	private List<GeekListItem> geekListItems;
-	private String errorMessage;
-	private String descriptionFragmentTag;
-	private String itemsFragmentTag;
 	private GeekListPagerAdapter adapter;
 	private GeekListViewModel viewModel;
 
@@ -86,13 +71,8 @@ public class GeekListActivity extends TabActivity {
 
 		viewModel.setId(geekListId);
 		viewModel.getGeekList().observe(this, resource -> {
-			if (resource.getStatus() == Status.REFRESHING) {
-				errorMessage = "";
-			} else if (resource.getStatus() == Status.ERROR) {
-				errorMessage = resource.getMessage();
-			} else if (resource.getStatus() == Status.SUCCESS) {
-				errorMessage = "";
-				loadBody(resource.getData());
+			if (resource != null && resource.getStatus() == Status.SUCCESS && resource.getData() != null) {
+				safelySetTitle(resource.getData().title);
 			}
 		});
 	}
@@ -120,31 +100,19 @@ public class GeekListActivity extends TabActivity {
 	@Override
 	protected FragmentPagerAdapter createAdapter() {
 		adapter = new GeekListPagerAdapter(getSupportFragmentManager(), this);
-		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description, tag -> {
-			descriptionFragmentTag = tag;
-			setDescription();
-		});
-		adapter.addTab(GeekListItemsFragment.newInstance(), R.string.title_items, tag -> {
-			itemsFragmentTag = tag;
-			setItems();
-		});
+		adapter.addTab(GeekListDescriptionFragment.newInstance(), R.string.title_description);
+		adapter.addTab(GeekListItemsFragment.newInstance(), R.string.title_items);
 		return adapter;
-	}
-
-	private interface ItemInstantiatedCallback {
-		void itemInstantiated(String tag);
 	}
 
 	private final static class GeekListPagerAdapter extends FragmentPagerAdapter {
 		static final class TabInfo {
 			private final Fragment fragment;
 			@StringRes private final int titleRes;
-			private final ItemInstantiatedCallback callback;
 
-			TabInfo(Fragment fragment, int titleRes, ItemInstantiatedCallback callback) {
+			TabInfo(Fragment fragment, int titleRes) {
 				this.fragment = fragment;
 				this.titleRes = titleRes;
-				this.callback = callback;
 			}
 		}
 
@@ -157,8 +125,8 @@ public class GeekListActivity extends TabActivity {
 			tabs.clear();
 		}
 
-		public void addTab(Fragment fragment, @StringRes int titleRes, ItemInstantiatedCallback callback) {
-			tabs.add(new TabInfo(fragment, titleRes, callback));
+		public void addTab(Fragment fragment, @StringRes int titleRes) {
+			tabs.add(new TabInfo(fragment, titleRes));
 			notifyDataSetChanged();
 		}
 
@@ -177,61 +145,8 @@ public class GeekListActivity extends TabActivity {
 		}
 
 		@Override
-		@NonNull
-		public Object instantiateItem(ViewGroup container, int position) {
-			Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-			TabInfo tabInfo = tabs.get(position);
-			if (tabInfo != null) {
-				tabInfo.callback.itemInstantiated(createdFragment.getTag());
-			}
-			return createdFragment;
-		}
-
-		@Override
 		public int getCount() {
 			return tabs.size();
 		}
 	}
-
-	private void loadBody(GeekListResponse body) {
-		if (body == null) return;
-
-		geekList = new GeekList(
-			body.id,
-			TextUtils.isEmpty(body.title) ? "" : body.title.trim(),
-			body.username,
-			body.description,
-			StringUtils.parseInt(body.numitems),
-			StringUtils.parseInt(body.thumbs),
-			DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.postdate, GeekListResponse.FORMAT),
-			DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, body.editdate, GeekListResponse.FORMAT)
-		);
-		geekListItems = body.getItems();
-
-		setDescription();
-		setItems();
-	}
-
-	private void setDescription() {
-		if (adapter == null) return;
-		GeekListDescriptionFragment descriptionFragment = (GeekListDescriptionFragment) getSupportFragmentManager().findFragmentByTag(descriptionFragmentTag);
-		if (descriptionFragment != null) descriptionFragment.setData(geekList);
-	}
-
-	private void setItems() {
-		if (geekList == null || geekListItems == null) return;
-		if (adapter == null) return;
-
-		GeekListItemsFragment itemsFragment = (GeekListItemsFragment) getSupportFragmentManager().findFragmentByTag(itemsFragmentTag);
-		if (itemsFragment != null) {
-			if (!TextUtils.isEmpty(errorMessage)) {
-				itemsFragment.setError(errorMessage);
-			} else if (geekList.getNumberOfItems() == 0 || geekListItems.size() == 0) {
-				itemsFragment.setError();
-			} else {
-				itemsFragment.setData(geekList, geekListItems);
-			}
-		}
-	}
-
 }
