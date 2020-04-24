@@ -10,11 +10,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.share
-import com.boardgamegeek.io.model.GeekListResponse
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.ActivityUtils
@@ -48,9 +46,9 @@ class GeekListActivity : TabActivity() {
         }
 
         viewModel.setId(geekListId)
-        viewModel.geekList.observe(this, Observer { resource: RefreshableResource<GeekListResponse?>? ->
-            if (resource?.status === Status.SUCCESS && resource.data != null) {
-                geekListTitle = resource.data.title
+        viewModel.geekList.observe(this, Observer { (status, data, _) ->
+            if (status == Status.SUCCESS && data != null) {
+                geekListTitle = data.title
                 safelySetTitle(geekListTitle)
             }
         })

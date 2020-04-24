@@ -7,11 +7,13 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.GeekListResponse
 import com.boardgamegeek.livedata.NetworkLoader
+import com.boardgamegeek.mappers.GeekListItemMapper
+import com.boardgamegeek.ui.model.GeekList
 import retrofit2.Call
 
 class GeekListRepository(val application: BggApplication) {
-    fun getGeekList(geekListId: Int): LiveData<RefreshableResource<GeekListResponse>> {
-        return object : NetworkLoader<GeekListResponse, GeekListResponse>(application) {
+    fun getGeekList(geekListId: Int): LiveData<RefreshableResource<GeekList>> {
+        return object : NetworkLoader<GeekList, GeekListResponse>(application) {
             override val typeDescriptionResId: Int
                 get() = R.string.title_geeklist
 
@@ -19,8 +21,8 @@ class GeekListRepository(val application: BggApplication) {
                 return Adapter.createForXml().geekList(geekListId, 1)
             }
 
-            override fun parseResult(result: GeekListResponse): GeekListResponse {
-                return result
+            override fun parseResult(result: GeekListResponse): GeekList {
+                return GeekListItemMapper().map(result)
             }
         }.asLiveData()
     }

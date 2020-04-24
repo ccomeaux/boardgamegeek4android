@@ -8,10 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
-import com.boardgamegeek.io.model.GeekListResponse
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
-import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.StringUtils
 import com.boardgamegeek.util.UIUtils
 import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_description.*
@@ -27,16 +25,18 @@ class GeekListDescriptionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.geekList.observe(viewLifecycleOwner, Observer { response ->
-            response?.data?.let {
-                usernameView.text = it.username
-                itemCountView.text = StringUtils.parseInt(it.numitems).toString()
-                thumbCountView.text = StringUtils.parseInt(it.thumbs).toString()
-                UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(it.description))
-                postedDateView.timestamp = DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, it.postdate, GeekListResponse.FORMAT)
-                editedDateView.timestamp = DateTimeUtils.tryParseDate(DateTimeUtils.UNPARSED_DATE, it.editdate, GeekListResponse.FORMAT)
-                container.visibility = View.VISIBLE
-                progressBar.hide()
+        viewModel.geekList.observe(viewLifecycleOwner, Observer { (status, data, _) ->
+            if (status == Status.SUCCESS) {
+                data?.let {
+                    usernameView.text = it.username
+                    itemCountView.text = it.numberOfItems.toString()
+                    thumbCountView.text = it.numberOfThumbs.toString()
+                    UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(it.description))
+                    postedDateView.timestamp = it.postTicks
+                    editedDateView.timestamp = it.editTicks
+                    container.visibility = View.VISIBLE
+                    progressBar.hide()
+                }
             }
         })
     }
