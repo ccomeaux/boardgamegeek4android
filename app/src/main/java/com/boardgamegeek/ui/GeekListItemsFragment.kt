@@ -10,13 +10,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GeekListEntity
+import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.model.GeekList
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_geeklist_items.*
@@ -65,15 +65,22 @@ class GeekListItemsFragment : Fragment() {
     }
 
     class GeekListRecyclerViewAdapter : RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
-        var geekListItems: List<GeekListItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var geekListItems: List<GeekListItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.objectId == new.objectId
             }
         }
 
-        var geekList: GeekList? = null
+        var geekList: GeekListEntity? = null
+
+        init {
+            setHasStableIds(true)
+        }
 
         override fun getItemCount(): Int = geekListItems.size
+
+        override fun getItemId(position: Int) =
+                geekListItems.getOrNull(position)?.id ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeekListItemViewHolder {
             return GeekListItemViewHolder(parent.inflate(R.layout.row_geeklist_item))
@@ -84,10 +91,10 @@ class GeekListItemsFragment : Fragment() {
         }
 
         inner class GeekListItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bind(item: GeekListItem?, order: Int) {
+            fun bind(item: GeekListItemEntity?, order: Int) {
                 item?.let {
                     itemView.orderView.text = order.toString()
-                    itemView.thumbnailView.loadThumbnail(it.imageId())
+                    itemView.thumbnailView.loadThumbnail(it.imageId)
                     itemView.itemNameView.text = it.objectName
                     itemView.usernameView.text = it.username
                     itemView.usernameView.isVisible = it.username != geekList?.username

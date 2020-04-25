@@ -5,17 +5,16 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GeekListCommentEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.model.GeekListComment
 import kotlinx.android.synthetic.main.row_geeklist_comment.view.*
 import kotlin.properties.Delegates
 
 class GeekListCommentsRecyclerViewAdapter
     : RecyclerView.Adapter<GeekListCommentsRecyclerViewAdapter.CommentViewHolder>(), AutoUpdatableAdapter {
-    var comments: List<GeekListComment> by Delegates.observable(emptyList()) { _, old, new ->
+    var comments: List<GeekListCommentEntity> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
-            // TODO improve this comparison
-            false
+            o == n
         }
     }
 
@@ -30,7 +29,7 @@ class GeekListCommentsRecyclerViewAdapter
     override fun getItemCount() = comments.size
 
     inner class CommentViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView!!) {
-        fun bind(comment: GeekListComment?) {
+        fun bind(comment: GeekListCommentEntity?) {
             comment?.let {
                 itemView.usernameView.text = it.username
                 itemView.numberOfThumbsView.text = it.numberOfThumbs.toString()

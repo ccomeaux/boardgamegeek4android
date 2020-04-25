@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.util.UIUtils
+import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_item.*
 import org.jetbrains.anko.support.v4.withArguments
@@ -48,7 +48,7 @@ class GeekListItemFragment : Fragment() {
         typeView.text = type
         usernameView.text = username
         thumbsView.text = numberOfThumbs.toString()
-        UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(body))
+        bodyView.setWebViewText(xmlConverter.toHtml(body))
         postedDateView.timestamp = postedDate
         editedDateView.timestamp = editedDate
         datetimeDividerView.isVisible = editedDate != postedDate

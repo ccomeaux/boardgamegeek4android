@@ -1,8 +1,6 @@
-package com.boardgamegeek.ui.model
+package com.boardgamegeek.entities
 
-import com.boardgamegeek.model.GeekListItem
-
-data class GeekList(
+data class GeekListEntity(
         val id: Int,
         val title: String,
         val username: String,
@@ -11,5 +9,5 @@ data class GeekList(
         val numberOfThumbs: Int,
         val postTicks: Long,
         val editTicks: Long,
-        val items: List<GeekListItem>
+        val items: List<GeekListItemEntity>?
 )

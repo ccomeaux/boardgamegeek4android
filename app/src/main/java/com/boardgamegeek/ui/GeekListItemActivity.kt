@@ -7,11 +7,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.model.GeekListComment
-import com.boardgamegeek.model.GeekListItem
+import com.boardgamegeek.entities.GeekListCommentEntity
+import com.boardgamegeek.entities.GeekListEntity
+import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
-import com.boardgamegeek.ui.model.GeekList
 import com.boardgamegeek.util.ActivityUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
@@ -32,7 +32,7 @@ class GeekListItemActivity : HeroTabActivity() {
     private var postedDate: Long = 0
     private var editedDate: Long = 0
     private var body: String = ""
-    private var comments: ArrayList<GeekListComment>? = null
+    private var comments: ArrayList<GeekListCommentEntity>? = null
 
     private val adapter: GeekListItemPagerAdapter by lazy {
         GeekListItemPagerAdapter(supportFragmentManager)
@@ -132,18 +132,18 @@ class GeekListItemActivity : HeroTabActivity() {
         private const val KEY_COMMENTS = "GEEK_LIST_COMMENTS"
 
         @JvmStatic
-        fun start(context: Context, geekList: GeekList, item: GeekListItem, order: Int) {
+        fun start(context: Context, geekList: GeekListEntity, item: GeekListItemEntity, order: Int) {
             context.startActivity<GeekListItemActivity>(
                     KEY_ID to geekList.id,
                     KEY_TITLE to geekList.title,
                     KEY_ORDER to order,
                     KEY_NAME to item.objectName,
-                    KEY_TYPE to item.getObjectType(context),
-                    KEY_IMAGE_ID to item.imageId(),
+                    KEY_TYPE to item.objectTypeDescription(context),
+                    KEY_IMAGE_ID to item.imageId,
                     KEY_USERNAME to item.username,
-                    KEY_THUMBS to item.thumbCount,
-                    KEY_POSTED_DATE to item.postDate,
-                    KEY_EDITED_DATE to item.editDate,
+                    KEY_THUMBS to item.numberOfThumbs,
+                    KEY_POSTED_DATE to item.postDateTime,
+                    KEY_EDITED_DATE to item.editDateTime,
                     KEY_BODY to item.body,
                     KEY_OBJECT_URL to item.objectUrl,
                     KEY_OBJECT_ID to item.objectId,

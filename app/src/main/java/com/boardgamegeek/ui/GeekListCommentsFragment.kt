@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GeekListCommentEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_geeklist_comments.*
 import org.jetbrains.anko.support.v4.withArguments
@@ -30,7 +30,7 @@ class GeekListCommentsFragment : Fragment() {
         recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = adapter
 
-        val comments: List<GeekListComment> = arguments?.getParcelableArrayList(KEY_COMMENTS)
+        val comments: List<GeekListCommentEntity> = arguments?.getParcelableArrayList(KEY_COMMENTS)
                 ?: emptyList()
 
         adapter.comments = comments
@@ -47,7 +47,7 @@ class GeekListCommentsFragment : Fragment() {
     companion object {
         private const val KEY_COMMENTS = "GEEK_LIST_COMMENTS"
 
-        fun newInstance(comments: ArrayList<GeekListComment>?): GeekListCommentsFragment {
+        fun newInstance(comments: ArrayList<GeekListCommentEntity>?): GeekListCommentsFragment {
             return GeekListCommentsFragment().withArguments(
                     KEY_COMMENTS to comments
             )

@@ -9,8 +9,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
-import com.boardgamegeek.util.UIUtils
 import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_description.*
 import kotlinx.android.synthetic.main.header_geek_list.*
@@ -31,7 +31,7 @@ class GeekListDescriptionFragment : Fragment() {
                     usernameView.text = it.username
                     itemCountView.text = it.numberOfItems.toString()
                     thumbCountView.text = it.numberOfThumbs.toString()
-                    UIUtils.setWebViewText(bodyView, xmlConverter.toHtml(it.description))
+                    bodyView.setWebViewText(xmlConverter.toHtml(it.description))
                     postedDateView.timestamp = it.postTicks
                     editedDateView.timestamp = it.editTicks
                     container.visibility = View.VISIBLE

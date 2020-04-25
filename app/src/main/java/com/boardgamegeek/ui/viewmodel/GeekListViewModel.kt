@@ -9,7 +9,7 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GeekListRepository
-import com.boardgamegeek.ui.model.GeekList
+import com.boardgamegeek.entities.GeekListEntity
 
 class GeekListViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GeekListRepository(getApplication())
@@ -20,7 +20,7 @@ class GeekListViewModel(application: Application) : AndroidViewModel(application
         if (_geekListId.value != geekListId) _geekListId.value = geekListId
     }
 
-    val geekList: LiveData<RefreshableResource<GeekList>> = Transformations.switchMap(_geekListId) { id ->
+    val geekList: LiveData<RefreshableResource<GeekListEntity>> = Transformations.switchMap(_geekListId) { id ->
         when (id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> repository.getGeekList(id)
