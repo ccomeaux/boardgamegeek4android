@@ -1,11 +1,11 @@
-package com.boardgamegeek.model;
+package com.boardgamegeek.io.model;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Root(name = "item")
 public class GeekListItem {
@@ -21,5 +21,5 @@ public class GeekListItem {
 	@Attribute public String username;
 	@Element(required = false) public String body;
 	@ElementList(name = "comment", inline = true, required = false)
-	public ArrayList<GeekListComment> comments;
+	public List<GeekListComment> comments;
 }

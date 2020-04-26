@@ -1,20 +1,11 @@
-package com.boardgamegeek.model;
+package com.boardgamegeek.io.model;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 @Root(name = "comment")
 public class GeekListComment {
-	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
-
-	@SuppressWarnings("unused")
-	public GeekListComment() {
-	}
-
 	@Attribute public String date;
 	@Attribute public String editdate;
 	@Attribute public String postdate;
