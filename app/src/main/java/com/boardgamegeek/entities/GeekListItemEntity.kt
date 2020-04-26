@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Parcelable
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -21,8 +22,10 @@ data class GeekListItemEntity(
         val editDateTime: Long = 0L,
         val comments: List<GeekListCommentEntity> = emptyList()
 ) : Parcelable {
+    @IgnoredOnParcel
     val isBoardGame: Boolean = "thing" == objectType
 
+    @IgnoredOnParcel
     val objectUrl: String = when {
         subtype.isNotBlank() -> "https://www.boardgamegeek.com/$subtype/$objectId"
         objectType.isNotBlank() -> "https://www.boardgamegeek.com/$objectType/$objectId"
