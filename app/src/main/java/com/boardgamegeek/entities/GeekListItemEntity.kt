@@ -1,27 +1,33 @@
 package com.boardgamegeek.entities
 
 import android.content.Context
+import android.os.Parcelable
 import com.boardgamegeek.R
+import com.boardgamegeek.provider.BggContract
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class GeekListItemEntity(
-        val id: Long,
-        val objectId: Int,
-        val objectName: String,
-        private val objectType: String,
-        private val subtype: String,
-        val imageId: Int,
-        val username: String,
-        val body: String,
-        val numberOfThumbs: Int,
-        val postDateTime: Long,
-        val editDateTime: Long,
-        val comments: List<GeekListCommentEntity>
-) {
-    val isBoardGame: Boolean
-        get() = "thing" == objectType // TODO this will fail - objectType is a description
+        val id: Long = BggContract.INVALID_ID.toLong(),
+        val objectId: Int = BggContract.INVALID_ID,
+        val objectName: String = "",
+        private val objectType: String = "",
+        private val subtype: String = "",
+        val imageId: Int = 0,
+        val username: String = "",
+        val body: String = "",
+        val numberOfThumbs: Int = 0,
+        val postDateTime: Long = 0L,
+        val editDateTime: Long = 0L,
+        val comments: List<GeekListCommentEntity> = emptyList()
+) : Parcelable {
+    val isBoardGame: Boolean = "thing" == objectType
 
-    val objectUrl: String
-        get() = "https://www.boardgamegeek.com/${if (subtype.isBlank()) objectType else subtype}/$objectId"
+    val objectUrl: String = when {
+        subtype.isNotBlank() -> "https://www.boardgamegeek.com/$subtype/$objectId"
+        objectType.isNotBlank() -> "https://www.boardgamegeek.com/$objectType/$objectId"
+        else -> ""
+    }
 
     fun objectTypeDescription(context: Context): String {
         val objectTypeResId = getObjectTypeResId()

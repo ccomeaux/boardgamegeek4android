@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_item.*
@@ -15,25 +16,15 @@ import org.jetbrains.anko.support.v4.withArguments
 class GeekListItemFragment : Fragment() {
     private var order = 0
     private var geekListTitle = ""
-    private var type = ""
-    private var username = ""
-    private var numberOfThumbs = 0
-    private var postedDate: Long = 0
-    private var editedDate: Long = 0
-    private var body = ""
     private var xmlConverter = XmlConverter()
+    private var glItem = GeekListItemEntity()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             order = it.getInt(KEY_ORDER, 0)
             geekListTitle = it.getString(KEY_TITLE).orEmpty()
-            type = it.getString(KEY_TYPE).orEmpty()
-            username = it.getString(KEY_USERNAME).orEmpty()
-            numberOfThumbs = it.getInt(KEY_THUMBS, 0)
-            postedDate = it.getLong(KEY_POSTED_DATE, 0)
-            editedDate = it.getLong(KEY_EDITED_DATE, 0)
-            body = it.getString(KEY_BODY).orEmpty()
+            glItem = it.getParcelable(KEY_ITEM) ?: GeekListItemEntity()
         }
     }
 
@@ -45,36 +36,26 @@ class GeekListItemFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         orderView.text = order.toString()
         geekListTitleView.text = geekListTitle
-        typeView.text = type
-        usernameView.text = username
-        thumbsView.text = numberOfThumbs.toString()
-        bodyView.setWebViewText(xmlConverter.toHtml(body))
-        postedDateView.timestamp = postedDate
-        editedDateView.timestamp = editedDate
-        datetimeDividerView.isVisible = editedDate != postedDate
-        editedDateView.isVisible = editedDate != postedDate
+        typeView.text = glItem.objectTypeDescription(requireContext())
+        usernameView.text = glItem.username
+        thumbsView.text = glItem.numberOfThumbs.toString()
+        bodyView.setWebViewText(xmlConverter.toHtml(glItem.body))
+        postedDateView.timestamp = glItem.postDateTime
+        editedDateView.timestamp = glItem.editDateTime
+        datetimeDividerView.isVisible = glItem.editDateTime != glItem.postDateTime
+        editedDateView.isVisible = glItem.editDateTime != glItem.postDateTime
     }
 
     companion object {
         private const val KEY_ORDER = "GEEK_LIST_ORDER"
         private const val KEY_TITLE = "GEEK_LIST_TITLE"
-        private const val KEY_TYPE = "GEEK_LIST_TYPE"
-        private const val KEY_USERNAME = "GEEK_LIST_USERNAME"
-        private const val KEY_THUMBS = "GEEK_LIST_THUMBS"
-        private const val KEY_POSTED_DATE = "GEEK_LIST_POSTED_DATE"
-        private const val KEY_EDITED_DATE = "GEEK_LIST_EDITED_DATE"
-        private const val KEY_BODY = "GEEK_LIST_BODY"
+        private const val KEY_ITEM = "ITEM"
 
-        fun newInstance(order: Int, title: String, type: String, username: String, numberOfThumbs: Int, postedDate: Long, editedDate: Long, body: String): GeekListItemFragment {
+        fun newInstance(order: Int, title: String, item: GeekListItemEntity): GeekListItemFragment {
             return GeekListItemFragment().withArguments(
                     KEY_ORDER to order,
                     KEY_TITLE to title,
-                    KEY_TYPE to type,
-                    KEY_USERNAME to username,
-                    KEY_THUMBS to numberOfThumbs,
-                    KEY_POSTED_DATE to postedDate,
-                    KEY_EDITED_DATE to editedDate,
-                    KEY_BODY to body
+                    KEY_ITEM to item
             )
         }
     }

@@ -13,7 +13,6 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_geeklist_comments.*
 import org.jetbrains.anko.support.v4.withArguments
-import java.util.*
 
 class GeekListCommentsFragment : Fragment() {
     private val adapter: GeekListCommentsRecyclerViewAdapter by lazy {
@@ -47,7 +46,7 @@ class GeekListCommentsFragment : Fragment() {
     companion object {
         private const val KEY_COMMENTS = "GEEK_LIST_COMMENTS"
 
-        fun newInstance(comments: ArrayList<GeekListCommentEntity>?): GeekListCommentsFragment {
+        fun newInstance(comments: List<GeekListCommentEntity>?): GeekListCommentsFragment {
             return GeekListCommentsFragment().withArguments(
                     KEY_COMMENTS to comments
             )
