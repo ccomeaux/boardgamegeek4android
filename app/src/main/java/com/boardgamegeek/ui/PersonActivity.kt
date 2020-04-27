@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -36,7 +35,7 @@ class PersonActivity : HeroTabActivity() {
     private val viewModel by viewModels<PersonViewModel>()
 
     private val adapter: PersonPagerAdapter by lazy {
-        PersonPagerAdapter(supportFragmentManager, this, id, name, personType)
+        PersonPagerAdapter(this, id, name, personType)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,9 +122,9 @@ class PersonActivity : HeroTabActivity() {
         }
     }
 
-    override fun createAdapter(): FragmentPagerAdapter {
-        return adapter
-    }
+    override fun createAdapter() = adapter
+
+    override fun getPageTitle(position: Int) = adapter.getPageTitle(position)
 
     companion object {
         private const val KEY_PERSON_TYPE = "PERSON_TYPE"

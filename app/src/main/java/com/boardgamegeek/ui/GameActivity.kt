@@ -8,10 +8,9 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.core.app.NavUtils
 import androidx.core.app.TaskStackBuilder
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.palette.graphics.Palette
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
@@ -25,6 +24,7 @@ import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
+import kotlinx.android.synthetic.main.activity_hero_tab.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
@@ -40,7 +40,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
-        GamePagerAdapter(supportFragmentManager, this, gameId, intent.getStringExtra(KEY_GAME_NAME))
+        GamePagerAdapter(this, gameId, intent.getStringExtra(KEY_GAME_NAME))
     }
 
     override val optionsMenuId = R.menu.game
@@ -89,21 +89,17 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         }
     }
 
-    override fun createAdapter(): FragmentPagerAdapter {
+    override fun createAdapter(): GamePagerAdapter {
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                adapter.currentPosition = position
+            }
+        })
         return adapter
     }
 
-    override fun createOnPageChangeListener(): OnPageChangeListener {
-        return object : OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
-
-            override fun onPageSelected(position: Int) {
-                adapter.currentPosition = position
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {}
-        }
-    }
+    override fun getPageTitle(position: Int) = adapter.getPageTitle(position)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)

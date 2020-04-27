@@ -4,8 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
@@ -23,7 +23,7 @@ class GeekListItemActivity : HeroTabActivity() {
     private var glItem = GeekListItemEntity()
 
     private val adapter: GeekListItemPagerAdapter by lazy {
-        GeekListItemPagerAdapter(supportFragmentManager)
+        GeekListItemPagerAdapter(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,17 +85,17 @@ class GeekListItemActivity : HeroTabActivity() {
 
     override fun createAdapter() = adapter
 
-    inner class GeekListItemPagerAdapter(fragmentManager: FragmentManager) :
-            FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-        override fun getPageTitle(position: Int): CharSequence? {
-            return when (position) {
-                0 -> getString(R.string.title_description)
-                1 -> getString(R.string.title_comments)
-                else -> ""
-            }
+    override fun getPageTitle(position: Int): CharSequence {
+        return when (position) {
+            0 -> getString(R.string.title_description)
+            1 -> getString(R.string.title_comments)
+            else -> ""
         }
+    }
 
-        override fun getItem(position: Int): Fragment {
+    inner class GeekListItemPagerAdapter(activity: FragmentActivity) :
+            FragmentStateAdapter(activity) {
+        override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> GeekListItemFragment.newInstance(order, geekListTitle, glItem)
                 1 -> GeekListCommentsFragment.newInstance(glItem.comments)
@@ -103,7 +103,7 @@ class GeekListItemActivity : HeroTabActivity() {
             }
         }
 
-        override fun getCount() = 2
+        override fun getItemCount() = 2
     }
 
     companion object {
