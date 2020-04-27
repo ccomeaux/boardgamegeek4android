@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
@@ -27,7 +27,7 @@ class GeekListActivity : TabActivity() {
     private var geekListTitle: String = ""
     private val viewModel by viewModels<GeekListViewModel>()
     private val adapter: GeekListPagerAdapter by lazy {
-        GeekListPagerAdapter(supportFragmentManager, this)
+        GeekListPagerAdapter(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,21 +77,21 @@ class GeekListActivity : TabActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun createAdapter(): FragmentPagerAdapter {
+    override fun createAdapter(): FragmentStateAdapter {
         return adapter
     }
 
-    private class GeekListPagerAdapter(fragmentManager: FragmentManager, private val context: Context) :
-            FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-        override fun getPageTitle(position: Int): CharSequence? {
-            return when (position) {
-                0 -> context.getString(R.string.title_description)
-                1 -> context.getString(R.string.title_items)
-                else -> ""
-            }
+    override fun getPageTitle(position: Int): CharSequence? {
+        return when (position) {
+            0 -> getString(R.string.title_description)
+            1 -> getString(R.string.title_items)
+            else -> ""
         }
+    }
 
-        override fun getItem(position: Int): Fragment {
+    private class GeekListPagerAdapter(activity: FragmentActivity) :
+            FragmentStateAdapter(activity) {
+        override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> GeekListDescriptionFragment.newInstance()
                 1 -> GeekListItemsFragment.newInstance()
@@ -99,7 +99,7 @@ class GeekListActivity : TabActivity() {
             }
         }
 
-        override fun getCount() = 2
+        override fun getItemCount() = 2
     }
 
     companion object {
