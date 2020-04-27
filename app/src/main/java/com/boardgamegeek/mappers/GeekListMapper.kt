@@ -15,38 +15,38 @@ class GeekListMapper {
             val comments = mutableListOf<GeekListCommentEntity>()
             item.comments?.forEach { comment ->
                 comments += GeekListCommentEntity(
-                        FORMAT.parse(comment.postdate).time,
-                        FORMAT.parse(comment.editdate).time,
+                        FORMAT.parse(comment.postdate.orEmpty())?.time ?: 0L,
+                        FORMAT.parse(comment.editdate.orEmpty())?.time ?: 0L,
                         comment.thumbs.toIntOrNull() ?: 0,
-                        comment.username,
-                        comment.content.trim()
+                        comment.username.orEmpty(),
+                        comment.content.orEmpty().trim()
                 )
             }
 
             items += GeekListItemEntity(
                     item.id.toLongOrNull() ?: BggContract.INVALID_ID.toLong(),
                     item.objectid.toIntOrNull() ?: BggContract.INVALID_ID,
-                    item.objectname,
-                    item.objecttype,
-                    item.subtype,
+                    item.objectname.orEmpty(),
+                    item.objecttype.orEmpty(),
+                    item.subtype.orEmpty(),
                     item.imageid.toIntOrNull() ?: 0,
-                    item.username,
-                    item.body,
+                    item.username.orEmpty(),
+                    item.body.orEmpty(),
                     item.thumbs.toIntOrNull() ?: 0,
-                    FORMAT.parse(item.postdate).time,
-                    FORMAT.parse(item.editdate).time,
+                    FORMAT.parse(item.postdate.orEmpty())?.time ?: 0L,
+                    FORMAT.parse(item.editdate.orEmpty())?.time ?: 0L,
                     comments
             )
         }
         return GeekListEntity(
                 from.id,
                 from.title.orEmpty().trim(),
-                from.username,
-                from.description,
+                from.username.orEmpty(),
+                from.description.orEmpty().trim(),
                 from.numitems.toIntOrNull() ?: 0,
                 from.thumbs.toIntOrNull() ?: 0,
-                FORMAT.parse(from.postdate).time,
-                FORMAT.parse(from.editdate).time,
+                FORMAT.parse(from.postdate.orEmpty())?.time ?: 0L,
+                FORMAT.parse(from.editdate.orEmpty())?.time ?: 0L,
                 items
         )
     }
