@@ -7,7 +7,6 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
@@ -23,7 +22,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
 import kotlinx.android.synthetic.main.fragment_game_plays.*
 
-class GamePlaysFragment : Fragment() {
+class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var imageUrl = ""
@@ -35,10 +34,6 @@ class GamePlaysFragment : Fragment() {
     private var iconColor = Color.TRANSPARENT
 
     private val viewModel by activityViewModels<GameViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_plays, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

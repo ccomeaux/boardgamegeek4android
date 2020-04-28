@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
@@ -13,7 +11,7 @@ import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_item.*
 import org.jetbrains.anko.support.v4.withArguments
 
-class GeekListItemFragment : Fragment() {
+class GeekListItemFragment : Fragment(R.layout.fragment_geeklist_item) {
     private var order = 0
     private var geekListTitle = ""
     private var xmlConverter = XmlConverter()
@@ -26,10 +24,6 @@ class GeekListItemFragment : Fragment() {
             geekListTitle = it.getString(KEY_TITLE).orEmpty()
             glItem = it.getParcelable(KEY_ITEM) ?: GeekListItemEntity()
         }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_geeklist_item, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

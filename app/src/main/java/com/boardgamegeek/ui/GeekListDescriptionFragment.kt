@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -15,13 +13,9 @@ import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_description.*
 import kotlinx.android.synthetic.main.header_geek_list.*
 
-class GeekListDescriptionFragment : Fragment() {
+class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_description) {
     private val xmlConverter = XmlConverter()
     private val viewModel by activityViewModels<GeekListViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_geeklist_description, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

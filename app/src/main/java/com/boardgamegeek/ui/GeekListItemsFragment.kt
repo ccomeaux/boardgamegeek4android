@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -23,14 +22,10 @@ import kotlinx.android.synthetic.main.fragment_geeklist_items.*
 import kotlinx.android.synthetic.main.row_geeklist_item.view.*
 import kotlin.properties.Delegates
 
-class GeekListItemsFragment : Fragment() {
+class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
     private val viewModel by activityViewModels<GeekListViewModel>()
     private val adapter: GeekListRecyclerViewAdapter by lazy {
         GeekListRecyclerViewAdapter()
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_geeklist_items, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

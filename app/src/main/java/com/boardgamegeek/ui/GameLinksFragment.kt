@@ -2,9 +2,7 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -15,15 +13,11 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_links.*
 
-class GameLinksFragment : Fragment() {
+class GameLinksFragment : Fragment(R.layout.fragment_game_links) {
     @ColorInt
     private var iconColor = Color.TRANSPARENT
 
     private val viewModel by activityViewModels<GameViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_links, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
