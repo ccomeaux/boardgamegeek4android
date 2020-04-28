@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -18,7 +16,7 @@ import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
 import kotlinx.android.synthetic.main.fragment_forums.*
 
-class ForumsFragment : Fragment() {
+class ForumsFragment : Fragment(R.layout.fragment_forums) {
     private var forumType = ForumEntity.ForumType.REGION
     private var objectId = BggContract.INVALID_ID
     private var objectName: String? = null
@@ -28,10 +26,6 @@ class ForumsFragment : Fragment() {
     }
 
     private val viewModel by activityViewModels<ForumsViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_forums, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

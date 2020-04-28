@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon...
 --------------
+ * Display GeekList comments  
 
 Version 6.8
 -----------

@@ -30,7 +30,10 @@ class GameCreditsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_credits, container, false)
+        val root = inflater.inflate(R.layout.fragment_game_credits, container, false)
+        val viewGroup: ViewGroup = root.findViewById(R.id.dataContainer)
+        viewGroup.layoutTransition.setAnimateParentHierarchy(false)
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

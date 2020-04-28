@@ -3,10 +3,7 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.text.Html
 import android.text.TextUtils
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -35,7 +32,7 @@ import kotlinx.android.synthetic.main.include_game_ratings.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
 
-class GameFragment : Fragment(R.layout.fragment_game) {
+class GameFragment : Fragment() {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var showcaseViewWizard: ShowcaseViewWizard? = null
@@ -48,6 +45,13 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_game, container, false)
+        val viewGroup: ViewGroup = root.findViewById(R.id.dataContainer)
+        viewGroup.layoutTransition.setAnimateParentHierarchy(false)
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

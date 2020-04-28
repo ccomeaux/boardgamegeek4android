@@ -8,14 +8,14 @@
 			  android:orientation="horizontal">
 
 	<TextView
-		android:id="@+id/order"
+		android:id="@+id/orderView"
 		style="@style/RowRank"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		tools:text="19"/>
 
 	<ImageView
-		android:id="@+id/thumbnail"
+		android:id="@+id/thumbnailView"
 		style="@style/ImageList"
 		android:layout_width="@dimen/thumbnail_size"
 		android:layout_height="@dimen/thumbnail_size"
@@ -29,7 +29,7 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/game_name"
+			android:id="@+id/itemNameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
@@ -38,7 +38,7 @@
 			tools:text="Puerto Rico"/>
 
 		<TextView
-			android:id="@+id/username"
+			android:id="@+id/usernameView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

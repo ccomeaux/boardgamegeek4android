@@ -1,7 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,7 +17,7 @@ import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_game_details.*
 import java.util.*
 
-class PersonCollectionFragment : Fragment() {
+class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
     private var sortType = PersonViewModel.CollectionSort.RATING
 
     private val adapter: LinkedCollectionAdapter by lazy {
@@ -22,10 +25,6 @@ class PersonCollectionFragment : Fragment() {
     }
 
     private val viewModel by activityViewModels<PersonViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_linked_collection, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

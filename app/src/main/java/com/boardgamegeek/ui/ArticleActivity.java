@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.model.Article;
+import com.boardgamegeek.entities.ArticleEntity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -26,15 +26,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_OBJECT_ID = "OBJECT_ID";
 	private static final String KEY_OBJECT_NAME = "OBJECT_NAME";
 	private static final String KEY_OBJECT_TYPE = "OBJECT_TYPE";
-	private static final String KEY_USER = "USER";
 	private static final String KEY_THREAD_ID = "THREAD_ID";
 	private static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
-	private static final String KEY_ARTICLE_ID = "ARTICLE_ID";
-	private static final String KEY_POST_DATE = "POST_DATE";
-	private static final String KEY_EDIT_DATE = "EDIT_DATE";
-	private static final String KEY_EDIT_COUNT = "EDIT_COUNT";
-	private static final String KEY_BODY = "BODY";
-	private static final String KEY_LINK = "LINK";
+	private static final String KEY_ARTICLE = "ARTICLE";
 
 	private int threadId;
 	private String threadSubject;
@@ -43,15 +37,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private int objectId;
 	private String objectName;
 	private ForumType objectType;
-	private String link;
-	private int articleId;
-	private String user;
-	private long postDate;
-	private long editDate;
-	private int editCount;
-	private String body;
+	private ArticleEntity article;
 
-	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType, Article article) {
+	public static void start(Context context, int threadId, String threadSubject, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType, ArticleEntity article) {
 		Intent starter = new Intent(context, ArticleActivity.class);
 		starter.putExtra(KEY_THREAD_ID, threadId);
 		starter.putExtra(KEY_THREAD_SUBJECT, threadSubject);
@@ -60,13 +48,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		starter.putExtra(KEY_OBJECT_ID, objectId);
 		starter.putExtra(KEY_OBJECT_NAME, objectName);
 		starter.putExtra(KEY_OBJECT_TYPE, objectType);
-		starter.putExtra(KEY_USER, article.getUsername());
-		starter.putExtra(KEY_POST_DATE, article.getPostTicks());
-		starter.putExtra(KEY_EDIT_DATE, article.getEditTicks());
-		starter.putExtra(KEY_EDIT_COUNT, article.getNumberOfEdits());
-		starter.putExtra(KEY_BODY, article.getBody());
-		starter.putExtra(KEY_LINK, article.getLink());
-		starter.putExtra(KEY_ARTICLE_ID, article.getId());
+		starter.putExtra(KEY_ARTICLE, article);
 		context.startActivity(starter);
 	}
 
@@ -87,7 +69,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		if (savedInstanceState == null) {
 			Answers.getInstance().logContentView(new ContentViewEvent()
 				.putContentType("Article")
-				.putContentId(String.valueOf(articleId))
+				.putContentId(String.valueOf(article.getId()))
 				.putContentName(threadSubject));
 		}
 	}
@@ -101,18 +83,13 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID);
 		objectName = intent.getStringExtra(KEY_OBJECT_NAME);
 		objectType = (ForumType) intent.getSerializableExtra(KEY_OBJECT_TYPE);
-		link = intent.getStringExtra(KEY_LINK);
-		articleId = intent.getIntExtra(KEY_ARTICLE_ID, BggContract.INVALID_ID);
-		user = intent.getStringExtra(KEY_USER);
-		postDate = intent.getLongExtra(KEY_POST_DATE, 0);
-		editDate = intent.getLongExtra(KEY_EDIT_DATE, 0);
-		editCount = intent.getIntExtra(KEY_EDIT_COUNT, 0);
-		body = intent.getStringExtra(KEY_BODY);
+		article = intent.getParcelableExtra(KEY_ARTICLE);
 	}
 
+	@NotNull
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
-		return ArticleFragment.newInstance(user, postDate, editDate, editCount, body);
+	protected Fragment onCreatePane(@NotNull Intent intent) {
+		return ArticleFragment.newInstance(article);
 	}
 
 	@Override
@@ -128,20 +105,20 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				finish();
 				return true;
 			case R.id.menu_view:
-				ActivityUtils.link(this, link);
+				ActivityUtils.link(this, article.getLink());
 				return true;
 			case R.id.menu_share:
 				String description = TextUtils.isEmpty(objectName) ?
 					String.format(getString(R.string.share_thread_article_text), threadSubject, forumTitle) :
 					String.format(getString(R.string.share_thread_article_object_text), threadSubject, forumTitle, objectName);
-				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link, R.string.title_share);
+				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + article.getLink(), R.string.title_share);
 				String contentName = TextUtils.isEmpty(objectName) ?
 					String.format("%s | %s", forumTitle, threadSubject) :
 					String.format("%s | %s | %s", objectName, forumTitle, threadSubject);
 				Answers.getInstance().logShare(new ShareEvent()
 					.putContentType("Article")
 					.putContentName(contentName)
-					.putContentId(String.valueOf(articleId)));
+					.putContentId(String.valueOf(article.getId())));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
