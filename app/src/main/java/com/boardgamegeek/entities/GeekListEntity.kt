@@ -9,5 +9,6 @@ data class GeekListEntity(
         val numberOfThumbs: Int,
         val postTicks: Long,
         val editTicks: Long,
-        val items: List<GeekListItemEntity>
+        val items: List<GeekListItemEntity>,
+        val comments: List<GeekListCommentEntity>
 )

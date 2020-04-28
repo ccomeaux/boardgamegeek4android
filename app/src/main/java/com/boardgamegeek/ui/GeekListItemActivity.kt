@@ -98,7 +98,7 @@ class GeekListItemActivity : HeroTabActivity() {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> GeekListItemFragment.newInstance(order, geekListTitle, glItem)
-                1 -> GeekListCommentsFragment.newInstance(glItem.comments)
+                1 -> GeekListItemCommentsFragment.newInstance(glItem.comments)
                 else -> ErrorFragment.newInstance()
             }
         }

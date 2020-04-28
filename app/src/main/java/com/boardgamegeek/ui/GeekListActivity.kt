@@ -85,6 +85,7 @@ class GeekListActivity : TabActivity() {
         return when (position) {
             0 -> getString(R.string.title_description)
             1 -> getString(R.string.title_items)
+            2 -> getString(R.string.title_comments)
             else -> ""
         }
     }
@@ -95,11 +96,12 @@ class GeekListActivity : TabActivity() {
             return when (position) {
                 0 -> GeekListDescriptionFragment.newInstance()
                 1 -> GeekListItemsFragment.newInstance()
+                2 -> GeekListCommentsFragment.newInstance()
                 else -> ErrorFragment.newInstance()
             }
         }
 
-        override fun getItemCount() = 2
+        override fun getItemCount() = 3
     }
 
     companion object {

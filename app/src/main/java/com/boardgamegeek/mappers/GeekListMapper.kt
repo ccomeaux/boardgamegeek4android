@@ -38,6 +38,17 @@ class GeekListMapper {
                     comments
             )
         }
+        val comments = mutableListOf<GeekListCommentEntity>()
+        from.comments?.forEach { comment ->
+            comments += GeekListCommentEntity(
+                    FORMAT.parse(comment.postdate.orEmpty())?.time ?: 0L,
+                    FORMAT.parse(comment.editdate.orEmpty())?.time ?: 0L,
+                    comment.thumbs.toIntOrNull() ?: 0,
+                    comment.username.orEmpty(),
+                    comment.content.orEmpty().trim()
+            )
+        }
+
         return GeekListEntity(
                 from.id,
                 from.title.orEmpty().trim(),
@@ -47,7 +58,8 @@ class GeekListMapper {
                 from.thumbs.toIntOrNull() ?: 0,
                 FORMAT.parse(from.postdate.orEmpty())?.time ?: 0L,
                 FORMAT.parse(from.editdate.orEmpty())?.time ?: 0L,
-                items
+                items,
+                comments
         )
     }
 
