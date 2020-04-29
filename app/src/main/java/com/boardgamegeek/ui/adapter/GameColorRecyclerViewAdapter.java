@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.provider.BaseColumns;
-import androidx.annotation.LayoutRes;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +20,8 @@ import com.boardgamegeek.util.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -38,8 +38,7 @@ public class GameColorRecyclerViewAdapter extends RecyclerView.Adapter<GameColor
 		boolean onItemLongPress(int position);
 	}
 
-	public GameColorRecyclerViewAdapter(Cursor cursor, @LayoutRes int layoutId, Callback callback) {
-		this.cursor = cursor;
+	public GameColorRecyclerViewAdapter(@LayoutRes int layoutId, Callback callback) {
 		this.layoutId = layoutId;
 		this.callback = callback;
 		selectedItems = new SparseBooleanArray();
@@ -133,7 +132,7 @@ public class GameColorRecyclerViewAdapter extends RecyclerView.Adapter<GameColor
 		}
 	}
 
-	public Cursor swapCursor(Cursor newCursor) {
+	private Cursor swapCursor(Cursor newCursor) {
 		if (newCursor == cursor) {
 			return null;
 		}

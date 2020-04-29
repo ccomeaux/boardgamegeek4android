@@ -32,11 +32,13 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
 
     @ColorInt
     private var iconColor = 0
-    private var adapter: GameColorRecyclerViewAdapter? = null
     private var actionMode: ActionMode? = null
-
     private val swipePaint = Paint()
     private var deleteIcon: Bitmap? = null
+
+    private val adapter: GameColorRecyclerViewAdapter by lazy {
+        createAdapter()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +52,7 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
     }
 
     private fun setUpRecyclerView() {
+        recyclerView.adapter = adapter
         swipePaint.color = ContextCompat.getColor(requireContext(), R.color.medium_blue)
         deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -58,7 +61,7 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                val color = adapter?.getColorName(viewHolder.adapterPosition)
+                val color = adapter.getColorName(viewHolder.adapterPosition)
                 val count = context?.contentResolver?.delete(Games.buildColorsUri(gameId, color), null, null)
                         ?: 0
                 if (count > 0) {
@@ -153,87 +156,88 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
         if (activity == null) return
-        if (adapter == null) {
-            adapter = GameColorRecyclerViewAdapter(cursor, R.layout.row_color, object : GameColorRecyclerViewAdapter.Callback {
-                override fun onItemClick(position: Int) {
-                    if (actionMode != null) {
-                        toggleSelection(position)
-                    }
-                }
-
-                override fun onItemLongPress(position: Int): Boolean {
-                    if (actionMode != null) {
-                        return false
-                    }
-                    actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
-                        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                            val inflater = mode.menuInflater
-                            inflater.inflate(R.menu.colors_context, menu)
-                            fab.hide()
-                            return true
-                        }
-
-                        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-                            return false
-                        }
-
-                        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-                            when (item.itemId) {
-                                R.id.menu_delete -> {
-                                    val selectedItemPositions = adapter?.selectedItems.orEmpty()
-                                    var count = 0
-                                    var i = selectedItemPositions.size - 1
-                                    while (i >= 0) {
-                                        val pos = selectedItemPositions[i]
-                                        val color = adapter?.getColorName(pos)
-                                        count += context?.contentResolver?.delete(Games.buildColorsUri(gameId, color), null, null)
-                                                ?: 0
-                                        i--
-                                    }
-                                    Snackbar.make(containerView, resources.getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show()
-                                    mode.finish()
-                                    return true
-                                }
-                            }
-                            mode.finish()
-                            return false
-                        }
-
-                        override fun onDestroyActionMode(mode: ActionMode) {
-                            actionMode = null
-                            adapter?.clearSelections()
-                            fab.show()
-                        }
-                    })
-                    toggleSelection(position)
-                    return true
-                }
-
-                private fun toggleSelection(position: Int) {
-                    adapter?.toggleSelection(position)
-                    val count = adapter?.selectedItemCount ?: 0
-                    if (count == 0) {
-                        actionMode?.finish()
-                    } else {
-                        actionMode?.title = resources.getQuantityString(R.plurals.msg_colors_selected, count, count)
-                    }
-                }
-            })
-            recyclerView.adapter = adapter
-        }
         if (cursor.count == 0) {
             emptyView.fadeIn()
         } else {
             emptyView.fadeOut()
         }
-        adapter?.changeCursor(cursor)
+        adapter.changeCursor(cursor)
         recyclerView.fadeIn(isResumed)
         fab.show()
         progressView.fadeOut()
     }
 
+    private fun createAdapter(): GameColorRecyclerViewAdapter {
+        return GameColorRecyclerViewAdapter(R.layout.row_color, object : GameColorRecyclerViewAdapter.Callback {
+            override fun onItemClick(position: Int) {
+                if (actionMode != null) {
+                    toggleSelection(position)
+                }
+            }
+
+            override fun onItemLongPress(position: Int): Boolean {
+                if (actionMode != null) {
+                    return false
+                }
+                actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
+                    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                        val inflater = mode.menuInflater
+                        inflater.inflate(R.menu.colors_context, menu)
+                        fab.hide()
+                        return true
+                    }
+
+                    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                        return false
+                    }
+
+                    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+                        when (item.itemId) {
+                            R.id.menu_delete -> {
+                                val selectedItemPositions = adapter.selectedItems.orEmpty()
+                                var count = 0
+                                var i = selectedItemPositions.size - 1
+                                while (i >= 0) {
+                                    val pos = selectedItemPositions[i]
+                                    val color = adapter.getColorName(pos)
+                                    count += context?.contentResolver?.delete(Games.buildColorsUri(gameId, color), null, null)
+                                            ?: 0
+                                    i--
+                                }
+                                Snackbar.make(containerView, resources.getQuantityString(R.plurals.msg_colors_deleted, count, count), Snackbar.LENGTH_SHORT).show()
+                                mode.finish()
+                                return true
+                            }
+                        }
+                        mode.finish()
+                        return false
+                    }
+
+                    override fun onDestroyActionMode(mode: ActionMode) {
+                        actionMode = null
+                        adapter.clearSelections()
+                        fab.show()
+                    }
+                })
+                toggleSelection(position)
+                toggleSelection(position)
+                return true
+            }
+
+            private fun toggleSelection(position: Int) {
+                adapter.toggleSelection(position)
+                val count = adapter.selectedItemCount
+                if (count == 0) {
+                    actionMode?.finish()
+                } else {
+                    actionMode?.title = resources.getQuantityString(R.plurals.msg_colors_selected, count, count)
+                }
+            }
+        })
+    }
+
     override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter?.changeCursor(null)
+        adapter.changeCursor(null)
     }
 
     fun addColor(color: String?) {
