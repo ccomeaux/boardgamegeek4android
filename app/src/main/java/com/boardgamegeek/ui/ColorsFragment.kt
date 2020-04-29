@@ -1,19 +1,16 @@
 package com.boardgamegeek.ui
 
 import android.content.ContentValues
-import android.database.Cursor
 import android.graphics.*
 import android.os.AsyncTask
 import android.os.Bundle
-import android.provider.BaseColumns
 import android.view.*
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.content.contentValuesOf
 import androidx.fragment.app.Fragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -21,6 +18,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment
+import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_colors.*
 import org.jetbrains.anko.support.v4.withArguments
@@ -28,7 +26,7 @@ import kotlin.io.use
 import kotlin.math.max
 import kotlin.math.min
 
-class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderCallbacks<Cursor> {
+class ColorsFragment : Fragment(R.layout.fragment_colors) {
     private var gameId = 0
 
     @ColorInt
@@ -36,6 +34,8 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
     private var actionMode: ActionMode? = null
     private val swipePaint = Paint()
     private var deleteIcon: Bitmap? = null
+
+    private val viewModel by activityViewModels<GameColorsViewModel>()
 
     private val adapter: GameColorRecyclerViewAdapter by lazy {
         createAdapter()
@@ -133,7 +133,20 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
             requireActivity().showAndSurvive(EditTextDialogFragment.newInstance(R.string.title_add_color, ""))
         }
 
-        LoaderManager.getInstance(this).restartLoader(0, arguments, this)
+        viewModel.setGameId(gameId)
+        viewModel.colors.observe(viewLifecycleOwner, Observer {
+            adapter.colors = it
+
+            if (it.isEmpty()) {
+                emptyView.fadeIn()
+            } else {
+                emptyView.fadeOut()
+            }
+            recyclerView.fadeIn(isResumed)
+            fab.show()
+            progressView.fadeOut()
+
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -149,29 +162,6 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
-        return CursorLoader(requireContext(), Games.buildColorsUri(gameId), PROJECTION, null, null, null)
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
-        if (activity == null) return
-        cursor.moveToFirst()
-        val colors = mutableListOf<String>()
-        do {
-            colors.add(cursor.getString(1))
-        } while (cursor.moveToNext())
-        adapter.colors = colors
-
-        if (colors.size == 0) {
-            emptyView.fadeIn()
-        } else {
-            emptyView.fadeOut()
-        }
-        recyclerView.fadeIn(isResumed)
-        fab.show()
-        progressView.fadeOut()
     }
 
     private fun createAdapter(): GameColorRecyclerViewAdapter {
@@ -227,7 +217,6 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
                     }
                 })
                 toggleSelection(position)
-                toggleSelection(position)
                 return true
             }
 
@@ -241,10 +230,6 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
                 }
             }
         })
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.colors = emptyList()
     }
 
     fun addColor(color: String?) {
@@ -279,8 +264,6 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
     }
 
     companion object {
-        private val PROJECTION = arrayOf(BaseColumns._ID, GameColors.COLOR)
-
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_ICON_COLOR = "ICON_COLOR"
 
