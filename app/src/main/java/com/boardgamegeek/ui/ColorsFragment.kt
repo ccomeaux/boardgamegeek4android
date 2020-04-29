@@ -194,7 +194,7 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
                     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
                         when (item.itemId) {
                             R.id.menu_delete -> {
-                                val selectedItemPositions = adapter.selectedItems.orEmpty()
+                                val selectedItemPositions = adapter.getSelectedItems()
                                 var count = 0
                                 var i = selectedItemPositions.size - 1
                                 while (i >= 0) {
