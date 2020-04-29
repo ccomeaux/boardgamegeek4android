@@ -5,6 +5,7 @@ import android.database.Cursor
 import android.graphics.*
 import android.os.AsyncTask
 import android.os.Bundle
+import android.provider.BaseColumns
 import android.view.*
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
@@ -151,17 +152,23 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
     }
 
     override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
-        return CursorLoader(requireContext(), Games.buildColorsUri(gameId), GameColorRecyclerViewAdapter.PROJECTION, null, null, null)
+        return CursorLoader(requireContext(), Games.buildColorsUri(gameId), PROJECTION, null, null, null)
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
         if (activity == null) return
-        if (cursor.count == 0) {
+        cursor.moveToFirst()
+        val colors = mutableListOf<String>()
+        do {
+            colors.add(cursor.getString(1))
+        } while (cursor.moveToNext())
+        adapter.colors = colors
+
+        if (colors.size == 0) {
             emptyView.fadeIn()
         } else {
             emptyView.fadeOut()
         }
-        adapter.changeCursor(cursor)
         recyclerView.fadeIn(isResumed)
         fab.show()
         progressView.fadeOut()
@@ -237,7 +244,7 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.changeCursor(null)
+        adapter.colors = emptyList()
     }
 
     fun addColor(color: String?) {
@@ -272,6 +279,8 @@ class ColorsFragment : Fragment(R.layout.fragment_colors), LoaderManager.LoaderC
     }
 
     companion object {
+        private val PROJECTION = arrayOf(BaseColumns._ID, GameColors.COLOR)
+
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_ICON_COLOR = "ICON_COLOR"
 
