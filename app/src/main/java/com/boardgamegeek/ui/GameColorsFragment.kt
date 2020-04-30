@@ -59,11 +59,12 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                val color = adapter.getColorName(viewHolder.adapterPosition)
-                viewModel.removeColor(color)
-                Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.undo) { viewModel.addColor(color) }
-                        .show()
+                 adapter.getColorName(viewHolder.adapterPosition)?.let {color ->
+                     viewModel.removeColor(color)
+                     Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
+                             .setAction(R.string.undo) { viewModel.addColor(color) }
+                             .show()
+                 }
             }
 
             override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
@@ -135,7 +136,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
     }
 
     private fun createAdapter(): GameColorRecyclerViewAdapter {
-        return GameColorRecyclerViewAdapter(R.layout.row_color, object : GameColorRecyclerViewAdapter.Callback {
+        return GameColorRecyclerViewAdapter(object : GameColorRecyclerViewAdapter.Callback {
             override fun onItemClick(position: Int) {
                 if (actionMode != null) {
                     toggleSelection(position)
@@ -143,12 +144,11 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             }
 
             override fun onItemLongPress(position: Int): Boolean {
-                if (actionMode != null) {
-                    return false
-                }
+                if (actionMode != null) return false
                 actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
                     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
                         mode.menuInflater.inflate(R.menu.colors_context, menu)
+                        adapter.clearSelections()
                         fab.hide()
                         return true
                     }
@@ -178,6 +178,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                         fab.show()
                     }
                 })
+                if (actionMode == null) return false
                 toggleSelection(position)
                 return true
             }
@@ -189,6 +190,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                     actionMode?.finish()
                 } else {
                     actionMode?.title = resources.getQuantityString(R.plurals.msg_colors_selected, count, count)
+                    actionMode?.invalidate()
                 }
             }
         })
