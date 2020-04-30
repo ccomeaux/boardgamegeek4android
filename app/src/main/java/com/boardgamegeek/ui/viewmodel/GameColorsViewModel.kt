@@ -23,4 +23,18 @@ class GameColorsViewModel(application: Application) : AndroidViewModel(applicati
             else -> gameRepository.getPlayColors(gameId)
         }
     }
+
+    fun addColor(color: String?) {
+        if (color.isNullOrBlank()) return
+        gameRepository.addPlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+    }
+
+    fun removeColor(color: String): Int {
+        if (color.isBlank()) return 0
+        return gameRepository.deletePlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+    }
+
+    fun computeColors() {
+        gameRepository.computePlayColors(_gameId.value ?: BggContract.INVALID_ID)
+    }
 }

@@ -10,12 +10,11 @@ import com.boardgamegeek.extensions.asColorRgb
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setColorViewValue
 import kotlinx.android.synthetic.main.row_color.view.*
-import java.util.*
 import kotlin.properties.Delegates
 
 class GameColorRecyclerViewAdapter(@field:LayoutRes @param:LayoutRes private val layoutId: Int, private val callback: Callback?) :
         RecyclerView.Adapter<GameColorRecyclerViewAdapter.ViewHolder>(), AutoUpdatableAdapter {
-    private val selectedItems: SparseBooleanArray = SparseBooleanArray()
+    private val selectedItems = SparseBooleanArray()
 
     var colors: List<String> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n -> o == n }
@@ -72,13 +71,14 @@ class GameColorRecyclerViewAdapter(@field:LayoutRes @param:LayoutRes private val
         notifyDataSetChanged()
     }
 
-    val selectedItemCount = selectedItems.size()
+    val selectedItemCount
+        get() = selectedItems.size()
 
-    fun getSelectedItems(): List<Int> {
-        val items: MutableList<Int> = ArrayList(selectedItems.size())
+    fun getSelectedColors(): List<String> {
+        val colors = mutableListOf<String>()
         for (i in 0 until selectedItems.size()) {
-            items.add(selectedItems.keyAt(i))
+            colors += getColorName(selectedItems.keyAt(i))
         }
-        return items
+        return colors
     }
 }

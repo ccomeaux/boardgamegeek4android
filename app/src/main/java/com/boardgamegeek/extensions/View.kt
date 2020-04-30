@@ -28,6 +28,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.util.ColorUtils
 import kotlin.math.pow
 
+fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
+    if (fadeIn) this.fadeIn(animate) else this.fadeOut(animate = animate)
+}
+
 fun View.fadeIn(animate: Boolean = true) {
     if (visibility != VISIBLE) {
         if (animate) {

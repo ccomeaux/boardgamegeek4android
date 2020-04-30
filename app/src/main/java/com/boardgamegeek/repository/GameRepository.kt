@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
@@ -176,11 +177,33 @@ class GameRepository(val application: BggApplication) {
         return dao.loadPlayColors(gameId)
     }
 
+    fun addPlayColor(gameId: Int, color: String) {
+        if (gameId == BggContract.INVALID_ID) return
+        if (color.isBlank()) return
+        application.appExecutors.diskIO.execute {
+            dao.insertColors(gameId, color)
+        }
+    }
+
+    fun deletePlayColor(gameId: Int, color: String): Int {
+        if (gameId == BggContract.INVALID_ID) return 0
+        if (color.isBlank()) return 0
+        application.appExecutors.diskIO.execute {
+            dao.deleteColor(gameId, color)
+        }
+        return 1
+    }
+
+    fun computePlayColors(gameId: Int) {
+        application.appExecutors.diskIO.execute {
+            dao.computeColors(gameId)
+        }
+    }
+
     fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
-            val values = ContentValues()
-            values.put(BggContract.Games.LAST_VIEWED, lastViewed)
+            val values = contentValuesOf(BggContract.Games.LAST_VIEWED to lastViewed)
             dao.update(gameId, values)
         }
     }

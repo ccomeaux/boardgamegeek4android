@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
@@ -418,6 +419,39 @@ class GameDao(private val context: BggApplication) {
     fun delete(gameId: Int): Int {
         if (gameId == INVALID_ID) return 0
         return resolver.delete(Games.buildGameUri(gameId), null, null)
+    }
+
+    fun insertColors(gameId: Int, color: String) {
+        val values = contentValuesOf(GameColors.COLOR to color)
+        resolver.insert(Games.buildColorsUri(gameId), values)
+    }
+
+    fun deleteColor(gameId: Int, color: String): Int {
+        return resolver.delete(Games.buildColorsUri(gameId, color), null, null)
+    }
+
+    fun computeColors(gameId: Int): Int {
+        val values = mutableListOf<ContentValues>()
+        val cursor = resolver.query(
+                Plays.buildPlayersByColor(),
+                arrayOf(PlayPlayers.COLOR),
+                "${Plays.OBJECT_ID}=?",
+                arrayOf(gameId.toString()),
+                null)
+        cursor?.use { c ->
+            if (c.moveToFirst()) {
+                do {
+                    val color = c.getString(0).orEmpty()
+                    if (color.isNotBlank()) {
+                        values.add(contentValuesOf(GameColors.COLOR to color))
+                    }
+                } while (c.moveToNext())
+            }
+        }
+        return if (values.size > 0) {
+            resolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
+        } else 0
+
     }
 
     fun update(gameId: Int, values: ContentValues): Int {
