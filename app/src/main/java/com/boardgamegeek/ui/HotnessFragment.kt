@@ -1,24 +1,20 @@
 package com.boardgamegeek.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Pair
 import android.util.SparseBooleanArray
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.Loader
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.entities.HotGameEntity
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.BggService
-import com.boardgamegeek.model.HotGame
-import com.boardgamegeek.model.HotnessResponse
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.loader.BggLoader
-import com.boardgamegeek.ui.loader.SafeResponse
+import com.boardgamegeek.ui.viewmodel.HotnessViewModel
 import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import com.boardgamegeek.util.PreferencesUtils
@@ -27,7 +23,8 @@ import kotlinx.android.synthetic.main.row_hotness.view.*
 import org.jetbrains.anko.design.snackbar
 import kotlin.properties.Delegates
 
-class HotnessFragment : Fragment(R.layout.fragment_hotness), LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, ActionMode.Callback {
+class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback {
+    private val viewModel by activityViewModels<HotnessViewModel>()
     private val adapter: HotGamesAdapter by lazy {
         createAdapter()
     }
@@ -36,33 +33,31 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), LoaderManager.Loade
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        LoaderManager.getInstance(this).initLoader(0, null, this)
-    }
-
-    override fun onCreateLoader(id: Int, data: Bundle?): Loader<SafeResponse<HotnessResponse>> {
-        return HotnessLoader(activity)
-    }
-
-    override fun onLoadFinished(loader: Loader<SafeResponse<HotnessResponse>?>, data: SafeResponse<HotnessResponse>?) {
-        if (activity == null) return
         recyclerView.adapter = adapter
-        adapter.games = data?.body?.games.orEmpty()
-        if (data == null) {
-            recyclerView.fadeOut()
-            emptyView.fadeIn()
-        } else if (data.hasError()) {
-            emptyView.text = getString(R.string.empty_http_error, data.errorMessage)
-            recyclerView.fadeOut()
-            emptyView.fadeIn()
-        } else {
-            emptyView.fadeOut()
-            recyclerView.fadeIn(isResumed)
-        }
-        progressView.hide()
+        viewModel.hotness.observe(viewLifecycleOwner, Observer { (status, data, message) ->
+            when (status) {
+                Status.REFRESHING -> progressView.show()
+                Status.ERROR -> {
+                    emptyView.text = message
+                    recyclerView.fadeOut()
+                    emptyView.fadeIn()
+                    progressView.hide()
+                }
+                Status.SUCCESS -> {
+                    val games = data.orEmpty()
+                    adapter.games = games
+                    if (games.isEmpty()) {
+                        emptyView.setText(R.string.empty_hotness)
+                        recyclerView.fadeOut()
+                        emptyView.fadeIn()
+                    } else {
+                        emptyView.fadeOut()
+                        recyclerView.fadeIn(isResumed)
+                    }
+                    progressView.hide()
+                }
+            }
+        })
     }
 
     private fun createAdapter(): HotGamesAdapter {
@@ -94,16 +89,6 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), LoaderManager.Loade
         })
     }
 
-    override fun onLoaderReset(loader: Loader<SafeResponse<HotnessResponse>>) {}
-
-    private class HotnessLoader(context: Context?) : BggLoader<SafeResponse<HotnessResponse>>(context) {
-        private val bggService: BggService = Adapter.createForXml()
-        override fun loadInBackground(): SafeResponse<HotnessResponse> {
-            val call = bggService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME)
-            return SafeResponse(call)
-        }
-    }
-
     interface Callback {
         fun onItemClick(position: Int): Boolean
         fun onItemLongClick(position: Int): Boolean
@@ -116,9 +101,8 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), LoaderManager.Loade
             setHasStableIds(true)
         }
 
-        var games: List<HotGame> by Delegates.observable(emptyList()) { _, old, new ->
-            // TODO
-            autoNotify(old, new) { o, n -> o.id == n.id }
+        var games: List<HotGameEntity> by Delegates.observable(emptyList()) { _, old, new ->
+            autoNotify(old, new) { o, n -> o == n }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -173,8 +157,8 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), LoaderManager.Loade
         val selectedItemCount: Int
             get() = selectedItems.size()
 
-        fun getSelectedGames(): List<HotGame> {
-            val selectedGames = mutableListOf<HotGame>()
+        fun getSelectedGames(): List<HotGameEntity> {
+            val selectedGames = mutableListOf<HotGameEntity>()
             for (i in 0 until selectedItems.size()) {
                 games.getOrNull(selectedItems.keyAt(i))?.let { selectedGames.add(it) }
             }
