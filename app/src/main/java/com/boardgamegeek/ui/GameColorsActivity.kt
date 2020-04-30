@@ -51,7 +51,7 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
 
     @DebugLog
     override fun onCreatePane(intent: Intent): Fragment {
-        return ColorsFragment.newInstance(iconColor)
+        return GameColorsFragment.newInstance(iconColor)
     }
 
     @DebugLog

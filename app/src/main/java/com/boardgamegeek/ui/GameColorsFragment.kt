@@ -25,7 +25,7 @@ import org.jetbrains.anko.support.v4.withArguments
 import kotlin.math.max
 import kotlin.math.min
 
-class ColorsFragment : Fragment(R.layout.fragment_colors) {
+class GameColorsFragment : Fragment(R.layout.fragment_colors) {
     @ColorInt
     private var iconColor = 0
     private var actionMode: ActionMode? = null
@@ -197,8 +197,8 @@ class ColorsFragment : Fragment(R.layout.fragment_colors) {
     companion object {
         private const val KEY_ICON_COLOR = "ICON_COLOR"
 
-        fun newInstance(@ColorInt iconColor: Int): ColorsFragment {
-            return ColorsFragment().withArguments(
+        fun newInstance(@ColorInt iconColor: Int): GameColorsFragment {
+            return GameColorsFragment().withArguments(
                     KEY_ICON_COLOR to iconColor
             )
         }
