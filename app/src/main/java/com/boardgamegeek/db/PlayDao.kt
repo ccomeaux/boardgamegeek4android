@@ -510,7 +510,7 @@ class PlayDao(private val context: BggApplication) {
             saveBuddyNicknamesToBatch(play, batch)
         }
 
-        val results = resolver.applyBatch(context, batch)
+        val results = resolver.applyBatch(batch)
         var insertedId = internalId
         if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
             insertedId = results[0].uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()

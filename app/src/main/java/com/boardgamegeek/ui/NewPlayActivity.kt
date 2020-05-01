@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.cancel
 import com.boardgamegeek.extensions.createDiscardDialog
@@ -25,10 +25,7 @@ import org.jetbrains.anko.startActivity
 
 class NewPlayActivity : AppCompatActivity() {
     var startTime = 0L
-
-    private val viewModel: NewPlayViewModel by lazy {
-        ViewModelProviders.of(this).get(NewPlayViewModel::class.java)
-    }
+    private val viewModel by viewModels<NewPlayViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

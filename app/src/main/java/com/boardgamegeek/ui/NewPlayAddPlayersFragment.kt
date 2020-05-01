@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -25,9 +25,7 @@ import kotlinx.android.synthetic.main.row_new_play_add_player.view.*
 import kotlin.properties.Delegates
 
 class NewPlayAddPlayersFragment : Fragment() {
-    private val viewModel: NewPlayViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(NewPlayViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<NewPlayViewModel>()
 
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(viewModel, filterView)
@@ -74,7 +72,7 @@ class NewPlayAddPlayersFragment : Fragment() {
             }
         }
 
-        viewModel.availablePlayers.observe(this, Observer {
+        viewModel.availablePlayers.observe(viewLifecycleOwner, Observer {
             adapter.players = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
@@ -88,7 +86,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                 emptyView.fadeOut()
             }
         })
-        viewModel.addedPlayers.observe(this, Observer {
+        viewModel.addedPlayers.observe(viewLifecycleOwner, Observer {
             // TODO don't delete and recreate
             chipGroup.removeAllViews()
             it?.let { list ->
@@ -146,7 +144,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                     itemView.avatarView.loadThumbnail(p.avatarUrl, R.drawable.person_image_empty)
                     itemView.setOnClickListener {
                         viewModel.addPlayer(p)
-                        filterView.setText("")
+                        filterView.text = ""
                     }
                 }
             }

@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.NewPlayPlayerEntity
@@ -24,9 +24,7 @@ import kotlinx.android.synthetic.main.row_new_play_player_color.view.*
 import kotlin.properties.Delegates
 
 class NewPlayPlayerColorsFragment : Fragment() {
-    private val viewModel: NewPlayViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(NewPlayViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<NewPlayViewModel>()
 
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(requireActivity(), viewModel)
@@ -41,7 +39,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(this, Observer {
+        viewModel.addedPlayers.observe(viewLifecycleOwner, Observer {
             adapter.players = it
         })
 

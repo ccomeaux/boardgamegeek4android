@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.LocationEntity
@@ -23,9 +23,7 @@ import kotlinx.android.synthetic.main.row_new_play_location.view.*
 import kotlin.properties.Delegates
 
 class NewPlayLocationsFragment : Fragment() {
-    private val viewModel: NewPlayViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(NewPlayViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<NewPlayViewModel>()
 
     private val adapter: LocationsAdapter by lazy {
         LocationsAdapter(viewModel)
@@ -41,7 +39,7 @@ class NewPlayLocationsFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.locations.observe(this, Observer {
+        viewModel.locations.observe(viewLifecycleOwner, Observer {
             adapter.locations = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
