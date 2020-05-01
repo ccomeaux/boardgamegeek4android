@@ -17,7 +17,7 @@ class SyncPrefs {
         const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
         @JvmStatic
-        fun getPrefs(context: Context) = PreferenceHelper.get(context, NAME)
+        fun getPrefs(context: Context) = PreferenceHelper.preferences(context, NAME)
 
         @JvmStatic
         fun migrate(context: Context) {
@@ -30,7 +30,7 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getLastCompleteCollectionTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_COLLECTION_COMPLETE, 0L]
+        fun getLastCompleteCollectionTimestamp(context: Context) = getPrefs(context).get(TIMESTAMP_COLLECTION_COMPLETE, 0L)
                 ?: 0L
 
         fun setLastCompleteCollectionTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
@@ -68,7 +68,7 @@ class SyncPrefs {
 
         fun getPartialCollectionSyncTimestamp(context: Context, subtype: String): Long {
             val ts = getLastPartialCollectionTimestamp(context)
-            return getPrefs(context)["$TIMESTAMP_COLLECTION_PARTIAL.$subtype", ts] ?: ts
+            return getPrefs(context).get("$TIMESTAMP_COLLECTION_PARTIAL.$subtype", ts) ?: ts
         }
 
         fun setPartialCollectionSyncTimestamp(context: Context, subtype: String, timestamp: Long = System.currentTimeMillis()) {
@@ -95,7 +95,8 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getBuddiesTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_BUDDIES, 0L] ?: 0L
+        fun getBuddiesTimestamp(context: Context) = getPrefs(context).get(TIMESTAMP_BUDDIES, 0L)
+                ?: 0L
 
         fun setBuddiesTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {
             getPrefs(context)[TIMESTAMP_BUDDIES] = timestamp
@@ -108,7 +109,7 @@ class SyncPrefs {
 
         @JvmStatic
         fun getPlaysNewestTimestamp(context: Context): Long? {
-            val l: Long? = getPrefs(context)[TIMESTAMP_PLAYS_NEWEST_DATE]
+            val l: Long? = getPrefs(context).get(TIMESTAMP_PLAYS_NEWEST_DATE)
             return when {
                 l == null -> null
                 l < 0L -> null
@@ -121,7 +122,7 @@ class SyncPrefs {
         }
 
         @JvmStatic
-        fun getPlaysOldestTimestamp(context: Context) = getPrefs(context)[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE]
+        fun getPlaysOldestTimestamp(context: Context) = getPrefs(context).get(TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE)
                 ?: Long.MAX_VALUE
 
         fun setPlaysOldestTimestamp(context: Context, timestamp: Long = System.currentTimeMillis()) {

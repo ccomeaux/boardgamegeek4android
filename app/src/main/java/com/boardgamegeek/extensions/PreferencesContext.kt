@@ -3,41 +3,44 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import androidx.preference.PreferenceManager
+import androidx.core.content.edit
+import com.boardgamegeek.PreferenceHelper.get
+import com.boardgamegeek.PreferenceHelper.preferences
+import com.boardgamegeek.PreferenceHelper.remove
+import com.boardgamegeek.PreferenceHelper.set
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
 
 fun Context.getViewDefaultId(): Long {
-    return getLong(VIEW_DEFAULT_ID, PreferencesUtils.VIEW_ID_COLLECTION)
+    return preferences(this)[VIEW_DEFAULT_ID, PreferencesUtils.VIEW_ID_COLLECTION]
+            ?: PreferencesUtils.VIEW_ID_COLLECTION
 }
 
-fun Context.putViewDefaultId(id: Long): Boolean {
-    return putLong(VIEW_DEFAULT_ID, id)
+fun Context.putViewDefaultId(id: Long) {
+    preferences(this)[VIEW_DEFAULT_ID] = id
 }
 
-fun Context.removeViewDefaultId(): Boolean {
-    return remove(VIEW_DEFAULT_ID)
+fun Context.removeViewDefaultId() {
+    preferences(this).remove(VIEW_DEFAULT_ID)
 }
 
-fun Context?.addSyncStatus(status: String): Boolean {
-    if (this == null) return false
-    if (status.isBlank()) return false
-    if (isStatusSetToSync(status)) return false
+fun Context?.addSyncStatus(status: String) {
+    if (this == null) return
+    if (status.isBlank()) return
+    if (isStatusSetToSync(status)) return
     val statuses: MutableSet<String> = getSyncStatuses(null)?.toMutableSet() ?: mutableSetOf()
     statuses.add(status)
-    return putStringSet(PREFERENCES_KEY_SYNC_STATUSES, statuses)
+    putStringSet(PREFERENCES_KEY_SYNC_STATUSES, statuses)
 }
 
-fun Context?.setSyncStatuses(statuses: Array<String>): Boolean {
-    if (this == null) return false
-    return putStringSet(PREFERENCES_KEY_SYNC_STATUSES, HashSet(listOf(*statuses)))
+fun Context?.setSyncStatuses(statuses: Array<String>) {
+    this?.putStringSet(PREFERENCES_KEY_SYNC_STATUSES, HashSet(listOf(*statuses)))
 }
 
 fun Context?.isStatusSetToSync(status: String): Boolean {
-    if (this == null) return false
-    return getSyncStatuses()?.contains(status) ?: false
+    return this?.getSyncStatuses()?.contains(status) ?: false
 }
 
 fun Context?.getSyncStatuses(): Set<String>? {
@@ -45,9 +48,10 @@ fun Context?.getSyncStatuses(): Set<String>? {
 }
 
 fun Context?.getSyncStatuses(defValues: Array<String>? = null): Set<String>? {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val defSet = if (defValues == null) null else HashSet(listOf(*defValues))
-    return sharedPreferences.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, defSet)
+    return if (this == null)
+        null
+    else
+        preferences(this).getStringSet(PREFERENCES_KEY_SYNC_STATUSES, defValues?.toSet())
 }
 
 fun Context?.getSyncStatusesAsSql(): String {
@@ -82,85 +86,53 @@ fun Context?.isCollectionSetToSync(): Boolean {
 }
 
 fun Context.getSyncPlays(): Boolean {
-    return getBoolean(PREFERENCES_KEY_SYNC_PLAYS, false)
+    return preferences(this)[PREFERENCES_KEY_SYNC_PLAYS, false] ?: false
 }
 
-fun Context.setSyncPlays(): Boolean {
-    return putBoolean(PREFERENCES_KEY_SYNC_PLAYS, true)
+fun Context.setSyncPlays() {
+    preferences(this)[PREFERENCES_KEY_SYNC_PLAYS] = true
 }
 
-fun Context.setSyncPlaysTimestamp(): Boolean {
-    return putLong(PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP, System.currentTimeMillis())
+fun Context.setSyncPlaysTimestamp() {
+    preferences(this)[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
 }
 
 fun Context.getSyncBuddies(): Boolean {
-    return getBoolean(PREFERENCES_KEY_SYNC_BUDDIES, false)
+    return preferences(this)[PREFERENCES_KEY_SYNC_BUDDIES, false] ?: false
 }
 
-fun Context.setSyncBuddies(): Boolean {
-    return putBoolean(PREFERENCES_KEY_SYNC_BUDDIES, true)
+fun Context.setSyncBuddies() {
+    preferences(this)[PREFERENCES_KEY_SYNC_BUDDIES] = true
 }
 
-fun Context.setStatsCalculatedTimestampArtists(): Boolean {
-    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, System.currentTimeMillis())
+fun Context.setStatsCalculatedTimestampArtists() {
+    preferences(this)[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS] = System.currentTimeMillis()
 }
 
-fun Context.setStatsCalculatedTimestampDesigners(): Boolean {
-    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, System.currentTimeMillis())
+fun Context.setStatsCalculatedTimestampDesigners() {
+    preferences(this)[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS] = System.currentTimeMillis()
 }
 
-fun Context.setStatsCalculatedTimestampPublishers(): Boolean {
-    return putLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, System.currentTimeMillis())
+fun Context.setStatsCalculatedTimestampPublishers() {
+    preferences(this)[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
 }
 
 fun Context.getStatsCalculatedTimestampArtists(): Long {
-    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0)
+    return preferences(this)[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
 }
 
 fun Context.getStatsCalculatedTimestampDesigners(): Long {
-    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0)
+    return preferences(this)[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
 }
 
 fun Context.getStatsCalculatedTimestampPublishers(): Long {
-    return getLong(PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0)
+    return preferences(this)[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
 }
 
-private fun Context.getBoolean(key: String, defaultValue: Boolean): Boolean {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    return sharedPreferences.getBoolean(key, defaultValue)
-}
-
-private fun Context.getLong(key: String, defaultValue: Long): Long {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    return sharedPreferences.getLong(key, defaultValue)
-}
-
-private fun Context.putBoolean(key: String, value: Boolean): Boolean {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val editor = sharedPreferences.edit()
-    editor.putBoolean(key, value)
-    return editor.commit()
-}
-
-private fun Context.putLong(key: String, value: Long): Boolean {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val editor = sharedPreferences.edit()
-    editor.putLong(key, value)
-    return editor.commit()
-}
-
-private fun Context.putStringSet(key: String, value: Set<String>): Boolean {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val editor = sharedPreferences.edit()
-    editor.putStringSet(key, value)
-    return editor.commit()
-}
-
-private fun Context.remove(key: String): Boolean {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val editor = sharedPreferences.edit()
-    editor.remove(key)
-    return editor.commit()
+private fun Context.putStringSet(key: String, value: Set<String>) {
+    preferences(this).edit {
+        putStringSet(key, value)
+    }
 }
 
 private const val VIEW_DEFAULT_ID = "viewDefaultId"

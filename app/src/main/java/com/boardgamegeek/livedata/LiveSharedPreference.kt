@@ -8,7 +8,7 @@ import com.boardgamegeek.PreferenceHelper
 @Suppress("UNCHECKED_CAST")
 class LiveSharedPreference<T>(context: Context, preferenceKey: String, sharedPreferencesName: String? = null) : MutableLiveData<T>() {
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener
-    private val sharedPreferences: SharedPreferences = PreferenceHelper.get(context, sharedPreferencesName)
+    private val sharedPreferences: SharedPreferences = PreferenceHelper.preferences(context, sharedPreferencesName)
 
     init {
         listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
