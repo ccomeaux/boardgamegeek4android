@@ -1,5 +1,6 @@
 package com.boardgamegeek.repository
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -13,6 +14,8 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.getBuddiesTimestamp
+import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.provider.BggContract
 import retrofit2.Call
 import timber.log.Timber
@@ -47,6 +50,8 @@ class UserRepository(val application: BggApplication) {
     }
 
     fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): LiveData<RefreshableResource<List<UserEntity>>> {
+        val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
+
         return object : RefreshableResourceLoader<List<UserEntity>, User>(application) {
             private var timestamp = 0L
             private var accountName: String? = null
@@ -60,7 +65,7 @@ class UserRepository(val application: BggApplication) {
                 accountName = Authenticator.getAccount(application)?.name
                 if (accountName == null) return false
                 if (data == null) return true
-                val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(application)
+                val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
                 return lastCompleteSync.isOlderThan(1, TimeUnit.HOURS)
             }
 
@@ -84,7 +89,7 @@ class UserRepository(val application: BggApplication) {
             override fun onRefreshSucceeded() {
                 val deletedCount = userDao.deleteUsersAsOf(timestamp)
                 Timber.d("Deleted $deletedCount users")
-                SyncPrefs.setBuddiesTimestamp(application, timestamp)
+                syncPrefs.setBuddiesTimestamp(timestamp)
             }
         }.asLiveData()
     }

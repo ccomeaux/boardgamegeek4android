@@ -1,6 +1,7 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
+import android.content.SharedPreferences
 import android.content.SyncResult
 import android.text.format.DateUtils
 import androidx.collection.ArrayMap
@@ -12,7 +13,7 @@ import com.boardgamegeek.extensions.getSyncStatuses
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
@@ -24,7 +25,8 @@ import java.util.*
  */
 class SyncCollectionModifiedSince(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
-    private val statusesToSync = context.getSyncStatuses() ?: arrayListOf<String>()
+    private val statusesToSync = context.getSyncStatuses() ?: emptySet()
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
     override val notificationSummaryMessageId = R.string.sync_notification_collection_partial
@@ -41,7 +43,7 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 return
             }
 
-            if (SyncPrefs.getCurrentCollectionSyncTimestamp(context) > 0) {
+            if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
                 Timber.i("Currently performing a full sync; skipping incremental sync")
                 return
             }
@@ -60,15 +62,15 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 return
             }
 
-            SyncPrefs.setLastPartialCollectionTimestamp(context)
+            syncPrefs.setLastPartialCollectionTimestamp()
         } finally {
             Timber.i("...complete!")
         }
     }
 
     private fun syncBySubtype(subtype: String = "") {
-        val lastStatusSync = SyncPrefs.getPartialCollectionSyncTimestamp(context, subtype)
-        val lastPartialSync = SyncPrefs.getLastPartialCollectionTimestamp(context)
+        val lastStatusSync = syncPrefs.getPartialCollectionSyncTimestamp(subtype)
+        val lastPartialSync = syncPrefs.getLastPartialCollectionTimestamp()
         if (lastStatusSync > lastPartialSync) {
             Timber.i("Subtype [$subtype] has been synced in the current sync request.")
             return
@@ -117,7 +119,7 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
-                SyncPrefs.setPartialCollectionSyncTimestamp(context, subtype, timestamp)
+                syncPrefs.setPartialCollectionSyncTimestamp(subtype, timestamp)
             } else {
                 showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), response.code())
                 syncResult.stats.numIoExceptions++

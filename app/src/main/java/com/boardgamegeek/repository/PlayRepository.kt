@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentProviderOperation
+import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -21,7 +22,7 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.PreferencesUtils
@@ -233,11 +234,12 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         private val username: String? by lazy {
             AccountUtils.getUsername(application)
         }
+        private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
 
         private val persister = PlayPersister(application)
         private var syncInitiatedTimestamp = 0L
-        private val newestTimestamp: Long? = SyncPrefs.getPlaysNewestTimestamp(application)
-        private val oldestTimestamp = SyncPrefs.getPlaysOldestTimestamp(application)
+        private val newestTimestamp = syncPrefs.getPlaysNewestTimestamp()
+        private val oldestTimestamp = syncPrefs.getPlaysOldestTimestamp()
         private val mapper = PlayMapper()
         private var refreshingNewest = false
         private var lastNewPage = 0
@@ -293,7 +295,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             if (oldestTimestamp > 0L) {
                 playDao.deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
             } else {
-                SyncPrefs.setPlaysOldestTimestamp(application, 0L)
+                syncPrefs.setPlaysOldestTimestamp(0L)
             }
             CalculatePlayStatsTask(application).executeAsyncTask()
         }
@@ -308,12 +310,12 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
 
         private fun updateTimestamps(plays: List<Play>?) {
             val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
-            if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
-                SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
+            if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
+                syncPrefs.setPlaysNewestTimestamp(newestDate)
             }
             val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
-            if (oldestDate < SyncPrefs.getPlaysOldestTimestamp(application)) {
-                SyncPrefs.setPlaysOldestTimestamp(application, oldestDate)
+            if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
+                syncPrefs.setPlaysOldestTimestamp(oldestDate)
             }
         }
     }

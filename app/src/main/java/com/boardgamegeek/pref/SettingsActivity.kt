@@ -74,6 +74,7 @@ class SettingsActivity : DrawerActivity() {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
         private var syncType = SyncService.FLAG_SYNC_NONE
+        private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
@@ -148,19 +149,19 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefs.requestPartialSync(requireContext())
+                    syncPrefs.requestPartialSync()
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefs.requestPartialSync(requireContext())
+                    syncPrefs.requestPartialSync()
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
-                    SyncPrefs.clearPlaysTimestamps(requireContext())
+                    syncPrefs.clearPlaysTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
                 PREFERENCES_KEY_SYNC_BUDDIES -> {
-                    SyncPrefs.clearBuddyListTimestamps(requireContext())
+                    syncPrefs.clearBuddyListTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
                 }
             }

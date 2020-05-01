@@ -39,6 +39,7 @@ import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.pref.SettingsActivity;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -520,7 +521,7 @@ public class CollectionFragment extends Fragment implements
 		if (emptyButton == null) return;
 		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
 			final Set<String> syncedStatuses = PreferenceUtils.getSyncStatuses(getContext());
-			if (SyncPrefs.noPreviousCollectionSync(requireContext())) {
+			if (SyncPrefUtils.noPreviousCollectionSync(SyncPrefs.getPrefs(requireContext()))) {
 				setEmptyStateForNoAction(R.string.empty_collection_sync_never);
 			} else if (hasFiltersApplied()) {
 				if (isAtLeastOneSyncOff(syncedStatuses, getListOfVisibleStatuses())) {

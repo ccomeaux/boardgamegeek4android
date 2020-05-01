@@ -1,6 +1,7 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
+import android.content.SharedPreferences
 import android.content.SyncResult
 import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
@@ -11,6 +12,8 @@ import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.getBuddiesTimestamp
+import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
@@ -25,6 +28,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
     private var currentDetailResId: Int = 0
     private val userDao = UserDao(this.application)
     private var updateTimestamp = System.currentTimeMillis()
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
@@ -40,7 +44,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
                 return
             }
 
-            val lastCompleteSync = SyncPrefs.getBuddiesTimestamp(context)
+            val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
             if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
                 Timber.i("...skipping; we synced already within the last $fetchIntervalInDays days")
                 return
@@ -57,7 +61,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
             updateNotification(R.string.sync_notification_buddies_list_pruning)
             pruneOldBuddies()
 
-            SyncPrefs.setBuddiesTimestamp(context, updateTimestamp)
+            syncPrefs.setBuddiesTimestamp(updateTimestamp)
         } finally {
             Timber.i("...complete!")
         }
