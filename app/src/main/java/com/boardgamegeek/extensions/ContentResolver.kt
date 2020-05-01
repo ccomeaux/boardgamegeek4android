@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.RemoteException
 import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.PreferencesUtils
 import timber.log.Timber
 import java.util.*
 
@@ -15,49 +14,21 @@ inline fun ContentResolver.load(uri: Uri, projection: Array<String>? = null, sel
     return this.query(uri, projection, selection, selectionArgs, sortOrder)
 }
 
-fun ContentResolver.applyBatch(context: Context, batch: ArrayList<ContentProviderOperation>?, debugMessage: String = ""): Array<ContentProviderResult> {
+fun ContentResolver.applyBatch(batch: ArrayList<ContentProviderOperation>?, debugMessage: String = ""): Array<ContentProviderResult> {
     if (batch != null && batch.size > 0) {
-        if (PreferencesUtils.getAvoidBatching(context)) {
-            val results = arrayOf<ContentProviderResult>()
-            for (i in batch.indices) {
-                results[i] = applySingle(batch[i], debugMessage)
-            }
-            return results
-        } else {
-            try {
-                return applyBatch(BggContract.CONTENT_AUTHORITY, batch)
-            } catch (e: OperationApplicationException) {
-                val m = "Applying batch: $debugMessage"
-                Timber.e(e, m)
-                throw RuntimeException(m, e)
-            } catch (e: RemoteException) {
-                val m = "Applying batch: $debugMessage"
-                Timber.e(e, m)
-                throw RuntimeException(m, e)
-            }
+        try {
+            return applyBatch(BggContract.CONTENT_AUTHORITY, batch)
+        } catch (e: OperationApplicationException) {
+            val m = "Applying batch: $debugMessage"
+            Timber.e(e, m)
+            throw RuntimeException(m, e)
+        } catch (e: RemoteException) {
+            val m = "Applying batch: $debugMessage"
+            Timber.e(e, m)
+            throw RuntimeException(m, e)
         }
     }
     return arrayOf()
-}
-
-private fun ContentResolver.applySingle(cpo: ContentProviderOperation, debugMessage: String): ContentProviderResult {
-    val batch = ArrayList<ContentProviderOperation>(1)
-    batch.add(cpo)
-    try {
-        val result = applyBatch(BggContract.CONTENT_AUTHORITY, batch)
-        if (result.isNotEmpty()) {
-            return result[0]
-        }
-    } catch (e: OperationApplicationException) {
-        val m = cpo.toString() + "\n" + debugMessage
-        Timber.e(e, m)
-        throw RuntimeException(m, e)
-    } catch (e: RemoteException) {
-        val m = cpo.toString() + "\n" + debugMessage
-        Timber.e(e, m)
-        throw RuntimeException(m, e)
-    }
-    return ContentProviderResult(0)
 }
 
 fun ContentResolver.rowExists(uri: Uri): Boolean {

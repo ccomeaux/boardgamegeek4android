@@ -390,7 +390,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                         .withValue(key, value)
                         .build())
         }
-        requireContext().contentResolver.applyBatch(requireContext(), batch)
+        requireContext().contentResolver.applyBatch(batch)
         SyncService.sync(activity, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 
