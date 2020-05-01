@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.extensions.fadeIn
@@ -35,9 +35,7 @@ class PollFragment : DialogFragment() {
     private var pollType = UNKNOWN
     private var snackBar: Snackbar? = null
 
-    val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
+    val viewModel by activityViewModels<GameViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

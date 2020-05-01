@@ -38,7 +38,7 @@ fun Activity.shareGames(games: List<Pair<Int, String>>, method: String) {
             .putContentId(gameIds.formatList()))
 }
 
-fun Activity.share(subject: String, text: CharSequence, @StringRes titleResId: Int) {
+fun Activity.share(subject: String, text: CharSequence, @StringRes titleResId: Int = R.string.title_share) {
     val intent = ShareCompat.IntentBuilder.from(this)
             .setType("text/plain")
             .setSubject(subject.trim { it <= ' ' })

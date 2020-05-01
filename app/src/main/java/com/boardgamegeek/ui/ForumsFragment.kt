@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
@@ -18,7 +16,7 @@ import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
 import kotlinx.android.synthetic.main.fragment_forums.*
 
-class ForumsFragment : Fragment() {
+class ForumsFragment : Fragment(R.layout.fragment_forums) {
     private var forumType = ForumEntity.ForumType.REGION
     private var objectId = BggContract.INVALID_ID
     private var objectName: String? = null
@@ -27,13 +25,7 @@ class ForumsFragment : Fragment() {
         ForumsRecyclerViewAdapter(objectId, objectName, forumType)
     }
 
-    private val viewModel: ForumsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(ForumsViewModel::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_forums, container, false)
-    }
+    private val viewModel by activityViewModels<ForumsViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,7 +47,7 @@ class ForumsFragment : Fragment() {
             ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
             ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
-        viewModel.forums.observe(this, Observer {
+        viewModel.forums.observe(viewLifecycleOwner, Observer {
             when (it?.status) {
                 null, Status.REFRESHING -> {
                     progressView?.show()

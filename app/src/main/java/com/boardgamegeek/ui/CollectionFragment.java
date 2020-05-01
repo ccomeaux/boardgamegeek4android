@@ -96,7 +96,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
@@ -217,19 +217,19 @@ public class CollectionFragment extends Fragment implements
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		viewModel = ViewModelProviders.of(requireActivity()).get(CollectionViewViewModel.class);
+		viewModel = new ViewModelProvider(requireActivity()).get(CollectionViewViewModel.class);
 
-		viewModel.getSelectedViewId().observe(this, id -> viewId = id);
+		viewModel.getSelectedViewId().observe(getViewLifecycleOwner(), id -> viewId = id);
 
-		viewModel.getSelectedViewName().observe(this, name -> viewName = name);
+		viewModel.getSelectedViewName().observe(getViewLifecycleOwner(), name -> viewName = name);
 
-		viewModel.getEffectiveSortType().observe(this, sortType -> {
+		viewModel.getEffectiveSortType().observe(getViewLifecycleOwner(), sortType -> {
 			progressBar.show();
 			sorter = getCollectionSorter(sortType);
 			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		});
 
-		viewModel.getEffectiveFilters().observe(this, f -> {
+		viewModel.getEffectiveFilters().observe(getViewLifecycleOwner(), f -> {
 			progressBar.show();
 			filters.clear();
 			filters.addAll(f);

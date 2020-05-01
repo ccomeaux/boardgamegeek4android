@@ -5,16 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.widget.SearchView
+import androidx.activity.viewModels
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.SearchEvent
 import org.jetbrains.anko.longToast
-
 
 class SearchResultsActivity : SimpleSinglePaneActivity() {
     companion object {
@@ -25,9 +24,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
     private var searchText: String? = null
     private var searchView: SearchView? = null
 
-    private val viewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(this).get(SearchViewModel::class.java)
-    }
+    private val viewModel by viewModels<SearchViewModel>()
 
     override val optionsMenuId: Int
         get() = R.menu.search_widget

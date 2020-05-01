@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.entities.GameEntity
@@ -22,9 +22,7 @@ import kotlinx.android.synthetic.main.fragment_game_credits.*
 import kotlinx.android.synthetic.main.include_game_footer.*
 
 class GameCreditsFragment : Fragment() {
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +30,10 @@ class GameCreditsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_credits, container, false)
+        val root = inflater.inflate(R.layout.fragment_game_credits, container, false)
+        val viewGroup: ViewGroup = root.findViewById(R.id.dataContainer)
+        viewGroup.layoutTransition.setAnimateParentHierarchy(false)
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,11 +44,11 @@ class GameCreditsFragment : Fragment() {
 
         lastModifiedView?.timestamp = 0
 
-        viewModel.gameId.observe(this, Observer { gameId ->
+        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
             gameIdView?.text = gameId.toString()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -57,15 +58,15 @@ class GameCreditsFragment : Fragment() {
             }
             progress.hide()
 
-            viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
+            viewModel.designers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
 
-            viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
+            viewModel.artists.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
 
-            viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
+            viewModel.publishers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
 
-            viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
+            viewModel.categories.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
 
-            viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
+            viewModel.mechanics.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
         })
     }
 

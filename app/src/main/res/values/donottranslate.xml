@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Do not translate any of these values -->
+<!--suppress CheckTagEmptyBody -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+	<!-- Do not change these values - they are stored in the database -->
+	<!--<string name="collection_sort_type_unknown">0</string>-->
+	<!--<string name="collection_sort_type_default">1</string>-->
+	<string name="collection_sort_type_collection_name">1</string>
+	<string name="collection_sort_type_geek_rating">2</string>
+	<string name="collection_sort_type_play_count_asc">3</string>
+	<string name="collection_sort_type_play_count_desc">4</string>
+	<string name="collection_sort_type_year_published_asc">5</string>
+	<string name="collection_sort_type_year_published_desc">6</string>
+	<string name="collection_sort_type_play_time_asc">7</string>
+	<string name="collection_sort_type_play_time_desc">8</string>
+	<string name="collection_sort_type_suggested_age_asc">9</string>
+	<string name="collection_sort_type_suggested_age_desc">10</string>
+	<string name="collection_sort_type_average_weight_asc">11</string>
+	<string name="collection_sort_type_average_weight_desc">12</string>
+	<string name="collection_sort_type_wishlist_priority">13</string>
+	<string name="collection_sort_type_last_viewed">14</string>
+	<string name="collection_sort_type_my_rating">15</string>
+	<string name="collection_sort_type_rank">16</string>
+	<string name="collection_sort_type_average_rating">17</string>
+	<string name="collection_sort_type_acquisition_date">18</string>
+	<string name="collection_sort_type_acquired_from">19</string>
+	<string name="collection_sort_type_price_paid">20</string>
+	<string name="collection_sort_type_current_value">21</string>
+	<string name="collection_sort_type_play_date_max">22</string>
+	<string name="collection_sort_type_play_date_min">23</string>
+	<string name="collection_sort_type_inventory_location">24</string>
+
+	<string name="collection_filter_type_collection_status">1</string>
+	<string name="collection_filter_type_subtype">10</string>
+	<string name="collection_filter_type_geek_ranking">9</string>
+	<string name="collection_filter_type_geek_rating">8</string>
+	<string name="collection_filter_type_average_rating">7</string>
+	<string name="collection_filter_type_my_rating">12</string>
+	<string name="collection_filter_type_number_of_players">2</string>
+	<string name="collection_filter_type_play_count">11</string>
+	<string name="collection_filter_type_year_published">6</string>
+	<string name="collection_filter_type_play_time">3</string>
+	<string name="collection_filter_type_suggested_age">4</string>
+	<string name="collection_filter_type_average_weight">5</string>
+	<string name="collection_filter_type_collection_name">13</string>
+	<string name="collection_filter_type_recommended_player_count">14</string>
+	<string name="collection_filter_type_favorite">15</string>
+
+	<string name="play_description_game_url_segment">www.boardgamegeek.com/game/%s</string>
+	<string name="play_description_play_url_segment">www.boardgamegeek.com/play/%s</string>
+
+	<string-array name="pref_sync_status_values" tools:ignore="UnusedResources,SpellCheckingInspection">
+		<item>own</item>
+		<item>prevowned</item>
+		<item>trade</item>
+		<item>want</item>
+		<item>wanttobuy</item>
+		<item>wishlist</item>
+		<item>wanttoplay</item>
+		<item>preordered</item>
+		<item>played</item>
+		<item>rated</item>
+		<item>comment</item>
+		<item>hasparts</item>
+		<item>wantparts</item>
+	</string-array>
+	<string-array name="pref_sync_status_default">
+		<item>own</item>
+	</string-array>
+	<string-array name="collection_status_filter_values">
+		<item>own</item>
+		<item>previously_owned</item>
+		<item>for_trade</item>
+		<item>want</item>
+		<item>want_to_buy</item>
+		<item>wishlist</item>
+		<item>want_to_play</item>
+		<item>preordered</item>
+	</string-array>
+	<string-array name="expansion_status_filter_values">
+		<item />
+		<item>boardgame</item>
+		<item>boardgameexpansion</item>
+		<item>boardgameaccessory</item>
+	</string-array>
+	<string-array name="currency">
+		<item>USD</item>
+		<item>EUR</item>
+		<item>GBP</item>
+		<item>CAD</item>
+		<item>AUD</item>
+		<item>YEN</item>
+		<item>Other</item>
+	</string-array>
+
+	<string name="intent_action_account">com.boardgamegeek.intent.action.ACCOUNT</string>
+	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
+	<string name="intent_action_data">com.boardgamegeek.intent.action.DATA</string>
+
+	<string name="define_int_Hugo"></string>
+	<string name="library_Hugo_author">Jake Wharton</string>
+	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
+	<string name="library_Hugo_libraryName">Hugo</string>
+	<string name="library_Hugo_libraryDescription">Annotation-triggered method call logging for your debug builds.</string>
+	<string name="library_Hugo_libraryVersion">1.2.1</string>
+	<string name="library_Hugo_licenseId">apache_2_0</string>
+	<string name="library_Hugo_isOpenSource">true</string>
+	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
+
+	<string name="define_int_AndroidIcons"></string>
+	<string name="library_AndroidIcons_author">Opoloo</string>
+	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
+	<string name="library_AndroidIcons_libraryName">Android Developer Icons</string>
+	<string name="library_AndroidIcons_libraryDescription">Androidicons is a professional, handcrafted icon set with 250 icons in 14 different colors and 5 sizes, including an icon font and all sources.</string>
+	<string name="library_AndroidIcons_libraryWebsite">http://www.androidicons.com</string>
+	<string name="library_AndroidIcons_libraryVersion">1.0</string>
+	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
+	<string name="library_AndroidIcons_isOpenSource">true</string>
+	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
+
+	<string name="define_int_NestedScrollWebView"></string>
+	<string name="library_NestedScrollWebView_author">Tobias Rohloff</string>
+	<string name="library_NestedScrollWebView_authorWebsite">https://github.com/tobiasrohloff</string>
+	<string name="library_NestedScrollWebView_libraryName">NestedScrollWebView for Android</string>
+	<string name="library_NestedScrollWebView_libraryDescription">An Android WebView that implements NestedScrollingChild, in order to use it with CoordinatorLayout and AppBarLayout.</string>
+	<string name="library_NestedScrollWebView_libraryVersion">1.0.2</string>
+	<string name="library_NestedScrollWebView_licenseId">apache_2_0</string>
+	<string name="library_NestedScrollWebView_isOpenSource">true</string>
+	<string name="library_NestedScrollWebView_repositoryLink">https://github.com/tobiasrohloff/NestedScrollWebView</string>
+
+	<string name="define_license_CCBYSA_4_0"></string>
+	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
+	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
+	<string name="license_CCBYSA_4_0_licenseShortDescription">
+		Creative Commons Attribution-ShareAlike 4.0 International
+	</string>
+	<string name="license_CCBYSA_4_0_licenseDescription">
+        Licensed under Attribution-ShareAlike 4.0 International CC BY-SA 4.0
+        You are free to:
+        Share — copy and redistribute the material in any medium or format
+        Adapt — remix, transform, and build upon the material for any purpose, even commercially.
+        The licensor cannot revoke these freedoms as long as you follow the license terms.
+	</string>
+</resources>

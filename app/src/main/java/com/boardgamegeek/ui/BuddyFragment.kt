@@ -10,8 +10,8 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
@@ -19,8 +19,6 @@ import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import kotlinx.android.synthetic.main.fragment_buddy.*
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.ctx
 
 class BuddyFragment : Fragment() {
     private var buddyName: String? = null
@@ -28,9 +26,7 @@ class BuddyFragment : Fragment() {
     private var defaultTextColor: Int = 0
     private var lightTextColor: Int = 0
 
-    private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<BuddyViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +46,7 @@ class BuddyFragment : Fragment() {
         defaultTextColor = nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
-        viewModel.buddy.observe(this, Observer {
+        viewModel.buddy.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
 
             if (it?.data == null) {
@@ -60,7 +56,7 @@ class BuddyFragment : Fragment() {
                 nicknameView.text = playerName
                 nicknameView.setOnClickListener {
                     val nickname = nicknameView.text.toString()
-                    act.showAndSurvive(RenamePlayerDialogFragment.newInstance(nickname))
+                    requireActivity().showAndSurvive(RenamePlayerDialogFragment.newInstance(nickname))
                 }
 
                 collectionCard.isGone = true
@@ -82,12 +78,12 @@ class BuddyFragment : Fragment() {
                 }
                 nicknameView.setOnClickListener {
                     val nickname = nicknameView.text.toString()
-                    act.showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(nickname))
+                    requireActivity().showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(nickname))
                 }
 
                 collectionCard.isVisible = true
                 collectionRoot.setOnClickListener {
-                    BuddyCollectionActivity.start(ctx, buddyName)
+                    BuddyCollectionActivity.start(context, buddyName)
                 }
 
                 updatedView.timestamp = it.data.updatedTimestamp
@@ -97,12 +93,12 @@ class BuddyFragment : Fragment() {
             }
         })
 
-        viewModel.player.observe(this, Observer { player ->
+        viewModel.player.observe(viewLifecycleOwner, Observer { player ->
             val playCount = player?.playCount ?: 0
             val winCount = player?.winCount ?: 0
             if (playCount > 0 || winCount > 0) {
-                playsView.text = ctx.getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
-                winsView.text = ctx.getQuantityText(R.plurals.wins_suffix, winCount, winCount)
+                playsView.text = requireContext().getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
+                winsView.text = requireContext().getQuantityText(R.plurals.wins_suffix, winCount, winCount)
                 winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
                 playsCard.isVisible = true
             } else {
@@ -110,14 +106,14 @@ class BuddyFragment : Fragment() {
             }
             playsRoot.setOnClickListener {
                 if (buddyName.isNullOrBlank()) {
-                    PlayerPlaysActivity.start(ctx, playerName)
+                    PlayerPlaysActivity.start(requireContext(), playerName)
                 } else {
-                    BuddyPlaysActivity.start(ctx, buddyName)
+                    BuddyPlaysActivity.start(requireContext(), buddyName)
                 }
             }
         })
 
-        viewModel.colors.observe(this, Observer { colors ->
+        viewModel.colors.observe(viewLifecycleOwner, Observer { colors ->
             colorContainer.removeAllViews()
             colorContainer.isVisible = (colors?.size ?: 0) > 0
             colors?.take(3)?.forEach { color ->
@@ -127,7 +123,7 @@ class BuddyFragment : Fragment() {
                 }
             }
             colorsRoot.setOnClickListener {
-                PlayerColorsActivity.start(ctx, buddyName, playerName)
+                PlayerColorsActivity.start(requireContext(), buddyName, playerName)
             }
         })
     }

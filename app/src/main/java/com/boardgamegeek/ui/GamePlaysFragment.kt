@@ -7,12 +7,11 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
@@ -23,23 +22,18 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
 import kotlinx.android.synthetic.main.fragment_game_plays.*
 
-class GamePlaysFragment : Fragment() {
+class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var imageUrl = ""
     private var thumbnailUrl = ""
     private var heroImageUrl = ""
     private var arePlayersCustomSorted = false
+
     @ColorInt
     private var iconColor = Color.TRANSPARENT
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_plays, container, false)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,17 +43,17 @@ class GamePlaysFragment : Fragment() {
 
         syncTimestampView?.timestamp = 0L
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             onGameQueryComplete(it?.data)
         })
 
-        viewModel.plays.observe(this, Observer {
+        viewModel.plays.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             onPlaysQueryComplete(it?.data)
             progressView.hide()
         })
 
-        viewModel.playColors.observe(this, Observer {
+        viewModel.playColors.observe(viewLifecycleOwner, Observer {
             updateColors(it)
             progressView.hide()
         })

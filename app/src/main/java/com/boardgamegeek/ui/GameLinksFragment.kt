@@ -2,41 +2,33 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_links.*
 
-class GameLinksFragment : Fragment() {
+class GameLinksFragment : Fragment(R.layout.fragment_game_links) {
     @ColorInt
     private var iconColor = Color.TRANSPARENT
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_links, container, false)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             it.data?.let { game ->
                 if (game.id != BggContract.INVALID_ID) {
                     geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", game.id) }
                     bggLink.setOnClickListener { context.linkBgg(game.id) }
                 }
-                if ( game.name.isNotBlank()) {
+                if (game.name.isNotBlank()) {
                     bgPricesLink.setOnClickListener { context.linkBgPrices(game.name) }
                     bgPricesUkLink.setOnClickListener { context.linkBgPricesUk(game.name) }
                     amazonLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_COM) }
@@ -47,7 +39,7 @@ class GameLinksFragment : Fragment() {
             }
         })
 
-        viewModel.game.observe(this, Observer { game ->
+        viewModel.game.observe(viewLifecycleOwner, Observer { game ->
             colorize(game?.data?.iconColor ?: Color.TRANSPARENT)
         })
     }

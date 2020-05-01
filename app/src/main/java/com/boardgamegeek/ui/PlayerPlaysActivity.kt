@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
@@ -16,9 +16,7 @@ import com.crashlytics.android.answers.ContentViewEvent
 import org.jetbrains.anko.startActivity
 
 class PlayerPlaysActivity : SimpleSinglePaneActivity() {
-    private val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
-    }
+    private val viewModel by viewModels<PlaysViewModel>()
 
     private var name = ""
     private var playCount = -1

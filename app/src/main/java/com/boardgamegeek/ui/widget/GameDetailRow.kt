@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.setOrClearColorFilter
@@ -66,10 +67,10 @@ class GameDetailRow @JvmOverloads constructor(
                 a.recycle()
             }
         }
-        iconView.visibility = if (icon == null) View.GONE else View.VISIBLE
+        iconView.isVisible = (icon != null)
         iconView.setImageDrawable(icon)
 
-        type = ProducerType.fromInt(queryToken) ?: ProducerType.UNKNOWN
+        type = ProducerType.fromInt(queryToken)
     }
 
     fun clear() {

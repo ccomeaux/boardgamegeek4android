@@ -1,14 +1,15 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.palette.graphics.Palette
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.applyDarkScrim
 import com.boardgamegeek.extensions.loadUrl
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_hero_tab.*
 
 /**
@@ -22,13 +23,17 @@ abstract class HeroTabActivity : DrawerActivity() {
 
     protected fun initializeViewPager() {
         viewPager.adapter = createAdapter()
-        createOnPageChangeListener()?.let { viewPager.addOnPageChangeListener(it) }
-        tabLayout.setupWithViewPager(viewPager)
+        createOnPageChangeListener()?.let { viewPager.registerOnPageChangeCallback(it) }
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = getPageTitle(position)
+        }.attach()
     }
 
-    protected abstract fun createAdapter(): FragmentPagerAdapter
+    protected abstract fun getPageTitle(position: Int): CharSequence
 
-    protected open fun createOnPageChangeListener(): OnPageChangeListener? {
+    protected abstract fun createAdapter(): FragmentStateAdapter
+
+    protected open fun createOnPageChangeListener(): ViewPager2.OnPageChangeCallback? {
         return null
     }
 

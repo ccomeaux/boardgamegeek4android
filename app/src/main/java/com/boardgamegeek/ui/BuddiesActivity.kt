@@ -3,9 +3,9 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
@@ -14,9 +14,7 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
     private var numberOfBuddies = -1
     private var sortBy = BuddiesViewModel.SortType.USERNAME
 
-    private val viewModel: BuddiesViewModel by lazy {
-        ViewModelProviders.of(this).get(BuddiesViewModel::class.java)
-    }
+    private val viewModel by viewModels<BuddiesViewModel>()
 
     override val answersContentType = "Buddies"
 

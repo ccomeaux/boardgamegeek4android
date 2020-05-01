@@ -22,9 +22,9 @@ fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.u
     return asScore(context, defaultResId)
 }
 
-fun Double.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#0.0#")): String {
+fun Double?.asScore(context: Context?, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#0.0#")): String {
     return when {
-        this != 0.0 -> format.format(this)
+        this != null -> format.format(this)
         defaultResId != 0 && context != null -> context.getString(defaultResId)
         else -> ""
     }

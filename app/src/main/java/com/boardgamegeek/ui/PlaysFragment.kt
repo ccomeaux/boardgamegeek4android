@@ -12,15 +12,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.service.SyncService
@@ -41,9 +40,7 @@ import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(), ActionMode.Callback {
-    private val viewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PlaysViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PlaysViewModel>()
 
     private val adapter: PlayAdapter by lazy {
         PlayAdapter()
@@ -69,7 +66,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.plays.observe(this, Observer {
+        viewModel.plays.observe(viewLifecycleOwner, Observer {
             progressBar.isVisible = it.status == Status.REFRESHING
             adapter.items = it.data ?: emptyList()
             val sectionItemDecoration = RecyclerSectionItemDecoration(
@@ -90,7 +87,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             }
         })
 
-        viewModel.filterType.observe(this, Observer {
+        viewModel.filterType.observe(viewLifecycleOwner, Observer {
             updateEmptyText()
         })
     }
@@ -387,13 +384,13 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         val batch = arrayListOf<ContentProviderOperation>()
         for (position in adapter.selectedItemPositions) {
             val play = adapter.getItem(position)
-            if (play != null && play.internalId != BggContract.INVALID_ID.toLong())
+            if (play != null && play.internalId != INVALID_ID.toLong())
                 batch.add(ContentProviderOperation
                         .newUpdate(Plays.buildPlayUri(play.internalId))
                         .withValue(key, value)
                         .build())
         }
-        requireContext().contentResolver.applyBatch(requireContext(), batch)
+        requireContext().contentResolver.applyBatch(batch)
         SyncService.sync(activity, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 

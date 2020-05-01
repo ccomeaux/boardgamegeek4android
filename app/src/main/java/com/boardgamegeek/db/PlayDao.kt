@@ -682,7 +682,7 @@ class PlayDao(private val context: BggApplication) {
                     batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, it.description).build())
                 }
             }
-            resolver.applyBatch(context, batch)
+            resolver.applyBatch(batch)
         }
     }
 

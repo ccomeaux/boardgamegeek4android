@@ -34,8 +34,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         BASE_GAMES(7);
 
         companion object {
-            private val map = ProducerType.values().associateBy(ProducerType::value)
-            fun fromInt(value: Int) = map[value]
+            private val map = values().associateBy(ProducerType::value)
+            fun fromInt(value: Int?) = map[value] ?: UNKNOWN
         }
     }
 
@@ -176,10 +176,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
+    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(game) { game ->
+        when (val gameId = game.data?.id ?: BggContract.INVALID_ID) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameCollectionRepository.getCollectionItems(gameId)
+            else -> gameCollectionRepository.getCollectionItems(gameId, game.data?.subtype ?: "")
         }
     }
 

@@ -16,9 +16,6 @@ public abstract class CollectionTextUploadTask extends CollectionUploadTask {
 	}
 
 	@NonNull
-	protected abstract String getTextColumn();
-
-	@NonNull
 	protected abstract String getFieldName();
 
 	protected abstract String getValue(CollectionItem collectionItem);
@@ -38,7 +35,7 @@ public abstract class CollectionTextUploadTask extends CollectionUploadTask {
 
 	@Override
 	public void appendContentValues(ContentValues contentValues) {
-		contentValues.put(getTextColumn(), text);
+		// Don't save text. The response to the POST translates markdown into HTML
 		contentValues.put(getTimestampColumn(), 0);
 	}
 }

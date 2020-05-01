@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CompanyEntity
@@ -23,9 +23,7 @@ import kotlinx.android.synthetic.main.row_publisher.view.*
 import kotlin.properties.Delegates
 
 class PublishersFragment : Fragment(R.layout.fragment_publishers) {
-    private val viewModel: PublishersViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PublishersViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PublishersViewModel>()
 
     private val adapter: PublisherAdapter by lazy {
         PublisherAdapter(viewModel)
@@ -40,12 +38,12 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.publishers.observe(this, Observer {
+        viewModel.publishers.observe(viewLifecycleOwner, Observer {
             showData(it)
             progressBar.hide()
         })
 
-        viewModel.progress.observe(this, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, Observer {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {

@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Player
@@ -117,7 +118,11 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             setText(scoreView, player.scoreDescription, scoreTypeface, false, player.isWin)
             scoreButton.visibility = if (player.score.isNullOrEmpty()) View.GONE else View.VISIBLE
 
-            ratingView.setTextOrHide(player.rating.asScore(context, format = ratingFormat))
+            if (player.rating == 0.0) {
+                ratingView.isVisible = false
+            } else {
+                ratingView.setTextOrHide(player.rating.asScore(context, format = ratingFormat))
+            }
             ratingButton.visibility = if (player.rating > 0) View.VISIBLE else View.GONE
 
             startingPositionView.setTextOrHide(player.startingPosition)

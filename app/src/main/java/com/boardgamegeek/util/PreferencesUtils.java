@@ -194,10 +194,6 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedForumDates", false);
 	}
 
-	public static boolean getAvoidBatching(Context context) {
-		return getBoolean(context, "advancedDebugInsert", false);
-	}
-
 	public static int getGameHIndex(Context context) {
 		return getInt(context, KEY_GAME_H_INDEX, 0);
 	}

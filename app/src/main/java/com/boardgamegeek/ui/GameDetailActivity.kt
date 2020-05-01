@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
@@ -19,9 +19,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
     private var gameName: String = ""
     private var type: ProducerType = ProducerType.UNKNOWN
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(this).get(GameViewModel::class.java)
-    }
+    private val viewModel by viewModels<GameViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

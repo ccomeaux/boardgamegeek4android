@@ -176,8 +176,7 @@
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_geek_rating"
-			android:visibility="gone"/>
+			android:tag="@string/collection_sort_type_geek_rating"/>
 
 		<RadioButton
 			android:id="@+id/average_rating"

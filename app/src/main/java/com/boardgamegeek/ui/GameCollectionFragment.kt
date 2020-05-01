@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
@@ -20,18 +18,12 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_collection.*
 import org.jetbrains.anko.support.v4.toast
 
-class GameCollectionFragment : Fragment() {
+class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
     private val adapter: GameCollectionItemAdapter by lazy {
         GameCollectionItemAdapter()
     }
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_collection, container, false)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,11 +35,11 @@ class GameCollectionFragment : Fragment() {
         recyclerView?.setHasFixedSize(false)
         recyclerView?.adapter = adapter
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             adapter.gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
         })
 
-        viewModel.collectionItems.observe(this, Observer {
+        viewModel.collectionItems.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError()

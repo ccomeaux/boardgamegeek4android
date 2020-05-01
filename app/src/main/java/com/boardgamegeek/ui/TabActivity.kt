@@ -1,8 +1,9 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_tab.*
 
 /**
@@ -15,10 +16,15 @@ abstract class TabActivity : DrawerActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         viewPager.adapter = createAdapter()
-        tabLayout.setupWithViewPager(viewPager)
+
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = getPageTitle(position)
+        }.attach()
     }
 
-    protected abstract fun createAdapter(): FragmentPagerAdapter
+    abstract fun getPageTitle(position: Int): CharSequence?
+
+    protected abstract fun createAdapter(): FragmentStateAdapter
 
     override val layoutResId = R.layout.activity_tab
 

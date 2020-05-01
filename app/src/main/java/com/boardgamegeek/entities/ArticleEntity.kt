@@ -1,6 +1,10 @@
-package com.boardgamegeek.ui.model
+package com.boardgamegeek.entities
 
-data class Article(
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
+data class ArticleEntity(
         val id: Int,
         val username: String,
         val link: String,
@@ -8,5 +12,5 @@ data class Article(
         val editTicks: Long,
         val body: String,
         val numberOfEdits: Int
-)
+) : Parcelable
 

@@ -196,7 +196,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         batch += playDao.createDirtyPlaysForUserAndNickNameOperations(username, nickName)
         batch += playDao.createNickNameUpdateOperation(username, nickName)
         application.appExecutors.diskIO.execute {
-            application.contentResolver.applyBatch(application, batch)
+            application.contentResolver.applyBatch(batch)
         }
         return count
     }
@@ -208,7 +208,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
         batch += playDao.createDeletePlayerColorsOperation(oldName)
         application.appExecutors.diskIO.execute {
-            application.contentResolver.applyBatch(application, batch)
+            application.contentResolver.applyBatch(batch)
         }
     }
 
@@ -220,7 +220,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         batch += playDao.createCopyPlayerColorsToUserOperations(playerName, username)
         batch += playDao.createDeletePlayerColorsOperation(playerName)
         application.appExecutors.diskIO.execute {
-            application.contentResolver.applyBatch(application, batch)
+            application.contentResolver.applyBatch(batch)
         }
     }
 

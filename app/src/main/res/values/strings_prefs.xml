@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--suppress CheckTagEmptyBody -->
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+<?xml version="1.0" encoding="utf-8"?><!--suppress CheckTagEmptyBody -->
+<resources>
 
 	<string name="pref_log">Logging plays</string>
 	<string name="pref_log_summary">Options to record plays</string>
@@ -81,9 +80,6 @@
 	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
 	<string name="pref_advanced_forum_dates_off">Show relative times for all dates associated with forums (when the time is recent)</string>
 	<string name="pref_advanced_forum_dates_on">Always show absolute date/time for all dates associated with forums</string>
-	<string name="pref_advanced_debug_inserts">Debug</string>
-	<string name="pref_advanced_debug_inserts_off">Leave this off if you\'re not experiencing crashes</string>
-	<string name="pref_advanced_debug_inserts_on">This should reduce the frequency of crashes. Sorry if you still see some.</string>
 	<string name="pref_advanced_haptic_feedback">Haptic feedback</string>
 	<string name="pref_advanced_haptic_feedback_summary">The number pad vibrates when a key is pressed.</string>
 	<string name="pref_advanced_polls">Game polls</string>
@@ -105,52 +101,4 @@
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_guild">BGG for Android Guild</string>
 
-	<string name="intent_action_account">com.boardgamegeek.intent.action.ACCOUNT</string>
-	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
-	<string name="intent_action_data">com.boardgamegeek.intent.action.DATA</string>
-
-	<string name="define_int_Hugo"></string>
-	<string name="library_Hugo_author">Jake Wharton</string>
-	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
-	<string name="library_Hugo_libraryName">Hugo</string>
-	<string name="library_Hugo_libraryDescription">Annotation-triggered method call logging for your debug builds.</string>
-	<string name="library_Hugo_libraryVersion">1.2.1</string>
-	<string name="library_Hugo_licenseId">apache_2_0</string>
-	<string name="library_Hugo_isOpenSource">true</string>
-	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
-
-	<string name="define_int_AndroidIcons"></string>
-	<string name="library_AndroidIcons_author">Opoloo</string>
-	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
-	<string name="library_AndroidIcons_libraryName">Android Developer Icons</string>
-	<string name="library_AndroidIcons_libraryDescription">Androidicons is a professional, handcrafted icon set with 250 icons in 14 different colors and 5 sizes, including an icon font and all sources.</string>
-	<string name="library_AndroidIcons_libraryWebsite">http://www.androidicons.com</string>
-	<string name="library_AndroidIcons_libraryVersion">1.0</string>
-	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
-	<string name="library_AndroidIcons_isOpenSource">true</string>
-	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
-
-	<string name="define_int_NestedScrollWebView"></string>
-	<string name="library_NestedScrollWebView_author">Tobias Rohloff</string>
-	<string name="library_NestedScrollWebView_authorWebsite">https://github.com/tobiasrohloff</string>
-	<string name="library_NestedScrollWebView_libraryName">NestedScrollWebView for Android</string>
-	<string name="library_NestedScrollWebView_libraryDescription">An Android WebView that implements NestedScrollingChild, in order to use it with CoordinatorLayout and AppBarLayout.</string>
-	<string name="library_NestedScrollWebView_libraryVersion">1.0.2</string>
-	<string name="library_NestedScrollWebView_licenseId">apache_2_0</string>
-	<string name="library_NestedScrollWebView_isOpenSource">true</string>
-	<string name="library_NestedScrollWebView_repositoryLink">https://github.com/tobiasrohloff/NestedScrollWebView</string>
-
-	<string name="define_license_CCBYSA_4_0"></string>
-	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
-	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
-	<string name="license_CCBYSA_4_0_licenseShortDescription">
-		Creative Commons Attribution-ShareAlike 4.0 International
-	</string>
-	<string name="license_CCBYSA_4_0_licenseDescription">
-        Licensed under Attribution-ShareAlike 4.0 International CC BY-SA 4.0
-        You are free to:
-        Share — copy and redistribute the material in any medium or format
-        Adapt — remix, transform, and build upon the material for any purpose, even commercially.
-        The licensor cannot revoke these freedoms as long as you follow the license terms.
-	</string>
 </resources>

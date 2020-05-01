@@ -467,7 +467,7 @@ class GameDao(private val context: BggApplication) {
         batch.addAll(createAssociationBatch(game.id, game.mechanics, BggContract.PATH_MECHANICS, GamesMechanics.MECHANIC_ID))
 
         try {
-            resolver.applyBatch(context, batch, "Game ${game.id}")
+            resolver.applyBatch(batch, "Game ${game.id}")
             Timber.i("Saved game ID '%s'", game.id)
         } catch (e: Exception) {
             NotificationUtils.showPersistErrorNotification(context, e)
@@ -682,7 +682,7 @@ class GameDao(private val context: BggApplication) {
                 batch.add(ContentProviderOperation.newInsert(baseUri).withValues(cv).build())
             }
         }
-        resolver.applyBatch(context, batch, "Saving ${baseUri.lastPathSegment}")
+        resolver.applyBatch(batch, "Saving ${baseUri.lastPathSegment}")
     }
 
     private fun createAssociationBatch(gameId: Int, newLinks: List<Pair<Int, String>>, uriPath: String, idColumn: String): ArrayList<ContentProviderOperation> {
