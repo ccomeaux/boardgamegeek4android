@@ -8,6 +8,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
 
@@ -21,17 +23,12 @@ import java.io.FileNotFoundException;
 import hugo.weaving.DebugLog;
 
 public abstract class BaseProvider {
-
+	@NonNull
 	protected abstract String getPath();
 
 	@DebugLog
 	protected String addIdToPath(String path) {
 		return path + "/#";
-	}
-
-	@DebugLog
-	protected String addWildCardToPath(String path) {
-		return path + "/*";
 	}
 
 	@DebugLog

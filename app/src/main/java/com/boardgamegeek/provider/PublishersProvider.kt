@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import com.boardgamegeek.provider.BggContract.PATH_PUBLISHERS
 
 import com.boardgamegeek.provider.BggContract.Publishers
 import com.boardgamegeek.provider.BggDatabase.Tables
@@ -9,13 +10,13 @@ import com.boardgamegeek.util.SelectionBuilder
 class PublishersProvider : BasicProvider() {
     override fun getType(uri: Uri) = Publishers.CONTENT_TYPE
 
-    override fun getPath() = BggContract.PATH_PUBLISHERS
+    override fun getPath() = PATH_PUBLISHERS
 
-    override fun getTable() = Tables.PUBLISHERS
+    override val table = Tables.PUBLISHERS
 
     override fun getDefaultSortOrder(): String? = Publishers.DEFAULT_SORT
 
-    override fun getInsertedIdColumn(): String? = Publishers.PUBLISHER_ID
+    override val insertedIdColumn = Publishers.PUBLISHER_ID
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>): SelectionBuilder {
         val builder = SelectionBuilder()

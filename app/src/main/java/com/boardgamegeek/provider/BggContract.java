@@ -290,7 +290,7 @@ public class BggContract {
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	public static final String PATH_GAMES = "games";
-	private static final String PATH_RANKS = "ranks";
+	public static final String PATH_RANKS = "ranks";
 	public static final String PATH_DESIGNERS = "designers";
 	public static final String PATH_ARTISTS = "artists";
 	public static final String PATH_PUBLISHERS = "publishers";
@@ -310,11 +310,11 @@ public class BggContract {
 	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
 	public static final String PATH_PLAYERS = "players";
-	private static final String PATH_LOCATIONS = "locations";
+	public static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_ACQUIRED_FROM = "acquiredfrom";
 	public static final String PATH_INVENTORY_LOCATION = "inventorylocation";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
-	private static final String PATH_FILTERS = "filters";
+	public static final String PATH_FILTERS = "filters";
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
 	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";

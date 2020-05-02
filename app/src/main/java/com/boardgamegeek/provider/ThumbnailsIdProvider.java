@@ -16,7 +16,7 @@ public class ThumbnailsIdProvider extends BaseFileProvider {
 
 	@Override
 	protected String getPath() {
-		return addWildCardToPath(BggContract.PATH_THUMBNAILS);
+		return BggContract.PATH_THUMBNAILS + "/*";
 	}
 
 }
