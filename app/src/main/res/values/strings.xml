@@ -696,7 +696,7 @@
 	<string name="person_stat_collection_status">These stats work much better if you sync your rated and played games.</string>
 	<string name="play_count">Play Count</string>
 	<string name="h_index">H-Index</string>
-	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/thread/2420064/whats-whitmore-score</string>
+	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/geeklist/37832/my-favorite-designers</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
