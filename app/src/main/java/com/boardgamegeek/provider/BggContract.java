@@ -300,9 +300,9 @@ public class BggContract {
 	public static final String PATH_COLLECTION = "collection";
 	public static final String PATH_BUDDIES = "buddies";
 	public static final String PATH_USERS = "users";
-	private static final String PATH_POLLS = "polls";
-	private static final String PATH_POLL_RESULTS = "results";
-	private static final String PATH_POLL_RESULTS_RESULT = "result";
+	public static final String PATH_POLLS = "polls";
+	public static final String PATH_POLL_RESULTS = "results";
+	public static final String PATH_POLL_RESULTS_RESULT = "result";
 	public static final String PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS = "suggestedplayercountpollresults";
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";

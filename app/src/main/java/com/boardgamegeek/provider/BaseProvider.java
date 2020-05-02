@@ -8,9 +8,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
@@ -20,16 +17,19 @@ import com.boardgamegeek.util.SelectionBuilder;
 
 import java.io.FileNotFoundException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import hugo.weaving.DebugLog;
 
 public abstract class BaseProvider {
+	@DebugLog
+	protected String getType(Uri uri) {
+		throw new UnsupportedOperationException("Unknown uri getting type: " + uri);
+	}
+
 	@NonNull
 	protected abstract String getPath();
-
-	@DebugLog
-	protected String addIdToPath(String path) {
-		return path + "/#";
-	}
 
 	@DebugLog
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
@@ -68,11 +68,7 @@ public abstract class BaseProvider {
 	}
 
 	@DebugLog
-	protected String getType(Uri uri) {
-		throw new UnsupportedOperationException("Unknown uri getting type: " + uri);
-	}
-
-	@DebugLog
+	@Nullable
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
 	}
@@ -113,16 +109,11 @@ public abstract class BaseProvider {
 				value = cursor.getInt(0);
 			}
 		} finally {
-			closeCursor(cursor);
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 		return value;
-	}
-
-	@DebugLog
-	private static void closeCursor(Cursor cursor) {
-		if (cursor != null && !cursor.isClosed()) {
-			cursor.close();
-		}
 	}
 
 	@DebugLog
