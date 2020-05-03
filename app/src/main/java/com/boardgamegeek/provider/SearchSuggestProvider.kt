@@ -22,13 +22,13 @@ import java.util.*
 open class SearchSuggestProvider : BaseProvider() {
     override fun getType(uri: Uri) = SearchManager.SUGGEST_MIME_TYPE
 
-    override fun getPath() = SearchManager.SUGGEST_URI_PATH_QUERY
+    override val path = SearchManager.SUGGEST_URI_PATH_QUERY
 
-    override fun getDefaultSortOrder() = BggContract.Collection.DEFAULT_SORT
+    override val defaultSortOrder = BggContract.Collection.DEFAULT_SORT
 
-    override fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri?, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        val searchTerm = uri?.lastPathSegment?.toLowerCase(Locale.getDefault()).orEmpty()
-        val limit = uri?.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT)
+    override fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+        val searchTerm = uri.lastPathSegment?.toLowerCase(Locale.getDefault()).orEmpty()
+        val limit = uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT)
         val qb = SQLiteQueryBuilder().apply {
             tables = Tables.COLLECTION_JOIN_GAMES
             setProjectionMap(suggestionProjectionMap)

@@ -8,11 +8,11 @@ import com.boardgamegeek.util.SelectionBuilder
 class PlaysProvider : BasicProvider() {
     override fun getType(uri: Uri) = Plays.CONTENT_TYPE
 
-    override fun getPath() = PATH_PLAYS
+    override val path = PATH_PLAYS
 
     override val table = Tables.PLAYS
 
-    override fun getDefaultSortOrder() = Plays.DEFAULT_SORT
+    override val defaultSortOrder = Plays.DEFAULT_SORT
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val builder = SelectionBuilder()

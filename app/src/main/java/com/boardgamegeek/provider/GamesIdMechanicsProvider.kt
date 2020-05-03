@@ -12,9 +12,9 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesIdMechanicsProvider : BaseProvider() {
     override fun getType(uri: Uri) = Mechanics.CONTENT_TYPE
 
-    public override fun getPath() = "$PATH_GAMES/#/$PATH_MECHANICS"
+    override val path = "$PATH_GAMES/#/$PATH_MECHANICS"
 
-    override fun getDefaultSortOrder() = Mechanics.DEFAULT_SORT
+    override val defaultSortOrder = Mechanics.DEFAULT_SORT
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)

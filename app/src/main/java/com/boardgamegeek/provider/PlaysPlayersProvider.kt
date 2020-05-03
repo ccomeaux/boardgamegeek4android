@@ -10,9 +10,9 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class PlaysPlayersProvider : BaseProvider() {
-    override fun getPath() = "$PATH_PLAYS/$PATH_PLAYERS"
+    override val path = "$PATH_PLAYS/$PATH_PLAYERS"
 
-    override fun getDefaultSortOrder() = "${Plays.DATE} DESC, ${PlayPlayers.DEFAULT_SORT}"
+    override val defaultSortOrder = "${Plays.DATE} DESC, ${PlayPlayers.DEFAULT_SORT}"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder = SelectionBuilder().table(Tables.PLAY_PLAYERS)
 

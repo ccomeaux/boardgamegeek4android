@@ -9,7 +9,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class MechanicsIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Mechanics.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_MECHANICS/#"
+    override val path = "$PATH_MECHANICS/#"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val mechanicId = Mechanics.getMechanicId(uri)

@@ -9,7 +9,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class DesignersIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Designers.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_DESIGNERS/#"
+    override val path = "$PATH_DESIGNERS/#"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val designerId = Designers.getDesignerId(uri)

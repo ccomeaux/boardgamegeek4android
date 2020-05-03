@@ -10,19 +10,19 @@ import com.boardgamegeek.util.SelectionBuilder
 class DesignersProvider : BasicProvider() {
     override fun getType(uri: Uri) = Designers.CONTENT_TYPE
 
-    override fun getPath() = PATH_DESIGNERS
+    override val path = PATH_DESIGNERS
 
     override val table = Tables.DESIGNERS
 
-    override fun getDefaultSortOrder(): String? = Designers.DEFAULT_SORT
+    override val defaultSortOrder = Designers.DEFAULT_SORT
 
     override val insertedIdColumn = Designers.DESIGNER_ID
 
-    override fun buildExpandedSelection(uri: Uri, projection: Array<String>): SelectionBuilder {
+    override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
                 .mapToTable(Designers.DESIGNER_ID, table)
                 .mapToTable(Designers.UPDATED, table)
-        if (projection.contains(Designers.ITEM_COUNT)) {
+        if (projection.orEmpty().contains(Designers.ITEM_COUNT)) {
             builder
                     .table(Tables.DESIGNERS_JOIN_COLLECTION)
                     .groupBy("$table.${Designers.DESIGNER_ID}")

@@ -9,9 +9,9 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class CollectionInventoryLocationProvider : BaseProvider() {
-    override fun getPath() = "$PATH_COLLECTION/$PATH_INVENTORY_LOCATION"
+    override val path = "$PATH_COLLECTION/$PATH_INVENTORY_LOCATION"
 
-    override fun getDefaultSortOrder() = SORT_INVENTORY_LOCATION
+    override val defaultSortOrder = SORT_INVENTORY_LOCATION
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder()

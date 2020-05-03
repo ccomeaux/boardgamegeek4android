@@ -9,13 +9,14 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 class BuddiesProvider : BasicProvider() {
     override fun getType(uri: Uri) = Buddies.CONTENT_TYPE
 
-    override fun getPath(): String = PATH_BUDDIES
+    override val path: String = PATH_BUDDIES
 
     override val table = Tables.BUDDIES
 
-    override fun getDefaultSortOrder() = Buddies.DEFAULT_SORT
+    override val defaultSortOrder = Buddies.DEFAULT_SORT
 
-    override fun insertedUri(values: ContentValues, rowId: Long): Uri {
-        return Buddies.buildBuddyUri(values.getAsString(Buddies.BUDDY_NAME))
+    override fun insertedUri(values: ContentValues?, rowId: Long): Uri? {
+        val buddyName = values?.getAsString(Buddies.BUDDY_NAME)
+        return if (buddyName.isNullOrBlank()) null else Buddies.buildBuddyUri(buddyName)
     }
 }

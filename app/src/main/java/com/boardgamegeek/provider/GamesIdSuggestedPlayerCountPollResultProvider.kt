@@ -10,7 +10,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesIdSuggestedPlayerCountPollResultProvider : BaseProvider() {
     override fun getType(uri: Uri) = GameSuggestedPlayerCountPollPollResults.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_GAMES/#/$PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS/*"
+    override val path = "$PATH_GAMES/#/$PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS/*"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)

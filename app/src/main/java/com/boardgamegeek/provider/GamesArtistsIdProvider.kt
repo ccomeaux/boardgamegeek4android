@@ -11,7 +11,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesArtistsIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = BggContract.Artists.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_GAMES/$PATH_ARTISTS/#"
+    override val path = "$PATH_GAMES/$PATH_ARTISTS/#"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val id = ContentUris.parseId(uri)

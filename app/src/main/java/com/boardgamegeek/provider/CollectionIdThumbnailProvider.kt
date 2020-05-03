@@ -5,7 +5,7 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 
 class CollectionIdThumbnailProvider : IndirectFileProvider() {
-    override fun getPath() = "$PATH_COLLECTION/#/$PATH_THUMBNAILS"
+    override val path = "$PATH_COLLECTION/#/$PATH_THUMBNAILS"
 
     override val contentPath = PATH_THUMBNAILS
 

@@ -6,9 +6,9 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class PlaysLocationsProvider : BaseProvider() {
-    override fun getPath() = "$PATH_PLAYS/$PATH_LOCATIONS"
+    override val path = "$PATH_PLAYS/$PATH_LOCATIONS"
 
-    override fun getDefaultSortOrder() = PlayLocations.DEFAULT_SORT
+    override val defaultSortOrder = PlayLocations.DEFAULT_SORT
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder()

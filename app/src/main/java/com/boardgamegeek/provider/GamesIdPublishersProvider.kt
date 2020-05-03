@@ -12,9 +12,9 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesIdPublishersProvider : BaseProvider() {
     override fun getType(uri: Uri) = Publishers.CONTENT_TYPE
 
-    public override fun getPath() = "$PATH_GAMES/#/$PATH_PUBLISHERS"
+    override val path = "$PATH_GAMES/#/$PATH_PUBLISHERS"
 
-    override fun getDefaultSortOrder() = Publishers.DEFAULT_SORT
+    override val defaultSortOrder = Publishers.DEFAULT_SORT
 
     public override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)

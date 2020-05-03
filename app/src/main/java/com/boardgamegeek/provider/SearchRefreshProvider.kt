@@ -11,10 +11,10 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 class SearchRefreshProvider : BaseProvider() {
     override fun getType(uri: Uri) = SearchManager.SHORTCUT_MIME_TYPE
 
-    override fun getPath() = "${SearchManager.SUGGEST_URI_PATH_SHORTCUT}/#"
+    override val path = "${SearchManager.SUGGEST_URI_PATH_SHORTCUT}/#"
 
-    override fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri?, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        val shortcutId = uri?.lastPathSegment
+    override fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+        val shortcutId = uri.lastPathSegment
         return if (shortcutId.isNullOrBlank()) {
             null
         } else {

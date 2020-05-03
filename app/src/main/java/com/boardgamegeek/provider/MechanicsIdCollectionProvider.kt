@@ -6,7 +6,7 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class MechanicsIdCollectionProvider : BaseProvider() {
-    override fun getPath() = "$PATH_MECHANICS/#/$PATH_COLLECTION"
+    override val path = "$PATH_MECHANICS/#/$PATH_COLLECTION"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val mechanicId = Mechanics.getMechanicId(uri)

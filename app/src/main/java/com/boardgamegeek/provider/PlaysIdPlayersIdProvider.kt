@@ -8,7 +8,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class PlaysIdPlayersIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = PlayPlayers.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_PLAYS/#/$PATH_PLAYERS/#"
+    override val path = "$PATH_PLAYS/#/$PATH_PLAYERS/#"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val internalId = Plays.getInternalId(uri)

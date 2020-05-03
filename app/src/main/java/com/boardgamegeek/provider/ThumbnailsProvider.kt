@@ -9,7 +9,7 @@ import timber.log.Timber
 import java.io.IOException
 
 class ThumbnailsProvider : BaseProvider() {
-    override fun getPath() = PATH_THUMBNAILS
+    override val path = PATH_THUMBNAILS
 
     override fun delete(context: Context, db: SQLiteDatabase, uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         return try {

@@ -15,9 +15,9 @@ import timber.log.Timber
 class GamesIdPollsNameResultsKeyResultProvider : BaseProvider() {
     override fun getType(uri: Uri) = GamePollResultsResult.CONTENT_TYPE
 
-    override fun getPath() = "$PATH_GAMES/#/$PATH_POLLS/*/$PATH_POLL_RESULTS/*/$PATH_POLL_RESULTS_RESULT"
+    override val path = "$PATH_GAMES/#/$PATH_POLLS/*/$PATH_POLL_RESULTS/*/$PATH_POLL_RESULTS_RESULT"
 
-    override fun getDefaultSortOrder() = GamePollResultsResult.DEFAULT_SORT
+    override val defaultSortOrder = GamePollResultsResult.DEFAULT_SORT
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)

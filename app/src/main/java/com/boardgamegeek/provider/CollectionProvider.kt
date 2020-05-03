@@ -15,13 +15,13 @@ import com.boardgamegeek.util.SelectionBuilder
 class CollectionProvider : BasicProvider() {
     override fun getType(uri: Uri) = BggContract.Collection.CONTENT_TYPE
 
-    override fun getPath() = PATH_COLLECTION
+    override val path = PATH_COLLECTION
 
     override val table = Tables.COLLECTION
 
-    override fun getDefaultSortOrder() = BggContract.Collection.DEFAULT_SORT
+    override val defaultSortOrder = BggContract.Collection.DEFAULT_SORT
 
-    override fun buildExpandedSelection(uri: Uri, projection: Array<String>): SelectionBuilder {
+    override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
                 .table(Tables.COLLECTION_JOIN_GAMES)
                 .mapToTable(_ID, Tables.COLLECTION)
@@ -33,7 +33,7 @@ class CollectionProvider : BasicProvider() {
                 .map(Plays.MAX_DATE, "(SELECT MAX(${Plays.DATE}) FROM ${Tables.PLAYS} WHERE ${Tables.PLAYS}.${Plays.OBJECT_ID}=${Tables.GAMES}.$GAME_ID)")
         var groupBy = uri.getQueryParameter(QUERY_KEY_GROUP_BY).orEmpty()
         val having = uri.getQueryParameter(QUERY_KEY_HAVING).orEmpty()
-        for (column in projection) {
+        for (column in projection.orEmpty()) {
             if (column.startsWith(Games.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
                 val playerCount = Games.getRecommendedPlayerCountFromColumn(column)
                 if (playerCount.isNotEmpty()) {

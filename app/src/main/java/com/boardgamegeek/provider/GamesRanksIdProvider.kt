@@ -8,7 +8,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesRanksIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = GameRanks.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_GAMES/$PATH_RANKS/#"
+    override val path = "$PATH_GAMES/$PATH_RANKS/#"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val rankId = GameRanks.getRankId(uri)

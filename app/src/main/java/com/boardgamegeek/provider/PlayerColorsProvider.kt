@@ -8,9 +8,9 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 class PlayerColorsProvider : BasicProvider() {
     override fun getType(uri: Uri) = PlayerColors.CONTENT_TYPE
 
-    override fun getPath() = PATH_PLAYER_COLORS
+    override val path = PATH_PLAYER_COLORS
 
     override val table = Tables.PLAYER_COLORS
 
-    override fun getDefaultSortOrder() = PlayerColors.DEFAULT_SORT
+    override val defaultSortOrder = PlayerColors.DEFAULT_SORT
 }

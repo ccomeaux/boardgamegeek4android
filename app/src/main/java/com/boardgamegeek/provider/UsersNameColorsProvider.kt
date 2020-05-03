@@ -14,9 +14,9 @@ import com.boardgamegeek.util.SelectionBuilder
 class UsersNameColorsProvider : BaseProvider() {
     override fun getType(uri: Uri) = PlayerColors.CONTENT_TYPE
 
-    override fun getPath() = "$PATH_USERS/*/$PATH_COLORS"
+    override val path = "$PATH_USERS/*/$PATH_COLORS"
 
-    override fun getDefaultSortOrder() = PlayerColors.DEFAULT_SORT
+    override val defaultSortOrder = PlayerColors.DEFAULT_SORT
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder().table(Tables.PLAYER_COLORS)

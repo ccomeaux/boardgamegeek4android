@@ -12,9 +12,9 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesIdRankProvider : BaseProvider() {
     override fun getType(uri: Uri) = GameRanks.CONTENT_TYPE
 
-    public override fun getPath() = "$PATH_GAMES/#/$PATH_RANKS"
+    override val path = "$PATH_GAMES/#/$PATH_RANKS"
 
-    override fun getDefaultSortOrder() = GameRanks.DEFAULT_SORT
+    override val defaultSortOrder = GameRanks.DEFAULT_SORT
 
     public override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder()

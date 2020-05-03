@@ -9,9 +9,9 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class CollectionAcquiredFromProvider : BaseProvider() {
-    override fun getPath() = "$PATH_COLLECTION/$PATH_ACQUIRED_FROM"
+    override val path = "$PATH_COLLECTION/$PATH_ACQUIRED_FROM"
 
-    override fun getDefaultSortOrder() = SORT_ACQUIRED_FROM
+    override val defaultSortOrder = SORT_ACQUIRED_FROM
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder()

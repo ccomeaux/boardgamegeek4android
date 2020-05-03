@@ -10,18 +10,18 @@ import com.boardgamegeek.util.SelectionBuilder
 class MechanicsProvider : BasicProvider() {
     override fun getType(uri: Uri) = Mechanics.CONTENT_TYPE
 
-    override fun getPath() = PATH_MECHANICS
+    override val path = PATH_MECHANICS
 
     override val table = Tables.MECHANICS
 
-    override fun getDefaultSortOrder() = Mechanics.DEFAULT_SORT
+    override val defaultSortOrder = Mechanics.DEFAULT_SORT
 
     override val insertedIdColumn = Mechanics.MECHANIC_ID
 
-    override fun buildExpandedSelection(uri: Uri, projection: Array<String>): SelectionBuilder {
+    override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
                 .mapToTable(Mechanics.MECHANIC_ID, table)
-        if (projection.contains(Mechanics.ITEM_COUNT)) {
+        if (projection.orEmpty().contains(Mechanics.ITEM_COUNT)) {
             builder
                     .table(Tables.MECHANICS_JOIN_COLLECTION)
                     .groupBy("$table.${Mechanics.MECHANIC_ID}")

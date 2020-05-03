@@ -24,11 +24,13 @@ abstract class BasicProvider : BaseProvider() {
         } else null
     }
 
-    protected open fun insertedUri(values: ContentValues, rowId: Long): Uri {
+    protected open fun insertedUri(values: ContentValues?, rowId: Long): Uri? {
         return if (insertedIdColumn.isNullOrBlank())
             buildBasicUri(path, rowId)
         else {
-            buildBasicUri(path, values.getAsLong(insertedIdColumn))
+            values?.getAsLong(insertedIdColumn)?.let {
+                buildBasicUri(path, it)
+            }
         }
     }
 }

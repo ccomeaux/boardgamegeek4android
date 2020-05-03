@@ -15,9 +15,9 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesIdColorsProvider : BaseProvider() {
     override fun getType(uri: Uri) = GameColors.CONTENT_TYPE
 
-    override fun getPath() = "$PATH_GAMES/#/$PATH_COLORS"
+    override val path = "$PATH_GAMES/#/$PATH_COLORS"
 
-    override fun getDefaultSortOrder() = GameColors.DEFAULT_SORT
+    override val defaultSortOrder = GameColors.DEFAULT_SORT
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)

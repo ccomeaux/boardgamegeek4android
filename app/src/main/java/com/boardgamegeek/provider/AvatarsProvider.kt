@@ -9,7 +9,7 @@ import timber.log.Timber
 import java.io.IOException
 
 class AvatarsProvider : BaseProvider() {
-    override fun getPath() = PATH_AVATARS
+    override val path = PATH_AVATARS
 
     override fun delete(context: Context, db: SQLiteDatabase, uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         return try {

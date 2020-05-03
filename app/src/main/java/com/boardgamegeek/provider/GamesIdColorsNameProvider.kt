@@ -13,7 +13,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesIdColorsNameProvider : BaseProvider() {
     override fun getType(uri: Uri) = GameColors.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_GAMES/#/$PATH_COLORS/*"
+    override val path = "$PATH_GAMES/#/$PATH_COLORS/*"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)

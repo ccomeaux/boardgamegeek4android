@@ -9,7 +9,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class BuddiesIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Buddies.CONTENT_ITEM_TYPE
 
-    override fun getPath(): String = "$PATH_BUDDIES/*"
+    override val path: String = "$PATH_BUDDIES/*"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val buddyName = Buddies.getBuddyName(uri)

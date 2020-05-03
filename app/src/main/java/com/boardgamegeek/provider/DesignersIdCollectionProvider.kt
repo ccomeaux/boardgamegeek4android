@@ -9,7 +9,7 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class DesignersIdCollectionProvider : BaseProvider() {
-    override fun getPath() = "$PATH_DESIGNERS/#/$PATH_COLLECTION"
+    override val path = "$PATH_DESIGNERS/#/$PATH_COLLECTION"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val designerId = Designers.getDesignerId(uri)

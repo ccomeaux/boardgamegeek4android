@@ -9,11 +9,11 @@ import com.boardgamegeek.util.SelectionBuilder
 class GamesProvider : BasicProvider() {
     override fun getType(uri: Uri) = Games.CONTENT_TYPE
 
-    public override fun getPath() = PATH_GAMES
+    override val path = PATH_GAMES
 
     override val table = Tables.GAMES
 
-    override fun getDefaultSortOrder() = Games.DEFAULT_SORT
+    override val defaultSortOrder = Games.DEFAULT_SORT
 
     override val insertedIdColumn = Games.GAME_ID
 

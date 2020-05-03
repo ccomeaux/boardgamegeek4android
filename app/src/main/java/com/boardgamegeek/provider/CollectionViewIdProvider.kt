@@ -10,7 +10,7 @@ import com.boardgamegeek.util.SelectionBuilder
 class CollectionViewIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = CollectionViews.CONTENT_ITEM_TYPE
 
-    override fun getPath() = "$PATH_COLLECTION_VIEWS/#"
+    override val path = "$PATH_COLLECTION_VIEWS/#"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val filterId = CollectionViews.getViewId(uri).toLong()

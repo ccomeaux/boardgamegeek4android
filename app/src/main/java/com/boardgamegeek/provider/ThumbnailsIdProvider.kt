@@ -5,7 +5,7 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.PATH_THUMBNAILS
 
 class ThumbnailsIdProvider : BaseFileProvider() {
-    override fun getPath() = "$PATH_THUMBNAILS/*"
+    override val path = "$PATH_THUMBNAILS/*"
 
     override val contentPath = PATH_THUMBNAILS
 

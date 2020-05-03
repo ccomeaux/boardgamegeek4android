@@ -8,7 +8,7 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class CategoriesIdCollectionProvider : BaseProvider() {
-    override fun getPath() = "$PATH_CATEGORIES/#/$PATH_COLLECTION"
+    override val path = "$PATH_CATEGORIES/#/$PATH_COLLECTION"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val categoryId = Categories.getCategoryId(uri)

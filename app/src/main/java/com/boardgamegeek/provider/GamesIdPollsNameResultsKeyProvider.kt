@@ -1,7 +1,6 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import android.provider.BaseColumns
 import android.provider.BaseColumns._ID
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.GamePollResultsColumns.POLL_ID
@@ -12,7 +11,7 @@ import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdPollsNameResultsKeyProvider : BaseProvider() {
-    override fun getPath() = "$PATH_GAMES/#/$PATH_POLLS/*/$PATH_POLL_RESULTS/*"
+    override val path = "$PATH_GAMES/#/$PATH_POLLS/*/$PATH_POLL_RESULTS/*"
 
     override fun getType(uri: Uri) = GamePollResults.CONTENT_ITEM_TYPE
 

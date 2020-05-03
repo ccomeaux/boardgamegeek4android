@@ -4,7 +4,7 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 
 class BuddiesIdAvatarProvider : IndirectFileProvider() {
-    override fun getPath() = "$PATH_BUDDIES/*/$PATH_AVATARS"
+    override val path = "$PATH_BUDDIES/*/$PATH_AVATARS"
 
     override val contentPath = PATH_AVATARS
 

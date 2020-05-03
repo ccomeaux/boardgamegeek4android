@@ -11,9 +11,9 @@ import com.boardgamegeek.util.SelectionBuilder
 class CollectionViewIdFiltersProvider : BaseProvider() {
     override fun getType(uri: Uri) = CollectionViewFilters.CONTENT_TYPE
 
-    override fun getPath() = "$PATH_COLLECTION_VIEWS/#/$PATH_FILTERS"
+    override val path = "$PATH_COLLECTION_VIEWS/#/$PATH_FILTERS"
 
-    override fun getDefaultSortOrder() = CollectionViewFilters.DEFAULT_SORT
+    override val defaultSortOrder = CollectionViewFilters.DEFAULT_SORT
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS, CollectionViewFilters.VIEW_ID)
@@ -25,7 +25,7 @@ class CollectionViewIdFiltersProvider : BaseProvider() {
                 "${Tables.COLLECTION_VIEWS}.${CollectionViews._ID}")
     }
 
-    override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {
+    override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         val filterId = CollectionViews.getViewId(uri).toLong()
         values.put(CollectionViewFilters.VIEW_ID, filterId)
         val rowId = db.insertOrThrow(Tables.COLLECTION_VIEW_FILTERS, null, values)
