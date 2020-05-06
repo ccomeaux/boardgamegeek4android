@@ -6,13 +6,13 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
 import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.extensions.VIEW_ID_COLLECTION
 import com.boardgamegeek.sorter.CollectionSorterFactory
-import com.boardgamegeek.util.PreferencesUtils
 
 class CollectionViewRepository(val context: BggApplication) {
     private val dao = CollectionViewDao(context)
     private val defaultView = CollectionViewEntity(
-            PreferencesUtils.VIEW_ID_COLLECTION,
+            VIEW_ID_COLLECTION,
             context.getString(R.string.title_collection),
             CollectionSorterFactory.TYPE_DEFAULT
     )

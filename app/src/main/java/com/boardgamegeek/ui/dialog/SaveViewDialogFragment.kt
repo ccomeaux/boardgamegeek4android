@@ -24,6 +24,8 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
 import kotlinx.android.synthetic.main.dialog_save_view.*
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
+import com.boardgamegeek.extensions.VIEW_ID_COLLECTION
 
 class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
@@ -84,8 +86,8 @@ class SaveViewDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         nameView.setAndSelectExistingText(name)
-        val viewDefaultId = requireContext().getViewDefaultId()
-        defaultViewCheckBox.isChecked = viewDefaultId != PreferencesUtils.VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
+        val viewDefaultId = defaultSharedPreferences.getViewDefaultId()
+        defaultViewCheckBox.isChecked = viewDefaultId != VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
         descriptionView.text = description
     }
 

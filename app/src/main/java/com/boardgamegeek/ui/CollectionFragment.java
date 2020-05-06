@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
@@ -112,6 +114,8 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 import static android.app.Activity.RESULT_OK;
+import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
+import static com.boardgamegeek.extensions.PreferenceUtils.VIEW_ID_COLLECTION;
 
 public class CollectionFragment extends Fragment implements
 	LoaderCallbacks<Cursor>,
@@ -136,7 +140,7 @@ public class CollectionFragment extends Fragment implements
 
 	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
-	private long viewId = PreferencesUtils.VIEW_ID_COLLECTION;
+	private long viewId = VIEW_ID_COLLECTION;
 	private String viewName = "";
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
@@ -146,6 +150,7 @@ public class CollectionFragment extends Fragment implements
 	private boolean isSyncing;
 	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
+	private SharedPreferences prefs;
 
 	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
 		Bundle args = new Bundle();
@@ -166,6 +171,7 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 		readBundle(getArguments());
 		setHasOptionsMenu(true);
 	}
@@ -444,7 +450,7 @@ public class CollectionFragment extends Fragment implements
 
 	private String buildDefaultWhereClause() {
 		if (TextUtils.isEmpty(defaultWhereClause)) {
-			defaultWhereClause = PreferenceUtils.getSyncStatusesAsSql(requireContext());
+			defaultWhereClause = PreferenceUtils.getSyncStatusesAsSql(prefs);
 		}
 		return defaultWhereClause;
 	}
@@ -519,8 +525,8 @@ public class CollectionFragment extends Fragment implements
 
 	private void setEmptyText() {
 		if (emptyButton == null) return;
-		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
-			final Set<String> syncedStatuses = PreferenceUtils.getSyncStatuses(getContext());
+		final Set<String> syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null);
+		if (syncedStatuses == null || syncedStatuses.size() == 0) {
 			if (SyncPrefUtils.noPreviousCollectionSync(SyncPrefs.getPrefs(requireContext()))) {
 				setEmptyStateForNoAction(R.string.empty_collection_sync_never);
 			} else if (hasFiltersApplied()) {

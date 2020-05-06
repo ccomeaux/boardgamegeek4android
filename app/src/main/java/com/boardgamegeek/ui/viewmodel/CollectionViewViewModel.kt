@@ -1,12 +1,13 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
 import com.boardgamegeek.extensions.getViewDefaultId
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.putViewDefaultId
 import com.boardgamegeek.extensions.removeViewDefaultId
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -18,6 +19,7 @@ import com.boardgamegeek.tasks.SelectCollectionViewTask
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CollectionViewRepository(getApplication())
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     val views: LiveData<List<CollectionViewEntity>> = repository.load()
 
@@ -62,7 +64,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                     it
             )
         }
-        _selectedViewId.value = application.getViewDefaultId()
+        _selectedViewId.value = prefs.getViewDefaultId()
     }
 
     val selectedViewId: LiveData<Long>
@@ -109,7 +111,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun clearView() {
-        selectView(getApplication<BggApplication>().getViewDefaultId())
+        selectView(prefs.getViewDefaultId())
     }
 
     fun setSort(sortType: Int) {
@@ -188,16 +190,16 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     fun deleteView(viewId: Long) {
         repository.deleteView(viewId)
         if (viewId == _selectedViewId.value) {
-            selectView(getApplication<BggApplication>().getViewDefaultId())
+            selectView(prefs.getViewDefaultId())
         }
     }
 
     private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {
         if (isDefault) {
-            getApplication<BggApplication>().putViewDefaultId(viewId)
+            prefs.putViewDefaultId(viewId)
         } else {
-            if (viewId == getApplication<BggApplication>().getViewDefaultId()) {
-                getApplication<BggApplication>().removeViewDefaultId()
+            if (viewId == prefs.getViewDefaultId()) {
+                prefs.removeViewDefaultId()
             }
         }
     }

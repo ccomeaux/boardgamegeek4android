@@ -23,6 +23,7 @@ import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
 import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_play_stats.*
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.util.*
 
 class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -42,8 +43,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                     .setTitle(R.string.title_modify_collection_status)
                     .setMessage(R.string.msg_modify_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
-                        context.addSyncStatus(COLLECTION_STATUS_OWN)
-                        context.addSyncStatus(COLLECTION_STATUS_PLAYED)
+                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_OWN)
+                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_PLAYED)
                         SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         bindCollectionStatusMessage()
                     }
@@ -97,8 +98,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun bindCollectionStatusMessage() {
-        isOwnedSynced = context.isStatusSetToSync(COLLECTION_STATUS_OWN)
-        isPlayedSynced = context.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
+        isOwnedSynced = defaultSharedPreferences.isStatusSetToSync(COLLECTION_STATUS_OWN)
+        isPlayedSynced = defaultSharedPreferences.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
         collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 

@@ -2,6 +2,7 @@ package com.boardgamegeek.db
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
 import androidx.lifecycle.LiveData
@@ -19,6 +20,7 @@ import timber.log.Timber
 
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
+    private val prefs: SharedPreferences by lazy { context.preferences() }
 
     fun load(includeDeletedItems: Boolean = false): List<CollectionItemEntity> {
         val uri = Collection.CONTENT_URI
@@ -225,7 +227,7 @@ class CollectionDao(private val context: BggApplication) {
         val list = arrayListOf<BriefGameEntity>()
 
         val selection = StringBuilder()
-        val statuses = context.getSyncStatuses() ?: emptySet()
+        val statuses = prefs.getSyncStatusesOrDefault()
         for (status in statuses) {
             if (status.isBlank()) continue
             if (selection.isNotBlank()) selection.append(" OR ")

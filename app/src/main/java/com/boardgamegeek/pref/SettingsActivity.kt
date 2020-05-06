@@ -11,10 +11,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
-import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.util.PreferencesUtils
@@ -24,6 +21,7 @@ import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.toast
 
 class SettingsActivity : DrawerActivity() {
@@ -169,8 +167,8 @@ class SettingsActivity : DrawerActivity() {
 
         private fun updateSyncStatusSummary(key: String) {
             val pref = findPreference<Preference>(key) ?: return
-            val statuses = activity.getSyncStatuses()
-            pref.summary = if (statuses == null || statuses.isEmpty()) {
+            val statuses = defaultSharedPreferences.getSyncStatusesOrDefault()
+            pref.summary = if (statuses.isEmpty()) {
                 getString(R.string.pref_list_empty)
             } else {
                 entryValues.indices

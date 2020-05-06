@@ -26,7 +26,6 @@ import androidx.preference.PreferenceManager;
  * Utility for getting and putting preferences.
  */
 public class PreferencesUtils {
-	public static final long VIEW_ID_COLLECTION = -1;
 	public static final int INVALID_ARTICLE_ID = -1;
 
 	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";

@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -14,9 +15,7 @@ import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.extensions.getStatsCalculatedTimestampPublishers
-import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.extensions.setStatsCalculatedTimestampPublishers
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.CompanyResponse2
 import com.boardgamegeek.livedata.CalculatingListLoader
@@ -31,6 +30,7 @@ class PublisherRepository(val application: BggApplication) {
     private val dao = PublisherDao(application)
     private var loader = getLoader(PublisherDao.SortType.NAME)
     private val sort = MutableLiveData<PublisherDao.SortType>()
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     fun loadPublishers(sortBy: PublisherDao.SortType): LiveData<List<CompanyEntity>> {
         loader = getLoader(sortBy)
@@ -47,7 +47,9 @@ class PublisherRepository(val application: BggApplication) {
             override fun loadFromDatabase() = dao.loadPublishersAsLiveData(sortBy)
 
             override fun shouldCalculate(data: List<CompanyEntity>?): Boolean {
-                return data != null && application.getStatsCalculatedTimestampPublishers().isOlderThan(1, TimeUnit.HOURS)
+                val lastCalculated = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L]
+                        ?: 0L
+                return data != null && lastCalculated.isOlderThan(1, TimeUnit.HOURS)
             }
 
             override fun sortList(data: List<CompanyEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
@@ -60,7 +62,7 @@ class PublisherRepository(val application: BggApplication) {
             }
 
             override fun finishCalculating() {
-                application.setStatsCalculatedTimestampPublishers()
+                prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
             }
         }
     }
@@ -121,7 +123,8 @@ class PublisherRepository(val application: BggApplication) {
 
     @WorkerThread
     private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int) {
-        val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore ?: 0 else oldScore
+        val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore
+                ?: 0 else oldScore
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Publishers.WHITMORE_SCORE, newScore)

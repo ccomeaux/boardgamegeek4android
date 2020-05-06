@@ -12,10 +12,7 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.applyBatch
-import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.getSyncPlays
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -235,6 +232,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             AccountUtils.getUsername(application)
         }
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
+        private val prefs: SharedPreferences by lazy { application.preferences() }
 
         private val persister = PlayPersister(application)
         private var syncInitiatedTimestamp = 0L
@@ -250,7 +248,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             get() = R.string.title_plays
 
         override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
-            return application.getSyncPlays() && playsRateLimiter.shouldProcess(0)
+            return prefs[PREFERENCES_KEY_SYNC_PLAYS, false] == true && playsRateLimiter.shouldProcess(0)
         }
 
         override fun createCall(page: Int): Call<PlaysResponse> {

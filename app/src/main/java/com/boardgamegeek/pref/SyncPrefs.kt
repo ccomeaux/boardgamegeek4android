@@ -5,11 +5,11 @@ package com.boardgamegeek.pref
 import android.accounts.AccountManager
 import android.content.Context
 import android.content.SharedPreferences
-import com.boardgamegeek.PreferenceHelper
-import com.boardgamegeek.PreferenceHelper.get
-import com.boardgamegeek.PreferenceHelper.remove
-import com.boardgamegeek.PreferenceHelper.set
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.remove
+import com.boardgamegeek.extensions.set
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_BUDDIES
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_PARTIAL
@@ -26,7 +26,7 @@ class SyncPrefs {
         const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
         @JvmStatic
-        fun getPrefs(context: Context) = PreferenceHelper.preferences(context, NAME)
+        fun getPrefs(context: Context) = context.preferences(NAME)
 
         @JvmStatic
         fun migrate(context: Context) {

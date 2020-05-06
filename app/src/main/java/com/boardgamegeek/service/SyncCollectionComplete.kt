@@ -1,7 +1,6 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.SharedPreferences
 import android.content.SyncResult
 import android.text.format.DateUtils
 import androidx.collection.ArrayMap
@@ -9,7 +8,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.getSyncStatusesOrDefault
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
@@ -29,7 +28,6 @@ import java.util.concurrent.TimeUnit
 class SyncCollectionComplete(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     private val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
 
@@ -37,7 +35,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     private val syncableStatuses: List<String>
         get() {
-            val statuses = context.getSyncStatuses()?.toMutableList() ?: mutableListOf()
+            val statuses = prefs.getSyncStatusesOrDefault().toMutableList()
             // Played games should be synced first - they don't respect the "exclude" flag
             if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
                 statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED)
@@ -56,7 +54,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 return
             }
 
-            if (!context.isCollectionSetToSync()) {
+            if (!prefs.isCollectionSetToSync()) {
                 Timber.i("Collection sync not set in preferences")
                 return
             }

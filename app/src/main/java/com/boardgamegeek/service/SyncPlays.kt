@@ -1,20 +1,23 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.SharedPreferences
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.getSyncPlays
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.*
+import com.boardgamegeek.pref.getPlaysNewestTimestamp
+import com.boardgamegeek.pref.getPlaysOldestTimestamp
+import com.boardgamegeek.pref.setPlaysNewestTimestamp
+import com.boardgamegeek.pref.setPlaysOldestTimestamp
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Response
@@ -24,7 +27,6 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
     private var startTime: Long = 0
     private val persister: PlayPersister = PlayPersister(context)
     private val playDao: PlayDao = PlayDao(application)
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
@@ -35,7 +37,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
     override fun execute() {
         Timber.i("Syncing plays...")
         try {
-            if (!context.getSyncPlays()) {
+            if (prefs[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
                 Timber.i("...plays not set to sync")
                 return
             }

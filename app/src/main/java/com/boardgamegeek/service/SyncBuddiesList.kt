@@ -1,17 +1,16 @@
 package com.boardgamegeek.service
 
 import android.accounts.Account
-import android.content.SharedPreferences
 import android.content.SyncResult
 import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.extensions.getSyncBuddies
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.User
-import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.provider.BggContract
@@ -28,7 +27,6 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
     private var currentDetailResId: Int = 0
     private val userDao = UserDao(this.application)
     private var updateTimestamp = System.currentTimeMillis()
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
@@ -39,7 +37,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         Timber.i("Syncing list of buddies...")
         try {
-            if (!context.getSyncBuddies()) {
+            if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] != true) {
                 Timber.i("...buddies not set to sync")
                 return
             }

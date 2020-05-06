@@ -11,6 +11,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_person_stats.*
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.util.*
 
 class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
@@ -26,8 +27,8 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
                     .setTitle(R.string.title_modify_collection_status)
                     .setMessage(R.string.msg_modify_collection_status)
                     .setPositiveButton(R.string.modify) { _, _ ->
-                        context.addSyncStatus(COLLECTION_STATUS_PLAYED)
-                        context.addSyncStatus(COLLECTION_STATUS_RATED)
+                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_PLAYED)
+                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_RATED)
                         SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         bindCollectionStatusMessage()
                     }
@@ -58,7 +59,7 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
     }
 
     private fun bindCollectionStatusMessage() {
-        collectionStatusGroup.isVisible = !context.isStatusSetToSync(COLLECTION_STATUS_RATED)
+        collectionStatusGroup.isVisible = !defaultSharedPreferences.isStatusSetToSync(COLLECTION_STATUS_RATED)
     }
 
     private fun showEmpty() {

@@ -1,16 +1,14 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
-import com.boardgamegeek.extensions.firstChar
-import com.boardgamegeek.extensions.isStatusSetToSync
-import com.boardgamegeek.extensions.orderOfMagnitude
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 
 class PublishersViewModel(application: Application) : AndroidViewModel(application) {
@@ -19,13 +17,14 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private val publisherRepository = PublisherRepository(getApplication())
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private val _sort = MutableLiveData<PublishersSort>()
     val sort: LiveData<PublishersSort>
         get() = _sort
 
     init {
-        val initialSort = if (application.isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
             SortType.ITEM_COUNT

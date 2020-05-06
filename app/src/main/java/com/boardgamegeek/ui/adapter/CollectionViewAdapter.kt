@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.util.PreferencesUtils.VIEW_ID_COLLECTION
+import com.boardgamegeek.extensions.VIEW_ID_COLLECTION
 
 class CollectionViewAdapter(context: Context) :
         ArrayAdapter<CollectionViewEntity>(context,

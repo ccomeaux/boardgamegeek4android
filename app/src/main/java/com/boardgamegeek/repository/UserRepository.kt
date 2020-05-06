@@ -8,8 +8,10 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
-import com.boardgamegeek.extensions.getSyncBuddies
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit
 
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     fun loadUser(username: String): LiveData<RefreshableResource<UserEntity>> {
         return object : RefreshableResourceLoader<UserEntity, User>(application) {
@@ -61,7 +64,7 @@ class UserRepository(val application: BggApplication) {
             }
 
             override fun shouldRefresh(data: List<UserEntity>?): Boolean {
-                if (!application.getSyncBuddies()) return false
+                if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] != true) return false
                 accountName = Authenticator.getAccount(application)?.name
                 if (accountName == null) return false
                 if (data == null) return true

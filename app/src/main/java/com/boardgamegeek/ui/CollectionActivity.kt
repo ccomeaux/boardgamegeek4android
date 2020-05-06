@@ -23,6 +23,7 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import com.crashlytics.android.answers.CustomEvent
 import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 
@@ -57,7 +58,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
         viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
         if (savedInstanceState == null) {
-            val viewId = intent.getLongExtra(KEY_VIEW_ID, this.getViewDefaultId())
+            val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultSharedPreferences.getViewDefaultId())
             viewModel.selectView(viewId)
         }
     }

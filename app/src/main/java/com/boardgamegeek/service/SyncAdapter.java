@@ -8,11 +8,13 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
@@ -52,6 +54,9 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import timber.log.Timber;
 
+import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_BUDDIES;
+import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_PLAYS;
+
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private final BggApplication application;
 	private SyncTask currentTask;
@@ -89,9 +94,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
 		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
 
-		String statuses = StringUtils.formatList(Collections.singletonList(PreferenceUtils.getSyncStatuses(getContext())));
-		if (PreferenceUtils.getSyncPlays(getContext())) statuses += " | plays";
-		if (PreferenceUtils.getSyncBuddies(getContext())) statuses += " | buddies";
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+		String statuses = StringUtils.formatList(Collections.singletonList(PreferenceUtils.getSyncStatusesOrDefault(prefs)));
+		if (prefs.getBoolean(PREFERENCES_KEY_SYNC_PLAYS,false)) statuses += " | plays";
+		if (prefs.getBoolean(PREFERENCES_KEY_SYNC_BUDDIES,false)) statuses += " | buddies";
 		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {

@@ -4,7 +4,8 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.extensions.getSyncBuddies
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.util.RemoteConfig
@@ -29,7 +30,7 @@ abstract class SyncBuddiesDetail(application: BggApplication, service: BggServic
     override fun execute() {
         Timber.i(logMessage)
         try {
-            if (!context.getSyncBuddies()) {
+            if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] != true) {
                 Timber.i("...buddies not set to sync")
                 return
             }

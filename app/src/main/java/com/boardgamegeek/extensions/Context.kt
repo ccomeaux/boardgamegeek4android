@@ -4,16 +4,23 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.text.Html
 import android.text.SpannedString
 import android.text.TextUtils
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import androidx.preference.PreferenceManager
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
+
+fun Context.preferences(name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
+    PreferenceManager.getDefaultSharedPreferences(this)
+else
+    this.getSharedPreferences(name, Context.MODE_PRIVATE)
 
 @Suppress("DEPRECATION")
 fun Context.getText(@StringRes id: Int, vararg args: Any): CharSequence {

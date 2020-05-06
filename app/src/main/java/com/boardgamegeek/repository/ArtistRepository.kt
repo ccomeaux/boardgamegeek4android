@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -11,9 +12,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.getStatsCalculatedTimestampArtists
-import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.extensions.setStatsCalculatedTimestampArtists
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Person
@@ -30,6 +29,7 @@ class ArtistRepository(val application: BggApplication) {
     private val dao = ArtistDao(application)
     private var loader = getLoader(ArtistDao.SortType.NAME)
     private val sort = MutableLiveData<ArtistDao.SortType>()
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     fun loadArtists(sortBy: ArtistDao.SortType): LiveData<List<PersonEntity>> {
         loader = getLoader(sortBy)
@@ -46,7 +46,9 @@ class ArtistRepository(val application: BggApplication) {
             override fun loadFromDatabase() = dao.loadArtistsAsLiveData(sortBy)
 
             override fun shouldCalculate(data: List<PersonEntity>?): Boolean {
-                return data != null && application.getStatsCalculatedTimestampArtists().isOlderThan(1, TimeUnit.HOURS)
+                val lastCalculated = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L]
+                        ?: 0L
+                return data != null && lastCalculated.isOlderThan(1, TimeUnit.HOURS)
             }
 
             override fun sortList(data: List<PersonEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
@@ -59,7 +61,7 @@ class ArtistRepository(val application: BggApplication) {
             }
 
             override fun finishCalculating() {
-                application.setStatsCalculatedTimestampArtists()
+                prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS] = System.currentTimeMillis()
             }
         }
     }
