@@ -106,7 +106,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
         if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-            messages.add(getString(R.string.incomplete_games).toLowerCase(Locale.getDefault()))
+            messages.add(getString(R.string.incomplete_plays).toLowerCase(Locale.getDefault()))
         }
         if (!PreferencesUtils.logPlayStatsExpansions(context)) {
             messages.add(getString(R.string.expansions).toLowerCase(Locale.getDefault()))

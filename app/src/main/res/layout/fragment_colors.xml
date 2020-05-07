@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-	android:id="@+id/root_container"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/containerView"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<LinearLayout
-		android:id="@android:id/progress"
+		android:id="@+id/progressView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:gravity="center"
@@ -16,25 +15,26 @@
 		<ProgressBar
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content" />
 	</LinearLayout>
 
 	<TextView
-		android:id="@android:id/empty"
+		android:id="@+id/emptyView"
 		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:text="@string/empty_colors"
-		android:visibility="gone"/>
+		android:visibility="gone" />
 
 	<androidx.recyclerview.widget.RecyclerView
-		android:id="@android:id/list"
+		android:id="@+id/recyclerView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:clipToPadding="false"
-		android:paddingBottom="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_standard"
-		android:visibility="gone"/>
+		android:paddingBottom="@dimen/padding_standard"
+		android:visibility="gone"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		android:id="@+id/fab"
@@ -46,5 +46,5 @@
 		android:visibility="gone"
 		app:elevation="@dimen/fab_elevation"
 		app:pressedTranslationZ="@dimen/fab_translation"
-		app:rippleColor="@color/medium_blue"/>
+		app:rippleColor="@color/medium_blue" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

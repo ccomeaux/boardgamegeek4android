@@ -4,6 +4,7 @@ import com.boardgamegeek.io.model.CollectionResponse;
 import com.boardgamegeek.io.model.CompanyResponse2;
 import com.boardgamegeek.io.model.ForumListResponse;
 import com.boardgamegeek.io.model.GeekListResponse;
+import com.boardgamegeek.io.model.HotnessResponse;
 import com.boardgamegeek.io.model.Person;
 import com.boardgamegeek.io.model.PersonResponse2;
 import com.boardgamegeek.io.model.PlaysResponse;
@@ -13,7 +14,6 @@ import com.boardgamegeek.io.model.ThreadResponse;
 import com.boardgamegeek.io.model.User;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekListsResponse;
-import com.boardgamegeek.model.HotnessResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
