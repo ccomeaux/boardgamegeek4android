@@ -5,7 +5,6 @@ package com.boardgamegeek.extensions
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.PreferencesUtils
 import java.util.*
 
 /**
@@ -125,6 +124,93 @@ fun SharedPreferences.getSyncStatusesAsSql(): String {
     }
     return selection.toString()
 }
+
+// region PLAY LOGGING
+
+private const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
+private const val LOG_EDIT_PLAYER = "logEditPlayer"
+
+fun SharedPreferences.getEditPlayerPrompted(): Boolean {
+    return this[LOG_EDIT_PLAYER_PROMPTED, false] ?: false
+}
+
+fun SharedPreferences.putEditPlayerPrompted() {
+    this[LOG_EDIT_PLAYER_PROMPTED] = true
+}
+
+fun SharedPreferences.getEditPlayer(): Boolean {
+    return this[LOG_EDIT_PLAYER, false] ?: false
+}
+
+fun SharedPreferences.putEditPlayer(value: Boolean) {
+    this[LOG_EDIT_PLAYER] = value
+}
+
+fun SharedPreferences.showLogPlay(): Boolean {
+    return showLogPlayField("logPlay", "logHideLog", true)
+}
+
+fun SharedPreferences.showQuickLogPlay(): Boolean {
+    return showLogPlayField("quickLogPlay", "logHideQuickLog", true)
+}
+
+fun SharedPreferences.showLogPlayLocation(): Boolean {
+    return showLogPlayField("logPlayLocation", "logHideLocation")
+}
+
+fun SharedPreferences.showLogPlayLength(): Boolean {
+    return showLogPlayField("logPlayLength", "logHideLength")
+}
+
+fun SharedPreferences.showLogPlayIncomplete(): Boolean {
+    return showLogPlayField("logPlayIncomplete", "logHideIncomplete")
+}
+
+fun SharedPreferences.showLogPlayNoWinStats(): Boolean {
+    return showLogPlayField("logPlayNoWinStats", "logHideNoWinStats")
+}
+
+fun SharedPreferences.showLogPlayComments(): Boolean {
+    return showLogPlayField("logPlayComments", "logHideComments")
+}
+
+fun SharedPreferences.showLogPlayQuantity(): Boolean {
+    return this["logPlayQuantity", false] ?: false
+}
+
+fun SharedPreferences.showLogPlayPlayerList(): Boolean {
+    return showLogPlayField("logPlayPlayerList", "logHidePlayerList", true)
+}
+
+fun SharedPreferences.showLogPlayerTeamColor(): Boolean {
+    return showLogPlayField("logPlayerTeamColor", "logHideTeamColor")
+}
+
+fun SharedPreferences.showLogPlayerPosition(): Boolean {
+    return showLogPlayField("logPlayerPosition", "logHidePosition")
+}
+
+fun SharedPreferences.showLogPlayerScore(): Boolean {
+    return showLogPlayField("logPlayerScore", "logHideScore")
+}
+
+fun SharedPreferences.showLogPlayerRating(): Boolean {
+    return showLogPlayField("logPlayerRating", "logHideRating")
+}
+
+fun SharedPreferences.showLogPlayerNew(): Boolean {
+    return showLogPlayField("logPlayerNew", "logHideNew")
+}
+
+fun SharedPreferences.showLogPlayerWin(): Boolean {
+    return showLogPlayField("logPlayerWin", "logHideWin")
+}
+
+private fun SharedPreferences.showLogPlayField(key: String, oldKey: String, defaultValue: Boolean = false): Boolean {
+    return this[key, !(this[oldKey, !defaultValue] ?: !defaultValue)] ?: defaultValue
+}
+
+// endregion PLAY LOGGING
 
 private fun SharedPreferences.putStringSet(key: String, value: Set<String>) {
     this.edit {

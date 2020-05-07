@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.util.Pair
@@ -19,7 +20,6 @@ import com.boardgamegeek.ui.adapter.SearchResultsAdapter
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
@@ -40,6 +40,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         }
     }
 
+    private val prefs: SharedPreferences by lazy { requireActivity().preferences() }
     private val viewModel by activityViewModels<SearchViewModel>()
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {
@@ -193,8 +194,8 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = searchResultsAdapter.selectedItemCount
-        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && PreferencesUtils.showLogPlay(context)
-        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && PreferencesUtils.showQuickLogPlay(context)
+        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && prefs.showLogPlay()
+        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && prefs.showQuickLogPlay()
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }

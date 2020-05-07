@@ -28,7 +28,6 @@ import androidx.preference.PreferenceManager;
 public class PreferencesUtils {
 	public static final int INVALID_ARTICLE_ID = -1;
 
-	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
@@ -43,11 +42,6 @@ public class PreferencesUtils {
 	public static final String KEY_SYNC_STATUSES_OLD = "syncStatuses";
 	private static final String KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer";
 	private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
-	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
-	private static final String LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions";
-	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
-	private static final String LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted";
-	private static final String LOG_EDIT_PLAYER = "logEditPlayer";
 
 	private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
 
@@ -57,77 +51,10 @@ public class PreferencesUtils {
 	private PreferencesUtils() {
 	}
 
-	public static boolean showLogPlay(Context context) {
-		return getBoolean(context, "logPlay", !getBoolean(context, "logHideLog", false));
-	}
-
-	public static boolean showQuickLogPlay(Context context) {
-		return getBoolean(context, "quickLogPlay", !getBoolean(context, "logHideQuickLog", false));
-	}
-
-	public static boolean getEditPlayerPrompted(Context context) {
-		return getBoolean(context, LOG_EDIT_PLAYER_PROMPTED, false);
-	}
-
-	public static boolean putEditPlayerPrompted(Context context) {
-		return putBoolean(context, LOG_EDIT_PLAYER_PROMPTED, true);
-	}
-
-	public static boolean getEditPlayer(Context context) {
-		return getBoolean(context, LOG_EDIT_PLAYER, false);
-	}
-
-	public static boolean putEditPlayer(Context context, boolean value) {
-		return putBoolean(context, LOG_EDIT_PLAYER, value);
-	}
-
-	public static boolean showLogPlayQuantity(Context context) {
-		return getBoolean(context, "logPlayQuantity", false);
-	}
-
-	public static boolean showLogPlayLength(Context context) {
-		return getBoolean(context, "logPlayLength", !getBoolean(context, "logHideLength", true));
-	}
-
-	public static boolean showLogPlayLocation(Context context) {
-		return getBoolean(context, "logPlayLocation", !getBoolean(context, "logHideLocation", true));
-	}
-
-	public static boolean showLogPlayIncomplete(Context context) {
-		return getBoolean(context, "logPlayIncomplete", !getBoolean(context, "logHideIncomplete", true));
-	}
-
-	public static boolean showLogPlayNoWinStats(Context context) {
-		return getBoolean(context, "logPlayNoWinStats", !getBoolean(context, "logHideNoWinStats", true));
-	}
-
-	public static boolean showLogPlayComments(Context context) {
-		return getBoolean(context, "logPlayComments", !getBoolean(context, "logHideComments", true));
-	}
-
-	public static boolean showLogPlayPlayerList(Context context) {
-		return getBoolean(context, "logPlayPlayerList", !getBoolean(context, "logHidePlayerList", false));
-	}
-
-	public static boolean showLogPlayerTeamColor(Context context) {
-		return getBoolean(context, "logPlayerTeamColor", !getBoolean(context, "logHideTeamColor", true));
-	}
-
-	public static boolean showLogPlayerPosition(Context context) {
-		return getBoolean(context, "logPlayerPosition", !getBoolean(context, "logHidePosition", true));
-	}
-
-	public static boolean showLogPlayerScore(Context context) {
-		return getBoolean(context, "logPlayerScore", !getBoolean(context, "logHideScore", true));
-	}
-
-	public static boolean showLogPlayerRating(Context context) {
-		return getBoolean(context, "logPlayerRating", !getBoolean(context, "logHideRating", true));
-	}
-
-	public static boolean showLogPlayerNew(Context context) {
-		return getBoolean(context, "logPlayerNew", !getBoolean(context, "logHideNew", true));
-	}
+	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
+	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
+	private static final String LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions";
+	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 
 	public static boolean logPlayStatsIncomplete(Context context) {
 		return getBoolean(context, LOG_PLAY_STATS_INCOMPLETE, false);
@@ -151,10 +78,6 @@ public class PreferencesUtils {
 
 	public static void putPlayStatsAccessories(Context context, boolean value) {
 		putBoolean(context, LOG_PLAY_STATS_ACCESSORIES, value);
-	}
-
-	public static boolean showLogPlayerWin(Context context) {
-		return getBoolean(context, "logPlayerWin", !getBoolean(context, "logHideWin", true));
 	}
 
 	public static String[] getOldSyncStatuses(Context context) {
@@ -305,13 +228,6 @@ public class PreferencesUtils {
 	@NonNull
 	private static String getThreadKey(long threadId) {
 		return "THREAD-" + threadId;
-	}
-
-	private static boolean remove(Context context, String key) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		Editor editor = sharedPreferences.edit();
-		editor.remove(key);
-		return editor.commit();
 	}
 
 	private static boolean putBoolean(Context context, String key, boolean value) {

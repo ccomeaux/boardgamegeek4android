@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -46,6 +47,7 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
 import com.boardgamegeek.extensions.FloatingActionButtonUtils;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
@@ -110,6 +112,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.FragmentManager;
 import androidx.palette.graphics.Palette;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -207,6 +210,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 	private boolean isLaunchingActivity;
 	private boolean shouldSaveOnPause = true;
+
+	private SharedPreferences prefs;
 
 	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort) {
 		Intent intent = createIntent(context, BggContract.INVALID_ID, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
@@ -392,6 +397,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		ButterKnife.bind(this);
 
@@ -703,37 +709,37 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 	@DebugLog
 	private boolean shouldHideLocation() {
-		return play != null && !PreferencesUtils.showLogPlayLocation(this) && !isUserShowingLocation && TextUtils.isEmpty(play.location);
+		return play != null && !PreferenceUtils.showLogPlayLocation(prefs) && !isUserShowingLocation && TextUtils.isEmpty(play.location);
 	}
 
 	@DebugLog
 	private boolean shouldHideLength() {
-		return play != null && !PreferencesUtils.showLogPlayLength(this) && !isUserShowingLength && !(play.length > 0) && !play.hasStarted();
+		return play != null && !PreferenceUtils.showLogPlayLength(prefs) && !isUserShowingLength && !(play.length > 0) && !play.hasStarted();
 	}
 
 	@DebugLog
 	private boolean shouldHideQuantity() {
-		return play != null && !PreferencesUtils.showLogPlayQuantity(this) && !isUserShowingQuantity && !(play.quantity > 1);
+		return play != null && !PreferenceUtils.showLogPlayQuantity(prefs) && !isUserShowingQuantity && !(play.quantity > 1);
 	}
 
 	@DebugLog
 	private boolean shouldHideIncomplete() {
-		return play != null && !PreferencesUtils.showLogPlayIncomplete(this) && !isUserShowingIncomplete && !play.incomplete;
+		return play != null && !PreferenceUtils.showLogPlayIncomplete(prefs) && !isUserShowingIncomplete && !play.incomplete;
 	}
 
 	@DebugLog
 	private boolean shouldHideNoWinStats() {
-		return play != null && !PreferencesUtils.showLogPlayNoWinStats(this) && !isUserShowingNoWinStats && !play.noWinStats;
+		return play != null && !PreferenceUtils.showLogPlayNoWinStats(prefs) && !isUserShowingNoWinStats && !play.noWinStats;
 	}
 
 	@DebugLog
 	private boolean shouldHideComments() {
-		return play != null && !PreferencesUtils.showLogPlayComments(this) && !isUserShowingComments && TextUtils.isEmpty(play.comments);
+		return play != null && !PreferenceUtils.showLogPlayComments(prefs) && !isUserShowingComments && TextUtils.isEmpty(play.comments);
 	}
 
 	@DebugLog
 	private boolean shouldHidePlayers() {
-		return play != null && !PreferencesUtils.showLogPlayPlayerList(this) && !isUserShowingPlayers && (play.getPlayerCount() == 0);
+		return play != null && !PreferenceUtils.showLogPlayPlayerList(prefs) && !isUserShowingPlayers && (play.getPlayerCount() == 0);
 	}
 
 	@DebugLog
@@ -1699,9 +1705,9 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 			@OnClick(R.id.add_players_button)
 			public void onAddPlayerClicked() {
-				if (PreferencesUtils.getEditPlayerPrompted(LogPlayActivity.this)) {
-					addPlayers(PreferencesUtils.getEditPlayer(LogPlayActivity.this));
-				} else {
+				if (PreferenceUtils.getEditPlayerPrompted(prefs)) {
+					addPlayers(PreferenceUtils.getEditPlayer(prefs));
+				} else{
 					promptToEditPlayers();
 				}
 			}
@@ -1730,7 +1736,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					.setPositiveButton(R.string.pref_edit_player_prompt_positive, onPromptClickListener(true))
 					.setNegativeButton(R.string.pref_edit_player_prompt_negative, onPromptClickListener(false))
 					.create().show();
-				PreferencesUtils.putEditPlayerPrompted(LogPlayActivity.this);
+				PreferenceUtils.putEditPlayerPrompted(prefs);
 			}
 
 			@NonNull
@@ -1738,7 +1744,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 				return new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						PreferencesUtils.putEditPlayer(LogPlayActivity.this, value);
+						PreferenceUtils.putEditPlayer(prefs, value);
 						addPlayers(value);
 					}
 				};

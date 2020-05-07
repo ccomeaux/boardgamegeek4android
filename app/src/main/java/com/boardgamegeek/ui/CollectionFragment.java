@@ -68,7 +68,6 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -922,8 +921,8 @@ public class CollectionFragment extends Fragment implements
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
 		int count = adapter.getSelectedItemCount();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferenceUtils.showLogPlay(prefs));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferenceUtils.showQuickLogPlay(prefs));
 		menu.findItem(R.id.menu_link).setVisible(count == 1);
 		return true;
 	}

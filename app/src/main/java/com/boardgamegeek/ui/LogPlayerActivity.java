@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.extensions.FloatingActionButtonUtils;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -33,7 +35,6 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -52,6 +53,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -125,6 +127,8 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	private ArrayList<String> usedColors;
 	private ArrayList<String> colors;
 
+	private SharedPreferences prefs;
+
 	private final View.OnClickListener actionBarListener = v -> {
 		switch (v.getId()) {
 			case R.id.menu_done:
@@ -181,6 +185,8 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 
 		setContentView(R.layout.activity_logplayer);
 		ButterKnife.bind(this);
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		nameView.setOnItemClickListener(nameClickListener());
 		usernameView.setOnItemClickListener(userNameClickListener());
@@ -250,12 +256,12 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	@Override
 	protected void onResume() {
 		super.onResume();
-		preferToShowTeamColor = PreferencesUtils.showLogPlayerTeamColor(this);
-		preferToShowPosition = PreferencesUtils.showLogPlayerPosition(this);
-		preferToShowScore = PreferencesUtils.showLogPlayerScore(this);
-		preferToShowRating = PreferencesUtils.showLogPlayerRating(this);
-		preferToShowNew = PreferencesUtils.showLogPlayerNew(this);
-		preferToShowWin = PreferencesUtils.showLogPlayerWin(this);
+		preferToShowTeamColor = PreferenceUtils.showLogPlayerTeamColor(prefs);
+		preferToShowPosition = PreferenceUtils.showLogPlayerPosition(prefs);
+		preferToShowScore = PreferenceUtils.showLogPlayerScore(prefs);
+		preferToShowRating = PreferenceUtils.showLogPlayerRating(prefs);
+		preferToShowNew = PreferenceUtils.showLogPlayerNew(prefs);
+		preferToShowWin = PreferenceUtils.showLogPlayerWin(prefs);
 		setViewVisibility();
 	}
 
