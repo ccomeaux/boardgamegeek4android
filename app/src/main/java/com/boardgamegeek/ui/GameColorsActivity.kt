@@ -5,10 +5,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment
+import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import hugo.weaving.DebugLog
@@ -17,8 +19,11 @@ import org.jetbrains.anko.startActivity
 class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.EditTextDialogListener {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
+
     @ColorInt
     private var iconColor: Int = Color.TRANSPARENT
+
+    private val viewModel by viewModels<GameColorsViewModel>()
 
     @DebugLog
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +39,8 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
                     .putContentId(gameId.toString())
                     .putContentName(gameName))
         }
+
+        viewModel.setGameId(gameId)
     }
 
     override fun readIntent(intent: Intent) {
@@ -44,7 +51,7 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
 
     @DebugLog
     override fun onCreatePane(intent: Intent): Fragment {
-        return ColorsFragment.newInstance(gameId, iconColor)
+        return GameColorsFragment.newInstance(iconColor)
     }
 
     @DebugLog
@@ -60,9 +67,7 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
     }
 
     override fun onFinishEditDialog(text: String, originalText: String?) {
-        if (text.isNotBlank()) {
-            (fragment as ColorsFragment).addColor(text)
-        }
+        viewModel.addColor(text)
     }
 
     companion object {
