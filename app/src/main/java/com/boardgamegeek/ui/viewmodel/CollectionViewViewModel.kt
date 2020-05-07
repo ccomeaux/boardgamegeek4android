@@ -110,10 +110,6 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun clearView() {
-        selectView(prefs.getViewDefaultId())
-    }
-
     fun setSort(sortType: Int) {
         val type = when (sortType) {
             CollectionSorterFactory.TYPE_UNKNOWN -> CollectionSorterFactory.TYPE_DEFAULT

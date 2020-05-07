@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.provider.BggContract.CollectionViews
@@ -16,7 +16,7 @@ class DeleteViewDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val contentResolver = requireContext().contentResolver
         val cursor = contentResolver.load(CollectionViews.CONTENT_URI, arrayOf(CollectionViews._ID, CollectionViews.NAME))
-        val viewModel by activityViewModels<CollectionViewViewModel>()
+        val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT) // TODO improve message
         val msg = requireContext().getString(R.string.msg_collection_view_deleted_named)
 

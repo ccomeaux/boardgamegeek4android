@@ -74,10 +74,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     Answers.getInstance().logCustom(CustomEvent("CollectionViewSelected"))
-                    when {
-                        id <= 0 -> viewModel.clearView()
-                        else -> viewModel.selectView(id)
-                    }
+                    viewModel.selectView(id)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing

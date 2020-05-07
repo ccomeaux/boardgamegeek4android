@@ -12,20 +12,15 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.getViewDefaultId
-import com.boardgamegeek.extensions.queryLong
-import com.boardgamegeek.extensions.requestFocus
-import com.boardgamegeek.extensions.setAndSelectExistingText
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
 import kotlinx.android.synthetic.main.dialog_save_view.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import com.boardgamegeek.extensions.VIEW_ID_COLLECTION
 
 class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
@@ -35,7 +30,7 @@ class SaveViewDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null)
-        val viewModel by activityViewModels<CollectionViewViewModel>()
+        val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_saved, Toast.LENGTH_SHORT) // TODO improve message
 
         arguments?.let {
