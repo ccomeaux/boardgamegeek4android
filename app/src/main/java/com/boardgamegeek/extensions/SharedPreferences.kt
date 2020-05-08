@@ -212,6 +212,27 @@ private fun SharedPreferences.showLogPlayField(key: String, oldKey: String, defa
 
 // endregion PLAY LOGGING
 
+// region PLAY STATS
+
+const val LOG_PLAY_STATS_PREFIX = "logPlayStats"
+const val LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete"
+const val LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions"
+const val LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories"
+
+fun SharedPreferences.logPlayStatsIncomplete(): Boolean {
+    return this[LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+}
+
+fun SharedPreferences.logPlayStatsExpansions(): Boolean {
+    return this[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+}
+
+fun SharedPreferences.logPlayStatsAccessories(): Boolean {
+    return this[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+}
+
+// endregion PLAY STATS
+
 private fun SharedPreferences.putStringSet(key: String, value: Set<String>) {
     this.edit {
         putStringSet(key, value)

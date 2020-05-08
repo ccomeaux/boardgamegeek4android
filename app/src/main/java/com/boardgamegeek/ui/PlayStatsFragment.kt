@@ -21,19 +21,14 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
-import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_play_stats.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.util.*
 
-class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
     private val viewModel by activityViewModels<PlayStatsViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_play_stats, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -105,13 +100,13 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
-        if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
+        if (defaultSharedPreferences[LOG_PLAY_STATS_INCOMPLETE, false] != true) {
             messages.add(getString(R.string.incomplete_plays).toLowerCase(Locale.getDefault()))
         }
-        if (!PreferencesUtils.logPlayStatsExpansions(context)) {
+        if (defaultSharedPreferences[LOG_PLAY_STATS_EXPANSIONS, false] != true) {
             messages.add(getString(R.string.expansions).toLowerCase(Locale.getDefault()))
         }
-        if (!PreferencesUtils.logPlayStatsAccessories(context)) {
+        if (defaultSharedPreferences[LOG_PLAY_STATS_ACCESSORIES, false] != true) {
             messages.add(getString(R.string.accessories).toLowerCase(Locale.getDefault()))
         }
         if (messages.isEmpty()) {
@@ -202,7 +197,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         } else {
             val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
-            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second ?: hIndex.h + 1
+            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second
+                    ?: hIndex.h + 1
             val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: hIndex.h - 1
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
@@ -261,7 +257,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX)) {
+        if (key.startsWith(LOG_PLAY_STATS_PREFIX)) {
             bindAccuracyMessage()
             // TODO refresh view model
         }

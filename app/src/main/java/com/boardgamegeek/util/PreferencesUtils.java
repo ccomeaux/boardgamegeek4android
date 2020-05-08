@@ -51,34 +51,7 @@ public class PreferencesUtils {
 	private PreferencesUtils() {
 	}
 
-	public static final String LOG_PLAY_STATS_PREFIX = "logPlayStats";
-	private static final String LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete";
-	private static final String LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions";
-	private static final String LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories";
 
-	public static boolean logPlayStatsIncomplete(Context context) {
-		return getBoolean(context, LOG_PLAY_STATS_INCOMPLETE, false);
-	}
-
-	public static void putPlayStatsIncomplete(Context context, boolean value) {
-		putBoolean(context, LOG_PLAY_STATS_INCOMPLETE, value);
-	}
-
-	public static boolean logPlayStatsExpansions(Context context) {
-		return getBoolean(context, LOG_PLAY_STATS_EXPANSIONS, false);
-	}
-
-	public static void putPlayStatsExpansions(Context context, boolean value) {
-		putBoolean(context, LOG_PLAY_STATS_EXPANSIONS, value);
-	}
-
-	public static boolean logPlayStatsAccessories(Context context) {
-		return getBoolean(context, LOG_PLAY_STATS_ACCESSORIES, false);
-	}
-
-	public static void putPlayStatsAccessories(Context context, boolean value) {
-		putBoolean(context, LOG_PLAY_STATS_ACCESSORIES, value);
-	}
 
 	public static String[] getOldSyncStatuses(Context context) {
 		return getStringArray(context, KEY_SYNC_STATUSES_OLD, context.getResources().getStringArray(R.array.pref_sync_status_default));

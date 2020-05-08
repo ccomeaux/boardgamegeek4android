@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.extensions.DoubleUtils;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -77,6 +79,7 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -96,6 +99,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private boolean gameOwned;
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
+	private SharedPreferences prefs;
 
 	private Unbinder unbinder;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -150,6 +154,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		unbinder = ButterKnife.bind(this, rootView);
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
 		if (headerColor != Color.TRANSPARENT) {
 			for (TextView view : colorizedHeaders) {
@@ -751,7 +757,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public void calculate() {
-			boolean includeIncomplete = PreferencesUtils.logPlayStatsIncomplete(getActivity());
+			boolean includeIncomplete = PreferenceUtils.logPlayStatsIncomplete(prefs);
 			for (PlayModel play : plays.values()) {
 				if (!includeIncomplete && play.incomplete) {
 					playCountIncomplete += play.quantity;

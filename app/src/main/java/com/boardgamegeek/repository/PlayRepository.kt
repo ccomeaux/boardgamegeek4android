@@ -34,6 +34,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
     private val playDao = PlayDao(application)
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : PlayRefreshableResourceLoader(application) {
@@ -84,24 +85,26 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }.asLiveData()
     }
 
-    fun loadForStatsAsLiveData(): LiveData<List<GameForPlayStatEntity>> {
+    fun loadForStatsAsLiveData(includeIncomplete: Boolean, includeExpansions: Boolean, includeAccessories: Boolean):
+            LiveData<List<GameForPlayStatEntity>> {
         // TODO use PlayDao if either of these is false
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
         // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
 
         return Transformations.map(gameDao.loadPlayInfoAsLiveData(
-                PreferencesUtils.logPlayStatsIncomplete(application),
-                PreferencesUtils.logPlayStatsExpansions(application),
-                PreferencesUtils.logPlayStatsAccessories(application)))
+                includeIncomplete,
+                includeExpansions,
+                includeAccessories))
         {
             return@map filterGamesOwned(it)
         }
     }
 
     fun loadForStats(): List<GameForPlayStatEntity> {
-        val playInfo = gameDao.loadPlayInfo(PreferencesUtils.logPlayStatsIncomplete(application),
-                PreferencesUtils.logPlayStatsExpansions(application),
-                PreferencesUtils.logPlayStatsAccessories(application))
+        val playInfo = gameDao.loadPlayInfo(
+                prefs.logPlayStatsIncomplete(),
+                prefs.logPlayStatsExpansions(),
+                prefs.logPlayStatsAccessories())
         return filterGamesOwned(playInfo)
     }
 
@@ -119,11 +122,11 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
     }
 
     fun loadPlayersForStats(): List<PlayerEntity> {
-        return playDao.loadPlayers(PreferencesUtils.logPlayStatsIncomplete(application))
+        return playDao.loadPlayers(prefs.logPlayStatsIncomplete())
     }
 
     fun loadPlayersForStatsAsLiveData(): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersAsLiveData(PreferencesUtils.logPlayStatsIncomplete(application))
+        return playDao.loadPlayersAsLiveData(prefs.logPlayStatsIncomplete())
     }
 
     fun loadUserPlayer(username: String): LiveData<PlayerEntity> {
