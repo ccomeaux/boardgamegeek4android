@@ -4,6 +4,8 @@ package com.boardgamegeek.extensions
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
+import com.boardgamegeek.extensions.CollectionView.PREFERENCES_KEY_DEFAULT_ID
 import com.boardgamegeek.provider.BggContract
 import java.util.*
 
@@ -41,19 +43,9 @@ fun SharedPreferences.remove(key: String) {
     edit { remove(key) }
 }
 
-private const val VIEW_DEFAULT_ID = "viewDefaultId"
-const val VIEW_ID_COLLECTION: Long = -1L
-
-fun SharedPreferences.getViewDefaultId(): Long {
-    return this[VIEW_DEFAULT_ID, VIEW_ID_COLLECTION] ?: VIEW_ID_COLLECTION
-}
-
-fun SharedPreferences.putViewDefaultId(id: Long) {
-    this[VIEW_DEFAULT_ID] = id
-}
-
-fun SharedPreferences.removeViewDefaultId() {
-    this.remove(VIEW_DEFAULT_ID)
+object CollectionView {
+    const val PREFERENCES_KEY_DEFAULT_ID = "viewDefaultId"
+    const val DEFAULT_DEFAULT_ID: Long = -1L
 }
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"

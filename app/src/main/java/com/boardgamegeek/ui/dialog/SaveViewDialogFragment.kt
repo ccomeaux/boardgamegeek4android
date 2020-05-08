@@ -81,8 +81,9 @@ class SaveViewDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         nameView.setAndSelectExistingText(name)
-        val viewDefaultId = defaultSharedPreferences.getViewDefaultId()
-        defaultViewCheckBox.isChecked = viewDefaultId != VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
+        val viewDefaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                ?: CollectionView.DEFAULT_DEFAULT_ID
+        defaultViewCheckBox.isChecked = viewDefaultId != CollectionView.DEFAULT_DEFAULT_ID && findViewId(name) == viewDefaultId
         descriptionView.text = description
     }
 

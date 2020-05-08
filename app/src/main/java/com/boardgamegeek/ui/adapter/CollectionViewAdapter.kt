@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.extensions.VIEW_ID_COLLECTION
+import com.boardgamegeek.extensions.CollectionView
 
 class CollectionViewAdapter(context: Context) :
         ArrayAdapter<CollectionViewEntity>(context,
@@ -17,9 +17,9 @@ class CollectionViewAdapter(context: Context) :
 
     override fun getItemId(position: Int): Long {
         return when {
-            position < 0 -> VIEW_ID_COLLECTION
-            position >= count -> VIEW_ID_COLLECTION
-            else -> super.getItem(position)?.id ?: VIEW_ID_COLLECTION
+            position < 0 -> CollectionView.DEFAULT_DEFAULT_ID
+            position >= count -> CollectionView.DEFAULT_DEFAULT_ID
+            else -> super.getItem(position)?.id ?: CollectionView.DEFAULT_DEFAULT_ID
         }
     }
 

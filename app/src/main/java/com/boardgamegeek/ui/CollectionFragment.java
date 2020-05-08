@@ -34,6 +34,7 @@ import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.CollectionView;
 import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
@@ -114,7 +115,6 @@ import timber.log.Timber;
 
 import static android.app.Activity.RESULT_OK;
 import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
-import static com.boardgamegeek.extensions.PreferenceUtils.VIEW_ID_COLLECTION;
 
 public class CollectionFragment extends Fragment implements
 	LoaderCallbacks<Cursor>,
@@ -139,7 +139,7 @@ public class CollectionFragment extends Fragment implements
 
 	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
-	private long viewId = VIEW_ID_COLLECTION;
+	private long viewId = CollectionView.DEFAULT_DEFAULT_ID;
 	private String viewName = "";
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();

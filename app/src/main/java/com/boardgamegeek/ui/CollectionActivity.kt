@@ -14,7 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.extensions.getViewDefaultId
+import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
@@ -58,7 +59,9 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
         viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
         if (savedInstanceState == null) {
-            val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultSharedPreferences.getViewDefaultId())
+            val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                    ?: CollectionView.DEFAULT_DEFAULT_ID
+            val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
             viewModel.selectView(viewId)
         }
     }
