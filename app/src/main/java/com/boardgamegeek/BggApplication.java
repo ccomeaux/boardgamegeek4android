@@ -15,7 +15,6 @@ import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
@@ -119,8 +118,8 @@ public class BggApplication extends MultiDexApplication {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Set<String> set = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null);
 		if (set == null) {
-			String[] oldSyncStatuses = PreferencesUtils.getOldSyncStatuses(getApplicationContext());
-			if (oldSyncStatuses != null && oldSyncStatuses.length > 0) {
+			String[] oldSyncStatuses = PreferenceUtils.getOldSyncStatuses(prefs, getApplicationContext());
+			if (oldSyncStatuses.length > 0) {
 				PreferenceUtils.setSyncStatuses(prefs, oldSyncStatuses);
 			}
 		}

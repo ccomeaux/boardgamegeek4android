@@ -9,12 +9,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.asHttpErrorMessage
-import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.fabric.CrashKeys
 import com.crashlytics.android.Crashlytics
 import timber.log.Timber
@@ -68,7 +66,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
     protected fun updateProgressNotification(detail: String? = null) {
         Timber.i(detail)
         Crashlytics.setString(CrashKeys.SYNC_DETAIL, detail)
-        if (!PreferencesUtils.getSyncShowNotifications(this.context)) return
+        if (prefs[KEY_SYNC_NOTIFICATIONS, false] != true) return
 
         val message = if (notificationSummaryMessageId == NO_NOTIFICATION)
             ""
@@ -115,7 +113,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
     fun showError(detailMessage: String, errorMessage: String) {
         Timber.w("$detailMessage\n$errorMessage".trim())
 
-        if (!PreferencesUtils.getSyncShowErrors(context)) return
+        if (prefs[KEY_SYNC_ERRORS, false] != true) return
 
         val contentMessage = if (notificationSummaryMessageId == NO_NOTIFICATION) detailMessage
         else context.getString(notificationSummaryMessageId)

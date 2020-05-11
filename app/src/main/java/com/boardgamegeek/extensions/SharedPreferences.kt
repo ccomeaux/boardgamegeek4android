@@ -2,10 +2,12 @@
 
 package com.boardgamegeek.extensions
 
+import android.content.Context
 import android.content.SharedPreferences
+import android.text.TextUtils
 import androidx.core.content.edit
-import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
-import com.boardgamegeek.extensions.CollectionView.PREFERENCES_KEY_DEFAULT_ID
+import com.boardgamegeek.R
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract
 import java.util.*
 
@@ -47,6 +49,8 @@ object CollectionView {
     const val PREFERENCES_KEY_DEFAULT_ID = "viewDefaultId"
     const val DEFAULT_DEFAULT_ID: Long = -1L
 }
+
+//region SYNC
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
@@ -116,6 +120,40 @@ fun SharedPreferences.getSyncStatusesAsSql(): String {
     }
     return selection.toString()
 }
+
+const val KEY_SYNC_UPLOADS = "sync_uploads"
+const val KEY_SYNC_NOTIFICATIONS = "sync_notifications"
+const val KEY_SYNC_ERRORS = "sync_errors"
+const val KEY_SYNC_ONLY_WIFI = "sync_only_wifi"
+const val KEY_SYNC_ONLY_CHARGING = "sync_only_charging"
+
+fun SharedPreferences.getSyncShowNotifications(): Boolean {
+    return this[KEY_SYNC_NOTIFICATIONS, false] ?: false
+}
+
+fun SharedPreferences.getSyncShowErrors(): Boolean {
+    return this[KEY_SYNC_ERRORS, false] ?: false
+}
+
+fun SharedPreferences.getSyncOnlyCharging(): Boolean {
+    return this[KEY_SYNC_ONLY_CHARGING, false] ?: false
+}
+
+fun SharedPreferences.getSyncOnlyWifi(): Boolean {
+    return this[KEY_SYNC_ONLY_WIFI, false] ?: false
+}
+
+private const val KEY_SYNC_STATUSES_OLD = "syncStatuses"
+private const val SEPARATOR = "OV=I=XseparatorX=I=VO"
+
+fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String?> {
+    val value = this[KEY_SYNC_STATUSES_OLD, ""] ?: ""
+    return if (value.isEmpty()) context.resources.getStringArray(R.array.pref_sync_status_default)
+    else value.split(SEPARATOR).toTypedArray()
+}
+
+
+// endregion SYNC
 
 // region PLAY LOGGING
 
@@ -225,12 +263,101 @@ fun SharedPreferences.logPlayStatsAccessories(): Boolean {
 
 // endregion PLAY STATS
 
+// region FORUMS
+
+const val INVALID_ARTICLE_ID = -1
+const val KEY_ADVANCED_DATES = "advancedForumDates"
+
+fun SharedPreferences.putThreadArticle(threadId: Int, articleId: Int) {
+    this[getThreadKey(threadId.toLong()), articleId]
+}
+
+fun SharedPreferences.getThreadArticle(threadId: Int): Int {
+    return this[getThreadKey(threadId.toLong()), INVALID_ARTICLE_ID] ?: INVALID_ARTICLE_ID
+}
+
+private fun getThreadKey(threadId: Long): String {
+    return "THREAD-$threadId"
+}
+
+// endregion FORUMS
+
+//region LAST PLAY
+
+private const val KEY_LAST_PLAY_TIME = "last_play_time"
+private const val KEY_LAST_PLAY_LOCATION = "last_play_location"
+private const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
+private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
+private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
+
+fun SharedPreferences.getLastPlayTime(): Long {
+    return this[KEY_LAST_PLAY_TIME, 0L] ?: 0L
+}
+
+fun SharedPreferences.putLastPlayTime(millis: Long) {
+    this[KEY_LAST_PLAY_TIME] = millis
+}
+
+fun SharedPreferences.getLastPlayLocation(): String {
+    return this[KEY_LAST_PLAY_LOCATION, ""] ?: ""
+}
+
+fun SharedPreferences.putLastPlayLocation(location: String?) {
+    this[KEY_LAST_PLAY_LOCATION] = location
+}
+
+fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
+    val players: MutableList<Player> = ArrayList()
+    val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
+    val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
+    for (playerString in playerStringArray) {
+        if (!TextUtils.isEmpty(playerString)) {
+            val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
+            if (playerSplit.size in 1..2) {
+                val player = Player()
+                player.name = playerSplit[0]
+                if (playerSplit.size == 2) {
+                    player.username = playerSplit[1]
+                }
+                players.add(player)
+            }
+        }
+    }
+    return players
+}
+
+fun SharedPreferences.putLastPlayPlayers(players: List<Player>) {
+    val sb = StringBuilder()
+    for (player in players) {
+        sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)
+    }
+    this[KEY_LAST_PLAY_PLAYERS] = sb.toString()
+}
+
+//endregion LAST PLAY
+
+private const val KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp"
+
+fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long? {
+    return this[KEY_PRIVACY_CHECK_TIMESTAMP, 0L] ?: 0L
+}
+
+fun SharedPreferences.setLastPrivacyCheckTimestamp() {
+    this[KEY_PRIVACY_CHECK_TIMESTAMP] = System.currentTimeMillis()
+}
+
 private fun SharedPreferences.putStringSet(key: String, value: Set<String>) {
     this.edit {
         putStringSet(key, value)
     }
 }
 
+const val KEY_LOGIN = "login"
+const val KEY_LOGOUT = "logout"
+
 const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS = "statsCalculatedTimestampArtists"
 const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS = "statsCalculatedTimestampDesigners"
 const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS = "statsCalculatedTimestampPublishers"
+
+const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
+const val KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer"

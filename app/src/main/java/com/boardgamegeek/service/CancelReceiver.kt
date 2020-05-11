@@ -6,26 +6,27 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.widget.Toast
 import com.boardgamegeek.BuildConfig
-import com.boardgamegeek.extensions.isOnWiFi
-import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.extensions.*
 import timber.log.Timber
 
 class CancelReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val prefs = context.preferences()
         when (intent.action) {
             SyncService.ACTION_CANCEL_SYNC ->
                 cancelSync(context, "Sync cancelled at user request.")
             Intent.ACTION_BATTERY_LOW ->
                 cancelSync(context, "Cancelling sync because battery is running low.")
             Intent.ACTION_POWER_DISCONNECTED ->
-                if (PreferencesUtils.getSyncOnlyCharging(context)) {
+                if (prefs[KEY_SYNC_ONLY_CHARGING, false] == true) {
                     cancelSync(context, "Cancelling sync because device was unplugged and user asked for this behavior.")
                 }
             @Suppress("deprecation")
-            ConnectivityManager.CONNECTIVITY_ACTION ->
-                if (PreferencesUtils.getSyncOnlyWifi(context) && !context.isOnWiFi()) {
+            ConnectivityManager.CONNECTIVITY_ACTION -> {
+                if (prefs[KEY_SYNC_ONLY_WIFI, false] == true && !context.isOnWiFi()) {
                     cancelSync(context, "Cancelling sync because device lost Wifi and user asked for this behavior.")
                 }
+            }
             else -> notifyCause(context, "Not cancelling sync due to an unexpected action: " + intent.action)
         }
     }

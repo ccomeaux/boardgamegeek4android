@@ -14,7 +14,6 @@ import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
-import com.boardgamegeek.util.PreferencesUtils
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import hugo.weaving.DebugLog
@@ -150,10 +149,6 @@ class SettingsActivity : DrawerActivity() {
                     syncPrefs.requestPartialSync()
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
-                PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    syncPrefs.requestPartialSync()
-                    syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
-                }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
                     syncPrefs.clearPlaysTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
@@ -224,8 +219,8 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateAccountPrefs(username: String) {
-            findPreference<LoginPreference>(PreferencesUtils.KEY_LOGIN)?.update(username)
-            findPreference<SignOutPreference>(PreferencesUtils.KEY_LOGOUT)?.update()
+            findPreference<LoginPreference>(KEY_LOGIN)?.update(username)
+            findPreference<SignOutPreference>(KEY_LOGOUT)?.update()
         }
     }
 

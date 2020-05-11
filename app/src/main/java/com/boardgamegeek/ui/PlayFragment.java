@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -24,6 +25,7 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
@@ -42,7 +44,6 @@ import com.boardgamegeek.util.DialogUtils.OnDiscardListener;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
@@ -62,6 +63,7 @@ import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.palette.graphics.Palette;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
@@ -88,6 +90,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String imageUrl;
 	private String heroImageUrl;
 	private boolean isRefreshing;
+	private SharedPreferences prefs;
 
 	private Unbinder unbinder;
 	private ListView playersView;
@@ -152,6 +155,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			hasBeenNotified = savedInstanceState.getBoolean(KEY_HAS_BEEN_NOTIFIED);
 		}
 		setHasOptionsMenu(true);
+		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -318,7 +322,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		if (play != null && event.getGameId() == play.gameId) {
-			if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(getContext())) {
+			if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferenceUtils.getSyncShowErrors(prefs)) {
 				// TODO: 3/30/17 change to a snackbar (will need to change from a ListFragment)
 				Toast.makeText(getContext(), event.getErrorMessage(), Toast.LENGTH_LONG).show();
 			}

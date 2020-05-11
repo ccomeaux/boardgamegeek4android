@@ -75,7 +75,6 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PaletteUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -353,10 +352,10 @@ public class LogPlayActivity extends AppCompatActivity implements
 					play = new Play(gameId, gameName);
 					play.setCurrentDate();
 
-					long lastPlay = PreferencesUtils.getLastPlayTime(this);
+					long lastPlay = PreferenceUtils.getLastPlayTime(prefs);
 					if (DateTimeUtils.howManyHoursOld(lastPlay) < 12) {
-						play.location = PreferencesUtils.getLastPlayLocation(this);
-						play.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
+						play.location = PreferenceUtils.getLastPlayLocation(prefs);
+						play.setPlayers(PreferenceUtils.getLastPlayPlayers(prefs));
 						play.pickStartPlayer(0);
 					}
 				}
@@ -802,9 +801,9 @@ public class LogPlayActivity extends AppCompatActivity implements
 				(DateUtils.isToday(play.dateInMillis) ||
 					DateUtils.isToday(System.currentTimeMillis() - play.length * 60_000))
 			) {
-				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
-				PreferencesUtils.putLastPlayLocation(this, play.location);
-				PreferencesUtils.putLastPlayPlayers(this, play.getPlayers());
+				PreferenceUtils.putLastPlayTime(prefs, System.currentTimeMillis());
+				PreferenceUtils.putLastPlayLocation(prefs, play.location);
+				PreferenceUtils.putLastPlayPlayers(prefs, play.getPlayers());
 			}
 			cancelNotification();
 			triggerUpload();
@@ -1707,7 +1706,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 			public void onAddPlayerClicked() {
 				if (PreferenceUtils.getEditPlayerPrompted(prefs)) {
 					addPlayers(PreferenceUtils.getEditPlayer(prefs));
-				} else{
+				} else {
 					promptToEditPlayers();
 				}
 			}

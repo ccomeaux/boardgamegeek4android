@@ -22,14 +22,17 @@ import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.events.SyncEvent
+import com.boardgamegeek.extensions.KEY_HAS_SEEN_NAV_DRAWER
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.loadThumbnail
+import com.boardgamegeek.extensions.set
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
-import com.boardgamegeek.util.PreferencesUtils
 import com.google.android.material.navigation.NavigationView
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.startActivity
 
 /**
@@ -77,9 +80,9 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         EventBus.getDefault().register(this)
-        if (!PreferencesUtils.hasSeenNavDrawer(this)) {
+        if (defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER, false] != true) {
             drawerLayout.openDrawer(GravityCompat.START)
-            PreferencesUtils.sawNavDrawer(this)
+            defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER] = true
         }
     }
 
