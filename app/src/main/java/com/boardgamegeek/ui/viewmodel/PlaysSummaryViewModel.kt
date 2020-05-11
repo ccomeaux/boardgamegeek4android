@@ -65,15 +65,13 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
 
     private val h: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX)
     private val n: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX + PreferencesUtils.KEY_H_INDEX_N_SUFFIX)
-    fun hIndex(): LiveData<HIndexEntity> {
-        val mld = MediatorLiveData<HIndexEntity>()
-        mld.addSource(h) {
-            mld.value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
+    val hIndex = MediatorLiveData<HIndexEntity>().apply {
+        addSource(h) {
+            value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
         }
-        mld.addSource(n) {
-            mld.value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
+        addSource(n) {
+            value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
         }
-        return mld
     }
 
     val oldestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
