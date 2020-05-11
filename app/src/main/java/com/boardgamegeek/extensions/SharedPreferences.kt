@@ -261,6 +261,17 @@ fun SharedPreferences.logPlayStatsAccessories(): Boolean {
     return this[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
 }
 
+object PlayStats {
+    const val KEY_GAME_H_INDEX = "hIndex"
+    const val KEY_PLAYER_H_INDEX = "play_stats_player_h_index"
+    const val KEY_H_INDEX_N_SUFFIX = "_n"
+
+    @JvmStatic
+    fun SharedPreferences.getGameHIndex(): Int {
+        return this[KEY_GAME_H_INDEX, 0] ?: 0
+    }
+}
+
 // endregion PLAY STATS
 
 // region FORUMS

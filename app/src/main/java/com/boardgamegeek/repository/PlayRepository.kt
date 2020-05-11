@@ -1,7 +1,11 @@
 package com.boardgamegeek.repository
 
+import android.app.PendingIntent
 import android.content.ContentProviderOperation
+import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -13,6 +17,7 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.PlayStats
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -22,7 +27,8 @@ import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.ui.PlayStatsActivity
+import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RateLimiter
 import retrofit2.Call
 import timber.log.Timber
@@ -223,11 +229,32 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
     }
 
     fun updateGameHIndex(hIndex: HIndexEntity) {
-        PreferencesUtils.updateGameHIndex(application, hIndex)
+        updateHIndex(application, hIndex, PlayStats.KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
     }
 
     fun updatePlayerHIndex(hIndex: HIndexEntity) {
-        PreferencesUtils.updatePlayerHIndex(application, hIndex)
+        updateHIndex(application, hIndex, PlayStats.KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
+    }
+
+    private fun updateHIndex(context: Context, hIndex: HIndexEntity, key: String, @StringRes typeResId: Int, notificationId: Int) {
+        if (hIndex.h != HIndexEntity.INVALID_H_INDEX) {
+            val old = HIndexEntity(prefs[key, 0] ?: 0, prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
+            if (old != hIndex) {
+                prefs[key] = hIndex.h
+                prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX] = hIndex.n
+                @StringRes val messageId = if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
+                NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, notificationId,
+                        NotificationUtils.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStatsActivity::class.java)
+                                .setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description))
+                                .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, PlayStatsActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT)))
+            }
+        }
+    }
+
+    companion object {
+        private const val NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0
+        private const val NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1
+
     }
 
     abstract class PlayRefreshableResourceLoader(application: BggApplication) : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {

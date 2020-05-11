@@ -24,7 +24,9 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.entities.HIndexEntity;
 import com.boardgamegeek.extensions.DoubleUtils;
+import com.boardgamegeek.extensions.PlayStats;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -37,7 +39,6 @@ import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
 import com.github.mikephil.charting.animation.Easing;
@@ -466,7 +467,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		int hIndexOffset = stats.getHIndexOffset();
-		if (hIndexOffset == -1) {
+		if (hIndexOffset == HIndexEntity.INVALID_H_INDEX) {
 			addStatRow(advancedTable).setLabel(R.string.play_stat_game_h_index_offset_in);
 		} else {
 			final PlayStatRow hIndexView = addStatRow(advancedTable);
@@ -1080,9 +1081,9 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int getHIndexOffset() {
-			int hIndex = PreferencesUtils.getGameHIndex(getActivity());
+			int hIndex = PlayStats.getGameHIndex(prefs);
 			if (playCount >= hIndex) {
-				return -1;
+				return HIndexEntity.INVALID_H_INDEX;
 			} else {
 				return hIndex - playCount;
 			}
@@ -1101,7 +1102,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return S * S * Math.sqrt(intervalPlayCount) * calculateHhm();
 		}
 
-		public int calculateWhitemorScore() {
+		public int calculateWhitmoreScore() {
 			// http://www.boardgamegeek.com/geeklist/37832/my-favorite-designers
 			int score = (int) (personalRating * 2 - 13);
 			if (score < 0) {
