@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui
 
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
@@ -11,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayStatsEntity
@@ -52,6 +49,16 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             activity?.showFragment(PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
         }
 
+        viewModel.includeIncomplete.observe(viewLifecycleOwner, Observer {
+            bindAccuracyMessage()
+        })
+        viewModel.includeExpansions.observe(viewLifecycleOwner, Observer {
+            bindAccuracyMessage()
+        })
+        viewModel.includeAccessories.observe(viewLifecycleOwner, Observer {
+            bindAccuracyMessage()
+        })
+
         viewModel.getPlays().observe(viewLifecycleOwner, Observer { entity ->
             if (entity == null) {
                 showEmpty()
@@ -79,17 +86,6 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         })
 
         bindCollectionStatusMessage()
-        bindAccuracyMessage()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun bindCollectionStatusMessage() {
@@ -197,8 +193,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         } else {
             val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
-            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second
-                    ?: hIndex.h + 1
+            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second ?: hIndex.h + 1
             val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: hIndex.h - 1
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
@@ -253,13 +248,6 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             this.layoutParams = TableLayout.LayoutParams(0, 1)
             this.setBackgroundResource(R.color.dark_blue)
             container.addView(this)
-        }
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key.startsWith(LOG_PLAY_STATS_PREFIX)) {
-            bindAccuracyMessage()
-            // TODO refresh view model
         }
     }
 }

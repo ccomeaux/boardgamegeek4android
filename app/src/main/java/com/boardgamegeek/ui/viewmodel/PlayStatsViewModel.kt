@@ -7,17 +7,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
-import com.boardgamegeek.extensions.COLLECTION_STATUS_OWN
-import com.boardgamegeek.extensions.isStatusSetToSync
-import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.repository.PlayRepository
 
 class PlayStatsViewModel(application: Application) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
+    val includeIncomplete: LiveSharedPreference<Boolean> = LiveSharedPreference(application, LOG_PLAY_STATS_INCOMPLETE)
+    val includeExpansions: LiveSharedPreference<Boolean> = LiveSharedPreference(application, LOG_PLAY_STATS_EXPANSIONS)
+    val includeAccessories: LiveSharedPreference<Boolean> = LiveSharedPreference(application, LOG_PLAY_STATS_ACCESSORIES)
 
     fun getPlays(): LiveData<PlayStatsEntity> {
-        val ld = playRepository.loadForStatsAsLiveData()
+        val ld = playRepository.loadForStatsAsLiveData(
+                includeIncomplete.value?:false,
+                includeExpansions.value?:false,
+                includeAccessories.value?:false)
         return Transformations.map(ld) {
             val entity = PlayStatsEntity(it, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
             playRepository.updateGameHIndex(entity.hIndex)
