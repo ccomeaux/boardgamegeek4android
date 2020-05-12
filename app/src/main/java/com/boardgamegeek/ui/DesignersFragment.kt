@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
@@ -23,9 +23,7 @@ import kotlinx.android.synthetic.main.row_designer.view.*
 import kotlin.properties.Delegates
 
 class DesignersFragment : Fragment(R.layout.fragment_designers) {
-    private val viewModel: DesignsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(DesignsViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<DesignsViewModel>()
 
     private val adapter: DesignersAdapter by lazy {
         DesignersAdapter(viewModel)
@@ -40,12 +38,12 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.designers.observe(this, Observer {
+        viewModel.designers.observe(viewLifecycleOwner, Observer {
             showData(it)
             progressBar.hide()
         })
 
-        viewModel.progress.observe(this, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, Observer {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {

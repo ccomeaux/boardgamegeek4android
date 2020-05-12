@@ -12,7 +12,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getViewDefaultId
 import com.boardgamegeek.extensions.queryLong
@@ -24,7 +24,6 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
 import kotlinx.android.synthetic.main.dialog_save_view.*
-import org.jetbrains.anko.support.v4.act
 
 class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
@@ -34,7 +33,7 @@ class SaveViewDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null)
-        val viewModel = ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
+        val viewModel by activityViewModels<CollectionViewViewModel>()
         val toast = Toast.makeText(requireContext(), R.string.msg_saved, Toast.LENGTH_SHORT) // TODO improve message
 
         arguments?.let {

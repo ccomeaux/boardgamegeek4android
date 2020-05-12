@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
@@ -14,7 +15,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
@@ -41,9 +41,7 @@ abstract class DrawerActivity : BaseActivity() {
     private lateinit var toolbar: Toolbar
     var rootContainer: ViewGroup? = null
 
-    private val viewModel: SelfUserViewModel by lazy {
-        ViewModelProviders.of(this).get(SelfUserViewModel::class.java)
-    }
+    private val viewModel by viewModels<SelfUserViewModel>()
 
     protected open val navigationItemId: Int
         get() = 0

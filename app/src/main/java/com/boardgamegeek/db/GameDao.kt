@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
@@ -13,7 +14,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggDatabase.*
@@ -25,7 +25,7 @@ class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
 
     fun load(gameId: Int): LiveData<GameEntity> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildGameUri(gameId)
         return RegisteredLiveData(context, uri) {
             val projection = arrayOf(
@@ -117,7 +117,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadRanks(gameId: Int): LiveData<List<GameRankEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildRanksUri(gameId)
         return RegisteredLiveData(context, uri) {
             val ranks = arrayListOf<GameRankEntity>()
@@ -125,7 +125,7 @@ class GameDao(private val context: BggApplication) {
                 if (it.moveToFirst()) {
                     do {
                         ranks.add(GameRankEntity(
-                                id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: BggContract.INVALID_ID,
+                                id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: INVALID_ID,
                                 type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
                                 name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
                                 friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
@@ -140,8 +140,8 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadPoll(gameId: Int, pollType: String): LiveData<GamePollEntity> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
-        if (pollType !in arrayOf(BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
+        if (pollType !in arrayOf(POLL_TYPE_SUGGESTED_PLAYER_AGE, POLL_TYPE_LANGUAGE_DEPENDENCE)) return AbsentLiveData.create()
         val uri = Games.buildPollResultsResultUri(gameId, pollType)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GamePollResultEntity>()
@@ -160,7 +160,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadPlayerPoll(gameId: Int): LiveData<GamePlayerPollEntity> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GamePlayerPollResultsEntity>()
@@ -190,7 +190,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadDesigners(gameId: Int): LiveData<List<GameDetailEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildDesignersUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GameDetailEntity>()
@@ -209,7 +209,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadArtists(gameId: Int): LiveData<List<GameDetailEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildArtistsUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GameDetailEntity>()
@@ -228,7 +228,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadPublishers(gameId: Int): LiveData<List<GameDetailEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildPublishersUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GameDetailEntity>()
@@ -247,7 +247,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadCategories(gameId: Int): LiveData<List<GameDetailEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildCategoriesUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GameDetailEntity>()
@@ -266,7 +266,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadMechanics(gameId: Int): LiveData<List<GameDetailEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildMechanicsUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GameDetailEntity>()
@@ -285,7 +285,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadExpansions(gameId: Int, inbound: Boolean = false): LiveData<List<GameExpansionsEntity>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildExpansionsUri(gameId)
         return RegisteredLiveData(context, uri) {
             val results = arrayListOf<GameExpansionsEntity>()
@@ -347,9 +347,9 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun loadPlayColors(gameId: Int): LiveData<List<String>> {
-        if (gameId == BggContract.INVALID_ID) return AbsentLiveData.create()
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildColorsUri(gameId)
-        return RegisteredLiveData(context, uri) {
+        return RegisteredLiveData(context, uri, true) {
             val results = arrayListOf<String>()
             context.contentResolver.load(uri)?.use {
                 if (it.moveToFirst()) {
@@ -399,7 +399,7 @@ class GameDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += GameForPlayStatEntity(
-                            it.getIntOrNull(Games.GAME_ID) ?: BggContract.INVALID_ID,
+                            it.getIntOrNull(Games.GAME_ID) ?: INVALID_ID,
                             it.getStringOrEmpty(Plays.ITEM_NAME),
                             it.getIntOrZero(Plays.SUM_QUANTITY),
                             it.getIntOrZero(Games.GAME_RANK)
@@ -417,12 +417,45 @@ class GameDao(private val context: BggApplication) {
     }
 
     fun delete(gameId: Int): Int {
-        if (gameId == BggContract.INVALID_ID) return 0
+        if (gameId == INVALID_ID) return 0
         return resolver.delete(Games.buildGameUri(gameId), null, null)
     }
 
+    fun insertColors(gameId: Int, color: String) {
+        val values = contentValuesOf(GameColors.COLOR to color)
+        resolver.insert(Games.buildColorsUri(gameId), values)
+    }
+
+    fun deleteColor(gameId: Int, color: String): Int {
+        return resolver.delete(Games.buildColorsUri(gameId, color), null, null)
+    }
+
+    fun computeColors(gameId: Int): Int {
+        val values = mutableListOf<ContentValues>()
+        val cursor = resolver.query(
+                Plays.buildPlayersByColor(),
+                arrayOf(PlayPlayers.COLOR),
+                "${Plays.OBJECT_ID}=?",
+                arrayOf(gameId.toString()),
+                null)
+        cursor?.use { c ->
+            if (c.moveToFirst()) {
+                do {
+                    val color = c.getString(0).orEmpty()
+                    if (color.isNotBlank()) {
+                        values.add(contentValuesOf(GameColors.COLOR to color))
+                    }
+                } while (c.moveToNext())
+            }
+        }
+        return if (values.size > 0) {
+            resolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
+        } else 0
+
+    }
+
     fun update(gameId: Int, values: ContentValues): Int {
-        return resolver.update(BggContract.Games.buildGameUri(gameId), values, null, null)
+        return resolver.update(Games.buildGameUri(gameId), values, null, null)
     }
 
     fun save(game: GameEntity, updateTime: Long) {
@@ -460,14 +493,14 @@ class GameDao(private val context: BggApplication) {
         saveReference(game.categories, Categories.CONTENT_URI, Categories.CATEGORY_ID, Categories.CATEGORY_NAME)
         saveReference(game.mechanics, Mechanics.CONTENT_URI, Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME)
 
-        batch.addAll(createAssociationBatch(game.id, game.designers, BggContract.PATH_DESIGNERS, GamesDesigners.DESIGNER_ID))
-        batch.addAll(createAssociationBatch(game.id, game.artists, BggContract.PATH_ARTISTS, GamesArtists.ARTIST_ID))
-        batch.addAll(createAssociationBatch(game.id, game.publishers, BggContract.PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID))
-        batch.addAll(createAssociationBatch(game.id, game.categories, BggContract.PATH_CATEGORIES, GamesCategories.CATEGORY_ID))
-        batch.addAll(createAssociationBatch(game.id, game.mechanics, BggContract.PATH_MECHANICS, GamesMechanics.MECHANIC_ID))
+        batch.addAll(createAssociationBatch(game.id, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID))
+        batch.addAll(createAssociationBatch(game.id, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID))
+        batch.addAll(createAssociationBatch(game.id, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID))
+        batch.addAll(createAssociationBatch(game.id, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID))
+        batch.addAll(createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID))
 
         try {
-            resolver.applyBatch(context, batch, "Game ${game.id}")
+            resolver.applyBatch(batch, "Game ${game.id}")
             Timber.i("Saved game ID '%s'", game.id)
         } catch (e: Exception) {
             NotificationUtils.showPersistErrorNotification(context, e)
@@ -649,7 +682,7 @@ class GameDao(private val context: BggApplication) {
 
     private fun createExpansionsBatch(gameId: Int, newLinks: List<Triple<Int, String, Boolean>>): ArrayList<ContentProviderOperation> {
         val batch = arrayListOf<ContentProviderOperation>()
-        val pathUri = Games.buildPathUri(gameId, BggContract.PATH_EXPANSIONS)
+        val pathUri = Games.buildPathUri(gameId, PATH_EXPANSIONS)
         val existingIds = resolver.queryInts(pathUri, GamesExpansions.EXPANSION_ID).toMutableList()
 
         for ((id, name, inbound) in newLinks) {
@@ -664,7 +697,7 @@ class GameDao(private val context: BggApplication) {
         }
         // remove unused associations
         for (existingId in existingIds) {
-            batch.add(ContentProviderOperation.newDelete(Games.buildPathUri(gameId, BggContract.PATH_EXPANSIONS, existingId)).build())
+            batch.add(ContentProviderOperation.newDelete(Games.buildPathUri(gameId, PATH_EXPANSIONS, existingId)).build())
         }
         return batch
     }
@@ -682,7 +715,7 @@ class GameDao(private val context: BggApplication) {
                 batch.add(ContentProviderOperation.newInsert(baseUri).withValues(cv).build())
             }
         }
-        resolver.applyBatch(context, batch, "Saving ${baseUri.lastPathSegment}")
+        resolver.applyBatch(batch, "Saving ${baseUri.lastPathSegment}")
     }
 
     private fun createAssociationBatch(gameId: Int, newLinks: List<Pair<Int, String>>, uriPath: String, idColumn: String): ArrayList<ContentProviderOperation> {

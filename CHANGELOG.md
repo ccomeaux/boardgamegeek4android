@@ -1,7 +1,11 @@
 Release Notes
 =============
 
-Coming Soon
+Coming Soon...
+--------------
+ * Display GeekList comments  
+
+Version 6.8
 -----------
  * Collection text fields now support mark down
  * Set up for easier translation

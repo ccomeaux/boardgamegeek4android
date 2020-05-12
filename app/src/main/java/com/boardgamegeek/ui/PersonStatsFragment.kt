@@ -1,30 +1,22 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_person_stats.*
+import java.util.*
 
-class PersonStatsFragment : Fragment() {
+class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
     private var objectDescription = ""
 
-    private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_person_stats, container, false)
-    }
+    private val viewModel by activityViewModels<PersonViewModel>()
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -46,16 +38,17 @@ class PersonStatsFragment : Fragment() {
 
         bindCollectionStatusMessage()
 
-        objectDescription = getString(R.string.title_person).toLowerCase()
-        viewModel.person.observe(this, Observer {
-            objectDescription = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
-                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
-                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+        objectDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
+        viewModel.person.observe(viewLifecycleOwner, Observer {
+            val resourceId = when (it.type) {
+                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             }
+            objectDescription = getString(resourceId).toLowerCase(Locale.getDefault())
         })
 
-        viewModel.stats.observe(this, Observer {
+        viewModel.stats.observe(viewLifecycleOwner, Observer {
             when (it) {
                 null -> showEmpty()
                 else -> showData(it)

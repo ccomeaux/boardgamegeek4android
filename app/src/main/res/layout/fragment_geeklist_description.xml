@@ -6,7 +6,7 @@
 			 android:layout_height="match_parent">
 
 	<androidx.core.widget.ContentLoadingProgressBar
-		android:id="@android:id/progress"
+		android:id="@+id/progressBar"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
 		<FrameLayout style="@style/WebViewContainer">
 
 			<com.tobiasrohloff.view.NestedScrollWebView
-				android:id="@+id/body"
+				android:id="@+id/bodyView"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

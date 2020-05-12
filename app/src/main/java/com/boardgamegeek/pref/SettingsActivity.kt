@@ -196,7 +196,7 @@ class SettingsActivity : DrawerActivity() {
         private val dialogFragmentTag = "PreferenceFragment.DIALOG"
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
-            if (fragmentManager?.findFragmentByTag(dialogFragmentTag) != null) {
+            if (parentFragmentManager.findFragmentByTag(dialogFragmentTag) != null) {
                 return
             }
 
@@ -209,7 +209,7 @@ class SettingsActivity : DrawerActivity() {
 
             if (dialogFragment != null) {
                 dialogFragment.setTargetFragment(this, 0)
-                dialogFragment.show(requireFragmentManager(), dialogFragmentTag)
+                dialogFragment.show(parentFragmentManager, dialogFragmentTag)
             } else super.onDisplayPreferenceDialog(preference)
         }
 

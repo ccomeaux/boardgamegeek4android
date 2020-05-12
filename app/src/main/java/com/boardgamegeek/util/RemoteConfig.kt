@@ -4,8 +4,9 @@ package com.boardgamegeek.util
 
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.R
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import timber.log.Timber
 
 
@@ -45,18 +46,17 @@ class RemoteConfig {
 
         @JvmStatic
         fun init() {
-            val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                    .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 0L else 3600L)
-                    .build()
+            val firebaseRemoteConfig = Firebase.remoteConfig
+            val configSettings = remoteConfigSettings {
+                minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0L else 3600L
+            }
             firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
             firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
-            fetch()
         }
 
         @JvmStatic
         fun fetch() {
-            val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+            val firebaseRemoteConfig = Firebase.remoteConfig
             firebaseRemoteConfig.fetch().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.i("Successfully fetched Firebase remote config.")
@@ -68,13 +68,13 @@ class RemoteConfig {
         }
 
         @JvmStatic
-        fun getBoolean(key: String) = FirebaseRemoteConfig.getInstance().getBoolean(key)
+        fun getBoolean(key: String) = Firebase.remoteConfig.getBoolean(key)
 
         @JvmStatic
-        fun getInt(key: String) = FirebaseRemoteConfig.getInstance().getLong(key).toInt()
+        fun getInt(key: String) = Firebase.remoteConfig.getLong(key).toInt()
 
-        fun getLong(key: String) = FirebaseRemoteConfig.getInstance().getLong(key)
+        fun getLong(key: String) = Firebase.remoteConfig.getLong(key)
 
-        fun getDouble(key: String) = FirebaseRemoteConfig.getInstance().getDouble(key)
+        fun getDouble(key: String) = Firebase.remoteConfig.getDouble(key)
     }
 }

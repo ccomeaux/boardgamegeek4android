@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -23,7 +23,7 @@ class GameUsersDialogFragment : DialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel = ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        val viewModel by activityViewModels<GameViewModel>()
         viewModel.game.observe(this, Observer { gameEntityRefreshableResource ->
             gameEntityRefreshableResource?.data?.let {
                 val game = gameEntityRefreshableResource.data

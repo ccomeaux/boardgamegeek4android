@@ -4,9 +4,9 @@ import android.content.Context
 import android.graphics.*
 import android.os.Bundle
 import android.view.*
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,9 +39,7 @@ class PlayerColorsActivity : BaseActivity() {
 
     private val usedColors = ArrayList<String>()
 
-    private val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlayerColorsViewModel::class.java)
-    }
+    private val viewModel by viewModels<PlayerColorsViewModel>()
 
     private val itemTouchHelper by lazy {
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {

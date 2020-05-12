@@ -77,16 +77,6 @@ public class ActivityUtils {
 		return String.format("%s (%s)\n", name, createBggUri(BOARDGAME_PATH, id));
 	}
 
-	public static void shareGeekList(Activity activity, int id, String title) {
-		String description = String.format(activity.getString(R.string.share_geeklist_text), title);
-		Uri uri = ActivityUtils.createBggUri("geeklist", id);
-		ActivityUtils.share(activity, activity.getString(R.string.share_geeklist_subject), description + "\n\n" + uri, R.string.title_share);
-		Answers.getInstance().logShare(new ShareEvent()
-			.putContentType("GeekList")
-			.putContentName(title)
-			.putContentId(String.valueOf(id)));
-	}
-
 	public static void logQuickPlay(Context context, int gameId, String gameName) {
 		Play play = new Play(gameId, gameName);
 		play.setCurrentDate();

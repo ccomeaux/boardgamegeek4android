@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
@@ -21,9 +21,7 @@ class GameDetailFragment : Fragment() {
         GameDetailAdapter()
     }
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_game_details, container, false)
@@ -39,11 +37,11 @@ class GameDetailFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.producerType.observe(this, Observer {
+        viewModel.producerType.observe(viewLifecycleOwner, Observer {
             adapter.type = it ?: ProducerType.UNKNOWN
         })
 
-        viewModel.producers.observe(this, Observer {
+        viewModel.producers.observe(viewLifecycleOwner, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()
