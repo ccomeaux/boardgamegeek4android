@@ -586,7 +586,7 @@
 	<string name="removed_suffix">%s usunięto.</string>
 	<string name="msg_invalid_username">Nieprawdiłowa nazwa użytkownika \"%1$s\".</string>
 	<string name="msg_color_deleted">Usunięto \"%s\"</string>
-	<string name="incomplete_games">Niezakończone rozgrywki</string>
+	<string name="incomplete_plays">Niezakończone rozgrywki</string>
 	<string name="items">Pozycje</string>
 	<string name="accessories">Akcesoria</string>
 	<string name="show_missing_votes">Pokaż brakujące głosy</string>

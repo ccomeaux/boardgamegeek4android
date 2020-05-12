@@ -79,9 +79,6 @@
 	<string name="pref_advanced_forum_dates">Pełne daty na forum</string>
 	<string name="pref_advanced_forum_dates_off">Pokaż czas względny dla wszystkich dat powiązanych z forum (dla niedawnych dat)</string>
 	<string name="pref_advanced_forum_dates_on">Zawsze pokazuj pełną datę/czas dla wszystkich dat powiązanych z forum</string>
-	<string name="pref_advanced_debug_inserts">Debugowanie</string>
-	<string name="pref_advanced_debug_inserts_off">Wyłącz to jeśli nie występują żadne błędy</string>
-	<string name="pref_advanced_debug_inserts_on">To powinno zmniejszyć częstotliwość awarii aplikacji. Przykro nam, jeśli wciąż jakieś występują.</string>
 	<string name="pref_advanced_haptic_feedback">Reakcja na dotyk</string>
 	<string name="pref_advanced_haptic_feedback_summary">Wibracje klawiatury numerycznej przy wybieraniu klawisza.</string>
 	<string name="pref_advanced_polls">Ankiety do gier</string>
