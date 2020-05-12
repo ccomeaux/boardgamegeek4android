@@ -14,7 +14,6 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import org.greenrobot.eventbus.Subscribe;
 
 import androidx.fragment.app.Fragment;
-import icepick.Icepick;
 
 public class PlayActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_ID = "ID";
@@ -49,8 +48,6 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
-
 		if (savedInstanceState == null) {
 			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");
 			Answers.getInstance().logContentView(event);
@@ -71,7 +68,6 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
 	}
 
 	@Override

@@ -5,9 +5,10 @@ import android.text.Html
 import android.text.TextUtils
 import android.view.*
 import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -31,20 +32,26 @@ import kotlinx.android.synthetic.main.include_game_ratings.*
 import kotlinx.android.synthetic.main.include_game_weight.*
 import kotlinx.android.synthetic.main.include_game_year_published.*
 
-class GameFragment : Fragment(R.layout.fragment_game) {
+class GameFragment : Fragment() {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var showcaseViewWizard: ShowcaseViewWizard? = null
+
     @Suppress("DEPRECATION")
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
-    private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<GameViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_game, container, false)
+        val viewGroup: ViewGroup = root.findViewById(R.id.dataContainer)
+        viewGroup.layoutTransition.setAnimateParentHierarchy(false)
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,12 +62,12 @@ class GameFragment : Fragment(R.layout.fragment_game) {
 
         lastModifiedView?.timestamp = 0
 
-        viewModel.gameId.observe(this, Observer { gameId ->
+        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
             this.gameId = gameId
             gameIdView?.text = gameId.toString()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -70,17 +77,17 @@ class GameFragment : Fragment(R.layout.fragment_game) {
             }
             progress.hide()
 
-            viewModel.ranks.observe(this, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
+            viewModel.ranks.observe(viewLifecycleOwner, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
 
-            viewModel.languagePoll.observe(this, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
+            viewModel.languagePoll.observe(viewLifecycleOwner, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
 
-            viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
+            viewModel.agePoll.observe(viewLifecycleOwner, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
 
-            viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
+            viewModel.playerPoll.observe(viewLifecycleOwner, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
 
-            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
+            viewModel.expansions.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
 
-            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
+            viewModel.baseGames.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
 
         showcaseViewWizard = setUpShowcaseViewWizard()
@@ -156,7 +163,11 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         playerAgeView?.text = game.minimumAge.asAge(context)
 
         weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
-        weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+        if (game.averageWeight == 0.0) {
+            weightScoreView.isVisible = false
+        } else {
+            weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+        }
         val textColor = weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
         weightView.setTextColor(textColor)
         weightScoreView.setTextColor(textColor)
@@ -180,7 +191,11 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         val totalVotes = entity?.totalVotes ?: 0
 
         languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
-        languageScoreView.setTextOrHide(score.asScore(context))
+        if (score == 0.0) {
+            languageScoreView.isVisible = false
+        } else {
+            languageScoreView.setTextOrHide(score.asScore(context))
+        }
         languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
 
         val textColor = languageColorView.setTextViewBackground(score.toColor(fiveStageColors))

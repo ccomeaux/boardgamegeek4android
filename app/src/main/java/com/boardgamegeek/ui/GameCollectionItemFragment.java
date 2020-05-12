@@ -70,13 +70,12 @@ import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.Unbinder;
 import hugo.weaving.DebugLog;
-import icepick.Icepick;
-import icepick.State;
 import timber.log.Timber;
 
 public class GameCollectionItemFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_COLLECTION_ID = "COLLECTION_ID";
+	private static final String KEY_IS_ITEM_EDITABLE = "KEY_IS_ITEM_EDITABLE";
 	private static final int _TOKEN = 0;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
@@ -178,7 +177,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private boolean mightNeedRefreshing;
 	private Palette palette;
 	private boolean needsUploading;
-	@State boolean isItemEditable;
+	private boolean isItemEditable;
 	private boolean isInEditMode;
 	private boolean isDirty = false;
 
@@ -197,7 +196,9 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			isItemEditable = savedInstanceState.getBoolean(KEY_IS_ITEM_EDITABLE);
+		}
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -241,7 +242,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putBoolean(KEY_IS_ITEM_EDITABLE, isItemEditable);
 	}
 
 	@DebugLog

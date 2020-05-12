@@ -3,8 +3,8 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -20,9 +20,7 @@ class MechanicCollectionFragment : Fragment() {
         LinkedCollectionAdapter()
     }
 
-    private val viewModel: MechanicViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(MechanicViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<MechanicViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_linked_collection, container, false)
@@ -38,10 +36,10 @@ class MechanicCollectionFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).toLowerCase(Locale.getDefault()))
-        viewModel.sort.observe(this, Observer {
+        viewModel.sort.observe(viewLifecycleOwner, Observer {
             sortType = it
         })
-        viewModel.collection.observe(this, Observer {
+        viewModel.collection.observe(viewLifecycleOwner, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()

@@ -1,11 +1,14 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -14,20 +17,14 @@ import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_game_details.*
 import java.util.*
 
-class PersonCollectionFragment : Fragment() {
+class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
     private var sortType = PersonViewModel.CollectionSort.RATING
 
     private val adapter: LinkedCollectionAdapter by lazy {
         LinkedCollectionAdapter()
     }
 
-    private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_linked_collection, container, false)
-    }
+    private val viewModel by activityViewModels<PersonViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,14 +38,14 @@ class PersonCollectionFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         setEmptyMessage(R.string.title_person)
-        viewModel.person.observe(this, Observer {
+        viewModel.person.observe(viewLifecycleOwner, Observer {
             setEmptyMessage(when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
                 PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
                 PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             })
         })
-        viewModel.collection.observe(this, Observer {
+        viewModel.collection.observe(viewLifecycleOwner, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()
@@ -60,7 +57,7 @@ class PersonCollectionFragment : Fragment() {
             }
             progressView?.hide()
         })
-        viewModel.sort.observe(this, Observer {
+        viewModel.sort.observe(viewLifecycleOwner, Observer {
             sortType = it ?: PersonViewModel.CollectionSort.RATING
             activity?.invalidateOptionsMenu()
         })

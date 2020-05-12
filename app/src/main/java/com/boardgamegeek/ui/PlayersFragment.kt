@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerEntity
@@ -23,9 +23,7 @@ import kotlinx.android.synthetic.main.row_players_player.view.*
 import kotlin.properties.Delegates
 
 class PlayersFragment : Fragment() {
-    private val viewModel: PlayersViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PlayersViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<PlayersViewModel>()
 
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(viewModel)
@@ -44,7 +42,7 @@ class PlayersFragment : Fragment() {
                 adapter)
         recyclerView.addItemDecoration(sectionItemDecoration)
 
-        viewModel.players.observe(this, Observer {
+        viewModel.players.observe(viewLifecycleOwner, Observer {
             adapter.players = it
             progressBar?.hide()
             if (adapter.itemCount == 0) {

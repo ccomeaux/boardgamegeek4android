@@ -29,39 +29,15 @@ public class ResolverUtils {
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch, String debugMessage) {
 		if (batch != null && batch.size() > 0) {
 			ContentResolver resolver = context.getContentResolver();
-			if (PreferencesUtils.getAvoidBatching(context)) {
-				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
-				for (int i = 0; i < batch.size(); i++) {
-					results[i] = applySingle(resolver, batch.get(i), debugMessage);
-				}
-				return results;
-			} else {
-				try {
-					return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-				} catch (OperationApplicationException | RemoteException e) {
-					String m = "Applying batch: " + debugMessage;
-					Timber.e(e, m);
-					throw new RuntimeException(m, e);
-				}
+			try {
+				return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+			} catch (OperationApplicationException | RemoteException e) {
+				String m = "Applying batch: " + debugMessage;
+				Timber.e(e, m);
+				throw new RuntimeException(m, e);
 			}
 		}
 		return new ContentProviderResult[] {};
-	}
-
-	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo, String debugMessage) {
-		ArrayList<ContentProviderOperation> batch = new ArrayList<>(1);
-		batch.add(cpo);
-		try {
-			ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-			if (result.length > 0) {
-				return result[0];
-			}
-		} catch (OperationApplicationException | RemoteException e) {
-			String m = cpo.toString() + "\n" + debugMessage;
-			Timber.e(e, m);
-			throw new RuntimeException(m, e);
-		}
-		return null;
 	}
 
 	/*

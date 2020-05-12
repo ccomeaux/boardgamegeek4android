@@ -19,7 +19,7 @@
 			android:layout_gravity="center_vertical">
 
 			<ImageView
-				android:id="@+id/color_view"
+				android:id="@+id/colorView"
 				android:layout_width="@dimen/color_circle_diameter"
 				android:layout_height="@dimen/color_circle_diameter"
 				android:layout_gravity="center"
@@ -28,7 +28,7 @@
 		</FrameLayout>
 
 		<TextView
-			android:id="@+id/color_name"
+			android:id="@+id/colorNameView"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:layout_weight="1"

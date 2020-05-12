@@ -12,7 +12,7 @@ import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.ui.ArticleActivity;
 import com.boardgamegeek.ui.loader.ThreadSafeResponse;
-import com.boardgamegeek.ui.model.Article;
+import com.boardgamegeek.entities.ArticleEntity;
 import com.boardgamegeek.ui.widget.TimestampView;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 	private final int objectId;
 	private final String objectName;
 	private final ForumType objectType;
-	private final List<Article> articles;
+	private final List<ArticleEntity> articles;
 	private final LayoutInflater inflater;
 
 	public ThreadRecyclerViewAdapter(Context context, ThreadSafeResponse thread, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
@@ -66,7 +66,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 
 	@Override
 	public long getItemId(int position) {
-		Article article = articles.get(position);
+		ArticleEntity article = articles.get(position);
 		if (article == null) return RecyclerView.NO_ID;
 		return article.getId();
 	}
@@ -94,7 +94,7 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 			ButterKnife.bind(this, itemView);
 		}
 
-		public void bind(final Article article) {
+		public void bind(final ArticleEntity article) {
 			if (article == null) return;
 
 			if (article.getPostTicks() > 0L) {

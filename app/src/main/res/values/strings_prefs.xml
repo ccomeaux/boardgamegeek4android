@@ -80,9 +80,6 @@
 	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
 	<string name="pref_advanced_forum_dates_off">Show relative times for all dates associated with forums (when the time is recent)</string>
 	<string name="pref_advanced_forum_dates_on">Always show absolute date/time for all dates associated with forums</string>
-	<string name="pref_advanced_debug_inserts">Debug</string>
-	<string name="pref_advanced_debug_inserts_off">Leave this off if you\'re not experiencing crashes</string>
-	<string name="pref_advanced_debug_inserts_on">This should reduce the frequency of crashes. Sorry if you still see some.</string>
 	<string name="pref_advanced_haptic_feedback">Haptic feedback</string>
 	<string name="pref_advanced_haptic_feedback_summary">The number pad vibrates when a key is pressed.</string>
 	<string name="pref_advanced_polls">Game polls</string>

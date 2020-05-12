@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -24,9 +24,7 @@ import org.jetbrains.anko.design.indefiniteSnackbar
 import kotlin.properties.Delegates
 
 class BuddiesFragment : Fragment() {
-    private val viewModel: BuddiesViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(BuddiesViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<BuddiesViewModel>()
 
     private val adapter: BuddiesAdapter by lazy {
         BuddiesAdapter(viewModel)
@@ -49,11 +47,11 @@ class BuddiesFragment : Fragment() {
                 adapter)
         recyclerView.addItemDecoration(sectionItemDecoration)
 
-        viewModel.buddies.observe(this, Observer {
+        viewModel.buddies.observe(viewLifecycleOwner, Observer {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
 
-            when {
-                it.status == Status.ERROR -> showError(it.message)
+            when (it.status) {
+                Status.ERROR -> showError(it.message)
                 else -> showData(it?.data ?: emptyList())
             }
             progressBar.hide()

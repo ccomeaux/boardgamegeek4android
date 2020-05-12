@@ -112,7 +112,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
         acquisitionDateView.setOnClickListener {
             val datePickerDialogFragment = createDatePickerDialogFragment()
-            fragmentManager?.executePendingTransactions()
+            parentFragmentManager.executePendingTransactions()
             datePickerDialogFragment.setOnDateSetListener(OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, monthOfYear, dayOfMonth)
@@ -121,7 +121,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 showOrHideAcquisitionDateLabel()
             })
             datePickerDialogFragment.setCurrentDateInMillis(privateInfo.acquisitionDate.toMillisFromApiDate(System.currentTimeMillis()))
-            datePickerDialogFragment.show(requireFragmentManager(), DATE_PICKER_DIALOG_TAG)
+            datePickerDialogFragment.show(parentFragmentManager, DATE_PICKER_DIALOG_TAG)
         }
 
 
@@ -152,7 +152,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     }
 
     private fun createDatePickerDialogFragment(): DatePickerDialogFragment {
-        return fragmentManager?.findFragmentByTag(DATE_PICKER_DIALOG_TAG) as DatePickerDialogFragment?
+        return parentFragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG) as DatePickerDialogFragment?
                 ?: DatePickerDialogFragment()
     }
 

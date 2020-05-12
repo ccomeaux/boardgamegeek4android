@@ -24,7 +24,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                  var playCount: Int = 0,
                  avatarUrl: String = "") {
         val avatarUrl: String = avatarUrl
-            get() = if (field == "N/A") "" else field
+            get() = if (field == INVALID_URL) "" else field
 
         override fun toString() = title
     }

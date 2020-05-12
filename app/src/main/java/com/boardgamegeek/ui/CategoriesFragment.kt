@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CategoryEntity
@@ -20,9 +20,7 @@ import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
 class CategoriesFragment : Fragment() {
-    private val viewModel: CategoriesViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(CategoriesViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<CategoriesViewModel>()
 
     private val adapter: CategoriesAdapter by lazy {
         CategoriesAdapter()
@@ -38,7 +36,7 @@ class CategoriesFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.categories.observe(this, Observer {
+        viewModel.categories.observe(viewLifecycleOwner, Observer {
             showData(it)
             progressBar.hide()
         })

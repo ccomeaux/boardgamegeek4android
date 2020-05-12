@@ -23,7 +23,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
                  val username: String,
                  avatarUrl: String = "") {
         val avatarUrl: String = avatarUrl
-            get() = if (field == "N/A") "" else field
+            get() = if (field == INVALID_URL) "" else field
 
         override fun toString() = username
     }
