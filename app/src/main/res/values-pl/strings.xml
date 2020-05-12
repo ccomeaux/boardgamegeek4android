@@ -642,7 +642,7 @@
 	<string name="person_stat_collection_status">Te statystyki będą trafniejsze jeśli zsynchronizujesz i ocenione i zagrane gry.</string>
 	<string name="play_count">Liczba rozgrywek</string>
 	<string name="h_index">Wskaźnik H-index</string>
-	<string name="whitmore_score_info">Kalkulacja wymyślona, aby określić który %s jest Twoim ulubionym.\n\nhttps://boardgamegeek.com/geeklist/37832/my-favorite-designers</string>
+	<string name="whitmore_score_info">Wskaźnik wymyślony, aby określić który %s jest Twoim ulubionym.\n\nhttps://boardgamegeek.com/thread/2420064/whats-whitmore-score</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s kolor</item>
