@@ -27,7 +27,6 @@ import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.entities.HIndexEntity;
 import com.boardgamegeek.extensions.DoubleUtils;
 import com.boardgamegeek.extensions.PlayStats;
-import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -758,7 +757,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public void calculate() {
-			boolean includeIncomplete = PreferenceUtils.logPlayStatsIncomplete(prefs);
+			boolean includeIncomplete = PlayStats.logPlayStatsIncomplete(prefs);
 			for (PlayModel play : plays.values()) {
 				if (!includeIncomplete && play.incomplete) {
 					playCountIncomplete += play.quantity;

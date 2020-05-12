@@ -17,7 +17,6 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.extensions.PlayStats
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
@@ -106,11 +105,8 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
     }
 
-    fun loadForStats(): List<GameForPlayStatEntity> {
-        val playInfo = gameDao.loadPlayInfo(
-                prefs.logPlayStatsIncomplete(),
-                prefs.logPlayStatsExpansions(),
-                prefs.logPlayStatsAccessories())
+    fun loadForStats(includeIncompletePlays: Boolean, includeExpansions: Boolean, includeAccessories: Boolean): List<GameForPlayStatEntity> {
+        val playInfo = gameDao.loadPlayInfo(includeIncompletePlays, includeExpansions, includeAccessories)
         return filterGamesOwned(playInfo)
     }
 
@@ -127,12 +123,12 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         return playDao.loadPlayersAsLiveData(sortBy)
     }
 
-    fun loadPlayersForStats(): List<PlayerEntity> {
-        return playDao.loadPlayers(prefs.logPlayStatsIncomplete())
+    fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
+        return playDao.loadPlayers(includeIncompletePlays)
     }
 
-    fun loadPlayersForStatsAsLiveData(): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersAsLiveData(prefs.logPlayStatsIncomplete())
+    fun loadPlayersForStatsAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
+        return playDao.loadPlayersAsLiveData(includeIncompletePlays)
     }
 
     fun loadUserPlayer(username: String): LiveData<PlayerEntity> {

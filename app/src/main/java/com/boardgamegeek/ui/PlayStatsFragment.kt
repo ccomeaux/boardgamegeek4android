@@ -25,6 +25,9 @@ import java.util.*
 class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
+    private var includeIncompletePlays = false
+    private var includeExpansions = false
+    private var includeAccessories = false
     private val viewModel by activityViewModels<PlayStatsViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,12 +53,15 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         }
 
         viewModel.includeIncomplete.observe(viewLifecycleOwner, Observer {
+            includeIncompletePlays = it ?: false
             bindAccuracyMessage()
         })
         viewModel.includeExpansions.observe(viewLifecycleOwner, Observer {
+            includeExpansions = it ?: false
             bindAccuracyMessage()
         })
         viewModel.includeAccessories.observe(viewLifecycleOwner, Observer {
+            includeAccessories = it ?: false
             bindAccuracyMessage()
         })
 
@@ -96,13 +102,13 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
 
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
-        if (defaultSharedPreferences[LOG_PLAY_STATS_INCOMPLETE, false] != true) {
+        if (!includeIncompletePlays) {
             messages.add(getString(R.string.incomplete_plays).toLowerCase(Locale.getDefault()))
         }
-        if (defaultSharedPreferences[LOG_PLAY_STATS_EXPANSIONS, false] != true) {
+        if (!includeExpansions) {
             messages.add(getString(R.string.expansions).toLowerCase(Locale.getDefault()))
         }
-        if (defaultSharedPreferences[LOG_PLAY_STATS_ACCESSORIES, false] != true) {
+        if (!includeAccessories) {
             messages.add(getString(R.string.accessories).toLowerCase(Locale.getDefault()))
         }
         if (messages.isEmpty()) {
@@ -191,12 +197,13 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         if (entries == null || entries.isEmpty()) {
             table.visibility = View.GONE
         } else {
-            val rankedEntries = entries.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
+            val rankedEntries = entries.filter { pair -> pair.first.isNotBlank() && pair.second > 0 }.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
-            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second ?: hIndex.h + 1
+            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second
+                    ?: hIndex.h + 1
             val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: hIndex.h - 1
 
-            val prefix = rankedEntries.filter { it.second == nextHighestHIndex }
+            val prefix = rankedEntries.filter { it.second == nextHighestHIndex && it.first.isNotBlank() }
             prefix.forEach {
                 PlayStatRow(requireContext()).apply {
                     setLabel(it.first)
@@ -205,7 +212,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
                 }
             }
 
-            val list = rankedEntries.filter { it.second == hIndex.h }
+            val list = rankedEntries.filter { it.second == hIndex.h && it.first.isNotBlank() }
             if (list.isEmpty()) {
                 addDivider(table)
             } else {

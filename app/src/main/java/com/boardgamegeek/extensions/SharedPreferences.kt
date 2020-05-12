@@ -244,24 +244,17 @@ private fun SharedPreferences.showLogPlayField(key: String, oldKey: String, defa
 
 // region PLAY STATS
 
-const val LOG_PLAY_STATS_PREFIX = "logPlayStats"
-const val LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete"
-const val LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions"
-const val LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories"
-
-fun SharedPreferences.logPlayStatsIncomplete(): Boolean {
-    return this[LOG_PLAY_STATS_INCOMPLETE, false] ?: false
-}
-
-fun SharedPreferences.logPlayStatsExpansions(): Boolean {
-    return this[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
-}
-
-fun SharedPreferences.logPlayStatsAccessories(): Boolean {
-    return this[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
-}
-
 object PlayStats {
+    private const val LOG_PLAY_STATS_PREFIX = "logPlayStats"
+    const val LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete"
+    const val LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions"
+    const val LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories"
+
+    @JvmStatic
+    fun SharedPreferences.logPlayStatsIncomplete(): Boolean {
+        return this[LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+    }
+
     const val KEY_GAME_H_INDEX = "hIndex"
     const val KEY_PLAYER_H_INDEX = "play_stats_player_h_index"
     const val KEY_H_INDEX_N_SUFFIX = "_n"
