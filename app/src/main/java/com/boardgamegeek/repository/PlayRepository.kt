@@ -65,6 +65,15 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }.asLiveData()
     }
 
+    fun loadPlaysByGame(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE)
+            }
+
+        }.asLiveData()
+    }
+
     fun loadPlaysByLocation(location: String): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : PlayRefreshableResourceLoader(application) {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
@@ -123,12 +132,16 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         return playDao.loadPlayersAsLiveData(sortBy)
     }
 
+    fun loadPlayersByGame(gameId: Int): LiveData<List<PlayPlayerEntity>> {
+        return playDao.loadPlayersByGame(gameId)
+    }
+
     fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
-        return playDao.loadPlayers(includeIncompletePlays)
+        return playDao.loadPlayersForStats(includeIncompletePlays)
     }
 
     fun loadPlayersForStatsAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersAsLiveData(includeIncompletePlays)
+        return playDao.loadPlayersForStatsAsLiveData(includeIncompletePlays)
     }
 
     fun loadUserPlayer(username: String): LiveData<PlayerEntity> {

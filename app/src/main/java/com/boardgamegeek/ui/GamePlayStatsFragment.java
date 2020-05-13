@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,21 +21,20 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.entities.CollectionItemEntity;
 import com.boardgamegeek.entities.HIndexEntity;
+import com.boardgamegeek.entities.PlayEntity;
+import com.boardgamegeek.entities.PlayPlayerEntity;
+import com.boardgamegeek.entities.RefreshableResource;
 import com.boardgamegeek.extensions.DoubleUtils;
 import com.boardgamegeek.extensions.PlayStats;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel;
 import com.boardgamegeek.ui.widget.PlayStatRow;
 import com.boardgamegeek.ui.widget.PlayerStatView;
 import com.boardgamegeek.ui.widget.ScoreGraphView;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.SelectionBuilder;
 import com.boardgamegeek.util.StringUtils;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
@@ -76,9 +72,9 @@ import androidx.collection.ArrayMap;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import butterknife.BindView;
 import butterknife.BindViews;
@@ -87,7 +83,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
-public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GamePlayStatsFragment extends Fragment {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_HEADER_COLOR = "HEADER_COLOR";
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
@@ -100,6 +96,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 	private SharedPreferences prefs;
+	private GamePlayStatsViewModel viewModel;
 
 	private Unbinder unbinder;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
@@ -203,99 +200,77 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		LoaderManager.getInstance(this).restartLoader(GameQuery._TOKEN, null, this);
-	}
+		viewModel = new ViewModelProvider(requireActivity()).get(GamePlayStatsViewModel.class);
 
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
-	}
+		LoaderManager lm = LoaderManager.getInstance(this);
+		viewModel.getGame().observe(getViewLifecycleOwner(), new Observer<RefreshableResource<List<CollectionItemEntity>>>() {
+			@Override
+			public void onChanged(RefreshableResource<List<CollectionItemEntity>> gameEntityRefreshableResource) {
 
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		String playSelection = Plays.OBJECT_ID + "=? AND " + SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP);
-		String[] selectionArgs = { String.valueOf(gameId) };
-		switch (id) {
-			case GameQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection." + Collection.GAME_ID + "=?", selectionArgs, null);
-				loader.setUpdateThrottle(5000);
-				break;
-			case PlayQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Plays.CONTENT_URI, PlayQuery.PROJECTION, playSelection, selectionArgs, Plays.DATE + " ASC");
-				loader.setUpdateThrottle(5000);
-				break;
-			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(getContext(), Plays.buildPlayersUri(), PlayerQuery.PROJECTION, playSelection, selectionArgs, null);
-				loader.setUpdateThrottle(5000);
-				break;
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) return;
-
-		int token = loader.getId();
-		switch (token) {
-			case GameQuery._TOKEN:
+				List<CollectionItemEntity> entity = gameEntityRefreshableResource.getData();
 				playCountColors = bggColors;
-				if (cursor == null || !cursor.moveToFirst()) {
+				if (entity == null) {
 					playingTime = 0;
 					personalRating = 0.0;
 					gameOwned = false;
 				} else {
-					final int winsColor = cursor.getInt(GameQuery.WINS_COLOR);
-					final int winnablePlaysColor = cursor.getInt(GameQuery.WINNABLE_PLAYS_COLOR);
-					final int allPlaysColor = cursor.getInt(GameQuery.ALL_PLAYS_COLOR);
+					CollectionItemEntity item = entity.get(0);
+					final int winsColor = item.getWinsColor();
+					final int winnablePlaysColor = item.getWinnablePlaysColor();
+					final int allPlaysColor = item.getAllPlaysColor();
+
 					playCountColors = new int[] {
 						winsColor == Color.TRANSPARENT ? bggColors[0] : winsColor,
 						winnablePlaysColor,
 						allPlaysColor
 					};
 
-					playingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-					gameOwned = cursor.getInt(GameQuery.STATUS_OWN) > 0;
+					playingTime = item.getPlayingTime();
+					gameOwned = false;
 					double ratingSum = 0;
 					int ratingCount = 0;
-					do {
-						double rating = cursor.getDouble(GameQuery.RATING);
+					for (CollectionItemEntity cie : entity) {
+						if (cie.getOwn()) gameOwned = true;
+
+						double rating = cie.getRating();
 						if (rating > 0) {
 							ratingSum += rating;
 							ratingCount++;
 						}
-					} while (cursor.moveToNext());
+					}
 					if (ratingCount == 0) {
 						personalRating = 0.0;
 					} else {
 						personalRating = ratingSum / ratingCount;
 					}
 				}
-				LoaderManager.getInstance(this).restartLoader(PlayQuery._TOKEN, null, this);
-				break;
-			case PlayQuery._TOKEN:
-				if (cursor == null || !cursor.moveToFirst()) {
-					showEmpty();
-					return;
-				}
-				stats = new Stats(cursor, personalRating);
-				LoaderManager.getInstance(this).restartLoader(PlayerQuery._TOKEN, null, this);
-				break;
-			case PlayerQuery._TOKEN:
-				if (cursor != null && cursor.moveToFirst()) {
-					stats.addPlayerData(cursor);
-				}
-				stats.calculate();
-				bindUi(stats);
-				showData();
-				break;
-			default:
-				cursor.close();
-				break;
-		}
+			}
+		});
+
+		viewModel.getPlays().observe(getViewLifecycleOwner(), resource -> {
+			if (resource.getData() == null) {
+				showEmpty();
+			} else {
+				stats = new Stats(resource.getData(), personalRating);
+				viewModel.getPlayers().observe(getViewLifecycleOwner(), playerEntities -> {
+					if (playerEntities != null) {
+						stats.addPlayerData(playerEntities);
+					}
+					stats.calculate();
+					bindUi(stats);
+					showData();
+
+				});
+			}
+		});
+
+		viewModel.setGameId(gameId);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private void bindUi(Stats stats) {
@@ -429,20 +404,17 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			view.showScores(selectedItems.get(position, false));
 			if (stats.hasScores()) {
 				final int finalPosition = position;
-				view.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-							TransitionManager.beginDelayedTransition(playersList, playerTransition);
-						}
+				view.setOnClickListener(v -> {
+					if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+						TransitionManager.beginDelayedTransition(playersList, playerTransition);
+					}
 
-						if (selectedItems.get(finalPosition, false)) {
-							selectedItems.delete(finalPosition);
-							view.showScores(false);
-						} else {
-							selectedItems.put(finalPosition, true);
-							view.showScores(true);
-						}
+					if (selectedItems.get(finalPosition, false)) {
+						selectedItems.delete(finalPosition);
+						view.showScores(false);
+					} else {
+						selectedItems.put(finalPosition, true);
+						view.showScores(true);
 					}
 				});
 			}
@@ -540,10 +512,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		PlayStatRow view = new PlayStatRow(getContext());
 		container.addView(view);
 		return view;
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
 	@OnClick(R.id.score_help)
@@ -714,13 +682,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private Map<String, Integer> playCountByLocation;
 		private final Set<String> monthsPlayed = new HashSet<>();
 
-		public Stats(Cursor cursor, double personalRating) {
+		public Stats(List<PlayEntity> playEntities, double personalRating) {
 			init();
 			this.personalRating = personalRating;
-			do {
-				PlayModel model = new PlayModel(cursor);
+			for (int i = playEntities.size() - 1; i >= 0; i--) {
+				PlayEntity playEntity = playEntities.get(i);
+				PlayModel model = new PlayModel(playEntity);
 				plays.put(model.playId, model);
-			} while (cursor.moveToNext());
+			}
 		}
 
 		private void init() {
@@ -845,15 +814,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			}
 		}
 
-		public void addPlayerData(Cursor cursor) {
-			do {
-				PlayerModel playerModel = new PlayerModel(cursor);
+		public void addPlayerData(List<PlayPlayerEntity> players) {
+			for (PlayPlayerEntity player : players) {
+				PlayerModel playerModel = new PlayerModel(player);
 				if (plays.containsKey(playerModel.playId)) {
 					plays.get(playerModel.playId).addPlayer(playerModel);
 				} else {
 					Timber.w("Play %s not found in the play map!", playerModel.playId);
 				}
-			} while (cursor.moveToNext());
+			}
 		}
 
 		public int getPlayCount() {
@@ -1044,16 +1013,13 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public List<Entry<String, Integer>> getPlaysPerLocation() {
 			Set<Entry<String, Integer>> set = playCountByLocation.entrySet();
 			List<Entry<String, Integer>> list = new ArrayList(set);
-			Collections.sort(list, new Comparator<Entry<String, Integer>>() {
-				@Override
-				public int compare(Entry<String, Integer> lhs, Entry<String, Integer> rhs) {
-					if (lhs.getValue() > rhs.getValue()) {
-						return -1;
-					} else if (lhs.getValue() < rhs.getValue()) {
-						return 1;
-					} else {
-						return lhs.getKey().compareTo(rhs.getKey());
-					}
+			Collections.sort(list, (lhs, rhs) -> {
+				if (lhs.getValue() > rhs.getValue()) {
+					return -1;
+				} else if (lhs.getValue() < rhs.getValue()) {
+					return 1;
+				} else {
+					return lhs.getKey().compareTo(rhs.getKey());
 				}
 			});
 			return list;
@@ -1170,18 +1136,20 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final long deleteTimestamp;
 		final long updateTimestamp;
 		final List<PlayerModel> players = new ArrayList<>();
+		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
-		PlayModel(Cursor cursor) {
-			playId = cursor.getInt(PlayQuery.PLAY_ID);
-			date = cursor.getString(PlayQuery.DATE);
-			length = cursor.getInt(PlayQuery.LENGTH);
-			quantity = cursor.getInt(PlayQuery.QUANTITY);
-			incomplete = CursorUtils.getBoolean(cursor, PlayQuery.INCOMPLETE);
-			playerCount = cursor.getInt(PlayQuery.PLAYER_COUNT);
-			noWinStats = CursorUtils.getBoolean(cursor, PlayQuery.NO_WIN_STATS);
-			location = cursor.getString(PlayQuery.LOCATION);
-			deleteTimestamp = cursor.getLong(PlayQuery.DELETE_TIMESTAMP);
-			updateTimestamp = cursor.getLong(PlayQuery.UPDATE_TIMESTAMP);
+		PlayModel(PlayEntity playEntity) {
+			playId = playEntity.getPlayId();
+			date = df.format(playEntity.getDateInMillis());// playEntity.dateForDisplay(getContext()).toString();// "????";
+			//date = playEntity.getDateInMillis(); // ?? cursor.getString(PlayQuery.DATE);
+			length = playEntity.getLength();
+			quantity = playEntity.getQuantity();
+			incomplete = playEntity.getIncomplete();
+			playerCount = playEntity.getPlayerCount();
+			noWinStats = playEntity.getNoWinStats();
+			location = playEntity.getLocation();
+			deleteTimestamp = playEntity.getDeleteTimestamp();
+			updateTimestamp = playEntity.getUpdateTimestamp();
 			players.clear();
 		}
 
@@ -1225,12 +1193,12 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		final boolean win;
 		final String score;
 
-		PlayerModel(Cursor cursor) {
-			playId = cursor.getInt(PlayerQuery.PLAY_ID);
-			username = cursor.getString(PlayerQuery.USER_NAME);
-			name = cursor.getString(PlayerQuery.NAME);
-			win = CursorUtils.getBoolean(cursor, PlayerQuery.WIN);
-			score = cursor.getString(PlayerQuery.SCORE);
+		PlayerModel(PlayPlayerEntity entity) {
+			playId = entity.getPlayId();
+			username = entity.getUsername();
+			name = entity.getName();
+			win = entity.isWin();
+			score = entity.getScore();
 		}
 
 		public String getUniqueName() {
@@ -1239,52 +1207,5 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			}
 			return name + " (" + username + ")";
 		}
-	}
-
-	private interface PlayQuery {
-		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, Plays.ITEM_NAME, Plays.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
-			Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.DELETE_TIMESTAMP, Plays.UPDATE_TIMESTAMP };
-		int PLAY_ID = 1;
-		int DATE = 2;
-		int LOCATION = 5;
-		int QUANTITY = 6;
-		int LENGTH = 7;
-		int PLAYER_COUNT = 8;
-		int INCOMPLETE = 10;
-		int NO_WIN_STATS = 11;
-		int DELETE_TIMESTAMP = 12;
-		int UPDATE_TIMESTAMP = 13;
-	}
-
-	private interface PlayerQuery {
-		int _TOKEN = 0x03;
-		String[] PROJECTION = { PlayPlayers._ID, PlayPlayers.PLAY_ID, PlayPlayers.USER_NAME, PlayPlayers.WIN,
-			PlayPlayers.SCORE, PlayPlayers.NAME };
-		int PLAY_ID = 1;
-		int USER_NAME = 2;
-		int WIN = 3;
-		int SCORE = 4;
-		int NAME = 5;
-	}
-
-	private interface GameQuery {
-		int _TOKEN = 0x02;
-		String[] PROJECTION = {
-			Games._ID,
-			Collection.RATING,
-			Games.PLAYING_TIME,
-			Collection.STATUS_OWN,
-			Games.WINS_COLOR,
-			Games.WINNABLE_PLAYS_COLOR,
-			Games.ALL_PLAYS_COLOR
-		};
-		int RATING = 1;
-		int PLAYING_TIME = 2;
-		int STATUS_OWN = 3;
-		int WINS_COLOR = 4;
-		int WINNABLE_PLAYS_COLOR = 5;
-		int ALL_PLAYS_COLOR = 6;
 	}
 }

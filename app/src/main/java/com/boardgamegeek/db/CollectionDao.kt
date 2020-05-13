@@ -154,7 +154,11 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.PRIVATE_INFO_ACQUISITION_DATE,
                 Collection.PRIVATE_INFO_QUANTITY,
                 Collection.PRIVATE_INFO_INVENTORY_LOCATION,
-                Collection.PRIVATE_INFO_COMMENT
+                Collection.PRIVATE_INFO_COMMENT,
+                Games.WINS_COLOR,
+                Games.WINNABLE_PLAYS_COLOR,
+                Games.ALL_PLAYS_COLOR,
+                Games.PLAYING_TIME
         )
         return RegisteredLiveData(context, uri, true) {
             val list = arrayListOf<CollectionItemEntity>()
@@ -208,7 +212,11 @@ class CollectionDao(private val context: BggApplication) {
                                 acquiredFrom = it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUIRED_FROM),
                                 acquisitionDate = it.getStringOrEmpty(Collection.PRIVATE_INFO_ACQUISITION_DATE),
                                 inventoryLocation = it.getStringOrEmpty(Collection.PRIVATE_INFO_INVENTORY_LOCATION),
-                                privateComment = it.getStringOrEmpty(Collection.PRIVATE_INFO_COMMENT)
+                                privateComment = it.getStringOrEmpty(Collection.PRIVATE_INFO_COMMENT),
+                                winsColor = it.getIntOrZero(Games.WINS_COLOR),
+                                winnablePlaysColor = it.getIntOrZero(Games.WINNABLE_PLAYS_COLOR),
+                                allPlaysColor = it.getIntOrZero(Games.ALL_PLAYS_COLOR),
+                                playingTime = it.getIntOrZero(Games.PLAYING_TIME)
                         )
                         if (includeDeletedItems || item.deleteTimestamp == 0L)
                             list.add(item)

@@ -1,6 +1,7 @@
 package com.boardgamegeek.entities
 
 import android.content.Context
+import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import com.boardgamegeek.R
@@ -58,7 +59,11 @@ data class CollectionItemEntity(
         val wishListDirtyTimestamp: Long = 0L,
         val tradeConditionDirtyTimestamp: Long = 0L,
         val hasPartsDirtyTimestamp: Long = 0L,
-        val wantPartsDirtyTimestamp: Long = 0L
+        val wantPartsDirtyTimestamp: Long = 0L,
+        val winsColor: Int = Color.TRANSPARENT,
+        val winnablePlaysColor: Int = Color.TRANSPARENT,
+        val allPlaysColor: Int = Color.TRANSPARENT,
+        val playingTime: Int = 0
 ) {
     val isDirty: Boolean by lazy {
         when {
