@@ -20,6 +20,9 @@ data class PlayPlayerEntity(
     val seat: Int
         get() = startingPosition?.toIntOrNull() ?: SEAT_UNKNOWN
 
+    val numericScore: Double?
+        get() = score?.toDoubleOrNull()
+
     val description: String = if (username.isBlank()) name else "$name ($username)"
 
     companion object {
