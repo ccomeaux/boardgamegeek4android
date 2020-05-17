@@ -264,7 +264,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         for ((position, playerStats) in stats.getPlayerStats().withIndex()) {
             val stat = playerStats.value
             val view = PlayerStatView(requireActivity()).apply {
-                setName(playerStats.key)
+                setName(stat.description)
                 setWinInfo(stat.numberOfPlaysWon, stat.numberOfWinnablePlays)
                 setWinSkill(stat.winSkill)
                 setOverallLowScore(stats.lowScore)
@@ -496,9 +496,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
                 for (player in playerEntities.filter { it.playId == play.playId }) {
                     if (player.description.isNotEmpty()) {
-                        val playerStats = playerStats[player.description] ?: PlayerStats()
+                        val playerStats = playerStats[player.id] ?: PlayerStats()
                         playerStats.add(play, player)
-                        this.playerStats[player.description] = playerStats
+                        this.playerStats[player.id] = playerStats
                     }
 
                     player.numericScore?.let { score ->
@@ -562,11 +562,11 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         val highScorers: String
             get() = if (highScore == Int.MIN_VALUE.toDouble()) "" else
-                playerStats.entries.filter { it.value.highScore == highScore }.map { it.key }.formatList()
+                playerStats.entries.filter { it.value.highScore == highScore }.map { it.value.description }.formatList()
 
         val lowScorers: String
             get() = if (lowScore == Int.MAX_VALUE.toDouble()) "" else
-                playerStats.entries.filter { it.value.lowScore == lowScore }.map { it.key }.formatList()
+                playerStats.entries.filter { it.value.lowScore == lowScore }.map { it.value.description }.formatList()
 
         val averageWinningScore: Double
             get() = winningScoreSum / winningScoreCount
@@ -659,6 +659,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
     private inner class PlayerStats {
         var username = ""
             private set
+        var description: String = ""
         var numberOfPlays = 0
         var numberOfWinnablePlays = 0
         var numberOfPlaysWon = 0
@@ -680,6 +681,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         fun add(play: PlayEntity, player: PlayPlayerEntity) {
             username = player.username
+            description = player.description
             numberOfPlays += play.quantity
             addByPlayerCount(playsByPlayerCount, play.playerCount, play.quantity)
             if (play.isWinnable) {

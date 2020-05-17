@@ -15,7 +15,7 @@ data class PlayPlayerEntity(
         val playId: Int = BggContract.INVALID_ID
 ) {
     val id: String
-        get() = if (username.isBlank()) name else username
+        get() = if (username.isBlank()) "P|$name" else "U|${username.toLowerCase()}"
 
     val seat: Int
         get() = startingPosition?.toIntOrNull() ?: SEAT_UNKNOWN
