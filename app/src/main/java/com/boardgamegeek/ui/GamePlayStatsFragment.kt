@@ -27,8 +27,6 @@ import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.extensions.PlayStats.getGameHIndex
-import com.boardgamegeek.extensions.PlayStats.logPlayStatsIncomplete
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
@@ -348,6 +346,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         if (personalRating > 0.0) {
             addPlayStat(advancedTable, stats.calculateFhm().toString(), R.string.play_stat_fhm).setInfoText(R.string.play_stat_fhm_info)
             addPlayStat(advancedTable, stats.calculateHhm().toString(), R.string.play_stat_hhm).setInfoText(R.string.play_stat_hhm_info)
+            addPlayStat(advancedTable, DOUBLE_FORMAT.format(stats.calculateHuberHeat()), R.string.play_stat_huber_heat).setInfoText(R.string.play_stat_huber_heat_info)
             addPlayStat(advancedTable, DOUBLE_FORMAT.format(stats.calculateRuhm()), R.string.play_stat_ruhm).setInfoText(R.string.play_stat_ruhm_info)
         }
         if (gameOwned) {
@@ -390,7 +389,6 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
     private inner class Stats {
         private val lambda = ln(0.1) / -10
-        private val currentYear = Calendar.getInstance()[Calendar.YEAR].toString()
         private val playerStats: MutableMap<String, PlayerStats> = HashMap()
 
         var firstPlayDate: String = ""
@@ -403,12 +401,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         var halfDollarDate: String = ""
         var dollarDate: String = ""
 
-        var playCount = 0
-            private set
         var playCountIncomplete = 0
             private set
         private var playCountWithLength = 0
-        private var playCountThisYear = 0
         private var playerCountSumWithLength = 0
         private var playCountByPlayerCount = mapOf<Int, Int>()
         private var realMinutesPlayed = 0
@@ -444,15 +439,12 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             highScore = Int.MIN_VALUE.toDouble()
             lowScore = Int.MAX_VALUE.toDouble()
 
-            val includeIncomplete = prefs.logPlayStatsIncomplete()
             playCountIncomplete = playEntities.sumBy { it.quantity }
 
-            val plays = playEntities.filter { includeIncomplete || !it.incomplete }.reversed()
             firstPlayDate = plays.first().date
             firstPlayDateInMillis = plays.first().dateInMillis
             lastPlayDate = plays.last().date
             lastPlayDateInMillis = plays.last().dateInMillis
-            playCount = plays.sumBy { it.quantity }
             numberOfWinnablePlays = plays.filter { it.isWinnable }.sumBy { it.quantity }
 
             playCountByPlayerCount = plays.filter { it.playerCount > 0 }.groupingBy { it.playerCount }.fold(0) { playCount, play ->
@@ -461,27 +453,23 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             playCountByLocation = plays.filter { it.location.isNotBlank() }.groupingBy { it.location }.fold(0) { playCount, play ->
                 playCount + play.quantity
             }
-            val playCountByYear = plays.groupingBy { it.year }.fold(0) { playCount, play ->
-                playCount + play.quantity
-            }
-            playCountThisYear = playCountByYear[currentYear] ?: 0
             monthsPlayed = plays.groupBy { it.yearAndMonth }.keys
 
             for (play in plays) {
                 // nickel and dime dates
-                if (count < 5 && (playCount + play.quantity) >= 5) {
+                if (count < 5 && (count + play.quantity) >= 5) {
                     nickelDate = play.date
                 }
-                if (count < 10 && (playCount + play.quantity) >= 10) {
+                if (count < 10 && (count + play.quantity) >= 10) {
                     dimeDate = play.date
                 }
-                if (count < 25 && (playCount + play.quantity) >= 25) {
+                if (count < 25 && (count + play.quantity) >= 25) {
                     quarterDate = play.date
                 }
-                if (count < 50 && (playCount + play.quantity) >= 50) {
+                if (count < 50 && (count + play.quantity) >= 50) {
                     halfDollarDate = play.date
                 }
-                if (count < 100 && (playCount + play.quantity) >= 100) {
+                if (count < 100 && (count + play.quantity) >= 100) {
                     dollarDate = play.date
                 }
                 count += play.quantity
@@ -513,6 +501,18 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                     }
                 }
             }
+        }
+
+        val plays: List<PlayEntity> = playEntities.filter { prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
+
+        val playCount: Int by lazy { plays.sumBy { it.quantity } }
+
+        fun playCountSince(dateInMillis: Long): Int = plays.filter { it.dateInMillis > dateInMillis }.sumBy { it.quantity }
+
+        fun hoursPlayedSince(dateInMillis: Long): Double {
+            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumBy { playingTime * it.quantity }
+            val actual = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length > 0 }.sumBy { it.length }
+            return (estimated + actual) / 60.0
         }
 
         val hoursPlayed: Double
@@ -590,6 +590,10 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             return ((personalRating - 4.5) * hoursPlayed).toInt()
         }
 
+        fun calculateHhmSince(dateInMillis: Long): Int {
+            return ((personalRating - 4.5) * hoursPlayedSince(dateInMillis)).toInt()
+        }
+
         fun calculateRuhm(): Double {
             val raw = ((calculateFlash().toDouble()) / calculateLag()) * getMonthsPlayed() * personalRating
             return if (raw < 1.0) 0.0 else ln(raw)
@@ -597,7 +601,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         val hIndexOffset: Int
             get() {
-                val hIndex = prefs.getGameHIndex()
+                val hIndex = prefs[PlayStats.KEY_GAME_H_INDEX, 0] ?: 0
                 return if (playCount >= hIndex) {
                     HIndexEntity.INVALID_H_INDEX
                 } else {
@@ -611,11 +615,18 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             return months / playCount
         }
 
-        fun calculateGrayHotness(intervalPlayCount: Int): Double {
+        fun calculateHuberHeat(): Double {
+            val lastYear = Calendar.getInstance().apply {
+                add(Calendar.YEAR, -1)
+            }.timeInMillis
+            return calculateGrayHotness(lastYear)
+        }
+
+        fun calculateGrayHotness(sinceDateInMillis: Long): Double {
             // http://matthew.gray.org/2005/10/games_16.html
-            val s = 1 + (intervalPlayCount / playCount).toDouble()
-            // TODO: need to get HHM for the interval _only_
-            return s * s * sqrt(intervalPlayCount.toDouble()) * calculateHhm()
+            val intervalPlayCount = playCountSince(sinceDateInMillis)
+            val s = 1 + (intervalPlayCount.toDouble() / playCount)
+            return s * s * sqrt(intervalPlayCount.toDouble()) * calculateHhmSince(sinceDateInMillis)
         }
 
         fun calculateWhitmoreScore(): Int {
@@ -635,8 +646,8 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             return squared / 2.025
         }
 
-        fun calculateZefquaaviusHotness(intervalPlayCount: Int): Double {
-            return calculateGrayHotness(intervalPlayCount) * calculateZefquaaviusScore()
+        fun calculateZefquaaviusHotness(sinceDateInMillis: Long): Double {
+            return calculateGrayHotness(sinceDateInMillis) * calculateZefquaaviusScore()
         }
 
         private fun calculateFlash(): Long {

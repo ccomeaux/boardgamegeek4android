@@ -250,19 +250,9 @@ object PlayStats {
     const val LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions"
     const val LOG_PLAY_STATS_ACCESSORIES = LOG_PLAY_STATS_PREFIX + "Accessories"
 
-    @JvmStatic
-    fun SharedPreferences.logPlayStatsIncomplete(): Boolean {
-        return this[LOG_PLAY_STATS_INCOMPLETE, false] ?: false
-    }
-
     const val KEY_GAME_H_INDEX = "hIndex"
     const val KEY_PLAYER_H_INDEX = "play_stats_player_h_index"
     const val KEY_H_INDEX_N_SUFFIX = "_n"
-
-    @JvmStatic
-    fun SharedPreferences.getGameHIndex(): Int {
-        return this[KEY_GAME_H_INDEX, 0] ?: 0
-    }
 }
 
 // endregion PLAY STATS
