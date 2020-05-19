@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import com.appyvet.materialrangebar.RangeBar
 import com.boardgamegeek.R
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -111,26 +112,9 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
         layout.rangeCheckBox.apply {
             visibility = if (supportsSlider) View.VISIBLE else View.GONE
             isChecked = (low != high)
+            initRange(layout, isChecked)
             setOnCheckedChangeListener { _, isChecked ->
-                layout.rangeBar.setRangeBarEnabled(isChecked)
-                layout.minDownButton.visibility = if (isChecked) View.VISIBLE else View.GONE
-                layout.minUpButton.visibility = if (isChecked) View.VISIBLE else View.GONE
-                layout.buttonSpace.visibility = if (isChecked) View.VISIBLE else View.GONE
-                if (isChecked) {
-                    layout.rangeBar.apply {
-                        if (leftIndex == rightIndex) {
-                            if (leftIndex > 0) {
-                                updateRange(this, leftIndex - rangeInterval, rightIndex)
-                            } else {
-                                updateRange(this, leftIndex, rightIndex + rangeInterval)
-                            }
-                        } else {
-                            updateRange(this, leftIndex, rightIndex)
-                        }
-                    }
-                } else {
-                    layout.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
-                }
+                initRange(layout, isChecked)
             }
         }
 
@@ -156,6 +140,28 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
                 .setView(layout)
 
         builder.create().show()
+    }
+
+    private fun initRange(layout: View, isChecked: Boolean) {
+        layout.rangeBar.setRangeBarEnabled(isChecked)
+        layout.minDownButton.isVisible = isChecked
+        layout.minUpButton.isVisible = isChecked
+        layout.buttonSpace.isVisible = isChecked
+        if (isChecked) {
+            layout.rangeBar.apply {
+                if (leftIndex == rightIndex) {
+                    if (leftIndex > 0) {
+                        updateRange(this, leftIndex - rangeInterval, rightIndex)
+                    } else {
+                        updateRange(this, leftIndex, rightIndex + rangeInterval)
+                    }
+                } else {
+                    updateRange(this, leftIndex, rightIndex)
+                }
+            }
+        } else {
+            layout.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
+        }
     }
 
     private fun updateRange(rangeBar: RangeBar, leftPinIndex: Int, rightPinIndex: Int) {
