@@ -592,7 +592,7 @@
 	<string name="show_missing_votes">Pokaż brakujące głosy</string>
 	<string name="msg_collection_item_deleted">Usunięto!</string>
 	<string name="collection_status_own">W Posiadaniu</string>
-	<string name="collection_status_prev_owned">Kiedyś W Posiadaniu<</string>
+	<string name="collection_status_prev_owned">Kiedy&#347; W Posiadaniu</string>
 	<string name="collection_status_for_trade">Na Sprzedaż</string>
 	<string name="collection_status_want_to_play">Chcę Zagrać</string>
 	<string name="collection_status_want_in_trade">Chcę Odkupić</string>
