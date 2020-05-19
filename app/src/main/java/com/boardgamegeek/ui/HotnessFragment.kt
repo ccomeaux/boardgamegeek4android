@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Pair
 import android.util.SparseBooleanArray
@@ -17,13 +18,13 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel
 import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
-import com.boardgamegeek.util.PreferencesUtils
 import kotlinx.android.synthetic.main.fragment_hotness.*
 import kotlinx.android.synthetic.main.row_hotness.view.*
 import org.jetbrains.anko.design.snackbar
 import kotlin.properties.Delegates
 
 class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback {
+    private val prefs: SharedPreferences by lazy { requireActivity().preferences() }
     private val viewModel by activityViewModels<HotnessViewModel>()
     private val adapter: HotGamesAdapter by lazy {
         createAdapter()
@@ -174,8 +175,8 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = adapter.selectedItemCount
-        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && PreferencesUtils.showLogPlay(activity)
-        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && PreferencesUtils.showQuickLogPlay(activity)
+        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && prefs.showLogPlay()
+        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && prefs.showQuickLogPlay()
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }

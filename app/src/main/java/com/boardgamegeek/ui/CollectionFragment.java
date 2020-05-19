@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
@@ -32,6 +34,7 @@ import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
 import com.boardgamegeek.events.SyncCompleteEvent;
 import com.boardgamegeek.events.SyncEvent;
+import com.boardgamegeek.extensions.CollectionView;
 import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
@@ -39,6 +42,7 @@ import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
 import com.boardgamegeek.pref.SettingsActivity;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -65,7 +69,6 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -111,6 +114,7 @@ import butterknife.Unbinder;
 import timber.log.Timber;
 
 import static android.app.Activity.RESULT_OK;
+import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
 
 public class CollectionFragment extends Fragment implements
 	LoaderCallbacks<Cursor>,
@@ -135,7 +139,7 @@ public class CollectionFragment extends Fragment implements
 
 	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
-	private long viewId = PreferencesUtils.VIEW_ID_COLLECTION;
+	private long viewId = CollectionView.DEFAULT_DEFAULT_ID;
 	private String viewName = "";
 	private CollectionSorter sorter;
 	private final List<CollectionFilterer> filters = new ArrayList<>();
@@ -145,6 +149,7 @@ public class CollectionFragment extends Fragment implements
 	private boolean isSyncing;
 	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
+	private SharedPreferences prefs;
 
 	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
 		Bundle args = new Bundle();
@@ -165,6 +170,7 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 		readBundle(getArguments());
 		setHasOptionsMenu(true);
 	}
@@ -443,7 +449,7 @@ public class CollectionFragment extends Fragment implements
 
 	private String buildDefaultWhereClause() {
 		if (TextUtils.isEmpty(defaultWhereClause)) {
-			defaultWhereClause = PreferenceUtils.getSyncStatusesAsSql(requireContext());
+			defaultWhereClause = PreferenceUtils.getSyncStatusesAsSql(prefs);
 		}
 		return defaultWhereClause;
 	}
@@ -518,9 +524,9 @@ public class CollectionFragment extends Fragment implements
 
 	private void setEmptyText() {
 		if (emptyButton == null) return;
-		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
-			final Set<String> syncedStatuses = PreferenceUtils.getSyncStatuses(getContext());
-			if (SyncPrefs.noPreviousCollectionSync(requireContext())) {
+		final Set<String> syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null);
+		if (syncedStatuses == null || syncedStatuses.size() == 0) {
+			if (SyncPrefUtils.noPreviousCollectionSync(SyncPrefs.getPrefs(requireContext()))) {
 				setEmptyStateForNoAction(R.string.empty_collection_sync_never);
 			} else if (hasFiltersApplied()) {
 				if (isAtLeastOneSyncOff(syncedStatuses, getListOfVisibleStatuses())) {
@@ -915,8 +921,8 @@ public class CollectionFragment extends Fragment implements
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
 		int count = adapter.getSelectedItemCount();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
+		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferenceUtils.showLogPlay(prefs));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferenceUtils.showQuickLogPlay(prefs));
 		menu.findItem(R.id.menu_link).setVisible(count == 1);
 		return true;
 	}

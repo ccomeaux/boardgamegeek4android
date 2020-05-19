@@ -13,13 +13,13 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/header_dates"
+			android:id="@+id/datesHeaderView"
 			style="@style/Text.Header.Card"
 			android:layout_width="wrap_content"
 			android:text="@string/title_dates"/>
 
 		<TableLayout
-			android:id="@+id/table_dates"
+			android:id="@+id/datesTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"

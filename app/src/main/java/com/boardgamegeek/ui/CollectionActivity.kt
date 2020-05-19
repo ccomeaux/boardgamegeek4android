@@ -14,7 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.extensions.getViewDefaultId
+import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
@@ -23,6 +24,7 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import com.crashlytics.android.answers.CustomEvent
 import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 
@@ -57,7 +59,9 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
         viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
         if (savedInstanceState == null) {
-            val viewId = intent.getLongExtra(KEY_VIEW_ID, this.getViewDefaultId())
+            val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                    ?: CollectionView.DEFAULT_DEFAULT_ID
+            val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
             viewModel.selectView(viewId)
         }
     }
@@ -73,10 +77,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     Answers.getInstance().logCustom(CustomEvent("CollectionViewSelected"))
-                    when {
-                        id <= 0 -> viewModel.clearView()
-                        else -> viewModel.selectView(id)
-                    }
+                    viewModel.selectView(id)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing

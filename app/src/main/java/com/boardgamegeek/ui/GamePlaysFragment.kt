@@ -147,7 +147,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
 
                 playStatsContainer.setOnClickListener {
                     if (gameId != BggContract.INVALID_ID)
-                        GamePlayStatsActivity.start(context, gameId, gameName, iconColor)
+                        GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
                 }
                 playStatsContainer.fadeIn()
             } else {

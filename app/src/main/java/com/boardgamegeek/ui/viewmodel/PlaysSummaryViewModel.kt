@@ -7,13 +7,13 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP
+import com.boardgamegeek.extensions.PlayStats
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.util.PreferencesUtils
 import java.util.concurrent.TimeUnit
 
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
@@ -63,17 +63,15 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
             }
         }
 
-    private val h: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX)
-    private val n: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PreferencesUtils.KEY_GAME_H_INDEX + PreferencesUtils.KEY_H_INDEX_N_SUFFIX)
-    fun hIndex(): LiveData<HIndexEntity> {
-        val mld = MediatorLiveData<HIndexEntity>()
-        mld.addSource(h) {
-            mld.value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
+    private val h: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PlayStats.KEY_GAME_H_INDEX)
+    private val n: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
+    val hIndex = MediatorLiveData<HIndexEntity>().apply {
+        addSource(h) {
+            value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
         }
-        mld.addSource(n) {
-            mld.value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
+        addSource(n) {
+            value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
         }
-        return mld
     }
 
     val oldestSyncDate: LiveSharedPreference<Long> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)

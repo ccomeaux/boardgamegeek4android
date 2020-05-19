@@ -13,13 +13,13 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/header_play_time"
+			android:id="@+id/playTimeHeaderView"
 			style="@style/Text.Header.Card"
 			android:layout_width="wrap_content"
 			android:text="@string/title_play_time"/>
 
 		<TableLayout
-			android:id="@+id/table_play_time"
+			android:id="@+id/playTimeTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"

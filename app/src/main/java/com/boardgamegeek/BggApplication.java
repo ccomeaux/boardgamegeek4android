@@ -1,5 +1,6 @@
 package com.boardgamegeek;
 
+import android.content.SharedPreferences;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
@@ -14,7 +15,6 @@ import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
@@ -29,10 +29,12 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Set;
 
 import androidx.multidex.MultiDexApplication;
+import androidx.preference.PreferenceManager;
 import hugo.weaving.DebugLog;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
+import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
 import static timber.log.Timber.DebugTree;
 
 public class BggApplication extends MultiDexApplication {
@@ -113,11 +115,12 @@ public class BggApplication extends MultiDexApplication {
 	}
 
 	private void migrateCollectionStatusSettings() {
-		Set<String> set = PreferenceUtils.getSyncStatuses(this, null);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		Set<String> set = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null);
 		if (set == null) {
-			String[] oldSyncStatuses = PreferencesUtils.getOldSyncStatuses(getApplicationContext());
-			if (oldSyncStatuses != null && oldSyncStatuses.length > 0) {
-				PreferenceUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
+			String[] oldSyncStatuses = PreferenceUtils.getOldSyncStatuses(prefs, getApplicationContext());
+			if (oldSyncStatuses.length > 0) {
+				PreferenceUtils.setSyncStatuses(prefs, oldSyncStatuses);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package com.boardgamegeek.pref
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
@@ -8,6 +9,8 @@ import androidx.preference.PreferenceDialogFragmentCompat
 import com.boardgamegeek.R
 
 class SyncTimestampsDialogFragment : PreferenceDialogFragmentCompat() {
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
+
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
 
@@ -16,13 +19,13 @@ class SyncTimestampsDialogFragment : PreferenceDialogFragmentCompat() {
         val buddies = view.findViewById<TextView>(R.id.sync_timestamp_buddy)
         val playsView = view.findViewById<TextView>(R.id.sync_timestamp_plays)
 
-        setDateTime(collectionFull, SyncPrefs.getLastCompleteCollectionTimestamp(requireContext()), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-        setDateTime(collectionPartial, SyncPrefs.getLastPartialCollectionTimestamp(requireContext()), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        setDateTime(collectionFull, syncPrefs.getLastCompleteCollectionTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        setDateTime(collectionPartial, syncPrefs.getLastPartialCollectionTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
-        setDateTime(buddies, SyncPrefs.getBuddiesTimestamp(requireContext()), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        setDateTime(buddies, syncPrefs.getBuddiesTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
-        val oldestDate = SyncPrefs.getPlaysOldestTimestamp(requireContext())
-        val newestDate = SyncPrefs.getPlaysNewestTimestamp(requireContext())
+        val oldestDate = syncPrefs.getPlaysOldestTimestamp()
+        val newestDate = syncPrefs.getPlaysNewestTimestamp()
         if (oldestDate == java.lang.Long.MAX_VALUE && (newestDate == null || newestDate <= 0L)) {
             playsView.setText(R.string.plays_sync_status_none)
         } else {
@@ -55,7 +58,7 @@ class SyncTimestampsDialogFragment : PreferenceDialogFragmentCompat() {
     companion object {
         fun newInstance(key: String): SyncTimestampsDialogFragment {
             return SyncTimestampsDialogFragment().apply {
-                arguments = Bundle().apply { putString(PreferenceDialogFragmentCompat.ARG_KEY, key) }
+                arguments = Bundle().apply { putString(ARG_KEY, key) }
             }
         }
     }
