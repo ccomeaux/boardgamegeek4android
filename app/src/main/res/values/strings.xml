@@ -346,6 +346,7 @@
 	<string name="collection_sort_collection_name">Name</string>
 	<string name="collection_sort_geek_rating">Geek Rating</string>
 	<string name="collection_sort_last_viewed">Last Viewed</string>
+	<string name="collection_sort_last_modified">Last Modified</string>
 	<string name="collection_sort_my_rating">My Rating</string>
 	<string name="collection_sort_play_count_asc">Least Played</string>
 	<string name="collection_sort_play_count_desc">Most Played</string>
