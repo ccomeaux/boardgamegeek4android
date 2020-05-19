@@ -22,10 +22,7 @@ import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.events.SyncEvent
-import com.boardgamegeek.extensions.KEY_HAS_SEEN_NAV_DRAWER
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.loadThumbnail
-import com.boardgamegeek.extensions.set
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.google.android.material.navigation.NavigationView
@@ -175,7 +172,9 @@ abstract class DrawerActivity : BaseActivity() {
                 secondaryView.text = username
                 viewModel.setUsername(username)
             }
-
+            secondaryView.setOnClickListener {
+                linkToBgg("user/$username")
+            }
             val avatarUrl = AccountUtils.getAvatarUrl(this)
             if (avatarUrl.isNullOrBlank()) {
                 imageView.visibility = View.GONE
