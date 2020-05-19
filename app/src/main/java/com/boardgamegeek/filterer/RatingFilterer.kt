@@ -24,6 +24,8 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
 
     protected fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
         var text = when {
+            max == lowerBound -> formatRating(max)
+            min == upperBound -> formatRating(min)
             min == lowerBound -> formatRating(max).andLess()
             max == upperBound -> formatRating(min).andMore()
             min == max -> formatRating(max)
