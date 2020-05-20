@@ -3,7 +3,11 @@ Release Notes
 
 Coming Soon...
 --------------
- * Display GeekList comments  
+ * Display GeekList comments
+ * Filter on rating for just unrated games
+ * Correct collection section header when sorting with mixed case
+ * Added Huber Heat play stat
+ * Click on your username in the nav drawer to link to your BGG profile
 
 Version 6.8
 -----------
