@@ -10,6 +10,7 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     var min by DoubleIntervalDelegate(lowerBound, lowerBound, upperBound)
     var max by DoubleIntervalDelegate(upperBound, lowerBound, upperBound)
     var includeUndefined = false
+    var ignoreRange = false
 
     override val typeResourceId = R.string.collection_filter_type_average_weight
 
@@ -22,15 +23,16 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
         includeUndefined = d.getOrNull(2) == "1"
     }
 
-    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
+    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
     override fun toShortDescription() = describe(R.string.weight, R.string.undefined_abbr)
 
     override fun toLongDescription() = describe(R.string.average_weight, R.string.undefined)
 
     private fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
-        var text = when (min) {
-            max -> String.format(Locale.getDefault(), "%.1f", max)
+        var text = when {
+            ignoreRange -> ""
+            min == max -> String.format(Locale.getDefault(), "%.1f", max)
             else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
         }
         if (includeUndefined) text += " (+${context.getString(unratedResId)})"
@@ -38,16 +40,21 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     override fun getSelection(): String {
-        var format = when (min) {
-            max -> "%1\$s=?"
+        var format = when {
+            ignoreRange -> ""
+            min == max -> "%1\$s=?"
             else -> "(%1\$s>=? AND %1\$s<=?)"
         }
-        if (includeUndefined) format += " OR %1\$s=0 OR %1\$s IS NULL"
+        if (includeUndefined) {
+            if (format.isNotBlank()) format += " OR"
+            format += " %1\$s=0 OR %1\$s IS NULL"
+        }
         return String.format(format, columnName)
     }
 
-    override fun getSelectionArgs() = when (min) {
-        max -> arrayOf(min.toString())
+    override fun getSelectionArgs() = when {
+        ignoreRange -> emptyArray()
+        min == max -> arrayOf(min.toString())
         else -> arrayOf(min.toString(), max.toString())
     }
 

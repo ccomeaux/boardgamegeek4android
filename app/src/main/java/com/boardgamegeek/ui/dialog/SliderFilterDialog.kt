@@ -27,6 +27,9 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
 
     protected open val supportsSlider = true
 
+    protected open val supportsNone: Boolean
+        get() = supportsSlider
+
     protected open val rangeInterval = 1
 
     protected open val descriptionResId: Int
@@ -109,13 +112,38 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             }
         }
 
-        layout.rangeCheckBox.apply {
-            visibility = if (supportsSlider) View.VISIBLE else View.GONE
-            isChecked = (low != high)
-            initRange(layout, isChecked)
-            setOnCheckedChangeListener { _, isChecked ->
-                initRange(layout, isChecked)
+        layout.rangeRadioButton.apply {
+            isVisible = supportsSlider
+            isChecked = (low != high) && !initialValues.ignoreRange
+            setOnClickListener {
+                configRange(layout, RangeType.RANGE)
             }
+        }
+
+        layout.singleValueRadioButton.apply {
+            isVisible = supportsSlider
+            isChecked = (low == high) && !initialValues.ignoreRange
+            setOnClickListener {
+                configRange(layout, RangeType.SINGLE)
+            }
+        }
+
+        layout.noneRadioButton.apply {
+            isVisible = supportsNone
+            isChecked = initialValues.ignoreRange
+            setOnClickListener {
+                layout.checkBox.isChecked = true
+                configRange(layout, RangeType.NONE)
+            }
+        }
+
+        if (supportsSlider) {
+            val type = when {
+                initialValues.ignoreRange -> RangeType.NONE
+                (low == high) -> RangeType.SINGLE
+                else -> RangeType.RANGE
+            }
+            configRange(layout, type)
         }
 
         layout.checkBox.apply {
@@ -136,18 +164,27 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
         val builder = AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(titleResId)
                 .setNegativeButton(R.string.clear) { _, _ -> listener?.removeFilter(getType(context)) }
-                .setPositiveButton(R.string.set) { _, _ -> listener?.addFilter(getPositiveData(context, low, high, layout.checkBox.isChecked)) }
+                .setPositiveButton(R.string.set) { _, _ ->
+                    val l = if (layout.noneRadioButton.isChecked) 0 else low
+                    listener?.addFilter(getPositiveData(context, l, high, layout.checkBox.isChecked, layout.noneRadioButton.isChecked))
+                }
                 .setView(layout)
 
         builder.create().show()
     }
 
-    private fun initRange(layout: View, isChecked: Boolean) {
-        layout.rangeBar.setRangeBarEnabled(isChecked)
-        layout.minDownButton.isVisible = isChecked
-        layout.minUpButton.isVisible = isChecked
-        layout.buttonSpace.isVisible = isChecked
-        if (isChecked) {
+    enum class RangeType {
+        RANGE, SINGLE, NONE
+    }
+
+    private fun configRange(layout: View, type: RangeType) {
+        layout.rangeButtonContainer.isVisible = type != RangeType.NONE
+        layout.rangeBar.isVisible = type != RangeType.NONE
+        layout.rangeBar.setRangeBarEnabled(type == RangeType.RANGE)
+        layout.minDownButton.isVisible = type == RangeType.RANGE
+        layout.minUpButton.isVisible = type == RangeType.RANGE
+        layout.buttonSpace.isVisible = type == RangeType.RANGE
+        if (type == RangeType.RANGE) {
             layout.rangeBar.apply {
                 if (leftIndex == rightIndex) {
                     if (leftIndex > 0) {
@@ -159,7 +196,7 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
                     updateRange(this, leftIndex, rightIndex)
                 }
             }
-        } else {
+        } else if (type == RangeType.SINGLE) {
             layout.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
         }
     }
@@ -175,11 +212,11 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
 
     protected abstract fun initValues(filter: CollectionFilterer?): InitialValues
 
-    protected abstract fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer
+    protected abstract fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer
 
     protected open fun getPinText(context: Context, value: String) = value
 
-    data class InitialValues @JvmOverloads constructor(val min: Int, val max: Int, val isChecked: Boolean = false)
+    data class InitialValues @JvmOverloads constructor(val min: Int, val max: Int, val isChecked: Boolean = false, val ignoreRange: Boolean = false)
 
     companion object {
         private const val INVALID_STRING_RES_ID = -1

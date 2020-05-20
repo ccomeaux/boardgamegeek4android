@@ -14,9 +14,12 @@ class PlayerNumberFilterDialog : SliderFilterDialog() {
     override val absoluteMin = PlayerNumberFilterer.lowerBound
     override val absoluteMax = PlayerNumberFilterer.upperBound
 
+    override val supportsNone: Boolean
+        get() = false
+
     override fun getType(context: Context) = PlayerNumberFilterer(context).type
 
-    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
+    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer {
         return PlayerNumberFilterer(context).apply {
             this.min = min
             this.max = max
@@ -24,9 +27,9 @@ class PlayerNumberFilterDialog : SliderFilterDialog() {
         }
     }
 
-    override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
+    override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as PlayerNumberFilterer?
-        return SliderFilterDialog.InitialValues(
+        return InitialValues(
                 f?.min ?: 4,
                 f?.max ?: 4,
                 f?.isExact ?: false
