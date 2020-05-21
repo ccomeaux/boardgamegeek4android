@@ -271,54 +271,44 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
     private fun addField() {
         val array = createAddFieldArray()
-        if (array.isEmpty()) {
-            return
-        }
+        if (array.isEmpty()) return
         AlertDialog.Builder(this).setTitle(R.string.add_field)
                 .setItems(array) { _, which ->
-                    var viewToFocus: View? = null
-                    var viewToScroll: View? = null
                     val selection = array[which].toString()
-                    when (selection) {
+                    val views = when (selection) {
                         resources.getString(R.string.team_color) -> {
                             userHasShownTeamColor = true
-                            viewToFocus = teamColorView
-                            viewToScroll = findViewById(R.id.log_player_team_color_container)
+                            teamColorView to log_player_team_color_container
                         }
                         resources.getString(R.string.starting_position) -> {
                             userHasShownPosition = true
-                            viewToFocus = positionView
-                            viewToScroll = findViewById(R.id.log_player_position_container)
+                            positionView to log_player_position_container
                         }
                         resources.getString(R.string.score) -> {
                             userHasShownScore = true
-                            viewToFocus = scoreView
-                            viewToScroll = findViewById(R.id.log_player_score_container)
+                            scoreView to log_player_score_container
                         }
                         resources.getString(R.string.rating) -> {
                             userHasShownRating = true
-                            viewToFocus = ratingView
-                            viewToScroll = findViewById(R.id.ratingView)
+                            ratingView to ratingView
                         }
                         resources.getString(R.string.new_label) -> {
                             userHasShownNew = true
                             newView.isChecked = true
-                            viewToScroll = newView
-                            viewToFocus = newView
+                            newView to newView
                         }
                         resources.getString(R.string.win) -> {
                             userHasShownWin = true
                             winView.isChecked = true
-                            viewToScroll = winView
-                            viewToFocus = winView
+                            winView to winView
                         }
+                        else -> null to null
                     }
                     AddFieldEvent.log("Player", selection)
                     setViewVisibility()
-                    viewToFocus?.requestFocus()
-                    if (viewToScroll != null) {
-                        val finalView: View = viewToScroll
-                        scrollContainer.post { scrollContainer.smoothScrollTo(0, finalView.bottom) }
+                    views.first?.requestFocus()
+                    views.second?.let {
+                        scrollContainer.post { scrollContainer.smoothScrollTo(0, it.bottom) }
                     }
                 }.show()
     }
