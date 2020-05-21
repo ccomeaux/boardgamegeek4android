@@ -16,7 +16,7 @@
 		android:layout_height="match_parent">
 
 		<ScrollView
-			android:id="@+id/scroll_container"
+			android:id="@+id/scrollContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:fillViewport="true">
@@ -33,13 +33,13 @@
 					android:background="@color/no_image">
 
 					<ImageView
-						android:id="@+id/thumbnail"
+						android:id="@+id/thumbnailView"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:scaleType="centerCrop"/>
 
 					<TextView
-						android:id="@+id/header"
+						android:id="@+id/headerView"
 						style="@style/Text.Title.Overlay"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
@@ -53,7 +53,7 @@
 						tools:visibility="gone"/>
 
 					<LinearLayout
-						android:id="@+id/two_line_container"
+						android:id="@+id/twoLineContainer"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:background="#6000"
@@ -63,7 +63,7 @@
 						android:paddingRight="@dimen/material_margin_horizontal">
 
 						<TextView
-							android:id="@+id/header2"
+							android:id="@+id/titleView"
 							style="@style/Text.Title.Overlay"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
 							tools:text="Puerto Rico"/>
 
 						<TextView
-							android:id="@+id/subheader"
+							android:id="@+id/subtitleView"
 							style="@style/Text.Overlay"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
 							android:src="@drawable/ic_user"/>
 
 						<AutoCompleteTextView
-							android:id="@+id/log_player_name"
+							android:id="@+id/nameView"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
@@ -110,7 +110,7 @@
 						<ImageView style="@style/Icon"/>
 
 						<AutoCompleteTextView
-							android:id="@+id/log_player_username"
+							android:id="@+id/usernameView"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
@@ -135,7 +135,7 @@
 							android:layout_marginRight="24dp">
 
 							<ImageView
-								android:id="@+id/color_view"
+								android:id="@+id/colorView"
 								android:layout_width="@dimen/color_circle_diameter"
 								android:layout_height="@dimen/color_circle_diameter"
 								android:layout_gravity="center"
@@ -145,7 +145,7 @@
 						</FrameLayout>
 
 						<AutoCompleteTextView
-							android:id="@+id/log_player_team_color"
+							android:id="@+id/teamColorView"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
@@ -167,7 +167,7 @@
 							android:src="@drawable/ic_sort"/>
 
 						<EditText
-							android:id="@+id/log_player_position"
+							android:id="@+id/positionView"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
@@ -177,7 +177,7 @@
 							android:maxLength="32"/>
 
 						<ImageButton
-							android:id="@+id/log_player_position_button"
+							android:id="@+id/positionButton"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/image_button_size"
 							android:layout_gravity="center_vertical"
@@ -194,7 +194,7 @@
 							android:src="@drawable/ic_score"/>
 
 						<EditText
-							android:id="@+id/log_player_score"
+							android:id="@+id/scoreView"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
@@ -204,7 +204,7 @@
 							android:maxLength="32"/>
 
 						<ImageButton
-							android:id="@+id/log_player_score_button"
+							android:id="@+id/scoreButton"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/image_button_size"
 							android:layout_gravity="center_vertical"
@@ -221,7 +221,7 @@
 							android:src="@drawable/ic_rating"/>
 
 						<EditText
-							android:id="@+id/log_player_rating"
+							android:id="@+id/ratingView"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
@@ -232,7 +232,7 @@
 					</LinearLayout>
 
 					<androidx.appcompat.widget.SwitchCompat
-						android:id="@+id/log_player_new"
+						android:id="@+id/newView"
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
@@ -242,7 +242,7 @@
 						android:text="@string/new_label"/>
 
 					<androidx.appcompat.widget.SwitchCompat
-						android:id="@+id/log_player_win"
+						android:id="@+id/winView"
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
@@ -252,7 +252,7 @@
 						android:text="@string/win"/>
 
 					<View
-						android:id="@+id/fab_buffer"
+						android:id="@+id/fabBuffer"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/fab_buffer"/>
 				</LinearLayout>
