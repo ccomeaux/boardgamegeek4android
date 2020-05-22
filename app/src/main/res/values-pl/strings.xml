@@ -49,7 +49,6 @@
 	<string name="cancelled">Anulowano</string>
 	<string name="exact">Dokładny</string>
 	<string name="exactly">Dokładnie</string>
-	<string name="select_range">Zaznacz przedział</string>
 	<string name="include_missing_values">Uwzględnij gry z brakującymi danymi</string>
 	<string name="filter_description_player_number">Zostają pokazane tylko gry dla <b>całego zakresu</b>graczy. <i>Dokładny</i> znaczy, że pokazane zostaną tylko gry dla danej liczby graczy (np. gry tylko dla 2 graczy).</string>
 	<string name="filter_description_include_missing_play_time">Jeśli <b>uwzględnisz gry z brakującymi danymi</b> filtr pokaże gry z nieznanym czasem gry.</string>
@@ -83,7 +82,6 @@
 	<string name="geek_rating">Ocena BGG</string>
 	<string name="my_rating">Moja ocena</string>
 	<string name="my_rating_abbr">Ja</string>
-	<string name="rating_hint">Ocena</string>
 	<string name="high_score">Najlepszy wynik</string>
 	<string name="low_score">Najgorszy wynik</string>
 	<string name="average_score">Średni wynik</string>

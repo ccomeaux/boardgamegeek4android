@@ -9,8 +9,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import java.util.*
 
-class PlayerNameAdapter(context: Context) :
-        ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player, emptyList<Result>()), Filterable {
+class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
     private val resultList = ArrayList<Result>()
 
     class Result(val title: String,
@@ -68,11 +67,10 @@ class PlayerNameAdapter(context: Context) :
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             resultList.clear()
-            var values: ArrayList<Result>? = null
-            if (results != null && results.count > 0) {
+            val values = if (results != null && results.count > 0) {
                 @Suppress("UNCHECKED_CAST")
-                values = results.values as? ArrayList<Result>
-            }
+                results.values as? ArrayList<Result>
+            } else null
             if (values != null && values.size > 0) {
                 resultList.addAll(values)
                 notifyDataSetChanged()

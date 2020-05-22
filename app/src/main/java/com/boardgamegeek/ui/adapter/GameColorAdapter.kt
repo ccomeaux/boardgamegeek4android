@@ -6,7 +6,6 @@ import android.provider.BaseColumns
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.annotation.LayoutRes
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asColorRgb
 import com.boardgamegeek.extensions.getStringOrNull
@@ -16,8 +15,7 @@ import com.boardgamegeek.provider.BggContract.GameColors
 import com.boardgamegeek.provider.BggContract.Games
 import java.util.*
 
-class GameColorAdapter(context: Context, gameId: Int, @LayoutRes layoutId: Int) :
-        ArrayAdapter<GameColorAdapter.ColorRow>(context, R.layout.autocomplete_color, emptyList<ColorRow>()), Filterable {
+class GameColorAdapter(context: Context, gameId: Int) : ArrayAdapter<GameColorAdapter.ColorRow>(context, R.layout.autocomplete_color), Filterable {
     private val gameColorsUri = Games.buildColorsUri(gameId)
     private val items = ArrayList<ColorRow>()
 

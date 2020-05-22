@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
-import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -33,6 +32,7 @@ import com.boardgamegeek.util.ToolbarUtils
 import com.boardgamegeek.util.UIUtils
 import com.boardgamegeek.util.fabric.AddFieldEvent
 import com.github.amlcurran.showcaseview.targets.Target
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_logplayer.*
 import org.jetbrains.anko.defaultSharedPreferences
 import java.util.*
@@ -92,11 +92,11 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         colorView.setOnClickListener {
             showAndSurvive(ColorPickerWithListenerDialogFragment.newInstance(colors, teamColorView.text.toString(), usedColors))
         }
-        positionButton.setOnClickListener {
-            onNumberToTextClick(it as ImageButton, positionView, false)
+        positionContainer.setEndIconOnClickListener {
+            onNumberToTextClick(positionContainer, positionView, false)
         }
-        scoreButton.setOnClickListener {
-            onNumberToTextClick(it as ImageButton, scoreView, true)
+        scoreContainer.setEndIconOnClickListener {
+            onNumberToTextClick(scoreContainer, scoreView, true)
         }
         fab.setOnClickListener { addField() }
 
@@ -147,7 +147,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         QueryHandler(contentResolver).startQuery(0, null, Games.buildColorsUri(gameId), arrayOf(GameColors.COLOR), null, null, null)
         nameView.setAdapter(PlayerNameAdapter(this))
         usernameView.setAdapter(BuddyNameAdapter(this))
-        teamColorView.setAdapter(GameColorAdapter(this, gameId, R.layout.autocomplete_color))
+        teamColorView.setAdapter(GameColorAdapter(this, gameId))
         setUpShowcaseViewWizard()
         showcaseWizard?.maybeShowHelp()
     }
@@ -176,17 +176,17 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         teamColorView.setText(description)
     }
 
-    private fun onNumberToTextClick(button: ImageButton, editText: EditText, includeSign: Boolean) {
+    private fun onNumberToTextClick(til: TextInputLayout, editText: EditText, includeSign: Boolean) {
         if (editText.inputType and InputType.TYPE_CLASS_NUMBER == InputType.TYPE_CLASS_NUMBER) {
             editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            button.setImageResource(R.drawable.ic_dialpad)
+            til.setEndIconDrawable(R.drawable.ic_dialpad)
         } else {
             editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or if (includeSign) {
                 editText.inputType or InputType.TYPE_NUMBER_FLAG_SIGNED
             } else {
                 editText.inputType and InputType.TYPE_NUMBER_FLAG_SIGNED.inv()
             }
-            button.setImageResource(R.drawable.ic_keyboard)
+            til.setEndIconDrawable(R.drawable.ic_keyboard)
         }
         UIUtils.focusWithKeyboard(editText)
     }
@@ -219,38 +219,32 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     }
 
     private fun setViewVisibility() {
-        var enableButton = hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container))
-        enableButton = enableButton or hideRow(shouldHidePosition(), findViewById(R.id.log_player_position_container))
-        if (hasAutoPosition()) {
-            hideRow(true, findViewById(R.id.log_player_position_container))
-        }
-        enableButton = enableButton or hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container))
-        enableButton = enableButton or hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container))
-        enableButton = enableButton or hideRow(shouldHideNew(), newView)
-        enableButton = enableButton or hideRow(shouldHideWin(), winView)
-        fabBuffer.isVisible = enableButton
+        teamColorContainer.isVisible = !shouldHideTeamColor()
+        positionContainer.isVisible = !hasAutoPosition() && !shouldHidePosition()
+        scoreContainer.isVisible = !shouldHideScore()
+        ratingContainer.isVisible = !shouldHideRating()
+        newView.isVisible = !shouldHideNew()
+        winView.isVisible = !shouldHideWin()
+
+        val enableButton = createAddFieldArray().isNotEmpty()
         if (enableButton) {
             fab.show()
         } else {
             fab.hide()
         }
-    }
-
-    private fun hideRow(shouldHide: Boolean, view: View?): Boolean {
-        view?.isVisible = !shouldHide
-        return shouldHide
+        fabBuffer.isVisible = enableButton
     }
 
     private fun shouldHideTeamColor(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerTeamColor() && !userHasShownTeamColor && player.color.isEmpty()
+        return !defaultSharedPreferences.showLogPlayerTeamColor() && !userHasShownTeamColor && player.color.isNullOrEmpty()
     }
 
     private fun shouldHidePosition(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerPosition() && !userHasShownPosition && player.startingPosition.isEmpty()
+        return !defaultSharedPreferences.showLogPlayerPosition() && !userHasShownPosition && player.startingPosition.isNullOrEmpty()
     }
 
     private fun shouldHideScore(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerScore() && !userHasShownScore && player.score.isEmpty()
+        return !defaultSharedPreferences.showLogPlayerScore() && !userHasShownScore && player.score.isNullOrEmpty()
     }
 
     private fun shouldHideRating(): Boolean {
@@ -278,19 +272,19 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
                     val views = when (selection) {
                         resources.getString(R.string.team_color) -> {
                             userHasShownTeamColor = true
-                            teamColorView to log_player_team_color_container
+                            teamColorView to teamColorContainer
                         }
                         resources.getString(R.string.starting_position) -> {
                             userHasShownPosition = true
-                            positionView to log_player_position_container
+                            positionView to positionContainer
                         }
                         resources.getString(R.string.score) -> {
                             userHasShownScore = true
-                            scoreView to log_player_score_container
+                            scoreView to scoreContainer
                         }
                         resources.getString(R.string.rating) -> {
                             userHasShownRating = true
-                            ratingView to ratingView
+                            ratingView to ratingContainer
                         }
                         resources.getString(R.string.new_label) -> {
                             userHasShownNew = true

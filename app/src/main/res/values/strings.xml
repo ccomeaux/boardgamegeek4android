@@ -88,7 +88,6 @@
 	<string name="geek_rating">Geek rating</string>
 	<string name="my_rating">My rating</string>
 	<string name="my_rating_abbr">Me</string>
-	<string name="rating_hint">Rating</string>
 	<string name="high_score">High Score</string>
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>

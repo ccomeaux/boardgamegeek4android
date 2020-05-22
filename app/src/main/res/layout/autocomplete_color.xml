@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
+	android:layout_height="wrap_content"
 	android:minHeight="@dimen/dropdownitem_min_height"
-	android:orientation="horizontal" >
+	android:orientation="horizontal">
 
 	<TextView
 		android:id="@+id/color_name"
@@ -16,7 +16,7 @@
 
 	<FrameLayout
 		android:layout_width="@dimen/dropdownitem_min_height"
-		android:layout_height="@dimen/dropdownitem_min_height" >
+		android:layout_height="@dimen/dropdownitem_min_height">
 
 		<ImageView
 			android:id="@+id/color_view"
