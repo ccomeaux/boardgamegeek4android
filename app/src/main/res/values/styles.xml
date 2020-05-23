@@ -29,9 +29,9 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 	</style>
 
-	<style name="ColoredButton" parent="Widget.MaterialComponents.Button"/>
+	<style name="ColoredButton" parent="Widget.MaterialComponents.Button" />
 
-	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon"/>
+	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon" />
 
 	<style name="ColoredButton.Small">
 		<item name="android:minHeight">32dp</item>
@@ -125,11 +125,11 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
+	<style name="Text.Title" parent="@style/TextAppearance.MaterialComponents.Headline6" />
 
-	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
-	<style name="Text.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5"/>
+	<style name="Text.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5" />
 
 	<style name="Text.Empty" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">@color/secondary_text</item>
@@ -147,19 +147,19 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2"/>
+	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2" />
 
-	<style name="TextAppearance.Title" parent="@style/TextAppearance.MaterialComponents.Headline6"/>
+	<style name="TextAppearance.Title" parent="@style/TextAppearance.MaterialComponents.Headline6" />
 
-	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
 	<style name="TextAppearance.Caption.Secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
-	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1"/>
+	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1" />
 
-	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Body2"/>
+	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Body2" />
 
 	<style name="TextAppearance.RowDetail.Secondary">
 		<item name="android:textColor">@color/secondary_text</item>
@@ -215,8 +215,7 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="Text.Body" parent="@style/TextAppearance.MaterialComponents.Body2">
-	</style>
+	<style name="Text.Body" parent="@style/TextAppearance.MaterialComponents.Body2" />
 
 	<style name="Text.Clickable">
 		<item name="android:background">?attr/selectableItemBackground</item>
@@ -307,7 +306,8 @@
 	</style>
 
 	<style name="RowRank">
-		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6
+		</item>
 		<item name="android:gravity">end|center_vertical</item>
 		<item name="android:minWidth">32dp</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
@@ -431,6 +431,7 @@
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 		<item name="android:minHeight">48dp</item>
+		<item name="android:baselineAligned">true</item>
 		<item name="android:orientation">horizontal</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:layout_gravity">center_vertical</item>
@@ -500,6 +501,18 @@
 	<style name="Icon.Right">
 		<item name="android:layout_marginLeft">0dp</item>
 		<item name="android:layout_marginRight">0dp</item>
+	</style>
+
+	<style name="FormButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+		<item name="iconPadding">0dp</item>
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:paddingLeft">12dp</item>
+		<item name="android:paddingRight">12dp</item>
+		<item name="android:minWidth">48dp</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:layout_gravity">center</item>
+		<item name="android:scaleType">centerInside</item>
 	</style>
 
 	<style name="NumPad">
@@ -600,7 +613,8 @@
 		<item name="android:drawablePadding">8dp</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:maxLines">1</item>
-		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1
+		</item>
 	</style>
 
 	<style name="TextWithImage.Secondary">

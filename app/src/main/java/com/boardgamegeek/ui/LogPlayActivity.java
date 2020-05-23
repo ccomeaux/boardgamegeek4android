@@ -1503,6 +1503,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 		public class LengthViewHolder extends PlayViewHolder {
 			@BindView(R.id.log_play_length) EditText lengthView;
+			@BindView(R.id.log_play_length_root) View lengthViewRoot;
 			@BindView(R.id.timer) Chronometer timerView;
 			@BindView(R.id.timer_toggle) ImageView timerToggleView;
 			private boolean canEdit;
@@ -1519,10 +1520,10 @@ public class LogPlayActivity extends AppCompatActivity implements
 					UIUtils.startTimerWithSystemTime(timerView, play.startTime);
 					canEdit = true;
 					if (play.hasStarted()) {
-						lengthView.setVisibility(View.GONE);
+						lengthViewRoot.setVisibility(View.GONE);
 						timerView.setVisibility(View.VISIBLE);
 					} else {
-						lengthView.setVisibility(View.VISIBLE);
+						lengthViewRoot.setVisibility(View.VISIBLE);
 						timerView.setVisibility(View.GONE);
 					}
 					if (play.hasStarted()) {
