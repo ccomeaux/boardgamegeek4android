@@ -3,6 +3,12 @@
 	  xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
+		android:id="@+id/menu_view"
+		android:icon="@drawable/menu_view"
+		android:orderInCategory="1"
+		android:title="@string/menu_view"
+		app:showAsAction="ifRoom" />
+	<item
 		android:id="@+id/menu_log_play_quick"
 		android:icon="@drawable/menu_log_play_quick"
 		android:title="@string/menu_log_play_quick"

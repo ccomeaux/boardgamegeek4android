@@ -153,6 +153,10 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 GameUsersDialogFragment.launch(this)
                 return true
             }
+            R.id.menu_view -> {
+                ActivityUtils.linkBgg(this, gameId);
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
