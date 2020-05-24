@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -27,18 +27,19 @@
 			android:padding="@dimen/padding_standard"
 			android:text="@string/msg_warning_private_info"
 			android:textAppearance="@style/Text"
-			android:textColor="@color/inverse_text"/>
+			android:textColor="@color/inverse_text" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/padding_half"
 			android:gravity="center_vertical"
 			android:orientation="horizontal">
 
 			<Spinner
 				android:id="@+id/priceCurrencyView"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content" />
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/input_price"
@@ -53,20 +54,21 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:inputType="numberDecimal"
-					android:maxLines="1"/>
+					android:maxLines="1" />
 			</com.google.android.material.textfield.TextInputLayout>
 		</LinearLayout>
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/padding_half"
 			android:gravity="center_vertical"
 			android:orientation="horizontal">
 
 			<Spinner
 				android:id="@+id/currentValueCurrencyView"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content" />
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/input_current_value"
@@ -80,7 +82,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:inputType="numberDecimal"
-					android:maxLines="1"/>
+					android:maxLines="1" />
 			</com.google.android.material.textfield.TextInputLayout>
 		</LinearLayout>
 
@@ -89,6 +91,7 @@
 			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/padding_half"
 			android:hint="@string/quantity">
 
 			<com.google.android.material.textfield.TextInputEditText
@@ -96,22 +99,26 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:inputType="number"
-				android:maxLines="1"/>
+				android:maxLines="1" />
 		</com.google.android.material.textfield.TextInputLayout>
 
 		<TextView
 			android:id="@+id/acquisitionDateLabelView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="@string/acquisition_date"
-			android:paddingStart="4dp"
-			android:paddingEnd="4dp"
-			android:textColor="?attr/colorControlActivated"
-			android:textSize="12sp"/>
+			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginTop="@dimen/padding_half"
+			android:layout_marginBottom="-8dp"
+			android:text="@string/acquisition_date"
+			android:paddingHorizontal="@dimen/padding_half"
+			android:textAppearance="?attr/textAppearanceCaption"
+			android:textColor="#99000000" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/padding_half"
 			android:gravity="center"
 			android:orientation="horizontal">
 
@@ -119,6 +126,8 @@
 				android:id="@+id/acquisitionDateView"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
+				android:layout_marginStart="8dp"
+				android:layout_marginLeft="8dp"
 				android:layout_weight="1"
 				android:background="?attr/selectableItemBackground"
 				android:clickable="true"
@@ -126,19 +135,19 @@
 				android:gravity="start|center_vertical"
 				android:hint="@string/acquisition_date"
 				android:minHeight="48dp"
-				android:paddingStart="4dp"
-				android:paddingEnd="4dp"
-				android:textAppearance="@style/Text.Big"
-				tools:text="January 1, 1970"/>
+				android:paddingHorizontal="4dp"
+				android:textAppearance="@style/Text.Subtitle"
+				tools:text="January 1, 1970" />
 
 			<ImageView
 				android:id="@+id/clearDateView"
-				android:layout_width="@dimen/image_button_size"
-				android:layout_height="@dimen/image_button_size"
+				style="@style/FormButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:contentDescription="@string/clear"
 				android:scaleType="center"
-				android:src="@drawable/ic_clear"/>
+				android:src="@drawable/ic_clear" />
 		</LinearLayout>
 
 		<com.google.android.material.textfield.TextInputLayout
@@ -146,18 +155,17 @@
 			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="@string/acquired_from">
+			android:layout_marginVertical="@dimen/padding_half"
+			android:hint="@string/acquired_from"
+			app:endIconMode="dropdown_menu">
 
 			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/acquiredFromView"
 				style="?attr/editTextStyle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:completionThreshold="1"
 				android:imeOptions="actionNext"
-				android:inputType="textCapWords"
-				android:textAppearance="@style/Text.Big"
-				android:textColor="#000"/>
+				android:inputType="textCapWords" />
 		</com.google.android.material.textfield.TextInputLayout>
 
 		<com.google.android.material.textfield.TextInputLayout
@@ -165,18 +173,17 @@
 			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="@string/inventory_location">
+			android:layout_marginVertical="@dimen/padding_half"
+			android:hint="@string/inventory_location"
+			app:endIconMode="dropdown_menu">
 
 			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 				android:id="@+id/inventoryLocationView"
 				style="?attr/editTextStyle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:completionThreshold="1"
 				android:imeOptions="actionNext"
-				android:inputType="textCapWords"
-				android:textAppearance="@style/Text.Big"
-				android:textColor="#000"/>
+				android:inputType="textCapWords" />
 		</com.google.android.material.textfield.TextInputLayout>
 	</LinearLayout>
 </ScrollView>
