@@ -51,7 +51,6 @@ class GameColorAdapter(context: Context, gameId: Int) : ArrayAdapter<GameColorAd
     inner class ColorFilter : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filter = constraint?.toString() ?: ""
-            if (filter.isBlank()) return null
 
             val resultList = arrayListOf<ColorRow>()
 

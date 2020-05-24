@@ -35,7 +35,8 @@
 						android:id="@+id/thumbnailView"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
-						android:scaleType="centerCrop" />
+						android:scaleType="centerCrop"
+						tools:ignore="ContentDescription" />
 
 					<TextView
 						android:id="@+id/headerView"
@@ -44,9 +45,11 @@
 						android:layout_height="match_parent"
 						android:background="#6000"
 						android:ellipsize="end"
-						android:gravity="left|center_vertical"
+						android:gravity="start|center_vertical"
 						android:maxLines="2"
+						android:paddingStart="@dimen/material_indent_horizontal"
 						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingEnd="@dimen/material_margin_horizontal"
 						android:paddingRight="@dimen/material_margin_horizontal"
 						tools:text="Puerto Rico"
 						tools:visibility="gone" />
@@ -56,9 +59,11 @@
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:background="#6000"
-						android:gravity="left|center_vertical"
+						android:gravity="start|center_vertical"
 						android:orientation="vertical"
+						android:paddingStart="@dimen/material_indent_horizontal"
 						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingEnd="@dimen/material_margin_horizontal"
 						android:paddingRight="@dimen/material_margin_horizontal">
 
 						<TextView
@@ -88,6 +93,7 @@
 						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
 						android:hint="@string/player_name"
 						app:endIconMode="dropdown_menu"
 						app:startIconDrawable="@drawable/ic_face">
@@ -107,11 +113,12 @@
 						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
 						android:hint="@string/username"
 						app:endIconMode="dropdown_menu"
 						app:startIconDrawable="@drawable/ic_user">
 
-						<AutoCompleteTextView
+						<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 							android:id="@+id/usernameView"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -126,6 +133,8 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_vertical"
+						android:layout_marginVertical="4dp"
+						android:baselineAligned="false"
 						android:orientation="horizontal">
 
 						<com.google.android.material.textfield.TextInputLayout
@@ -137,7 +146,7 @@
 							app:endIconMode="dropdown_menu"
 							app:startIconDrawable="@drawable/ic_colors">
 
-							<AutoCompleteTextView
+							<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 								android:id="@+id/teamColorView"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
@@ -161,7 +170,8 @@
 								android:layout_gravity="center"
 								android:background="?attr/selectableItemBackgroundBorderless"
 								android:scaleType="fitXY"
-								tools:background="#777" />
+								tools:background="#777"
+								tools:ignore="ContentDescription" />
 						</FrameLayout>
 
 					</LinearLayout>
@@ -171,6 +181,7 @@
 						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
 						android:hint="@string/starting_position"
 						app:endIconDrawable="@drawable/ic_keyboard"
 						app:endIconMode="custom"
@@ -190,6 +201,7 @@
 						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
 						android:hint="@string/score"
 						app:endIconDrawable="@drawable/ic_keyboard"
 						app:endIconMode="custom"
@@ -209,6 +221,7 @@
 						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
 						android:hint="@string/rating"
 						app:startIconDrawable="@drawable/ic_rating">
 
@@ -225,6 +238,7 @@
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
+						android:layout_marginVertical="4dp"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
 						android:paddingRight="@dimen/edit_label_width"
@@ -235,6 +249,7 @@
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
+						android:layout_marginVertical="4dp"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
 						android:paddingRight="@dimen/edit_label_width"
@@ -252,7 +267,7 @@
 			android:id="@+id/fab"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="bottom|right"
+			android:layout_gravity="bottom|end"
 			android:layout_margin="@dimen/padding_fab"
 			android:src="@drawable/ic_action_add"
 			app:elevation="@dimen/fab_elevation"

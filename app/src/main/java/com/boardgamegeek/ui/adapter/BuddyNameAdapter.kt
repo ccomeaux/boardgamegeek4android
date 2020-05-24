@@ -42,7 +42,6 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
     inner class PlayerFilter : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filter = constraint?.toString() ?: ""
-            if (filter.isBlank()) return null
 
             // list all buddies + players with a username that aren't buddies, sorted by username
             val resultList = arrayListOf<Result>()
