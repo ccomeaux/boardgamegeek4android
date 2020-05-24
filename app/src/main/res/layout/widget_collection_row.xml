@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
 	android:descendantFocusability="blocksDescendants"
-	android:paddingBottom="@dimen/padding_extra"
-	android:paddingTop="@dimen/padding_extra">
+	android:paddingTop="@dimen/padding_extra"
+	android:paddingBottom="@dimen/padding_extra">
 
 	<ImageView
 		android:id="@+id/thumbnail"
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
-		android:layout_marginLeft="@dimen/activity_horizontal_margin"
 		android:layout_marginStart="@dimen/activity_horizontal_margin"
+		android:layout_marginLeft="@dimen/activity_horizontal_margin"
 		android:contentDescription="@string/image"
 		android:scaleType="centerCrop"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:srcCompat="@drawable/thumbnail_image_empty"/>
+		app:srcCompat="@drawable/thumbnail_image_empty" />
 
 	<TextView
 		android:id="@+id/status"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="16dp"
-		android:layout_marginLeft="16dp"
-		android:layout_marginRight="16dp"
-		android:layout_marginStart="16dp"
+		android:layout_marginHorizontal="16dp"
 		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/Text"
@@ -40,16 +36,13 @@
 		app:layout_constraintStart_toEndOf="@+id/thumbnail"
 		app:layout_constraintTop_toTopOf="@+id/thumbnail"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="Own, Previously Owned, and Want to Play"/>
+		tools:text="Own, Previously Owned, and Want to Play" />
 
 	<TextView
 		android:id="@+id/description"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="16dp"
-		android:layout_marginLeft="16dp"
-		android:layout_marginRight="16dp"
-		android:layout_marginStart="16dp"
+		android:layout_marginHorizontal="16dp"
 		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/Text.Secondary"
@@ -58,67 +51,57 @@
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@+id/thumbnail"
 		app:layout_constraintTop_toBottomOf="@+id/status"
-		tools:text="Through the Ages: A New Story of Civilization (2015)"/>
+		tools:text="Through the Ages: A New Story of Civilization (2015)" />
 
 	<TextView
 		android:id="@+id/rating"
 		style="@style/RatingLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="0dp"
+		android:layout_marginTop="0dp"
 		android:layout_marginEnd="@dimen/activity_horizontal_margin"
 		android:layout_marginRight="@dimen/activity_horizontal_margin"
-		android:layout_marginTop="0dp"
+		android:layout_marginBottom="0dp"
 		app:layout_constraintBottom_toBottomOf="@+id/thumbnail"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/thumbnail"
 		tools:background="#0f0"
-		tools:text="7.5"/>
+		tools:text="7.5" />
 
 	<TextView
 		android:id="@+id/comment"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/activity_horizontal_margin"
-		android:layout_marginLeft="@dimen/activity_horizontal_margin"
-		android:layout_marginRight="@dimen/activity_horizontal_margin"
-		android:layout_marginStart="@dimen/activity_horizontal_margin"
-		android:layout_marginTop="8dp"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+		android:layout_marginVertical="@dimen/padding_standard"
 		android:ellipsize="end"
 		android:maxLines="5"
 		android:textAppearance="@style/Text"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/commentBarrier"
-		tools:text="@tools:sample/lorem/random"/>
+		tools:text="@tools:sample/lorem/random" />
 
 	<TextView
 		android:id="@+id/privateInfo"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="16dp"
-		android:layout_marginEnd="@dimen/activity_horizontal_margin"
-		android:layout_marginLeft="@dimen/activity_horizontal_margin"
-		android:layout_marginRight="@dimen/activity_horizontal_margin"
-		android:layout_marginStart="@dimen/activity_horizontal_margin"
-		android:layout_marginTop="8dp"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+		android:layout_marginVertical="@dimen/padding_standard"
 		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/Text"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/comment"
-		tools:text="Acquired on Jan 1, 1999 from Store for $49.99"/>
+		tools:text="Acquired on Jan 1, 1999 from Store for $49.99" />
 
 	<TextView
 		android:id="@+id/privateComment"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/activity_horizontal_margin"
-		android:layout_marginLeft="@dimen/activity_horizontal_margin"
-		android:layout_marginRight="@dimen/activity_horizontal_margin"
-		android:layout_marginStart="@dimen/activity_horizontal_margin"
-		android:layout_marginTop="8dp"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+		android:layout_marginVertical="@dimen/padding_standard"
 		android:ellipsize="end"
 		android:maxLines="5"
 		android:textAppearance="@style/Text.Secondary"
@@ -126,7 +109,7 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/privateInfo"
-		tools:text="@tools:sample/lorem/random"/>
+		tools:text="@tools:sample/lorem/random" />
 
 	<androidx.constraintlayout.widget.Barrier
 		android:id="@+id/commentBarrier"
@@ -134,6 +117,6 @@
 		android:layout_height="wrap_content"
 		app:barrierAllowsGoneWidgets="false"
 		app:barrierDirection="bottom"
-		app:constraint_referenced_ids="thumbnail,description,rating"/>
+		app:constraint_referenced_ids="thumbnail,description,rating" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
