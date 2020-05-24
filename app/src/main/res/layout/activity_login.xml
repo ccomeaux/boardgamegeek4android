@@ -1,7 +1,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	   xmlns:app="http://schemas.android.com/apk/res-auto"
-	   xmlns:tools="http://schemas.android.com/tools"
-	   tools:context=".ui.LoginActivity">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:context=".ui.LoginActivity">
 
 	<!-- Login progress -->
 
@@ -19,7 +19,7 @@
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/padding_standard"/>
+			android:layout_marginBottom="@dimen/padding_standard" />
 
 		<TextView
 			android:id="@+id/login_status_message"
@@ -27,7 +27,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_extra"
 			android:text="@string/login_progress_signing_in"
-			android:textAppearance="?android:attr/textAppearanceMedium"/>
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</LinearLayout>
 
 	<!-- Login form -->
@@ -48,6 +48,7 @@
 				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginVertical="@dimen/padding_half"
 				android:hint="@string/prompt_username">
 
 				<com.google.android.material.textfield.TextInputEditText
@@ -55,7 +56,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:inputType="textNoSuggestions"
-					android:maxLines="1"/>
+					android:maxLines="1" />
 			</com.google.android.material.textfield.TextInputLayout>
 
 			<com.google.android.material.textfield.TextInputLayout
@@ -63,8 +64,9 @@
 				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginVertical="@dimen/padding_half"
 				android:hint="@string/prompt_password"
-				app:passwordToggleEnabled="true">
+				app:endIconMode="password_toggle">
 
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/password"
@@ -74,7 +76,7 @@
 					android:imeActionLabel="@string/action_sign_in"
 					android:imeOptions="actionUnspecified"
 					android:inputType="textPassword"
-					android:maxLines="1"/>
+					android:maxLines="1" />
 			</com.google.android.material.textfield.TextInputLayout>
 
 			<Button
@@ -83,10 +85,10 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal"
-				android:layout_marginTop="@dimen/padding_extra"
+				android:layout_marginVertical="@dimen/padding_half"
 				android:paddingLeft="48dp"
 				android:paddingRight="48dp"
-				android:text="@string/action_sign_in"/>
+				android:text="@string/action_sign_in" />
 		</LinearLayout>
 	</ScrollView>
 
