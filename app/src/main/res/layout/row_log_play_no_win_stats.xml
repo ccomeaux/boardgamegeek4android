@@ -7,5 +7,6 @@
 	android:layout_marginLeft="@dimen/material_indent_horizontal"
 	android:layout_marginEnd="@dimen/material_margin_horizontal"
 	android:layout_marginRight="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/padding_half"
 	android:text="@string/noWinStats"
 	android:textAppearance="?attr/textAppearanceSubtitle1" />

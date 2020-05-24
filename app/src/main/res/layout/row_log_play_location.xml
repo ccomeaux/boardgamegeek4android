@@ -8,9 +8,10 @@
 	android:labelFor="@id/log_play_location"
 	android:paddingHorizontal="@dimen/material_margin_horizontal"
 	app:endIconMode="dropdown_menu"
+	android:paddingVertical="@dimen/padding_half"
 	app:startIconDrawable="@drawable/ic_location">
 
-	<AutoCompleteTextView
+	<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 		android:id="@+id/log_play_location"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

@@ -6,6 +6,7 @@
 	android:layout_marginStart="@dimen/material_indent_horizontal"
 	android:layout_marginLeft="@dimen/material_indent_horizontal"
 	android:layout_marginEnd="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/padding_half"
 	android:layout_marginRight="@dimen/material_margin_horizontal"
 	android:checked="false"
 	android:text="@string/incomplete"
