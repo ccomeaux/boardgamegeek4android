@@ -4,7 +4,7 @@
 	style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:hint="@string/location_hint"
+	android:hint="@string/location"
 	android:labelFor="@id/log_play_location"
 	android:paddingHorizontal="@dimen/material_margin_horizontal"
 	app:endIconMode="dropdown_menu"

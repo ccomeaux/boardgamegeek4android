@@ -12,11 +12,14 @@ class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     override val titleResId
         get() = R.string.title_edit_player
 
+    override val hintResId
+        get() = R.string.player_name
+
     override val originalText
         get() = arguments?.getString(KEY_TEXT)
 
     override fun onPositiveButton() {
-        val text = editText.text.trim().toString()
+        val text = editText?.text?.trim().toString()
         viewModel.renamePlayer(text)
     }
 

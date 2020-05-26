@@ -33,7 +33,7 @@
 	<string name="length_hint">Length in minutes</string>
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
-	<string name="location_hint">Location</string>
+	<string name="location_hint">Location name</string>
 	<string name="no_location">&lt;No location&gt;</string>
 	<string name="nowhere_in_angle_brackets">&lt;Nowhere&gt;</string>
 	<string name="incomplete">Incomplete</string>
@@ -210,6 +210,7 @@
 	<string name="comment">Comment</string>
 	<string name="title_sort">Sort by</string>
 	<string name="title_filter">Filter by</string>
+	<string name="color_name">Color name</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>
 	<string name="msg_export_confirmation">Are you sure you want to (potentially) replace the export files?</string>
 	<string name="msg_import_confirmation">Are you sure you want to replace the data in app with data from the files?</string>

@@ -71,7 +71,7 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_edit) {
-            val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_location, locationName)
+            val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_location, locationName, R.string.location_hint)
             showAndSurvive(editTextDialogFragment)
             return true
         }

@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.appcompat.app.AlertDialog
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
@@ -38,8 +38,9 @@ class EditCollectionTextDialogFragment : DialogFragment() {
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
+                    val text = editText?.text?.toString()
                     listener?.onEditCollectionText(
-                            editText.text.trim().toString(),
+                            text?.trim() ?: "",
                             arguments?.getString(KEY_TEXT_COLUMN) ?: "",
                             arguments?.getString(KEY_TIMESTAMP_COLUMN) ?: "")
                 }

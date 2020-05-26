@@ -1,9 +1,9 @@
 package com.boardgamegeek.ui.dialog
 
 import android.content.Context
-import android.os.Bundle
 import androidx.annotation.StringRes
 import kotlinx.android.synthetic.main.dialog_edit_text.*
+import org.jetbrains.anko.support.v4.withArguments
 
 class EditTextDialogFragment : AbstractEditTextDialogFragment() {
     private var listener: EditTextDialogListener? = null
@@ -21,25 +21,29 @@ class EditTextDialogFragment : AbstractEditTextDialogFragment() {
     override val titleResId
         get() = arguments?.getInt(KEY_TITLE_ID) ?: 0
 
+    override val hintResId
+        get() = arguments?.getInt(KEY_HINT_ID) ?: 0
+
     override val originalText
         get() = arguments?.getString(KEY_TEXT)
 
     override fun onPositiveButton() {
-        listener?.onFinishEditDialog(editText.text.trim().toString(), originalText)
+        val text = editText?.text?.toString()
+        listener?.onFinishEditDialog(text?.trim() ?: "", originalText)
     }
 
     companion object {
         private const val KEY_TITLE_ID = "title_id"
+        private const val KEY_HINT_ID = "hint_id"
         private const val KEY_TEXT = "text"
 
         @JvmStatic
-        fun newInstance(@StringRes titleResId: Int, text: String?): EditTextDialogFragment {
-            return EditTextDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(KEY_TITLE_ID, titleResId)
-                    putString(KEY_TEXT, text)
-                }
-            }
+        fun newInstance(@StringRes titleResId: Int, text: String?, @StringRes hintResId: Int = 0): EditTextDialogFragment {
+            return EditTextDialogFragment().withArguments(
+                    KEY_TITLE_ID to titleResId,
+                    KEY_TEXT to text,
+                    KEY_HINT_ID to hintResId
+            )
         }
     }
 }
