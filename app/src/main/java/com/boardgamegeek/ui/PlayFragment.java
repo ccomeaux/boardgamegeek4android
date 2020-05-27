@@ -28,6 +28,7 @@ import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
 import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -45,6 +46,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.XmlConverter;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
@@ -91,6 +93,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String heroImageUrl;
 	private boolean isRefreshing;
 	private SharedPreferences prefs;
+	private final XmlConverter xmlConverter = new XmlConverter();
 
 	private Unbinder unbinder;
 	private ListView playersView;
@@ -255,13 +258,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, new OnDiscardListener() {
-					public void onDiscard() {
-						play.dirtyTimestamp = 0;
-						play.updateTimestamp = 0;
-						play.deleteTimestamp = 0;
-						save("Discard");
-					}
+				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, () -> {
+					play.dirtyTimestamp = 0;
+					play.updateTimestamp = 0;
+					play.deleteTimestamp = 0;
+					save("Discard");
 				}).show();
 				return true;
 			case R.id.menu_edit:
@@ -276,14 +277,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			case R.id.menu_delete: {
 				DialogUtils.createThemedBuilder(getContext())
 					.setMessage(R.string.are_you_sure_delete_play)
-					.setPositiveButton(R.string.delete, new OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							if (play.hasStarted()) cancelNotification();
-							play.end(); // this prevents the timer from reappearing
-							play.deleteTimestamp = System.currentTimeMillis();
-							save("Delete");
-							EventBus.getDefault().post(new PlayDeletedEvent());
-						}
+					.setPositiveButton(R.string.delete, (dialog, id) -> {
+						if (play.hasStarted()) cancelNotification();
+						play.end(); // this prevents the timer from reappearing
+						play.deleteTimestamp = System.currentTimeMillis();
+						save("Delete");
+						EventBus.getDefault().post(new PlayDeletedEvent());
 					})
 					.setNegativeButton(R.string.cancel, null)
 					.setCancelable(true)
@@ -335,11 +334,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private void updateRefreshStatus(final boolean value) {
 		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
-				}
+			swipeRefreshLayout.post(() -> {
+				if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 			});
 		}
 	}
@@ -466,7 +462,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
 		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
 
-		commentsView.setText(play.comments);
+		TextViewUtils.setTextMaybeHtml(commentsView, xmlConverter.toHtml(play.comments));
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 

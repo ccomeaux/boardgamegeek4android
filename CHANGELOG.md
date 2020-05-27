@@ -19,6 +19,7 @@ Version 6.8
  * Sort and filter by Geek Rating again
  * Rework how collection views work under the hood
  * Correct refreshing collection when viewing an accessory
+ * Support markdown in play comments
 
 Version 6.7.1
 -------------

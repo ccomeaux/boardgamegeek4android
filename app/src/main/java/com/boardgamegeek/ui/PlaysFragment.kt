@@ -29,6 +29,7 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.DateTimeUtils
+import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
 import org.greenrobot.eventbus.EventBus
@@ -42,6 +43,7 @@ import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(), ActionMode.Callback {
     private val viewModel by activityViewModels<PlaysViewModel>()
+    private val xmlConverter = XmlConverter()
 
     private val adapter: PlayAdapter by lazy {
         PlayAdapter()
@@ -250,7 +252,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
                 itemView.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
                 itemView.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
-                itemView.commentView.setTextOrHide(play.comments)
+                itemView.commentView.setTextOrHide(xmlConverter.strip(play.comments))
 
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete
