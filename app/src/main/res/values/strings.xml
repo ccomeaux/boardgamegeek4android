@@ -28,9 +28,8 @@
 	<string name="draft_prefix">Draft, last saved %s</string>
 	<string name="editing_prefix">Editing, last saved %s</string>
 	<string name="quantity">Quantity</string>
-	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
-	<string name="length_hint">Length in minutes</string>
+	<string name="length_hint">Length (in minutes)</string>
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location name</string>
@@ -244,7 +243,6 @@
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
-	<string name="title_signin">Sign In</string>
 	<string name="loading">Loading…</string>
 	<string name="empty">Nothing to see here</string>
 	<string name="empty_game">No information</string>
