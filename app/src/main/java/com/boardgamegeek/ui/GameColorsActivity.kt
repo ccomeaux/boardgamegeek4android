@@ -9,14 +9,13 @@ import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import hugo.weaving.DebugLog
 import org.jetbrains.anko.startActivity
 
-class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.EditTextDialogListener {
+class GameColorsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
 
@@ -64,10 +63,6 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onFinishEditDialog(text: String, originalText: String?) {
-        viewModel.addColor(text)
     }
 
     companion object {

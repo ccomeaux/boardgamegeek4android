@@ -16,7 +16,7 @@ import com.boardgamegeek.extensions.fade
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment
+import com.boardgamegeek.ui.dialog.AddColorToGameDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_colors.*
@@ -51,7 +51,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
 
     private fun setUpRecyclerView() {
         recyclerView.adapter = adapter
-        swipePaint.color = ContextCompat.getColor(requireContext(), R.color.medium_blue)
+        swipePaint.color = ContextCompat.getColor(requireContext(), R.color.delete)
         deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -59,12 +59,12 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                 adapter.getColorName(viewHolder.adapterPosition)?.let {color ->
-                     viewModel.removeColor(color)
-                     Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
-                             .setAction(R.string.undo) { viewModel.addColor(color) }
-                             .show()
-                 }
+                adapter.getColorName(viewHolder.adapterPosition)?.let { color ->
+                    viewModel.removeColor(color)
+                    Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
+                            .setAction(R.string.undo) { viewModel.addColor(color) }
+                            .show()
+                }
             }
 
             override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
@@ -87,7 +87,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                             iconDst = RectF(itemView.left.toFloat() + horizontalPadding, itemView.top.toFloat() + verticalPadding, min(itemView.left + horizontalPadding + it.width, dX), itemView.bottom.toFloat() - verticalPadding)
                         } else {
                             background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
-                            iconSrc = Rect(min(it.width + horizontalPadding.toInt() + dX.toInt(), 0), 0, it.width, it.height)
+                            iconSrc = Rect(max(it.width + horizontalPadding.toInt() + dX.toInt(), 0), 0, it.width, it.height)
                             iconDst = RectF(max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - it.width), itemView.top.toFloat() + verticalPadding, itemView.right.toFloat() - horizontalPadding, itemView.bottom.toFloat() - verticalPadding)
                         }
                         c.drawRect(background, swipePaint)
@@ -108,7 +108,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
 
         fab.colorize(iconColor)
         fab.setOnClickListener {
-            requireActivity().showAndSurvive(EditTextDialogFragment.newInstance(R.string.title_add_color, "", R.string.color_name))
+            requireActivity().showAndSurvive(AddColorToGameDialogFragment.newInstance())
         }
 
         viewModel.colors.observe(viewLifecycleOwner, Observer {
