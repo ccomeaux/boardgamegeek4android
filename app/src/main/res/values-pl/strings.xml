@@ -666,10 +666,12 @@
 	</plurals>
 	<plurals name="are_you_sure_delete_play">
 		<item quantity="one">Na pewno chcesz usunąć tę rozgrywkę?</item>
+		<item quantity="few">Na pewno chcesz usunąć te rozgrywki?</item>
 		<item quantity="other">Na pewno chcesz usunąć te rozgrywki?</item>
 	</plurals>
 	<plurals name="are_you_sure_send_play">
 		<item quantity="one">Na pewno chcesz przesłać tę rozgrywkę?</item>
+		<item quantity="few">Na pewno chcesz przesłać te rozgrywki?</item>
 		<item quantity="other">Na pewno chcesz przesłać te rozgrywki?</item>
 	</plurals>
 	<plurals name="play_title_suffix">
@@ -684,10 +686,12 @@
 	</plurals>
 	<plurals name="player_description">
 		<item quantity="one">z %s graczem</item>
+		<item quantity="few">z %s graczami</item>
 		<item quantity="other">z %s graczami</item>
 	</plurals>
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Zapisywanie rozgrywki…</item>
+		<item quantity="few">Zapisywanie rozgrywek…</item>
 		<item quantity="other">Zapisywanie rozgrywek…</item>
 	</plurals>
 	<plurals name="colors_suffix">
@@ -752,6 +756,7 @@
 	</plurals>
 	<plurals name="times_suffix">
 		<item quantity="one">%,d raz</item>
+		<item quantity="few">%,d razy</item>
 		<item quantity="other">%,d razy</item>
 	</plurals>
 	<plurals name="players_suffix">
@@ -770,10 +775,13 @@
 		<item quantity="other"><b>%,d</b> głosów</item>
 	</plurals>
 	<plurals name="mins_suffix">
+		<item quantity="one"><b>%s</b> min.</item>
+		<item quantity="few"><b>%s</b> min.</item>
 		<item quantity="other"><b>%s</b> min.</item>
 	</plurals>
 	<plurals name="play_description_quantity_segment">
 		<item quantity="one">\u0020%,d raz</item>
+		<item quantity="few">\u0020%,d razy</item>
 		<item quantity="other">\u0020%,d razy</item>
 	</plurals>
 	<plurals name="play_description_players_segment">
@@ -783,9 +791,12 @@
 	</plurals>
 	<plurals name="recommended_player_count_description">
 		<item quantity="one">%1$s z %2$,d graczem</item>
+		<item quantity="few">%1$s with %2$,d graczami</item>
 		<item quantity="other">%1$s with %2$,d graczami</item>
 	</plurals>
 	<plurals name="more">
+		<item quantity="one">%,d więcej</item>
+		<item quantity="few">%,d więcej</item>
 		<item quantity="other">%,d więcej</item>
 	</plurals>
 	<plurals name="pie_chart_click_description">

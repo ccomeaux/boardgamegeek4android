@@ -41,39 +41,53 @@
 	<string name="sync_notification_page_suffix">%1$s (strona %2$,d)</string>
 
 	<plurals name="sync_notification_collection_deleting">
+		<item quantity="one">Usuwanie %,d pozycji kolekcji.</item>
+		<item quantity="few">Usuwanie %,d pozycji kolekcji.</item>
 		<item quantity="other">Usuwanie %,d pozycji kolekcji.</item>
 	</plurals>
 	<plurals name="sync_notification_collection_adding">
+		<item quantity="one">Dodawanie %,d pozycji kolekcji.</item>
+		<item quantity="few">Dodawanie %,d pozycji kolekcji.</item>
 		<item quantity="other">Dodawanie %,d pozycji kolekcji.</item>
 	</plurals>
 	<plurals name="sync_notification_collection_uploading">
+		<item quantity="one">Przesyłanie %,d pozycji kolekcji.</item>
+		<item quantity="few">Przesyłanie %,d pozycji kolekcji.</item>
 		<item quantity="other">Przesyłanie %,d pozycji kolekcji.</item>
 	</plurals>
 	<plurals name="sync_notification_plays_update">
 		<item quantity="one">Aktualizacja %,d rozgrywki</item>
+		<item quantity="few">Aktualizacja %,d rozgrywek</item>
 		<item quantity="other">Aktualizacja %,d rozgrywek</item>
 	</plurals>
 	<plurals name="sync_notification_plays_update_increment">
 		<item quantity="one">Aktualizacja %,d z %,d rozgrywki</item>
+		<item quantity="few">Aktualizacja %,d z %,d rozgrywek</item>
 		<item quantity="other">Aktualizacja %,d z %,d rozgrywek</item>
 	</plurals>
 	<plurals name="sync_notification_plays_delete">
 		<item quantity="one">Usuwanie %,d rozgrywki</item>
+		<item quantity="few">Usuwanie %,d rozgrywek</item>
 		<item quantity="other">Usuwanie %,d rozgrywek</item>
 	</plurals>
 	<plurals name="sync_notification_plays_delete_increment">
 		<item quantity="one">Usuwanie %,d z %,d rozgrywki</item>
+		<item quantity="few">Usuwanie %,d z %,d rozgrywek</item>
 		<item quantity="other">Usuwanie %,d z %,d rozgrywek</item>
 	</plurals>
 	<plurals name="sync_notification_games">
 		<item quantity="one">Synchronizacja %1$,d gry: %2$s</item>
+		<item quantity="few">Synchronizacja %1$,d gier: %2$s</item>
 		<item quantity="other">Synchronizacja %1$,d gier: %2$s</item>
 	</plurals>
 	<plurals name="sync_notification_games_remove">
 		<item quantity="one">Usuwanie %,d gry z Twojej kolekcji</item>
+		<item quantity="few">Usuwanie %,d gier z Twojej kolekcji</item>
 		<item quantity="other">Usuwanie %,d gier z Twojej kolekcji</item>
 	</plurals>
 	<plurals name="sync_notification_collection_sleeping">
+		<item quantity="one">Przerwa na %,d sek.</item>
+		<item quantity="few">Przerwa na %,d sek.</item>
 		<item quantity="other">Przerwa na %,d sek.</item>
 	</plurals>
 
