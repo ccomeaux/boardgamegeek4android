@@ -61,7 +61,7 @@ public class XmlConverter {
 		replacers.add(new SimpleReplacer("\\[q\\]", "Quote:<blockquote>"));
 		replacers.add(new Replacer("\\[q=\"(.*?)\"\\]", "", " wrote:<blockquote>"));
 		replacers.add(new SimpleReplacer("\\[/q\\]", "</blockquote>"));
-		replacers.add(new SimpleReplacer("\\[o\\]", "Spoiler: <span style=\"color:white\">"));
+		replacers.add(new SimpleReplacer("\\[o\\]", "Spoiler: <span style=\"background-color:black\">"));
 		replacers.add(new SimpleReplacer("\\[/o\\]", "</span>"));
 		createPair("c", "tt");
 		replacers.add(new UrlReplacer());
