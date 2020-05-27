@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/FormRow"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:importantForAutofill="noExcludeDescendants">
-
-	<ImageView
-		android:id="@+id/timer_toggle"
-		style="@style/Icon"
-		android:background="?attr/selectableItemBackgroundBorderless"
-		android:contentDescription="@string/timer"
-		android:src="@drawable/ic_timer"/>
+	android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/padding_half"
+	android:minHeight="@dimen/form_row_height"
+	android:orientation="horizontal">
 
 	<FrameLayout
 		android:id="@+id/log_play_length_container_inner"
 		android:layout_width="0dp"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:focusable="false">
 
-		<EditText
-			android:id="@+id/log_play_length"
+		<com.google.android.material.textfield.TextInputLayout
+			android:id="@+id/log_play_length_root"
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:focusable="true"
-			android:gravity="center_vertical"
+			android:layout_height="wrap_content"
 			android:hint="@string/length_hint"
-			android:inputType="number"
-			android:textAppearance="@style/Text.Big"/>
+			app:startIconDrawable="@drawable/ic_time">
+
+			<com.google.android.material.textfield.TextInputEditText
+				android:id="@+id/log_play_length"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:imeOptions="actionNext"
+				android:inputType="number" />
+		</com.google.android.material.textfield.TextInputLayout>
 
 		<Chronometer
 			android:id="@+id/timer"
@@ -38,6 +39,16 @@
 			android:focusable="false"
 			android:gravity="center"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Big"/>
+			android:layout_marginVertical="4dp"
+			android:textAppearance="@style/Text.Big" />
 	</FrameLayout>
+
+	<ImageView
+		android:id="@+id/timer_toggle"
+		style="@style/FormButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/timer"
+		android:src="@drawable/ic_timer" />
 </LinearLayout>

@@ -38,6 +38,7 @@ abstract class AbstractEditTextDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (hintResId != 0) editTextContainer.hint = getString(hintResId)
         editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
         if (savedInstanceState == null) {
             editText.setAndSelectExistingText(originalText)
@@ -45,6 +46,9 @@ abstract class AbstractEditTextDialogFragment : DialogFragment() {
     }
 
     open val titleResId
+        get() = 0
+
+    open val hintResId
         get() = 0
 
     open val originalText: String?

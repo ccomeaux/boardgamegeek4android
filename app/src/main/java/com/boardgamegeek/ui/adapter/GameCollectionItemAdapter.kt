@@ -51,7 +51,7 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
             itemView.thumbnail.loadThumbnailInList(item.thumbnailUrl)
             itemView.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
 
-            itemView.comment.setTextMaybeHtml(xmlConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT)
+            itemView.comment.setTextMaybeHtml(xmlConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
             itemView.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
@@ -79,7 +79,7 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
                 itemView.privateInfo.isVisible = false
             }
 
-            itemView.privateComment.setTextMaybeHtml(xmlConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT)
+            itemView.privateComment.setTextMaybeHtml(xmlConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
             itemView.privateComment.isVisible = item.privateComment.isNotBlank()
 
             itemView.setOnClickListener {

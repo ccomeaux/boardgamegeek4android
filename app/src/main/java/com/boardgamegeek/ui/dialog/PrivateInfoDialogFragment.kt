@@ -36,11 +36,11 @@ class PrivateInfoDialogFragment : DialogFragment() {
     private var acquisitionDate = ""
 
     private val acquiredFromAdapter: AutoCompleteAdapter by lazy {
-        AutoCompleteAdapter(requireContext(), Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri())
+        AcquiredFromAdapter(requireContext())
     }
 
     private val inventoryLocationAdapter: AutoCompleteAdapter by lazy {
-        AutoCompleteAdapter(requireContext(), Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri())
+        InventoryLocationAdapter(requireContext())
     }
 
     override fun onAttach(context: Context) {
@@ -120,7 +120,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 acquisitionDate = calendar.timeInMillis.asDateForApi()
                 showOrHideAcquisitionDateLabel()
             })
-            datePickerDialogFragment.setCurrentDateInMillis(privateInfo.acquisitionDate.toMillisFromApiDate(System.currentTimeMillis()))
+            datePickerDialogFragment.setCurrentDateInMillis(acquisitionDate.toMillisFromApiDate(System.currentTimeMillis()))
             datePickerDialogFragment.show(parentFragmentManager, DATE_PICKER_DIALOG_TAG)
         }
 
@@ -181,6 +181,14 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     private fun showOrHideAcquisitionDateLabel() {
         acquisitionDateLabelView.visibility = if (acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE
+    }
+
+    inner class AcquiredFromAdapter(context: Context) : AutoCompleteAdapter(context, Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri()) {
+        override val defaultSelection = "${Collection.PRIVATE_INFO_ACQUIRED_FROM}<>''"
+    }
+
+    class InventoryLocationAdapter(context: Context) : AutoCompleteAdapter(context, Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri()) {
+        override val defaultSelection = "${Collection.PRIVATE_INFO_INVENTORY_LOCATION}<>''"
     }
 
     companion object {

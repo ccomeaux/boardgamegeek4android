@@ -25,7 +25,7 @@ fun TextView.setTextOrHide(@StringRes textResId: Int) {
 }
 
 @JvmOverloads
-fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY) {
+fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true) {
     when {
         text == null -> this.text = ""
         text.isBlank() -> this.text = ""
@@ -49,7 +49,8 @@ fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FRO
 
             val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags)
             this.text = spanned.trim()
-            this.movementMethod = LinkMovementMethod.getInstance()
+            if (useLinkMovementMethod)
+                this.movementMethod = LinkMovementMethod.getInstance()
         }
         else -> this.text = text
     }

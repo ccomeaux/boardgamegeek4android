@@ -28,12 +28,11 @@
 	<string name="draft_prefix">Draft, last saved %s</string>
 	<string name="editing_prefix">Editing, last saved %s</string>
 	<string name="quantity">Quantity</string>
-	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
-	<string name="length_hint">Length in minutes</string>
+	<string name="length_hint">Length (in minutes)</string>
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
-	<string name="location_hint">Location</string>
+	<string name="location_hint">Location name</string>
 	<string name="no_location">&lt;No location&gt;</string>
 	<string name="nowhere_in_angle_brackets">&lt;Nowhere&gt;</string>
 	<string name="incomplete">Incomplete</string>
@@ -88,7 +87,6 @@
 	<string name="geek_rating">Geek rating</string>
 	<string name="my_rating">My rating</string>
 	<string name="my_rating_abbr">Me</string>
-	<string name="rating_hint">Rating</string>
 	<string name="high_score">High Score</string>
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>
@@ -211,6 +209,7 @@
 	<string name="comment">Comment</string>
 	<string name="title_sort">Sort by</string>
 	<string name="title_filter">Filter by</string>
+	<string name="color_name">Color name</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>
 	<string name="msg_export_confirmation">Are you sure you want to (potentially) replace the export files?</string>
 	<string name="msg_import_confirmation">Are you sure you want to replace the data in app with data from the files?</string>
@@ -244,7 +243,6 @@
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
-	<string name="title_signin">Sign In</string>
 	<string name="loading">Loading…</string>
 	<string name="empty">Nothing to see here</string>
 	<string name="empty_game">No information</string>

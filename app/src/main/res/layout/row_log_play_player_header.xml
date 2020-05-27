@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	style="@style/FormRow"
-	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:descendantFocusability="blocksDescendants"
 	android:focusable="false"
-	android:gravity="center_vertical">
+	android:gravity="center_vertical"
+	android:paddingTop="@dimen/padding_standard">
 
 	<ImageView
 		android:id="@+id/assign_colors"
-		style="@style/Icon"
+		style="@style/FormButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:contentDescription="@string/colors"
-		android:src="@drawable/ic_colors"/>
+		android:src="@drawable/ic_colors" />
 
 	<TextView
 		android:id="@+id/log_play_players_label"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/padding_standard"
 		android:layout_weight="1"
 		android:background="@drawable/underline"
 		android:text="@string/title_players"
-		android:textAppearance="@style/TextAppearance.Title"/>
+		android:textAppearance="@style/TextAppearance.Title" />
 
 	<ImageView
 		android:id="@+id/player_sort"
-		style="@style/Icon.Right"
+		style="@style/FormButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:contentDescription="@string/sort"
-		android:src="@drawable/ic_sort"/>
+		android:src="@drawable/ic_sort" />
 </LinearLayout>

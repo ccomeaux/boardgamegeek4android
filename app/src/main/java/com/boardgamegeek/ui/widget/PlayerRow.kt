@@ -84,7 +84,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     fun setAutoSort(value: Boolean) {
-        dragHandle.visibility = if (value) View.VISIBLE else View.INVISIBLE
+        dragHandle.isVisible = value
     }
 
     fun setPlayer(player: Player?) {
