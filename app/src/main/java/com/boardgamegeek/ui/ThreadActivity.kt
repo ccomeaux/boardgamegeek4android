@@ -6,34 +6,28 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.ArticleEntity
 import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.extensions.link
+import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.share
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.util.ActivityUtils
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import com.crashlytics.android.answers.ShareEvent
-import org.jetbrains.anko.startActivity
-import timber.log.Timber
+import org.jetbrains.anko.clearTop
+import org.jetbrains.anko.intentFor
 
-class ArticleActivity : SimpleSinglePaneActivity() {
+class ThreadActivity : SimpleSinglePaneActivity() {
     private var threadId = BggContract.INVALID_ID
     private var threadSubject = ""
     private var forumId = BggContract.INVALID_ID
-    private var forumTitle = ""
+    private var forumTitle: String? = null
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
     private var objectType = ForumEntity.ForumType.REGION
-    private var article = ArticleEntity()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (article.id == BggContract.INVALID_ID) {
-            Timber.w("Invalid article ID")
-            finish()
-        }
 
         if (objectName.isBlank()) {
             supportActionBar?.title = forumTitle
@@ -45,9 +39,9 @@ class ArticleActivity : SimpleSinglePaneActivity() {
 
         if (savedInstanceState == null) {
             Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Article")
-                    .putContentId(article.id.toString())
-                    .putContentName(threadSubject))
+                    .putContentType("Thread")
+                    .putContentName(threadSubject)
+                    .putContentId(threadId.toString()))
         }
     }
 
@@ -55,15 +49,14 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID)
         threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT) ?: ""
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
-        forumTitle = intent.getStringExtra(KEY_FORUM_TITLE)
+        forumTitle = intent.getStringExtra(KEY_FORUM_TITLE) ?: ""
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME) ?: ""
         objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
-        article = intent.getParcelableExtra(KEY_ARTICLE) ?: ArticleEntity()
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
-        return ArticleFragment.newInstance(article)
+        return ThreadFragment.newInstance(threadId, forumId, forumTitle, objectId, objectName, objectType)
     }
 
     override val optionsMenuId = R.menu.view_share
@@ -71,29 +64,30 @@ class ArticleActivity : SimpleSinglePaneActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                ThreadActivity.startUp(this, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType)
+                ForumActivity.startUp(this, forumId, forumTitle, objectId, objectName, objectType)
                 finish()
                 return true
             }
             R.id.menu_view -> {
-                link(article.link)
+                linkToBgg("thread", threadId)
                 return true
             }
             R.id.menu_share -> {
-                val description = if (objectName.isEmpty())
-                    String.format(getString(R.string.share_thread_article_text), threadSubject, forumTitle)
+                val description = if (objectName.isBlank())
+                    String.format(getString(R.string.share_thread_text), threadSubject, forumTitle)
                 else
-                    String.format(getString(R.string.share_thread_article_object_text), threadSubject, forumTitle, objectName)
-                val message = """
+                    String.format(getString(R.string.share_thread_game_text), threadSubject, forumTitle, objectName)
+                val link = ActivityUtils.createBggUri("thread", threadId).toString()
+                share(getString(R.string.share_thread_subject), """
                     $description
-
-                    ${article.link}""".trimIndent()
-                share(getString(R.string.share_thread_subject), message, R.string.title_share)
-                val contentName = if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
+                    
+                    $link
+                    """.trimIndent(), R.string.title_share)
+                val contentName = if (objectName.isBlank()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
                 Answers.getInstance().logShare(ShareEvent()
-                        .putContentType("Article")
+                        .putContentType("Thread")
                         .putContentName(contentName)
-                        .putContentId(article.id.toString()))
+                        .putContentId(threadId.toString()))
                 return true
             }
         }
@@ -108,19 +102,25 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
         private const val KEY_THREAD_ID = "THREAD_ID"
         private const val KEY_THREAD_SUBJECT = "THREAD_SUBJECT"
-        private const val KEY_ARTICLE = "ARTICLE"
 
         @JvmStatic
-        fun start(context: Context, threadId: Int, threadSubject: String?, forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType?, article: ArticleEntity?) {
-            context.startActivity<ArticleActivity>(
+        fun start(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+            context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType))
+        }
+
+        fun startUp(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+            context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType).clearTop())
+        }
+
+        private fun createIntent(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType): Intent {
+            return context.intentFor<ThreadActivity>(
                     KEY_THREAD_ID to threadId,
                     KEY_THREAD_SUBJECT to threadSubject,
                     KEY_FORUM_ID to forumId,
                     KEY_FORUM_TITLE to forumTitle,
                     KEY_OBJECT_ID to objectId,
                     KEY_OBJECT_NAME to objectName,
-                    KEY_OBJECT_TYPE to objectType,
-                    KEY_ARTICLE to article
+                    KEY_OBJECT_TYPE to objectType
             )
         }
     }
