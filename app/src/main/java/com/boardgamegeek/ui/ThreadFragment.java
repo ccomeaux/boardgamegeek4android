@@ -231,7 +231,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@DebugLog
 	private Target getTarget() {
 		final View child = HelpUtils.getRecyclerViewVisibleChild(recyclerView);
-		return child == null ? null : new SafeViewTarget(child.findViewById(R.id.view_button));
+		return child == null ? null : new SafeViewTarget(child.findViewById(R.id.viewButton));
 	}
 
 	@NotNull
@@ -249,7 +249,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 
 		if (adapter == null) {
-			adapter = new ThreadRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, objectId, objectName, objectType);
+			adapter = new ThreadRecyclerViewAdapter(forumId, forumTitle, objectId, objectName, objectType);
 			recyclerView.setAdapter(adapter);
 		}
 
@@ -261,9 +261,12 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		} else if (data.hasError()) {
 			emptyView.setText(data.getErrorMessage());
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
-		} else if (adapter.getItemCount() == 0) {
+		} else if (data.getArticles().size() == 0) {
 			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else {
+			adapter.setThreadId(data.getThreadId());
+			adapter.setThreadSubject(data.getThreadSubject());
+			adapter.setArticles(data.getArticles());
 			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 			maybeShowHelp();
 		}
