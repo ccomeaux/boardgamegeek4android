@@ -21,7 +21,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
     private var threadId = BggContract.INVALID_ID
     private var threadSubject = ""
     private var forumId = BggContract.INVALID_ID
-    private var forumTitle: String? = null
+    private var forumTitle: String = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
     private var objectType = ForumEntity.ForumType.REGION

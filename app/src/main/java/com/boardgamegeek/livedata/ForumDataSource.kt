@@ -19,6 +19,7 @@ class ForumDataSource(private val forumId: Int) : PositionalDataSource<ForumThre
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<ForumThread>) {
         if (params.loadSize <= 0) return
+        if (params.startPosition == totalCount) return
         val page = (params.startPosition + pageSize - 1) / pageSize
         if (page <= 0) return
         val forum = bggService.forum(forumId, page).execute().body()

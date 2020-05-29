@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_forums.*
 class ForumsFragment : Fragment(R.layout.fragment_forums) {
     private var forumType = ForumEntity.ForumType.REGION
     private var objectId = BggContract.INVALID_ID
-    private var objectName: String? = null
+    private var objectName = ""
 
     private val adapter: ForumsRecyclerViewAdapter by lazy {
         ForumsRecyclerViewAdapter(objectId, objectName, forumType)
@@ -29,9 +29,11 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        forumType = (arguments?.getSerializable(KEY_TYPE) as ForumEntity.ForumType?) ?: ForumEntity.ForumType.REGION
-        objectId = arguments?.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
-        objectName = arguments?.getString(KEY_OBJECT_NAME)
+        arguments?.let {
+            forumType = it.getSerializable(KEY_TYPE) as? ForumEntity.ForumType? ?: ForumEntity.ForumType.REGION
+            objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
+            objectName = it.getString(KEY_OBJECT_NAME) ?: ""
+        }
 
         recyclerView?.setHasFixedSize(true)
         recyclerView?.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
