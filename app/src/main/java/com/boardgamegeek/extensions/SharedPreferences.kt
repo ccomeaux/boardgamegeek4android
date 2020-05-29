@@ -259,20 +259,7 @@ object PlayStats {
 
 // region FORUMS
 
-const val INVALID_ARTICLE_ID = -1
 const val KEY_ADVANCED_DATES = "advancedForumDates"
-
-fun SharedPreferences.putThreadArticle(threadId: Int, articleId: Int) {
-    this[getThreadKey(threadId.toLong()), articleId]
-}
-
-fun SharedPreferences.getThreadArticle(threadId: Int): Int {
-    return this[getThreadKey(threadId.toLong()), INVALID_ARTICLE_ID] ?: INVALID_ARTICLE_ID
-}
-
-private fun getThreadKey(threadId: Long): String {
-    return "THREAD-$threadId"
-}
 
 // endregion FORUMS
 
