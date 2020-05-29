@@ -8,22 +8,22 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.entities.ThreadEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.model.Thread
 import com.boardgamegeek.ui.ThreadActivity.Companion.start
 import kotlinx.android.synthetic.main.row_forum_thread.view.*
 import java.text.NumberFormat
 
 class ForumPagedListAdapter(private val forumId: Int, private val forumTitle: String, private val objectId: Int, private val objectName: String, private val objectType: ForumEntity.ForumType)
-    : PagedListAdapter<Thread, ForumPagedListAdapter.ForumViewHolder>(AsyncDifferConfig.Builder(diffCallback).build()) {
+    : PagedListAdapter<ThreadEntity, ForumPagedListAdapter.ForumViewHolder>(AsyncDifferConfig.Builder(diffCallback).build()) {
 
     companion object {
-        val diffCallback = object : DiffUtil.ItemCallback<Thread>() {
-            override fun areItemsTheSame(oldItem: Thread, newItem: Thread): Boolean =
-                    oldItem.id == newItem.id
+        val diffCallback = object : DiffUtil.ItemCallback<ThreadEntity>() {
+            override fun areItemsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity): Boolean =
+                    oldItem.threadId == newItem.threadId
 
-            override fun areContentsTheSame(oldItem: Thread, newItem: Thread): Boolean =
-                    oldItem == newItem // TODO
+            override fun areContentsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity): Boolean =
+                    oldItem == newItem
         }
     }
 
@@ -36,15 +36,15 @@ class ForumPagedListAdapter(private val forumId: Int, private val forumTitle: St
     }
 
     inner class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(thread: Thread?) {
+        fun bind(thread: ThreadEntity?) {
             if (thread == null) return
-            itemView.subject.text = thread.subject.trim()
-            itemView.author.text = thread.author.trim()
+            itemView.subject.text = thread.subject
+            itemView.author.text = thread.author
             val replies = thread.numberOfArticles - 1
             itemView.number_of_articles.text = NumberFormat.getInstance().format(replies.toLong())
-            itemView.last_post_date.timestamp = thread.lastPostDate()
+            itemView.last_post_date.timestamp = thread.lastPostDate
             itemView.setOnClickListener {
-                start(it.context, thread.id, thread.subject, forumId, forumTitle, objectId, objectName, objectType)
+                start(it.context, thread.threadId, thread.subject, forumId, forumTitle, objectId, objectName, objectType)
             }
         }
     }
