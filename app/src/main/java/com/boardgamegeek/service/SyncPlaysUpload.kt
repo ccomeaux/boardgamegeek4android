@@ -9,10 +9,7 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.getLongOrNull
-import com.boardgamegeek.extensions.toOrdinal
-import com.boardgamegeek.extensions.use
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayDeleteResponse
@@ -28,7 +25,6 @@ import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.extensions.getText
 import com.boardgamegeek.util.SelectionBuilder
 import hugo.weaving.DebugLog
 import okhttp3.FormBody
@@ -126,15 +122,16 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     } else if (response.hasError()) {
                         syncResult.stats.numIoExceptions++
                         notifyUploadError(response.errorMessage)
-                    } else if (response.playCount <= 0) {
+                    } else if (response.playCount < 0) {
                         syncResult.stats.numIoExceptions++
                         notifyUploadError(context.getString(R.string.msg_play_update_null_response))
                     } else {
                         syncResult.stats.numUpdates++
-                        val message = if (play.playId > 0)
-                            context.getText(R.string.msg_play_updated)
-                        else
-                            context.getText(R.string.msg_play_added, getPlayCountDescription(response.playCount, play.quantity))
+                        val message = when {
+                            play.playId > 0 -> context.getText(R.string.msg_play_updated)
+                            play.quantity > 0 -> context.getText(R.string.msg_play_added_quantity, getPlayCountDescription(response.playCount, play.quantity))
+                            else -> context.getText(R.string.msg_play_added)
+                        }
 
                         play.playId = response.playId
                         play.dirtyTimestamp = 0

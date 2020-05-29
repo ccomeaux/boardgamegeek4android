@@ -1,31 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	   xmlns:tools="http://schemas.android.com/tools"
-	   tools:layout_height="64dp"
-	   tools:layout_width="match_parent"
-	   tools:parentTag="android.widget.LinearLayout">
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:layout_height="64dp"
+	tools:layout_width="match_parent"
+	tools:parentTag="android.widget.LinearLayout">
 
 	<FrameLayout
-		android:layout_width="@dimen/edit_label_width"
+		style="@style/FormButton"
+		android:layout_width="48dp"
 		android:layout_height="match_parent"
-		android:layout_gravity="left|center_vertical">
+		android:layout_gravity="center"
+		android:layout_marginEnd="@dimen/padding_standard"
+		android:layout_marginRight="@dimen/padding_standard"
+		android:background="#0000"
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp">
 
 		<ImageView
 			android:id="@+id/colorView"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="@dimen/color_circle_diameter"
-			android:layout_gravity="left|center_vertical"
+			android:layout_gravity="center"
 			android:scaleType="fitXY"
-			tools:background="#0f0"/>
+			tools:background="#0f0" />
 
 		<TextView
 			android:id="@+id/seatView"
 			style="@style/Text.Huge"
 			android:layout_width="@dimen/color_circle_diameter"
-			android:layout_height="match_parent"
+			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_gravity="center"
 			android:fontFamily="sans-serif-condensed"
 			android:gravity="center"
-			tools:text="1"/>
+			tools:text="1" />
 	</FrameLayout>
 
 	<LinearLayout
@@ -41,28 +48,28 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			tools:text="Chris"/>
+			tools:text="Chris" />
 
 		<TextView
 			android:id="@+id/usernameView"
 			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			tools:text="ccomeaux"/>
+			tools:text="ccomeaux" />
 
 		<TextView
 			android:id="@+id/teamColorView"
 			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			tools:text="They"/>
+			tools:text="They" />
 
 		<TextView
 			android:id="@+id/startingPositionView"
 			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			tools:text="First"/>
+			tools:text="First" />
 	</LinearLayout>
 
 	<FrameLayout
@@ -78,7 +85,7 @@
 			android:scaleType="center"
 			android:src="@drawable/ic_rating"
 			tools:tint="#2000"
-			tools:tintMode="src_in"/>
+			tools:tintMode="src_in" />
 
 		<TextView
 			android:id="@+id/ratingView"
@@ -86,7 +93,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
-			tools:text="7.5"/>
+			tools:text="7.5" />
 	</FrameLayout>
 
 	<FrameLayout
@@ -102,7 +109,7 @@
 			android:scaleType="center"
 			android:src="@drawable/ic_score"
 			tools:tint="#2000"
-			tools:tintMode="src_in"/>
+			tools:tintMode="src_in" />
 
 		<TextView
 			android:id="@+id/scoreView"
@@ -110,24 +117,26 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
-			tools:text="529"/>
+			tools:text="529" />
 	</FrameLayout>
 
 	<ImageView
 		android:id="@+id/moreButton"
-		style="@style/Icon.Right"
-		android:layout_gravity="center"
+		android:layout_width="@dimen/image_button_size"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical|end"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:src="@drawable/ic_more_vert"
 		android:visibility="gone"
-		tools:visibility="visible"/>
+		tools:visibility="visible" />
 
 	<ImageView
 		android:id="@+id/dragHandle"
-		style="@style/Icon.Right"
-		android:layout_gravity="center"
+		style="@style/FormButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:contentDescription="@string/sort"
-		android:src="@drawable/drag_grip"
-		android:visibility="invisible"
-		tools:visibility="visible"/>
+		android:src="@drawable/ic_drag_handle"
+		android:visibility="gone"
+		tools:visibility="visible" />
 </merge>

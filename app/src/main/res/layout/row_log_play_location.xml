@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/FormRow"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:focusable="false"
-	android:importantForAutofill="noExcludeDescendants">
+	android:hint="@string/location"
+	android:labelFor="@id/log_play_location"
+	android:paddingHorizontal="@dimen/material_margin_horizontal"
+	app:endIconMode="dropdown_menu"
+	android:paddingVertical="@dimen/padding_half"
+	app:startIconDrawable="@drawable/ic_location">
 
-	<ImageView
-		style="@style/Icon"
-		android:contentDescription="@string/location"
-		android:focusable="false"
-		android:src="@drawable/ic_location"/>
-
-	<AutoCompleteTextView
+	<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 		android:id="@+id/log_play_location"
-		android:layout_width="0dp"
-		android:layout_height="match_parent"
-		android:layout_weight="1"
-		android:completionThreshold="1"
-		android:hint="@string/location_hint"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
 		android:imeOptions="actionNext"
 		android:inputType="textCapWords"
-		android:textAppearance="@style/Text.Big"
-		android:textColor="#000"/>
-</LinearLayout>
+		android:textAppearance="?attr/textAppearanceSubtitle1" />
+</com.google.android.material.textfield.TextInputLayout>

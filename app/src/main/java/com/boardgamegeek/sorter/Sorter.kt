@@ -5,6 +5,7 @@ import android.database.Cursor
 import androidx.annotation.StringRes
 import com.boardgamegeek.provider.BggContract
 import java.text.DecimalFormat
+import java.util.*
 
 abstract class Sorter(protected val context: Context) {
     private val doubleFormat = DecimalFormat("#.0")
@@ -96,5 +97,5 @@ abstract class Sorter(protected val context: Context) {
     /**
      * Get the ID for the header at the current position of the cursor (as required by adapters).
      */
-    protected open fun getHeaderId(cursor: Cursor) = getHeaderText(cursor).hashCode().toLong()
+    protected open fun getHeaderId(cursor: Cursor) = getHeaderText(cursor).toLowerCase(Locale.getDefault()).hashCode().toLong()
 }

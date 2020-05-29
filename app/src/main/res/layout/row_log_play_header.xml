@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="@dimen/image_header_height"
 	android:layout_gravity="center"
+	android:layout_marginBottom="@dimen/padding_standard"
 	android:background="@color/primary"
 	android:descendantFocusability="blocksDescendants"
 	android:focusable="false">
@@ -13,7 +13,7 @@
 		android:id="@+id/thumbnail"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:scaleType="centerCrop"/>
+		android:scaleType="centerCrop" />
 
 	<TextView
 		android:id="@+id/header"
@@ -25,6 +25,6 @@
 		android:maxLines="2"
 		android:paddingLeft="@dimen/material_indent_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
-		tools:text="Puerto Rico"/>
+		tools:text="Puerto Rico" />
 </FrameLayout>
 

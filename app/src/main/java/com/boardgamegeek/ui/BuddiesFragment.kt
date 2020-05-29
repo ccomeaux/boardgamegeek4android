@@ -21,6 +21,7 @@ import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import kotlinx.android.synthetic.main.fragment_buddies.*
 import kotlinx.android.synthetic.main.row_buddy.view.*
 import org.jetbrains.anko.design.indefiniteSnackbar
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import kotlin.properties.Delegates
 
 class BuddiesFragment : Fragment() {
@@ -77,13 +78,13 @@ class BuddiesFragment : Fragment() {
     }
 
     private fun showEmpty() {
-        if (requireContext().getSyncBuddies()) {
+        if (defaultSharedPreferences[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
             emptyTextView.setText(R.string.empty_buddies)
             emptyButton.isGone = true
         } else {
             emptyTextView.setText(R.string.empty_buddies_sync_off)
             emptyButton.setOnClickListener {
-                requireContext().setSyncBuddies()
+                defaultSharedPreferences[PREFERENCES_KEY_SYNC_BUDDIES] = true
                 triggerRefresh()
                 showEmpty()
             }
@@ -109,7 +110,8 @@ class BuddiesFragment : Fragment() {
 
         override fun getItemCount() = buddies.size
 
-        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong()
+                ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
             return BuddyViewHolder(parent.inflate(R.layout.row_buddy))

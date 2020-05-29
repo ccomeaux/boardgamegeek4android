@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
-import com.boardgamegeek.extensions.getViewDefaultId
-import com.boardgamegeek.extensions.putViewDefaultId
-import com.boardgamegeek.extensions.removeViewDefaultId
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.provider.BggContract
@@ -18,6 +16,10 @@ import com.boardgamegeek.tasks.SelectCollectionViewTask
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CollectionViewRepository(getApplication())
+    private val prefs: SharedPreferences by lazy { application.preferences() }
+    private val defaultViewId
+        get() = prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                ?: CollectionView.DEFAULT_DEFAULT_ID
 
     val views: LiveData<List<CollectionViewEntity>> = repository.load()
 
@@ -62,7 +64,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                     it
             )
         }
-        _selectedViewId.value = application.getViewDefaultId()
+        _selectedViewId.value = defaultViewId
     }
 
     val selectedViewId: LiveData<Long>
@@ -106,10 +108,6 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             SelectCollectionViewTask(getApplication(), viewId).execute()
             _selectedViewId.value = viewId
         }
-    }
-
-    fun clearView() {
-        selectView(getApplication<BggApplication>().getViewDefaultId())
     }
 
     fun setSort(sortType: Int) {
@@ -188,16 +186,16 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     fun deleteView(viewId: Long) {
         repository.deleteView(viewId)
         if (viewId == _selectedViewId.value) {
-            selectView(getApplication<BggApplication>().getViewDefaultId())
+            selectView(defaultViewId)
         }
     }
 
     private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {
         if (isDefault) {
-            getApplication<BggApplication>().putViewDefaultId(viewId)
+            prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID] = viewId
         } else {
-            if (viewId == getApplication<BggApplication>().getViewDefaultId()) {
-                getApplication<BggApplication>().removeViewDefaultId()
+            if (viewId == defaultViewId) {
+                prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
             }
         }
     }

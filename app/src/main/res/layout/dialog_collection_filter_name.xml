@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:importantForAutofill="noExcludeDescendants"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical">
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:importantForAutofill="noExcludeDescendants"
+	android:orientation="vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingBottom="@dimen/material_margin_vertical">
 
-	<EditText
-		android:id="@+id/filterTextView"
+	<com.google.android.material.textfield.TextInputLayout
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:hint="@string/name"
-		android:imeOptions="actionDone"
-		android:inputType="text"
-		android:maxLines="1"/>
+		android:hint="@string/name">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/filterTextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:inputType="text"
+			android:maxLines="1" />
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<CheckBox
 		android:id="@+id/startsWithCheckBox"
@@ -24,5 +29,5 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/padding_extra"
-		android:text="@string/starts_with"/>
+		android:text="@string/starts_with" />
 </LinearLayout>

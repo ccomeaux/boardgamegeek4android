@@ -22,5 +22,4 @@ class AcquiredFromSorter(context: Context) : CollectionSorter(context) {
     override val shouldCollate = true
 
     public override fun getHeaderText(cursor: Cursor) = cursor.getString(sortColumn, nowhere)
-
 }

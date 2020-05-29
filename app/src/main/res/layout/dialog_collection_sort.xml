@@ -62,6 +62,12 @@
 			android:layout_height="match_parent"
 			android:tag="@string/collection_sort_type_play_date_min"/>
 
+		<RadioButton
+			android:id="@+id/lastModifiedView"
+			style="@style/DialogRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:tag="@string/collection_sort_type_last_modified"/>
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"

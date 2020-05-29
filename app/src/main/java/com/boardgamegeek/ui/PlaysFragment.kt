@@ -29,11 +29,13 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.DateTimeUtils
+import com.boardgamegeek.util.XmlConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -41,6 +43,7 @@ import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(), ActionMode.Callback {
     private val viewModel by activityViewModels<PlaysViewModel>()
+    private val xmlConverter = XmlConverter()
 
     private val adapter: PlayAdapter by lazy {
         PlayAdapter()
@@ -97,7 +100,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 when (viewModel.filterType.value) {
                     PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
                     PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
-                    else -> if (requireActivity().getSyncPlays()) {
+                    else -> if (defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS, false] == true) {
                         emptyStringResId
                     } else {
                         R.string.empty_plays_sync_off
@@ -119,7 +122,8 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        emptyStringResId = arguments?.getInt(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays) ?: R.string.empty_plays
+        emptyStringResId = arguments?.getInt(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
+                ?: R.string.empty_plays
         showGameName = arguments?.getBoolean(KEY_SHOW_GAME_NAME, true) ?: true
         gameId = arguments?.getInt(KEY_GAME_ID, INVALID_ID) ?: INVALID_ID
         gameName = arguments?.getString(KEY_GAME_NAME)
@@ -127,7 +131,8 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         imageUrl = arguments?.getString(KEY_IMAGE_URL)
         heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
         arePlayersCustomSorted = arguments?.getBoolean(KEY_CUSTOM_PLAYER_SORT) ?: false
-        @ColorInt val iconColor = arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) ?: Color.TRANSPARENT
+        @ColorInt val iconColor = arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
+                ?: Color.TRANSPARENT
 
         if (gameId != INVALID_ID) {
             fabView.colorize(iconColor)
@@ -247,7 +252,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
                 itemView.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
                 itemView.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
-                itemView.commentView.setTextOrHide(play.comments)
+                itemView.commentView.setTextOrHide(xmlConverter.strip(play.comments))
 
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete

@@ -9,14 +9,15 @@ import kotlinx.android.synthetic.main.dialog_edit_text.*
 class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<BuddyViewModel>()
 
-    override val titleResId
-        get() = R.string.title_edit_player
+    override val titleResId = R.string.title_edit_player
+
+    override val hintResId = R.string.player_name
 
     override val originalText
         get() = arguments?.getString(KEY_TEXT)
 
     override fun onPositiveButton() {
-        val text = editText.text.trim().toString()
+        val text = editText?.text?.trim().toString()
         viewModel.renamePlayer(text)
     }
 

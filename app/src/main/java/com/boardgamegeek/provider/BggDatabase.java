@@ -1,12 +1,14 @@
 package com.boardgamegeek.provider;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
 import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -105,6 +107,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = VER_DAP_STATS_UPDATED_TIMESTAMP;
 
 	private final Context context;
+	private final SharedPreferences syncPrefs;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -220,6 +223,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	public BggDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		this.context = context;
+		syncPrefs = SyncPrefs.getPrefs(context);
 	}
 
 	@Override
@@ -695,7 +699,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					buildGamesTable().replace(db);
 					dropTable(db, Tables.COLLECTION);
 					buildCollectionTable().create(db);
-					SyncPrefs.clearCollection(context);
+					SyncPrefUtils.clearCollection(syncPrefs);
 					SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
 					version = VER_GAME_COLLECTION_CONFLICT;
 				case VER_GAME_COLLECTION_CONFLICT:
@@ -815,7 +819,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					dropTable(db, Tables.PLAY_PLAYERS);
 					buildPlaysTable().create(db);
 					buildPlayPlayersTable().create(db);
-					SyncPrefs.clearPlaysTimestamps(context);
+					SyncPrefUtils.clearPlaysTimestamps(syncPrefs);
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS);
 					version = VER_PLAYS_HARD_RESET;
 				case VER_PLAYS_HARD_RESET:

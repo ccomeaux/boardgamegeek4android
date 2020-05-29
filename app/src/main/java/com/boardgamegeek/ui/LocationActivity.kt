@@ -9,14 +9,11 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.tasks.RenameLocationTask
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
+import com.boardgamegeek.ui.dialog.EditLocationNameDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.boardgamegeek.util.fabric.DataManipulationEvent
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
@@ -24,7 +21,7 @@ import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.startActivity
 
-class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
+class LocationActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlaysViewModel>()
 
     private var locationName = ""
@@ -71,8 +68,7 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_edit) {
-            val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_location, locationName)
-            showAndSurvive(editTextDialogFragment)
+            showAndSurvive(EditLocationNameDialogFragment.newInstance(locationName))
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -89,13 +85,6 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
 
         if (event.message.isNotBlank()) {
             rootContainer?.snackbar(event.message)
-        }
-    }
-
-    override fun onFinishEditDialog(text: String, originalText: String?) {
-        if (text.isNotBlank()) {
-            DataManipulationEvent.log("Location", "Edit")
-            RenameLocationTask(this, originalText, text).executeAsyncTask()
         }
     }
 

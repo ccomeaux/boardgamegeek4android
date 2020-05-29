@@ -10,12 +10,10 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.asColorRgb
-import com.boardgamegeek.extensions.isColorDark
-import com.boardgamegeek.extensions.setTextOrHide
-import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.dialog_number_pad.*
 import org.jetbrains.anko.childrenRecursiveSequence
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import kotlin.math.min
 
 abstract class NumberPadDialogFragment : DialogFragment() {
@@ -121,7 +119,8 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     }
 
     private fun maybeBuzz(v: View) {
-        if (PreferencesUtils.getHapticFeedback(context)) {
+        // TODO - store in a field and listen for changes
+        if (defaultSharedPreferences[KEY_HAPTIC_FEEDBACK, true] == true) {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }

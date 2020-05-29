@@ -31,7 +31,8 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
                 .setTitle(R.string.title_edit_nickname)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    viewModel.updateNickName(nicknameView.text.trim().toString(), changePlaysCheckBox.isChecked)
+                    val nickname = nicknameView.text?.toString()
+                    viewModel.updateNickName(nickname?.trim() ?: "", changePlaysCheckBox.isChecked)
                 }
                 .create().apply {
                     requestFocus(nicknameView)

@@ -11,8 +11,10 @@ import android.os.ParcelFileDescriptor
 import android.text.TextUtils
 import androidx.core.app.NotificationCompat
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.KEY_SYNC_NOTIFICATIONS
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.SelectionBuilder
 import java.io.FileNotFoundException
 
@@ -87,7 +89,8 @@ abstract class BaseProvider {
     }
 
     protected fun notifyException(context: Context?, e: SQLException) {
-        if (PreferencesUtils.getSyncShowNotifications(context)) {
+        val prefs = context?.preferences()
+        if (prefs != null && prefs[KEY_SYNC_NOTIFICATIONS, false] == true) {
             val builder = NotificationUtils
                     .createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
                     .setContentText(e.localizedMessage)

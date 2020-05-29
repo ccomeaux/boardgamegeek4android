@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -9,14 +8,14 @@
 	android:orientation="vertical"
 	tools:context=".ui.LogPlayerActivity">
 
-	<include layout="@layout/actionbar_done_cancel"/>
+	<include layout="@layout/actionbar_done_cancel" />
 
 	<FrameLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
 		<ScrollView
-			android:id="@+id/scroll_container"
+			android:id="@+id/scrollContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:fillViewport="true">
@@ -33,50 +32,55 @@
 					android:background="@color/no_image">
 
 					<ImageView
-						android:id="@+id/thumbnail"
+						android:id="@+id/thumbnailView"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
-						android:scaleType="centerCrop"/>
+						android:scaleType="centerCrop"
+						tools:ignore="ContentDescription" />
 
 					<TextView
-						android:id="@+id/header"
+						android:id="@+id/headerView"
 						style="@style/Text.Title.Overlay"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:background="#6000"
 						android:ellipsize="end"
-						android:gravity="left|center_vertical"
+						android:gravity="start|center_vertical"
 						android:maxLines="2"
+						android:paddingStart="@dimen/material_indent_horizontal"
 						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingEnd="@dimen/material_margin_horizontal"
 						android:paddingRight="@dimen/material_margin_horizontal"
 						tools:text="Puerto Rico"
-						tools:visibility="gone"/>
+						tools:visibility="gone" />
 
 					<LinearLayout
-						android:id="@+id/two_line_container"
+						android:id="@+id/twoLineContainer"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:background="#6000"
-						android:gravity="left|center_vertical"
+						android:gravity="start|center_vertical"
 						android:orientation="vertical"
+						android:paddingStart="@dimen/material_indent_horizontal"
 						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingEnd="@dimen/material_margin_horizontal"
 						android:paddingRight="@dimen/material_margin_horizontal">
 
 						<TextView
-							android:id="@+id/header2"
+							android:id="@+id/titleView"
 							style="@style/Text.Title.Overlay"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:ellipsize="end"
 							android:maxLines="1"
-							tools:text="Puerto Rico"/>
+							tools:text="Puerto Rico" />
 
 						<TextView
-							android:id="@+id/subheader"
+							android:id="@+id/subtitleView"
 							style="@style/Text.Overlay"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							tools:text="Player #1"/>
+							tools:text="Player #1" />
 					</LinearLayout>
 				</FrameLayout>
 
@@ -84,177 +88,177 @@
 					android:id="@+id/details"
 					style="@style/FormContainer">
 
-					<LinearLayout style="@style/FormRowContainer">
+					<com.google.android.material.textfield.TextInputLayout
+						android:id="@+id/nameContainer"
+						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
+						android:hint="@string/player_name"
+						app:endIconMode="dropdown_menu"
+						app:startIconDrawable="@drawable/ic_face">
 
-						<ImageView
-							style="@style/Icon"
-							android:src="@drawable/ic_user"/>
-
-						<AutoCompleteTextView
-							android:id="@+id/log_player_name"
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:completionThreshold="1"
-							android:dropDownHeight="wrap_content"
-							android:hint="@string/player_name"
+						<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+							android:id="@+id/nameView"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
 							android:imeOptions="actionNext"
 							android:inputType="textPersonName|textCapWords"
 							android:maxLength="255"
-							android:textAppearance="@style/Text.Big"
-							android:textColor="#000"/>
-					</LinearLayout>
+							android:textAppearance="?attr/textAppearanceSubtitle1" />
+					</com.google.android.material.textfield.TextInputLayout>
 
-					<LinearLayout style="@style/FormRowContainer">
+					<com.google.android.material.textfield.TextInputLayout
+						android:id="@+id/usernameContainer"
+						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
+						android:hint="@string/username"
+						app:endIconMode="dropdown_menu"
+						app:startIconDrawable="@drawable/ic_user">
 
-						<ImageView style="@style/Icon"/>
-
-						<AutoCompleteTextView
-							android:id="@+id/log_player_username"
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:completionThreshold="1"
-							android:dropDownHeight="wrap_content"
-							android:hint="@string/username"
+						<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+							android:id="@+id/usernameView"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
 							android:imeOptions="actionNext"
 							android:inputType="text"
 							android:maxLength="63"
-							android:textAppearance="@style/Text.Big"
-							android:textColor="#000"/>
-					</LinearLayout>
+							android:textAppearance="?attr/textAppearanceSubtitle1" />
+					</com.google.android.material.textfield.TextInputLayout>
 
 					<LinearLayout
-						android:id="@+id/log_player_team_color_container"
-						style="@style/FormRowContainer">
+						android:id="@+id/teamColorContainer"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:layout_marginVertical="4dp"
+						android:baselineAligned="false"
+						android:orientation="horizontal">
+
+						<com.google.android.material.textfield.TextInputLayout
+							style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:hint="@string/team_color"
+							app:endIconMode="dropdown_menu"
+							app:startIconDrawable="@drawable/ic_colors">
+
+							<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+								android:id="@+id/teamColorView"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:imeOptions="actionNext"
+								android:inputType="textCapSentences"
+								android:maxLength="32"
+								android:textAppearance="?attr/textAppearanceSubtitle1" />
+						</com.google.android.material.textfield.TextInputLayout>
 
 						<FrameLayout
-							android:layout_width="wrap_content"
+							android:layout_width="48dp"
 							android:layout_height="wrap_content"
-							android:layout_gravity="center_vertical"
-							android:layout_marginRight="24dp">
+							android:layout_gravity="center"
+							android:layout_marginStart="@dimen/padding_standard"
+							android:layout_marginLeft="@dimen/padding_standard">
 
 							<ImageView
-								android:id="@+id/color_view"
+								android:id="@+id/colorView"
 								android:layout_width="@dimen/color_circle_diameter"
 								android:layout_height="@dimen/color_circle_diameter"
 								android:layout_gravity="center"
 								android:background="?attr/selectableItemBackgroundBorderless"
 								android:scaleType="fitXY"
-								tools:background="#777"/>
+								tools:background="#777"
+								tools:ignore="ContentDescription" />
 						</FrameLayout>
 
-						<AutoCompleteTextView
-							android:id="@+id/log_player_team_color"
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:completionThreshold="1"
-							android:dropDownHeight="wrap_content"
-							android:hint="@string/team_color"
-							android:imeOptions="actionNext"
-							android:inputType="textCapSentences"
-							android:maxLength="32"
-							android:textColor="#000"/>
 					</LinearLayout>
 
-					<LinearLayout
-						android:id="@+id/log_player_position_container"
-						style="@style/FormRowContainer">
+					<com.google.android.material.textfield.TextInputLayout
+						android:id="@+id/positionContainer"
+						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
+						android:hint="@string/starting_position"
+						app:endIconDrawable="@drawable/ic_keyboard"
+						app:endIconMode="custom"
+						app:startIconDrawable="@drawable/ic_sort">
 
-						<ImageView
-							style="@style/Icon"
-							android:src="@drawable/ic_sort"/>
-
-						<EditText
-							android:id="@+id/log_player_position"
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:hint="@string/starting_position"
+						<com.google.android.material.textfield.TextInputEditText
+							android:id="@+id/positionView"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
 							android:imeOptions="flagNoExtractUi"
 							android:inputType="numberDecimal|numberSigned"
-							android:maxLength="32"/>
+							android:maxLength="32" />
+					</com.google.android.material.textfield.TextInputLayout>
 
-						<ImageButton
-							android:id="@+id/log_player_position_button"
-							android:layout_width="wrap_content"
-							android:layout_height="@dimen/image_button_size"
-							android:layout_gravity="center_vertical"
-							android:background="?attr/selectableItemBackground"
-							android:src="@drawable/ic_keyboard"/>
-					</LinearLayout>
+					<com.google.android.material.textfield.TextInputLayout
+						android:id="@+id/scoreContainer"
+						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
+						android:hint="@string/score"
+						app:endIconDrawable="@drawable/ic_keyboard"
+						app:endIconMode="custom"
+						app:startIconDrawable="@drawable/ic_score">
 
-					<LinearLayout
-						android:id="@+id/log_player_score_container"
-						style="@style/FormRowContainer">
-
-						<ImageView
-							style="@style/Icon"
-							android:src="@drawable/ic_score"/>
-
-						<EditText
-							android:id="@+id/log_player_score"
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:hint="@string/score"
+						<com.google.android.material.textfield.TextInputEditText
+							android:id="@+id/scoreView"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
 							android:imeOptions="flagNoExtractUi"
 							android:inputType="numberDecimal|numberSigned"
-							android:maxLength="32"/>
+							android:maxLength="32" />
+					</com.google.android.material.textfield.TextInputLayout>
 
-						<ImageButton
-							android:id="@+id/log_player_score_button"
-							android:layout_width="wrap_content"
-							android:layout_height="@dimen/image_button_size"
-							android:layout_gravity="center_vertical"
-							android:background="?attr/selectableItemBackground"
-							android:src="@drawable/ic_keyboard"/>
-					</LinearLayout>
+					<com.google.android.material.textfield.TextInputLayout
+						android:id="@+id/ratingContainer"
+						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginVertical="4dp"
+						android:hint="@string/rating"
+						app:startIconDrawable="@drawable/ic_rating">
 
-					<LinearLayout
-						android:id="@+id/log_player_rating_container"
-						style="@style/FormRowContainer">
-
-						<ImageView
-							style="@style/Icon"
-							android:src="@drawable/ic_rating"/>
-
-						<EditText
-							android:id="@+id/log_player_rating"
-							android:layout_width="0dp"
-							android:layout_height="match_parent"
-							android:layout_weight="1"
-							android:hint="@string/rating_hint"
+						<com.google.android.material.textfield.TextInputEditText
+							android:id="@+id/ratingView"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxLength="8"/>
-
-					</LinearLayout>
+							android:maxLength="8" />
+					</com.google.android.material.textfield.TextInputLayout>
 
 					<androidx.appcompat.widget.SwitchCompat
-						android:id="@+id/log_player_new"
+						android:id="@+id/newView"
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
+						android:layout_marginVertical="4dp"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
 						android:paddingRight="@dimen/edit_label_width"
-						android:text="@string/new_label"/>
+						android:text="@string/new_label" />
 
 					<androidx.appcompat.widget.SwitchCompat
-						android:id="@+id/log_player_win"
+						android:id="@+id/winView"
 						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
+						android:layout_marginVertical="4dp"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
 						android:paddingRight="@dimen/edit_label_width"
-						android:text="@string/win"/>
+						android:text="@string/win" />
 
 					<View
-						android:id="@+id/fab_buffer"
+						android:id="@+id/fabBuffer"
 						android:layout_width="match_parent"
-						android:layout_height="@dimen/fab_buffer"/>
+						android:layout_height="@dimen/fab_buffer" />
 				</LinearLayout>
 			</LinearLayout>
 		</ScrollView>
@@ -263,12 +267,12 @@
 			android:id="@+id/fab"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="bottom|right"
+			android:layout_gravity="bottom|end"
 			android:layout_margin="@dimen/padding_fab"
 			android:src="@drawable/ic_action_add"
 			app:elevation="@dimen/fab_elevation"
 			app:pressedTranslationZ="@dimen/fab_translation"
-			app:rippleColor="@color/medium_blue"/>
+			app:rippleColor="@color/medium_blue" />
 	</FrameLayout>
 
 </LinearLayout>
