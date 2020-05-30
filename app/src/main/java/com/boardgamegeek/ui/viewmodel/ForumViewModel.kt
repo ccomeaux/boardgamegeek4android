@@ -9,6 +9,7 @@ import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.boardgamegeek.entities.ThreadEntity
+import com.boardgamegeek.io.model.ForumResponse
 import com.boardgamegeek.io.model.ForumThread
 import com.boardgamegeek.livedata.ForumDataSource
 import com.boardgamegeek.provider.BggContract
@@ -26,10 +27,10 @@ class ForumViewModel(application: Application) : AndroidViewModel(application) {
     private var dataSourceFactory: DataSource.Factory<Int, ForumThread> = ForumDataSourceFactory(BggContract.INVALID_ID)
 
     private val config = PagedList.Config.Builder()
-            .setPageSize(50)
-            .setInitialLoadSizeHint(50)
+            .setPageSize(ForumResponse.PAGE_SIZE)
+            .setInitialLoadSizeHint(ForumResponse.PAGE_SIZE)
             .setPrefetchDistance(10)
-            .setEnablePlaceholders(false)
+            .setEnablePlaceholders(true)
             .build()
 
     val threads: LiveData<PagedList<ThreadEntity>> = Transformations.switchMap(_forumId) {

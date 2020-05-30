@@ -10,7 +10,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.ThreadEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.ui.ThreadActivity.Companion.start
+import com.boardgamegeek.ui.ThreadActivity
 import kotlinx.android.synthetic.main.row_forum_thread.view.*
 import java.text.NumberFormat
 
@@ -37,15 +37,17 @@ class ForumPagedListAdapter(private val forumId: Int, private val forumTitle: St
 
     inner class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(thread: ThreadEntity?) {
-            if (thread == null) return
-            itemView.subject.text = thread.subject
-            itemView.author.text = thread.author
-            val replies = thread.numberOfArticles - 1
+            itemView.subject.text = thread?.subject ?: ""
+            itemView.author.text = thread?.author ?: ""
+            val replies = (thread?.numberOfArticles ?: 1) - 1
             itemView.number_of_articles.text = NumberFormat.getInstance().format(replies.toLong())
-            itemView.last_post_date.timestamp = thread.lastPostDate
-            itemView.setOnClickListener {
-                start(it.context, thread.threadId, thread.subject, forumId, forumTitle, objectId, objectName, objectType)
-            }
+            itemView.last_post_date.timestamp = thread?.lastPostDate ?: 0L
+            if (thread == null)
+                itemView.setOnClickListener {}
+            else
+                itemView.setOnClickListener {
+                    ThreadActivity.start(it.context, thread.threadId, thread.subject, forumId, forumTitle, objectId, objectName, objectType)
+                }
         }
     }
 }
