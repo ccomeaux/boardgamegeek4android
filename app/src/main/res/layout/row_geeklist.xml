@@ -38,13 +38,13 @@
 			android:background="@color/list_divider" />
 
 		<TextView
-			android:id="@+id/numberOfItemsView"
+			android:id="@+id/numberOfThumbsView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableStart="@drawable/ic_items_small"
-			android:drawableLeft="@drawable/ic_items_small"
-			tools:text="42" />
+			android:drawableStart="@drawable/ic_thumbs_small"
+			android:drawableLeft="@drawable/ic_thumbs_small"
+			tools:text="13" />
 
 		<View
 			android:layout_width="1dp"
@@ -54,12 +54,13 @@
 			android:background="@color/list_divider" />
 
 		<TextView
-			android:id="@+id/numberOfThumbsView"
+			android:id="@+id/numberOfItemsView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableStart="@drawable/ic_thumbs_small"
-			android:drawableLeft="@drawable/ic_thumbs_small"
-			tools:text="13" />
+			android:drawableStart="@drawable/ic_items_small"
+			android:drawableLeft="@drawable/ic_items_small"
+			tools:text="42" />
+
 	</LinearLayout>
 </LinearLayout>
