@@ -13,7 +13,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.GameRanksFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
@@ -149,7 +148,7 @@ class GameFragment : Fragment() {
                 ?: ""
         ratingVotesView?.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
         ratingContainer?.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
-            CommentsActivity.startRating(context, Games.buildGameUri(gameId), gameName)
+            CommentsActivity.startRating(requireContext(), gameId, gameName)
         }
 
         yearView?.text = game.yearPublished.asYear(context)
