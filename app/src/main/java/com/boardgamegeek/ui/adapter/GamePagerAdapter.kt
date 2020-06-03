@@ -56,14 +56,14 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     override fun createFragment(position: Int): Fragment {
         return when (tabs.getOrNull(position)?.titleResId) {
-            R.string.title_descr -> GameDescriptionFragment.newInstance()
-            R.string.title_info -> GameFragment.newInstance()
-            R.string.title_credits -> GameCreditsFragment.newInstance()
-            R.string.title_my_games -> GameCollectionFragment.newInstance()
-            R.string.title_plays -> GamePlaysFragment.newInstance()
+            R.string.title_descr -> GameDescriptionFragment()
+            R.string.title_info -> GameFragment()
+            R.string.title_credits -> GameCreditsFragment()
+            R.string.title_my_games -> GameCollectionFragment()
+            R.string.title_plays -> GamePlaysFragment()
             R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
-            R.string.links -> GameLinksFragment.newInstance()
-            else -> ErrorFragment.newInstance()
+            R.string.links -> GameLinksFragment()
+            else -> ErrorFragment()
         }
     }
 
@@ -82,7 +82,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
         })
         if (shouldShowCollection())
             tabs.add(Tab(R.string.title_my_games, R.drawable.fab_add) {
-                activity.showAndSurvive(CollectionStatusDialogFragment.newInstance())
+                activity.showAndSurvive(CollectionStatusDialogFragment())
             })
         if (shouldShowPlays())
             tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {

@@ -94,10 +94,10 @@ class GeekListActivity : TabActivity() {
             FragmentStateAdapter(activity) {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> GeekListDescriptionFragment.newInstance()
-                1 -> GeekListItemsFragment.newInstance()
-                2 -> GeekListCommentsFragment.newInstance()
-                else -> ErrorFragment.newInstance()
+                0 -> GeekListDescriptionFragment()
+                1 -> GeekListItemsFragment()
+                2 -> GeekListCommentsFragment()
+                else -> ErrorFragment()
             }
         }
 
@@ -108,7 +108,6 @@ class GeekListActivity : TabActivity() {
         private const val KEY_ID = "GEEK_LIST_ID"
         private const val KEY_TITLE = "GEEK_LIST_TITLE"
 
-        @JvmStatic
         fun start(context: Context, id: Int, title: String) {
             context.startActivity(createIntent(context, id, title))
         }

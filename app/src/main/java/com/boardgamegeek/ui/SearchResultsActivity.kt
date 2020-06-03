@@ -85,7 +85,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = SearchResultsFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = SearchResultsFragment()
 
     override fun readIntent(intent: Intent) {
         when (intent.action) {

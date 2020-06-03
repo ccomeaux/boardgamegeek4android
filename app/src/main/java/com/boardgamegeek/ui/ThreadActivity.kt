@@ -103,7 +103,6 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         private const val KEY_THREAD_ID = "THREAD_ID"
         private const val KEY_THREAD_SUBJECT = "THREAD_SUBJECT"
 
-        @JvmStatic
         fun start(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType))
         }

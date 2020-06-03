@@ -86,10 +86,4 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
             emptyMessage.fadeIn()
         }
     }
-
-    companion object {
-        fun newInstance(): GameCollectionFragment {
-            return GameCollectionFragment()
-        }
-    }
 }

@@ -2,11 +2,9 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 import android.widget.Chronometer;
 import android.widget.EditText;
 

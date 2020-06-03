@@ -34,11 +34,4 @@ class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_descript
             }
         })
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): GeekListDescriptionFragment {
-            return GeekListDescriptionFragment()
-        }
-    }
 }

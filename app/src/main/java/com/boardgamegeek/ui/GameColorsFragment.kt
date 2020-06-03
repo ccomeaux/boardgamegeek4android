@@ -108,7 +108,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
 
         fab.colorize(iconColor)
         fab.setOnClickListener {
-            requireActivity().showAndSurvive(AddColorToGameDialogFragment.newInstance())
+            requireActivity().showAndSurvive(AddColorToGameDialogFragment())
         }
 
         viewModel.colors.observe(viewLifecycleOwner, Observer {

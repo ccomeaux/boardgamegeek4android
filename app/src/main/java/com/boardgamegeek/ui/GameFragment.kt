@@ -242,9 +242,5 @@ class GameFragment : Fragment() {
 
     companion object {
         private const val HELP_VERSION = 2
-
-        fun newInstance(): GameFragment {
-            return GameFragment()
-        }
     }
 }

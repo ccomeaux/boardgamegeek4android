@@ -167,12 +167,6 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
         }
     }
 
-    companion object {
-        fun newInstance(): GamePlaysFragment {
-            return GamePlaysFragment()
-        }
-    }
-
     class InProgressPlay @JvmOverloads constructor(
             context: Context,
             attrs: AttributeSet? = null,

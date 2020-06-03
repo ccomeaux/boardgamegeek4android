@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
+import org.jetbrains.anko.support.v4.withArguments
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -411,9 +412,9 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         private const val KEY_SHOW_GAME_NAME = "SHOW_GAME_NAME"
 
         fun newInstance(): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays)
-            }
+            return PlaysFragment().withArguments(
+                    KEY_EMPTY_STRING_RES_ID to R.string.empty_plays
+            )
         }
 
         fun newInstanceForGame(gameId: Int, gameName: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String, arePlayersCustomSorted: Boolean, @ColorInt iconColor: Int): PlaysFragment {

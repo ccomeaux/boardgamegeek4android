@@ -45,10 +45,4 @@ class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
         includeExpansionsView.isChecked = defaultSharedPreferences[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
         includeAccessoriesView.isChecked = defaultSharedPreferences[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
     }
-
-    companion object {
-        fun newInstance(): PlayStatsIncludeSettingsDialogFragment {
-            return PlayStatsIncludeSettingsDialogFragment()
-        }
-    }
 }

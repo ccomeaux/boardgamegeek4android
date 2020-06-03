@@ -102,10 +102,4 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
             }
         }
     }
-
-    companion object {
-        fun newInstance(): GeekListItemsFragment {
-            return GeekListItemsFragment()
-        }
-    }
 }

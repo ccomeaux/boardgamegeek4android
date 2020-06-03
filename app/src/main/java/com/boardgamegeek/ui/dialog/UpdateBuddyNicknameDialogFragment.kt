@@ -51,7 +51,6 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     }
 
     companion object {
-        @JvmStatic
         fun newInstance(nickname: String): UpdateBuddyNicknameDialogFragment {
             val fragment = UpdateBuddyNicknameDialogFragment()
             fragment.arguments = Bundle().apply {

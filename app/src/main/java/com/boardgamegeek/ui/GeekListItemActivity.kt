@@ -99,7 +99,7 @@ class GeekListItemActivity : HeroTabActivity() {
             return when (position) {
                 0 -> GeekListItemFragment.newInstance(order, geekListTitle, glItem)
                 1 -> GeekListItemCommentsFragment.newInstance(glItem.comments)
-                else -> ErrorFragment.newInstance()
+                else -> ErrorFragment()
             }
         }
 
@@ -112,7 +112,6 @@ class GeekListItemActivity : HeroTabActivity() {
         private const val KEY_TITLE = "GEEK_LIST_TITLE"
         private const val KEY_ITEM = "GEEK_LIST_ITEM"
 
-        @JvmStatic
         fun start(context: Context, geekList: GeekListEntity, item: GeekListItemEntity, order: Int) {
             context.startActivity<GeekListItemActivity>(
                     KEY_ID to geekList.id,

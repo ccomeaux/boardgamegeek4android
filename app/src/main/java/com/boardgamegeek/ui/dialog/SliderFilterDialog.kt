@@ -216,7 +216,7 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
 
     protected open fun getPinText(context: Context, value: String) = value
 
-    data class InitialValues @JvmOverloads constructor(val min: Int, val max: Int, val isChecked: Boolean = false, val ignoreRange: Boolean = false)
+    data class InitialValues(val min: Int, val max: Int, val isChecked: Boolean = false, val ignoreRange: Boolean = false)
 
     companion object {
         private const val INVALID_STRING_RES_ID = -1

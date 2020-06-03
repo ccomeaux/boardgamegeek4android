@@ -26,7 +26,6 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
     companion object {
         private const val KEY_TEXT = "text"
 
-        @JvmStatic
         fun newInstance(text: String?): EditLocationNameDialogFragment {
             return EditLocationNameDialogFragment().withArguments(
                     KEY_TEXT to text

@@ -95,7 +95,7 @@ class BuddyActivity : SimpleSinglePaneActivity() {
                 return true
             }
             R.id.add_username -> {
-                showAndSurvive(EditUsernameDialogFragment.newInstance())
+                showAndSurvive(EditUsernameDialogFragment())
                 return true
             }
         }

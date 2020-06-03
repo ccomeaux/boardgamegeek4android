@@ -255,9 +255,5 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     companion object {
         private const val HELP_VERSION = 2
-
-        fun newInstance(): SearchResultsFragment {
-            return SearchResultsFragment()
-        }
     }
 }

@@ -128,7 +128,6 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         private const val KEY_VIEW_ID = "VIEW_ID"
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
-        @JvmStatic
         fun createIntentAsShortcut(context: Context, viewId: Long): Intent {
             val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
                     .clearTask()
