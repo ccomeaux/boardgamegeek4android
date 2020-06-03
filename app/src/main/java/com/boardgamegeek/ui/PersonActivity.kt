@@ -143,17 +143,14 @@ class PersonActivity : HeroTabActivity() {
             context.startActivity(createIntent(context, id, name, PersonType.PUBLISHER))
         }
 
-        @JvmStatic
         fun startUpForArtist(context: Context, id: Int, name: String) {
             context.startActivity(createIntent(context, id, name, PersonType.ARTIST).clearTask().clearTop())
         }
 
-        @JvmStatic
         fun startUpForDesigner(context: Context, id: Int, name: String) {
             context.startActivity(createIntent(context, id, name, PersonType.DESIGNER).clearTask().clearTop())
         }
 
-        @JvmStatic
         fun startUpForPublisher(context: Context, id: Int, name: String) {
             context.startActivity(createIntent(context, id, name, PersonType.PUBLISHER).clearTask().clearTop())
         }

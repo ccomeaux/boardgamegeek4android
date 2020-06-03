@@ -46,11 +46,4 @@ class EditUsernameDialogFragment : DialogFragment() {
         editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         editTextContainer.hint = getString(R.string.username)
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): EditUsernameDialogFragment {
-            return EditUsernameDialogFragment()
-        }
-    }
 }

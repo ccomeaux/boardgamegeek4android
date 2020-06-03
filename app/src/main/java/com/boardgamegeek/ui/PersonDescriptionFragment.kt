@@ -69,11 +69,4 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
         }
         lastUpdated.timestamp = person.updatedTimestamp
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): PersonDescriptionFragment {
-            return PersonDescriptionFragment()
-        }
-    }
 }

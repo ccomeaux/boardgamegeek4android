@@ -24,7 +24,6 @@ class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     companion object {
         private const val KEY_TEXT = "text"
 
-        @JvmStatic
         fun newInstance(text: String?): RenamePlayerDialogFragment {
             return RenamePlayerDialogFragment().apply {
                 arguments = Bundle().apply {

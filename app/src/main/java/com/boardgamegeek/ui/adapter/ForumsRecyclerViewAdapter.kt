@@ -16,7 +16,7 @@ private const val ITEM_VIEW_TYPE_HEADER = 1
 
 class ForumsRecyclerViewAdapter(
         private val objectId: Int,
-        private val objectName: String?,
+        private val objectName: String,
         private val objectType: ForumEntity.ForumType
 ) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
     init {
@@ -61,7 +61,7 @@ class ForumsRecyclerViewAdapter(
     sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
 
-            fun bind(forum: ForumEntity?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType) {
+            fun bind(forum: ForumEntity?, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
                 if (forum == null) return
                 itemView.apply {
                     title.text = forum.title

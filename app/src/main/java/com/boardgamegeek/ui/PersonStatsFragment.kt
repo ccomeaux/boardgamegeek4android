@@ -104,11 +104,4 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
         statsView.fadeIn()
         emptyMessageView.fadeOut()
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): PersonStatsFragment {
-            return PersonStatsFragment()
-        }
-    }
 }
