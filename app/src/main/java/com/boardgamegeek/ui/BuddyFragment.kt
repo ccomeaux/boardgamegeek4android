@@ -83,7 +83,7 @@ class BuddyFragment : Fragment() {
 
                 collectionCard.isVisible = true
                 collectionRoot.setOnClickListener {
-                    BuddyCollectionActivity.start(context, buddyName)
+                    BuddyCollectionActivity.start(requireContext(), buddyName)
                 }
 
                 updatedView.timestamp = it.data.updatedTimestamp
