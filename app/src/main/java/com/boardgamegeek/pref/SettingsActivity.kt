@@ -98,8 +98,7 @@ class SettingsActivity : DrawerActivity() {
                                 .withLibraries(
                                         "AndroidIcons",
                                         "Hugo",
-                                        "MaterialRangeBar",
-                                        "NestedScrollWebView"
+                                        "MaterialRangeBar"
                                 )
                                 .withAutoDetect(true)
                                 .withLicenseShown(true)

@@ -178,8 +178,6 @@ dependencies {
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
-    implementation 'com.github.rhlff:NestedScrollWebView:v1.0.2'
-
     implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true
     }
