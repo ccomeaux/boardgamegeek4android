@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.core.widget.TextViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.row_game_rank_subtype.view.*
@@ -16,16 +17,12 @@ class GameRankRow(context: Context, isFamily: Boolean) : LinearLayout(context) {
     init {
         LayoutInflater.from(context).inflate(R.layout.row_game_rank_subtype, this)
         if (isFamily) {
-            @Suppress("DEPRECATION")
-            rankView?.setTextAppearance(context, R.style.Text)
-            @Suppress("DEPRECATION")
-            nameView?.setTextAppearance(context, R.style.Text)
+            TextViewCompat.setTextAppearance(rankView, R.style.Text)
+            TextViewCompat.setTextAppearance(nameView, R.style.Text)
             ratingView?.setTypeface(ratingView?.typeface, Typeface.NORMAL)
         } else {
-            @Suppress("DEPRECATION")
-            rankView?.setTextAppearance(context, R.style.Text_Subtitle)
-            @Suppress("DEPRECATION")
-            nameView?.setTextAppearance(context, R.style.Text_Subtitle)
+            TextViewCompat.setTextAppearance(rankView, R.style.Text_Subtitle)
+            TextViewCompat.setTextAppearance(nameView, R.style.Text_Subtitle)
             ratingView?.setTypeface(ratingView?.typeface, Typeface.BOLD)
         }
     }
