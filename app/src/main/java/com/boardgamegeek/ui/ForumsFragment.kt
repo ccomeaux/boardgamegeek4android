@@ -15,6 +15,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
 import kotlinx.android.synthetic.main.fragment_forums.*
+import org.jetbrains.anko.support.v4.withArguments
 
 class ForumsFragment : Fragment(R.layout.fragment_forums) {
     private var forumType = ForumEntity.ForumType.REGION
@@ -81,53 +82,43 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
         private const val KEY_OBJECT_NAME = "NAME"
 
         fun newInstance(): ForumsFragment {
-            return ForumsFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(KEY_TYPE, ForumEntity.ForumType.REGION)
-                    putInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
-                    putString(KEY_OBJECT_NAME, "")
-                }
-            }
+            return ForumsFragment().withArguments(
+                    KEY_TYPE to ForumEntity.ForumType.REGION,
+                    KEY_OBJECT_ID to BggContract.INVALID_ID,
+                    KEY_OBJECT_NAME to ""
+            )
         }
 
         fun newInstanceForGame(id: Int, name: String): ForumsFragment {
-            return ForumsFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(KEY_TYPE, ForumEntity.ForumType.GAME)
-                    putInt(KEY_OBJECT_ID, id)
-                    putString(KEY_OBJECT_NAME, name)
-                }
-            }
+            return ForumsFragment().withArguments(
+                    KEY_TYPE to ForumEntity.ForumType.GAME,
+                    KEY_OBJECT_ID to id,
+                    KEY_OBJECT_NAME to name
+            )
         }
 
         fun newInstanceForArtist(id: Int, name: String): ForumsFragment {
-            return ForumsFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(KEY_TYPE, ForumEntity.ForumType.ARTIST)
-                    putInt(KEY_OBJECT_ID, id)
-                    putString(KEY_OBJECT_NAME, name)
-                }
-            }
+            return ForumsFragment().withArguments(
+                    KEY_TYPE to ForumEntity.ForumType.ARTIST,
+                    KEY_OBJECT_ID to id,
+                    KEY_OBJECT_NAME to name
+            )
         }
 
         fun newInstanceForDesigner(id: Int, name: String): ForumsFragment {
-            return ForumsFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(KEY_TYPE, ForumEntity.ForumType.DESIGNER)
-                    putInt(KEY_OBJECT_ID, id)
-                    putString(KEY_OBJECT_NAME, name)
-                }
-            }
+            return ForumsFragment().withArguments(
+                    KEY_TYPE to ForumEntity.ForumType.DESIGNER,
+                    KEY_OBJECT_ID to id,
+                    KEY_OBJECT_NAME to name
+            )
         }
 
         fun newInstanceForPublisher(id: Int, name: String): ForumsFragment {
-            return ForumsFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(KEY_TYPE, ForumEntity.ForumType.PUBLISHER)
-                    putInt(KEY_OBJECT_ID, id)
-                    putString(KEY_OBJECT_NAME, name)
-                }
-            }
+            return ForumsFragment().withArguments(
+                    KEY_TYPE to ForumEntity.ForumType.PUBLISHER,
+                    KEY_OBJECT_ID to id,
+                    KEY_OBJECT_NAME to name
+            )
         }
     }
 }
