@@ -1,6 +1,7 @@
 package com.boardgamegeek.entities
 
 import com.boardgamegeek.provider.BggContract
+import java.util.*
 
 data class PlayPlayerEntity(
         val name: String,
@@ -15,7 +16,7 @@ data class PlayPlayerEntity(
         val playId: Int = BggContract.INVALID_ID
 ) {
     val id: String
-        get() = if (username.isBlank()) "P|$name" else "U|${username.toLowerCase()}"
+        get() = if (username.isBlank()) "P|$name" else "U|${username.toLowerCase(Locale.getDefault())}"
 
     val seat: Int
         get() = startingPosition?.toIntOrNull() ?: SEAT_UNKNOWN
