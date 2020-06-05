@@ -6,7 +6,7 @@
 	<!-- Login progress -->
 
 	<LinearLayout
-		android:id="@+id/login_status"
+		android:id="@+id/loginStatusView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
@@ -22,7 +22,7 @@
 			android:layout_marginBottom="@dimen/padding_standard" />
 
 		<TextView
-			android:id="@+id/login_status_message"
+			android:id="@+id/loginStatusMessageView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_extra"
@@ -33,7 +33,7 @@
 	<!-- Login form -->
 
 	<ScrollView
-		android:id="@+id/login_form"
+		android:id="@+id/loginFormView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:importantForAutofill="noExcludeDescendants"
@@ -44,7 +44,7 @@
 			android:orientation="vertical">
 
 			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/username_container"
+				android:id="@+id/usernameContainer"
 				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
 				android:hint="@string/prompt_username">
 
 				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/username"
+					android:id="@+id/usernameView"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:inputType="textNoSuggestions"
@@ -60,7 +60,7 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 			<com.google.android.material.textfield.TextInputLayout
-				android:id="@+id/password_container"
+				android:id="@+id/passwordContainer"
 				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
 				app:endIconMode="password_toggle">
 
 				<com.google.android.material.textfield.TextInputEditText
-					android:id="@+id/password"
+					android:id="@+id/passwordView"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:imeActionId="@integer/login_action_id"
@@ -80,7 +80,7 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 			<Button
-				android:id="@+id/sign_in_button"
+				android:id="@+id/signInButton"
 				style="@style/ColoredButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
