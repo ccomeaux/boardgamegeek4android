@@ -2,6 +2,7 @@
 
 package com.boardgamegeek.extensions
 
+import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
@@ -25,7 +26,7 @@ fun TextView.setTextOrHide(@StringRes textResId: Int) {
 }
 
 @JvmOverloads
-fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true) {
+fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true, tagHandler: Html.TagHandler? = null) {
     when {
         text == null -> this.text = ""
         text.isBlank() -> this.text = ""
@@ -47,7 +48,7 @@ fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FRO
             html = html.replace("(<br\\s?/>){3,}".toRegex(), "<br/><br/>")
             html = fixInternalLinks(html)
 
-            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags)
+            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags, null, tagHandler)
             this.text = spanned.trim()
             if (useLinkMovementMethod)
                 this.movementMethod = LinkMovementMethod.getInstance()

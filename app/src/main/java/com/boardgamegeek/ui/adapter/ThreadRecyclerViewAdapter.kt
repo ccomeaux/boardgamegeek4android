@@ -12,6 +12,7 @@ import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.ArticleActivity
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter.ArticleViewHolder
+import com.boardgamegeek.util.XmlApi2TagHandler
 import kotlinx.android.synthetic.main.row_thread_article.view.*
 import kotlin.properties.Delegates
 
@@ -24,6 +25,7 @@ class ThreadRecyclerViewAdapter(
 
     var threadId: Int = BggContract.INVALID_ID
     var threadSubject: String = ""
+    val tagHandler = XmlApi2TagHandler()
 
     var articles: List<ArticleEntity> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
@@ -67,7 +69,7 @@ class ThreadRecyclerViewAdapter(
             } else {
                 itemView.rowHeaderView.visibility = View.GONE
             }
-            itemView.bodyView.setTextMaybeHtml(article.body.trim())
+            itemView.bodyView.setTextMaybeHtml(article.body.trim(), tagHandler = tagHandler)
             itemView.viewButton.setOnClickListener { v: View ->
                 ArticleActivity.start(v.context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, article)
             }
