@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -41,12 +39,11 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.DialogUtils.OnDiscardListener;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.XmlConverter;
+import com.boardgamegeek.util.XmlApiMarkupConverter;
 import com.boardgamegeek.util.fabric.PlayManipulationEvent;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
@@ -93,7 +90,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String heroImageUrl;
 	private boolean isRefreshing;
 	private SharedPreferences prefs;
-	private final XmlConverter xmlConverter = new XmlConverter();
+	private XmlApiMarkupConverter markupConverter;
 
 	private Unbinder unbinder;
 	private ListView playersView;
@@ -159,6 +156,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 		setHasOptionsMenu(true);
 		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+		markupConverter = new XmlApiMarkupConverter(requireContext());
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -462,7 +460,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
 		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
 
-		TextViewUtils.setTextMaybeHtml(commentsView, xmlConverter.toHtml(play.comments));
+		TextViewUtils.setTextMaybeHtml(commentsView, markupConverter.toHtml(play.comments));
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 

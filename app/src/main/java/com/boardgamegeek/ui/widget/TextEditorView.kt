@@ -11,7 +11,7 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setSelectableBackground
 import com.boardgamegeek.extensions.setTextMaybeHtml
-import com.boardgamegeek.util.XmlConverter
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.widget_text_editor.view.*
 
 class TextEditorView @JvmOverloads constructor(
@@ -19,7 +19,7 @@ class TextEditorView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0) : ForegroundLinearLayout(context, attrs, defStyleAttr) {
 
-    private val xmlConverter = XmlConverter()
+    private val markupConverter = XmlApiMarkupConverter(context)
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_text_editor, this, true)
@@ -51,7 +51,7 @@ class TextEditorView @JvmOverloads constructor(
 
     fun setContent(text: CharSequence, timestamp: Long) {
         contentView.tag = text
-        contentView.setTextMaybeHtml(xmlConverter.toHtml(text.toString()), HtmlCompat.FROM_HTML_MODE_COMPACT)
+        contentView.setTextMaybeHtml(markupConverter.toHtml(text.toString()), HtmlCompat.FROM_HTML_MODE_COMPACT)
         contentView.isVisible = text.isNotBlank()
 
         timestampView.timestamp = timestamp
