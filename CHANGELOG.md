@@ -4,6 +4,7 @@ Release Notes
 Coming Soon...
 --------------
  * Display GeekList comments
+ * Add better support for forum markup, including spoilers
  * Filter on rating for just unrated games
  * Correct collection section header when sorting with mixed case
  * Added Huber Heat play stat
