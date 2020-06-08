@@ -110,6 +110,7 @@
 	<string name="before">before</string>
 	<string name="after">after</string>
 	<string name="status_of_prefix">Status of %s</string>
+	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>

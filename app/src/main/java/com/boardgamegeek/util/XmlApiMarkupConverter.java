@@ -1,8 +1,10 @@
 package com.boardgamegeek.util;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.extensions.StringUtils;
 
 import java.util.ArrayList;
@@ -13,13 +15,13 @@ import java.util.regex.Pattern;
 /**
  * Converts XML returned from the BGG API into HTML.
  */
-public class XmlConverter {
+public class XmlApiMarkupConverter {
 	private static final String BASE_URL = "https://boardgamegeek.com";
 	private static final String STATIC_IMAGES_URL = "https://cf.geekdo-static.com/images/";
 	private static final String IMAGES_URL = "https://cf.geekdo-images.com/images/";
 	private final List<Replaceable> replacers;
 
-	public XmlConverter() {
+	public XmlApiMarkupConverter(Context context) {
 		replacers = new ArrayList<>();
 		replacers.add(new SimpleReplacer("\\[hr\\]", "<hr/>"));
 		replacers.add(new SimpleReplacer("\\[clear\\]", "<div style=\"clear:both\"></div>"));
@@ -61,8 +63,8 @@ public class XmlConverter {
 		replacers.add(new SimpleReplacer("\\[q\\]", "Quote:<blockquote>"));
 		replacers.add(new Replacer("\\[q=\"(.*?)\"\\]", "", " wrote:<blockquote>"));
 		replacers.add(new SimpleReplacer("\\[/q\\]", "</blockquote>"));
-		replacers.add(new SimpleReplacer("\\[o\\]", "Spoiler: <span style=\"color:white\">"));
-		replacers.add(new SimpleReplacer("\\[/o\\]", "</span>"));
+		replacers.add(new SimpleReplacer("\\[o\\]", String.format("<details><summary>%s</summary>", context.getString(R.string.spoiler))));
+		replacers.add(new SimpleReplacer("\\[/o\\]", "</details>"));
 		createPair("c", "tt");
 		replacers.add(new UrlReplacer());
 		replacers.add(new UrlReplacer2());
