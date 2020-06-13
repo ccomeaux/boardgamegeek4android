@@ -20,9 +20,9 @@ data class CollectionItemEntity(
         val collectionName: String = "",
         val sortName: String = "",
         val yearPublished: Int = YEAR_UNKNOWN,
-        val imageUrl: String = "",
-        val thumbnailUrl: String = "",
-        val heroImageUrl: String = "",
+        override val imageUrl: String = "",
+        override val thumbnailUrl: String = "",
+        override val heroImageUrl: String = "",
         val rating: Double = 0.0,
         val own: Boolean = false,
         val previouslyOwned: Boolean = false,
@@ -64,7 +64,7 @@ data class CollectionItemEntity(
         val winnablePlaysColor: Int = Color.TRANSPARENT,
         val allPlaysColor: Int = Color.TRANSPARENT,
         val playingTime: Int = 0
-) {
+) : ImagesEntity {
     val isDirty: Boolean by lazy {
         when {
             deleteTimestamp > 0L -> true
@@ -129,6 +129,9 @@ data class CollectionItemEntity(
             ""
         } else sb.append(".")
     }
+
+    override val imagesEntityDescription: String
+        get() = "$collectionName ($collectionId)"
 
     companion object {
         private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)

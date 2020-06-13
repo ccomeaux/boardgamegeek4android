@@ -5,12 +5,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
-import androidx.annotation.Nullable;
 
-import com.boardgamegeek.events.CollectionItemDeletedEvent;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-import org.greenrobot.eventbus.EventBus;
+import androidx.annotation.Nullable;
+import timber.log.Timber;
 
 public class DeleteCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
@@ -32,8 +31,6 @@ public class DeleteCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 
 	@Override
 	protected void onPostExecute(Boolean result) {
-		if (result) {
-			EventBus.getDefault().post(new CollectionItemDeletedEvent(internalId));
-		}
+		Timber.i("Deleted collection item %s is %s", internalId, result);
 	}
 }

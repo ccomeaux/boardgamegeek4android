@@ -14,11 +14,13 @@ import android.widget.EditText
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.model.PrivateInfo
+import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import kotlinx.android.synthetic.main.dialog_private_info.*
 import java.text.DecimalFormat
@@ -27,12 +29,7 @@ import java.util.*
 class PrivateInfoDialogFragment : DialogFragment() {
     var privateInfo = PrivateInfo()
 
-    interface PrivateInfoDialogListener {
-        fun onPrivateInfoChanged(privateInfo: PrivateInfo)
-    }
-
     private lateinit var layout: View
-    private var listener: PrivateInfoDialogListener? = null
     private var acquisitionDate = ""
 
     private val acquiredFromAdapter: AutoCompleteAdapter by lazy {
@@ -43,13 +40,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
         InventoryLocationAdapter(requireContext())
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        listener = context as? PrivateInfoDialogListener
-        if (listener == null) throw ClassCastException("$context must implement PrivateInfoDialogListener")
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val viewModel = ViewModelProvider(requireActivity()).get(GameCollectionItemViewModel::class.java)
         @SuppressLint("InflateParams")
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_private_info, null)
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
@@ -57,10 +49,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    if (listener != null) {
-                        val privateInfo = captureForm()
-                        listener?.onPrivateInfoChanged(privateInfo)
-                    }
+                    val privateInfo = captureForm()
+                    viewModel.update(privateInfo)
                 }
                 .create().apply {
                     requestFocus()
@@ -158,8 +148,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        acquiredFromView.setAdapter<AutoCompleteAdapter>(acquiredFromAdapter)
-        inventoryLocationView.setAdapter<AutoCompleteAdapter>(inventoryLocationAdapter)
+        acquiredFromView.setAdapter(acquiredFromAdapter)
+        inventoryLocationView.setAdapter(inventoryLocationAdapter)
     }
 
     override fun onPause() {

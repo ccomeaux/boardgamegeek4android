@@ -4,11 +4,10 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.os.AsyncTask
-import com.boardgamegeek.events.CollectionItemUpdatedEvent
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.ResolverUtils
-import org.greenrobot.eventbus.EventBus
+import timber.log.Timber
 
 abstract class UpdateCollectionItemTask(context: Context?, protected val gameId: Int, protected val collectionId: Int, protected var internalId: Long) : AsyncTask<Void, Void, Boolean>() {
     @SuppressLint("StaticFieldLeak")
@@ -26,8 +25,7 @@ abstract class UpdateCollectionItemTask(context: Context?, protected val gameId:
     }
 
     override fun onPostExecute(result: Boolean?) {
-        if (result != null && result)
-            EventBus.getDefault().post(CollectionItemUpdatedEvent(internalId))
+        Timber.i("Updated collection item %s is %s", internalId, result)
     }
 
     private fun getCollectionItemInternalId(resolver: ContentResolver, collectionId: Int, gameId: Int): Long {
