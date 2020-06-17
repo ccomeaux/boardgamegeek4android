@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.dialog_edit_text.*
 
 class EditCollectionTextDialogFragment : DialogFragment() {
     private lateinit var layout: View
+    private var originalText: String? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
@@ -29,10 +30,11 @@ class EditCollectionTextDialogFragment : DialogFragment() {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     val text = editText?.text?.toString()
-                    viewModel.update(
+                    viewModel.updateText(
                             text?.trim() ?: "",
                             arguments?.getString(KEY_TEXT_COLUMN) ?: "",
-                            arguments?.getString(KEY_TIMESTAMP_COLUMN) ?: "")
+                            arguments?.getString(KEY_TIMESTAMP_COLUMN) ?: "",
+                            originalText)
                 }
 
         return builder.create().apply {
@@ -47,7 +49,8 @@ class EditCollectionTextDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
         if (savedInstanceState == null) {
-            editText.setAndSelectExistingText(arguments?.getString(KEY_TEXT))
+            originalText = arguments?.getString(KEY_TEXT)
+            editText.setAndSelectExistingText(originalText)
         }
     }
 

@@ -67,22 +67,25 @@ class GameCollectionItemActivity : HeroActivity() {
         ensureFabShown()
 
         viewModel.setId(collectionId)
-        viewModel.item.observe(this, Observer {
-            swipeRefreshLayout.isRefreshing = it.status == Status.REFRESHING
-
-            it.data?.let { entity ->
-                collectionName = entity.collectionName
-                collectionYearPublished = entity.yearPublished
-                thumbnailUrl = entity.thumbnailUrl
-                heroImageUrl = entity.heroImageUrl
-                safelySetTitle()
-                changeImage()
+        viewModel.item.observe(this, Observer { (status, data, message) ->
+            when (status) {
+                Status.REFRESHING -> swipeRefreshLayout.isRefreshing = true
+                Status.SUCCESS -> {
+                    data?.let { entity ->
+                        collectionName = entity.collectionName
+                        collectionYearPublished = entity.yearPublished
+                        thumbnailUrl = entity.thumbnailUrl
+                        heroImageUrl = entity.heroImageUrl
+                        safelySetTitle()
+                        changeImage()
+                    }
+                    swipeRefreshLayout.isRefreshing = false
+                }
+                Status.ERROR -> {
+                    // TODO make this a one-shot
+                    longToast(message)
+                }
             }
-
-            // TODO make this a one-shot
-            // if (it.message.isNotBlank()) {
-            //    longToast(it.message)
-            // }
         })
         viewModel.isEdited.observe(this, Observer { isItemUpdated = it })
     }

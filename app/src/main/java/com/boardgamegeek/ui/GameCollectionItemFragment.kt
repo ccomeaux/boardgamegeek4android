@@ -195,7 +195,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
             }
         }
         val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0
-        viewModel.update(statuses, wishlistPriority)
+        viewModel.updateStatuses(statuses, wishlistPriority)
     }
 
     private fun onTextEditorClick(view: TextEditorView, textColumn: String, timestampColumn: String) {

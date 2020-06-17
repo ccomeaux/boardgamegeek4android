@@ -10,6 +10,7 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.io.Adapter
@@ -19,6 +20,7 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
 import timber.log.Timber
@@ -199,6 +201,34 @@ class GameCollectionRepository(val application: BggApplication) {
             return
         } else {
             values.put(BggContract.Collection.STATUS_WISHLIST, 0)
+        }
+    }
+
+    fun update(internalId: Long, values: ContentValues) {
+        if (internalId == BggContract.INVALID_ID.toLong()) return
+        application.appExecutors.diskIO.execute {
+            dao.update(internalId, values)
+        }
+    }
+
+    fun resetTimestamps(internalId: Long, gameId: Int) {
+        if (internalId == BggContract.INVALID_ID.toLong()) return
+        application.appExecutors.diskIO.execute {
+            val values = contentValuesOf(
+                    BggContract.Collection.COLLECTION_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.STATUS_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.COMMENT_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.RATING_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.WANT_PARTS_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.HAS_PARTS_DIRTY_TIMESTAMP to 0
+            )
+
+            val success = dao.update(internalId, values) > 0
+            if (success && gameId != BggContract.INVALID_ID)
+                SyncCollectionByGameTask(application, gameId).executeAsyncTask()
         }
     }
 }

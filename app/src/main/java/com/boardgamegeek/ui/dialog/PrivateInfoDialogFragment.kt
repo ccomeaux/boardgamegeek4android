@@ -50,7 +50,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     val privateInfo = captureForm()
-                    viewModel.update(privateInfo)
+                    viewModel.updatePrivateInfo(privateInfo)
                 }
                 .create().apply {
                     requestFocus()
