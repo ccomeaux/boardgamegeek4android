@@ -13,7 +13,6 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.entities.YEAR_UNKNOWN
-import com.boardgamegeek.extensions.OnDiscardListener
 import com.boardgamegeek.extensions.createDiscardDialog
 import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.provider.BggContract
@@ -118,14 +117,12 @@ class GameCollectionItemActivity : HeroActivity() {
                 createDiscardDialog(
                         this@GameCollectionItemActivity,
                         R.string.collection_item,
-                        false,
-                        false,
-                        R.string.keep, object : OnDiscardListener {
-                    override fun onDiscard() {
-                        viewModel.reset()
-                        return toggleEditMode()
-                    }
-                }).show()
+                        R.string.keep,
+                        isNew = false,
+                        finishActivity = false) {
+                    viewModel.reset()
+                    toggleEditMode()
+                }.show()
             } else {
                 toggleEditMode()
             }

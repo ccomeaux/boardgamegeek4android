@@ -127,13 +127,9 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_discard -> {
-                createDiscardDialog(requireActivity(), R.string.collection_item, false, false, R.string.keep,
-                        object : OnDiscardListener {
-                            override fun onDiscard() {
-                                viewModel.reset()
-                            }
-                        }
-                ).show()
+                createDiscardDialog(requireActivity(), R.string.collection_item, R.string.keep, isNew = false, finishActivity = false) {
+                    viewModel.reset()
+                }.show()
                 return true
             }
         }

@@ -345,7 +345,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             setResult(Activity.RESULT_CANCELED)
             finish()
         } else {
-            createDiscardDialog(this, R.string.player, isNewPlayer).show()
+            createDiscardDialog(this, R.string.player, isNew = isNewPlayer).show()
         }
     }
 

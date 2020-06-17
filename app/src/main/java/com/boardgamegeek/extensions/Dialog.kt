@@ -50,17 +50,13 @@ fun FragmentActivity.showFragment(fragment: DialogFragment, tag: String) {
     fragment.show(ft, tag)
 }
 
-interface OnDiscardListener {
-    fun onDiscard()
-}
-
-@JvmOverloads
 fun createDiscardDialog(
         activity: Activity,
         @StringRes objectResId: Int,
-        isNew: Boolean, finishActivity: Boolean = true,
         @StringRes positiveButtonResId: Int = R.string.keep_editing,
-        discardListener: OnDiscardListener? = null): Dialog {
+        isNew: Boolean,
+        finishActivity: Boolean = true,
+        discardListener: () -> Unit = {}): Dialog {
     val messageFormat = activity.getString(if (isNew)
         R.string.discard_new_message
     else
@@ -69,7 +65,7 @@ fun createDiscardDialog(
             .setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase(Locale.getDefault())))
             .setPositiveButton(positiveButtonResId, null)
             .setNegativeButton(R.string.discard) { _, _ ->
-                discardListener?.onDiscard()
+                discardListener()
                 if (finishActivity) {
                     activity.setResult(Activity.RESULT_CANCELED)
                     activity.finish()
