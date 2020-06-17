@@ -10,9 +10,9 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
@@ -20,7 +20,6 @@ import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.boardgamegeek.ui.widget.TextEditorView
-import com.boardgamegeek.util.PaletteUtils.getHeaderSwatch
 import kotlinx.android.synthetic.main.fragment_game_collection_item.*
 import org.jetbrains.anko.support.v4.withArguments
 
@@ -28,7 +27,6 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
     private var gameId = BggContract.INVALID_ID
     private var collectionId = BggContract.INVALID_ID
     private var internalId = BggContract.INVALID_ID.toLong()
-    private var palette: Palette? = null
     private var isItemEditable = false
     private var isInEditMode = false
     private var isDirty = false
@@ -44,8 +42,6 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        colorize(palette)
 
         listOf(wantToBuyView, preorderedView, ownView, wantToPlayView, previouslyOwnedView, wantInTradeView, forTradeView, wishlistView).forEach {
             it.setOnCheckedChangeListener { view, _ ->
@@ -99,19 +95,40 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
             this.showAndSurvive(privateInfoDialogFragment)
         }
 
-        viewModel.item.observe(viewLifecycleOwner, Observer { (_, item) ->
-            if (item != null) {
-                internalId = item.internalId
-                isDirty = item.isDirty
-                updateUi(item)
-                isItemEditable = true
-            } else {
-                internalId = BggContract.INVALID_ID.toLong()
-                isDirty = false
-                invalidStatusView.isVisible = true // TODO hide rest of UI
-                isItemEditable = false
+        viewModel.swatch.observe(viewLifecycleOwner, Observer {
+            it?.let { swatch ->
+                listOf(privateInfoHeader, wishlistHeader, tradeHeader, privateInfoHintView).forEach { view ->
+                    view.setTextColor(swatch.rgb)
+                }
+                listOf(commentView, privateInfoCommentView, wishlistCommentView, conditionView, wantPartsView, hasPartsView).forEach { view ->
+                    view.setHeaderColor(swatch)
+                }
             }
         })
+        viewModel.item.observe(viewLifecycleOwner, Observer { (status, item, message) ->
+            if (status == Status.ERROR) {
+                showError(message)
+                isItemEditable = false
+            } else {
+                if (item != null) {
+                    internalId = item.internalId
+                    isDirty = item.isDirty
+                    updateUi(item)
+                    isItemEditable = true
+                } else {
+                    internalId = BggContract.INVALID_ID.toLong()
+                    isDirty = false
+                    showError(getString(R.string.invalid_collection_status))
+                    isItemEditable = false
+                }
+            }
+        })
+    }
+
+    private fun showError(message: String) {
+        invalidStatusView.text = message
+        invalidStatusView.fadeIn()
+        mainContainer.fadeOut()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -163,22 +180,6 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
         val readonlyContainers = listOf(mainContainer, privateInfoContainer, wishlistContainer, tradeContainer)
         readonlyContainers.forEach { view -> setVisibilityByChildren(view) }
         invalidStatusView.isVisible = readonlyContainers.none { it.isVisible }
-    }
-
-    fun onPaletteGenerated(palette: Palette?) {
-        this.palette = palette
-        colorize(palette)
-    }
-
-    private fun colorize(palette: Palette?) {
-        if (palette == null || !isAdded) return
-        val swatch = getHeaderSwatch(palette)
-        listOf(privateInfoHeader, wishlistHeader, tradeHeader, privateInfoHintView).forEach { view ->
-            view.setTextColor(swatch.rgb)
-        }
-        listOf(commentView, privateInfoCommentView, wishlistCommentView, conditionView, wantPartsView, hasPartsView).forEach { view ->
-            view.setHeaderColor(swatch)
-        }
     }
 
     private fun updateStatuses() {

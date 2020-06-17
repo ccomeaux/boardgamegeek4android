@@ -66,23 +66,16 @@ class GameCollectionItemActivity : HeroActivity() {
         ensureFabShown()
 
         viewModel.setId(collectionId)
-        viewModel.item.observe(this, Observer { (status, data, message) ->
-            when (status) {
-                Status.REFRESHING -> swipeRefreshLayout.isRefreshing = true
-                Status.SUCCESS -> {
-                    data?.let { entity ->
-                        collectionName = entity.collectionName
-                        collectionYearPublished = entity.yearPublished
-                        thumbnailUrl = entity.thumbnailUrl
-                        heroImageUrl = entity.heroImageUrl
-                        safelySetTitle()
-                        changeImage()
-                    }
-                    swipeRefreshLayout.isRefreshing = false
-                }
-                Status.ERROR -> {
-                    // TODO make this a one-shot
-                    longToast(message)
+        viewModel.item.observe(this, Observer { (status, data, _) ->
+            swipeRefreshLayout.isRefreshing = (status == Status.REFRESHING)
+            if (status == Status.SUCCESS) {
+                data?.let { entity ->
+                    collectionName = entity.collectionName
+                    collectionYearPublished = entity.yearPublished
+                    thumbnailUrl = entity.thumbnailUrl
+                    heroImageUrl = entity.heroImageUrl
+                    safelySetTitle()
+                    changeImage()
                 }
             }
         })
@@ -192,7 +185,7 @@ class GameCollectionItemActivity : HeroActivity() {
     }
 
     override fun onPaletteGenerated(palette: Palette?) {
-        (fragment as GameCollectionItemFragment?)?.onPaletteGenerated(palette)
+        viewModel.updateGameColors(palette)
     }
 
     override fun onRefresh() {

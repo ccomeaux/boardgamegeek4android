@@ -6,12 +6,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.model.PrivateInfo
+import com.boardgamegeek.util.PaletteUtils
 
 class GameCollectionItemViewModel(application: Application) : AndroidViewModel(application) {
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
@@ -37,9 +39,19 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    private val _swatch = MutableLiveData<Palette.Swatch>()
+    val swatch: LiveData<Palette.Swatch>
+        get() = _swatch
+
     fun refresh() {
         // TODO test if we're already refreshing?
         _collectionId.value?.let { _collectionId.value = it }
+    }
+
+    fun updateGameColors(palette: Palette?) {
+        if (palette != null) {
+            _swatch.value = PaletteUtils.getHeaderSwatch(palette)
+        }
     }
 
     fun updatePrivateInfo(privateInfo: PrivateInfo) {
