@@ -20,34 +20,22 @@ import com.boardgamegeek.R
 import java.util.*
 
 fun FragmentActivity.showAndSurvive(dialog: DialogFragment) {
-    val fragmentManager = supportFragmentManager
-    showAndSurvive(dialog, fragmentManager)
+    showAndSurvive(dialog, supportFragmentManager)
 }
 
 fun Fragment.showAndSurvive(dialog: DialogFragment) {
-    val fragmentManager = parentFragmentManager
-    showAndSurvive(dialog, fragmentManager)
+    showAndSurvive(dialog, parentFragmentManager)
 }
 
-private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentManager?) {
-    if (fragmentManager == null) return
+private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentManager) {
     val tag = "dialog"
-
-    val ft = fragmentManager.beginTransaction()
-    val prev = fragmentManager.findFragmentByTag(tag)
-    if (prev != null) ft.remove(prev)
-    ft.addToBackStack(null)
-
-    dialog.show(ft, tag)
-}
-
-// TODO - use showAndSurvive instead
-fun FragmentActivity.showFragment(fragment: DialogFragment, tag: String) {
-    val ft = supportFragmentManager.beginTransaction()
-    val prev = supportFragmentManager.findFragmentByTag(tag)
-    if (prev != null) ft.remove(prev)
-    ft.addToBackStack(null)
-    fragment.show(ft, tag)
+    fragmentManager.beginTransaction().apply {
+        fragmentManager.findFragmentByTag(tag)?.let {
+            remove(it)
+        }
+        addToBackStack(null)
+        dialog.show(this, tag)
+    }
 }
 
 fun createDiscardDialog(

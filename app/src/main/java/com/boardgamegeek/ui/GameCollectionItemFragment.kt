@@ -195,12 +195,11 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
     }
 
     private fun onTextEditorClick(view: TextEditorView, textColumn: String, timestampColumn: String) {
-        val dialogFragment = EditCollectionTextDialogFragment.newInstance(
+        showAndSurvive(EditCollectionTextDialogFragment.newInstance(
                 view.headerText,
                 view.contentText,
                 textColumn,
-                timestampColumn)
-        activity?.showFragment(dialogFragment, view.toString())
+                timestampColumn))
     }
 
     private fun getDoubleFromTag(textView: View?, @IdRes key: Int): Double {
