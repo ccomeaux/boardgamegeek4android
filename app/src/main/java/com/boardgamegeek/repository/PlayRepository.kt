@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -31,6 +32,7 @@ import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RateLimiter
 import retrofit2.Call
 import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 open class PlayRefresher
@@ -222,6 +224,28 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         batch += playDao.createDeletePlayerColorsOperation(oldName)
         application.appExecutors.diskIO.execute {
             application.contentResolver.applyBatch(batch)
+        }
+    }
+
+    fun renameLocation(oldLocationName: String, newLocationName: String, count: MutableLiveData<Int>? = null) {
+        val batch = ArrayList<ContentProviderOperation>()
+
+        val values = contentValuesOf(BggContract.Plays.LOCATION to newLocationName)
+        var cpo = ContentProviderOperation
+                .newUpdate(BggContract.Plays.CONTENT_URI)
+                .withValues(values)
+                .withSelection("${BggContract.Plays.LOCATION}=? AND (${BggContract.Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${BggContract.Plays.DIRTY_TIMESTAMP.greaterThanZero()})", arrayOf(oldLocationName))
+        batch.add(cpo.build())
+
+        values.put(BggContract.Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
+        cpo = ContentProviderOperation
+                .newUpdate(BggContract.Plays.CONTENT_URI)
+                .withValues(values)
+                .withSelection("${BggContract.Plays.LOCATION}=? AND ${BggContract.Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}", arrayOf(oldLocationName))
+        batch.add(cpo.build())
+        application.appExecutors.diskIO.execute {
+            val results = application.contentResolver.applyBatch(batch)
+            count?.postValue(results.sumBy { it.count })
         }
     }
 

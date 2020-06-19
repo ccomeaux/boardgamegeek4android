@@ -756,8 +756,8 @@
 		<item quantity="other"><b>%,d</b> comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
-		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
-		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="one">Changed %1$s play entry from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="other">Changed %1$s play entries from \"%2$s\" to \"%3$s\"</item>
 	</plurals>
 	<plurals name="search_results">
 		<item quantity="one">%1$s match for \"%2$s\"</item>
