@@ -53,13 +53,11 @@ class BuddyActivity : SimpleSinglePaneActivity() {
                     name = it.first
                     intent.putExtra(KEY_PLAYER_NAME, name)
                     setSubtitle()
-                    recreateFragment()
                 }
                 it.second == BuddyViewModel.TYPE_USER && it.first != username -> {
                     username = it.first
                     intent.putExtra(KEY_USERNAME, username)
                     setSubtitle()
-                    recreateFragment()
                 }
             }
         })
@@ -77,7 +75,7 @@ class BuddyActivity : SimpleSinglePaneActivity() {
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
-        return BuddyFragment.newInstance(username, name)
+        return BuddyFragment()
     }
 
     override val optionsMenuId = R.menu.buddy

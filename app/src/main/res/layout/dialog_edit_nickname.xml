@@ -4,18 +4,14 @@
 	android:layout_height="match_parent"
 	android:importantForAutofill="noExcludeDescendants"
 	android:orientation="vertical"
-	android:paddingLeft="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical"
-	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingBottom="@dimen/material_margin_vertical">
+	android:paddingHorizontal="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/material_margin_vertical">
 
 	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/editTextContainer"
 		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginHorizontal="@dimen/material_margin_horizontal"
-		android:layout_marginVertical="@dimen/material_margin_vertical"
 		android:hint="@string/nickname">
 
 		<com.google.android.material.textfield.TextInputEditText
@@ -23,7 +19,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:imeOptions="actionDone"
-			android:inputType="textPersonName" />
+			android:inputType="textPersonName|textCapWords" />
 	</com.google.android.material.textfield.TextInputLayout>
 
 	<CheckBox
@@ -31,5 +27,4 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/nickname_update_plays" />
-
 </LinearLayout>

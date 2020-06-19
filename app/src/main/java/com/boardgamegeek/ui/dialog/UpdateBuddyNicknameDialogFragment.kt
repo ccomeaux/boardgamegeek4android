@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.dialog
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +14,7 @@ import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import kotlinx.android.synthetic.main.dialog_edit_nickname.*
+import org.jetbrains.anko.support.v4.withArguments
 
 class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     lateinit var layout: View
@@ -45,18 +45,17 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
-            nicknameView.setAndSelectExistingText(arguments?.getString("NICKNAME"))
-            nicknameView.inputType = nicknameView.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            nicknameView.setAndSelectExistingText(arguments?.getString(KEY_NICKNAME))
         }
     }
 
     companion object {
+        private const val KEY_NICKNAME = "NICKNAME"
+
         fun newInstance(nickname: String): UpdateBuddyNicknameDialogFragment {
-            val fragment = UpdateBuddyNicknameDialogFragment()
-            fragment.arguments = Bundle().apply {
-                putString("NICKNAME", nickname)
-            }
-            return fragment
+            return UpdateBuddyNicknameDialogFragment().withArguments(
+                    KEY_NICKNAME to nickname
+            )
         }
     }
 }
