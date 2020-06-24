@@ -15,6 +15,7 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.createDiscardDialog
 import com.boardgamegeek.extensions.createThemedBuilder
+import com.boardgamegeek.extensions.ensureShown
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
@@ -64,7 +65,7 @@ class GameCollectionItemActivity : HeroActivity() {
             }
             toggleEditMode()
         }
-        ensureFabShown()
+        if (collectionId == BggContract.INVALID_ID) fab.hide() else fab.ensureShown()
 
         viewModel.setId(collectionId)
         viewModel.item.observe(this, Observer { (status, data, _) ->
