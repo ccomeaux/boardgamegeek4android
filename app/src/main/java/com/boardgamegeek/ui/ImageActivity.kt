@@ -11,8 +11,8 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.util.PaletteTransformation
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_image.*
@@ -20,9 +20,11 @@ import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
 class ImageActivity : AppCompatActivity() {
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         setContentView(R.layout.activity_image)
 
@@ -35,9 +37,10 @@ class ImageActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             val imageId = Uri.parse(imageUrl).lastPathSegment
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Image")
-                    .putContentId(imageId))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Image")
+                param(FirebaseAnalytics.Param.ITEM_ID, imageId.orEmpty())
+            }
         }
 
         Picasso.with(this)

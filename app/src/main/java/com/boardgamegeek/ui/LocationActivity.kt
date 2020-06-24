@@ -13,9 +13,9 @@ import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.dialog.EditLocationNameDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.startActivity
 
@@ -35,9 +35,10 @@ class LocationActivity : SimpleSinglePaneActivity() {
         setSubtitle()
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Location")
-                    .putContentName(locationName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
+                param(FirebaseAnalytics.Param.ITEM_NAME, locationName)
+            }
         }
 
         viewModel.location.observe(this, Observer {

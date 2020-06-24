@@ -14,11 +14,12 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.fragment_buddy_collection.*
 
 class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     private var currentStatus = BuddyCollectionViewModel.DEFAULT_STATUS
     private lateinit var statuses: Map<String, String>
 
@@ -33,6 +34,8 @@ class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
         val statusEntries = resources.getStringArray(R.array.pref_sync_status_entries)
         val statusValues = resources.getStringArray(R.array.pref_sync_status_values)
         statuses = statusValues.zip(statusEntries).toMap()
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,9 +100,10 @@ class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
             (Menu.FIRST..(Menu.FIRST + statuses.size)).contains(item.itemId) -> {
                 val newStatus = statuses.keys.elementAt(item.itemId - Menu.FIRST)
                 if (newStatus.isNotEmpty() && newStatus != currentStatus) {
-                    Answers.getInstance().logCustom(CustomEvent("Filter")
-                            .putCustomAttribute("contentType", "BuddyCollection")
-                            .putCustomAttribute("filterType", newStatus))
+                    firebaseAnalytics.logEvent("Filter") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyCollection")
+                        param("filterType", newStatus)
+                    }
                     viewModel.setStatus(newStatus)
                     return true
                 }

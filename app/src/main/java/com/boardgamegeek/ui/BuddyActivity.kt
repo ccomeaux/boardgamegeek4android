@@ -13,9 +13,9 @@ import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.intentFor
@@ -34,10 +34,11 @@ class BuddyActivity : SimpleSinglePaneActivity() {
         setSubtitle()
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Buddy")
-                    .putContentId(username)
-                    .putContentName(name))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Buddy")
+                param(FirebaseAnalytics.Param.ITEM_ID, username.orEmpty())
+                param(FirebaseAnalytics.Param.ITEM_NAME, name.orEmpty())
+            }
         }
 
         if (username != null && username?.isNotBlank() == true) {

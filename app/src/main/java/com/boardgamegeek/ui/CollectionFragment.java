@@ -72,12 +72,11 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.fabric.FilterEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -150,6 +149,7 @@ public class CollectionFragment extends Fragment implements
 	private ActionMode actionMode = null;
 	private CollectionSorterFactory collectionSorterFactory;
 	private SharedPreferences prefs;
+	private FirebaseAnalytics firebaseAnalytics;
 
 	public static CollectionFragment newInstance(boolean isCreatingShortcut) {
 		Bundle args = new Bundle();
@@ -170,6 +170,7 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
 		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 		readBundle(getArguments());
 		setHasOptionsMenu(true);
@@ -316,7 +317,7 @@ public class CollectionFragment extends Fragment implements
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
-					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
+					firebaseAnalytics.logEvent("RandomGame", null);
 					final CollectionItem ci = adapter.getRandomItem();
 					if (ci != null) {
 						GameActivity.start(requireContext(),
@@ -519,7 +520,10 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void addFilter(@NotNull CollectionFilterer filter) {
 		viewModel.addFilter(filter);
-		FilterEvent.log("Collection", String.valueOf(filter.getType()));
+		Bundle bundle = new Bundle();
+		bundle.putString(Param.CONTENT_TYPE, "Collection");
+		bundle.putString("FilterBy", String.valueOf(filter.getType()));
+		firebaseAnalytics.logEvent("Filter", bundle);
 	}
 
 	private void setEmptyText() {

@@ -16,7 +16,8 @@ import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.SortEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import timber.log.Timber
@@ -52,7 +53,10 @@ class CollectionSortDialogFragment : DialogFragment() {
             val sortType = getTypeFromView(group.findViewById(checkedId))
             Timber.d("Sort by $sortType")
             viewModel.setSort(sortType)
-            SortEvent.log("Collection", sortType.toString())
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+                param("SortBy", sortType.toString())
+            }
             dismiss()
         }
     }

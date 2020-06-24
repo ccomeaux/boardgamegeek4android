@@ -3,7 +3,8 @@ package com.boardgamegeek.ui.dialog
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.boardgamegeek.util.fabric.DataManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_edit_text.*
 import org.jetbrains.anko.support.v4.withArguments
 
@@ -20,7 +21,10 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
     override fun onPositiveButton() {
         val text = editText?.text?.toString()
         if (text != null && text.isNotBlank()) {
-            DataManipulationEvent.log("Location", "Edit")
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
+                param("Action", "Edit")
+            }
             viewModel.renameLocation(originalText ?: "", text)
         }
     }

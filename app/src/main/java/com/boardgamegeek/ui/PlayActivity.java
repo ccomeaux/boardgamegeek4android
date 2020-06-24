@@ -8,8 +8,8 @@ import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
+import com.google.firebase.analytics.FirebaseAnalytics.Event;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -49,8 +49,9 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState == null) {
-			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");
-			Answers.getInstance().logContentView(event);
+			Bundle bundle = new Bundle();
+			bundle.putString(Param.CONTENT_TYPE, "Play");
+			firebaseAnalytics.logEvent(Event.VIEW_ITEM, bundle);
 		}
 	}
 

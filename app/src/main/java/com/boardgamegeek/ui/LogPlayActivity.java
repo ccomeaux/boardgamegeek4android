@@ -76,13 +76,11 @@ import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.fabric.AddFieldEvent;
-import com.boardgamegeek.util.fabric.PlayManipulationEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -157,6 +155,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final int TOKEN_UNINITIALIZED = 1 << 15;
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.#########");
 
+	private FirebaseAnalytics firebaseAnalytics;
 	private long internalId = BggContract.INVALID_ID;
 	private int gameId;
 	private String gameName;
@@ -215,7 +214,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 	}
 
 	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		PlayManipulationEvent.log("Edit", gameName);
+		Bundle bundle = new Bundle();
+		bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Play");
+		bundle.putString("Action", "Edit");
+		bundle.putString("GameName", gameName);
+		FirebaseAnalytics.getInstance(context).logEvent("DataManipulation", bundle);
 		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
 		context.startActivity(intent);
 	}
@@ -386,6 +389,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
 		setContentView(R.layout.activity_logplay);
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -679,7 +684,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ColorAssignmentCompleteEvent event) {
-		Answers.getInstance().logCustom(new CustomEvent("LogPlayColorAssignment"));
+		firebaseAnalytics.logEvent("LogPlayColorAssignment", null);
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			playAdapter.notifyPlayersChanged();
@@ -896,7 +901,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 					isUserShowingPlayers = true;
 					playAdapter.insertRow(R.layout.row_log_play_add_player);
 				}
-				AddFieldEvent.log("Play", selection);
+
+				Bundle bundle = new Bundle();
+				bundle.putString(Param.CONTENT_TYPE, "Play");
+				bundle.putString(Param.ITEM_NAME, selection);
+				firebaseAnalytics.logEvent("AddField", bundle);
+
 				supportInvalidateOptionsMenu();
 			}).show();
 	}
@@ -1493,7 +1503,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 			public void onTimer() {
 				if (play.hasStarted()) {
 					isRequestingToEndPlay = true;
-					Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "Off"));
+					logTimer("Off");
 					play.end();
 					bind();
 					cancelNotification();
@@ -1516,7 +1526,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 			@DebugLog
 			private void startTimer() {
-				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
+				logTimer("On");
 				play.start();
 				bind();
 				maybeShowNotification();
@@ -1524,7 +1534,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 			@DebugLog
 			private void resumeTimer() {
-				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
+				logTimer("On");
 				play.resume();
 				bind();
 				maybeShowNotification();
@@ -1708,7 +1718,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					switch (item.getItemId()) {
 						case R.id.menu_custom_player_order:
 							if (arePlayersCustomSorted) {
-								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
+								logPlayerOrder("NotCustom");
 								if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
 									DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 										R.string.are_you_sure_player_sort_custom_off,
@@ -1719,7 +1729,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 									autoSortPlayers();
 								}
 							} else {
-								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
+								logPlayerOrder("Custom");
 								if (play.hasStartingPositions()) {
 									Builder builder = new Builder(LogPlayActivity.this)
 										.setMessage(R.string.message_custom_player_order)
@@ -1738,18 +1748,18 @@ public class LogPlayActivity extends AppCompatActivity implements
 							}
 							return true;
 						case R.id.menu_pick_start_player:
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+							logPlayerOrder("Prompt");
 							promptPickStartPlayer();
 							return true;
 						case R.id.menu_random_start_player:
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
+							logPlayerOrder("RandomStarter");
 							int newSeat = new Random().nextInt(play.getPlayerCount());
 							play.pickStartPlayer(newSeat);
 							playAdapter.notifyPlayersChanged();
 							notifyStartPlayer();
 							return true;
 						case R.id.menu_random_player_order:
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+							logPlayerOrder("Random");
 							play.randomizePlayerOrder();
 							playAdapter.notifyPlayersChanged();
 							notifyStartPlayer();
@@ -1863,5 +1873,17 @@ public class LogPlayActivity extends AppCompatActivity implements
 				});
 			}
 		}
+	}
+
+	private void logPlayerOrder(String order) {
+		Bundle bundle = new Bundle();
+		bundle.putString("Order", order);
+		firebaseAnalytics.logEvent("LogPlayPlayerOrder", bundle);
+	}
+
+	private void logTimer(String state) {
+		Bundle bundle = new Bundle();
+		bundle.putString("State", state);
+		firebaseAnalytics.logEvent("LogPlayTimer", bundle);
 	}
 }

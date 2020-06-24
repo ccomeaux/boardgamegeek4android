@@ -32,8 +32,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.fabric.CrashKeys;
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -62,6 +61,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private boolean isCancelled;
 	private final CancelReceiver cancelReceiver = new CancelReceiver();
 	SharedPreferences prefs;
+
+	static class CrashKeys {
+		private static final String SYNC_TYPES = "SYNC_TYPES";
+		private static final String SYNC_TYPE = "SYNC_TYPE";
+		private static final String SYNC_SETTINGS = "SYNC_SETTINGS";
+	}
 
 	@DebugLog
 	public SyncAdapter(BggApplication context) {
@@ -92,13 +97,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final int type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL);
 
 		Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type);
-		Crashlytics.setInt(CrashKeys.SYNC_TYPES, type);
+		FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+		crashlytics.setCustomKey(CrashKeys.SYNC_TYPES, type);
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
 		String statuses = StringUtils.formatList(Collections.singletonList(PreferenceUtils.getSyncStatusesOrDefault(prefs)));
 		if (prefs.getBoolean(PREFERENCES_KEY_SYNC_PLAYS, false)) statuses += " | plays";
 		if (prefs.getBoolean(PREFERENCES_KEY_SYNC_BUDDIES, false)) statuses += " | buddies";
-		Crashlytics.setString(CrashKeys.SYNC_SETTINGS, statuses);
+		crashlytics.setCustomKey(CrashKeys.SYNC_SETTINGS, statuses);
 
 		if (initialize) {
 			ContentResolver.setIsSyncable(account, authority, 1);
@@ -125,7 +131,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			currentTask = tasks.get(i);
 			try {
 				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
-				Crashlytics.setInt(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
+				FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
 				currentTask.updateProgressNotification();
 				currentTask.execute();
 				EventBus.getDefault().removeStickyEvent(SyncEvent.class);

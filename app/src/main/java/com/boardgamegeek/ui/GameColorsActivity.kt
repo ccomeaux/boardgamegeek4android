@@ -10,8 +10,8 @@ import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import hugo.weaving.DebugLog
 import org.jetbrains.anko.startActivity
 
@@ -33,10 +33,11 @@ class GameColorsActivity : SimpleSinglePaneActivity() {
         }
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameColors")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameColors")
+                param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
+            }
         }
 
         viewModel.setGameId(gameId)

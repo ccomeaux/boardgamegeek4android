@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.MenuRes
@@ -7,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NavUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.service.SyncService
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 
 /**
  * Registers/unregisters a sticky event bus
@@ -18,6 +22,13 @@ import com.boardgamegeek.service.SyncService
  * 3. Inflation helper.
  */
 abstract class BaseActivity : AppCompatActivity() {
+    protected lateinit var firebaseAnalytics: FirebaseAnalytics
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        firebaseAnalytics = Firebase.analytics
+    }
+
     protected open val optionsMenuId: Int
         @MenuRes
         get() = INVALID_MENU_ID

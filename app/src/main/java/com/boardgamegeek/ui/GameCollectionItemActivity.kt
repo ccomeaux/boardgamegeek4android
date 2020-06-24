@@ -18,8 +18,8 @@ import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_hero.*
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
@@ -50,10 +50,11 @@ class GameCollectionItemActivity : HeroActivity() {
         changeImage()
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameCollection")
-                    .putContentId(collectionId.toString())
-                    .putContentName(collectionName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameCollectionItem")
+                param(FirebaseAnalytics.Param.ITEM_ID, collectionId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, collectionName)
+            }
         }
 
         fabOnClickListener = View.OnClickListener {

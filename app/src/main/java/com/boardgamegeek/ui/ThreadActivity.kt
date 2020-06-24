@@ -7,13 +7,12 @@ import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.extensions.createBggUri
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.share
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.ActivityUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import com.crashlytics.android.answers.ShareEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.intentFor
 
@@ -38,10 +37,11 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         }
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Thread")
-                    .putContentName(threadSubject)
-                    .putContentId(threadId.toString()))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Thread")
+                param(FirebaseAnalytics.Param.ITEM_ID, threadId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, threadSubject)
+            }
         }
     }
 
@@ -77,17 +77,17 @@ class ThreadActivity : SimpleSinglePaneActivity() {
                     String.format(getString(R.string.share_thread_text), threadSubject, forumTitle)
                 else
                     String.format(getString(R.string.share_thread_game_text), threadSubject, forumTitle, objectName)
-                val link = ActivityUtils.createBggUri("thread", threadId).toString()
+                val link = createBggUri("thread", threadId).toString()
                 share(getString(R.string.share_thread_subject), """
                     $description
                     
                     $link
                     """.trimIndent(), R.string.title_share)
-                val contentName = if (objectName.isBlank()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
-                Answers.getInstance().logShare(ShareEvent()
-                        .putContentType("Thread")
-                        .putContentName(contentName)
-                        .putContentId(threadId.toString()))
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "Thread")
+                    param(FirebaseAnalytics.Param.ITEM_ID, threadId.toString())
+                    param(FirebaseAnalytics.Param.ITEM_NAME, if (objectName.isBlank()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject")
+                }
                 return true
             }
         }

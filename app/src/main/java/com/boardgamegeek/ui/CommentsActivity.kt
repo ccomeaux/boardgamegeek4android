@@ -10,8 +10,8 @@ import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameCommentsViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class CommentsActivity : SimpleSinglePaneActivity() {
@@ -31,10 +31,11 @@ class CommentsActivity : SimpleSinglePaneActivity() {
         })
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameComments")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameComments")
+                param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
+            }
         }
     }
 

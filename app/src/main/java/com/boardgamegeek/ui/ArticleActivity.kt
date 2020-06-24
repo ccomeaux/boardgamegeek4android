@@ -11,9 +11,8 @@ import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.extensions.link
 import com.boardgamegeek.extensions.share
 import com.boardgamegeek.provider.BggContract
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import com.crashlytics.android.answers.ShareEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
@@ -44,10 +43,11 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         }
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Article")
-                    .putContentId(article.id.toString())
-                    .putContentName(threadSubject))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Article")
+                param(FirebaseAnalytics.Param.ITEM_ID, article.id.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, threadSubject)
+            }
         }
     }
 
@@ -89,11 +89,11 @@ class ArticleActivity : SimpleSinglePaneActivity() {
 
                     ${article.link}""".trimIndent()
                 share(getString(R.string.share_thread_subject), message, R.string.title_share)
-                val contentName = if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
-                Answers.getInstance().logShare(ShareEvent()
-                        .putContentType("Article")
-                        .putContentName(contentName)
-                        .putContentId(article.id.toString()))
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
+                    param(FirebaseAnalytics.Param.ITEM_ID, article.id.toString())
+                    param(FirebaseAnalytics.Param.ITEM_NAME, if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject")
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "Article")
+                }
                 return true
             }
         }

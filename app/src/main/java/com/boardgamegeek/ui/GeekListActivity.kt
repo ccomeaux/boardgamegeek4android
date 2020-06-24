@@ -11,14 +11,13 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.createBggUri
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.share
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
-import com.boardgamegeek.util.ActivityUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import com.crashlytics.android.answers.ShareEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.intentFor
 
@@ -39,10 +38,11 @@ class GeekListActivity : TabActivity() {
         safelySetTitle(geekListTitle)
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GeekList")
-                    .putContentId(geekListId.toString())
-                    .putContentName(geekListTitle))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekList")
+                param(FirebaseAnalytics.Param.ITEM_ID, geekListId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, geekListTitle)
+            }
         }
 
         viewModel.setId(geekListId)
@@ -64,13 +64,14 @@ class GeekListActivity : TabActivity() {
             }
             R.id.menu_share -> {
                 val description = String.format(getString(R.string.share_geeklist_text), geekListTitle)
-                val uri = ActivityUtils.createBggUri("geeklist", geekListId)
+                val uri = createBggUri("geeklist", geekListId)
                 share(getString(R.string.share_geeklist_subject), "$description\n\n$uri")
 
-                Answers.getInstance().logShare(ShareEvent()
-                        .putContentType("GeekList")
-                        .putContentName(geekListTitle)
-                        .putContentId(geekListId.toString()))
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekList")
+                    param(FirebaseAnalytics.Param.ITEM_ID, geekListId.toString())
+                    param(FirebaseAnalytics.Param.ITEM_ID, geekListTitle)
+                }
                 return true
             }
         }

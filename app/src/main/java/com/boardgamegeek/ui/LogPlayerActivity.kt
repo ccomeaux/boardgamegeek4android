@@ -30,14 +30,17 @@ import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.ShowcaseViewWizard
 import com.boardgamegeek.util.ToolbarUtils
 import com.boardgamegeek.util.UIUtils
-import com.boardgamegeek.util.fabric.AddFieldEvent
 import com.github.amlcurran.showcaseview.targets.Target
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_logplayer.*
 import org.jetbrains.anko.defaultSharedPreferences
 import java.util.*
 
 class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
+
     private var gameName = ""
     private var position = 0
     private var player = Player()
@@ -79,6 +82,8 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_logplayer)
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         nameView.setOnItemClickListener { _, view, _, _ ->
             usernameView.setText(view.tag as String)
@@ -298,7 +303,10 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
                         }
                         else -> null to null
                     }
-                    AddFieldEvent.log("Player", selection)
+                    firebaseAnalytics.logEvent("AddField") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "Player")
+                        param(FirebaseAnalytics.Param.ITEM_NAME, selection)
+                    }
                     setViewVisibility()
                     views.first?.requestFocus()
                     views.second?.let {

@@ -18,7 +18,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_save_view.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 
@@ -26,6 +27,7 @@ class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
     private var name: String = ""
     private var description: String? = null
+    private val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(requireContext()) }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -51,19 +53,19 @@ class SaveViewDialogFragment : DialogFragment() {
                                 .setMessage(R.string.msg_collection_view_name_in_use)
                                 .setPositiveButton(R.string.update) { _, _ ->
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Update", name)
+                                    logAction("Update", name)
                                     viewModel.update(isDefault)
                                 }
                                 .setNegativeButton(R.string.create) { _, _ ->
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Insert", name)
+                                    logAction("Insert", name)
                                     viewModel.insert(name, isDefault)
                                 }
                                 .create()
                                 .show()
                     } else {
                         toast.show()
-                        CollectionViewManipulationEvent.log("Insert", name)
+                        logAction("Insert", name)
                         viewModel.insert(name, isDefault)
                     }
                 }
@@ -72,6 +74,14 @@ class SaveViewDialogFragment : DialogFragment() {
         return builder.create().apply {
             requestFocus(nameView)
             setOnShowListener { enableSaveButton(this, nameView) }
+        }
+    }
+
+    private fun logAction(action: String, name: String) {
+        firebaseAnalytics.logEvent("DataManipulation") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+            param("Action", action)
+            param("Color", name)
         }
     }
 

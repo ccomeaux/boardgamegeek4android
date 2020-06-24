@@ -5,8 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.HttpUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.toast
 import timber.log.Timber
 
@@ -44,20 +44,14 @@ fun Context?.linkEbay(gameName: String) {
 
 fun Context?.linkToBgg(path: String) {
     link(createBggUri(path))
-    Answers.getInstance().logCustom(CustomEvent("Link")
-            .putCustomAttribute("Path", path))
 }
 
 fun Context?.linkToBgg(path: String, id: Int) {
     link(createBggUri(path, id))
-    Answers.getInstance().logCustom(CustomEvent("Link")
-            .putCustomAttribute("Path", path)
-            .putCustomAttribute("Id", id))
 }
 
 fun Context?.link(url: String) {
     link(Uri.parse(url))
-    Answers.getInstance().logCustom(CustomEvent("Link").putCustomAttribute("Url", url))
 }
 
 private fun Context?.link(link: Uri) {
@@ -65,6 +59,9 @@ private fun Context?.link(link: Uri) {
     val intent = Intent(Intent.ACTION_VIEW, link)
     if (isIntentAvailable(intent)) {
         startActivity(intent)
+        FirebaseAnalytics.getInstance(this).logEvent("link") {
+            param("Uri", link.toString())
+        }
     } else {
         val message = "Can't figure out how to launch $link"
         Timber.w(message)

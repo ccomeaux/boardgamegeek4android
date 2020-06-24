@@ -10,7 +10,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class DeleteViewDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -35,7 +36,11 @@ class DeleteViewDialogFragment : DialogFragment() {
                                     val viewName = cursor.getString(1)
                                     if (viewName.isNotBlank()) toast.setText(String.format(msg, viewName))
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Delete", viewName)
+                                    FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
+                                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+                                        param("Action", "Delete")
+                                        param("Color", viewName)
+                                    }
                                 }
                             }
                             .setNegativeButton(R.string.no, null)

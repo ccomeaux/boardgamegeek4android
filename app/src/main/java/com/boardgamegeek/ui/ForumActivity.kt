@@ -14,8 +14,8 @@ import com.boardgamegeek.ui.GameActivity.Companion.startUp
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForArtist
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForDesigner
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForPublisher
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.intentFor
 
@@ -35,10 +35,11 @@ class ForumActivity : SimpleSinglePaneActivity() {
             supportActionBar?.subtitle = forumTitle
         }
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Forum")
-                    .putContentId(forumId.toString())
-                    .putContentName(forumTitle))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Forum")
+                param(FirebaseAnalytics.Param.ITEM_ID, forumId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, forumTitle)
+            }
         }
     }
 

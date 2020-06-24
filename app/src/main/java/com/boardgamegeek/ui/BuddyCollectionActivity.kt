@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.R
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -9,8 +8,8 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.ui.BuddyActivity.Companion.startUp
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
@@ -29,9 +28,10 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
         supportActionBar?.subtitle = buddyName
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("BuddyCollection")
-                    .putContentId(buddyName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyCollection")
+                param(FirebaseAnalytics.Param.ITEM_ID, buddyName)
+            }
         }
 
         val statusEntries = resources.getStringArray(com.boardgamegeek.R.array.pref_sync_status_entries)
@@ -58,7 +58,7 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.home -> {
+            android.R.id.home -> {
                 startUp(this, buddyName)
                 finish()
                 return true

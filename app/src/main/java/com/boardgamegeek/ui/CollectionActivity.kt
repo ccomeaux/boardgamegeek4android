@@ -20,9 +20,8 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.intentFor
@@ -54,7 +53,9 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             }
         }
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Collection"))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+            }
         }
 
         viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
@@ -76,7 +77,9 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         findViewById<AppCompatSpinner>(R.id.menu_spinner)?.let {
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    Answers.getInstance().logCustom(CustomEvent("CollectionViewSelected"))
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+                    }
                     viewModel.selectView(id)
                 }
 

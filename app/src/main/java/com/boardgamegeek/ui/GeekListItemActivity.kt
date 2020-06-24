@@ -12,8 +12,8 @@ import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
 import com.boardgamegeek.util.ActivityUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class GeekListItemActivity : HeroTabActivity() {
@@ -37,10 +37,11 @@ class GeekListItemActivity : HeroTabActivity() {
 
         safelySetTitle(glItem.objectName)
         if (savedInstanceState == null && glItem.objectId != BggContract.INVALID_ID) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GeekListItem")
-                    .putContentId(glItem.objectId.toString())
-                    .putContentName(glItem.objectName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekListItem")
+                param(FirebaseAnalytics.Param.ITEM_ID, glItem.objectId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, glItem.objectName)
+            }
         }
         loadToolbarImage(glItem.imageId)
     }

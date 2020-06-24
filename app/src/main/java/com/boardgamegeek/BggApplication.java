@@ -16,10 +16,8 @@ import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.RemoteConfig;
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
@@ -31,7 +29,6 @@ import java.util.Set;
 import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 import hugo.weaving.DebugLog;
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
@@ -45,7 +42,7 @@ public class BggApplication extends MultiDexApplication {
 	public void onCreate() {
 		super.onCreate();
 		appExecutors = new AppExecutors();
-		initializeFabric();
+		FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
 			enableStrictMode();
@@ -55,12 +52,13 @@ public class BggApplication extends MultiDexApplication {
 					.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
 					.build());
 		} else {
+			FirebaseCrashlytics firebase = FirebaseCrashlytics.getInstance();
 			String username = AccountUtils.getUsername(this);
 			if (!TextUtils.isEmpty(username)) {
-				Crashlytics.setUserIdentifier(String.valueOf(username.hashCode()));
+				firebase.setUserId(String.valueOf(username.hashCode()));
 			}
-			Crashlytics.setString("BUILD_TIME", BuildConfig.BUILD_TIME);
-			Crashlytics.setString("GIT_SHA", BuildConfig.GIT_SHA);
+			firebase.setCustomKey("BUILD_TIME", BuildConfig.BUILD_TIME);
+			firebase.setCustomKey("GIT_SHA", BuildConfig.GIT_SHA);
 			Timber.plant(new CrashReportingTree());
 		}
 
@@ -86,11 +84,6 @@ public class BggApplication extends MultiDexApplication {
 			String deviceToken = instanceIdResult.getToken();
 			Timber.i("Firebase token is %s", deviceToken);
 		});
-	}
-
-	private void initializeFabric() {
-		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
-		Fabric.with(this, crashlytics, new Answers(), new Crashlytics());
 	}
 
 	private void enableStrictMode() {

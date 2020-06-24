@@ -14,7 +14,8 @@ import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.GeekListsPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListsViewModel
-import com.boardgamegeek.util.fabric.SortEvent.Companion.log
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.fragment_geeklists.*
 
 class GeekListsFragment : Fragment(R.layout.fragment_geeklists) {
@@ -77,9 +78,12 @@ class GeekListsFragment : Fragment(R.layout.fragment_geeklists) {
         if (sort != sortType) {
             sortType = sort
             item.isChecked = true
-            adapter.submitList(null);
+            adapter.submitList(null)
             viewModel.setSort(sortType)
-            log("GeekLists", sortType.toString())
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekLists")
+                param("SortBy", sortType.toString())
+            }
             return true
         }
         return super.onOptionsItemSelected(item)

@@ -122,7 +122,8 @@ class LoginActivity : AccountAuthenticatorActivity() {
      */
     inner class UserLoginTask : AsyncTask<Void?, Void?, BggCookieJar?>() {
         override fun doInBackground(vararg params: Void?): BggCookieJar? {
-            return NetworkAuthenticator.authenticate(username ?: "", password ?: "", "Dialog")
+            return NetworkAuthenticator.authenticate(username ?: "", password
+                    ?: "", "Dialog", applicationContext)
         }
 
         override fun onPostExecute(bggCookieJar: BggCookieJar?) {

@@ -44,9 +44,9 @@ import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlApiMarkupConverter;
-import com.boardgamegeek.util.fabric.PlayManipulationEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ShareEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Event;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -119,6 +119,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	private PlayPlayerAdapter adapter;
 	private boolean hasBeenNotified;
+	FirebaseAnalytics firebaseAnalytics;
 
 	final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
@@ -151,6 +152,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
+		firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
 		if (savedInstanceState != null) {
 			hasBeenNotified = savedInstanceState.getBoolean(KEY_HAS_BEEN_NOTIFIED);
 		}
@@ -264,7 +266,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				}).show();
 				return true;
 			case R.id.menu_edit:
-				PlayManipulationEvent.log("Edit", play.gameName);
+				logDataManipulationAction("Edit");
 				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				return true;
 			case R.id.menu_send:
@@ -288,24 +290,33 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			}
 			case R.id.menu_rematch:
-				PlayManipulationEvent.log("Rematch", play.gameName);
+				logDataManipulationAction("Rematch");
 				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_change_game:
-				PlayManipulationEvent.log("Change game", play.gameName);
+				logDataManipulationAction("ChangeGame");
 				startActivity(CollectionActivity.createIntentForGameChange(requireContext(), internalId));
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), play.toShortDescription(getActivity()), play.toLongDescription(getActivity()), R.string.share_play_title);
-				Answers.getInstance().logShare(new ShareEvent()
-					.putContentType("Play")
-					.putContentName(play.toShortDescription(getActivity()))
-					.putContentId(String.valueOf(play.playId)));
+				Bundle bundle = new Bundle();
+				bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Play");
+				bundle.putString(Param.ITEM_ID, String.valueOf(play.playId));
+				bundle.putString(Param.ITEM_NAME, play.toShortDescription(requireContext()));
+				firebaseAnalytics.logEvent(Event.SHARE, bundle);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void logDataManipulationAction(String action) {
+		Bundle bundle = new Bundle();
+		bundle.putString(Param.CONTENT_TYPE, "Play");
+		bundle.putString("Action", action);
+		bundle.putString("GameName", play.gameName);
+		firebaseAnalytics.logEvent("DataManipulation", bundle);
 	}
 
 	@DebugLog
@@ -524,8 +535,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void save(String action) {
-		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
-		new PlayPersister(getActivity()).save(play, internalId, false);
+		logDataManipulationAction(TextUtils.isEmpty(action) ? "Save" : action);
+		new PlayPersister(requireContext()).save(play, internalId, false);
 		triggerRefresh();
 	}
 }
