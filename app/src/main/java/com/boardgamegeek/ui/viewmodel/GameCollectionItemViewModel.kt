@@ -77,16 +77,18 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         setEdited(true)
         val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
         // TODO inspect to ensure something changed
-        val values = contentValuesOf(BggContract.Collection.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis())
-        if (statuses.contains(BggContract.Collection.STATUS_OWN)) values.put(BggContract.Collection.STATUS_OWN, true)
-        if (statuses.contains(BggContract.Collection.STATUS_PREVIOUSLY_OWNED)) values.put(BggContract.Collection.STATUS_PREVIOUSLY_OWNED, true)
-        if (statuses.contains(BggContract.Collection.STATUS_PREORDERED)) values.put(BggContract.Collection.STATUS_PREORDERED, true)
-        if (statuses.contains(BggContract.Collection.STATUS_FOR_TRADE)) values.put(BggContract.Collection.STATUS_FOR_TRADE, true)
-        if (statuses.contains(BggContract.Collection.STATUS_WANT)) values.put(BggContract.Collection.STATUS_WANT, true)
-        if (statuses.contains(BggContract.Collection.STATUS_WANT_TO_BUY)) values.put(BggContract.Collection.STATUS_WANT_TO_BUY, true)
-        if (statuses.contains(BggContract.Collection.STATUS_WANT_TO_PLAY)) values.put(BggContract.Collection.STATUS_WANT_TO_PLAY, true)
+        val values = contentValuesOf(
+                BggContract.Collection.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Collection.STATUS_OWN to statuses.contains(BggContract.Collection.STATUS_OWN),
+                BggContract.Collection.STATUS_PREVIOUSLY_OWNED to statuses.contains(BggContract.Collection.STATUS_PREVIOUSLY_OWNED),
+                BggContract.Collection.STATUS_PREORDERED to statuses.contains(BggContract.Collection.STATUS_PREORDERED),
+                BggContract.Collection.STATUS_FOR_TRADE to statuses.contains(BggContract.Collection.STATUS_FOR_TRADE),
+                BggContract.Collection.STATUS_WANT to statuses.contains(BggContract.Collection.STATUS_WANT),
+                BggContract.Collection.STATUS_WANT_TO_BUY to statuses.contains(BggContract.Collection.STATUS_WANT_TO_BUY),
+                BggContract.Collection.STATUS_WANT_TO_PLAY to statuses.contains(BggContract.Collection.STATUS_WANT_TO_PLAY),
+                BggContract.Collection.STATUS_WISHLIST to statuses.contains(BggContract.Collection.STATUS_WISHLIST)
+        )
         if (statuses.contains(BggContract.Collection.STATUS_WISHLIST)) {
-            values.put(BggContract.Collection.STATUS_WISHLIST, true)
             values.put(BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishlistPriority.coerceIn(1..5))
         }
         gameCollectionRepository.update(internalId, values)
