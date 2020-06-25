@@ -37,13 +37,6 @@ abstract class SimpleSinglePaneActivity : DrawerActivity() {
         return fragment
     }
 
-    protected fun recreateFragment() {
-        if (fragment != null) {
-            supportFragmentManager.beginTransaction().remove(fragment!!).commit()
-        }
-        fragment = createFragment()
-    }
-
     /**
      * Called in `onCreate` when the fragment constituting this activity is needed. The returned fragment's
      * arguments will be set to the intent used to invoke this activity.

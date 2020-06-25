@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,16 +15,17 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.showQuickLogPlay
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
-import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_hero_tab.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.snackbar
@@ -36,7 +38,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var thumbnailUrl = ""
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
-
+    private val prefs: SharedPreferences by lazy { this.preferences() }
     private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
@@ -82,10 +84,11 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         viewModel.updateLastViewed(System.currentTimeMillis())
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Game")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Gmae")
+                param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
+            }
         }
     }
 
@@ -103,7 +106,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        menu.findItem(R.id.menu_log_play_quick)?.isVisible = PreferencesUtils.showQuickLogPlay(this)
+        menu.findItem(R.id.menu_log_play_quick)?.isVisible = prefs.showQuickLogPlay()
         return true
     }
 
@@ -195,14 +198,16 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         @JvmOverloads
         @JvmStatic
         fun start(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
-            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
+                    ?: return
             context.startActivity(intent)
         }
 
         @JvmOverloads
         @JvmStatic
         fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
-            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
+                    ?: return
             context.startActivity(intent.clearTask().clearTop())
         }
 

@@ -20,7 +20,7 @@ import org.jetbrains.anko.support.v4.toast
 
 class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
     private val adapter: GameCollectionItemAdapter by lazy {
-        GameCollectionItemAdapter()
+        GameCollectionItemAdapter(requireContext())
     }
 
     private val viewModel by activityViewModels<GameViewModel>()
@@ -84,12 +84,6 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         } else {
             emptyMessage.text = message
             emptyMessage.fadeIn()
-        }
-    }
-
-    companion object {
-        fun newInstance(): GameCollectionFragment {
-            return GameCollectionFragment()
         }
     }
 }

@@ -290,7 +290,7 @@ public class BggContract {
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	public static final String PATH_GAMES = "games";
-	private static final String PATH_RANKS = "ranks";
+	public static final String PATH_RANKS = "ranks";
 	public static final String PATH_DESIGNERS = "designers";
 	public static final String PATH_ARTISTS = "artists";
 	public static final String PATH_PUBLISHERS = "publishers";
@@ -300,9 +300,9 @@ public class BggContract {
 	public static final String PATH_COLLECTION = "collection";
 	public static final String PATH_BUDDIES = "buddies";
 	public static final String PATH_USERS = "users";
-	private static final String PATH_POLLS = "polls";
-	private static final String PATH_POLL_RESULTS = "results";
-	private static final String PATH_POLL_RESULTS_RESULT = "result";
+	public static final String PATH_POLLS = "polls";
+	public static final String PATH_POLL_RESULTS = "results";
+	public static final String PATH_POLL_RESULTS_RESULT = "result";
 	public static final String PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS = "suggestedplayercountpollresults";
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";
@@ -310,11 +310,11 @@ public class BggContract {
 	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
 	public static final String PATH_PLAYERS = "players";
-	private static final String PATH_LOCATIONS = "locations";
+	public static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_ACQUIRED_FROM = "acquiredfrom";
 	public static final String PATH_INVENTORY_LOCATION = "inventorylocation";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
-	private static final String PATH_FILTERS = "filters";
+	public static final String PATH_FILTERS = "filters";
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
 	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";

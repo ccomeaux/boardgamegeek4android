@@ -1,5 +1,7 @@
 package com.boardgamegeek.entities
 
+import java.util.*
+
 data class PlayerEntity(
         val name: String,
         val username: String,
@@ -8,7 +10,7 @@ data class PlayerEntity(
         val rawAvatarUrl: String = "") {
 
     val id: String
-        get() = if (username.isBlank()) name else username
+        get() = if (username.isBlank()) "P|$name" else "U|${username.toLowerCase(Locale.getDefault())}"
 
     val avatarUrl: String = rawAvatarUrl
         get() = if (field == "N/A") "" else field

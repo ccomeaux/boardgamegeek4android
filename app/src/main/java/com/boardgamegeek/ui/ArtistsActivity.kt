@@ -29,7 +29,7 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = ArtistsFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = ArtistsFragment()
 
     override val optionsMenuId = R.menu.artists
 

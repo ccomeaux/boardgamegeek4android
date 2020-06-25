@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+	<string name="sync_notification_title">Synchronizacja</string>
+	<string name="sync_notification_title_cancel">Synchronizacja anulowana</string>
+	<string name="sync_notification_title_error">Błąd synchronizacji</string>
+	<string name="sync_notification_title_play_upload">Prześlij rozgrywki</string>
+	<string name="sync_notification_title_collection_upload">Prześlij kolekcję</string>
+	<string name="sync_notification_message_privacy_error">Odwiedź BoardGameGeek.com i zaakceptuj ich nową politykę prywatności. W przeciwnym wypadku aplikacja nie będzie w stanie synchronizować.</string>
+	<string name="sync_notification_collection_full">Synchronizacja całej Twojej kolekcji</string>
+	<string name="sync_notification_collection_partial">Wyszukiwanie ostatnich zmian w Twojej kolekcji</string>
+	<string name="sync_notification_collection_unupdated">Uzupełnianie luk w Twojej kolekcji</string>
+	<string name="sync_notification_collection_downloading">Pobieranie kolekcji \"%s\": %s</string>
+	<string name="sync_notification_collection_saving">Zapisywanie %,d pozycji z kolekcji \"%s\": %s</string>
+	<string name="sync_notification_collection_detail">Synchronizacja kolekcji \"%s\": %s</string>
+	<string name="sync_notification_collection_since">Synchronizacja %1$s z kolekcji zmodyfikowanych od %2$s</string>
+	<string name="sync_notification_collection_since_downloading">Pobieranie %1$s z kolekcji zmodyfikowanych od %2$s</string>
+	<string name="sync_notification_collection_since_saving" tools:ignore="PluralsCandidate">Zapisywanie %,d %s z kolekcji zmodyfikowanych od %s</string>
+	<string name="sync_notification_collection_update_games">Aktualizacja %1$,d gier [%2$s]</string>
+	<string name="sync_notification_games_oldest">Odświeżanie starych gier</string>
+	<string name="sync_notification_games_unupdated">Pobieranie szczegółów nowo dodanych gier</string>
+	<string name="sync_notification_collection_missing">Usuwanie pozycji niebędących w Twojej kolekcji</string>
+	<string name="sync_notification_buddies_list">Synchronizacja listy GeekBuddies</string>
+	<string name="sync_notification_buddies_list_downloading">Pobieranie listy GeekBuddies</string>
+	<string name="sync_notification_buddies_list_storing">Zapisywanie listy GeekBuddies</string>
+	<string name="sync_notification_buddies_list_pruning">Usuwanie starych GeekBuddies</string>
+	<string name="sync_notification_buddies_oldest">Odświeżanie starych GeekBuddies</string>
+	<string name="sync_notification_buddies_unupdated">Aktualizacja nowo dodanych GeekBuddies</string>
+	<string name="sync_notification_buddy">Aktualizacja GeekBuddy-ego: %s</string>
+	<string name="sync_notification_plays">Pobieranie rozgrywek</string>
+	<string name="sync_notification_plays_upload">Przesyłanie rozgrywek</string>
+	<string name="sync_notification_plays_all">Synchronizacja wszystkich rozgrywek</string>
+	<string name="sync_notification_plays_old">Synchronizacja rozgrywek sprzed %s</string>
+	<string name="sync_notification_plays_new">Synchronizacja rozgrywek od %s</string>
+	<string name="sync_notification_plays_between">Synchronizacja rozgrywek pomiędzy %1$s i %2$s</string>
+	<string name="sync_notification_collection_updated">Zaktualizowano element kolekcji</string>
+	<string name="sync_notification_collection_deleted">Usunięto element kolekcji</string>
+	<string name="sync_notification_collection_added">Dodano element kolekcji</string>
+	<string name="sync_notification_h_index_increase">Gratulacje! Twój wskaźnik H-index (w kategorii %1$s) wynosi teraz <b>%2$s</b>.</string>
+	<string name="sync_notification_h_index_decrease">Twój wskaźnik H-index (w kategorii %1$s) zmienił się na <b>%2$s</b>.</string>
+	<string name="sync_notification_page_suffix">%1$s (strona %2$,d)</string>
+
+	<plurals name="sync_notification_collection_deleting">
+		<item quantity="one">Usuwanie %,d pozycji kolekcji.</item>
+		<item quantity="few">Usuwanie %,d pozycji kolekcji.</item>
+		<item quantity="other">Usuwanie %,d pozycji kolekcji.</item>
+	</plurals>
+	<plurals name="sync_notification_collection_adding">
+		<item quantity="one">Dodawanie %,d pozycji kolekcji.</item>
+		<item quantity="few">Dodawanie %,d pozycji kolekcji.</item>
+		<item quantity="other">Dodawanie %,d pozycji kolekcji.</item>
+	</plurals>
+	<plurals name="sync_notification_collection_uploading">
+		<item quantity="one">Przesyłanie %,d pozycji kolekcji.</item>
+		<item quantity="few">Przesyłanie %,d pozycji kolekcji.</item>
+		<item quantity="other">Przesyłanie %,d pozycji kolekcji.</item>
+	</plurals>
+	<plurals name="sync_notification_plays_update">
+		<item quantity="one">Aktualizacja %,d rozgrywki</item>
+		<item quantity="few">Aktualizacja %,d rozgrywek</item>
+		<item quantity="other">Aktualizacja %,d rozgrywek</item>
+	</plurals>
+	<plurals name="sync_notification_plays_update_increment">
+		<item quantity="one">Aktualizacja %,d z %,d rozgrywki</item>
+		<item quantity="few">Aktualizacja %,d z %,d rozgrywek</item>
+		<item quantity="other">Aktualizacja %,d z %,d rozgrywek</item>
+	</plurals>
+	<plurals name="sync_notification_plays_delete">
+		<item quantity="one">Usuwanie %,d rozgrywki</item>
+		<item quantity="few">Usuwanie %,d rozgrywek</item>
+		<item quantity="other">Usuwanie %,d rozgrywek</item>
+	</plurals>
+	<plurals name="sync_notification_plays_delete_increment">
+		<item quantity="one">Usuwanie %,d z %,d rozgrywki</item>
+		<item quantity="few">Usuwanie %,d z %,d rozgrywek</item>
+		<item quantity="other">Usuwanie %,d z %,d rozgrywek</item>
+	</plurals>
+	<plurals name="sync_notification_games">
+		<item quantity="one">Synchronizacja %1$,d gry: %2$s</item>
+		<item quantity="few">Synchronizacja %1$,d gier: %2$s</item>
+		<item quantity="other">Synchronizacja %1$,d gier: %2$s</item>
+	</plurals>
+	<plurals name="sync_notification_games_remove">
+		<item quantity="one">Usuwanie %,d gry z Twojej kolekcji</item>
+		<item quantity="few">Usuwanie %,d gier z Twojej kolekcji</item>
+		<item quantity="other">Usuwanie %,d gier z Twojej kolekcji</item>
+	</plurals>
+	<plurals name="sync_notification_collection_sleeping">
+		<item quantity="one">Przerwa na %,d sek.</item>
+		<item quantity="few">Przerwa na %,d sek.</item>
+		<item quantity="other">Przerwa na %,d sek.</item>
+	</plurals>
+
+</resources>

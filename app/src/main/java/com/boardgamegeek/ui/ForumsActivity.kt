@@ -14,7 +14,6 @@ class ForumsActivity : TopLevelSinglePaneActivity() {
     override val navigationItemId = R.id.forums
 
     companion object {
-        @JvmStatic
         fun startUp(context: Context) = context.startActivity(context.intentFor<ForumsActivity>().clearTop())
     }
 }

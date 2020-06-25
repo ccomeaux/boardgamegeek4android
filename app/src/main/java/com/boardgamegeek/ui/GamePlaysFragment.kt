@@ -147,7 +147,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
 
                 playStatsContainer.setOnClickListener {
                     if (gameId != BggContract.INVALID_ID)
-                        GamePlayStatsActivity.start(context, gameId, gameName, iconColor)
+                        GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
                 }
                 playStatsContainer.fadeIn()
             } else {
@@ -164,12 +164,6 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
     private fun colorize() {
         if (isAdded) {
             arrayOf(inProgressPlaysIcon, playsIcon, playStatsIcon, colorsIcon).forEach { it.setOrClearColorFilter(iconColor) }
-        }
-    }
-
-    companion object {
-        fun newInstance(): GamePlaysFragment {
-            return GamePlaysFragment()
         }
     }
 

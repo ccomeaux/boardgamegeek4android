@@ -1,15 +1,19 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.boardgamegeek.BggApplication
+import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -45,6 +49,10 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
 
     private val playInfo = MutableLiveData<PlayInfo>()
 
+    private val _updateMessage = MutableLiveData<Event<String>>()
+    val updateMessage: LiveData<Event<String>>
+        get() = _updateMessage
+
     val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(playInfo) {
         when (it.mode) {
             Mode.ALL -> {
@@ -73,6 +81,10 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
 
     val sortType: LiveData<SortType> = Transformations.map(playInfo) {
         it.sort
+    }
+
+    val location: LiveData<String> = Transformations.map(playInfo) {
+        if (it.mode == Mode.LOCATION) it.name else ""
     }
 
     fun setGame(gameId: Int) {
@@ -116,5 +128,20 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
             }
             true
         } else false
+    }
+
+    private val locationRenameCount = MutableLiveData<Int>()
+
+    fun renameLocation(oldLocationName: String, newLocationName: String) {
+        playRepository.renameLocation(oldLocationName, newLocationName, locationRenameCount)
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_location_change, oldLocationName, newLocationName))
+        setLocation(newLocationName)
+        // TODO implement this with a coroutine
+        // result = context.getResources().getQuantityString(R.plurals.msg_play_location_change, count, count, oldLocationName, newLocationName)
+    }
+
+    private fun setUpdateMessage(message: String) {
+        _updateMessage.value = Event(message)
     }
 }

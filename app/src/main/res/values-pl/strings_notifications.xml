@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="channel_name_sync_progress">Postęp synchronizacji</string>
+	<string name="channel_description_sync_progress">Pokazuj postęp synchronizacji pomiędzy tą aplikacją a serwisem BoardGameGeek.com.</string>
+	<string name="channel_name_sync_upload">Przesyłanie</string>
+	<string name="channel_description_sync_upload">Powiadamiaj o pomyślnym przesłaniu pozycji z kolekcji lub rozgrywki (dodanie, zmiana lub usunięcie) na BoardGameGeek.com.</string>
+	<string name="channel_name_sync_error">Błędy</string>
+	<string name="channel_description_sync_error">Pokazuj błędy podczas synchronizacji lub zapisywania danych lokalnie. Szczególnie pomocne w celu debugowania.</string>
+	<string name="channel_name_playing">Rozgrywka</string>
+	<string name="channel_description_playing">Pokazuj aktualnie rozgrywaną grę wraz z upływającym czasem.</string>
+	<string name="channel_name_stats">Aktualizacje statystyk</string>
+	<string name="channel_description_stats">Powiadamiaj o aktualizacjach statystyk.</string>
+	<string name="channel_name_firebase_messages">Komunikaty zdalne</string>
+	<string name="channel_description_firebase_messages">Wiadomości wysyłane przez twórców aplikacji z informacjami o bieżącym stanie aplikacji, a w szczególności o problemach z synchronizacją.</string>
+</resources>

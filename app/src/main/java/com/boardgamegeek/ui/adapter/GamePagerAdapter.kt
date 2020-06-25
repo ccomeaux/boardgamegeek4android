@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.adapter
 
+import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
@@ -11,10 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.colorize
-import com.boardgamegeek.extensions.getSyncPlays
-import com.boardgamegeek.extensions.isCollectionSetToSync
-import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -40,6 +38,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     private val fab: FloatingActionButton by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
     private val viewModel by lazy { ViewModelProvider(activity).get(GameViewModel::class.java) }
+    private val prefs: SharedPreferences by lazy { activity.preferences() }
 
     private inner class Tab(
             @field:StringRes val titleResId: Int,
@@ -57,14 +56,14 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     override fun createFragment(position: Int): Fragment {
         return when (tabs.getOrNull(position)?.titleResId) {
-            R.string.title_descr -> GameDescriptionFragment.newInstance()
-            R.string.title_info -> GameFragment.newInstance()
-            R.string.title_credits -> GameCreditsFragment.newInstance()
-            R.string.title_my_games -> GameCollectionFragment.newInstance()
-            R.string.title_plays -> GamePlaysFragment.newInstance()
+            R.string.title_descr -> GameDescriptionFragment()
+            R.string.title_info -> GameFragment()
+            R.string.title_credits -> GameCreditsFragment()
+            R.string.title_my_games -> GameCollectionFragment()
+            R.string.title_plays -> GamePlaysFragment()
             R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
-            R.string.links -> GameLinksFragment.newInstance()
-            else -> ErrorFragment.newInstance()
+            R.string.links -> GameLinksFragment()
+            else -> ErrorFragment()
         }
     }
 
@@ -84,7 +83,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
         })
         if (shouldShowCollection())
             tabs.add(Tab(R.string.title_my_games, R.drawable.fab_add) {
-                activity.showAndSurvive(CollectionStatusDialogFragment.newInstance())
+                activity.showAndSurvive(CollectionStatusDialogFragment())
             })
         if (shouldShowPlays())
             tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {
@@ -150,9 +149,9 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     }
 
     // TODO observe these from the view model
-    private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && activity.getSyncPlays()
+    private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && prefs[PREFERENCES_KEY_SYNC_PLAYS, false] == true
 
-    private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && activity.isCollectionSetToSync()
+    private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && prefs.isCollectionSetToSync()
 
     companion object {
         const val INVALID_RES_ID = 0

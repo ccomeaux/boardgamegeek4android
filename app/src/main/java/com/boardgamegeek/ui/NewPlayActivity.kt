@@ -139,7 +139,7 @@ class NewPlayActivity : AppCompatActivity() {
 
     private fun maybeDiscard() {
         // TODO - improve cancel logic (like detect if there have been changes)
-        createDiscardDialog(this, R.string.play, false).show()
+        createDiscardDialog(this, R.string.play, isNew = false).show()
     }
 
     private fun updateSummary() {

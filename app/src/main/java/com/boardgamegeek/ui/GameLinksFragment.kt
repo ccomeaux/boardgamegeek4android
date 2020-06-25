@@ -57,11 +57,4 @@ class GameLinksFragment : Fragment(R.layout.fragment_game_links) {
             }
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): GameLinksFragment {
-            return GameLinksFragment()
-        }
-    }
 }

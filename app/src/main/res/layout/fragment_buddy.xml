@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipeRefresh"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/swipeRefresh"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".ui.BuddyActivity">
@@ -24,10 +23,12 @@
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
 				android:orientation="horizontal"
-				android:paddingBottom="@dimen/material_margin_vertical"
 				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingTop="@dimen/material_margin_vertical"
 				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/material_margin_vertical">
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:visibility="gone"
+				tools:visibility="visible">
 
 				<ImageView
 					android:id="@+id/avatarView"
@@ -37,7 +38,7 @@
 					android:layout_marginRight="@dimen/padding_standard"
 					android:contentDescription="@string/avatar"
 					android:scaleType="fitCenter"
-					android:src="@drawable/person_image_empty"/>
+					android:src="@drawable/person_image_empty" />
 
 				<LinearLayout
 					android:layout_width="match_parent"
@@ -49,14 +50,14 @@
 						style="@style/Text.Title"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						tools:text="Chris Comeaux"/>
+						tools:text="Chris Comeaux" />
 
 					<TextView
 						android:id="@+id/usernameView"
 						style="@style/Text.Subtitle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						tools:text="ccomeaux"/>
+						tools:text="ccomeaux" />
 				</LinearLayout>
 			</LinearLayout>
 
@@ -75,7 +76,7 @@
 						style="@style/Text.Header.Card"
 						android:layout_width="match_parent"
 						android:labelFor="@+id/nicknameView"
-						android:text="@string/nickname"/>
+						android:text="@string/nickname" />
 
 					<TextView
 						android:id="@+id/nicknameView"
@@ -86,13 +87,13 @@
 						android:drawableEnd="@drawable/ic_action_edit_light"
 						android:drawableRight="@drawable/ic_action_edit_light"
 						android:gravity="center_vertical"
-						tools:text="Chris"/>
+						tools:text="Chris" />
 
 					<TextView
 						style="@style/Text.Footnote2"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:text="@string/nickname_description"/>
+						android:text="@string/nickname_description" />
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
 
@@ -100,7 +101,9 @@
 				android:id="@+id/collectionCard"
 				style="@style/Card"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:visibility="gone"
+				tools:visibility="visible">
 
 				<LinearLayout
 					android:id="@+id/collectionRoot"
@@ -116,7 +119,7 @@
 						android:id="@+id/icon_collection"
 						style="@style/Icon"
 						android:contentDescription="@string/title_collection"
-						android:src="@drawable/ic_collection"/>
+						android:src="@drawable/ic_collection" />
 
 					<TextView
 						android:id="@+id/collection_label"
@@ -126,7 +129,7 @@
 						android:layout_weight="1"
 						android:gravity="center_vertical"
 						android:maxLines="2"
-						android:text="@string/title_collection"/>
+						android:text="@string/title_collection" />
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
 
@@ -146,14 +149,14 @@
 					android:descendantFocusability="blocksDescendants"
 					android:minHeight="@dimen/edit_row_height"
 					android:orientation="horizontal"
-					android:paddingBottom="@dimen/padding_standard"
-					android:paddingTop="@dimen/padding_standard">
+					android:paddingTop="@dimen/padding_standard"
+					android:paddingBottom="@dimen/padding_standard">
 
 					<ImageView
 						android:id="@+id/icon_plays"
 						style="@style/Icon"
 						android:contentDescription="@string/title_plays"
-						android:src="@drawable/ic_log_play"/>
+						android:src="@drawable/ic_log_play" />
 
 					<LinearLayout
 						android:layout_width="0dp"
@@ -167,7 +170,7 @@
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
-							android:text="@string/title_plays"/>
+							android:text="@string/title_plays" />
 
 						<TextView
 							android:id="@+id/winsView"
@@ -175,7 +178,7 @@
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
-							android:text="@string/title_wins"/>
+							android:text="@string/title_wins" />
 
 						<TextView
 							android:id="@+id/winPercentageView"
@@ -183,7 +186,7 @@
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
-							tools:text="42%"/>
+							tools:text="42%" />
 					</LinearLayout>
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
@@ -207,7 +210,7 @@
 						android:id="@+id/icon_colors"
 						style="@style/Icon"
 						android:contentDescription="@string/title_favorite_colors"
-						android:src="@drawable/ic_colors"/>
+						android:src="@drawable/ic_colors" />
 
 					<TextView
 						android:id="@+id/colors_label"
@@ -217,7 +220,7 @@
 						android:layout_weight="1"
 						android:gravity="center_vertical"
 						android:maxLines="2"
-						android:text="@string/title_favorite_colors"/>
+						android:text="@string/title_favorite_colors" />
 
 					<LinearLayout
 						android:id="@+id/colorContainer"
@@ -225,7 +228,7 @@
 						android:layout_height="wrap_content"
 						android:orientation="horizontal"
 						android:visibility="gone"
-						tools:visibility="visible"/>
+						tools:visibility="visible" />
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
 
@@ -237,9 +240,11 @@
 				android:gravity="center_vertical|end"
 				android:paddingLeft="@dimen/material_margin_horizontal"
 				android:paddingRight="@dimen/material_margin_horizontal"
+				android:visibility="gone"
 				app:emptyMessage="@string/needs_updating"
 				app:format="@string/updated_prefix"
-				tools:text="Yesterday"/>
+				tools:text="Yesterday"
+				tools:visibility="visible" />
 		</LinearLayout>
 	</ScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

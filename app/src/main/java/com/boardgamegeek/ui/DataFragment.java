@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -34,9 +32,8 @@ import com.boardgamegeek.ui.widget.DataStepRow;
 import com.boardgamegeek.ui.widget.DataStepRow.Listener;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,9 +57,17 @@ public class DataFragment extends Fragment implements Listener {
 	private static final String ANSWERS_EVENT_NAME = "DataManagement";
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 
+	private FirebaseAnalytics firebaseAnalytics;
+
 	private Unbinder unbinder;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
 	private String currentType;
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
+	}
 
 	@DebugLog
 	@Nullable
@@ -79,7 +84,7 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	private void createDataRow(String type, @StringRes int typeResId, @StringRes int descriptionResId) {
-		DataStepRow row = new DataStepRow(getContext());
+		DataStepRow row = new DataStepRow(requireContext());
 		row.setListener(this);
 		row.bind(type, typeResId, descriptionResId);
 		row.setTag(type);
@@ -139,18 +144,15 @@ public class DataFragment extends Fragment implements Listener {
 		if (FileUtils.shouldUseDefaultFolders()) {
 			DialogUtils.createConfirmationDialog(getActivity(),
 				R.string.msg_export_confirmation,
-				new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (PackageManager.PERMISSION_GRANTED ==
-							ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
-							performExport(type, null);
-						} else {
-							if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
-								showSnackbar(R.string.msg_export_permission_rationale);
-							}
-							requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, REQUEST_PERMISSIONS);
+				(dialog, which) -> {
+					if (PackageManager.PERMISSION_GRANTED ==
+						ContextCompat.checkSelfPermission(requireContext(), permission.WRITE_EXTERNAL_STORAGE)) {
+						performExport(type, null);
+					} else {
+						if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
+							showSnackbar(R.string.msg_export_permission_rationale);
 						}
+						requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, REQUEST_PERMISSIONS);
 					}
 				}).show();
 		} else {
@@ -168,12 +170,7 @@ public class DataFragment extends Fragment implements Listener {
 		if (FileUtils.shouldUseDefaultFolders()) {
 			DialogUtils.createConfirmationDialog(getActivity(),
 				R.string.msg_import_confirmation,
-				new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						performImport(type, null);
-					}
-				}).show();
+				(dialog, which) -> performImport(type, null)).show();
 		} else {
 			currentType = type;
 			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -194,7 +191,7 @@ public class DataFragment extends Fragment implements Listener {
 
 		try {
 			int modeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-			getContext().getContentResolver().takePersistableUriPermission(uri, modeFlags);
+			requireContext().getContentResolver().takePersistableUriPermission(uri, modeFlags);
 		} catch (SecurityException e) {
 			Timber.e(e, "Could not persist URI permissions for '%s'.", uri.toString());
 		}
@@ -230,7 +227,7 @@ public class DataFragment extends Fragment implements Listener {
 		if (row != null) row.initProgressBar();
 		//noinspection unchecked
 		TaskUtils.<Void>executeAsyncTask(task);
-		logAnswer("Export");
+		logAction("Export");
 	}
 
 	@DebugLog
@@ -244,11 +241,13 @@ public class DataFragment extends Fragment implements Listener {
 		if (row != null) row.initProgressBar();
 		//noinspection unchecked
 		TaskUtils.<Void>executeAsyncTask(task);
-		logAnswer("Import");
+		logAction("Import");
 	}
 
-	private void logAnswer(String action) {
-		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, action));
+	private void logAction(String action) {
+		Bundle bundle = new Bundle();
+		bundle.putString(ANSWERS_ATTRIBUTE_KEY_ACTION, action);
+		firebaseAnalytics.logEvent(ANSWERS_EVENT_NAME, bundle);
 	}
 
 	@DebugLog

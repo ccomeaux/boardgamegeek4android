@@ -20,15 +20,15 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
 
     override val rangeInterval = 5
 
-    override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
+    override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as YearPublishedFilterer?
-        return SliderFilterDialog.InitialValues(
+        return InitialValues(
                 f?.min ?: YearPublishedFilterer.lowerBound,
                 f?.max ?: YearPublishedFilterer.upperBound
         )
     }
 
-    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
+    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer {
         return YearPublishedFilterer(context).apply {
             this.min = min
             this.max = max
@@ -36,9 +36,7 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
     }
 
     override fun getPinText(context: Context, value: String): String {
-        val year = value.toIntOrNull() ?: YearPublishedFilterer.lowerBound
-
-        return when (year) {
+        return when (val year = value.toIntOrNull() ?: YearPublishedFilterer.lowerBound) {
             YearPublishedFilterer.lowerBound -> year.asYear(context).andLess()
             YearPublishedFilterer.upperBound -> year.asYear(context).andMore()
             else -> year.asYear(context)

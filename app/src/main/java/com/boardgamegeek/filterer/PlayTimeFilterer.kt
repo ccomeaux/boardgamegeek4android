@@ -31,6 +31,7 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
     private fun describe(@StringRes unknownResId: Int): String {
         val range = when {
             min == lowerBound && max == upperBound -> ""
+            max == lowerBound -> max.asTime()
             min == lowerBound -> max.asTime().andLess()
             max == upperBound -> min.asTime().andMore()
             min == max -> max.asTime()

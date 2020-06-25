@@ -12,7 +12,6 @@ import com.boardgamegeek.extensions.queryInts
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 
@@ -65,7 +64,7 @@ class SyncGamesRemove(application: BggApplication, service: BggService, syncResu
         Timber.i("Fetching games that aren't in the collection and have not been viewed since $date")
 
         var selection = "collection.${Collection.GAME_ID} IS NULL AND games.${Games.LAST_VIEWED}<?"
-        if (context.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
+        if (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
             selection += " AND games.${Games.NUM_PLAYS}=0"
         }
         return context.contentResolver.queryInts(

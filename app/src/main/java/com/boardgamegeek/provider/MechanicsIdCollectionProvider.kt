@@ -1,12 +1,12 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.Mechanics
+import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
 
 class MechanicsIdCollectionProvider : BaseProvider() {
-    override fun getPath() = "mechanics/#/collection"
+    override val path = "$PATH_MECHANICS/#/$PATH_COLLECTION"
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val mechanicId = Mechanics.getMechanicId(uri)

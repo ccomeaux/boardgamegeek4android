@@ -1,5 +1,7 @@
 package com.boardgamegeek.entities
 
+import com.boardgamegeek.provider.BggContract.INVALID_URL
+
 data class UserEntity(
         val internalId: Long,
         val id: Int,
@@ -15,5 +17,5 @@ data class UserEntity(
     val description = if (userName.isBlank()) fullName else "$fullName ($userName)"
 
     val avatarUrl: String = avatarUrlRaw
-        get() = if (field == "N/A") "" else field
+        get() = if (field == INVALID_URL) "" else field
 }

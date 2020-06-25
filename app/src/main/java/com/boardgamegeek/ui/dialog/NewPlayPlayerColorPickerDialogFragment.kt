@@ -6,14 +6,19 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.util.ColorUtils
-import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     private val viewModel by activityViewModels<NewPlayViewModel>()
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {
         item?.let {
-            PlayerColorsManipulationEvent.log("Add", it.first)
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                param("Action", "Add")
+                param("Color", it.first)
+            }
             viewModel.addColorToPlayer(requestCode, it.first)
         }
     }

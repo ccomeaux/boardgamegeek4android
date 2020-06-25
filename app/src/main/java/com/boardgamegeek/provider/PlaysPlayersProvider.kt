@@ -60,12 +60,12 @@ class PlaysPlayersProvider : BaseProvider() {
         return builder
     }
 
-    override fun getDefaultSortOrder() = "${Plays.DATE} DESC, ${PlayPlayers.DEFAULT_SORT}"
+    override val defaultSortOrder = "${Plays.DATE} DESC, ${PlayPlayers.DEFAULT_SORT}"
 
-    override fun getPath() = "$PATH_PLAYS/$PATH_PLAYERS"
+    override val path = "$PATH_PLAYS/$PATH_PLAYERS"
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {
-        val internalPlayId = values.getAsLong(PlayPlayers._PLAY_ID)!!
+        val internalPlayId = values.getAsLong(PlayPlayers._PLAY_ID) ?: INVALID_ID.toLong()
         val internalPlayerId = db.insertOrThrow(Tables.PLAY_PLAYERS, null, values)
         return Plays.buildPlayerUri(internalPlayId, internalPlayerId)
     }

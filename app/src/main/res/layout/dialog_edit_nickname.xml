@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:importantForAutofill="noExcludeDescendants"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical">
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:importantForAutofill="noExcludeDescendants"
+	android:orientation="vertical"
+	android:paddingHorizontal="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/material_margin_vertical">
 
-	<EditText
-		android:id="@+id/nicknameView"
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/editTextContainer"
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:hint="@string/nickname"
-		android:imeOptions="actionDone"
-		android:inputType="textPersonName"/>
+		android:hint="@string/nickname">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/nicknameView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:imeOptions="actionDone"
+			android:inputType="textPersonName|textCapWords" />
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<CheckBox
 		android:id="@+id/changePlaysCheckBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:text="@string/nickname_update_plays"/>
-
+		android:text="@string/nickname_update_plays" />
 </LinearLayout>

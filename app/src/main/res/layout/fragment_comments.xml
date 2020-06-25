@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/root_container"
-	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
-		android:id="@android:id/progress"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:gravity="center"
-		android:orientation="vertical">
-
-		<ProgressBar
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
-	</LinearLayout>
+	<androidx.core.widget.ContentLoadingProgressBar
+		android:id="@+id/progressView"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center" />
 
 	<TextView
-		android:id="@android:id/empty"
+		android:id="@+id/emptyView"
 		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:text="@string/empty_comments"
-		android:visibility="gone"/>
+		android:visibility="gone" />
 
 	<androidx.recyclerview.widget.RecyclerView
-		android:id="@android:id/list"
+		android:id="@+id/recyclerView"
 		style="@style/RecyclerViewVerticalList"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

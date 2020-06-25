@@ -29,7 +29,8 @@ class EditUsernameDialogFragment : DialogFragment() {
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    viewModel.addUsernameToPlayer(editText.text.trim().toString())
+                    val text = editText.text?.toString()
+                    viewModel.addUsernameToPlayer(text?.trim() ?: "")
                 }
 
         return builder.create().apply {
@@ -43,12 +44,6 @@ class EditUsernameDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): EditUsernameDialogFragment {
-            return EditUsernameDialogFragment()
-        }
+        editTextContainer.hint = getString(R.string.username)
     }
 }

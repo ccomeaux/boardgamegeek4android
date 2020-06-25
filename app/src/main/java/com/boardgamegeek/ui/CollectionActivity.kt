@@ -14,15 +14,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.extensions.getViewDefaultId
+import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 
@@ -52,12 +53,16 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             }
         }
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Collection"))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+            }
         }
 
         viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
         if (savedInstanceState == null) {
-            val viewId = intent.getLongExtra(KEY_VIEW_ID, this.getViewDefaultId())
+            val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                    ?: CollectionView.DEFAULT_DEFAULT_ID
+            val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
             viewModel.selectView(viewId)
         }
     }
@@ -72,11 +77,10 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         findViewById<AppCompatSpinner>(R.id.menu_spinner)?.let {
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    Answers.getInstance().logCustom(CustomEvent("CollectionViewSelected"))
-                    when {
-                        id <= 0 -> viewModel.clearView()
-                        else -> viewModel.selectView(id)
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
                     }
+                    viewModel.selectView(id)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing
@@ -127,7 +131,6 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         private const val KEY_VIEW_ID = "VIEW_ID"
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
-        @JvmStatic
         fun createIntentAsShortcut(context: Context, viewId: Long): Intent {
             val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
                     .clearTask()

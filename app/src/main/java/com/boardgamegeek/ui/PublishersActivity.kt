@@ -29,7 +29,7 @@ class PublishersActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = PublishersFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = PublishersFragment()
 
     override val optionsMenuId = R.menu.publishers
 

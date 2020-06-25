@@ -39,11 +39,11 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    fun loadPlaysByGame(gameId: Int): LiveData<List<PlayEntity>> {
+    fun loadPlaysByGame(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): LiveData<List<PlayEntity>> {
         if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Plays.CONTENT_URI
         return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlays(uri, createGamePlaySelectionAndArgs(gameId))
+            return@RegisteredLiveData loadPlays(uri, createGamePlaySelectionAndArgs(gameId), sortBy)
         }
     }
 
@@ -158,7 +158,7 @@ class PlayDao(private val context: BggApplication) {
     private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
             "${PlayPlayers.USER_NAME}='' AND play_players.${PlayPlayers.NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
 
-    fun loadPlayers(includeIncompletePlays: Boolean): List<PlayerEntity> {
+    fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
         val selection = arrayListOf<String>().apply {
             add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
             if (!AccountUtils.getUsername(context).isNullOrBlank()) {
@@ -174,35 +174,12 @@ class PlayDao(private val context: BggApplication) {
                 else -> arrayOf(username)
             }
         }
-        val results = arrayListOf<PlayerEntity>()
-        context.contentResolver.load(
-                Plays.buildPlayersByUniquePlayerUri(),
-                arrayOf(
-                        PlayPlayers.NAME,
-                        PlayPlayers.USER_NAME,
-                        PlayPlayers.SUM_QUANTITY,
-                        PlayPlayers.SUM_WINS),
-                selection,
-                selectionArgs,
-                "${PlayPlayers.SUM_QUANTITY.descending()}, ${PlayPlayers.NAME.collateNoCase()}"
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += PlayerEntity(
-                            it.getStringOrEmpty(PlayPlayers.NAME),
-                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
-                            it.getIntOrZero(PlayPlayers.SUM_WINS)
-                    )
-                } while (it.moveToNext())
-            }
-        }
-        return results
+        return loadPlayers(Plays.buildPlayersByUniquePlayerUri(), selection to selectionArgs, PlayerSortBy.PLAY_COUNT)
     }
 
-    fun loadPlayersAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
+    fun loadPlayersForStatsAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
         return RegisteredLiveData(context, Plays.buildPlayersByUniquePlayerUri(), true) {
-            return@RegisteredLiveData loadPlayers(includeIncompletePlays)
+            return@RegisteredLiveData loadPlayersForStats(includeIncompletePlays)
         }
     }
 
@@ -418,12 +395,17 @@ class PlayDao(private val context: BggApplication) {
     }
 
     fun loadPlayersAsLiveData(sortBy: PlayerSortBy = PlayerSortBy.NAME): LiveData<List<PlayerEntity>> {
-        return RegisteredLiveData(context, Plays.buildPlayersByUniqueUserUri(), false) {
-            return@RegisteredLiveData loadPlayers(sortBy)
+        val uri = Plays.buildPlayersByUniquePlayerUri()
+        return RegisteredLiveData(context, uri, false) {
+            return@RegisteredLiveData loadPlayers(uri, sortBy = sortBy)
         }
     }
 
-    private fun loadPlayers(sortBy: PlayerSortBy = PlayerSortBy.NAME): List<PlayerEntity> {
+    private fun loadPlayers(
+            uri: Uri,
+            selection: Pair<String?, Array<String>?>? = null,
+            sortBy: PlayerSortBy = PlayerSortBy.NAME
+    ): List<PlayerEntity> {
         val results = arrayListOf<PlayerEntity>()
         val sortOrder = when (sortBy) {
             PlayerSortBy.NAME -> PlayPlayers.NAME.collateNoCase()
@@ -431,14 +413,16 @@ class PlayDao(private val context: BggApplication) {
             PlayerSortBy.WIN_COUNT -> Plays.SUM_WINS.descending()
         }
         context.contentResolver.load(
-                Plays.buildPlayersByUniquePlayerUri(),
+                uri,
                 arrayOf(
                         PlayPlayers.NAME,
                         PlayPlayers.USER_NAME,
                         PlayPlayers.SUM_QUANTITY,
                         PlayPlayers.SUM_WINS
                 ),
-                sortOrder = sortOrder
+                selection?.first,
+                selection?.second,
+                sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
@@ -656,6 +640,65 @@ class PlayDao(private val context: BggApplication) {
                 }
             }
         }
+    }
+
+    fun loadPlayersByGame(gameId: Int): LiveData<List<PlayPlayerEntity>> {
+        // be sure to exclude deleted plays!
+        if (gameId == INVALID_ID) return AbsentLiveData.create()
+        val uri = Plays.buildPlayersUri()
+        return RegisteredLiveData(context, uri, false) {
+            return@RegisteredLiveData loadPlayPlayers(uri, createGamePlaySelectionAndArgs(gameId))
+        }
+    }
+
+    private fun loadPlayPlayers(
+            uri: Uri,
+            selection: Pair<String?, Array<String>?>? = null,
+            sortBy: PlayerSortBy = PlayerSortBy.NAME
+    ): List<PlayPlayerEntity> {
+        val results = arrayListOf<PlayPlayerEntity>()
+        val defaultSortOrder = "${PlayPlayers.START_POSITION.ascending()}, ${PlayPlayers.NAME.collateNoCase()}"
+        val sortOrder = when (sortBy) {
+            PlayerSortBy.NAME -> defaultSortOrder
+            PlayerSortBy.PLAY_COUNT -> "${Plays.SUM_QUANTITY.descending()}, $defaultSortOrder"
+            PlayerSortBy.WIN_COUNT -> "${Plays.SUM_WINS.descending()}, $defaultSortOrder"
+        }
+        context.contentResolver.load(
+                uri,
+                arrayOf(
+                        PlayPlayers.NAME,
+                        PlayPlayers.USER_NAME,
+                        PlayPlayers.START_POSITION,
+                        PlayPlayers.COLOR,
+                        PlayPlayers.SCORE,
+                        PlayPlayers.RATING,
+                        PlayPlayers.USER_ID,
+                        PlayPlayers.NEW,
+                        PlayPlayers.WIN,
+                        PlayPlayers.PLAY_ID
+                ),
+                selection?.first,
+                selection?.second,
+                sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    results += PlayPlayerEntity(
+                            it.getStringOrEmpty(PlayPlayers.NAME),
+                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                            it.getStringOrEmpty(PlayPlayers.START_POSITION),
+                            it.getStringOrEmpty(PlayPlayers.COLOR),
+                            it.getStringOrEmpty(PlayPlayers.SCORE),
+                            it.getDoubleOrZero(PlayPlayers.RATING),
+                            it.getStringOrEmpty(PlayPlayers.USER_ID),
+                            it.getBoolean(PlayPlayers.NEW),
+                            it.getBoolean(PlayPlayers.WIN),
+                            it.getIntOrNull(PlayPlayers.PLAY_ID) ?: INVALID_ID
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return results
     }
 
     fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {

@@ -16,24 +16,25 @@ abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
 
     override val rangeInterval = 10
 
-    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
-        val x = createFilterer(context)
-        return x.apply {
+    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer {
+        return createFilterer(context).apply {
             this.min = min.toDouble() / FACTOR
             this.max = max.toDouble() / FACTOR
             includeUndefined = checkbox
+            this.ignoreRange = ignoreRange
         }
     }
 
     abstract fun createFilterer(context: Context): T
 
-    override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
+    override fun initValues(filter: CollectionFilterer?): InitialValues {
         @Suppress("UNCHECKED_CAST")
         val f = filter as T?
-        return SliderFilterDialog.InitialValues(
+        return InitialValues(
                 ((f?.min ?: RatingFilterer.lowerBound) * FACTOR).toInt(),
                 ((f?.max ?: RatingFilterer.upperBound) * FACTOR).toInt(),
-                f?.includeUndefined ?: true
+                f?.includeUndefined ?: false,
+                f?.ignoreRange ?: false
         )
     }
 

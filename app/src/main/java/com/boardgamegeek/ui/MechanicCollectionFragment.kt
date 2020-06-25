@@ -73,11 +73,4 @@ class MechanicCollectionFragment : Fragment() {
         })
         return true
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): MechanicCollectionFragment {
-            return MechanicCollectionFragment()
-        }
-    }
 }

@@ -13,20 +13,20 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/header_play_count"
+			android:id="@+id/playCountHeaderView"
 			style="@style/Text.Header.Card"
 			android:layout_width="wrap_content"
 			android:text="@string/title_play_count"/>
 
 		<TableLayout
-			android:id="@+id/table_play_count"
+			android:id="@+id/playCountTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:stretchColumns="0,1"/>
 
 		<com.github.mikephil.charting.charts.HorizontalBarChart
-			android:id="@+id/chart_play_count"
+			android:id="@+id/playCountChart"
 			android:layout_width="match_parent"
 			android:layout_height="200dp"
 			android:padding="@dimen/padding_extra"/>

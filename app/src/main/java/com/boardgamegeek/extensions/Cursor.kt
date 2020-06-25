@@ -112,11 +112,11 @@ private fun parseDate(date: String?, format: DateFormat): Long {
     }
 }
 
-inline fun String.whereZeroOrNull() = "(${this}=0 OR ${this} IS NULL)"
+inline fun String.whereZeroOrNull() = "($this=0 OR $this IS NULL)"
 
-inline fun String.whereEqualsOrNull() = "(${this}=? OR ${this} IS NULL)"
+inline fun String.whereEqualsOrNull() = "($this=? OR $this IS NULL)"
 
-inline fun String.whereNotEqualsOrNull() = "(${this}!=? OR ${this} IS NULL)"
+inline fun String.whereNotEqualsOrNull() = "($this!=? OR $this IS NULL)"
 
 /**
  * Fix for Cursor not implementing Closeable until API level 16.

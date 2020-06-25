@@ -89,7 +89,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// Ensure the password is valid and not expired, then return the stored AuthToken
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			BggCookieJar cookieJar = NetworkAuthenticator.authenticate(account.name, password, "Renewal");
+			BggCookieJar cookieJar = NetworkAuthenticator.authenticate(account.name, password, "Renewal", context);
 			if (cookieJar != null) {
 				am.setAuthToken(account, authTokenType, cookieJar.getAuthToken());
 				am.setUserData(account, Authenticator.KEY_AUTH_TOKEN_EXPIRY, String.valueOf(cookieJar.getAuthTokenExpiry()));

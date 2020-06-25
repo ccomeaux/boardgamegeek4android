@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
-	android:id="@+id/card_locations"
+	android:id="@+id/locationsCard"
 	style="@style/Card"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -16,13 +16,13 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/header_locations"
+			android:id="@+id/locationsHeaderView"
 			style="@style/Text.Header.Card"
 			android:layout_width="wrap_content"
 			android:text="@string/title_locations"/>
 
 		<TableLayout
-			android:id="@+id/table_locations"
+			android:id="@+id/locationsTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"

@@ -12,28 +12,27 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.getViewDefaultId
-import com.boardgamegeek.extensions.queryLong
-import com.boardgamegeek.extensions.requestFocus
-import com.boardgamegeek.extensions.setAndSelectExistingText
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_save_view.*
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 
 class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
     private var name: String = ""
     private var description: String? = null
+    private val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(requireContext()) }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null)
-        val viewModel by activityViewModels<CollectionViewViewModel>()
+        val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_saved, Toast.LENGTH_SHORT) // TODO improve message
 
         arguments?.let {
@@ -54,19 +53,19 @@ class SaveViewDialogFragment : DialogFragment() {
                                 .setMessage(R.string.msg_collection_view_name_in_use)
                                 .setPositiveButton(R.string.update) { _, _ ->
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Update", name)
+                                    logAction("Update", name)
                                     viewModel.update(isDefault)
                                 }
                                 .setNegativeButton(R.string.create) { _, _ ->
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Insert", name)
+                                    logAction("Insert", name)
                                     viewModel.insert(name, isDefault)
                                 }
                                 .create()
                                 .show()
                     } else {
                         toast.show()
-                        CollectionViewManipulationEvent.log("Insert", name)
+                        logAction("Insert", name)
                         viewModel.insert(name, isDefault)
                     }
                 }
@@ -78,14 +77,23 @@ class SaveViewDialogFragment : DialogFragment() {
         }
     }
 
+    private fun logAction(action: String, name: String) {
+        firebaseAnalytics.logEvent("DataManipulation") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+            param("Action", action)
+            param("Color", name)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layout
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         nameView.setAndSelectExistingText(name)
-        val viewDefaultId = requireContext().getViewDefaultId()
-        defaultViewCheckBox.isChecked = viewDefaultId != PreferencesUtils.VIEW_ID_COLLECTION && findViewId(name) == viewDefaultId
+        val viewDefaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                ?: CollectionView.DEFAULT_DEFAULT_ID
+        defaultViewCheckBox.isChecked = viewDefaultId != CollectionView.DEFAULT_DEFAULT_ID && findViewId(name) == viewDefaultId
         descriptionView.text = description
     }
 

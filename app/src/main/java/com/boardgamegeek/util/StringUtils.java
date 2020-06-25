@@ -1,10 +1,6 @@
 package com.boardgamegeek.util;
 
-import android.graphics.Typeface;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -83,7 +79,6 @@ public class StringUtils {
 	public static boolean isNumeric(String text) {
 		if (TextUtils.isEmpty(text)) return false;
 		try {
-			//noinspection ResultOfMethodCallIgnored
 			Double.parseDouble(text);
 		} catch (NumberFormatException e) {
 			return false;
@@ -141,16 +136,6 @@ public class StringUtils {
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Append bold text to a {@link android.text.SpannableStringBuilder}
-	 */
-	public static void appendBold(SpannableStringBuilder sb, String boldText) {
-		sb.append(boldText);
-		if (TextUtils.isEmpty(boldText)) return;
-		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
-			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
 	public static String limitText(String text, int length) {

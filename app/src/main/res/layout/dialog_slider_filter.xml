@@ -1,22 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/layout_root"
-			  xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:app="http://schemas.android.com/apk/res-auto"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical"
-			  tools:context=".ui.dialog.SliderFilterDialog">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/layout_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	tools:context=".ui.dialog.SliderFilterDialog">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
 		android:orientation="vertical">
+
+		<RadioGroup
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/padding_extra"
+			android:orientation="horizontal">
+
+			<RadioButton
+				android:id="@+id/rangeRadioButton"
+				style="@style/DialogRadioButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/range" />
+
+			<android.widget.Space
+				android:layout_width="@dimen/padding_extra"
+				android:layout_height="1dp" />
+
+			<RadioButton
+				android:id="@+id/singleValueRadioButton"
+				style="@style/DialogRadioButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/single_value" />
+
+			<android.widget.Space
+				android:layout_width="@dimen/padding_extra"
+				android:layout_height="1dp" />
+
+			<RadioButton
+				android:id="@+id/noneRadioButton"
+				style="@style/DialogRadioButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/none" />
+		</RadioGroup>
 
 		<com.appyvet.materialrangebar.RangeBar
 			android:id="@+id/rangeBar"
@@ -28,9 +64,10 @@
 			app:mrb_temporaryPins="false"
 			app:mrb_tickEnd="100000000"
 			app:mrb_tickInterval="1"
-			app:mrb_tickStart="1"/>
+			app:mrb_tickStart="1" />
 
 		<LinearLayout
+			android:id="@+id/rangeButtonContainer"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:animateLayoutChanges="true"
@@ -44,7 +81,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_remove_circle_outline"
-				android:tint="@color/dark_blue"/>
+				android:tint="@color/dark_blue" />
 
 			<ImageView
 				android:id="@+id/minUpButton"
@@ -53,13 +90,13 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_add_circle_outline"
-				android:tint="@color/dark_blue"/>
+				android:tint="@color/dark_blue" />
 
 			<Space
 				android:id="@+id/buttonSpace"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<ImageView
 				android:id="@+id/maxDownButton"
@@ -68,7 +105,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_remove_circle_outline"
-				android:tint="@color/dark_blue"/>
+				android:tint="@color/dark_blue" />
 
 			<ImageView
 				android:id="@+id/maxUpButton"
@@ -77,17 +114,9 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_add_circle_outline"
-				android:tint="@color/dark_blue"/>
+				android:tint="@color/dark_blue" />
 		</LinearLayout>
 	</LinearLayout>
-
-	<CheckBox
-		android:id="@+id/rangeCheckBox"
-		style="@style/Text.Dialog"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/padding_extra"
-		android:text="@string/select_range"/>
 
 	<CheckBox
 		android:id="@+id/checkBox"
@@ -95,7 +124,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/padding_extra"
-		android:text="@string/include_missing_values"/>
+		android:text="@string/include_missing_values" />
 
 	<TextView
 		android:id="@+id/explanationView"
@@ -106,5 +135,5 @@
 		android:paddingTop="@dimen/padding_extra"
 		android:text="@string/filter_description_player_number"
 		android:visibility="gone"
-		tools:visibility="visible"/>
+		tools:visibility="visible" />
 </LinearLayout>

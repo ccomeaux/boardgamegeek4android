@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -24,8 +23,10 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
+import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
 import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -38,15 +39,14 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
-import com.boardgamegeek.util.DialogUtils.OnDiscardListener;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.fabric.PlayManipulationEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ShareEvent;
+import com.boardgamegeek.util.XmlApiMarkupConverter;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Event;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -62,6 +62,7 @@ import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.palette.graphics.Palette;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
@@ -88,6 +89,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String imageUrl;
 	private String heroImageUrl;
 	private boolean isRefreshing;
+	private SharedPreferences prefs;
+	private XmlApiMarkupConverter markupConverter;
 
 	private Unbinder unbinder;
 	private ListView playersView;
@@ -116,6 +119,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	private PlayPlayerAdapter adapter;
 	private boolean hasBeenNotified;
+	FirebaseAnalytics firebaseAnalytics;
 
 	final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
@@ -148,10 +152,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
+		firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
 		if (savedInstanceState != null) {
 			hasBeenNotified = savedInstanceState.getBoolean(KEY_HAS_BEEN_NOTIFIED);
 		}
 		setHasOptionsMenu(true);
+		prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+		markupConverter = new XmlApiMarkupConverter(requireContext());
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -251,17 +258,15 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, new OnDiscardListener() {
-					public void onDiscard() {
-						play.dirtyTimestamp = 0;
-						play.updateTimestamp = 0;
-						play.deleteTimestamp = 0;
-						save("Discard");
-					}
+				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, () -> {
+					play.dirtyTimestamp = 0;
+					play.updateTimestamp = 0;
+					play.deleteTimestamp = 0;
+					save("Discard");
 				}).show();
 				return true;
 			case R.id.menu_edit:
-				PlayManipulationEvent.log("Edit", play.gameName);
+				logDataManipulationAction("Edit");
 				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				return true;
 			case R.id.menu_send:
@@ -272,14 +277,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 			case R.id.menu_delete: {
 				DialogUtils.createThemedBuilder(getContext())
 					.setMessage(R.string.are_you_sure_delete_play)
-					.setPositiveButton(R.string.delete, new OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							if (play.hasStarted()) cancelNotification();
-							play.end(); // this prevents the timer from reappearing
-							play.deleteTimestamp = System.currentTimeMillis();
-							save("Delete");
-							EventBus.getDefault().post(new PlayDeletedEvent());
-						}
+					.setPositiveButton(R.string.delete, (dialog, id) -> {
+						if (play.hasStarted()) cancelNotification();
+						play.end(); // this prevents the timer from reappearing
+						play.deleteTimestamp = System.currentTimeMillis();
+						save("Delete");
+						EventBus.getDefault().post(new PlayDeletedEvent());
 					})
 					.setNegativeButton(R.string.cancel, null)
 					.setCancelable(true)
@@ -287,24 +290,33 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			}
 			case R.id.menu_rematch:
-				PlayManipulationEvent.log("Rematch", play.gameName);
+				logDataManipulationAction("Rematch");
 				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_change_game:
-				PlayManipulationEvent.log("Change game", play.gameName);
+				logDataManipulationAction("ChangeGame");
 				startActivity(CollectionActivity.createIntentForGameChange(requireContext(), internalId));
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), play.toShortDescription(getActivity()), play.toLongDescription(getActivity()), R.string.share_play_title);
-				Answers.getInstance().logShare(new ShareEvent()
-					.putContentType("Play")
-					.putContentName(play.toShortDescription(getActivity()))
-					.putContentId(String.valueOf(play.playId)));
+				Bundle bundle = new Bundle();
+				bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Play");
+				bundle.putString(Param.ITEM_ID, String.valueOf(play.playId));
+				bundle.putString(Param.ITEM_NAME, play.toShortDescription(requireContext()));
+				firebaseAnalytics.logEvent(Event.SHARE, bundle);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void logDataManipulationAction(String action) {
+		Bundle bundle = new Bundle();
+		bundle.putString(Param.CONTENT_TYPE, "Play");
+		bundle.putString("Action", action);
+		bundle.putString("GameName", play.gameName);
+		firebaseAnalytics.logEvent("DataManipulation", bundle);
 	}
 
 	@DebugLog
@@ -318,7 +330,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		if (play != null && event.getGameId() == play.gameId) {
-			if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferencesUtils.getSyncShowErrors(getContext())) {
+			if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferenceUtils.getSyncShowErrors(prefs)) {
 				// TODO: 3/30/17 change to a snackbar (will need to change from a ListFragment)
 				Toast.makeText(getContext(), event.getErrorMessage(), Toast.LENGTH_LONG).show();
 			}
@@ -331,11 +343,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private void updateRefreshStatus(final boolean value) {
 		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
-				}
+			swipeRefreshLayout.post(() -> {
+				if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 			});
 		}
 	}
@@ -462,7 +471,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
 		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
 
-		commentsView.setText(play.comments);
+		TextViewUtils.setTextMaybeHtml(commentsView, markupConverter.toHtml(play.comments));
 		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 
@@ -526,8 +535,8 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void save(String action) {
-		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
-		new PlayPersister(getActivity()).save(play, internalId, false);
+		logDataManipulationAction(TextUtils.isEmpty(action) ? "Save" : action);
+		new PlayPersister(requireContext()).save(play, internalId, false);
 		triggerRefresh();
 	}
 }

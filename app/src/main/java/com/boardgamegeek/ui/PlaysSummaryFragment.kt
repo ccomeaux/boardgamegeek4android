@@ -18,6 +18,7 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.startActivity
 
 class PlaysSummaryFragment : Fragment() {
@@ -41,13 +42,13 @@ class PlaysSummaryFragment : Fragment() {
         }
 
         syncButton.setOnClickListener {
-            requireContext().setSyncPlays()
-            requireContext().setSyncPlaysTimestamp()
+            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS] = true
+            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
             viewModel.refresh()
         }
 
         syncCancelButton.setOnClickListener {
-            requireContext().setSyncPlaysTimestamp()
+            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
         }
 
         viewModel.plays.observe(viewLifecycleOwner, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })
@@ -57,7 +58,7 @@ class PlaysSummaryFragment : Fragment() {
         viewModel.players.observe(viewLifecycleOwner, Observer { playerEntities -> bindPlayers(playerEntities) })
         viewModel.locations.observe(viewLifecycleOwner, Observer { locationEntities -> bindLocations(locationEntities) })
         viewModel.colors.observe(viewLifecycleOwner, Observer { playerColorEntities -> bindColors(playerColorEntities) })
-        viewModel.hIndex().observe(viewLifecycleOwner, Observer {
+        viewModel.hIndex.observe(viewLifecycleOwner, Observer {
             hIndexView.text = context?.getText(R.string.game_h_index_prefix, it.description)
             morePlayStatsButton.setOnClickListener {
                 startActivity<PlayStatsActivity>()

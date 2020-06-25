@@ -12,8 +12,8 @@ import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.intentFor
@@ -89,10 +89,11 @@ class PersonActivity : HeroTabActivity() {
         })
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Person")
-                    .putContentId(id.toString())
-                    .putContentName(name))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Person")
+                param(FirebaseAnalytics.Param.ITEM_ID, id.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, name)
+            }
         }
     }
 
@@ -143,17 +144,14 @@ class PersonActivity : HeroTabActivity() {
             context.startActivity(createIntent(context, id, name, PersonType.PUBLISHER))
         }
 
-        @JvmStatic
         fun startUpForArtist(context: Context, id: Int, name: String) {
             context.startActivity(createIntent(context, id, name, PersonType.ARTIST).clearTask().clearTop())
         }
 
-        @JvmStatic
         fun startUpForDesigner(context: Context, id: Int, name: String) {
             context.startActivity(createIntent(context, id, name, PersonType.DESIGNER).clearTask().clearTop())
         }
 
-        @JvmStatic
         fun startUpForPublisher(context: Context, id: Int, name: String) {
             context.startActivity(createIntent(context, id, name, PersonType.PUBLISHER).clearTask().clearTop())
         }

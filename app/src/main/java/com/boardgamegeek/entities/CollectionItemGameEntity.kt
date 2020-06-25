@@ -2,7 +2,7 @@ package com.boardgamegeek.entities
 
 import com.boardgamegeek.provider.BggContract
 
-class CollectionItemGameEntity(
+data class CollectionItemGameEntity(
         val gameId: Int = BggContract.INVALID_ID,
         val gameName: String = "",
         val sortName: String = "",

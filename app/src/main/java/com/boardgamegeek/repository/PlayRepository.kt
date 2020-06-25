@@ -1,6 +1,11 @@
 package com.boardgamegeek.repository
 
+import android.app.PendingIntent
 import android.content.ContentProviderOperation
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,13 +24,15 @@ import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.ui.PlayStatsActivity
+import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RateLimiter
 import retrofit2.Call
 import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -35,6 +42,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
     private val playDao = PlayDao(application)
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : PlayRefreshableResourceLoader(application) {
@@ -57,6 +65,15 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
                 return playDao.loadDraftPlays()
             }
+        }.asLiveData()
+    }
+
+    fun loadPlaysByGame(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
+        return object : PlayRefreshableResourceLoader(application) {
+            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
+                return playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE)
+            }
+
         }.asLiveData()
     }
 
@@ -85,24 +102,23 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }.asLiveData()
     }
 
-    fun loadForStatsAsLiveData(): LiveData<List<GameForPlayStatEntity>> {
+    fun loadForStatsAsLiveData(includeIncomplete: Boolean, includeExpansions: Boolean, includeAccessories: Boolean):
+            LiveData<List<GameForPlayStatEntity>> {
         // TODO use PlayDao if either of these is false
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
         // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
 
         return Transformations.map(gameDao.loadPlayInfoAsLiveData(
-                PreferencesUtils.logPlayStatsIncomplete(application),
-                PreferencesUtils.logPlayStatsExpansions(application),
-                PreferencesUtils.logPlayStatsAccessories(application)))
+                includeIncomplete,
+                includeExpansions,
+                includeAccessories))
         {
             return@map filterGamesOwned(it)
         }
     }
 
-    fun loadForStats(): List<GameForPlayStatEntity> {
-        val playInfo = gameDao.loadPlayInfo(PreferencesUtils.logPlayStatsIncomplete(application),
-                PreferencesUtils.logPlayStatsExpansions(application),
-                PreferencesUtils.logPlayStatsAccessories(application))
+    fun loadForStats(includeIncompletePlays: Boolean, includeExpansions: Boolean, includeAccessories: Boolean): List<GameForPlayStatEntity> {
+        val playInfo = gameDao.loadPlayInfo(includeIncompletePlays, includeExpansions, includeAccessories)
         return filterGamesOwned(playInfo)
     }
 
@@ -119,12 +135,16 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         return playDao.loadPlayersAsLiveData(sortBy)
     }
 
-    fun loadPlayersForStats(): List<PlayerEntity> {
-        return playDao.loadPlayers(PreferencesUtils.logPlayStatsIncomplete(application))
+    fun loadPlayersByGame(gameId: Int): LiveData<List<PlayPlayerEntity>> {
+        return playDao.loadPlayersByGame(gameId)
     }
 
-    fun loadPlayersForStatsAsLiveData(): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersAsLiveData(PreferencesUtils.logPlayStatsIncomplete(application))
+    fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
+        return playDao.loadPlayersForStats(includeIncompletePlays)
+    }
+
+    fun loadPlayersForStatsAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
+        return playDao.loadPlayersForStatsAsLiveData(includeIncompletePlays)
     }
 
     fun loadUserPlayer(username: String): LiveData<PlayerEntity> {
@@ -212,6 +232,28 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
     }
 
+    fun renameLocation(oldLocationName: String, newLocationName: String, count: MutableLiveData<Int>? = null) {
+        val batch = ArrayList<ContentProviderOperation>()
+
+        val values = contentValuesOf(BggContract.Plays.LOCATION to newLocationName)
+        var cpo = ContentProviderOperation
+                .newUpdate(BggContract.Plays.CONTENT_URI)
+                .withValues(values)
+                .withSelection("${BggContract.Plays.LOCATION}=? AND (${BggContract.Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${BggContract.Plays.DIRTY_TIMESTAMP.greaterThanZero()})", arrayOf(oldLocationName))
+        batch.add(cpo.build())
+
+        values.put(BggContract.Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
+        cpo = ContentProviderOperation
+                .newUpdate(BggContract.Plays.CONTENT_URI)
+                .withValues(values)
+                .withSelection("${BggContract.Plays.LOCATION}=? AND ${BggContract.Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}", arrayOf(oldLocationName))
+        batch.add(cpo.build())
+        application.appExecutors.diskIO.execute {
+            val results = application.contentResolver.applyBatch(batch)
+            count?.postValue(results.sumBy { it.count })
+        }
+    }
+
     fun addUsernameToPlayer(playerName: String, username: String) {
         // TODO verify username is good
         val batch = arrayListOf<ContentProviderOperation>()
@@ -234,9 +276,9 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
             val isToday = play.dateInMillis.isToday() || endTime.isToday()
             if (isUnsynced && isUpdating && isToday) {
-                application.putLastPlayTime(System.currentTimeMillis())
-                application.putLastPlayLocation(play.location)
-                application.putLastPlayPlayers(play.players)
+                prefs.putLastPlayTime(System.currentTimeMillis())
+                prefs.putLastPlayLocation(play.location)
+                prefs.putLastPlayPlayerEntities(play.players)
             }
 
             insertedId.postValue(id)
@@ -244,22 +286,45 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
     }
 
     fun updateGameHIndex(hIndex: HIndexEntity) {
-        PreferencesUtils.updateGameHIndex(application, hIndex)
+        updateHIndex(application, hIndex, PlayStats.KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
     }
 
     fun updatePlayerHIndex(hIndex: HIndexEntity) {
-        PreferencesUtils.updatePlayerHIndex(application, hIndex)
+        updateHIndex(application, hIndex, PlayStats.KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
+    }
+
+    private fun updateHIndex(context: Context, hIndex: HIndexEntity, key: String, @StringRes typeResId: Int, notificationId: Int) {
+        if (hIndex.h != HIndexEntity.INVALID_H_INDEX) {
+            val old = HIndexEntity(prefs[key, 0] ?: 0, prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
+            if (old != hIndex) {
+                prefs[key] = hIndex.h
+                prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX] = hIndex.n
+                @StringRes val messageId = if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
+                NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, notificationId,
+                        NotificationUtils.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStatsActivity::class.java)
+                                .setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description))
+                                .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, PlayStatsActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT)))
+            }
+        }
+    }
+
+    companion object {
+        private const val NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0
+        private const val NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1
+
     }
 
     abstract class PlayRefreshableResourceLoader(application: BggApplication) : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
         private val username: String? by lazy {
             AccountUtils.getUsername(application)
         }
+        private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
+        private val prefs: SharedPreferences by lazy { application.preferences() }
 
         private val persister = PlayPersister(application)
         private var syncInitiatedTimestamp = 0L
-        private val newestTimestamp: Long? = SyncPrefs.getPlaysNewestTimestamp(application)
-        private val oldestTimestamp = SyncPrefs.getPlaysOldestTimestamp(application)
+        private val newestTimestamp = syncPrefs.getPlaysNewestTimestamp()
+        private val oldestTimestamp = syncPrefs.getPlaysOldestTimestamp()
         private val mapper = PlayMapper()
         private var refreshingNewest = false
         private var lastNewPage = 0
@@ -270,7 +335,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             get() = R.string.title_plays
 
         override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
-            return application.getSyncPlays() && playsRateLimiter.shouldProcess(0)
+            return prefs[PREFERENCES_KEY_SYNC_PLAYS, false] == true && playsRateLimiter.shouldProcess(0)
         }
 
         override fun createCall(page: Int): Call<PlaysResponse> {
@@ -315,7 +380,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             if (oldestTimestamp > 0L) {
                 playDao.deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
             } else {
-                SyncPrefs.setPlaysOldestTimestamp(application, 0L)
+                syncPrefs.setPlaysOldestTimestamp(0L)
             }
             CalculatePlayStatsTask(application).executeAsyncTask()
         }
@@ -330,12 +395,12 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
 
         private fun updateTimestamps(plays: List<Play>?) {
             val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
-            if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
-                SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
+            if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
+                syncPrefs.setPlaysNewestTimestamp(newestDate)
             }
             val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
-            if (oldestDate < SyncPrefs.getPlaysOldestTimestamp(application)) {
-                SyncPrefs.setPlaysOldestTimestamp(application, oldestDate)
+            if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
+                syncPrefs.setPlaysOldestTimestamp(oldestDate)
             }
         }
     }

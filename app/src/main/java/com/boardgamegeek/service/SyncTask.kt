@@ -2,23 +2,25 @@ package com.boardgamegeek.service
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.SyncResult
 import androidx.annotation.PluralsRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.asHttpErrorMessage
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.fabric.CrashKeys
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 abstract class SyncTask(protected val application: BggApplication, protected val service: BggService, protected val syncResult: SyncResult) {
     protected val context = application.applicationContext!!
+    protected val prefs: SharedPreferences by lazy { context.preferences() }
+    protected val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     /**
      * Returns whether this task has been cancelled. It may still be running, but will stop soon.
@@ -62,8 +64,8 @@ abstract class SyncTask(protected val application: BggApplication, protected val
     @JvmOverloads
     protected fun updateProgressNotification(detail: String? = null) {
         Timber.i(detail)
-        Crashlytics.setString(CrashKeys.SYNC_DETAIL, detail)
-        if (!PreferencesUtils.getSyncShowNotifications(this.context)) return
+        FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_DETAIL, detail ?: "")
+        if (prefs[KEY_SYNC_NOTIFICATIONS, false] != true) return
 
         val message = if (notificationSummaryMessageId == NO_NOTIFICATION)
             ""
@@ -110,7 +112,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
     fun showError(detailMessage: String, errorMessage: String) {
         Timber.w("$detailMessage\n$errorMessage".trim())
 
-        if (!PreferencesUtils.getSyncShowErrors(context)) return
+        if (prefs[KEY_SYNC_ERRORS, false] != true) return
 
         val contentMessage = if (notificationSummaryMessageId == NO_NOTIFICATION) detailMessage
         else context.getString(notificationSummaryMessageId)
@@ -153,5 +155,9 @@ abstract class SyncTask(protected val application: BggApplication, protected val
 
     companion object {
         const val NO_NOTIFICATION = 0
+    }
+
+    object CrashKeys {
+        const val SYNC_DETAIL = "SYNC_DETAIL"
     }
 }

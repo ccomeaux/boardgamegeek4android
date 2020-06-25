@@ -11,19 +11,16 @@ import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
-import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
-import com.boardgamegeek.util.PreferencesUtils
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.toast
 
 class SettingsActivity : DrawerActivity() {
@@ -74,6 +71,7 @@ class SettingsActivity : DrawerActivity() {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
         private var syncType = SyncService.FLAG_SYNC_NONE
+        private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
@@ -100,8 +98,7 @@ class SettingsActivity : DrawerActivity() {
                                 .withLibraries(
                                         "AndroidIcons",
                                         "Hugo",
-                                        "MaterialRangeBar",
-                                        "NestedScrollWebView"
+                                        "MaterialRangeBar"
                                 )
                                 .withAutoDetect(true)
                                 .withLicenseShown(true)
@@ -148,19 +145,15 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefs.requestPartialSync(requireContext())
-                    syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
-                }
-                PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefs.requestPartialSync(requireContext())
+                    syncPrefs.requestPartialSync()
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
-                    SyncPrefs.clearPlaysTimestamps(requireContext())
+                    syncPrefs.clearPlaysTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
                 PREFERENCES_KEY_SYNC_BUDDIES -> {
-                    SyncPrefs.clearBuddyListTimestamps(requireContext())
+                    syncPrefs.clearBuddyListTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
                 }
             }
@@ -168,8 +161,8 @@ class SettingsActivity : DrawerActivity() {
 
         private fun updateSyncStatusSummary(key: String) {
             val pref = findPreference<Preference>(key) ?: return
-            val statuses = activity.getSyncStatuses()
-            pref.summary = if (statuses == null || statuses.isEmpty()) {
+            val statuses = defaultSharedPreferences.getSyncStatusesOrDefault()
+            pref.summary = if (statuses.isEmpty()) {
                 getString(R.string.pref_list_empty)
             } else {
                 entryValues.indices
@@ -225,8 +218,8 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateAccountPrefs(username: String) {
-            findPreference<LoginPreference>(PreferencesUtils.KEY_LOGIN)?.update(username)
-            findPreference<SignOutPreference>(PreferencesUtils.KEY_LOGOUT)?.update()
+            findPreference<LoginPreference>(KEY_LOGIN)?.update(username)
+            findPreference<SignOutPreference>(KEY_LOGOUT)?.update()
         }
     }
 

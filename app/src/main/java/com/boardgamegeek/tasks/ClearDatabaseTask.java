@@ -2,8 +2,10 @@ package com.boardgamegeek.tasks;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.boardgamegeek.pref.SyncPrefUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.pref.SyncPrefs;
@@ -50,9 +52,10 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
 
-		SyncPrefs.clearCollection(getContext());
-		SyncPrefs.clearBuddyListTimestamps(getContext());
-		SyncPrefs.clearPlaysTimestamps(getContext());
+		SharedPreferences syncPrefs = SyncPrefs.getPrefs(getContext());
+		SyncPrefUtils.clearCollection(syncPrefs);
+		SyncPrefUtils.clearBuddyListTimestamps(syncPrefs);
+		SyncPrefUtils.clearPlaysTimestamps(syncPrefs);
 
 		int count = 0;
 		count += delete(Games.CONTENT_URI);

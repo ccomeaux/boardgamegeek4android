@@ -13,13 +13,13 @@
 		android:orientation="vertical">
 
 		<TextView
-			android:id="@+id/header_advanced"
+			android:id="@+id/advancedHeaderView"
 			style="@style/Text.Header.Card"
 			android:layout_width="wrap_content"
 			android:text="@string/title_advanced"/>
 
 		<TableLayout
-			android:id="@+id/table_advanced"
+			android:id="@+id/advancedTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"

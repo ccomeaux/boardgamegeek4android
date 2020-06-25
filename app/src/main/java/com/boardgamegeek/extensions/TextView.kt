@@ -2,6 +2,7 @@
 
 package com.boardgamegeek.extensions
 
+import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
@@ -25,7 +26,7 @@ fun TextView.setTextOrHide(@StringRes textResId: Int) {
 }
 
 @JvmOverloads
-fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY) {
+fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true, tagHandler: Html.TagHandler? = null) {
     when {
         text == null -> this.text = ""
         text.isBlank() -> this.text = ""
@@ -39,15 +40,18 @@ fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FRO
             html = html.replace("[<](/)?p[>]".toRegex(), "")
             // remove trailing BRs
             html = html.replace("(<br\\s?/>)+$".toRegex(), "")
-            // replace 3+ BRs with a double
-            html = html.replace("(<br\\s?/>){3,}".toRegex(), "<br/><br/>")
+            // use BRs instead of &#10; (ASCII 10 = new line)
+            html = html.replace("&#10;".toRegex(), "<br/>")
             // use BRs instead of new line character
             html = html.replace("\n".toRegex(), "<br/>")
+            // replace 3+ BRs with a double
+            html = html.replace("(<br\\s?/>){3,}".toRegex(), "<br/><br/>")
             html = fixInternalLinks(html)
 
-            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags)
-            this.text = spanned
-            this.movementMethod = LinkMovementMethod.getInstance()
+            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags, null, tagHandler)
+            this.text = spanned.trim()
+            if (useLinkMovementMethod)
+                this.movementMethod = LinkMovementMethod.getInstance()
         }
         else -> this.text = text
     }

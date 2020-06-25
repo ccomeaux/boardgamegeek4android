@@ -17,20 +17,22 @@ class AverageWeightFilterDialog : SliderFilterDialog() {
 
     override val rangeInterval = 5
 
-    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
+    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer {
         return AverageWeightFilterer(context).apply {
             this.min = min.toDouble() / FACTOR
             this.max = max.toDouble() / FACTOR
             this.includeUndefined = checkbox
+            this.ignoreRange = ignoreRange
         }
     }
 
-    override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
+    override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as AverageWeightFilterer?
-        return SliderFilterDialog.InitialValues(
+        return InitialValues(
                 ((f?.min ?: AverageWeightFilterer.lowerBound) * FACTOR).toInt(),
                 ((f?.max ?: AverageWeightFilterer.upperBound) * FACTOR).toInt(),
-                f?.includeUndefined ?: false
+                f?.includeUndefined ?: false,
+                f?.ignoreRange ?: false
         )
     }
 

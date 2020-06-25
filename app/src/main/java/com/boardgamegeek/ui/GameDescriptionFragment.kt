@@ -59,10 +59,4 @@ class GameDescriptionFragment : Fragment(R.layout.fragment_game_description) {
         gameIdView?.text = game.id.toString()
         lastModifiedView?.timestamp = game.updated
     }
-
-    companion object {
-        fun newInstance(): GameDescriptionFragment {
-            return GameDescriptionFragment()
-        }
-    }
 }

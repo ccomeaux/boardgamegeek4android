@@ -6,40 +6,26 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.palette.graphics.Palette
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.Status
 import com.boardgamegeek.entities.YEAR_UNKNOWN
-import com.boardgamegeek.events.CollectionItemChangedEvent
-import com.boardgamegeek.events.CollectionItemDeletedEvent
-import com.boardgamegeek.events.CollectionItemUpdatedEvent
-import com.boardgamegeek.extensions.OnDiscardListener
 import com.boardgamegeek.extensions.createDiscardDialog
 import com.boardgamegeek.extensions.createThemedBuilder
-import com.boardgamegeek.extensions.executeAsyncTask
+import com.boardgamegeek.extensions.ensureShown
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.DeleteCollectionItemTask
-import com.boardgamegeek.tasks.ResetCollectionItemTask
-import com.boardgamegeek.tasks.UpdateCollectionItemPrivateInfoTask
-import com.boardgamegeek.tasks.UpdateCollectionItemTextTask
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
-import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
-import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
-import com.boardgamegeek.ui.model.PrivateInfo
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
+import kotlinx.android.synthetic.main.activity_hero.*
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
-import java.util.concurrent.atomic.AtomicBoolean
 
-class GameCollectionItemActivity : HeroActivity(),
-        PrivateInfoDialogFragment.PrivateInfoDialogListener,
-        EditCollectionTextDialogFragment.EditCollectionTextDialogListener {
+class GameCollectionItemActivity : HeroActivity() {
     private var internalId = BggContract.INVALID_ID.toLong()
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
@@ -51,8 +37,9 @@ class GameCollectionItemActivity : HeroActivity(),
     private var collectionYearPublished = YEAR_UNKNOWN
     private var isInEditMode = false
     private var isItemUpdated = false
-    private val isLoadingHeroImage = AtomicBoolean()
     private var imageUrl: String? = null
+
+    private val viewModel by viewModels<GameCollectionItemViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,17 +51,37 @@ class GameCollectionItemActivity : HeroActivity(),
         changeImage()
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameCollection")
-                    .putContentId(collectionId.toString())
-                    .putContentName(collectionName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameCollectionItem")
+                param(FirebaseAnalytics.Param.ITEM_ID, collectionId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, collectionName)
+            }
         }
 
         fabOnClickListener = View.OnClickListener {
-            if (isInEditMode) (fragment as GameCollectionItemFragment?)?.syncChanges()
+            if (isInEditMode && isItemUpdated) {
+                SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                isItemUpdated = false
+            }
             toggleEditMode()
         }
-        ensureFabShown()
+        if (collectionId == BggContract.INVALID_ID) fab.hide() else fab.ensureShown()
+
+        viewModel.setId(collectionId)
+        viewModel.item.observe(this, Observer { (status, data, _) ->
+            swipeRefreshLayout.isRefreshing = (status == Status.REFRESHING)
+            if (status == Status.SUCCESS) {
+                data?.let { entity ->
+                    collectionName = entity.collectionName
+                    collectionYearPublished = entity.yearPublished
+                    thumbnailUrl = entity.thumbnailUrl
+                    heroImageUrl = entity.heroImageUrl
+                    safelySetTitle()
+                    changeImage()
+                }
+            }
+        })
+        viewModel.isEdited.observe(this, Observer { isItemUpdated = it })
     }
 
     override fun readIntent(intent: Intent) {
@@ -105,14 +112,12 @@ class GameCollectionItemActivity : HeroActivity(),
                 createDiscardDialog(
                         this@GameCollectionItemActivity,
                         R.string.collection_item,
-                        false,
-                        false,
-                        R.string.keep, object : OnDiscardListener {
-                    override fun onDiscard() {
-                        ResetCollectionItemTask(this@GameCollectionItemActivity, internalId).executeAsyncTask()
-                        return toggleEditMode()
-                    }
-                }).show()
+                        R.string.keep,
+                        isNew = false,
+                        finishActivity = false) {
+                    viewModel.reset()
+                    toggleEditMode()
+                }.show()
             } else {
                 toggleEditMode()
             }
@@ -151,7 +156,10 @@ class GameCollectionItemActivity : HeroActivity(),
                 this.createThemedBuilder()
                         .setMessage(R.string.are_you_sure_delete_collection_item)
                         .setPositiveButton(R.string.delete) { _, _ ->
-                            DeleteCollectionItemTask(this, internalId).executeAsyncTask()
+                            isItemUpdated = false
+                            viewModel.delete()
+                            longToast(R.string.msg_collection_item_deleted)
+                            SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
                             finish()
                         }
                         .setNegativeButton(R.string.cancel, null)
@@ -161,17 +169,6 @@ class GameCollectionItemActivity : HeroActivity(),
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: CollectionItemChangedEvent) {
-        collectionName = event.collectionName
-        collectionYearPublished = event.yearPublished
-        thumbnailUrl = event.thumbnailUrl
-        heroImageUrl = event.heroImageUrl
-        safelySetTitle()
-        changeImage()
-        GameCollectionRepository(application as BggApplication).maybeRefreshHeroImageUrl(internalId, thumbnailUrl, heroImageUrl, isLoadingHeroImage)
     }
 
     private fun safelySetTitle() {
@@ -190,41 +187,11 @@ class GameCollectionItemActivity : HeroActivity(),
     }
 
     override fun onPaletteGenerated(palette: Palette?) {
-        (fragment as GameCollectionItemFragment?)?.onPaletteGenerated(palette)
+        viewModel.updateGameColors(palette)
     }
 
     override fun onRefresh() {
-        when {
-            isInEditMode -> updateRefreshStatus(false)
-            (fragment as GameCollectionItemFragment?)?.triggerRefresh() == true -> updateRefreshStatus(true)
-            else -> updateRefreshStatus(false)
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncCollectionByGameTask.CompletedEvent) {
-        if (event.gameId == gameId) {
-            updateRefreshStatus(false)
-            if (event.errorMessage.isNotBlank()) {
-                longToast(event.errorMessage)
-            }
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: CollectionItemDeletedEvent) {
-        if (internalId == event.internalId) {
-            longToast(R.string.msg_collection_item_deleted)
-            SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
-            isItemUpdated = false
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: CollectionItemUpdatedEvent) {
-        if (internalId == event.internalId) {
-            isItemUpdated = true
-        }
+        if (!isInEditMode) viewModel.refresh()
     }
 
     private fun toggleEditMode() {
@@ -236,14 +203,6 @@ class GameCollectionItemActivity : HeroActivity(),
         enableSwipeRefreshLayout(!isInEditMode)
         (fragment as GameCollectionItemFragment?)?.enableEditMode(isInEditMode)
         setFabImageResource(if (isInEditMode) R.drawable.fab_done else R.drawable.fab_edit)
-    }
-
-    override fun onPrivateInfoChanged(privateInfo: PrivateInfo) {
-        UpdateCollectionItemPrivateInfoTask(this, gameId, collectionId, internalId, privateInfo).executeAsyncTask()
-    }
-
-    override fun onEditCollectionText(text: String, textColumn: String, timestampColumn: String) {
-        UpdateCollectionItemTextTask(this, gameId, collectionId, internalId, text, textColumn, timestampColumn).executeAsyncTask()
     }
 
     companion object {

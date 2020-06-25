@@ -1,15 +1,13 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.getLastPlayLocation
-import com.boardgamegeek.extensions.getLastPlayPlayers
-import com.boardgamegeek.extensions.getLastPlayTime
-import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -23,6 +21,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private val playRepository = PlayRepository(getApplication())
     private val gameRepository = GameRepository(getApplication())
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private var gameId = MutableLiveData<Int>()
 
@@ -118,7 +117,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
         val newList = (list?.filter { it.name.isNotBlank() } ?: emptyList()).toMutableList()
         if (isLastPlayRecent()) {
-            newList.find { it.name == getApplication<BggApplication>().getLastPlayLocation() }?.let {
+            newList.find { it.name == prefs.getLastPlayLocation() }?.let {
                 newList.remove(it)
                 newList.add(0, it)
             }
@@ -193,8 +192,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             newList.add(it)
         }
         //  2. last played at this location
-        if (isLastPlayRecent() && location.value == getApplication<BggApplication>().getLastPlayLocation()) {
-            val lastPlayers = getApplication<BggApplication>().getLastPlayPlayers()
+        if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {
+            val lastPlayers = prefs.getLastPlayPlayerEntities()
             lastPlayers?.forEach { lastPlayer ->
                 allPlayers?.find { it == lastPlayer && !newList.contains(it) }?.let {
                     newList.add(it)
@@ -244,7 +243,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun isLastPlayRecent(): Boolean {
-        val lastPlayTime = getApplication<BggApplication>().getLastPlayTime()
+        val lastPlayTime = prefs.getLastPlayTime()
         return !lastPlayTime.isOlderThan(6, TimeUnit.HOURS)
     }
 
