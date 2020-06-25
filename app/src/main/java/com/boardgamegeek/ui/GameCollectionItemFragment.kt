@@ -17,7 +17,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
-import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.boardgamegeek.ui.widget.TextEditorView
 import kotlinx.android.synthetic.main.fragment_game_collection_item.*
@@ -83,15 +82,16 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
             onTextEditorClick(hasPartsView, BggContract.Collection.HASPARTS_LIST, BggContract.Collection.HAS_PARTS_DIRTY_TIMESTAMP)
         }
         privateInfoEditContainer.setOnClickListener {
-            val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance()
-            privateInfoDialogFragment.privateInfo = PrivateInfo(editPrivateInfoView.getTag(R.id.priceCurrencyView).toString(),
+            val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
+                    editPrivateInfoView.getTag(R.id.priceCurrencyView).toString(),
                     getDoubleFromTag(editPrivateInfoView, R.id.priceView),
                     editPrivateInfoView.getTag(R.id.currentValueCurrencyView).toString(),
                     getDoubleFromTag(editPrivateInfoView, R.id.currentValueView),
                     getIntFromTag(editPrivateInfoView, R.id.quantityView),
                     editPrivateInfoView.getTag(R.id.acquisitionDateView).toString(),
                     editPrivateInfoView.getTag(R.id.acquiredFromView).toString(),
-                    editPrivateInfoView.getTag(R.id.inventoryLocationView).toString())
+                    editPrivateInfoView.getTag(R.id.inventoryLocationView).toString()
+            )
             this.showAndSurvive(privateInfoDialogFragment)
         }
 
@@ -203,12 +203,12 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
                 timestampColumn))
     }
 
-    private fun getDoubleFromTag(textView: View?, @IdRes key: Int): Double {
-        return textView?.getTag(key) as? Double ?: return 0.0
+    private fun getDoubleFromTag(textView: View?, @IdRes key: Int): Double? {
+        return textView?.getTag(key) as? Double
     }
 
-    private fun getIntFromTag(textView: View?, @IdRes key: Int): Int {
-        return textView?.getTag(key) as? Int ?: return 1
+    private fun getIntFromTag(textView: View?, @IdRes key: Int): Int? {
+        return textView?.getTag(key) as? Int
     }
 
     private fun updateUi(item: CollectionItemEntity) {

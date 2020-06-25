@@ -3,7 +3,6 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import android.database.Cursor
 import com.boardgamegeek.extensions.asMoney
-import com.boardgamegeek.extensions.getDouble
 import com.boardgamegeek.extensions.getDoubleOrZero
 import com.boardgamegeek.extensions.getString
 import kotlin.math.ceil

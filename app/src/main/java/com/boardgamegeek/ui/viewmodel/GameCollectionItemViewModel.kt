@@ -12,7 +12,6 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.util.PaletteUtils
 
 class GameCollectionItemViewModel(application: Application) : AndroidViewModel(application) {
@@ -54,21 +53,21 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    fun updatePrivateInfo(privateInfo: PrivateInfo) {
+    fun updatePrivateInfo(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: String?, acquiredFrom: String?, inventoryLocation: String?) {
         setEdited(true)
         val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
 
         // TODO inspect to ensure something changed
         val values = contentValuesOf(
                 BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to System.currentTimeMillis(),
-                BggContract.Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY to privateInfo.priceCurrency,
-                BggContract.Collection.PRIVATE_INFO_PRICE_PAID to privateInfo.price,
-                BggContract.Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to privateInfo.currentValueCurrency,
-                BggContract.Collection.PRIVATE_INFO_CURRENT_VALUE to privateInfo.currentValue,
-                BggContract.Collection.PRIVATE_INFO_QUANTITY to privateInfo.quantity,
-                BggContract.Collection.PRIVATE_INFO_ACQUISITION_DATE to privateInfo.acquisitionDate,
-                BggContract.Collection.PRIVATE_INFO_ACQUIRED_FROM to privateInfo.acquiredFrom,
-                BggContract.Collection.PRIVATE_INFO_INVENTORY_LOCATION to privateInfo.inventoryLocation
+                BggContract.Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY to priceCurrency,
+                BggContract.Collection.PRIVATE_INFO_PRICE_PAID to price,
+                BggContract.Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to currentValueCurrency,
+                BggContract.Collection.PRIVATE_INFO_CURRENT_VALUE to currentValue,
+                BggContract.Collection.PRIVATE_INFO_QUANTITY to quantity,
+                BggContract.Collection.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate,
+                BggContract.Collection.PRIVATE_INFO_ACQUIRED_FROM to acquiredFrom,
+                BggContract.Collection.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
         )
         gameCollectionRepository.update(internalId, values)
     }
