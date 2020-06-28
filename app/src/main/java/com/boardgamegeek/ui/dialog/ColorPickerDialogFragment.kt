@@ -76,7 +76,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
                     featured.add(0, pair)
                 }
             }
-            ColorGridAdapter(featured, disabledColors)
+            if (featured.isEmpty()) null else ColorGridAdapter(featured, disabledColors)
         } else {
             null
         }
@@ -98,7 +98,6 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
             }
 
             colorGrid.visibility = View.GONE
-
         } else {
             featuredColorGrid.visibility = View.GONE
             moreView.visibility = View.GONE
