@@ -1,0 +1,9 @@
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/recyclerView"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:paddingHorizontal="@dimen/material_margin_dialog"
+	app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+	tools:listitem="@layout/row_team" />

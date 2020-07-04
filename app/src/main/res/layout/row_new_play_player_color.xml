@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	style="@style/RowContainer.Tall"
+	style="@style/RowContainer.VeryTall"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
@@ -12,12 +12,24 @@
 		android:id="@+id/colorView"
 		android:layout_width="@dimen/color_circle_diameter"
 		android:layout_height="@dimen/color_circle_diameter"
+		android:background="?attr/selectableItemBackgroundBorderless"
 		android:scaleType="fitXY"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:background="#0f0" />
+
+	<ImageView
+		android:id="@+id/removeTeamView"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:src="@drawable/ic_remove_circle_outline"
+		android:visibility="invisible"
+		app:layout_constraintLeft_toLeftOf="@id/colorView"
+		app:layout_constraintTop_toTopOf="@id/colorView"
+		tools:visibility="visible" />
 
 	<TextView
 		android:id="@+id/nameView"
@@ -40,19 +52,33 @@
 		android:layout_marginStart="16dp"
 		android:layout_marginLeft="16dp"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintBottom_toTopOf="@+id/teamView"
 		app:layout_constraintStart_toEndOf="@+id/colorView"
 		app:layout_constraintTop_toBottomOf="@+id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
 		tools:text="underhill" />
 
+	<TextView
+		android:id="@+id/teamView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:textAppearance="@style/TextAppearance.RowDetail"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/colorView"
+		app:layout_constraintTop_toBottomOf="@+id/usernameView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Yetis" />
+
 	<ImageView
 		android:id="@+id/favoriteColorView"
 		android:layout_width="@dimen/color_circle_diameter"
 		android:layout_height="@dimen/color_circle_diameter"
-		android:scaleType="fitXY"
 		android:layout_marginEnd="@dimen/padding_extra"
 		android:layout_marginRight="@dimen/padding_extra"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="fitXY"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toStartOf="@+id/colorPickerButton"
 		app:layout_constraintRight_toLeftOf="@+id/colorPickerButton"

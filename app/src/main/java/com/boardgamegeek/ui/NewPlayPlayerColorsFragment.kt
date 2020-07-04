@@ -5,19 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.NewPlayPlayerEntity
-import com.boardgamegeek.extensions.asColorRgb
-import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.setColorViewValue
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.NewPlayPlayerColorPickerDialogFragment
+import com.boardgamegeek.ui.dialog.TeamPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import kotlinx.android.synthetic.main.fragment_new_play_player_colors.*
 import kotlinx.android.synthetic.main.row_new_play_player_color.view.*
@@ -25,7 +25,6 @@ import kotlin.properties.Delegates
 
 class NewPlayPlayerColorsFragment : Fragment() {
     private val viewModel by activityViewModels<NewPlayViewModel>()
-
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(requireActivity(), viewModel)
     }
@@ -42,6 +41,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
         viewModel.addedPlayers.observe(viewLifecycleOwner, Observer {
             adapter.players = it
         })
+        viewModel.gameColors.observe(viewLifecycleOwner, Observer { colors ->
+            adapter.useColorPicker = colors.all { color -> color.isKnownColor() }
+        })
 
         doneButton.setOnClickListener {
             viewModel.finishPlayerColors()
@@ -54,9 +56,26 @@ class NewPlayPlayerColorsFragment : Fragment() {
         }
     }
 
-    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
-        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
+    private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
 
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val o = oldList[oldItemPosition]
+            val n = newList[newItemPosition]
+            return o.id == n.id && o.color == n.color && o.favoriteColors == n.favoriteColors
+        }
+    }
+
+    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
+        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
+
+        var useColorPicker = true
         private var featuredColors = emptyList<String>()
         private var selectedColors = emptyList<String>()
 
@@ -70,12 +89,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
         }
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            autoNotify(oldValue, newValue) { old, new ->
-                old.name == new.name &&
-                        old.username == new.username &&
-                        old.avatarUrl == new.avatarUrl &&
-                        old.favoriteColors == new.favoriteColors
-            }
+            val diffCallback = Diff(oldValue, newValue)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            diffResult.dispatchUpdatesTo(this)
         }
 
         override fun getItemCount() = players.size
@@ -89,20 +105,43 @@ class NewPlayPlayerColorsFragment : Fragment() {
         }
 
         inner class PlayersViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bind(player: NewPlayPlayerEntity?) {
-                val color = player?.color.asColorRgb()
-                player?.let { p ->
-                    itemView.nameView.text = p.name
-                    itemView.usernameView.text = p.username
+            fun bind(entity: NewPlayPlayerEntity?) {
+                entity?.let { player ->
+                    itemView.nameView.text = player.name
+                    itemView.usernameView.setTextOrHide(player.username)
 
-                    itemView.colorView.setColorViewValue(color)
-                    itemView.colorView.setOnClickListener {
-                        viewModel.addColorToPlayer(adapterPosition, "")
+                    if (player.color.isBlank()) {
+                        itemView.colorView.isInvisible = true
+                        itemView.teamView.isVisible = false
+                        itemView.removeTeamView.isInvisible = true
+                    } else {
+                        val color = player.color.asColorRgb()
+                        if (color == Color.TRANSPARENT) {
+                            itemView.colorView.isInvisible = true
+                            itemView.teamView.setTextOrHide(player.color)
+                            itemView.removeTeamView.isVisible = true
+                            itemView.removeTeamView.setOnClickListener {
+                                viewModel.addColorToPlayer(adapterPosition, "")
+                            }
+                        } else {
+                            itemView.colorView.setColorViewValue(color)
+                            itemView.colorView.setOnClickListener {
+                                viewModel.addColorToPlayer(adapterPosition, "")
+                            }
+                            itemView.colorView.isVisible = true
+                            itemView.teamView.isVisible = false
+                            itemView.removeTeamView.isInvisible = true
+                        }
+                    }
+                    if (useColorPicker) {
+                        itemView.colorPickerButton.setImageResource(R.drawable.ic_colors)
+                    } else {
+                        itemView.colorPickerButton.setImageResource(R.drawable.ic_people)
                     }
 
-                    val favoriteColor = p.favoriteColors.firstOrNull() ?: ""
+                    val favoriteColor = player.favoriteColors.firstOrNull() ?: ""
                     val favoriteColorRgb = favoriteColor.asColorRgb()
-                    if (p.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
+                    if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
                         itemView.favoriteColorView.setColorViewValue(favoriteColorRgb)
                         itemView.favoriteColorView.setOnClickListener {
                             viewModel.addColorToPlayer(adapterPosition, favoriteColor)
@@ -113,13 +152,17 @@ class NewPlayPlayerColorsFragment : Fragment() {
                     }
 
                     itemView.colorPickerButton.setOnClickListener {
-                        NewPlayPlayerColorPickerDialogFragment.launch(
-                                activity,
-                                p.description,
-                                featuredColors,
-                                p.color,
-                                selectedColors,
-                                adapterPosition)
+                        if (useColorPicker) {
+                            NewPlayPlayerColorPickerDialogFragment.launch(
+                                    activity,
+                                    player.description,
+                                    featuredColors,
+                                    player.color,
+                                    selectedColors,
+                                    adapterPosition)
+                        } else {
+                            TeamPickerDialogFragment.launch(activity, adapterPosition, player.description, player.color)
+                        }
                     }
                 }
             }

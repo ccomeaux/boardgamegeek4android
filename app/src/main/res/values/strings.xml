@@ -81,6 +81,7 @@
 	<string name="username">Username</string>
 	<string name="colors">Colors</string>
 	<string name="team_color">Team/Color</string>
+	<string name="team_color_prefix">Team/Color for %s</string>
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
