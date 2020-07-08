@@ -19,6 +19,7 @@ import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import kotlinx.android.synthetic.main.dialog_teams.view.*
 import kotlinx.android.synthetic.main.row_team.view.*
 import org.jetbrains.anko.support.v4.withArguments
 import kotlin.properties.Delegates
@@ -53,6 +54,11 @@ class TeamPickerDialogFragment : DialogFragment() {
         val viewModel by activityViewModels<NewPlayViewModel>()
         val adapter = TeamAdapter(this, viewModel, requestCode, playerTeam)
         layout.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
+
+        layout.addButton.setOnClickListener {
+            NewPlayAddTeamColorDialogFragment.newInstance(requestCode).show(parentFragmentManager, "")
+            dismiss()
+        }
 
         viewModel.gameColors.observe(this, Observer {
             adapter.teams = it

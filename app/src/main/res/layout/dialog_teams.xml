@@ -1,9 +1,29 @@
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/recyclerView"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:paddingHorizontal="@dimen/material_margin_dialog"
-	app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-	tools:listitem="@layout/row_team" />
+	android:id="@+id/container"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recyclerView"
+		style="@style/RecyclerViewVerticalList"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:minHeight="108dp"
+		android:paddingHorizontal="@dimen/material_margin_dialog"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+		tools:listitem="@layout/row_team" />
+
+	<com.google.android.material.button.MaterialButton
+		android:id="@+id/addButton"
+		style="@style/ColoredButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:layout_margin="@dimen/padding_extra"
+		android:text="@string/title_add_color"
+		app:icon="@drawable/ic_action_add" />
+</LinearLayout>
