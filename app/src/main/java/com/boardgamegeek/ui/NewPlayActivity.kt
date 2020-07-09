@@ -73,27 +73,27 @@ class NewPlayActivity : AppCompatActivity() {
                 NewPlayViewModel.Step.LOCATION -> {
                     supportFragmentManager
                             .beginTransaction()
-                            .add(R.id.fragmentContainer, NewPlayLocationsFragment.newInstance())
+                            .add(R.id.fragmentContainer, NewPlayLocationsFragment())
                             .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS -> {
                     supportFragmentManager
                             .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment.newInstance())
+                            .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment())
                             .addToBackStack(null)
                             .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_COLOR -> {
                     supportFragmentManager
                             .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment.newInstance())
+                            .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment())
                             .addToBackStack(null)
                             .commit()
                 }
                 NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
                             .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayCommentsFragment.newInstance())
+                            .replace(R.id.fragmentContainer, NewPlayCommentsFragment())
                             .addToBackStack(null)
                             .commit()
                 }

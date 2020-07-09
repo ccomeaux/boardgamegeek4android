@@ -24,14 +24,10 @@ import kotlinx.android.synthetic.main.fragment_new_play_player_colors.*
 import kotlinx.android.synthetic.main.row_new_play_player_color.view.*
 import kotlin.properties.Delegates
 
-class NewPlayPlayerColorsFragment : Fragment() {
+class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_colors) {
     private val viewModel by activityViewModels<NewPlayViewModel>()
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(requireActivity(), viewModel)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_new_play_player_colors, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,12 +44,6 @@ class NewPlayPlayerColorsFragment : Fragment() {
 
         doneButton.setOnClickListener {
             viewModel.finishPlayerColors()
-        }
-    }
-
-    companion object {
-        fun newInstance(): NewPlayPlayerColorsFragment {
-            return NewPlayPlayerColorsFragment()
         }
     }
 

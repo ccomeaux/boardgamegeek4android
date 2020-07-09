@@ -11,12 +11,8 @@ import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import kotlinx.android.synthetic.main.fragment_new_play_comments.*
 import org.jetbrains.anko.support.v4.toast
 
-class NewPlayCommentsFragment : Fragment() {
+class NewPlayCommentsFragment : Fragment(R.layout.fragment_new_play_comments) {
     private val viewModel by activityViewModels<NewPlayViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_new_play_comments, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -25,12 +21,6 @@ class NewPlayCommentsFragment : Fragment() {
             viewModel.setComments(commentsView.text.toString())
             viewModel.save()
             toast(R.string.msg_logging_play)
-        }
-    }
-
-    companion object {
-        fun newInstance(): NewPlayCommentsFragment {
-            return NewPlayCommentsFragment()
         }
     }
 }

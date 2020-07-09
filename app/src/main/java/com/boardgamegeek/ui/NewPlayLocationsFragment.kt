@@ -22,15 +22,11 @@ import kotlinx.android.synthetic.main.fragment_new_play_locations.*
 import kotlinx.android.synthetic.main.row_new_play_location.view.*
 import kotlin.properties.Delegates
 
-class NewPlayLocationsFragment : Fragment() {
+class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) {
     private val viewModel by activityViewModels<NewPlayViewModel>()
 
     private val adapter: LocationsAdapter by lazy {
         LocationsAdapter(viewModel)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_new_play_locations, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,12 +64,6 @@ class NewPlayLocationsFragment : Fragment() {
 
         next.setOnClickListener {
             viewModel.setLocation(filterView.text.toString())
-        }
-    }
-
-    companion object {
-        fun newInstance(): NewPlayLocationsFragment {
-            return NewPlayLocationsFragment()
         }
     }
 

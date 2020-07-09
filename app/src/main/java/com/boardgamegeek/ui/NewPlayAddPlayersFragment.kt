@@ -24,15 +24,11 @@ import kotlinx.android.synthetic.main.fragment_new_play_add_players.*
 import kotlinx.android.synthetic.main.row_new_play_add_player.view.*
 import kotlin.properties.Delegates
 
-class NewPlayAddPlayersFragment : Fragment() {
+class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_players) {
     private val viewModel by activityViewModels<NewPlayViewModel>()
 
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(viewModel, filterView)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_new_play_add_players, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -110,12 +106,6 @@ class NewPlayAddPlayersFragment : Fragment() {
             }
         })
         viewModel.filterPlayers("")
-    }
-
-    companion object {
-        fun newInstance(): NewPlayAddPlayersFragment {
-            return NewPlayAddPlayersFragment()
-        }
     }
 
     private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val filterView: TextView) :
