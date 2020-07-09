@@ -94,6 +94,19 @@
 		android:scaleType="centerInside"
 		android:src="@drawable/ic_colors"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/addTeamColorPickerButton"
+		app:layout_constraintRight_toLeftOf="@+id/addTeamColorPickerButton"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<ImageView
+		android:id="@+id/addTeamColorPickerButton"
+		style="@style/Icon.Right"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="centerInside"
+		android:src="@drawable/ic_add_circle_outline"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

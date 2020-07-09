@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.ui.dialog.NewPlayAddTeamColorDialogFragment
 import com.boardgamegeek.ui.dialog.NewPlayPlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.dialog.TeamPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -163,6 +164,10 @@ class NewPlayPlayerColorsFragment : Fragment() {
                         } else {
                             TeamPickerDialogFragment.launch(activity, adapterPosition, player.description, player.color)
                         }
+                    }
+
+                    itemView.addTeamColorPickerButton.setOnClickListener {
+                        NewPlayAddTeamColorDialogFragment.newInstance(adapterPosition).show(activity.supportFragmentManager, "")
                     }
                 }
             }

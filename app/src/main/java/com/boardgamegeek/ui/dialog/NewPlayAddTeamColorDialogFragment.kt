@@ -9,9 +9,9 @@ import org.jetbrains.anko.support.v4.withArguments
 class NewPlayAddTeamColorDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<NewPlayViewModel>()
 
-    override val titleResId = R.string.title_add_color
+    override val titleResId = R.string.title_add_team_color
 
-    override val hintResId = R.string.color_name
+    override val hintResId = R.string.team_color
 
     override fun onPositiveButton() {
         val playerIndex = arguments?.getInt(PLAYER_INDEX, -1) ?: -1
