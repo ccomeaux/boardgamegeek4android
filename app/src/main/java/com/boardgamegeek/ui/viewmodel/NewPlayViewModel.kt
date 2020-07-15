@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
@@ -11,6 +10,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
+import org.jetbrains.anko.collections.forEachWithIndex
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -59,6 +59,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
     private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColorEntity>>()
     val selectedColors = MediatorLiveData<List<String>>()
+    private val playerSortMap = MutableLiveData<MutableMap<String, String>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -90,6 +91,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         addedPlayers.addSource(playerColorMap) { map ->
             map?.let {
                 assemblePlayers(playerColors = it)
+            }
+        }
+        addedPlayers.addSource(playerSortMap) { map ->
+            map?.let {
+                assemblePlayers(playerSort = it)
             }
         }
         addedPlayers.addSource(gameColors) { list ->
@@ -157,9 +163,13 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         newList.remove(p)
         _addedPlayers.value = newList
 
-        val newMap = playerColorMap.value ?: mutableMapOf()
-        newMap.remove(p.description)
-        playerColorMap.value = newMap
+        val newColorMap = playerColorMap.value ?: mutableMapOf()
+        newColorMap.remove(p.id)
+        playerColorMap.value = newColorMap
+
+        val newSortMap = playerSortMap.value ?: mutableMapOf()
+        newSortMap.remove(p.id)
+        playerSortMap.value = newSortMap
     }
 
     fun finishAddingPlayers() {
@@ -170,12 +180,50 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val colorMap = playerColorMap.value ?: mutableMapOf()
         val player = _addedPlayers.value?.getOrNull(playerIndex)
         if (player != null) {
-            colorMap[player.description] = color
+            colorMap[player.id] = color
             playerColorMap.value = colorMap
         }
     }
 
     fun finishPlayerColors() {
+        _currentStep.value = Step.PLAYERS_SORT
+    }
+
+    fun clearSortOrder() {
+        playerSortMap.value = mutableMapOf()
+    }
+
+    fun randomizePlayers() {
+        val sortMap = mutableMapOf<String, String>()
+        val playerCount = _addedPlayers.value?.size ?: 0
+        val collection = (1..playerCount).toMutableSet()
+        _addedPlayers.value?.forEach { playerEntity ->
+            val sortOrder = collection.random()
+            sortMap[playerEntity.id] = sortOrder.toString()
+            collection.remove(sortOrder)
+        }
+        playerSortMap.value = sortMap
+    }
+
+    fun selectStartPlayer(index: Int) {
+        val playerCount = _addedPlayers.value?.size ?: 0
+        val sortMap = playerSortMap.value ?: mutableMapOf()
+        if (sortMap.isNotEmpty() && sortMap.values.all { it.toIntOrNull() != null }) {
+            sortMap.forEach {
+                val number = (it.value.toInt() + playerCount - index - 1) % playerCount + 1
+                sortMap[it.key] = number.toString()
+            }
+        } else {
+            sortMap.clear()
+            _addedPlayers.value?.forEachWithIndex { i, playerEntity ->
+                val number = (i + playerCount - index) % playerCount + 1
+                sortMap[playerEntity.id] = number.toString()
+            }
+        }
+        playerSortMap.value = sortMap
+    }
+
+    fun finishPlayerSort() {
         _currentStep.value = Step.COMMENTS
     }
 
@@ -221,11 +269,12 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             addedPlayers: List<PlayerEntity> = _addedPlayers.value ?: emptyList(),
             playerColors: Map<String, String> = playerColorMap.value ?: emptyMap(),
             favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
+            playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
             gameColorList: List<String> = gameColors.value ?: emptyList()) {
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
             val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
-                color = playerColors[description] ?: ""
+                color = playerColors[id] ?: ""
                 val favoriteForPlayer = favoriteColorsMap[description]?.map { it.description }
                         ?: emptyList()
                 val rankedChoices = favoriteForPlayer
@@ -236,6 +285,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                         .filterNot { favoriteForPlayer.contains(it) }
                         .filterNot { playerColors.containsValue(it) }
                 favoriteColors = rankedChoices
+                sortOrder = playerSort[id] ?: ""
             }
             players.add(newPlayer)
         }
@@ -288,7 +338,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             val p = PlayPlayerEntity(
                     player.name,
                     player.username,
-                    color = (playerColorMap.value ?: emptyMap<String, String>())[player.description]
+                    color = (playerColorMap.value ?: emptyMap<String, String>())[player.id]
             )
             play.addPlayer(p)
         }
@@ -300,6 +350,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         LOCATION,
         PLAYERS,
         PLAYERS_COLOR,
+        PLAYERS_SORT,
         COMMENTS
     }
 }

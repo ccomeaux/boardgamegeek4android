@@ -61,6 +61,7 @@
 	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
+	<string name="random">Random</string>
 	<string name="plays">plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>

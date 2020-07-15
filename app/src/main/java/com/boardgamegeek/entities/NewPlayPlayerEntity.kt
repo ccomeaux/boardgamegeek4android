@@ -18,5 +18,10 @@ data class NewPlayPlayerEntity(
 
     var color: String = ""
 
+    var sortOrder: String = ""
+
+    val seat: Int?
+        get() = sortOrder.toIntOrNull()
+
     var favoriteColors = emptyList<String>()
 }

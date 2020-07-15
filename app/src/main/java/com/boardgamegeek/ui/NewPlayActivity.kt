@@ -90,6 +90,13 @@ class NewPlayActivity : AppCompatActivity() {
                             .addToBackStack(null)
                             .commit()
                 }
+                NewPlayViewModel.Step.PLAYERS_SORT -> {
+                    supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
+                            .addToBackStack(null)
+                            .commit()
+                }
                 NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
                             .beginTransaction()
