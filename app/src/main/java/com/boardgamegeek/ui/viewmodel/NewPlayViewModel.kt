@@ -223,6 +223,42 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         playerSortMap.value = sortMap
     }
 
+    fun movePlayer(fromPosition: Int, toPosition: Int): Boolean {
+        val sortMap = playerSortMap.value ?: mutableMapOf()
+        if (sortMap.isNotEmpty() && sortMap.values.all { it.toIntOrNull() != null }) {
+            val oldMap = sortMap.mapValues { it.value.toInt() }.toMutableMap()
+            val newMap = mutableMapOf<String, String>()
+            if (fromPosition < toPosition) {
+                // dragging down
+                for (seat in oldMap) {
+                    if (seat.value > fromPosition + 1 && seat.value <= toPosition + 1) {
+                        newMap[seat.key] = (seat.value - 1).toString()
+                    } else {
+                        newMap[seat.key] = seat.value.toString()
+                    }
+                }
+            } else {
+                // dragging up
+                for (seat in oldMap) {
+                    if (seat.value >= toPosition + 1 && seat.value < fromPosition + 1) {
+                        newMap[seat.key] = (seat.value + 1).toString()
+                    } else {
+                        newMap[seat.key] = seat.value.toString()
+                    }
+                }
+            }
+            for (seat in oldMap) {
+                if (seat.value == fromPosition + 1) {
+                    newMap[seat.key] = (toPosition + 1).toString()
+                    break
+                }
+            }
+            playerSortMap.value = newMap
+            return true
+        }
+        return false
+    }
+
     fun finishPlayerSort() {
         _currentStep.value = Step.COMMENTS
     }
