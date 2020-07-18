@@ -64,8 +64,11 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
             }
         })
 
-        randomButton.setOnClickListener {
+        randomizeAllButton.setOnClickListener {
             viewModel.randomizePlayers()
+        }
+        randomizeStartButton.setOnClickListener {
+            viewModel.randomizeStartPlayer()
         }
         clearButton.setOnClickListener {
             viewModel.clearSortOrder()

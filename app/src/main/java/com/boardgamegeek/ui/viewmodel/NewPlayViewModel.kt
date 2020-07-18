@@ -205,6 +205,18 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         playerSortMap.value = sortMap
     }
 
+    fun randomizeStartPlayer() {
+        val sortMap = mutableMapOf<String, String>()
+        val playerCount = _addedPlayers.value?.size ?: 0
+        var sortOrder = (1..playerCount).random()
+        _addedPlayers.value?.forEach { playerEntity ->
+            sortMap[playerEntity.id] = sortOrder.toString()
+            sortOrder += 1
+            if (sortOrder>playerCount) sortOrder -= playerCount
+        }
+        playerSortMap.value = sortMap
+    }
+
     fun selectStartPlayer(index: Int) {
         val playerCount = _addedPlayers.value?.size ?: 0
         val sortMap = playerSortMap.value ?: mutableMapOf()
