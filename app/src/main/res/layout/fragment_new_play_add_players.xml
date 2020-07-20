@@ -40,6 +40,7 @@
 		android:layout_height="36dp"
 		android:layout_marginEnd="@dimen/padding_extra"
 		android:layout_marginRight="@dimen/padding_extra"
+		android:tint="@color/medium_blue"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:foregroundGravity="center"
 		android:src="@drawable/ic_check_circle"

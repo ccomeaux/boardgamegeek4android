@@ -74,7 +74,7 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
             viewModel.clearSortOrder()
         }
 
-        doneButton.setOnClickListener {
+        nextButton.setOnClickListener {
             viewModel.finishPlayerSort()
         }
 

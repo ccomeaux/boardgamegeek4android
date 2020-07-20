@@ -2,7 +2,6 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isInvisible
@@ -42,7 +41,7 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
             adapter.useColorPicker = colors.all { color -> color.isKnownColor() }
         })
 
-        doneButton.setOnClickListener {
+        nextButton.setOnClickListener {
             viewModel.finishPlayerColors()
         }
     }
