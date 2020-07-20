@@ -173,7 +173,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishAddingPlayers() {
-        _currentStep.value = Step.PLAYERS_COLOR
+        _currentStep.value = if ((_addedPlayers.value?.size ?: 0) > 0)
+            Step.PLAYERS_COLOR
+        else
+            Step.COMMENTS
     }
 
     fun addColorToPlayer(playerIndex: Int, color: String) {
@@ -212,7 +215,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         _addedPlayers.value?.forEach { playerEntity ->
             sortMap[playerEntity.id] = sortOrder.toString()
             sortOrder += 1
-            if (sortOrder>playerCount) sortOrder -= playerCount
+            if (sortOrder > playerCount) sortOrder -= playerCount
         }
         playerSortMap.value = sortMap
     }
