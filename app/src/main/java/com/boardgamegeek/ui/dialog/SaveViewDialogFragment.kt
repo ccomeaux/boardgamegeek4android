@@ -27,7 +27,6 @@ class SaveViewDialogFragment : DialogFragment() {
     lateinit var layout: View
     private var name: String = ""
     private var description: String? = null
-    private val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(requireContext()) }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -40,6 +39,7 @@ class SaveViewDialogFragment : DialogFragment() {
             description = it.getString(KEY_DESCRIPTION)
         }
 
+        val firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_save_view)
                 .setView(layout)
@@ -53,19 +53,19 @@ class SaveViewDialogFragment : DialogFragment() {
                                 .setMessage(R.string.msg_collection_view_name_in_use)
                                 .setPositiveButton(R.string.update) { _, _ ->
                                     toast.show()
-                                    logAction("Update", name)
+                                    logAction(firebaseAnalytics, "Update", name)
                                     viewModel.update(isDefault)
                                 }
                                 .setNegativeButton(R.string.create) { _, _ ->
                                     toast.show()
-                                    logAction("Insert", name)
+                                    logAction(firebaseAnalytics, "Insert", name)
                                     viewModel.insert(name, isDefault)
                                 }
                                 .create()
                                 .show()
                     } else {
                         toast.show()
-                        logAction("Insert", name)
+                        logAction(firebaseAnalytics, "Insert", name)
                         viewModel.insert(name, isDefault)
                     }
                 }
@@ -77,11 +77,11 @@ class SaveViewDialogFragment : DialogFragment() {
         }
     }
 
-    private fun logAction(action: String, name: String) {
+    private fun logAction(firebaseAnalytics: FirebaseAnalytics, action: String, name: String) {
         firebaseAnalytics.logEvent("DataManipulation") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
             param("Action", action)
-            param("Color", name)
+            param("Name", name)
         }
     }
 

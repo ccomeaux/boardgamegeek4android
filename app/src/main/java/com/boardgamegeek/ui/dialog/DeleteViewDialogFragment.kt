@@ -20,6 +20,7 @@ class DeleteViewDialogFragment : DialogFragment() {
         val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT) // TODO improve message
         val msg = requireContext().getString(R.string.msg_collection_view_deleted_named)
+        val firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
 
         return Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_delete_view)
@@ -36,7 +37,7 @@ class DeleteViewDialogFragment : DialogFragment() {
                                     val viewName = cursor.getString(1)
                                     if (viewName.isNotBlank()) toast.setText(String.format(msg, viewName))
                                     toast.show()
-                                    FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
+                                    firebaseAnalytics.logEvent("DataManipulation") {
                                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
                                         param("Action", "Delete")
                                         param("Color", viewName)
