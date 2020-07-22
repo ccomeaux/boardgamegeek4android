@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -29,6 +30,11 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
 
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(viewModel, filterView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_players)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -27,6 +28,11 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
     private val viewModel by activityViewModels<NewPlayViewModel>()
     private val adapter: PlayersAdapter by lazy {
         PlayersAdapter(requireActivity(), viewModel)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_team_colors)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

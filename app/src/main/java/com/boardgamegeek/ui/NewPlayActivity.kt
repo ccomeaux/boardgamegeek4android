@@ -10,36 +10,34 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
+import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.cancel
-import com.boardgamegeek.extensions.createDiscardDialog
-import com.boardgamegeek.extensions.howManyMinutesOld
-import com.boardgamegeek.extensions.launchPlayingNotification
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
+import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.NotificationUtils
 import kotlinx.android.synthetic.main.activity_new_play.*
 import org.jetbrains.anko.startActivity
 
 class NewPlayActivity : AppCompatActivity() {
-    var startTime = 0L
+    private var startTime = 0L
+    private var gameName = ""
     private val viewModel by viewModels<NewPlayViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        val gameName = intent.getStringExtra(KEY_GAME_NAME)
+        gameName = intent.getStringExtra(KEY_GAME_NAME)
 
         setContentView(R.layout.activity_new_play)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.menu_cancel)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = gameName
-        supportActionBar?.setSubtitle(R.string.title_new_play)
 
         viewModel.insertedId.observe(this, Observer {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
@@ -58,6 +56,24 @@ class NewPlayActivity : AppCompatActivity() {
             finish()
         })
 
+        viewModel.game.observe(this, Observer {
+            it.data?.let { entity ->
+                gameName = entity.name
+                updateSummary()
+
+                val summaryView = findViewById<PlaySummary>(R.id.summaryView)
+                thumbnailView.loadUrl(entity.heroImageUrl, object : ImageUtils.Callback {
+                    override fun onSuccessfulImageLoad(palette: Palette?) {
+                        summaryView.setBackgroundResource(R.color.black_overlay_light);
+                    }
+
+                    override fun onFailedImageLoad() {
+                        summaryView.setBackgroundResource(0)
+                    }
+                })
+            }
+        })
+
         viewModel.startTime.observe(this, Observer {
             startTime = viewModel.startTime.value ?: 0L
             updateSummary()
@@ -70,7 +86,7 @@ class NewPlayActivity : AppCompatActivity() {
 
         viewModel.currentStep.observe(this, Observer {
             when (it) {
-                NewPlayViewModel.Step.LOCATION -> {
+                NewPlayViewModel.Step.LOCATION, null -> {
                     supportFragmentManager
                             .beginTransaction()
                             .add(R.id.fragmentContainer, NewPlayLocationsFragment())
@@ -151,6 +167,7 @@ class NewPlayActivity : AppCompatActivity() {
 
     private fun updateSummary() {
         val summaryView = findViewById<PlaySummary>(R.id.summaryView)
+        summaryView.gameName = gameName
         summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.Step.LOCATION
         summaryView.startTime = startTime
         summaryView.length = viewModel.length.value ?: 0
@@ -165,6 +182,7 @@ class NewPlayActivity : AppCompatActivity() {
             attrs: AttributeSet? = null,
             defStyleAttr: Int = android.R.attr.textViewStyle
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
+        var gameName = ""
         var step = NewPlayViewModel.Step.LOCATION
         var startTime = 0L
         var length = 0
@@ -177,7 +195,7 @@ class NewPlayActivity : AppCompatActivity() {
         }
 
         private fun createSummary(): String {
-            var summary = ""
+            var summary = gameName
             if (startTime > 0L || length > 0) {
                 val totalLength = length + if (startTime > 0L) startTime.howManyMinutesOld() else 0
                 summary += " ${context.getString(R.string.for_)} $totalLength ${context.getString(R.string.minutes_abbr)}"
@@ -189,7 +207,7 @@ class NewPlayActivity : AppCompatActivity() {
                 else -> ""
             }
             summary += when {
-                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR -> " ${context.getString(R.string.with)}"
+                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR || step == NewPlayViewModel.Step.PLAYERS_SORT -> " ${context.getString(R.string.with)}"
                 step > NewPlayViewModel.Step.PLAYERS -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
                 else -> ""
             }

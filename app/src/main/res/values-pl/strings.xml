@@ -196,7 +196,7 @@
 	<string name="title_backup">Kopia zapasowa</string>
 	<string name="title_export">Eksport</string>
 	<string name="comment">Komentarz</string>
-	<string name="title_sort">Sortuj wg</string>
+	<string name="title_sort_by">Sortuj wg</string>
 	<string name="title_filter">Filtruj wg</string>
 	<string name="description_backup">Eksport zapisze dane aplikacji we wskazancyh lokalizacjach nadpisując istniejące pliki. Import odtworzy dane z tych samych plików potencjalnie nadpisując istniejące dane.</string>
 	<string name="msg_export_confirmation">Na pewno chcesz (potencjalnie) zastąpić pliki z eksportem?</string>

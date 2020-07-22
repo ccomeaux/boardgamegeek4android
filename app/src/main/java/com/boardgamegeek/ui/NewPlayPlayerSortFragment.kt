@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -49,6 +50,11 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
                 super.clearView(recyclerView, viewHolder)
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_sort)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

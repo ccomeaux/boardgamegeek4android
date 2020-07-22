@@ -12,12 +12,33 @@
 		android:layout_width="match_parent"
 		android:layout_height="?attr/actionBarSize" />
 
-	<view class="com.boardgamegeek.ui.NewPlayActivity$PlaySummary"
-		android:id="@+id/summaryView"
-		tools:text="for 42 minutes at House with"
+	<FrameLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/padding_extra" />
+		android:layout_height="@dimen/image_header_height"
+		android:layout_gravity="center"
+		android:layout_marginBottom="@dimen/padding_standard"
+		android:background="@color/primary"
+		android:descendantFocusability="blocksDescendants"
+		android:focusable="false">
+
+		<ImageView
+			android:id="@+id/thumbnailView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:scaleType="centerCrop" />
+
+		<view
+			android:id="@+id/summaryView"
+			style="@style/Text.Subtitle.Overlay"
+			class="com.boardgamegeek.ui.NewPlayActivity$PlaySummary"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:ellipsize="end"
+			android:gravity="start|center_vertical"
+			android:maxLines="2"
+			android:paddingHorizontal="@dimen/padding_extra"
+			tools:text="for 42 minutes at House with" />
+	</FrameLayout>
 
 	<FrameLayout
 		android:id="@+id/fragmentContainer"

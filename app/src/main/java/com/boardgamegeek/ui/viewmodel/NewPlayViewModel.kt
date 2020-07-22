@@ -7,6 +7,7 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -15,7 +16,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private var gameName: String = ""
     private var playDate: Long = Calendar.getInstance().timeInMillis
     private var comments: String = ""
 
@@ -24,6 +24,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private var gameId = MutableLiveData<Int>()
+    private var gameName = MutableLiveData<String>()
 
     private val _currentStep = MutableLiveData<Step>()
     val currentStep: LiveData<Step>
@@ -113,7 +114,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun setGame(id: Int, name: String) {
         gameId.value = id
-        gameName = name
+        gameName.value = name
+    }
+
+    val game: LiveData<RefreshableResource<GameEntity>> = Transformations.switchMap(gameId) {
+        when (it) {
+            BggContract.INVALID_ID -> AbsentLiveData.create()
+            else -> gameRepository.getGame(it)
+        }
     }
 
     fun filterLocations(filter: String) = rawLocations.value?.let { result ->
@@ -371,7 +379,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 BggContract.INVALID_ID,
                 PlayEntity.currentDate(),
                 gameId.value ?: BggContract.INVALID_ID,
-                gameName,
+                gameName.value ?: "",
                 quantity = 1,
                 length = if (startTime == 0L) length.value ?: 0 else 0,
                 location = location.value ?: "",

@@ -178,6 +178,7 @@
 	<string name="title_ratings">Ratings</string>
 	<string name="title_ranks_ratings">Ranks &amp; Ratings</string>
 	<string name="title_colors">Colors</string>
+	<string name="title_team_colors">Team/Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
@@ -214,7 +215,8 @@
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
 	<string name="comment">Comment</string>
-	<string name="title_sort">Sort by</string>
+	<string name="title_sort">Sort</string>
+	<string name="title_sort_by">Sort by</string>
 	<string name="title_filter">Filter by</string>
 	<string name="color_name">Color name</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>

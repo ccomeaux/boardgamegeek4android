@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -27,6 +28,11 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
 
     private val adapter: LocationsAdapter by lazy {
         LocationsAdapter(viewModel)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_location)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
