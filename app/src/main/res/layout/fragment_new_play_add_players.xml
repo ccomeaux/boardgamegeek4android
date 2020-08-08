@@ -31,7 +31,7 @@
 		android:inputType="textCapWords"
 		app:layout_constraintEnd_toStartOf="@id/nextOrAddButton"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/barrier"/>
+		app:layout_constraintTop_toBottomOf="@id/chipGroup"/>
 	<!-- ime should be next OR done -->
 
 	<ImageView
@@ -77,10 +77,4 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/filterView"/>
 
-	<androidx.constraintlayout.widget.Barrier
-		android:id="@+id/barrier"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		app:barrierDirection="bottom"
-		app:constraint_referenced_ids="chipGroup"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
