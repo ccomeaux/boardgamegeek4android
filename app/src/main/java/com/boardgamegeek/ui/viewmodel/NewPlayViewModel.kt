@@ -397,6 +397,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             val p = PlayPlayerEntity(
                     player.name,
                     player.username,
+                    (playerSortMap.value ?: emptyMap<String, String>())[player.id],
                     color = (playerColorMap.value ?: emptyMap<String, String>())[player.id]
             )
             play.addPlayer(p)
