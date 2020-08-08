@@ -93,10 +93,9 @@ class PrivateInfoDialogFragment : DialogFragment() {
                 showOrHideAcquisitionDateLabel()
             })
             datePickerDialogFragment.setCurrentDateInMillis(acquisitionDate.toMillisFromApiDate(System.currentTimeMillis()))
-            datePickerDialogFragment.show(parentFragmentManager, DATE_PICKER_DIALOG_TAG)
+            showAndSurvive(datePickerDialogFragment, DATE_PICKER_DIALOG_TAG)
         }
-
-
+        
         clearDateView.setOnClickListener {
             acquisitionDate = ""
             acquisitionDateView.text = ""
