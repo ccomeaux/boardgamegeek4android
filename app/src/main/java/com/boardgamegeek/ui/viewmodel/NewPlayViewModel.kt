@@ -61,6 +61,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColorEntity>>()
     val selectedColors = MediatorLiveData<List<String>>()
     private val playerSortMap = MutableLiveData<MutableMap<String, String>>()
+    private val playerMightBeNewMap = mutableMapOf<String, Boolean>()
+    private val playerIsNewMap = MutableLiveData<MutableMap<String, Boolean>>()
+    val mightBeNewPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -99,9 +102,20 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 assemblePlayers(playerSort = it)
             }
         }
+        addedPlayers.addSource(playerIsNewMap) { map ->
+            map?.let {
+                assemblePlayers(playerIsNew = it)
+            }
+        }
         addedPlayers.addSource(gameColors) { list ->
             list?.let {
                 assemblePlayers(gameColorList = it)
+            }
+        }
+
+        mightBeNewPlayers.addSource(addedPlayers) { list ->
+            list?.let {
+                assembleMightBeNewPlayers(list)
             }
         }
 
@@ -110,6 +124,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    // TODO shouldn't be publicly mutable
     val insertedId = MutableLiveData<Long>()
 
     fun setGame(id: Int, name: String) {
@@ -148,7 +163,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val newList = _addedPlayers.value ?: mutableListOf()
         if (!newList.contains(player)) {
             newList.add(player)
-            val colors = if (player.username.isNotBlank()) {
+            val colors = if (player.isUser()) {
                 playRepository.loadUserColorsAsLiveData(player.username)
             } else {
                 playRepository.loadPlayerColorsAsLiveData(player.name)
@@ -156,12 +171,22 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             addedPlayers.addSource(colors) { result ->
                 result?.let {
                     // TODO make this LiveData
-                    playerFavoriteColorMap[player.description] = it
+                    playerFavoriteColorMap[player.id] = it
                     assemblePlayers()
                 }
             }
+
+            // TODO make this LiveData
+            val plays = playRepository.loadPlaysByPlayer(
+                    player.playerName,
+                    gameId.value ?: BggContract.INVALID_ID,
+                    player.isUser()
+            )
+            playerMightBeNewMap[player.id] = plays.sumBy { it.quantity } == 0
+            assembleMightBeNewPlayers()
+
+            _addedPlayers.value = newList
         }
-        _addedPlayers.value = newList
     }
 
     fun removePlayer(player: NewPlayPlayerEntity) {
@@ -178,6 +203,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val newSortMap = playerSortMap.value ?: mutableMapOf()
         newSortMap.remove(p.id)
         playerSortMap.value = newSortMap
+
+        playerMightBeNewMap.remove(p.id)
     }
 
     fun finishAddingPlayers() {
@@ -283,6 +310,18 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerSort() {
+        _currentStep.value = if (playerMightBeNewMap.values.any { it }) Step.PLAYERS_NEW else Step.COMMENTS
+    }
+
+    fun addIsNewToPlayer(playerIndex: Int, isNew: Boolean) {
+        val isNewMap = playerIsNewMap.value ?: mutableMapOf()
+        _addedPlayers.value?.getOrNull(playerIndex)?.let {
+            isNewMap[it.id] = isNew
+            playerIsNewMap.value = isNewMap
+        }
+    }
+
+    fun finishPlayerIsNew() {
         _currentStep.value = Step.COMMENTS
     }
 
@@ -329,13 +368,13 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             playerColors: Map<String, String> = playerColorMap.value ?: emptyMap(),
             favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
             playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
+            playerIsNew: Map<String, Boolean> = playerIsNewMap.value ?: emptyMap(),
             gameColorList: List<String> = gameColors.value ?: emptyList()) {
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
             val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
                 color = playerColors[id] ?: ""
-                val favoriteForPlayer = favoriteColorsMap[description]?.map { it.description }
-                        ?: emptyList()
+                val favoriteForPlayer = favoriteColorsMap[id]?.map { it.description } ?: emptyList()
                 val rankedChoices = favoriteForPlayer
                         .filter { gameColorList.contains(it) }
                         .filterNot { playerColors.containsValue(it) }
@@ -345,10 +384,17 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                         .filterNot { playerColors.containsValue(it) }
                 favoriteColors = rankedChoices
                 sortOrder = playerSort[id] ?: ""
+                isNew = playerIsNew[id] ?: false
             }
             players.add(newPlayer)
         }
         this.addedPlayers.value = players
+    }
+
+    private fun assembleMightBeNewPlayers(
+            players: List<NewPlayPlayerEntity> = mightBeNewPlayers.value ?: emptyList(),
+            newMap: MutableMap<String, Boolean> = playerMightBeNewMap) {
+        mightBeNewPlayers.value = players.filter { newMap[it.id] ?: false }
     }
 
     private fun isLastPlayRecent(): Boolean {
@@ -398,7 +444,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                     player.name,
                     player.username,
                     (playerSortMap.value ?: emptyMap<String, String>())[player.id],
-                    color = (playerColorMap.value ?: emptyMap<String, String>())[player.id]
+                    color = (playerColorMap.value ?: emptyMap<String, String>())[player.id],
+                    isNew = (playerIsNewMap.value ?: emptyMap<String, Boolean>())[player.id]
+                            ?: false
             )
             play.addPlayer(p)
         }
@@ -411,6 +459,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         PLAYERS,
         PLAYERS_COLOR,
         PLAYERS_SORT,
+        PLAYERS_NEW,
         COMMENTS
     }
 }

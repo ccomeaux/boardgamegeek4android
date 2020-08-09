@@ -16,6 +16,8 @@ data class NewPlayPlayerEntity(
 
     val description: String = if (username.isBlank()) name else "$name ($username)"
 
+    var isNew: Boolean = false
+
     var color: String = ""
 
     var sortOrder: String = ""

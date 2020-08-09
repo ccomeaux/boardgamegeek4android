@@ -15,7 +15,11 @@ data class PlayerEntity(
     val avatarUrl: String = rawAvatarUrl
         get() = if (field == "N/A") "" else field
 
-    val description: String = if (username.isBlank()) name else "$name ($username)"
+    val description: String = if (isUser()) "$name ($username)" else name
+
+    val playerName = if (isUser()) username else name
+
+    fun isUser() = username.isNotBlank()
 
     override fun hashCode(): Int {
         var hash = 3

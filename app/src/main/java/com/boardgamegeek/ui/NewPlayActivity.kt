@@ -64,7 +64,7 @@ class NewPlayActivity : AppCompatActivity() {
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
                 thumbnailView.loadUrl(entity.heroImageUrl, object : ImageUtils.Callback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
-                        summaryView.setBackgroundResource(R.color.black_overlay_light);
+                        summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }
 
                     override fun onFailedImageLoad() {
@@ -110,6 +110,13 @@ class NewPlayActivity : AppCompatActivity() {
                     supportFragmentManager
                             .beginTransaction()
                             .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
+                            .addToBackStack(null)
+                            .commit()
+                }
+                NewPlayViewModel.Step.PLAYERS_NEW -> {
+                    supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragmentContainer, NewPlayPlayerIsNewFragment())
                             .addToBackStack(null)
                             .commit()
                 }

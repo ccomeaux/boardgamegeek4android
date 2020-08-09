@@ -71,6 +71,12 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
+    fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser:Boolean): List<PlayEntity> {
+        val uri = Plays.buildPlayersByPlayUri()
+        val selection = createNamePlaySelectionAndArgs(name, isUser)
+        return loadPlays(uri, addGamePlaySelectionAndArgs(selection, gameId))
+    }
+
     private fun loadPlays(uri: Uri, selection: Pair<String?, Array<String>?>, sortBy: PlaysSortBy = PlaysSortBy.DATE): ArrayList<PlayEntity> {
         val list = arrayListOf<PlayEntity>()
         val sortOrder = when (sortBy) {
@@ -152,11 +158,16 @@ class PlayDao(private val context: BggApplication) {
     private fun createLocationPlaySelectionAndArgs(locationName: String) =
             "${Plays.LOCATION}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(locationName)
 
+    private fun createNamePlaySelectionAndArgs(name: String, isUser: Boolean) = if (isUser) createUsernamePlaySelectionAndArgs(name) else createPlayerNamePlaySelectionAndArgs(name)
+
     private fun createUsernamePlaySelectionAndArgs(username: String) =
             "${PlayPlayers.USER_NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(username)
 
     private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
             "${PlayPlayers.USER_NAME}='' AND play_players.${PlayPlayers.NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
+
+    private fun addGamePlaySelectionAndArgs(existing: Pair<String, Array<String>>, gameId: Int) =
+            "${existing.first} AND ${Plays.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
 
     fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
         val selection = arrayListOf<String>().apply {

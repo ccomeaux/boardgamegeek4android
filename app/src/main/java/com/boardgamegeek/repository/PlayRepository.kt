@@ -94,6 +94,10 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }.asLiveData()
     }
 
+    fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
+        return playDao.loadPlaysByPlayerAndGame(name, gameId, isUser)
+    }
+
     fun loadPlaysByPlayerName(playerName: String): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : PlayRefreshableResourceLoader(application) {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
