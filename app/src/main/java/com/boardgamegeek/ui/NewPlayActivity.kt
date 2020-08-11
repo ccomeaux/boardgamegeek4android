@@ -26,6 +26,9 @@ class NewPlayActivity : AppCompatActivity() {
     private var startTime = 0L
     private var gameName = ""
     private val viewModel by viewModels<NewPlayViewModel>()
+    private var thumbnailUrl: String? = null
+    private var imageUrl: String? = null
+    private var heroImageUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +50,12 @@ class NewPlayActivity : AppCompatActivity() {
                 launchPlayingNotification(it,
                         gameId,
                         gameName,
-                        viewModel.location.value ?: "",
+                        viewModel.location.value.orEmpty(),
                         viewModel.addedPlayers.value?.size ?: 0,
-                        startTime)
-                // TODO: add thumbnailUrl, imageUrl, heroImageUrl
+                        startTime,
+                        thumbnailUrl.orEmpty(),
+                        imageUrl.orEmpty(),
+                        heroImageUrl.orEmpty())
             }
             setResult(Activity.RESULT_OK)
             finish()
@@ -59,6 +64,10 @@ class NewPlayActivity : AppCompatActivity() {
         viewModel.game.observe(this, Observer {
             it.data?.let { entity ->
                 gameName = entity.name
+                thumbnailUrl = entity.thumbnailUrl
+                imageUrl = entity.imageUrl
+                heroImageUrl = entity.heroImageUrl
+
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
