@@ -124,8 +124,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // TODO shouldn't be publicly mutable
-    val insertedId = MutableLiveData<Long>()
+    private val _insertedId = MutableLiveData<Long>()
+    val insertedId: LiveData<Long>
+        get() = _insertedId
 
     fun setGame(id: Int, name: String) {
         gameId.value = id
@@ -451,7 +452,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             play.addPlayer(p)
         }
 
-        playRepository.save(play, insertedId)
+        playRepository.save(play, _insertedId)
     }
 
     enum class Step {
