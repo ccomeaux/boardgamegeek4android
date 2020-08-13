@@ -157,7 +157,10 @@ class NewPlayActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             android.R.id.home -> {
-                maybeDiscard()
+                if (!maybeDiscard()) {
+                    setResult(Activity.RESULT_CANCELED)
+                    finish()
+                }
                 true
             }
             R.id.timer -> {
@@ -170,15 +173,20 @@ class NewPlayActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount == 0) {
-            maybeDiscard()
+            if (!maybeDiscard()) super.onBackPressed()
         } else {
             super.onBackPressed()
         }
     }
 
-    private fun maybeDiscard() {
-        // TODO - improve cancel logic (like detect if there have been changes)
-        createDiscardDialog(this, R.string.play, isNew = false).show()
+    private fun maybeDiscard(): Boolean {
+        return if ((viewModel.startTime.value ?: 0) > 0 ||
+                viewModel.location.value.orEmpty().isNotBlank() ||
+                viewModel.addedPlayers.value.orEmpty().isNotEmpty() ||
+                viewModel.comments.isNotBlank()) {
+            createDiscardDialog(this, R.string.play, isNew = false).show()
+            true
+        } else false
     }
 
     private fun updateSummary() {

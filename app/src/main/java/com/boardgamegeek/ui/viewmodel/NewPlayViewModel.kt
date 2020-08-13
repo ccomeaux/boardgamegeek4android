@@ -17,7 +17,9 @@ import java.util.concurrent.TimeUnit
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
     private var playDate: Long = Calendar.getInstance().timeInMillis
-    private var comments: String = ""
+    private var _comments: String = ""
+    val comments: String
+        get() = _comments
 
     private val playRepository = PlayRepository(getApplication())
     private val gameRepository = GameRepository(getApplication())
@@ -404,7 +406,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun setComments(input: String) {
-        this.comments = input
+        this._comments = input
     }
 
     fun toggleTimer() {
@@ -432,7 +434,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 location = location.value ?: "",
                 incomplete = false,
                 noWinStats = false,
-                comments = comments,
+                comments = _comments,
                 syncTimestamp = 0,
                 playerCount = _addedPlayers.value?.size ?: 0,
                 startTime = startTime,
