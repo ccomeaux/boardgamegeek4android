@@ -533,10 +533,10 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         }
 
         val minPlayerCount: Int
-            get() = playCountByPlayerCount.keys.min() ?: 0
+            get() = playCountByPlayerCount.keys.minOrNull() ?: 0
 
         val maxPlayerCount: Int
-            get() = playCountByPlayerCount.keys.max() ?: 0
+            get() = playCountByPlayerCount.keys.maxOrNull() ?: 0
 
         fun getPersonalWinCount(playerCount: Int): Int {
             return personalStats?.getWinCountByPlayerCount(playerCount) ?: 0

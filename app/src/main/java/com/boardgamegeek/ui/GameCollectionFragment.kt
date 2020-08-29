@@ -62,7 +62,7 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         if (!isAdded) return
         if (items.isNotEmpty()) {
             adapter.items = items
-            syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+            syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
             emptyMessage.fadeOut()
             recyclerView?.fadeIn()
         } else {

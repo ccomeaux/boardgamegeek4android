@@ -133,7 +133,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
             playCountContainer.fadeIn()
 
             if (plays.isNotEmpty()) {
-                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
+                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
                 if (lastPlay != null) {
                     lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
                     lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
