@@ -16,6 +16,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import com.boardgamegeek.util.ActivityUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GamePagerAdapter(private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
@@ -72,8 +73,12 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private fun updateTabs() {
         tabs.clear()
         tabs.add(Tab(R.string.title_info, R.drawable.fab_log_play) {
-            //LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
-            NewPlayActivity.start(activity, gameId, gameName)
+            if (prefs.showQuickLogPlay()) {
+                ActivityUtils.logQuickPlay(activity, gameId, gameName)
+            } else {
+                //LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                NewPlayActivity.start(activity, gameId, gameName)
+            }
         })
         tabs.add(Tab(R.string.title_credits, R.drawable.fab_favorite_off) {
             viewModel.updateFavorite(!isFavorite)

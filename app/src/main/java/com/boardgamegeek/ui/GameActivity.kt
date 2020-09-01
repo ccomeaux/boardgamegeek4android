@@ -16,7 +16,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.extensions.showQuickLogPlay
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
@@ -36,6 +35,8 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var gameName: String = ""
     private var heroImageUrl = ""
     private var thumbnailUrl = ""
+    private var imageUrl = ""
+    private var arePlayersCustomSorted = false
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
     private val prefs: SharedPreferences by lazy { this.preferences() }
@@ -76,6 +77,8 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                         this@GameActivity.isFavorite = isFavorite
                         this@GameActivity.isUserMenuEnabled = maxUsers > 0
                         this@GameActivity.thumbnailUrl = thumbnailUrl
+                        this@GameActivity.imageUrl = imageUrl
+                        arePlayersCustomSorted = customPlayerSort
                     }
                 }
             }
@@ -85,7 +88,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Gmae")
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Game")
                 param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
                 param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
             }
@@ -103,12 +106,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     override fun getPageTitle(position: Int) = adapter.getPageTitle(position)
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        menu.findItem(R.id.menu_log_play_quick)?.isVisible = prefs.showQuickLogPlay()
-        return true
-    }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.menu_favorite)?.setTitle(if (isFavorite) R.string.menu_unfavorite else R.string.menu_favorite)
@@ -146,6 +143,14 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             R.id.menu_log_play_quick -> {
                 getCoordinatorLayout().snackbar(R.string.msg_logging_play)
                 ActivityUtils.logQuickPlay(this, gameId, gameName)
+                return true
+            }
+            R.id.menu_log_play -> {
+                LogPlayActivity.logPlay(this, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                return true
+            }
+            R.id.menu_log_play_wizard -> {
+                NewPlayActivity.start(this, gameId, gameName)
                 return true
             }
             R.id.menu_view_image -> {

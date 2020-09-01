@@ -1,32 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<item
-		android:id="@+id/menu_log_play_quick"
-		android:icon="@drawable/menu_log_play_quick"
-		android:title="@string/menu_log_play_quick"
-		app:showAsAction="never"/>
+	<item android:title="@string/menu_log_play">
+		<menu>
+			<group>
+				<item
+					android:id="@+id/menu_log_play_quick"
+					android:title="@string/menu_log_play_quick_short"
+					app:showAsAction="never" />
+				<item
+					android:id="@+id/menu_log_play"
+					android:title="@string/menu_log_play_short"
+					app:showAsAction="never" />
+				<item
+					android:id="@+id/menu_log_play_wizard"
+					android:title="@string/menu_log_play_wizard_short"
+					app:showAsAction="never" />
+			</group>
+		</menu>
+	</item>
 	<item
 		android:id="@+id/menu_favorite"
 		android:title="@string/menu_favorite"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/menu_users"
 		android:title="@string/menu_users"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/menu_view_image"
 		android:title="@string/menu_view_image"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/menu_share"
 		android:icon="@drawable/menu_share"
 		android:title="@string/menu_share"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/menu_shortcut"
 		android:title="@string/menu_create_shortcut"
-		app:showAsAction="never"/>
-
+		app:showAsAction="never" />
 </menu>

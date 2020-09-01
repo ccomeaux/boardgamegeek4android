@@ -326,7 +326,11 @@
 	<string name="menu_view">View</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
+	<string name="menu_log_play_short">Form</string>
+	<string name="menu_log_play_wizard">Log play wizard</string>
+	<string name="menu_log_play_wizard_short">Wizard</string>
 	<string name="menu_log_play_quick">Quick log play</string>
+	<string name="menu_log_play_quick_short">Quick</string>
 	<string name="menu_favorite">Favorite</string>
 	<string name="menu_unfavorite">Unfavorite</string>
 	<string name="menu_users">Users</string>
