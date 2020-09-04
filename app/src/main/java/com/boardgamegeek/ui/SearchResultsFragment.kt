@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.util.Pair
@@ -40,7 +39,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         }
     }
 
-    private val prefs: SharedPreferences by lazy { requireActivity().preferences() }
     private val viewModel by activityViewModels<SearchViewModel>()
     private val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(requireContext()) }
 
@@ -198,8 +196,13 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = searchResultsAdapter.selectedItemCount
-        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && prefs.showLogPlay()
-        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && prefs.showQuickLogPlay()
+        if (Authenticator.isSignedIn(context)) {
+            menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
+            menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
+            menu.findItem(R.id.menu_log_play).isVisible = true
+        } else {
+            menu.findItem(R.id.menu_log_play).isVisible = false
+        }
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }
@@ -215,7 +218,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         }
         val game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems()[0])
         when (item.itemId) {
-            R.id.menu_log_play -> {
+            R.id.menu_log_play_form -> {
                 game?.let {
                     LogPlayActivity.logPlay(context, it.id, it.name, null, null, null, false)
                 }
@@ -228,6 +231,13 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     searchResultsAdapter.getItem(position)?.let {
                         requireActivity().logQuickPlay(it.id, it.name)
                     }
+                }
+                mode.finish()
+                return true
+            }
+            R.id.menu_log_play_wizard -> {
+                game?.let { it ->
+                    NewPlayActivity.start(requireContext(), it.id, it.name)
                 }
                 mode.finish()
                 return true

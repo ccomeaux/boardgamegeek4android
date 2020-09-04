@@ -160,6 +160,9 @@ fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String?> {
 
 private const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
 private const val LOG_EDIT_PLAYER = "logEditPlayer"
+const val LOG_PLAY_TYPE_FORM = "form"
+const val LOG_PLAY_TYPE_QUICK = "quick"
+const val LOG_PLAY_TYPE_WIZARD = "wizard"
 
 fun SharedPreferences.getEditPlayerPrompted(): Boolean {
     return this[LOG_EDIT_PLAYER_PROMPTED, false] ?: false
@@ -177,12 +180,13 @@ fun SharedPreferences.putEditPlayer(value: Boolean) {
     this[LOG_EDIT_PLAYER] = value
 }
 
-fun SharedPreferences.showLogPlay(): Boolean {
-    return showLogPlayField("logPlay", "logHideLog", true)
-}
-
-fun SharedPreferences.showQuickLogPlay(): Boolean {
-    return showLogPlayField("quickLogPlay", "logHideQuickLog", true)
+fun SharedPreferences.logPlayPreference(): String {
+    return this.getString("logPlayType", null)
+            ?: return when {
+                showLogPlayField("logPlay", "logHideLog", true) -> LOG_PLAY_TYPE_FORM
+                showLogPlayField("quickLogPlay", "logHideQuickLog", true) -> LOG_PLAY_TYPE_QUICK
+                else -> LOG_PLAY_TYPE_WIZARD
+            }
 }
 
 fun SharedPreferences.showLogPlayLocation(): Boolean {

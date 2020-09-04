@@ -73,11 +73,10 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private fun updateTabs() {
         tabs.clear()
         tabs.add(Tab(R.string.title_info, R.drawable.fab_log_play) {
-            if (prefs.showQuickLogPlay()) {
-                ActivityUtils.logQuickPlay(activity, gameId, gameName)
-            } else {
-                //LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
-                NewPlayActivity.start(activity, gameId, gameName)
+            when (prefs.logPlayPreference()) {
+                LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                LOG_PLAY_TYPE_QUICK -> ActivityUtils.logQuickPlay(activity, gameId, gameName)
+                LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
             }
         })
         tabs.add(Tab(R.string.title_credits, R.drawable.fab_favorite_off) {

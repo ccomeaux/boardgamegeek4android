@@ -925,8 +925,8 @@ public class CollectionFragment extends Fragment implements
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
 		int count = adapter.getSelectedItemCount();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
-		menu.findItem(R.id.menu_log_play).setVisible(count == 1 && PreferenceUtils.showLogPlay(prefs));
-		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferenceUtils.showQuickLogPlay(prefs));
+		menu.findItem(R.id.menu_log_play_form).setVisible(count == 1);
+		menu.findItem(R.id.menu_log_play_wizard).setVisible(count == 1);
 		menu.findItem(R.id.menu_link).setVisible(count == 1);
 		return true;
 	}
@@ -944,7 +944,7 @@ public class CollectionFragment extends Fragment implements
 		}
 		final CollectionItem ci = adapter.getItem(adapter.getSelectedItemPositions().iterator().next());
 		switch (item.getItemId()) {
-			case R.id.menu_log_play:
+			case R.id.menu_log_play_form:
 				LogPlayActivity.logPlay(getContext(), ci.gameId, ci.gameName, ci.thumbnailUrl, ci.imageUrl, ci.heroImageUrl, ci.customPlayerSort);
 				mode.finish();
 				return true;
@@ -955,6 +955,10 @@ public class CollectionFragment extends Fragment implements
 					CollectionItem collectionItem = adapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), collectionItem.gameId, collectionItem.gameName);
 				}
+				mode.finish();
+				return true;
+			case R.id.menu_log_play_wizard:
+				NewPlayActivity.start(requireContext(), ci.gameId, ci.gameName);
 				mode.finish();
 				return true;
 			case R.id.menu_share:
