@@ -84,7 +84,7 @@ class GameEntity(
                     numberOfUsersWanting,
                     numberOfUsersWeighting,
                     numberOfUsersWishListing
-            ).max() ?: 0
+            ).maxOrNull() ?: 0
         }
 
     override fun toString() = "$id: $name"

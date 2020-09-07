@@ -151,7 +151,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
         }
     }
 
-    private fun newestDate(plays: List<Play>) = plays.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
+    private fun newestDate(plays: List<Play>) = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
 
-    private fun oldestDate(plays: List<Play>) = plays.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+    private fun oldestDate(plays: List<Play>) = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
 }

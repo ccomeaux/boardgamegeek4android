@@ -398,11 +398,11 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
 
         private fun updateTimestamps(plays: List<Play>?) {
-            val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
+            val newestDate = plays?.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
             if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
                 syncPrefs.setPlaysNewestTimestamp(newestDate)
             }
-            val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+            val oldestDate = plays?.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
             if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
                 syncPrefs.setPlaysOldestTimestamp(oldestDate)
             }

@@ -19,16 +19,15 @@ import androidx.fragment.app.FragmentManager
 import com.boardgamegeek.R
 import java.util.*
 
-fun FragmentActivity.showAndSurvive(dialog: DialogFragment) {
-    showAndSurvive(dialog, supportFragmentManager)
+fun FragmentActivity.showAndSurvive(dialog: DialogFragment, tag: String = "dialog") {
+    showAndSurvive(dialog, supportFragmentManager, tag)
 }
 
-fun Fragment.showAndSurvive(dialog: DialogFragment) {
-    showAndSurvive(dialog, parentFragmentManager)
+fun Fragment.showAndSurvive(dialog: DialogFragment, tag: String = "dialog") {
+    showAndSurvive(dialog, parentFragmentManager, tag)
 }
 
-private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentManager) {
-    val tag = "dialog"
+private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentManager, tag: String = "dialog") {
     fragmentManager.beginTransaction().apply {
         fragmentManager.findFragmentByTag(tag)?.let {
             remove(it)
