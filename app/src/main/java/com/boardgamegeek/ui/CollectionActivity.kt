@@ -31,6 +31,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
     private var viewId: Long = 0
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
+    private var hideNavigation = false
 
     private val viewModel by viewModels<CollectionViewViewModel>()
 
@@ -42,7 +43,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         super.onCreate(savedInstanceState)
 
         supportActionBar?.let {
-            if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
+            if (hideNavigation) {
                 it.setHomeButtonEnabled(false)
                 it.setDisplayHomeAsUpEnabled(false)
                 it.setTitle(R.string.app_name)
@@ -60,16 +61,21 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
         viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
         if (savedInstanceState == null) {
-            val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
-                    ?: CollectionView.DEFAULT_DEFAULT_ID
-            val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
-            viewModel.selectView(viewId)
+            if (hideNavigation) {
+                viewModel.selectView(CollectionView.DEFAULT_DEFAULT_ID)
+            } else {
+                val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                        ?: CollectionView.DEFAULT_DEFAULT_ID
+                val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
+                viewModel.selectView(viewId)
+            }
         }
     }
 
     override fun readIntent(intent: Intent) {
         isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == getIntent().action
         changingGamePlayId = getIntent().getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
+        hideNavigation = isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -100,10 +106,14 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
     override val navigationItemId: Int = R.id.collection
 
-    override val optionsMenuId: Int = if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-        super.optionsMenuId
-    } else {
-        R.menu.search
+    override val optionsMenuId: Int = R.menu.search
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
+        if (hideNavigation) {
+            menu.findItem(R.id.menu_search)?.isVisible = false
+        }
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
