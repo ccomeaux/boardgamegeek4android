@@ -4,14 +4,12 @@ import android.graphics.Point
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -74,7 +72,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
             }
         }
 
-        viewModel.availablePlayers.observe(viewLifecycleOwner, Observer {
+        viewModel.availablePlayers.observe(viewLifecycleOwner, {
             adapter.players = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
@@ -88,7 +86,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
                 emptyView.fadeOut()
             }
         })
-        viewModel.addedPlayers.observe(viewLifecycleOwner, Observer {
+        viewModel.addedPlayers.observe(viewLifecycleOwner, {
             // TODO don't delete and recreate
             chipGroup.removeAllViews()
             it?.let { list ->

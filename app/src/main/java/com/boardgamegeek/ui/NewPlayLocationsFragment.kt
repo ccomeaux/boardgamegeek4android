@@ -3,13 +3,11 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.LocationEntity
@@ -41,7 +39,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.locations.observe(viewLifecycleOwner, Observer {
+        viewModel.locations.observe(viewLifecycleOwner, {
             adapter.locations = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {

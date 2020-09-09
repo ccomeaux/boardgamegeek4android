@@ -10,7 +10,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -40,10 +39,10 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
 
         recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner, Observer {
+        viewModel.addedPlayers.observe(viewLifecycleOwner, {
             adapter.players = it
         })
-        viewModel.gameColors.observe(viewLifecycleOwner, Observer { colors ->
+        viewModel.gameColors.observe(viewLifecycleOwner, { colors ->
             adapter.useColorPicker = colors.all { color -> color.isKnownColor() }
         })
 
@@ -76,10 +75,10 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
         private var selectedColors = emptyList<String>()
 
         init {
-            viewModel.gameColors.observe(activity, Observer {
+            viewModel.gameColors.observe(activity, {
                 featuredColors = it
             })
-            viewModel.selectedColors.observe(activity, Observer {
+            viewModel.selectedColors.observe(activity, {
                 selectedColors = it
             })
         }

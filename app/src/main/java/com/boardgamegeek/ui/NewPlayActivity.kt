@@ -9,7 +9,6 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
@@ -42,7 +41,7 @@ class NewPlayActivity : AppCompatActivity() {
         supportActionBar?.setHomeAsUpIndicator(R.drawable.menu_cancel)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        viewModel.insertedId.observe(this, Observer {
+        viewModel.insertedId.observe(this, {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
                 this.cancel(NotificationUtils.TAG_PLAY_TIMER, it)
                 SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
@@ -61,7 +60,7 @@ class NewPlayActivity : AppCompatActivity() {
             finish()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(this, {
             it.data?.let { entity ->
                 gameName = entity.name
                 thumbnailUrl = entity.thumbnailUrl
@@ -83,17 +82,17 @@ class NewPlayActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.startTime.observe(this, Observer {
+        viewModel.startTime.observe(this, {
             startTime = viewModel.startTime.value ?: 0L
             updateSummary()
             invalidateOptionsMenu()
         })
 
-        viewModel.length.observe(this, Observer { updateSummary() })
+        viewModel.length.observe(this, { updateSummary() })
 
-        viewModel.location.observe(this, Observer { updateSummary() })
+        viewModel.location.observe(this, { updateSummary() })
 
-        viewModel.currentStep.observe(this, Observer {
+        viewModel.currentStep.observe(this, {
             when (it) {
                 NewPlayViewModel.Step.LOCATION, null -> {
                     supportFragmentManager
