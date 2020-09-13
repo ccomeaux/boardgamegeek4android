@@ -4,6 +4,7 @@
 	style="@style/RowContainer"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:paddingHorizontal="0dp"
 	android:background="?attr/selectableItemBackground"
 	android:orientation="vertical">
 

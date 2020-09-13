@@ -27,7 +27,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
     private val viewModel by activityViewModels<NewPlayViewModel>()
 
     private val adapter: PlayersAdapter by lazy {
-        PlayersAdapter(viewModel, filterView)
+        PlayersAdapter(viewModel, filterEditText)
     }
 
     override fun onResume() {
@@ -46,7 +46,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        filterView.addTextChangedListener(object : TextWatcher {
+        filterEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrBlank()) {
                     nextOrAddButton.setImageResource(R.drawable.ic_check_circle)
@@ -64,9 +64,9 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
         })
 
         nextOrAddButton.setOnClickListener {
-            if (filterView.text.isNotBlank()) {
-                viewModel.addPlayer(PlayerEntity(filterView.text.toString(), ""))
-                filterView.setText("")
+            if (filterEditText.text?.isNotBlank() == true) {
+                viewModel.addPlayer(PlayerEntity(filterEditText.text.toString(), ""))
+                filterEditText.setText("")
             } else {
                 viewModel.finishAddingPlayers()
             }
@@ -76,7 +76,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
             adapter.players = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
-                emptyView.setText(if (filterView.text.isNullOrBlank()) {
+                emptyView.setText(if (filterEditText.text.isNullOrBlank()) {
                     R.string.empty_new_play_players
                 } else {
                     R.string.empty_new_play_players_filter

@@ -1,5 +1,8 @@
 package com.boardgamegeek.ui.dialog
 
+import android.os.Bundle
+import android.text.InputFilter
+import android.view.View
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -12,6 +15,16 @@ class NewPlayAddTeamColorDialogFragment : AbstractEditTextDialogFragment() {
     override val titleResId = R.string.title_add_team_color
 
     override val hintResId = R.string.team_color
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState == null) {
+            val maxLength = 32
+            editText.filters = arrayOf(InputFilter.LengthFilter(maxLength))
+            editTextContainer.counterMaxLength = maxLength
+            editTextContainer.isCounterEnabled = true
+        }
+    }
 
     override fun onPositiveButton() {
         val playerIndex = arguments?.getInt(PLAYER_INDEX, -1) ?: -1

@@ -4,36 +4,54 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/container"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:importantForAutofill="noExcludeDescendants">
+	android:layout_height="match_parent">
 
-	<EditText
+	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/filterView"
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="0dp"
-		android:layout_height="48dp"
+		app:startIconDrawable="@drawable/ic_location"
+		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/padding_extra"
 		android:layout_marginLeft="@dimen/padding_extra"
-		android:gravity="center_vertical"
 		android:hint="@string/new_play_location_hint"
-		android:imeOptions="actionNone"
-		android:inputType="textCapWords"
+		android:labelFor="@id/filterEditText"
+		android:paddingVertical="@dimen/padding_extra"
+		app:endIconMode="clear_text"
 		app:layout_constraintEnd_toStartOf="@id/next"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
-	<!-- ime should be next OR done -->
+		app:layout_constraintTop_toTopOf="parent">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/filterEditText"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:imeOptions="actionNext"
+			android:inputType="textCapWords" />
+
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<ImageView
 		android:id="@+id/next"
-		android:layout_width="48dp"
+		android:layout_width="68dp"
 		android:layout_height="48dp"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:foregroundGravity="center"
-		android:paddingRight="@dimen/activity_horizontal_margin"
+		android:paddingHorizontal="@dimen/activity_horizontal_margin"
 		android:src="@drawable/ic_check_circle"
 		android:tint="@color/medium_blue"
 		app:layout_constraintBottom_toBottomOf="@id/filterView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@id/filterView" />
+
+	<View
+		android:id="@+id/dividerView"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:background="@color/list_divider"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/filterView" />
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/recyclerView"
@@ -45,7 +63,7 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/filterView"
+		app:layout_constraintTop_toBottomOf="@+id/dividerView"
 		tools:listitem="@layout/row_new_play_location"
 		tools:visibility="visible" />
 

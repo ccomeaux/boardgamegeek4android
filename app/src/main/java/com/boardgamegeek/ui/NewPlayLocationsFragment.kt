@@ -43,7 +43,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
             adapter.locations = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
-                if (filterView.text.isNullOrBlank()) {
+                if (filterEditText.text.isNullOrBlank()) {
                     emptyView.setText(R.string.empty_new_play_locations)
                 } else {
                     emptyView.setText(R.string.empty_new_play_locations_filter)
@@ -54,7 +54,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
             }
         })
 
-        filterView.addTextChangedListener(object : TextWatcher {
+        filterEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 viewModel.filterLocations(s.toString())
             }
@@ -67,7 +67,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
         })
 
         next.setOnClickListener {
-            viewModel.setLocation(filterView.text.toString())
+            viewModel.setLocation(filterEditText.text.toString())
         }
     }
 

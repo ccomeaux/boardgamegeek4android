@@ -20,9 +20,8 @@
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/addButton"
 		style="@style/ColoredButton"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
 		android:layout_margin="@dimen/padding_extra"
 		android:text="@string/title_add_team_color"
 		app:icon="@drawable/ic_action_add" />
