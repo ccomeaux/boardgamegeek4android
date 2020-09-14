@@ -73,11 +73,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private fun updateTabs() {
         tabs.clear()
         tabs.add(Tab(R.string.title_info, R.drawable.fab_log_play) {
-            when (prefs.logPlayPreference()) {
-                LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
-                LOG_PLAY_TYPE_QUICK -> ActivityUtils.logQuickPlay(activity, gameId, gameName)
-                LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
-            }
+            logPlay()
         })
         tabs.add(Tab(R.string.title_credits, R.drawable.fab_favorite_off) {
             viewModel.updateFavorite(!isFavorite)
@@ -91,12 +87,12 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
             })
         if (shouldShowPlays())
             tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {
-                LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                logPlay()
             })
         tabs.add(Tab(R.string.title_forums))
         tabs.add(Tab(R.string.links))
 
-        viewModel.game.observe(activity, Observer { resource ->
+        viewModel.game.observe(activity, { resource ->
             resource.data?.let { entity ->
                 gameName = entity.name
                 imageUrl = entity.imageUrl
@@ -111,6 +107,14 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
                 displayFab(false)
             }
         })
+    }
+
+    private fun logPlay() {
+        when (prefs.logPlayPreference()) {
+            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+            LOG_PLAY_TYPE_QUICK -> ActivityUtils.logQuickPlay(activity, gameId, gameName)
+            LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
+        }
     }
 
     private fun updateFavIcon(isFavorite: Boolean) {
