@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.adapter.ColorGridAdapter
@@ -54,6 +55,8 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
         val numColumns = arguments?.getInt(KEY_COLUMNS) ?: DEFAULT_NUMBER_Of_COLUMNS
         colorGrid.numColumns = numColumns
         featuredColorGrid.numColumns = numColumns
+
+        addButton.isVisible = arguments?.getBoolean(KEY_SHOW_ADD_BUTTON) ?: false
 
         // remove the hidden colors from the choices list
         val choices = ArrayList(colorChoices)
@@ -112,9 +115,15 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
                 dismiss()
             }
         }
+
+        addButton.setOnClickListener {
+            onAddClicked(requestCode)
+        }
     }
 
     abstract fun onColorClicked(item: Pair<String, Int>?, requestCode: Int)
+
+    open fun onAddClicked(requestCode: Int) {}
 
     companion object {
         private const val KEY_TITLE_ID = "title_id"
@@ -128,6 +137,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
         private const val KEY_FEATURED_COLORS = "featured_colors"
         private const val KEY_COLUMNS = "columns"
         private const val KEY_REQUEST_CODE = "request_code"
+        private const val KEY_SHOW_ADD_BUTTON = "show_add_button"
 
         private const val DEFAULT_NUMBER_Of_COLUMNS = 4
 
@@ -179,11 +189,20 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
                          hiddenColors: ArrayList<String>? = null): Bundle {
             return Bundle().apply {
                 putString(KEY_TITLE, title)
-                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode)
+                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode, true)
             }
         }
 
-        private fun Bundle.buildBundle(colors: List<Pair<String, Int>>, featuredColors: ArrayList<String>?, selectedColor: String?, disabledColors: ArrayList<String>?, hiddenColors: ArrayList<String>?, columns: Int, requestCode: Int) {
+        private fun Bundle.buildBundle(
+                colors: List<Pair<String, Int>>,
+                featuredColors: ArrayList<String>?,
+                selectedColor: String?,
+                disabledColors: ArrayList<String>?,
+                hiddenColors: ArrayList<String>?,
+                columns: Int,
+                requestCode: Int,
+                showAddButton: Boolean = false
+        ) {
             putInt(KEY_COLOR_COUNT, colors.size)
             for (i in colors.indices) {
                 val color = colors[i]
@@ -196,6 +215,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
             putStringArrayList(KEY_HIDDEN_COLORS, hiddenColors)
             putInt(KEY_COLUMNS, columns)
             putInt(KEY_REQUEST_CODE, requestCode)
+            putBoolean(KEY_SHOW_ADD_BUTTON, showAddButton)
         }
     }
 }

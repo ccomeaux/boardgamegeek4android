@@ -1,19 +1,21 @@
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:animateLayoutChanges="true"
 	android:orientation="vertical"
-	android:paddingBottom="@dimen/material_margin_vertical"
 	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical"
 	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical">
+	android:paddingBottom="@dimen/material_margin_vertical">
 
 	<GridView
 		android:id="@+id/featuredColorGrid"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:stretchMode="columnWidth"/>
+		android:stretchMode="columnWidth"
+		tools:numColumns="4" />
 
 	<TextView
 		android:id="@+id/moreView"
@@ -21,20 +23,32 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
-		android:text="@string/more"/>
+		android:text="@string/more" />
 
 	<View
 		android:id="@+id/dividerView"
 		android:layout_width="match_parent"
 		android:layout_height="1px"
 		android:background="@color/dark_blue"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		tools:visibility="visible" />
 
 	<GridView
 		android:id="@+id/colorGrid"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:stretchMode="columnWidth"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		tools:numColumns="4" />
 
+	<com.google.android.material.button.MaterialButton
+		android:id="@+id/addButton"
+		style="@style/ColoredButton"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/padding_extra"
+		android:text="@string/title_add_team_color"
+		android:visibility="gone"
+		app:icon="@drawable/ic_action_add"
+		tools:visibility="visible" />
 </LinearLayout>

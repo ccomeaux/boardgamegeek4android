@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.ui.dialog.NewPlayAddTeamColorDialogFragment
 import com.boardgamegeek.ui.dialog.NewPlayPlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.dialog.TeamPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -147,22 +146,25 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
                     }
 
                     itemView.colorPickerButton.setOnClickListener {
-                        if (useColorPicker) {
-                            NewPlayPlayerColorPickerDialogFragment.launch(
-                                    activity,
-                                    player.description,
-                                    featuredColors,
-                                    player.color,
-                                    selectedColors,
-                                    adapterPosition)
-                        } else {
-                            TeamPickerDialogFragment.launch(activity, adapterPosition, player.description, player.color)
-                        }
+                        pickTeamOrColor(player)
                     }
+                    itemView.setOnClickListener {
+                        pickTeamOrColor(player)
+                    }
+                }
+            }
 
-                    itemView.addTeamColorPickerButton.setOnClickListener {
-                        NewPlayAddTeamColorDialogFragment.newInstance(adapterPosition).show(activity.supportFragmentManager, "")
-                    }
+            private fun pickTeamOrColor(player: NewPlayPlayerEntity) {
+                if (useColorPicker) {
+                    NewPlayPlayerColorPickerDialogFragment.launch(
+                            activity,
+                            player.description,
+                            featuredColors,
+                            player.color,
+                            selectedColors,
+                            adapterPosition)
+                } else {
+                    TeamPickerDialogFragment.launch(activity, adapterPosition, player.description, player.color)
                 }
             }
         }
