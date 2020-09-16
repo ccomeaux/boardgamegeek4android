@@ -54,7 +54,7 @@ class NewPlayPlayerIsNewFragment : Fragment(R.layout.fragment_new_play_player_is
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             val o = oldList[oldItemPosition]
             val n = newList[newItemPosition]
-            return o.id == n.id && o.sortOrder == n.sortOrder
+            return o.id == n.id && o.isNew == n.isNew
         }
     }
 
@@ -121,7 +121,7 @@ class NewPlayPlayerIsNewFragment : Fragment(R.layout.fragment_new_play_player_is
                     itemView.isNewCheckBox.isChecked = player.isNew
 
                     itemView.isNewCheckBox.setOnCheckedChangeListener { _, isChecked ->
-                        viewModel.addIsNewToPlayer(adapterPosition, isChecked)
+                        viewModel.addIsNewToPlayer(player.id, isChecked)
                     }
                 }
             }

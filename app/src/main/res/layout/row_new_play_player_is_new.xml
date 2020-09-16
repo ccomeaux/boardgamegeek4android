@@ -92,11 +92,12 @@
 	<CheckBox
 		android:id="@+id/isNewCheckBox"
 		style="@style/Icon.Right"
-		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_width="wrap_content"
 		android:layout_height="@dimen/color_circle_diameter"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:scaleType="centerInside"
 		android:src="@drawable/ic_drag_handle"
+		android:text="@string/new_label"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintRight_toRightOf="parent"

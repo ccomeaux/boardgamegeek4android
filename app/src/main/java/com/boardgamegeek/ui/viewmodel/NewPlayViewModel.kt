@@ -316,13 +316,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         _currentStep.value = if (playerMightBeNewMap.values.any { it }) Step.PLAYERS_NEW else Step.COMMENTS
     }
 
-    fun addIsNewToPlayer(playerIndex: Int, isNew: Boolean) {
+    fun addIsNewToPlayer(playerId: String, isNew: Boolean) {
         val isNewMap = playerIsNewMap.value ?: mutableMapOf()
-        _addedPlayers.value?.getOrNull(playerIndex)?.let {
-            isNewMap[it.id] = isNew
+        isNewMap[playerId] = isNew
             playerIsNewMap.value = isNewMap
         }
-    }
 
     fun finishPlayerIsNew() {
         _currentStep.value = Step.COMMENTS
