@@ -18,6 +18,8 @@ data class NewPlayPlayerEntity(
 
     var isNew: Boolean = false
 
+    var isWin: Boolean = false
+
     var color: String = ""
 
     var sortOrder: String = ""

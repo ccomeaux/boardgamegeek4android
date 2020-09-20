@@ -66,6 +66,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val playerMightBeNewMap = mutableMapOf<String, Boolean>()
     private val playerIsNewMap = MutableLiveData<MutableMap<String, Boolean>>()
     val mightBeNewPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
+    private val playerWinMap = MutableLiveData<MutableMap<String, Boolean>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -107,6 +108,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         addedPlayers.addSource(playerIsNewMap) { map ->
             map?.let {
                 assemblePlayers(playerIsNew = it)
+            }
+        }
+        addedPlayers.addSource(playerWinMap) { map ->
+            map?.let {
+                assemblePlayers(playerWin = it)
             }
         }
         addedPlayers.addSource(gameColors) { list ->
@@ -313,16 +319,30 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerSort() {
-        _currentStep.value = if (playerMightBeNewMap.values.any { it }) Step.PLAYERS_NEW else Step.COMMENTS
+        _currentStep.value = when {
+            playerMightBeNewMap.values.any { it } -> Step.PLAYERS_NEW
+            startTime.value ?: 0L == 0L -> Step.PLAYERS_WIN
+            else -> Step.COMMENTS
+        }
     }
 
     fun addIsNewToPlayer(playerId: String, isNew: Boolean) {
         val isNewMap = playerIsNewMap.value ?: mutableMapOf()
         isNewMap[playerId] = isNew
-            playerIsNewMap.value = isNewMap
-        }
+        playerIsNewMap.value = isNewMap
+    }
 
     fun finishPlayerIsNew() {
+        _currentStep.value = if (startTime.value ?: 0L == 0L) Step.PLAYERS_WIN else Step.COMMENTS
+    }
+
+    fun addWinToPlayer(playerId: String, isWin: Boolean) {
+        val winMap = playerWinMap.value ?: mutableMapOf()
+        winMap[playerId] = isWin
+        playerWinMap.value = winMap
+    }
+
+    fun finishPlayerWin() {
         _currentStep.value = Step.COMMENTS
     }
 
@@ -370,6 +390,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
             playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
             playerIsNew: Map<String, Boolean> = playerIsNewMap.value ?: emptyMap(),
+            playerWin: Map<String, Boolean> = playerWinMap.value ?: emptyMap(),
             gameColorList: List<String> = gameColors.value ?: emptyList()) {
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
@@ -386,6 +407,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 favoriteColors = rankedChoices
                 sortOrder = playerSort[id] ?: ""
                 isNew = playerIsNew[id] ?: false
+                isWin = playerWin[id] ?: false
             }
             players.add(newPlayer)
         }
@@ -444,10 +466,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             val p = PlayPlayerEntity(
                     player.name,
                     player.username,
-                    (playerSortMap.value ?: emptyMap<String, String>())[player.id],
-                    color = (playerColorMap.value ?: emptyMap<String, String>())[player.id],
-                    isNew = (playerIsNewMap.value ?: emptyMap<String, Boolean>())[player.id]
-                            ?: false
+                    (playerSortMap.value ?: emptyMap())[player.id],
+                    color = (playerColorMap.value ?: emptyMap())[player.id],
+                    isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
+                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false
             )
             play.addPlayer(p)
         }
@@ -461,6 +483,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         PLAYERS_COLOR,
         PLAYERS_SORT,
         PLAYERS_NEW,
+        PLAYERS_WIN,
         COMMENTS
     }
 }

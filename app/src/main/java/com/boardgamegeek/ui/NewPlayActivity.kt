@@ -128,6 +128,13 @@ class NewPlayActivity : AppCompatActivity() {
                             .addToBackStack(null)
                             .commit()
                 }
+                NewPlayViewModel.Step.PLAYERS_WIN -> {
+                    supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragmentContainer, NewPlayPlayerWinFragment())
+                            .addToBackStack(null)
+                            .commit()
+                }
                 NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
                             .beginTransaction()
