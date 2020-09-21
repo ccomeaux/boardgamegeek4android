@@ -33,7 +33,7 @@ class GeekListActivity : TabActivity() {
         super.onCreate(savedInstanceState)
 
         geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID)
-        geekListTitle = intent.getStringExtra(KEY_TITLE)
+        geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()
 
         safelySetTitle(geekListTitle)
 

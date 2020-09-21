@@ -42,7 +42,7 @@ class PersonActivity : HeroTabActivity() {
         super.onCreate(savedInstanceState)
 
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
-        name = intent.getStringExtra(KEY_PERSON_NAME)
+        name = intent.getStringExtra(KEY_PERSON_NAME).orEmpty()
         personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
         emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
 

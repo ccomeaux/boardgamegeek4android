@@ -146,7 +146,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     }
                 } catch (e: Exception) {
                     syncResult.stats.numParseExceptions++
-                    notifyUploadError(e.localizedMessage)
+                    notifyUploadError(e.localizedMessage.orEmpty())
                 }
             }
         }
@@ -200,7 +200,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     }
                 } catch (e: Exception) {
                     syncResult.stats.numParseExceptions++
-                    notifyUploadError(e.localizedMessage)
+                    notifyUploadError(e.localizedMessage.orEmpty())
                 }
             }
         }

@@ -114,7 +114,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
         val gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
-        gameName = intent.getStringExtra(KEY_GAME_NAME)
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         val imageUrl = intent.getStringExtra(KEY_IMAGE_URL) ?: ""
         val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL) ?: ""
         val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL) ?: ""

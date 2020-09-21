@@ -90,8 +90,8 @@ class GameCollectionItemActivity : HeroActivity() {
         gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
         collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID)
         collectionName = intent.getStringExtra(KEY_COLLECTION_NAME) ?: ""
-        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL)
-        heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL)
+        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
+        heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, YEAR_UNKNOWN)
         collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, YEAR_UNKNOWN)
     }

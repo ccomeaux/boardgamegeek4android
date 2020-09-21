@@ -40,7 +40,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
     }
 
     override fun readIntent(intent: Intent) {
-        title = intent.getStringExtra(KEY_TITLE)
+        title = intent.getStringExtra(KEY_TITLE).orEmpty()
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
         type = intent.getSerializableExtra(KEY_TYPE) as ProducerType
