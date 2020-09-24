@@ -2,6 +2,8 @@ package com.boardgamegeek.util;
 
 import android.text.TextUtils;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -67,8 +69,10 @@ public class StringUtils {
 	public static double parseDouble(String text, double defaultValue) {
 		if (TextUtils.isEmpty(text)) return defaultValue;
 		try {
-			return Double.parseDouble(text);
-		} catch (NumberFormatException | NullPointerException ex) {
+			Number parsed = NumberFormat.getNumberInstance().parse(text);
+			if (parsed == null) return defaultValue;
+			return parsed.doubleValue();
+		} catch (ParseException | NullPointerException ex) {
 			return defaultValue;
 		}
 	}
@@ -79,8 +83,8 @@ public class StringUtils {
 	public static boolean isNumeric(String text) {
 		if (TextUtils.isEmpty(text)) return false;
 		try {
-			Double.parseDouble(text);
-		} catch (NumberFormatException e) {
+			NumberFormat.getNumberInstance().parse(text);
+		} catch (ParseException e) {
 			return false;
 		}
 		return true;
@@ -107,7 +111,7 @@ public class StringUtils {
 		Set<String> set = new LinkedHashSet<>();
 		set.addAll(Arrays.asList(array1));
 		set.addAll(Arrays.asList(array2));
-		return set.toArray(new String[set.size()]);
+		return set.toArray(new String[0]);
 	}
 
 	/**
