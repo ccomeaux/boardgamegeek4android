@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
@@ -35,11 +34,11 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         recyclerView?.setHasFixedSize(false)
         recyclerView?.adapter = adapter
 
-        viewModel.game.observe(viewLifecycleOwner, Observer {
+        viewModel.game.observe(viewLifecycleOwner, {
             adapter.gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
         })
 
-        viewModel.collectionItems.observe(viewLifecycleOwner, Observer {
+        viewModel.collectionItems.observe(viewLifecycleOwner, {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError()
