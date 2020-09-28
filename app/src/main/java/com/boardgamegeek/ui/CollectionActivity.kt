@@ -11,7 +11,6 @@ import android.widget.AdapterView.OnItemSelectedListener
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.extensions.CollectionView
@@ -59,7 +58,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             }
         }
 
-        viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
+        viewModel.selectedViewId.observe(this, { id: Long -> viewId = id })
         if (savedInstanceState == null) {
             if (hideNavigation) {
                 viewModel.selectView(CollectionView.DEFAULT_DEFAULT_ID)
@@ -93,7 +92,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
                 }
             }
             it.adapter = adapter
-            viewModel.views.observe(this, Observer<List<CollectionViewEntity?>> { collectionViews: List<CollectionViewEntity?> ->
+            viewModel.views.observe(this, { collectionViews: List<CollectionViewEntity?> ->
                 if (collectionViews.isNotEmpty()) {
                     adapter.clear()
                     adapter.addAll(collectionViews)

@@ -85,7 +85,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Gmae")
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Game")
                 param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
                 param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
             }
@@ -203,22 +203,18 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             context.startActivity(intent)
         }
 
-        @JvmOverloads
-        @JvmStatic
         fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
                     ?: return
             context.startActivity(intent.clearTask().clearTop())
         }
 
-        @JvmStatic
         fun createIntentAsShortcut(context: Context, gameId: Int, gameName: String, thumbnailUrl: String): Intent? {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl) ?: return null
             intent.action = Intent.ACTION_VIEW
             return intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
         }
 
-        @JvmStatic
         fun createIntent(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
             if (gameId == BggContract.INVALID_ID) return null
             return context.intentFor<GameActivity>(

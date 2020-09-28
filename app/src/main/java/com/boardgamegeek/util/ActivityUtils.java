@@ -88,15 +88,6 @@ public class ActivityUtils {
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
-	public static void linkBgg(Context context, int gameId) {
-		if (gameId == BggContract.INVALID_ID) return;
-		linkToBgg(context, BOARDGAME_PATH, gameId);
-	}
-
-	public static void linkToBgg(Context context, String path, int id) {
-		link(context, createBggUri(path, id));
-	}
-
 	public static void link(Context context, String url) {
 		link(context, Uri.parse(url));
 	}

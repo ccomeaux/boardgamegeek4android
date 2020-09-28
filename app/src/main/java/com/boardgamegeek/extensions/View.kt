@@ -64,6 +64,26 @@ fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
     }
 }
 
+fun View.slideUpIn() {
+    if (this.visibility == VISIBLE) return
+    val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_up)
+    this.startAnimation(animation)
+    this.visibility = VISIBLE
+}
+
+fun View.slideDownOut() {
+    if (this.visibility == GONE) return
+    val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_down)
+    animation.setAnimationListener(object : Animation.AnimationListener {
+        override fun onAnimationStart(animation: Animation) {}
+        override fun onAnimationEnd(animation: Animation) {
+            visibility = GONE
+        }
+        override fun onAnimationRepeat(animation: Animation) {}
+    })
+    this.startAnimation(animation)
+}
+
 fun View.setColorViewValue(color: Int) {
     ColorUtils.setColorViewValue(this, color)
 }

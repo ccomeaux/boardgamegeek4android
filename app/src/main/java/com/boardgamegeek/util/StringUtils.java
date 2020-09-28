@@ -4,17 +4,12 @@ import android.text.TextUtils;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Provides utility methods for dealing with strings.
  */
 public class StringUtils {
-	public static final String TRUNCATED_TEXT_SUFFIX = "..";
-
 	private StringUtils() {
 	}
 
@@ -103,18 +98,6 @@ public class StringUtils {
 	}
 
 	/**
-	 * Returns a union of 2 arrays, ensuring that each string exists only once.
-	 */
-	public static String[] unionArrays(String[] array1, String[] array2) {
-		if (array1 == null) return array2;
-		if (array2 == null) return array1;
-		Set<String> set = new LinkedHashSet<>();
-		set.addAll(Arrays.asList(array1));
-		set.addAll(Arrays.asList(array2));
-		return set.toArray(new String[0]);
-	}
-
-	/**
 	 * Formats a list of items with commas and ampersands where necessary.
 	 */
 	public static <E> String formatList(List<E> list) {
@@ -140,30 +123,5 @@ public class StringUtils {
 			}
 		}
 		return sb.toString();
-	}
-
-	public static String limitText(String text, int length) {
-		if (TextUtils.isEmpty(text)) return "";
-		if (text.length() <= length) return text;
-		if (length > TRUNCATED_TEXT_SUFFIX.length())
-			return text.substring(0, length - TRUNCATED_TEXT_SUFFIX.length()) + TRUNCATED_TEXT_SUFFIX;
-		return text.substring(0, length);
-	}
-
-	public static String repeat(String string, int count) {
-		if (TextUtils.isEmpty(string)) return "";
-		if (count < 0) return string;
-
-		final int len = string.length();
-		final int size = len * count;
-
-		final char[] array = new char[size];
-		string.getChars(0, len, array, 0);
-		int n;
-		for (n = len; n < size - n; n <<= 1) {
-			System.arraycopy(array, 0, array, n, n);
-		}
-		System.arraycopy(array, 0, array, n, size - n);
-		return new String(array);
 	}
 }

@@ -51,76 +51,6 @@ public class ColorUtils {
 	private ColorUtils() {
 	}
 
-	/**
-	 * Determine the RGB value of a named color, or a string formatted as "#aarrggbb". Returns a transparent color if
-	 * the color can't be determined from the string.
-	 */
-	public static int parseColor(String colorString) {
-		if (TextUtils.isEmpty(colorString)) {
-			return Color.TRANSPARENT;
-		}
-		if (colorString.charAt(0) == '#') {
-			if (colorString.length() == 7 || colorString.length() == 9) {
-				// Use a long to avoid rollovers on #ffXXXXXX
-				long color = Long.parseLong(colorString.substring(1), 16);
-				if (colorString.length() == 7) {
-					// Set the alpha value
-					color |= 0x00000000ff000000;
-				}
-				return (int) color;
-			} else {
-				return Color.TRANSPARENT;
-			}
-		} else {
-			Integer color = colorNameMap.get(formatKey(colorString));
-			if (color != null) {
-				return color;
-			}
-		}
-		return Color.TRANSPARENT;
-	}
-
-	/**
-	 * Returns a color based on the rating. This maps to the colors used on BGG for integers, using a proportional blend
-	 * for any decimal places.
-	 */
-	public static int getRatingColor(double rating) {
-		int baseRating = Math.max(0, Math.min(10, ((int) rating)));
-		return blendColors(RATING_COLORS[baseRating], RATING_COLORS[baseRating + 1], baseRating + 1 - rating);
-	}
-
-	/**
-	 * Returns a color based that is ratio% of color1 and (1 - ratio)% of color2 (including alpha).
-	 */
-	private static int blendColors(int color1, int color2, double ratio) {
-		double ir = 1.0 - ratio;
-
-		int a = (int) (Color.alpha(color1) * ratio + Color.alpha(color2) * ir);
-		int r = (int) (Color.red(color1) * ratio + Color.red(color2) * ir);
-		int g = (int) (Color.green(color1) * ratio + Color.green(color2) * ir);
-		int b = (int) (Color.blue(color1) * ratio + Color.blue(color2) * ir);
-
-		return Color.argb(a, r, g, b);
-	}
-
-	/**
-	 * An array of RGBs that match the BGG ratings from 0 to 10.
-	 */
-	private static final int[] RATING_COLORS = {
-		0x00ffffff,
-		0xffff0000, // 1
-		0xffff3366, // 2
-		0xffff6699, // 3
-		0xffff66cc, // 4
-		0xffcc99ff, // 5
-		0xff9999ff, // 6
-		0xff99ffff, // 7
-		0xff66ff99, // 8
-		0xff33cc99, // 9
-		0xff00cc00, // 10
-		0x00ffffff
-	};
-
 	public static final ArrayMap<String, Integer> colorNameMap;
 	private static final ArrayList<Pair<String, Integer>> limitedColorNameList;
 	private static final ArrayList<Pair<String, Integer>> colorNameList;
@@ -175,35 +105,6 @@ public class ColorUtils {
 		return (List<Pair<String, Integer>>) limitedColorNameList.clone();
 	}
 
-	public static void setTextViewBackground(TextView view, int color) {
-		setViewBackground(view, color);
-		view.setTextColor(getTextColor(color));
-	}
-
-	/**
-	 * Set the background of a {@link android.view.View} to the specified color, with a darker version of the
-	 * color as a border.
-	 */
-	public static void setViewBackground(View view, int color) {
-		Resources r = view.getResources();
-
-		Drawable currentDrawable = view.getBackground();
-		GradientDrawable backgroundDrawable;
-		if (currentDrawable instanceof GradientDrawable) {
-			// Reuse drawable
-			backgroundDrawable = (GradientDrawable) currentDrawable;
-		} else {
-			backgroundDrawable = new GradientDrawable();
-		}
-
-		int darkenedColor = darkenColor(color);
-
-		backgroundDrawable.setColor(color);
-		backgroundDrawable.setStroke(getStrokeWidth(r), darkenedColor);
-
-		ViewCompat.setBackground(view, backgroundDrawable);
-	}
-
 	private static int getStrokeWidth(Resources r) {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, r.getDisplayMetrics());
 	}
@@ -252,21 +153,5 @@ public class ColorUtils {
 			return Color.argb(127, 127, 127, 127);
 		}
 		return Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256, Color.blue(color) * 192 / 256);
-	}
-
-	/**
-	 * Calculate whether a color is light or dark, based on a commonly known brightness formula.
-	 * <p>
-	 * {@literal http://en.wikipedia.org/wiki/HSV_color_space%23Lightness}
-	 */
-	public static boolean isColorDark(int color) {
-		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
-	}
-
-	@ColorInt
-	public static int getTextColor(int backgroundColor) {
-		return backgroundColor != Color.TRANSPARENT && ColorUtils.isColorDark(backgroundColor) ?
-			Color.WHITE :
-			Color.BLACK;
 	}
 }
