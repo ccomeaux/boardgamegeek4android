@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -68,10 +67,10 @@ class GameCollectionItemActivity : HeroActivity() {
         if (collectionId == BggContract.INVALID_ID) fab.hide() else fab.ensureShown()
 
         viewModel.setId(collectionId)
-        viewModel.item.observe(this, Observer { (status, data, _) ->
-            swipeRefreshLayout.isRefreshing = (status == Status.REFRESHING)
-            if (status == Status.SUCCESS) {
-                data?.let { entity ->
+        viewModel.item.observe(this, { resource ->
+            swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
+            if (resource?.status == Status.SUCCESS) {
+                resource.data?.let { entity ->
                     collectionName = entity.collectionName
                     collectionYearPublished = entity.yearPublished
                     thumbnailUrl = entity.thumbnailUrl
@@ -81,7 +80,7 @@ class GameCollectionItemActivity : HeroActivity() {
                 }
             }
         })
-        viewModel.isEdited.observe(this, Observer { isItemUpdated = it })
+        viewModel.isEdited.observe(this, { isItemUpdated = it })
     }
 
     override fun readIntent(intent: Intent) {
@@ -90,8 +89,8 @@ class GameCollectionItemActivity : HeroActivity() {
         gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
         collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID)
         collectionName = intent.getStringExtra(KEY_COLLECTION_NAME) ?: ""
-        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL)
-        heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL)
+        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
+        heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, YEAR_UNKNOWN)
         collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, YEAR_UNKNOWN)
     }

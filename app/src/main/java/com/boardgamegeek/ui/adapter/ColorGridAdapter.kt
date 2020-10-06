@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui.adapter
 
-import android.content.Context
 import android.graphics.Color
-import android.util.Pair
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter

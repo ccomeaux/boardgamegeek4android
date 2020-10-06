@@ -127,6 +127,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 val mapper = CollectionItemMapper()
                 val collectionIds = arrayListOf<Int>()
 
+                // TODO This doesn't sync only played games (the played flag needs to be set explicitly)
                 result.items?.forEach { item ->
                     val pair = mapper.map(item)
                     val collectionId = dao.saveItem(pair.first, pair.second, timestamp)

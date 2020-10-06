@@ -9,7 +9,6 @@ import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.boardgamegeek.entities.GameCommentEntity
-import com.boardgamegeek.io.model.ForumResponse
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.livedata.CommentsDataSource
 import com.boardgamegeek.provider.BggContract
@@ -37,8 +36,8 @@ class GameCommentsViewModel(application: Application) : AndroidViewModel(applica
     private var dataSourceFactory: DataSource.Factory<Int, Game.Comment> = CommentsDataSourceFactory(BggContract.INVALID_ID, true)
 
     private val config = PagedList.Config.Builder()
-            .setPageSize(ForumResponse.PAGE_SIZE)
-            .setInitialLoadSizeHint(ForumResponse.PAGE_SIZE)
+            .setPageSize(Game.PAGE_SIZE)
+            .setInitialLoadSizeHint(Game.PAGE_SIZE)
             .setPrefetchDistance(10)
             .setEnablePlaceholders(true)
             .build()

@@ -17,6 +17,8 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.alpha
@@ -25,7 +27,6 @@ import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.util.ColorUtils
 import kotlin.math.pow
 
 fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
@@ -64,8 +65,51 @@ fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
     }
 }
 
+fun View.slideUpIn() {
+    if (this.visibility == VISIBLE) return
+    val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_up)
+    this.startAnimation(animation)
+    this.visibility = VISIBLE
+}
+
+fun View.slideDownOut() {
+    if (this.visibility == GONE) return
+    val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_down)
+    animation.setAnimationListener(object : Animation.AnimationListener {
+        override fun onAnimationStart(animation: Animation) {}
+        override fun onAnimationEnd(animation: Animation) {
+            visibility = GONE
+        }
+
+        override fun onAnimationRepeat(animation: Animation) {}
+    })
+    this.startAnimation(animation)
+}
+
+/**
+ * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
+ * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
+ * do anything for other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
+ */
 fun View.setColorViewValue(color: Int) {
-    ColorUtils.setColorViewValue(this, color)
+    if (this is ImageView) {
+        val currentDrawable = drawable
+        val colorChoiceDrawable = if (currentDrawable is GradientDrawable) {
+            // Reuse drawable
+            currentDrawable
+        } else {
+            GradientDrawable().apply { shape = GradientDrawable.OVAL }
+        }
+
+        colorChoiceDrawable.setColor(color)
+        colorChoiceDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt(), color.darkenColor())
+
+        setImageDrawable(colorChoiceDrawable)
+    } else if (this is TextView) {
+        if (color != Color.TRANSPARENT) {
+            setTextColor(color)
+        }
+    }
 }
 
 fun View.applyDarkScrim() {

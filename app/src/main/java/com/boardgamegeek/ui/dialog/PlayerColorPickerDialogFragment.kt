@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.util.Pair
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
@@ -30,7 +29,7 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
             val dialogFragment = PlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
                         R.string.title_add_color,
-                        ColorUtils.getColorList(),
+                        ColorUtils.colorList,
                         null,
                         null,
                         null,

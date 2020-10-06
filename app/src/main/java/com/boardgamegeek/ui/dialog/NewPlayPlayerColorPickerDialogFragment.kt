@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.util.Pair
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.extensions.showAndSurvive
@@ -33,7 +32,7 @@ class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
             val df = NewPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
                         playerDescription,
-                        ColorUtils.getColorList(),
+                        ColorUtils.colorList,
                         ArrayList(featuredColors),
                         selectedColor,
                         ArrayList(disabledColors),

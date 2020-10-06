@@ -43,7 +43,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
-        GamePagerAdapter(this, gameId, intent.getStringExtra(KEY_GAME_NAME))
+        GamePagerAdapter(this, gameId, intent.getStringExtra(KEY_GAME_NAME).orEmpty())
     }
 
     override val optionsMenuId = R.menu.game
@@ -60,7 +60,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         initializeViewPager()
 
         changeName(intent.getStringExtra(KEY_GAME_NAME) ?: "")
-        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL), intent.getStringExtra(KEY_THUMBNAIL_URL))
+        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty(), intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty())
 
         viewModel.setId(gameId)
 
@@ -208,22 +208,18 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             context.startActivity(intent)
         }
 
-        @JvmOverloads
-        @JvmStatic
         fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
                     ?: return
             context.startActivity(intent.clearTask().clearTop())
         }
 
-        @JvmStatic
         fun createIntentAsShortcut(context: Context, gameId: Int, gameName: String, thumbnailUrl: String): Intent? {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl) ?: return null
             intent.action = Intent.ACTION_VIEW
             return intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
         }
 
-        @JvmStatic
         fun createIntent(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
             if (gameId == BggContract.INVALID_ID) return null
             return context.intentFor<GameActivity>(

@@ -55,7 +55,7 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID)
         threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT) ?: ""
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
-        forumTitle = intent.getStringExtra(KEY_FORUM_TITLE)
+        forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME) ?: ""
         objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType

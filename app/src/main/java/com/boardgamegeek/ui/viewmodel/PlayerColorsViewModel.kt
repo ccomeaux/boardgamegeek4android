@@ -50,7 +50,7 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
         var order = 1
         val newColors = mutableListOf<PlayerColorEntity>()
 
-        val availableColors = ColorUtils.getLimitedColorList()
+        val availableColors = ColorUtils.limitedColorList
 
         val playerDetail = user.value?.let {
             val name = it.first

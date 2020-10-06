@@ -17,7 +17,6 @@ class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = if (isFavorite) FAVORITE else NOT_FAVORITE
 
     override fun toShortDescription() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)
-            ?: ""
 
     override fun getSelection() = when {
         isFavorite -> "${Collection.STARRED}=?"

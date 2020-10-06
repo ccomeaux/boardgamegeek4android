@@ -9,7 +9,6 @@ import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
@@ -95,7 +94,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
             this.showAndSurvive(privateInfoDialogFragment)
         }
 
-        viewModel.swatch.observe(viewLifecycleOwner, Observer {
+        viewModel.swatch.observe(viewLifecycleOwner, {
             it?.let { swatch ->
                 listOf(privateInfoHeader, wishlistHeader, tradeHeader, privateInfoHintView).forEach { view ->
                     view.setTextColor(swatch.rgb)
@@ -105,15 +104,17 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
                 }
             }
         })
-        viewModel.item.observe(viewLifecycleOwner, Observer { (status, item, message) ->
-            if (status == Status.ERROR) {
-                showError(message)
+        viewModel.item.observe(viewLifecycleOwner, { resource ->
+            if (resource?.status == Status.ERROR) {
+                showError(resource.message)
                 isItemEditable = false
             } else {
-                if (item != null) {
-                    internalId = item.internalId
-                    isDirty = item.isDirty
-                    updateUi(item)
+                if (resource?.data != null) {
+                    resource.data.let {
+                        internalId = it.internalId
+                        isDirty = it.isDirty
+                        updateUi(it)
+                    }
                     isItemEditable = true
                 } else {
                     internalId = BggContract.INVALID_ID.toLong()

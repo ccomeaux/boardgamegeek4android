@@ -51,7 +51,7 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
     }
 
     override fun readIntent(intent: Intent) {
-        buddyName = intent.getStringExtra(KEY_BUDDY_NAME)
+        buddyName = intent.getStringExtra(KEY_BUDDY_NAME).orEmpty()
     }
 
     override fun onCreatePane(intent: Intent) = BuddyCollectionFragment()

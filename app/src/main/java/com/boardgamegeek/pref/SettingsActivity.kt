@@ -86,8 +86,8 @@ class SettingsActivity : DrawerActivity() {
 
             when (fragmentKey) {
                 ACTION_SYNC -> {
-                    entryValues = resources.getStringArray(R.array.pref_sync_status_values) ?: emptyArray()
-                    entries = resources.getStringArray(R.array.pref_sync_status_entries) ?: emptyArray()
+                    entryValues = resources.getStringArray(R.array.pref_sync_status_values)
+                    entries = resources.getStringArray(R.array.pref_sync_status_entries)
 
                     updateSyncStatusSummary(PREFERENCES_KEY_SYNC_STATUSES)
                 }

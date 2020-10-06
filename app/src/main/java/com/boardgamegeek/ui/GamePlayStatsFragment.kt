@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build.VERSION
@@ -31,7 +32,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
 import com.boardgamegeek.ui.widget.PlayerStatView
-import com.boardgamegeek.util.AnimationUtils
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -105,7 +105,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
             playerTransition = AutoTransition()
             playerTransition?.duration = 150
-            AnimationUtils.setInterpolator(context, playerTransition)
+            setInterpolator(context, playerTransition)
         }
 
         scoreHelpView.setOnClickListener {
@@ -120,6 +120,12 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                     .setTitle(R.string.title_players_skill)
                     .setMessage(R.string.player_skill_info)
                     .show()
+        }
+    }
+
+    private fun setInterpolator(context: Context?, transition: Transition?) {
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+            transition?.interpolator = android.view.animation.AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in)
         }
     }
 

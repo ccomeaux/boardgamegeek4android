@@ -37,7 +37,7 @@ class GamePlayStatsActivity : SimpleSinglePaneActivity() {
 
     override fun readIntent(intent: Intent) {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME)
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         headerColor = intent.getIntExtra(KEY_HEADER_COLOR, ContextCompat.getColor(this, R.color.accent))
     }
 

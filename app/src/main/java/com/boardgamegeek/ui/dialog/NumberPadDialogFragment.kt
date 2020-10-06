@@ -14,12 +14,16 @@ import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.dialog_number_pad.*
 import org.jetbrains.anko.childrenRecursiveSequence
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
+import java.text.DecimalFormatSymbols
+import java.text.NumberFormat
+import java.text.ParseException
 import kotlin.math.min
 
 abstract class NumberPadDialogFragment : DialogFragment() {
     private var minValue = DEFAULT_MIN_VALUE
     private var maxValue = DEFAULT_MAX_VALUE
     private var maxMantissa = DEFAULT_MAX_MANTISSA
+    private val decimal = DecimalFormatSymbols.getInstance().decimalSeparator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +48,8 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        decimalSeparator.text = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
+
         minValue = arguments?.getDouble(KEY_MIN_VALUE) ?: DEFAULT_MIN_VALUE
         maxValue = arguments?.getDouble(KEY_MAX_VALUE) ?: DEFAULT_MAX_VALUE
         maxMantissa = arguments?.getInt(KEY_MAX_MANTISSA) ?: DEFAULT_MAX_MANTISSA
@@ -130,17 +136,17 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     }
 
     private fun getMantissaLength(text: String): Int {
-        if (!text.contains(".")) {
+        if (!text.contains(decimal)) {
             return 0
         }
-        val parts = text.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val parts = text.trim().split(decimal).toTypedArray()
         return if (parts.size > 1) {
             parts[1].length
         } else 0
     }
 
     private fun isWithinRange(text: String): Boolean {
-        if (text.isEmpty() || "." == text || "-." == text) {
+        if (text.isEmpty() || decimal.toString() == text || "-$decimal" == text) {
             return true
         }
         if (hasTwoDecimalPoints(text)) {
@@ -152,17 +158,22 @@ abstract class NumberPadDialogFragment : DialogFragment() {
 
     private fun hasTwoDecimalPoints(text: String?): Boolean {
         if (text == null) return false
-        val decimalIndex = text.indexOf('.')
-        return decimalIndex >= 0 && text.indexOf('.', decimalIndex + 1) >= 0
+        val decimalIndex = text.indexOf(decimal)
+        return decimalIndex >= 0 && text.indexOf(decimal, decimalIndex + 1) >= 0
     }
 
     private fun parseDouble(text: String): Double {
-        return when {
-            text.isEmpty() || "." == text || "-" == text || "-." == text -> 0.0
-            text.endsWith(".") -> "${text}0".toDouble()
-            text.startsWith(".") -> "0$text".toDouble()
-            text.startsWith("-.") -> ("-0" + text.substring(1)).toDouble()
-            else -> text.toDouble()
+        val parsableText = when {
+            text.isEmpty() || decimal.toString() == text || "-" == text || "-$decimal" == text -> ""
+            text.endsWith(decimal) -> "${text}0"
+            text.startsWith(decimal) -> "0$text"
+            text.startsWith("-$decimal") -> "-0${text.substring(1)}"
+            else -> text
+        }
+        return try {
+            NumberFormat.getNumberInstance().parse(parsableText)?.toDouble() ?: 0.0
+        } catch (ex: ParseException) {
+            0.0
         }
     }
 
@@ -179,8 +190,8 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         private const val KEY_MAX_VALUE = "MAX_VALUE"
         private const val KEY_MAX_MANTISSA = "MAX_MANTISSA"
         private const val KEY_REQUEST_CODE = "REQUEST_CODE"
-        val DEFAULT_MIN_VALUE = -Double.MAX_VALUE
-        val DEFAULT_MAX_VALUE = Double.MAX_VALUE
+        const val DEFAULT_MIN_VALUE = -Double.MAX_VALUE
+        const val DEFAULT_MAX_VALUE = Double.MAX_VALUE
         const val DEFAULT_MAX_MANTISSA = 10
         const val DEFAULT_REQUEST_CODE = 0
 
@@ -198,7 +209,12 @@ abstract class NumberPadDialogFragment : DialogFragment() {
                 if (!subtitle.isNullOrBlank()) {
                     putString(KEY_SUBTITLE, subtitle)
                 }
-                if (initialValue.toDoubleOrNull() != null) {
+                val initialNumber = try {
+                    NumberFormat.getInstance().parse(initialValue)?.toDouble()
+                } catch (e: ParseException) {
+                    null
+                }
+                if (initialNumber != null) {
                     putString(KEY_INITIAL_VALUE, initialValue)
                 }
                 val color = colorDescription.asColorRgb()
