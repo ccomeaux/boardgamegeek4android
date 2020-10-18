@@ -7,7 +7,7 @@ import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 class CollectionRatingNumberPadDialogFragment : NumberPadDialogFragment() {
     private val viewModel by activityViewModels<GameCollectionItemViewModel>()
 
-    override fun done(output: Double, requestCode: Int) {
+    override fun done(output: Double, requestCode: Int, requestKey: String) {
         viewModel.updateRating(output)
     }
 

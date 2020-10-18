@@ -1,5 +1,8 @@
 package com.boardgamegeek.entities
 
+import android.content.Context
+import com.boardgamegeek.extensions.asScore
+import java.text.DecimalFormat
 import java.util.*
 
 data class NewPlayPlayerEntity(
@@ -19,6 +22,13 @@ data class NewPlayPlayerEntity(
     var isNew: Boolean = false
 
     var isWin: Boolean = false
+
+    var score: String = ""
+
+    fun getScoreDescription(context: Context?): String? {
+        val scoreAsDouble = score.toDoubleOrNull()
+        return scoreAsDouble?.asScore(context, format = DecimalFormat("#,##0.#")) ?: score
+    }
 
     var color: String = ""
 

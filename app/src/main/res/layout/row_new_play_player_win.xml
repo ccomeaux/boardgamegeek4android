@@ -18,7 +18,8 @@
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:background="#0f0" />
+		tools:background="#0f0"
+		tools:ignore="ContentDescription" />
 
 	<TextView
 		android:id="@+id/seatView"
@@ -88,6 +89,35 @@
 		app:layout_constraintTop_toBottomOf="@+id/teamView"
 		app:layout_constraintVertical_chainStyle="packed"
 		tools:text="First" />
+
+	<ImageView
+		android:id="@+id/scoreButton"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:layout_marginEnd="@dimen/padding_extra"
+		android:layout_marginRight="@dimen/padding_extra"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="fitXY"
+		android:src="@drawable/ic_score"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/winCheckBox"
+		app:layout_constraintRight_toLeftOf="@+id/winCheckBox"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:ignore="ContentDescription"
+		tools:tint="#2000"
+		tools:tintMode="src_in" />
+
+	<TextView
+		android:id="@+id/scoreView"
+		style="@style/Text.Big"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/scoreButton"
+		app:layout_constraintStart_toStartOf="@+id/scoreButton"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="529" />
 
 	<CheckBox
 		android:id="@+id/winCheckBox"

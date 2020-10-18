@@ -12,6 +12,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import org.jetbrains.anko.collections.forEachWithIndex
+import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -67,6 +68,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val playerIsNewMap = MutableLiveData<MutableMap<String, Boolean>>()
     val mightBeNewPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
     private val playerWinMap = MutableLiveData<MutableMap<String, Boolean>>()
+    private val playerScoresMap = MutableLiveData<MutableMap<String, String>>()
 
     val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
         gameRepository.getPlayColors(it)
@@ -113,6 +115,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         addedPlayers.addSource(playerWinMap) { map ->
             map?.let {
                 assemblePlayers(playerWin = it)
+            }
+        }
+        addedPlayers.addSource(playerScoresMap) { map ->
+            map?.let {
+                assemblePlayers(playerScores = it)
             }
         }
         addedPlayers.addSource(gameColors) { list ->
@@ -342,6 +349,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         playerWinMap.value = winMap
     }
 
+    private val scoreFormat = DecimalFormat("0.#########")
+
+    fun addScoreToPlayer(playerId: String, score: Double) {
+        val scoreMap = playerScoresMap.value ?: mutableMapOf()
+        scoreMap[playerId] = scoreFormat.format(score)
+        playerScoresMap.value = scoreMap
+    }
+
     fun finishPlayerWin() {
         _currentStep.value = Step.COMMENTS
     }
@@ -351,13 +366,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }.also { playerFilter = filter }
 
     private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<PlayerEntity>?, filter: String): List<PlayerEntity> {
-        val self = allPlayers?.find { it.username == AccountUtils.getUsername(getApplication()) }
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
         // 1. me
-        self?.let {
-            newList.add(it)
-        }
+        val self = allPlayers?.find { it.username == AccountUtils.getUsername(getApplication()) }
+        self?.let { newList.add(it) }
         //  2. last played at this location
         if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {
             val lastPlayers = prefs.getLastPlayPlayerEntities()
@@ -391,7 +404,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
             playerIsNew: Map<String, Boolean> = playerIsNewMap.value ?: emptyMap(),
             playerWin: Map<String, Boolean> = playerWinMap.value ?: emptyMap(),
-            gameColorList: List<String> = gameColors.value ?: emptyList()) {
+            playerScores: Map<String, String> = playerScoresMap.value ?: emptyMap(),
+            gameColorList: List<String> = gameColors.value ?: emptyList(),
+    ) {
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
             val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
@@ -408,6 +423,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 sortOrder = playerSort[id] ?: ""
                 isNew = playerIsNew[id] ?: false
                 isWin = playerWin[id] ?: false
+                score = playerScores[id] ?: ""
             }
             players.add(newPlayer)
         }
@@ -469,7 +485,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                     (playerSortMap.value ?: emptyMap())[player.id],
                     color = (playerColorMap.value ?: emptyMap())[player.id],
                     isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
-                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false
+                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
+                    score = (playerScoresMap.value ?: emptyMap())[player.id] ?: "",
             )
             play.addPlayer(p)
         }

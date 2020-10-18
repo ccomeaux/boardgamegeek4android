@@ -1,27 +1,32 @@
 package com.boardgamegeek.ui
 
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.ui.dialog.NewPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import com.boardgamegeek.util.DialogUtils
 import kotlinx.android.synthetic.main.fragment_new_play_player_win.*
 import kotlinx.android.synthetic.main.row_new_play_player_win.view.*
 import kotlin.properties.Delegates
 
 class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win) {
     private val viewModel by activityViewModels<NewPlayViewModel>()
-    private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel) }
+    private val adapter: PlayersAdapter by lazy { PlayersAdapter(requireActivity(), viewModel) }
 
     override fun onResume() {
         super.onResume()
@@ -52,11 +57,12 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].isWin == newList[newItemPosition].isWin
+            return oldList[oldItemPosition].isWin == newList[newItemPosition].isWin &&
+                    oldList[oldItemPosition].score == newList[newItemPosition].score
         }
     }
 
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel)
+    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
         : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
@@ -116,6 +122,12 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
                         itemView.seatView.isVisible = true
                     }
 
+                    itemView.scoreView.text = player.getScoreDescription(itemView.context)
+
+                    itemView.scoreButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
+                    itemView.scoreButton.setSelectableBackgroundBorderless()
+                    itemView.scoreButton.setOnClickListener { score(player) }
+
                     itemView.winCheckBox.isChecked = player.isWin
 
                     itemView.winCheckBox.setOnCheckedChangeListener { _, isChecked ->
@@ -124,6 +136,15 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
                     }
                 }
             }
+        }
+
+        private fun score(player: NewPlayPlayerEntity) {
+            val fragment = NewPlayerScoreNumberPadDialogFragment.newInstance(
+                    player.id,
+                    player.score,
+                    player.color,
+                    player.description)
+            DialogUtils.showFragment(activity, fragment, "score_dialog")
         }
     }
 }
