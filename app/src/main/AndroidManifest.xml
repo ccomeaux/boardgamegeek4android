@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-	package="com.boardgamegeek"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	package="com.boardgamegeek"
 	android:installLocation="auto">
 
-	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
-	<uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-	<uses-permission android:name="android.permission.INTERNET"/>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-	<uses-permission android:name="android.permission.READ_SYNC_STATS"/>
-	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+	<uses-permission android:name="android.permission.USE_CREDENTIALS" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.READ_SYNC_STATS" />
+	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
 	<application
 		android:name=".BggApplication"
@@ -30,21 +29,21 @@
 		<activity
 			android:name=".ui.NewPlayActivity"
 			android:label="@string/title_new_play"
-			android:theme="@style/Theme.bgglight">
-		</activity>
+			android:theme="@style/Theme.bgglight"
+			android:windowSoftInputMode="adjustResize" />
 		<activity
 			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
 			android:launchMode="singleTop"
 			android:theme="@style/SplashTheme">
 			<intent-filter>
-				<action android:name="android.intent.action.MAIN"/>
+				<action android:name="android.intent.action.MAIN" />
 
-				<category android:name="android.intent.category.LAUNCHER"/>
+				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 			<meta-data
 				android:name="android.app.shortcuts"
-				android:resource="@xml/shortcuts"/>
+				android:resource="@xml/shortcuts" />
 		</activity>
 		<activity
 			android:name=".ui.CollectionActivity"
@@ -54,63 +53,63 @@
 			android:windowSoftInputMode="adjustNothing">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.CollectionDetailsActivity"
 			android:label="@string/title_collection_details">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.DesignersActivity"
 			android:label="@string/title_designers">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.ArtistsActivity"
 			android:label="@string/title_artists">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PublishersActivity"
 			android:label="@string/title_publishers">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.MechanicsActivity"
 			android:label="@string/title_mechanics">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.MechanicActivity"
 			android:label="@string/title_mechanic">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.CategoriesActivity"
 			android:label="@string/title_categories">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.CategoryActivity"
 			android:label="@string/title_category">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 
 		<activity-alias
@@ -118,14 +117,14 @@
 			android:label="@string/title_game"
 			android:targetActivity=".ui.CollectionActivity">
 			<intent-filter>
-				<action android:name="android.intent.action.CREATE_SHORTCUT"/>
+				<action android:name="android.intent.action.CREATE_SHORTCUT" />
 
-				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity-alias>
 
 		<activity
@@ -133,7 +132,7 @@
 			android:label="@string/title_hotness">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 
 		<activity
@@ -141,31 +140,31 @@
 			android:label="@string/title_top_games">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"
-			android:label="@string/title_game"/>
+			android:label="@string/title_game" />
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/Theme.MaterialComponents.NoActionBar"/>
+			android:theme="@style/Theme.MaterialComponents.NoActionBar" />
 		<activity
 			android:name=".ui.GameDetailActivity"
-			android:label="@string/title_game_detail"/>
+			android:label="@string/title_game_detail" />
 		<activity
 			android:name=".ui.PersonActivity"
 			android:exported="false"
-			android:label="@string/title_artist"/>
+			android:label="@string/title_artist" />
 		<activity
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
 			android:label="@string/title_buddies">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.BuddyActivity"
@@ -173,27 +172,27 @@
 			android:label="@string/title_buddy">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.BuddiesActivity"/>
+				android:value=".ui.BuddiesActivity" />
 		</activity>
 		<activity
 			android:name=".ui.BuddyCollectionActivity"
 			android:exported="false"
-			android:label="@string/title_collection"/>
+			android:label="@string/title_collection" />
 		<activity
 			android:name=".ui.BuddyPlaysActivity"
 			android:exported="false"
-			android:label="@string/title_plays"/>
+			android:label="@string/title_plays" />
 		<activity
 			android:name=".ui.PlayerColorsActivity"
 			android:label="@string/title_favorite_colors"
-			android:theme="@style/Theme.bgglight"/>
+			android:theme="@style/Theme.bgglight" />
 		<activity
 			android:name=".ui.PlaysSummaryActivity"
 			android:exported="false"
 			android:label="@string/title_plays">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlaysActivity"
@@ -201,7 +200,7 @@
 			android:label="@string/title_plays">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.PlaysSummaryActivity"/>
+				android:value=".ui.PlaysSummaryActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlayersActivity"
@@ -209,7 +208,7 @@
 			android:label="@string/title_players">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.PlaysSummaryActivity"/>
+				android:value=".ui.PlaysSummaryActivity" />
 		</activity>
 		<activity
 			android:name=".ui.LocationsActivity"
@@ -217,7 +216,7 @@
 			android:label="@string/title_locations">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.PlaysSummaryActivity"/>
+				android:value=".ui.PlaysSummaryActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlayStatsActivity"
@@ -225,7 +224,7 @@
 			android:label="@string/title_play_stats">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.PlaysSummaryActivity"/>
+				android:value=".ui.PlaysSummaryActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlayActivity"
@@ -233,7 +232,7 @@
 			android:label="@string/title_play">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.PlaysActivity"/>
+				android:value=".ui.PlaysActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlayerPlaysActivity"
@@ -241,7 +240,7 @@
 			android:label="@string/title_player">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.PlayersActivity"/>
+				android:value=".ui.PlayersActivity" />
 		</activity>
 		<activity
 			android:name=".ui.LocationActivity"
@@ -249,7 +248,7 @@
 			android:label="@string/title_location">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.LocationsActivity"/>
+				android:value=".ui.LocationsActivity" />
 		</activity>
 		<activity
 			android:name=".ui.SearchResultsActivity"
@@ -258,84 +257,84 @@
 			android:label=""
 			android:launchMode="singleTop">
 			<intent-filter>
-				<action android:name="android.intent.action.SEARCH"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="android.intent.action.SEARCH" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 			<meta-data
 				android:name="android.app.searchable"
-				android:resource="@xml/searchable"/>
+				android:resource="@xml/searchable" />
 		</activity>
 		<activity
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
 			android:launchMode="singleTop"
-			android:theme="@style/Theme.bgglight"/>
+			android:theme="@style/Theme.bgglight" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
 			android:label="@string/title_log_player"
-			android:theme="@style/Theme.bgglight"/>
+			android:theme="@style/Theme.bgglight" />
 		<activity
 			android:name=".ui.GameCollectionItemActivity"
-			android:label="@string/title_collection"/>
+			android:label="@string/title_collection" />
 		<activity
 			android:name=".ui.GamePlaysActivity"
-			android:label="@string/title_plays"/>
+			android:label="@string/title_plays" />
 		<activity
 			android:name=".ui.GamePlayStatsActivity"
-			android:label="@string/title_play_stats"/>
+			android:label="@string/title_play_stats" />
 		<activity
 			android:name=".ui.GameColorsActivity"
-			android:label="@string/title_colors"/>
+			android:label="@string/title_colors" />
 		<activity
 			android:name=".ui.CommentsActivity"
-			android:label="@string/title_comments"/>
+			android:label="@string/title_comments" />
 		<activity
 			android:name=".ui.ForumsActivity"
 			android:label="@string/title_forums">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.ForumActivity"
-			android:label="@string/title_forum"/>
+			android:label="@string/title_forum" />
 		<activity
 			android:name=".ui.GeekListsActivity"
 			android:label="@string/title_geeklists">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.GeekListActivity"
 			android:label="@string/title_geeklist">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.GeekListsActivity"/>
+				android:value=".ui.GeekListsActivity" />
 		</activity>
 		<activity
 			android:name=".ui.GeekListItemActivity"
-			android:label="@string/title_geeklist"/>
+			android:label="@string/title_geeklist" />
 		<activity
 			android:name=".ui.ThreadActivity"
-			android:label="@string/title_thread"/>
+			android:label="@string/title_thread" />
 		<activity
 			android:name=".ui.ArticleActivity"
-			android:label="Article"/>
+			android:label="Article" />
 		<activity
 			android:name=".ui.DataActivity"
 			android:label="@string/title_backup">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity"/>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".pref.SettingsActivity"
@@ -343,24 +342,24 @@
 			android:label="@string/title_settings"
 			android:theme="@style/Theme.bgglight">
 			<intent-filter>
-				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="@string/intent_action_account"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="@string/intent_action_account" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="@string/intent_action_sync"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="@string/intent_action_sync" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<intent-filter>
-				<action android:name="@string/intent_action_data"/>
-				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="@string/intent_action_data" />
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
 		<activity
@@ -369,36 +368,35 @@
 			android:excludeFromRecents="true"
 			android:label="@string/title_login"
 			android:theme="@style/Theme.bgglight.Dialog.NoTitle"
-			android:windowSoftInputMode="adjustResize|stateVisible"/>
+			android:windowSoftInputMode="adjustResize|stateVisible" />
 
 		<service
 			android:name=".service.SyncService"
 			android:exported="true">
 			<intent-filter>
-				<action android:name="android.content.SyncAdapter"/>
+				<action android:name="android.content.SyncAdapter" />
 			</intent-filter>
 
 			<meta-data
 				android:name="android.content.SyncAdapter"
-				android:resource="@xml/syncadapter"/>
+				android:resource="@xml/syncadapter" />
 		</service>
 		<service
 			android:name=".auth.AuthenticationService"
 			android:exported="true">
 			<intent-filter>
-				<action android:name="android.accounts.AccountAuthenticator"/>
+				<action android:name="android.accounts.AccountAuthenticator" />
 			</intent-filter>
 
 			<meta-data
 				android:name="android.accounts.AccountAuthenticator"
-				android:resource="@xml/authenticator"/>
+				android:resource="@xml/authenticator" />
 		</service>
 
 		<!-- Firebase Cloud Messaging (FCM) -->
-		<service
-			android:name=".firebase.BggFirebaseMessagingService">
+		<service android:name=".firebase.BggFirebaseMessagingService">
 			<intent-filter>
-				<action android:name="com.google.firebase.MESSAGING_EVENT"/>
+				<action android:name="com.google.firebase.MESSAGING_EVENT" />
 			</intent-filter>
 		</service>
 
@@ -406,29 +404,29 @@
 			android:name=".provider.BggProvider"
 			android:authorities="com.boardgamegeek"
 			android:exported="true"
-			android:label="@string/provider_label"/>
+			android:label="@string/provider_label" />
 
 		<receiver
 			android:name=".service.CancelReceiver"
-			android:exported="false"/>
+			android:exported="false" />
 
 		<meta-data
 			android:name="android.app.default_searchable"
-			android:value=".ui.SearchResultsActivity"/>
+			android:value=".ui.SearchResultsActivity" />
 		<meta-data
 			android:name="com.crashlytics.ApiKey"
-			android:value="ce3b2fdec1306105cd9f867446334e513aa09208"/>
+			android:value="ce3b2fdec1306105cd9f867446334e513aa09208" />
 
 		<!-- Firebase Cloud Messaging (FCM) -->
 		<meta-data
 			android:name="com.google.firebase.messaging.default_notification_icon"
-			android:resource="@drawable/ic_stat_bgg"/>
+			android:resource="@drawable/ic_stat_bgg" />
 		<meta-data
 			android:name="com.google.firebase.messaging.default_notification_color"
-			android:resource="@color/primary"/>
+			android:resource="@color/primary" />
 		<meta-data
 			android:name="com.google.firebase.messaging.default_notification_channel_id"
-			android:value="firebase_messages"/>
+			android:value="firebase_messages" />
 	</application>
 
 </manifest>
