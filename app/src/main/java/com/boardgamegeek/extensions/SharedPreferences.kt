@@ -4,9 +4,10 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.text.TextUtils
 import androidx.core.content.edit
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract
 import java.util.*
@@ -159,6 +160,9 @@ fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String?> {
 
 private const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
 private const val LOG_EDIT_PLAYER = "logEditPlayer"
+const val LOG_PLAY_TYPE_FORM = "form"
+const val LOG_PLAY_TYPE_QUICK = "quick"
+const val LOG_PLAY_TYPE_WIZARD = "wizard"
 
 fun SharedPreferences.getEditPlayerPrompted(): Boolean {
     return this[LOG_EDIT_PLAYER_PROMPTED, false] ?: false
@@ -176,12 +180,13 @@ fun SharedPreferences.putEditPlayer(value: Boolean) {
     this[LOG_EDIT_PLAYER] = value
 }
 
-fun SharedPreferences.showLogPlay(): Boolean {
-    return showLogPlayField("logPlay", "logHideLog", true)
-}
-
-fun SharedPreferences.showQuickLogPlay(): Boolean {
-    return showLogPlayField("quickLogPlay", "logHideQuickLog", true)
+fun SharedPreferences.logPlayPreference(): String {
+    return this.getString("logPlayType", null)
+            ?: return when {
+                showLogPlayField("logPlay", "logHideLog", true) -> LOG_PLAY_TYPE_FORM
+                showLogPlayField("quickLogPlay", "logHideQuickLog", true) -> LOG_PLAY_TYPE_QUICK
+                else -> LOG_PLAY_TYPE_WIZARD
+            }
 }
 
 fun SharedPreferences.showLogPlayLocation(): Boolean {
@@ -292,7 +297,7 @@ fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
     val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
     val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
     for (playerString in playerStringArray) {
-        if (!TextUtils.isEmpty(playerString)) {
+        if (playerString.isNotEmpty()) {
             val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
             if (playerSplit.size in 1..2) {
                 val player = Player()
@@ -307,7 +312,36 @@ fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
     return players
 }
 
+// TODO
+fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity>? {
+    val players: MutableList<PlayerEntity> = ArrayList()
+    val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
+    val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
+    for (playerString in playerStringArray) {
+        if (playerString.isNotEmpty()) {
+            val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
+            if (playerSplit.size in 1..2) {
+                val player = PlayerEntity(
+                        playerSplit[0],
+                        if (playerSplit.size == 2) playerSplit[1] else ""
+                )
+                players.add(player)
+            }
+        }
+    }
+    return players
+}
+
 fun SharedPreferences.putLastPlayPlayers(players: List<Player>) {
+    val sb = StringBuilder()
+    for (player in players) {
+        sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)
+    }
+    this[KEY_LAST_PLAY_PLAYERS] = sb.toString()
+}
+
+// TODO
+fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>) {
     val sb = StringBuilder()
     for (player in players) {
         sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)

@@ -961,6 +961,7 @@ public class BggContract {
 
 		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + COLLATE_NOCASE + " ASC";
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
+		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
 			if (uri != null) {

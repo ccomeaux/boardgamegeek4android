@@ -91,8 +91,9 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         }
 
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: DEFAULT_REQUEST_CODE
+        val requestKey = arguments?.getString(KEY_REQUEST_KEY).orEmpty()
         doneView.setOnClickListener {
-            done(parseDouble(outputView.text.toString()), requestCode)
+            done(parseDouble(outputView.text.toString()), requestCode, requestKey)
             dismiss()
         }
 
@@ -114,7 +115,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         }
     }
 
-    abstract fun done(output: Double, requestCode: Int)
+    abstract fun done(output: Double, requestCode: Int, requestKey:String)
 
     private fun maybeUpdateOutput(output: String, view: View) {
         if (isWithinLength(output) && isWithinRange(output)) {
@@ -190,6 +191,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         private const val KEY_MAX_VALUE = "MAX_VALUE"
         private const val KEY_MAX_MANTISSA = "MAX_MANTISSA"
         private const val KEY_REQUEST_CODE = "REQUEST_CODE"
+        private const val KEY_REQUEST_KEY = "KEY"
         const val DEFAULT_MIN_VALUE = -Double.MAX_VALUE
         const val DEFAULT_MAX_VALUE = Double.MAX_VALUE
         const val DEFAULT_MAX_MANTISSA = 10
@@ -201,9 +203,11 @@ abstract class NumberPadDialogFragment : DialogFragment() {
                 initialValue: String,
                 colorDescription: String?,
                 subtitle: String?,
-                minValue: Double,
-                maxValue: Double,
-                maxMantissa: Int): Bundle {
+                minValue: Double = DEFAULT_MIN_VALUE,
+                maxValue: Double = DEFAULT_MAX_VALUE,
+                maxMantissa: Int = DEFAULT_MAX_MANTISSA,
+                requestKey: String = "",
+        ): Bundle {
             return Bundle().apply {
                 putInt(KEY_TITLE, titleResId)
                 if (!subtitle.isNullOrBlank()) {
@@ -225,6 +229,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
                 putDouble(KEY_MAX_VALUE, maxValue)
                 putInt(KEY_MAX_MANTISSA, maxMantissa)
                 putInt(KEY_REQUEST_CODE, requestCode)
+                putString(KEY_REQUEST_KEY, requestKey)
             }
         }
     }

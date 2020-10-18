@@ -662,8 +662,8 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = adapter.selectedItemCount
         mode.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
-        menu.findItem(R.id.menu_log_play).isVisible = count == 1 && prefs.showLogPlay()
-        menu.findItem(R.id.menu_log_play_quick).isVisible = prefs.showQuickLogPlay()
+        menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
+        menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }
@@ -677,7 +677,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         if (!adapter.selectedItemPositions.iterator().hasNext()) return false
         val ci = adapter.getItem(adapter.selectedItemPositions.iterator().next())
         when (item.itemId) {
-            R.id.menu_log_play -> {
+            R.id.menu_log_play_form -> {
                 ci?.let { LogPlayActivity.logPlay(context, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.customPlayerSort) }
                 mode.finish()
                 return true
@@ -687,6 +687,11 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
                 for (position in adapter.selectedItemPositions) {
                     adapter.getItem(position)?.let { ActivityUtils.logQuickPlay(activity, it.gameId, it.gameName) }
                 }
+                mode.finish()
+                return true
+            }
+            R.id.menu_log_play_wizard -> {
+                ci?.let { NewPlayActivity.start(requireContext(), it.gameId, it.gameName) }
                 mode.finish()
                 return true
             }

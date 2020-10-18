@@ -34,6 +34,7 @@ import retrofit2.Call
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 open class PlayRefresher
 
@@ -91,6 +92,10 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
                 return playDao.loadPlaysByUsername(username)
             }
         }.asLiveData()
+    }
+
+    fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
+        return playDao.loadPlaysByPlayerAndGame(name, gameId, isUser)
     }
 
     fun loadPlaysByPlayerName(playerName: String): LiveData<RefreshableResource<List<PlayEntity>>> {
@@ -205,6 +210,10 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
     }
 
+    fun loadPlayersByLocation(location: String = ""): LiveData<List<PlayerEntity>> {
+        return playDao.loadPlayersByLocationAsLiveData(location)
+    }
+
     fun updatePlaysWithNickName(username: String, nickName: String): Int {
         val count = playDao.countNickNameUpdatePlays(username, nickName)
         val batch = arrayListOf<ContentProviderOperation>()
@@ -258,6 +267,25 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         batch += playDao.createDeletePlayerColorsOperation(playerName)
         application.appExecutors.diskIO.execute {
             application.contentResolver.applyBatch(batch)
+        }
+    }
+
+    fun save(play: PlayEntity, insertedId: MutableLiveData<Long>) {
+        application.appExecutors.diskIO.execute {
+            val id = playDao.save(play)
+
+            // is the play for today and about to be synced, remember some thing
+            val isUnsynced = play.playId <= 0
+            val isUpdating = play.updateTimestamp > 0
+            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
+            val isToday = play.dateInMillis.isToday() || endTime.isToday()
+            if (isUnsynced && isUpdating && isToday) {
+                prefs.putLastPlayTime(System.currentTimeMillis())
+                prefs.putLastPlayLocation(play.location)
+                prefs.putLastPlayPlayerEntities(play.players)
+            }
+
+            insertedId.postValue(id)
         }
     }
 

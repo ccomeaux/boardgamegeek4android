@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Pair
 import android.util.SparseBooleanArray
@@ -24,7 +23,6 @@ import org.jetbrains.anko.design.snackbar
 import kotlin.properties.Delegates
 
 class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback {
-    private val prefs: SharedPreferences by lazy { requireActivity().preferences() }
     private val viewModel by activityViewModels<HotnessViewModel>()
     private val adapter: HotGamesAdapter by lazy {
         createAdapter()
@@ -175,8 +173,13 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = adapter.selectedItemCount
-        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && prefs.showLogPlay()
-        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && prefs.showQuickLogPlay()
+        if (Authenticator.isSignedIn(context)) {
+            menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
+            menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
+            menu.findItem(R.id.menu_log_play).isVisible = true
+        } else {
+            menu.findItem(R.id.menu_log_play).isVisible = false
+        }
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }
@@ -190,7 +193,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
         val selectedGames = adapter.getSelectedGames()
         if (selectedGames.isEmpty()) return false
         when (item.itemId) {
-            R.id.menu_log_play -> {
+            R.id.menu_log_play_form -> {
                 mode.finish()
                 selectedGames.firstOrNull()?.let { game ->
                     LogPlayActivity.logPlay(context, game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, "", false)
@@ -203,6 +206,13 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
                 containerView.snackbar(text).show()
                 for (game in selectedGames) {
                     requireContext().logQuickPlay(game.id, game.name)
+                }
+                return true
+            }
+            R.id.menu_log_play_wizard -> {
+                mode.finish()
+                selectedGames.firstOrNull()?.let { game ->
+                    NewPlayActivity.start(requireContext(), game.id, game.name)
                 }
                 return true
             }
