@@ -288,10 +288,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
                     where.append("(").append(filter.getSelection()).append(")")
                     args += (filter.getSelectionArgs() ?: emptyArray())
                 }
-                if (filter.getHaving()?.isNotEmpty() == true) {
-                    if (having.isNotEmpty()) having.append(" AND ")
-                    having.append("(").append(filter.getHaving()).append(")")
-                }
             }
         }
         return CursorLoader(requireContext(),
