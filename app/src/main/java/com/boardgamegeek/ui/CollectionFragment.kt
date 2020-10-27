@@ -721,7 +721,10 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
     private fun createViewDescription(sort: Sorter?, filters: List<CollectionFilterer>): String {
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
-            text.append(filters.joinToString(separator = "\n\u2022 ", prefix = getString(R.string.filtered_by)) { it.toLongDescription() })
+            text.append(getString(R.string.filtered_by))
+            filters.forEach {
+                text.append("\n\u2022 ${it.toLongDescription()}")
+            }
         }
         text.append("\n\n")
         sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }
