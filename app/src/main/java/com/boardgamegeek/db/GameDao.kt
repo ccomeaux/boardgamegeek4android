@@ -180,8 +180,7 @@ class GameDao(private val context: BggApplication) {
                                 bestVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT),
                                 recommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT),
                                 notRecommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT),
-                                recommendation = it.getIntOrNull(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)
-                                        ?: GamePlayerPollResultsEntity.UNKNOWN))
+                        ))
                     } while (it.moveToNext())
                 }
             }
@@ -540,8 +539,13 @@ class GameDao(private val context: BggApplication) {
             values.put(Games.STATS_AVERAGE_WEIGHT, game.averageWeight)
         }
         values.put(Games.GAME_RANK, game.overallRank)
-        if (game.playerPoll != null)
-            values.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, game.playerPoll!!.totalVotes)
+        game.playerPoll?.let {
+            values.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, it.totalVotes)
+            val separator = "|"
+            values.put(Games.PLAYER_COUNTS_BEST, it.bestCounts.joinToString(separator, prefix = separator, postfix = separator))
+            values.put(Games.PLAYER_COUNTS_RECOMMENDED, it.recommendedAndBestCounts.joinToString(separator, prefix = separator,postfix = separator))
+            values.put(Games.PLAYER_COUNTS_NOT_RECOMMENDED, it.notRecommendedCounts.joinToString(separator, prefix = separator,postfix = separator))
+        }
         return values
     }
 
@@ -639,7 +643,7 @@ class GameDao(private val context: BggApplication) {
             values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, results.bestVoteCount)
             values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, results.recommendedVoteCount)
             values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, results.notRecommendedVoteCount)
-            values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, results.calculateRecommendation())
+            values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, results.calculatedRecommendation)
             if (existingResults.remove(results.playerCount)) {
                 val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId, results.playerCount)
                 batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build())
