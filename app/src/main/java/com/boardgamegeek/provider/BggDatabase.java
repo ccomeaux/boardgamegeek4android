@@ -31,7 +31,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.ResetGameTask;
+import com.boardgamegeek.tasks.ResetGamesTask;
 import com.boardgamegeek.tasks.ResetPlaysTask;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
@@ -842,8 +842,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER);
 					version = VER_MIN_MAX_PLAYING_TIME;
 				case VER_MIN_MAX_PLAYING_TIME:
-					TaskUtils.executeAsyncTask(new ResetGameTask(context));
-					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
+					TaskUtils.executeAsyncTask(new ResetGamesTask(context));
 					version = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
 				case VER_SUGGESTED_PLAYER_COUNT_RESYNC:
 					addColumn(db, Tables.GAMES, Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
@@ -893,7 +892,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.PLAYER_COUNTS_BEST, COLUMN_TYPE.TEXT);
 					addColumn(db, Tables.GAMES, Games.PLAYER_COUNTS_RECOMMENDED, COLUMN_TYPE.TEXT);
 					addColumn(db, Tables.GAMES, Games.PLAYER_COUNTS_NOT_RECOMMENDED, COLUMN_TYPE.TEXT);
-					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
+					TaskUtils.executeAsyncTask(new ResetGamesTask(context));
 					version = VER_RECOMMENDED_PLAYER_COUNTS;
 			}
 
