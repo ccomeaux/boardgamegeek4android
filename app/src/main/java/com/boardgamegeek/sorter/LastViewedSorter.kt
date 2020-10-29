@@ -1,11 +1,10 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asPastDaySpan
-import com.boardgamegeek.extensions.getLongOrZero
 import com.boardgamegeek.provider.BggContract.Games
 
 class LastViewedSorter(context: Context) : CollectionSorter(context) {
@@ -19,10 +18,11 @@ class LastViewedSorter(context: Context) : CollectionSorter(context) {
 
     override val isSortDescending = true
 
-    public override fun getHeaderText(cursor: Cursor) =
-            cursor.getLongOrZero(sortColumn).asPastDaySpan(context).toString()
+    override fun getHeaderText(item: CollectionItemEntity): String {
+        return item.lastViewedDate.asPastDaySpan(context).toString()
+    }
 
-    override fun getDisplayInfo(cursor: Cursor) = ""
+    override fun getDisplayInfo(item: CollectionItemEntity) = ""
 
-    override fun getTimestamp(cursor: Cursor) = cursor.getLongOrZero(sortColumn)
+    override fun getTimestamp(item: CollectionItemEntity) = item.lastViewedDate
 }

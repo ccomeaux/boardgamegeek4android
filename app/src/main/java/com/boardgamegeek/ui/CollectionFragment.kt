@@ -26,8 +26,11 @@ import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.recyclerview.widget.RecyclerView
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.events.SyncEvent
@@ -39,11 +42,9 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.noPreviousCollectionSync
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
-import com.boardgamegeek.sorter.Sorter
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.*
@@ -149,16 +150,17 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         viewModel.selectedViewId.observe(viewLifecycleOwner, { id: Long -> viewId = id })
         viewModel.selectedViewName.observe(viewLifecycleOwner, { name: String -> viewName = name })
         viewModel.effectiveSortType.observe(viewLifecycleOwner, { sortType: Int ->
+            adapter.items = emptyList() // force the display info to be updated. Need to do this in the adapter diff
             progressBar.show()
             sorter = collectionSorterFactory.create(sortType)
-            LoaderManager.getInstance(this).restartLoader(Query.TOKEN, null, this)
+            LoaderManager.getInstance(this).restartLoader(0, null, this)
         })
         viewModel.effectiveFilters.observe(viewLifecycleOwner, {
             progressBar.show()
             filters.clear()
             it?.let { filters.addAll(it) }
             setEmptyText()
-            LoaderManager.getInstance(this).restartLoader(Query.TOKEN, null, this)
+            LoaderManager.getInstance(this).restartLoader(0, null, this)
         })
     }
 
@@ -292,27 +294,21 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         }
         return CursorLoader(requireContext(),
                 BggContract.Collection.buildUri(having.toString()),
-                getProjection(),
+                dao.projection(),
                 where.toString(),
                 args,
                 if (sorter == null) null else sorter!!.orderByClause)
     }
 
-    private fun getProjection(): Array<String> {
-        var projection = Query.PROJECTION.union(sorter?.columns?.asIterable() ?: emptyList())
-        for (filter in filters) {
-            projection = projection.union(filter.getColumns()?.asIterable() ?: emptyList())
-        }
-        return projection.toTypedArray()
-    }
+    val dao by lazy { CollectionDao(requireActivity().application as BggApplication) }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
         if (activity == null) return
-        if (loader.id == Query.TOKEN) {
-            val items: MutableList<CollectionItem> = ArrayList(cursor.count)
+        if (loader.id == 0) {
+            val items: MutableList<CollectionItemEntity> = ArrayList(cursor.count)
             if (cursor.moveToFirst()) {
                 do {
-                    items.add(CollectionItem(cursor, sorter!!))
+                    items.add(dao.entityFromCursor(cursor))
                 } while (cursor.moveToNext())
             }
             adapter.items = items
@@ -426,36 +422,8 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         }
     }
 
-    inner class CollectionItem(cursor: Cursor, sorter: CollectionSorter) {
-        val internalId = cursor.getLong(Query.ID)
-        val collectionName = cursor.getString(Query.COLLECTION_NAME).orEmpty()
-        val gameId = cursor.getInt(Query.GAME_ID)
-        val gameName = cursor.getString(Query.GAME_NAME).orEmpty()
-        val collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL).orEmpty()
-        val thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL).orEmpty()
-        val imageUrl: String = cursor.getString(Query.IMAGE_URL).orEmpty()
-        val heroImageUrl: String = cursor.getString(Query.HERO_IMAGE_URL).orEmpty()
-        val isFavorite = cursor.getInt(Query.STARRED) == 1
-        val timestamp: Long = sorter.getTimestamp(cursor)
-        val rating = sorter.getRating(cursor)
-        val ratingText = sorter.getRatingText(cursor)
-        val displayInfo = sorter.getDisplayInfo(cursor)
-        val headerText = sorter.getHeaderText(cursor, cursor.position)
-        val customPlayerSort = cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1
-        var year = YEAR_UNKNOWN
-
-        init {
-            val y = cursor.getInt(Query.COLLECTION_YEAR_PUBLISHED)
-            year = if (y == YEAR_UNKNOWN) {
-                cursor.getInt(Query.YEAR_PUBLISHED)
-            } else {
-                y
-            }
-        }
-    }
-
     inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), AutoUpdatableAdapter {
-        var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, old, new ->
+        var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, old, new ->
             autoNotify(old, new) { o, n ->
                 o.internalId == n.internalId
             }
@@ -463,11 +431,11 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
 
         private val selectedItems = SparseBooleanArray()
 
-        fun getItem(position: Int): CollectionItem? {
+        fun getItem(position: Int): CollectionItemEntity? {
             return items.getOrNull(position)
         }
 
-        val randomItem: CollectionItem?
+        val randomItem: CollectionItemEntity?
             get() = items.random()
 
         val selectedItemCount: Int
@@ -514,23 +482,25 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         }
 
         inner class CollectionItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bindView(item: CollectionItem?, position: Int) {
+            fun bindView(item: CollectionItemEntity?, position: Int) {
                 if (item == null) return
                 itemView.nameView.text = item.collectionName
-                itemView.yearView.text = item.year.asYear(context)
-                itemView.timestampView.timestamp = item.timestamp
+                val year = if (item.collectionYearPublished == YEAR_UNKNOWN) item.gameYearPublished else item.collectionYearPublished
+                itemView.yearView.text = year.asYear(context)
+                itemView.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
                 itemView.favoriteView.isVisible = item.isFavorite
-                if (item.ratingText.isNotEmpty()) {
-                    itemView.ratingView.text = item.ratingText
-                    itemView.ratingView.setTextViewBackground(item.rating.toColor(ratingColors))
+                val ratingText = sorter?.getRatingText(item) ?: ""
+                if (ratingText.isNotEmpty()) {
+                    itemView.ratingView.text = ratingText
+                    sorter?.getRating(item)?.let { itemView.ratingView.setTextViewBackground(it.toColor(ratingColors)) }
                     itemView.ratingView.visibility = View.VISIBLE
                     itemView.infoView.visibility = View.GONE
                 } else {
-                    itemView.infoView.setTextOrHide(item.displayInfo)
+                    itemView.infoView.setTextOrHide(sorter?.getDisplayInfo(item))
                     itemView.infoView.visibility = View.VISIBLE
                     itemView.ratingView.visibility = View.GONE
                 }
-                itemView.thumbnailView.loadThumbnail(item.collectionThumbnailUrl, item.thumbnailUrl)
+                itemView.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 itemView.isActivated = selectedItems[position, false]
                 itemView.setOnClickListener {
                     when {
@@ -596,7 +566,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         return shortcutManager.createShortcutResultIntent(builder.build())
     }
 
-    private fun getSectionCallback(items: List<CollectionItem>): SectionCallback {
+    private fun getSectionCallback(items: List<CollectionItemEntity>): SectionCallback {
         return object : SectionCallback {
             override fun isSection(position: Int): Boolean {
                 if (position == RecyclerView.NO_POSITION) return false
@@ -609,43 +579,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
             }
 
             override fun getSectionHeader(position: Int): CharSequence {
-                return items.getOrNull(position)?.headerText ?: "-"
+                val item = items.getOrNull(position) ?: return "-"
+                return sorter?.getHeaderText(item) ?: "-"
             }
-        }
-    }
-
-    private interface Query {
-        companion object {
-            const val TOKEN = 0x01
-            val PROJECTION = arrayOf(
-                    BggContract.Collection._ID,
-                    BggContract.Collection.COLLECTION_ID,
-                    BggContract.Collection.COLLECTION_NAME,
-                    BggContract.Collection.YEAR_PUBLISHED,
-                    BggContract.Collection.GAME_NAME,
-                    Games.GAME_ID,
-                    BggContract.Collection.COLLECTION_THUMBNAIL_URL,
-                    BggContract.Collection.THUMBNAIL_URL,
-                    BggContract.Collection.IMAGE_URL,
-                    BggContract.Collection.COLLECTION_YEAR_PUBLISHED,
-                    Games.CUSTOM_PLAYER_SORT,
-                    Games.STARRED,
-                    BggContract.Collection.COLLECTION_HERO_IMAGE_URL
-            )
-            const val ID = 0
-
-            // int COLLECTION_ID = 1;
-            const val COLLECTION_NAME = 2
-            const val YEAR_PUBLISHED = 3
-            const val GAME_NAME = 4
-            const val GAME_ID = 5
-            const val COLLECTION_THUMBNAIL_URL = 6
-            const val THUMBNAIL_URL = 7
-            const val IMAGE_URL = 8
-            const val COLLECTION_YEAR_PUBLISHED = 9
-            const val CUSTOM_PLAYER_SORT = 10
-            const val STARRED = 11
-            const val HERO_IMAGE_URL = 12
         }
     }
 
@@ -674,7 +610,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         val ci = adapter.getItem(adapter.selectedItemPositions.iterator().next())
         when (item.itemId) {
             R.id.menu_log_play_form -> {
-                ci?.let { LogPlayActivity.logPlay(context, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.customPlayerSort) }
+                ci?.let { LogPlayActivity.logPlay(context, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted) }
                 mode.finish()
                 return true
             }
@@ -714,7 +650,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         return false
     }
 
-    private fun createViewDescription(sort: Sorter?, filters: List<CollectionFilterer>): String {
+    private fun createViewDescription(sort: CollectionSorter?, filters: List<CollectionFilterer>): String {
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))

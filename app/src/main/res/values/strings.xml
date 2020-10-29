@@ -730,6 +730,10 @@
 		<item quantity="one">Deleted %s color</item>
 		<item quantity="other">Deleted %s colors</item>
 	</plurals>
+	<plurals name="plays">
+		<item quantity="one">%s play</item>
+		<item quantity="other">%s plays</item>
+	</plurals>
 	<plurals name="msg_plays_selected">
 		<item quantity="one">%s play</item>
 		<item quantity="other">%s plays</item>

@@ -355,7 +355,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
 
         fun hasPrivateInfo(item: CollectionItemEntity): Boolean {
             return item.quantity > 1 ||
-                    item.acquisitionDate.isNotEmpty() ||
+                    item.acquisitionDate > 0L ||
                     item.acquiredFrom.isNotEmpty() ||
                     item.pricePaid > 0.0 ||
                     item.currentValue > 0.0 ||
