@@ -8,7 +8,6 @@ import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import android.text.TextUtils
 import androidx.core.app.NotificationCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.KEY_SYNC_NOTIFICATIONS
@@ -32,11 +31,7 @@ abstract class BaseProvider {
     }
 
     protected fun getSortOrder(sortOrder: String?): String? {
-        return if (TextUtils.isEmpty(sortOrder)) {
-            defaultSortOrder
-        } else {
-            sortOrder
-        }
+        return sortOrder?.ifBlank { defaultSortOrder } ?: defaultSortOrder
     }
 
     protected open val defaultSortOrder: String?

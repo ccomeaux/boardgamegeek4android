@@ -66,6 +66,9 @@ public class BggContract {
 		String WINS_COLOR = "WINS_COLOR";
 		String WINNABLE_PLAYS_COLOR = "WINNABLE_PLAYS_COLOR";
 		String ALL_PLAYS_COLOR = "ALL_PLAYS_COLOR";
+		String PLAYER_COUNTS_BEST = "player_counts_best";
+		String PLAYER_COUNTS_RECOMMENDED = "player_counts_recommended";
+		String PLAYER_COUNTS_NOT_RECOMMENDED = "player_count_nots_recommended";
 	}
 
 	interface GameRanksColumns {

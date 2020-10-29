@@ -7,6 +7,7 @@ import com.boardgamegeek.provider.BggContract.Games
 class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(context) {
     var playerCount = 4
     var recommendation = RECOMMENDED
+    private val separator = "|"
 
     override val typeResourceId = R.string.collection_filter_type_recommended_player_count
 
@@ -37,16 +38,22 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
                 playerCount)
     }
 
-    override fun getColumns(): Array<String>? {
-        return arrayOf(Games.createRecommendedPlayerCountColumn(playerCount.toString()))
+    override fun getColumns() = arrayOf(
+            Games.PLAYER_COUNTS_BEST,
+            Games.PLAYER_COUNTS_RECOMMENDED,
+            Games.PLAYER_COUNTS_NOT_RECOMMENDED,
+    )
+
+    override fun getSelection(): String {
+        return when (recommendation) {
+            BEST -> "${Games.PLAYER_COUNTS_BEST} LIKE ?"
+            RECOMMENDED -> "${Games.PLAYER_COUNTS_RECOMMENDED} LIKE ?"
+            else -> ""
+        }
     }
 
-    override fun getSelection() = ""
-
-    override fun getSelectionArgs(): Array<String>? = null
-
-    override fun getHaving(): String? {
-        return Games.createRecommendedPlayerCountColumn(playerCount.toString()) + if (recommendation == BEST) "=2" else ">0"
+    override fun getSelectionArgs(): Array<String> {
+        return arrayOf("%$separator$playerCount$separator%")
     }
 
     companion object {

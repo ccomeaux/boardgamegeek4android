@@ -22,11 +22,8 @@ abstract class CollectionFilterer(protected val context: Context) {
 
     abstract fun getSelectionArgs(): Array<String>?
 
-    open fun getHaving(): String? = null
-
     val isValid: Boolean
-        get() = toShortDescription().isNotEmpty() &&
-                (getSelection().isNotEmpty() || !getHaving().isNullOrEmpty())
+        get() = toShortDescription().isNotEmpty() && getSelection().isNotEmpty()
 
     abstract fun inflate(data: String)
 

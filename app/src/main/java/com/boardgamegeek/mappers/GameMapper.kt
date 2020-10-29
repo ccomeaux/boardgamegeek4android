@@ -113,7 +113,6 @@ class GameMapper {
                         bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
                         recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
                         notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
-                        recommendation = GamePlayerPollResultsEntity.UNKNOWN
                 ))
             }
             return GamePlayerPollEntity(results)

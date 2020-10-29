@@ -216,8 +216,8 @@ class GameFragment : Fragment() {
     }
 
     private fun onPlayerCountQueryComplete(entity: GamePlayerPollEntity?) {
-        val bestCounts = entity?.bestCounts ?: emptyList()
-        val goodCounts = entity?.recommendedCounts ?: emptyList()
+        val bestCounts = entity?.bestCounts ?: emptySet()
+        val goodCounts = entity?.recommendedAndBestCounts ?: emptySet()
 
         val best = context?.getText(R.string.best_prefix, bestCounts.asRange(max = maxPlayerCount)) ?: ""
         val good = context?.getText(R.string.recommended_prefix, goodCounts.asRange(max = maxPlayerCount)) ?: ""

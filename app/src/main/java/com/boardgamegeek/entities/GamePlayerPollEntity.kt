@@ -7,15 +7,25 @@ data class GamePlayerPollEntity(
 ) {
     val totalVotes: Int = results.maxByOrNull { it.totalVotes }?.totalVotes ?: 0
 
-    val bestCounts: List<Int> by lazy {
-        results.filter { it.recommendation == GamePlayerPollResultsEntity.BEST }.map {
+    val bestCounts: Set<Int> by lazy {
+        results.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST }.map {
             it.playerCount.toIntOrNull() ?: maxPlayerCount
-        }
+        }.sorted().toSet()
     }
 
-    val recommendedCounts: List<Int> by lazy {
-        results.filter { it.recommendation == GamePlayerPollResultsEntity.BEST || it.recommendation == GamePlayerPollResultsEntity.RECOMMENDED }.map {
+    private val recommendedCounts: Set<Int> by lazy {
+        results.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.RECOMMENDED }.map {
             it.playerCount.toIntOrNull() ?: maxPlayerCount
-        }
+        }.sorted().toSet()
+    }
+
+    val notRecommendedCounts: Set<Int> by lazy {
+        results.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.NOT_RECOMMENDED }.map {
+            it.playerCount.toIntOrNull() ?: maxPlayerCount
+        }.sorted().toSet()
+    }
+
+    val recommendedAndBestCounts: Set<Int> by lazy {
+        (bestCounts + recommendedCounts).sorted().toSet()
     }
 }
