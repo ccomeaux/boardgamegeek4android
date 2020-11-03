@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.entities.CollectionItemEntity
 import java.util.*
 
 class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
@@ -12,7 +12,7 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_play_count
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
     }
@@ -29,18 +29,10 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
         return text + " " + context.getString(R.string.plays)
     }
 
-    override fun getSelection(): String {
-        val format = when {
-            max >= upperBound -> "%1\$s>=?"
-            else -> "(%1\$s>=? AND %1\$s<=?)"
-        }
-        return String.format(format, Collection.NUM_PLAYS)
-    }
-
-    override fun getSelectionArgs(): Array<String>? {
+    override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            max >= upperBound -> arrayOf(min.toString())
-            else -> arrayOf(min.toString(), max.toString())
+            max >= upperBound -> item.numberOfPlays >= min
+            else -> item.numberOfPlays in min..max
         }
     }
 

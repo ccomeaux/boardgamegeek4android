@@ -121,6 +121,11 @@ class CollectionDao(private val context: BggApplication) {
                 Collection.STATS_AVERAGE_WEIGHT,
                 Collection.STARRED,
                 Plays.MAX_DATE,
+                Collection.MIN_PLAYERS,
+                Collection.MAX_PLAYERS,
+                Collection.SUBTYPE,
+                Collection.PLAYER_COUNTS_BEST,
+                Collection.PLAYER_COUNTS_RECOMMENDED,
         )
     }
 
@@ -184,6 +189,11 @@ class CollectionDao(private val context: BggApplication) {
                 averageWeight = cursor.getDoubleOrZero(Games.STATS_AVERAGE_WEIGHT),
                 isFavorite = cursor.getBoolean(Collection.STARRED),
                 lastPlayDate = cursor.getStringOrEmpty(Plays.MAX_DATE).toMillis(playDateFormat),
+                minPlayerCount = cursor.getIntOrZero(Collection.MIN_PLAYERS),
+                maxPlayerCount = cursor.getIntOrZero(Collection.MAX_PLAYERS),
+                subType = cursor.getStringOrEmpty(Collection.SUBTYPE),
+                bestPlayerCounts = cursor.getStringOrEmpty(Collection.PLAYER_COUNTS_BEST),
+                recommendedPlayerCounts = cursor.getStringOrEmpty(Collection.PLAYER_COUNTS_RECOMMENDED),
         )
     }
 

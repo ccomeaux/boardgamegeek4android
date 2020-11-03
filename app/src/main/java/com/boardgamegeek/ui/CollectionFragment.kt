@@ -279,24 +279,15 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
 
     override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
         val where = StringBuilder()
-        var args: Array<String?> = arrayOf()
         val having = StringBuilder()
         if (viewId == 0L && filters.size == 0) {
             where.append(defaultWhereClause)
-        } else {
-            for (filter in filters) {
-                if (filter.getSelection().isNotEmpty()) {
-                    if (where.isNotEmpty()) where.append(" AND ")
-                    where.append("(").append(filter.getSelection()).append(")")
-                    args += (filter.getSelectionArgs() ?: emptyArray())
-                }
-            }
         }
         return CursorLoader(requireContext(),
                 BggContract.Collection.buildUri(having.toString()),
                 dao.projection(),
                 where.toString(),
-                args,
+                null,
                 if (sorter == null) null else sorter!!.orderByClause)
     }
 
@@ -305,11 +296,14 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
         if (activity == null) return
         if (loader.id == 0) {
-            val items: MutableList<CollectionItemEntity> = ArrayList(cursor.count)
+            var items = mutableListOf<CollectionItemEntity>()
             if (cursor.moveToFirst()) {
                 do {
                     items.add(dao.entityFromCursor(cursor))
                 } while (cursor.moveToNext())
+            }
+            filters.forEach { f ->
+                items = items.filter { f.filter(it) }.toMutableList()
             }
             adapter.items = items
             val sectionItemDecoration = RecyclerSectionItemDecoration(

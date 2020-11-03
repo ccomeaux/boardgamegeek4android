@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.entities.CollectionItemEntity
 import java.util.*
 
 class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
@@ -14,7 +14,7 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_suggested_age
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
         includeUndefined = d.getOrNull(2) == "1"
@@ -36,19 +36,11 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
         return context.getString(R.string.ages) + " " + range + unknown
     }
 
-    override fun getSelection(): String {
-        var format = when (max) {
-            upperBound -> "(%1\$s>=?)"
-            else -> "(%1\$s>=? AND %1\$s<=?)"
-        }
-        if (includeUndefined) format += " OR %1\$s=0 OR %1\$s IS NULL"
-        return String.format(format, Games.MINIMUM_AGE)
-    }
-
-    override fun getSelectionArgs(): Array<String>? {
-        return when (max) {
-            upperBound -> arrayOf(min.toString())
-            else -> arrayOf(min.toString(), max.toString())
+    override fun filter(item: CollectionItemEntity): Boolean {
+        return when {
+            includeUndefined -> item.minimumAge == 0
+            max == upperBound -> item.minimumAge >= min
+            else -> item.minimumAge in min..max
         }
     }
 

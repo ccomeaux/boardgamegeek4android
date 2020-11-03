@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
     var filterText = ""
@@ -27,7 +27,11 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
 
     override fun toLongDescription() = context.getString(if (startsWith) R.string.starts_with_prefix else R.string.named_prefix, filterText)
 
-    override fun getSelection() = "${Collection.COLLECTION_NAME} LIKE ?"
-
-    override fun getSelectionArgs() = if (startsWith) arrayOf("$filterText%") else arrayOf("%$filterText%")
+    override fun filter(item: CollectionItemEntity): Boolean {
+        return if (startsWith) {
+            item.collectionName.startsWith(filterText, true)
+        } else {
+            item.collectionName.contains(filterText, true)
+        }
+    }
 }

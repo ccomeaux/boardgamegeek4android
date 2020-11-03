@@ -3,9 +3,9 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
-import com.boardgamegeek.provider.BggContract.Games
 import java.util.*
 
 class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
@@ -15,7 +15,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_year_published
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
     }
@@ -57,30 +57,18 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
         return context.getString(R.string.published_prefix, context.getString(prepositionResId), year)
     }
 
-    override fun getSelection(): String {
-        val format = when {
-            min == lowerBound && max == upperBound -> ""
-            min == lowerBound -> "%1\$s<=?"
-            max == upperBound -> "%1\$s>=?"
-            min == max -> "%1\$s=?"
-            else -> "(%1\$s>=? AND %1\$s<=?)"
-        }
-        return String.format(format, Games.YEAR_PUBLISHED)
-    }
-
-    override fun getSelectionArgs(): Array<String>? {
+    override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            min == lowerBound && max == upperBound -> null
-            min == lowerBound -> arrayOf(max.toString())
-            max == upperBound -> arrayOf(min.toString())
-            min == max -> arrayOf(min.toString())
-            else -> arrayOf(min.toString(), max.toString())
+            min == lowerBound && max == upperBound -> true
+            min == lowerBound -> item.collectionYearPublished <= max
+            max == upperBound -> item.collectionYearPublished >= min
+            min == max -> item.collectionYearPublished == min
+            else -> item.collectionYearPublished in min..max
         }
     }
 
     companion object {
         const val lowerBound = 1970
-        @JvmStatic
         val upperBound = Calendar.getInstance().get(Calendar.YEAR) + 1
     }
 }

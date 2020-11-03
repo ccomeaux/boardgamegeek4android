@@ -3,10 +3,10 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
 import com.boardgamegeek.extensions.asTime
-import com.boardgamegeek.provider.BggContract.Games
 
 class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
     var min by IntervalDelegate(lowerBound, lowerBound, upperBound)
@@ -16,7 +16,7 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_play_time
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
         includeUndefined = d.getOrNull(2) == "1"
@@ -41,21 +41,12 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
         return range + unknown
     }
 
-    override fun getSelection(): String {
-        var format = when {
-            min == lowerBound -> "(%1\$s<=?)"
-            max == upperBound -> "(%1\$s>=?)"
-            else -> "(%1\$s>=? AND %1\$s<=?)"
-        }
-        if (includeUndefined) format += " OR %1\$s IS NULL"
-        return String.format(format, Games.PLAYING_TIME)
-    }
-
-    override fun getSelectionArgs(): Array<String>? {
+    override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            min == lowerBound -> arrayOf(max.toString())
-            max == upperBound -> arrayOf(min.toString())
-            else -> arrayOf(min.toString(), max.toString())
+            item.playingTime == 0 -> includeUndefined
+            min == lowerBound -> item.playingTime <= max
+            max == upperBound -> item.playingTime >= min
+            else -> item.playingTime in min..max
         }
     }
 

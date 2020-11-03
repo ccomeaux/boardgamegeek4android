@@ -3,21 +3,19 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.entities.CollectionItemEntity
 import java.util.*
 
 class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     var min by DoubleIntervalDelegate(lowerBound, lowerBound, upperBound)
     var max by DoubleIntervalDelegate(upperBound, lowerBound, upperBound)
     var includeUndefined = false
-    var ignoreRange = false
+    var ignoreRange = false // deprecated
 
     override val typeResourceId = R.string.collection_filter_type_average_weight
 
-    val columnName = Games.STATS_AVERAGE_WEIGHT
-
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toDoubleOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toDoubleOrNull() ?: upperBound
         includeUndefined = d.getOrNull(2) == "1"
@@ -39,23 +37,13 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
         return context.getString(prefixResId) + " " + text
     }
 
-    override fun getSelection(): String {
-        var format = when {
-            ignoreRange -> ""
-            min == max -> "%1\$s=?"
-            else -> "(%1\$s>=? AND %1\$s<=?)"
+    override fun filter(item: CollectionItemEntity): Boolean {
+        return when {
+            item.averageWeight == 0.0 -> includeUndefined
+            ignoreRange -> true
+            min == max -> item.averageWeight == min
+            else -> item.averageWeight in min..max
         }
-        if (includeUndefined) {
-            if (format.isNotBlank()) format += " OR"
-            format += " %1\$s=0 OR %1\$s IS NULL"
-        }
-        return String.format(format, columnName)
-    }
-
-    override fun getSelectionArgs() = when {
-        ignoreRange -> emptyArray()
-        min == max -> arrayOf(min.toString())
-        else -> arrayOf(min.toString(), max.toString())
     }
 
     companion object {

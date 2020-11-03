@@ -71,6 +71,12 @@ data class CollectionItemEntity(
         val isFavorite: Boolean = false,
         val lastPlayDate: Long = 0L,
         val arePlayersCustomSorted: Boolean = false,
+        val minPlayerCount: Int = 0,
+        val maxPlayerCount: Int = 0,
+        val subType: String = "",
+        val bestPlayerCounts: String = "",
+        val recommendedPlayerCounts: String = "",
+
 ) : ImagesEntity {
     val isDirty: Boolean by lazy {
         when {

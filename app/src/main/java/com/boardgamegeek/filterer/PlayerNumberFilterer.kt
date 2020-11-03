@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.entities.CollectionItemEntity
 import java.util.*
 
 class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
@@ -13,7 +13,7 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_number_of_players
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
         isExact = d.getOrNull(2) == "1"
@@ -30,15 +30,11 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
         return prefix + range + " " + context.getString(R.string.players)
     }
 
-    override fun getSelection(): String {
+    override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            isExact -> "${Games.MIN_PLAYERS}=? AND ${Games.MAX_PLAYERS}=?"
-            else -> "${Games.MIN_PLAYERS}<=? AND (${Games.MAX_PLAYERS}>=? OR ${Games.MAX_PLAYERS} IS NULL)"
+            isExact -> item.minPlayerCount == min && item.maxPlayerCount == max
+            else -> item.minPlayerCount <= min && (item.maxPlayerCount >= max || item.maxPlayerCount == 0)
         }
-    }
-
-    override fun getSelectionArgs(): Array<String>? {
-        return arrayOf(min.toString(), max.toString())
     }
 
     companion object {

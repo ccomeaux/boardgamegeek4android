@@ -2,8 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.whereZeroOrNull
-import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
     var isFavorite = false
@@ -18,12 +17,9 @@ class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun toShortDescription() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)
 
-    override fun getSelection() = when {
-        isFavorite -> "${Collection.STARRED}=?"
-        else -> Collection.STARRED.whereZeroOrNull()
+    override fun filter(item: CollectionItemEntity): Boolean {
+        return if (isFavorite) item.isFavorite else !item.isFavorite
     }
-
-    override fun getSelectionArgs() = if (isFavorite) arrayOf(FAVORITE) else null
 
     companion object {
         private const val FAVORITE = "1"

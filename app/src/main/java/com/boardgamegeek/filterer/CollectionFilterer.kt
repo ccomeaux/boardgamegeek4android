@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import androidx.annotation.StringRes
+import com.boardgamegeek.entities.CollectionItemEntity
 
 abstract class CollectionFilterer(protected val context: Context) {
 
@@ -16,14 +17,10 @@ abstract class CollectionFilterer(protected val context: Context) {
 
     open fun toLongDescription(): String = toShortDescription()
 
-    open fun getColumns(): Array<String>? = null
-
-    abstract fun getSelection(): String
-
-    abstract fun getSelectionArgs(): Array<String>?
+    open fun filter(item: CollectionItemEntity): Boolean = true
 
     val isValid: Boolean
-        get() = toShortDescription().isNotEmpty() && getSelection().isNotEmpty()
+        get() = toShortDescription().isNotEmpty()
 
     abstract fun inflate(data: String)
 
