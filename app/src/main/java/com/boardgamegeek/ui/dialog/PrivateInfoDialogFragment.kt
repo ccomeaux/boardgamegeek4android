@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog.OnDateSetListener
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
@@ -27,7 +26,7 @@ import java.text.DecimalFormat
 import java.util.*
 
 class PrivateInfoDialogFragment : DialogFragment() {
-    private var acquisitionDate: String? = null
+    private var acquisitionDate = 0L
 
     private lateinit var layout: View
 
@@ -76,8 +75,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
         setUpCurrencyView(currentValueCurrencyView, savedInstanceState?.getString(KEY_CURRENT_VALUE_CURRENCY) ?: arguments?.getString(KEY_CURRENT_VALUE_CURRENCY))
         setUpValue(currentValueView, savedInstanceState?.getDouble(KEY_CURRENT_VALUE) ?: arguments?.getDouble(KEY_CURRENT_VALUE))
         quantityView.setAndSelectExistingText((savedInstanceState?.getInt(KEY_QUANTITY) ?: arguments?.getInt(KEY_QUANTITY)).toString())
-        acquisitionDate = savedInstanceState?.getString(KEY_ACQUISITION_DATE) ?: arguments?.getString(KEY_ACQUISITION_DATE) ?: ""
-        acquisitionDateView.text = formatDateFromApi(acquisitionDate)
+        acquisitionDate = savedInstanceState?.getLong(KEY_ACQUISITION_DATE) ?: arguments?.getLong(KEY_ACQUISITION_DATE) ?: 0L
+        acquisitionDateView.text = if (acquisitionDate == 0L) "" else DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
         showOrHideAcquisitionDateLabel()
         acquiredFromView.setAndSelectExistingText(savedInstanceState?.getString(KEY_ACQUIRED_FROM) ?: arguments?.getString(KEY_ACQUIRED_FROM))
         inventoryLocationView.setAndSelectExistingText(savedInstanceState?.getString(KEY_INVENTORY_LOCATION) ?: arguments?.getString(KEY_INVENTORY_LOCATION))
@@ -85,19 +84,19 @@ class PrivateInfoDialogFragment : DialogFragment() {
         acquisitionDateView.setOnClickListener {
             val datePickerDialogFragment = createDatePickerDialogFragment()
             parentFragmentManager.executePendingTransactions()
-            datePickerDialogFragment.setOnDateSetListener(OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            datePickerDialogFragment.setOnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, monthOfYear, dayOfMonth)
                 acquisitionDateView.text = DateUtils.formatDateTime(context, calendar.timeInMillis, DateUtils.FORMAT_SHOW_DATE)
-                acquisitionDate = calendar.timeInMillis.asDateForApi()
+                acquisitionDate = calendar.timeInMillis
                 showOrHideAcquisitionDateLabel()
-            })
-            datePickerDialogFragment.setCurrentDateInMillis(acquisitionDate.toMillisFromApiDate(System.currentTimeMillis()))
+            }
+            datePickerDialogFragment.setCurrentDateInMillis(if (acquisitionDate == 0L) System.currentTimeMillis() else acquisitionDate)
             showAndSurvive(datePickerDialogFragment, DATE_PICKER_DIALOG_TAG)
         }
-        
+
         clearDateView.setOnClickListener {
-            acquisitionDate = ""
+            acquisitionDate = 0L
             acquisitionDateView.text = ""
             showOrHideAcquisitionDateLabel()
         }
@@ -110,14 +109,9 @@ class PrivateInfoDialogFragment : DialogFragment() {
         outState.putString(KEY_CURRENT_VALUE_CURRENCY, currentValueCurrencyView.selectedItem as? String)
         currentValueView.getDoubleOrNull()?.let { outState.putDouble(KEY_CURRENT_VALUE, it) }
         quantityView.getIntOrNull()?.let { outState.putInt(KEY_QUANTITY, it) }
-        outState.putString(KEY_ACQUISITION_DATE, acquisitionDate)
+        outState.putLong(KEY_ACQUISITION_DATE, acquisitionDate)
         outState.putString(KEY_ACQUIRED_FROM, acquiredFromView.text.trim().toString())
         outState.putString(KEY_INVENTORY_LOCATION, inventoryLocationView.text.trim().toString())
-    }
-
-    private fun formatDateFromApi(date: String?): String {
-        val millis = date.toMillisFromApiDate()
-        return if (millis == 0L) "" else DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE)
     }
 
     private fun createDatePickerDialogFragment(): DatePickerDialogFragment {
@@ -172,7 +166,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
         private const val KEY_ACQUIRED_FROM = "ACQUIRED_FROM"
         private const val KEY_INVENTORY_LOCATION = "INVENTORY_LOCATION"
 
-        fun newInstance(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: String?, acquiredFrom: String?, inventoryLocation: String?): PrivateInfoDialogFragment {
+        fun newInstance(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: Long?, acquiredFrom: String?, inventoryLocation: String?): PrivateInfoDialogFragment {
             return PrivateInfoDialogFragment().withArguments(
                     KEY_PRICE_CURRENCY to priceCurrency,
                     KEY_PRICE to price,

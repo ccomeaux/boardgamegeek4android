@@ -9,6 +9,7 @@ import androidx.lifecycle.Transformations
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -53,7 +54,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    fun updatePrivateInfo(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: String?, acquiredFrom: String?, inventoryLocation: String?) {
+    fun updatePrivateInfo(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: Long?, acquiredFrom: String?, inventoryLocation: String?) {
         setEdited(true)
         val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
 
@@ -65,7 +66,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
                 BggContract.Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to currentValueCurrency,
                 BggContract.Collection.PRIVATE_INFO_CURRENT_VALUE to currentValue,
                 BggContract.Collection.PRIVATE_INFO_QUANTITY to quantity,
-                BggContract.Collection.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate,
+                BggContract.Collection.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate.asDateForApi(),
                 BggContract.Collection.PRIVATE_INFO_ACQUIRED_FROM to acquiredFrom,
                 BggContract.Collection.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
         )

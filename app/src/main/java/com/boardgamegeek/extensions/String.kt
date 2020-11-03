@@ -61,28 +61,10 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
         try {
             format.parse(this)?.time ?: defaultMillis
         } catch (e: Exception) {
-            Timber.w(e, "Unable to parse %s as %s", this, format)
+            Timber.w(e, "Unable to parse \"%s\"", this)
             defaultMillis
         }
     }
-}
-
-/**
- * Converts an API date (<code>yyyy-mm-dd</code>) to millis
- */
-fun String?.toMillisFromApiDate(defaultMillis: Long = 0L): Long {
-    if (this == null) return defaultMillis
-    if (isBlank()) return defaultMillis
-    val parts = split("-".toRegex()).toTypedArray()
-    if (parts.size != 3) return defaultMillis
-    val calendar = Calendar.getInstance()
-    try {
-        calendar.set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
-    } catch (e: Exception) {
-        Timber.w(e, "Couldn't get a date from the API: %s", this)
-    }
-
-    return calendar.timeInMillis
 }
 
 fun String?.asCurrency(): String {

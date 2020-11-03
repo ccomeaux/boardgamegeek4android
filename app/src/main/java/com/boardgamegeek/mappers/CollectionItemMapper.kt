@@ -12,7 +12,7 @@ import java.util.*
 
 
 class CollectionItemMapper {
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
     fun map(from: CollectionItem): Pair<CollectionItemEntity, CollectionItemGameEntity> {

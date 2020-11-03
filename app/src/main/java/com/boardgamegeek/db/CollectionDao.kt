@@ -520,7 +520,7 @@ class CollectionDao(private val context: BggApplication) {
                 values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.currentValueCurrency)
                 values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.currentValue)
                 values.put(Collection.PRIVATE_INFO_QUANTITY, item.quantity)
-                values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate)
+                values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate.asDateForApi())
                 values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom)
                 values.put(Collection.PRIVATE_INFO_COMMENT, item.privateComment)
                 values.put(Collection.PRIVATE_INFO_INVENTORY_LOCATION, item.inventoryLocation)
