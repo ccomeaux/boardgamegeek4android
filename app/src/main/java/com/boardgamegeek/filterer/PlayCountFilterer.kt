@@ -3,6 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
 class PlayCountFilterer(context: Context) : CollectionFilterer(context) {

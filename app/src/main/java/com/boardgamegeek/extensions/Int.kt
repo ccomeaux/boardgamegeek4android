@@ -12,6 +12,7 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
 import java.math.BigDecimal
 import java.math.MathContext
+import kotlin.reflect.KProperty
 
 /**
  * Gets the ordinal (1st) for the given cardinal (1)
@@ -219,4 +220,14 @@ fun Int.orderOfMagnitude(): String {
     val zeros = (toString().length - 1) % 3
     val number = digit + ("0".repeat(zeros)) + suffix
     return if (this < 10) number else "$number+"
+}
+
+class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): Int {
+        return value
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
+        this.value = value.coerceIn(minValue, maxValue)
+    }
 }

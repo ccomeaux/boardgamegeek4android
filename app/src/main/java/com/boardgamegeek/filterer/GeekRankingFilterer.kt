@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RANK_UNKNOWN
+import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
 class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {

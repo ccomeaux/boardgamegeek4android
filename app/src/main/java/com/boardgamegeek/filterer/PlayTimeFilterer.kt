@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.extensions.IntervalDelegate
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
 import com.boardgamegeek.extensions.asTime

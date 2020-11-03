@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.extensions.DoubleIntervalDelegate
 import java.util.*
 
 class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {

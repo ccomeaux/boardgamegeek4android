@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import androidx.annotation.StringRes
+import com.boardgamegeek.extensions.DoubleIntervalDelegate
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
 import java.util.*
