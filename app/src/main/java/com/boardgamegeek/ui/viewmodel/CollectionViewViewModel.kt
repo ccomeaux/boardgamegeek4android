@@ -120,6 +120,11 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
 
     fun addFilter(filter: CollectionFilterer) {
         if (filter.isValid) {
+            val removedFilters = _removedFilters.value ?: mutableListOf()
+            if (removedFilters.remove(filter.type)) {
+                _removedFilters.value = removedFilters
+            }
+
             val filters = _addedFilters.value ?: mutableListOf()
             filters.apply {
                 remove(filter)
