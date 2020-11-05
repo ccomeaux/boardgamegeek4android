@@ -112,7 +112,7 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@Nullable
-	private JsonExportTask getExportTask(String type, Uri uri) {
+	private JsonExportTask<?> getExportTask(String type, Uri uri) {
 		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
@@ -126,7 +126,7 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@Nullable
-	private JsonImportTask getImportTask(String type, Uri uri) {
+	private JsonImportTask<?> getImportTask(String type, Uri uri) {
 		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
@@ -218,29 +218,27 @@ public class DataFragment extends Fragment implements Listener {
 
 	@DebugLog
 	private void performExport(String type, Uri uri) {
-		JsonExportTask task = getExportTask(type, uri);
+		JsonExportTask<?> task = getExportTask(type, uri);
 		if (task == null) {
 			Timber.i("No task found for %s", type);
 			return;
 		}
 		DataStepRow row = findRow(type);
 		if (row != null) row.initProgressBar();
-		//noinspection unchecked
-		TaskUtils.<Void>executeAsyncTask(task);
+		TaskUtils.executeAsyncTask(task);
 		logAction("Export");
 	}
 
 	@DebugLog
 	private void performImport(String type, Uri uri) {
-		JsonImportTask task = getImportTask(type, uri);
+		JsonImportTask<?> task = getImportTask(type, uri);
 		if (task == null) {
 			Timber.i("No task found for %s", type);
 			return;
 		}
 		DataStepRow row = findRow(type);
 		if (row != null) row.initProgressBar();
-		//noinspection unchecked
-		TaskUtils.<Void>executeAsyncTask(task);
+		TaskUtils.executeAsyncTask(task);
 		logAction("Import");
 	}
 
@@ -251,7 +249,6 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportFinishedEvent event) {
 		DataStepRow row = findRow(event.getType());
@@ -260,7 +257,6 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportFinishedEvent event) {
 		DataStepRow row = findRow(event.getType());
@@ -269,7 +265,6 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportProgressEvent event) {
 		DataStepRow row = findRow(event.getType());
@@ -277,7 +272,6 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportProgressEvent event) {
 		DataStepRow row = findRow(event.getType());
