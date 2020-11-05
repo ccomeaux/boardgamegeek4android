@@ -45,7 +45,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.BigTextStyle;
-import hugo.weaving.DebugLog;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -68,7 +67,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		private static final String SYNC_SETTINGS = "SYNC_SETTINGS";
 	}
 
-	@DebugLog
 	public SyncAdapter(BggApplication context) {
 		super(context.getApplicationContext(), false);
 		application = context;
@@ -85,7 +83,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 * over each. It posts and removes a {@code SyncEvent} with the type of sync task. As well as showing the progress
 	 * in a notification.
 	 */
-	@DebugLog
 	@Override
 	public void onPerformSync(@NonNull Account account, @NonNull Bundle extras, String authority, ContentProviderClient provider, @NonNull SyncResult syncResult) {
 		RemoteConfig.fetch();
@@ -165,7 +162,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	/**
 	 * Indicates that a sync operation has been canceled.
 	 */
-	@DebugLog
 	@Override
 	public void onSyncCanceled() {
 		super.onSyncCanceled();
@@ -177,7 +173,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	/**
 	 * Determine if the sync should continue based on the current state of the device.
 	 */
-	@DebugLog
 	private boolean shouldContinueSync() {
 		if (NetworkUtils.isOffline(getContext())) {
 			Timber.i("Skipping sync; offline");
@@ -252,7 +247,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	/**
 	 * Create a list of sync tasks based on the specified type.
 	 */
-	@DebugLog
 	@NonNull
 	private List<SyncTask> createTasks(BggApplication application, final int typeList, boolean uploadOnly, @NonNull SyncResult syncResult, @NonNull Account account) {
 		BggService service = Adapter.createForXmlWithAuth(application);
@@ -291,7 +285,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	/**
 	 * Enable or disable the cancel receiver. (There's no reason for the receiver to be enabled when the sync isn't running.
 	 */
-	@DebugLog
 	private void toggleCancelReceiver(boolean enable) {
 		ComponentName receiver = new ComponentName(getContext(), CancelReceiver.class);
 		PackageManager pm = getContext().getPackageManager();
@@ -305,7 +298,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 * Show a notification of any exception thrown by a sync task that isn't caught by the task.
 	 * ]
 	 */
-	@DebugLog
 	private void showException(@NonNull SyncTask task, @NonNull Throwable t) {
 		String message = t.getMessage();
 		if (TextUtils.isEmpty(message)) {
@@ -338,7 +330,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	 * Show that the sync was cancelled in a notification. This may be useless since the notification is cancelled
 	 * almost immediately after this is shown.
 	 */
-	@DebugLog
 	private void notifySyncIsCancelled(int messageId) {
 		if (!PreferenceUtils.getSyncShowNotifications(prefs)) return;
 

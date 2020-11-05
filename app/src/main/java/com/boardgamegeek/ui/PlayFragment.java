@@ -69,7 +69,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_ID = "ID";
@@ -206,7 +205,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		getListView().setOnScrollListener(onScrollListener);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -222,7 +220,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
@@ -319,14 +316,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		firebaseAnalytics.logEvent("DataManipulation", bundle);
 	}
 
-	@DebugLog
 	@Override
 	public void onRefresh() {
 		triggerRefresh();
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		if (play != null && event.getGameId() == play.gameId) {
@@ -339,7 +334,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
 	private void updateRefreshStatus(final boolean value) {
 		isRefreshing = value;
 		if (swipeRefreshLayout != null) {

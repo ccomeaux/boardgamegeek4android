@@ -26,7 +26,6 @@ import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.SelectionBuilder
-import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
@@ -77,14 +76,12 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
     override val notificationSummaryMessageId = R.string.sync_notification_plays_upload
 
-    @DebugLog
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
         CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
-    @DebugLog
     private fun updatePendingPlays() {
         val cursor = context.contentResolver.query(
                 Plays.CONTENT_SIMPLE_URI,
@@ -152,7 +149,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         }
     }
 
-    @DebugLog
     private fun deletePendingPlays() {
         val cursor = context.contentResolver.query(Plays.CONTENT_SIMPLE_URI,
                 PlayBuilder.PLAY_PROJECTION_WITH_ID,
@@ -206,7 +202,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         }
     }
 
-    @DebugLog
     private fun updateGamePlayCount(play: Play) {
         val resolver = context.contentResolver
         val cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
@@ -224,7 +219,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         }
     }
 
-    @DebugLog
     private fun postPlayUpdate(play: Play): PlaySaveResponse {
         val builder = FormBody.Builder()
                 .add("ajax", "1")
@@ -265,7 +259,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         return PlaySaveResponse(httpClient, request)
     }
 
-    @DebugLog
     private fun postPlayDelete(playId: Int): PlayDeleteResponse {
         val builder = FormBody.Builder()
                 .add("ajax", "1")
@@ -327,7 +320,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 currentPlay.heroImageUrl)
     }
 
-    @DebugLog
     override fun createMessageAction(): Action? {
         if (currentPlay.internalId != INVALID_ID.toLong()) {
             val intent = LogPlayActivity.createRematchIntent(context,
@@ -350,7 +342,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     companion object {
         const val GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php"
 
-        @DebugLog
         private fun getMapKey(index: Int, key: String): String {
             return "players[$index][$key]"
         }

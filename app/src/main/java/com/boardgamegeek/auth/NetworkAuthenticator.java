@@ -12,7 +12,6 @@ import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import hugo.weaving.DebugLog;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -52,7 +51,6 @@ public class NetworkAuthenticator {
 	}
 
 	@Nullable
-	@DebugLog
 	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method, FirebaseAnalytics firebaseAnalytics) throws IOException {
 		final BggCookieJar cookieJar = new BggCookieJar();
 		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
@@ -85,7 +83,6 @@ public class NetworkAuthenticator {
 		firebaseAnalytics.logEvent(Event.LOGIN, bundle);
 	}
 
-	@DebugLog
 	@NonNull
 	private static Request buildRequest(@NonNull String username, @NonNull String password) {
 		FormBody formBody = new FormBody.Builder()

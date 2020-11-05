@@ -12,7 +12,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import hugo.weaving.DebugLog
 import org.jetbrains.anko.startActivity
 
 class GameColorsActivity : SimpleSinglePaneActivity() {
@@ -24,7 +23,6 @@ class GameColorsActivity : SimpleSinglePaneActivity() {
 
     private val viewModel by viewModels<GameColorsViewModel>()
 
-    @DebugLog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,12 +47,10 @@ class GameColorsActivity : SimpleSinglePaneActivity() {
         iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT)
     }
 
-    @DebugLog
     override fun onCreatePane(intent: Intent): Fragment {
         return GameColorsFragment.newInstance(iconColor)
     }
 
-    @DebugLog
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {

@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
@@ -48,7 +47,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	@NonNull private final Results results;
 	private int round;
 
-	@DebugLog
 	public ColorAssignerTask(@Nullable Context context, Play play) {
 		this.context = context == null ? null : context.getApplicationContext();
 		this.play = play;
@@ -56,7 +54,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		random = new Random();
 	}
 
-	@DebugLog
 	@NonNull
 	@Override
 	protected Results doInBackground(Void... params) {
@@ -101,7 +98,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return results;
 	}
 
-	@DebugLog
 	@Override
 	protected void onPostExecute(@Nullable Results results) {
 		results = ensureResultsAreNotNull(results);
@@ -111,7 +107,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		notifyCompletion(results, getMessageIdFromResults(results));
 	}
 
-	@DebugLog
 	@NonNull
 	private Results ensureResultsAreNotNull(@Nullable Results results) {
 		if (results == null) {
@@ -121,7 +116,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return results;
 	}
 
-	@DebugLog
 	private void setPlayerColorsFromResults(@NonNull Results results) {
 		for (PlayerResult pr : this.results.results) {
 			Player player = getPlayerFromResult(pr);
@@ -134,7 +128,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		}
 	}
 
-	@DebugLog
 	private int getMessageIdFromResults(@NonNull Results results) {
 		@StringRes int messageId = R.string.msg_color_success;
 		if (results.hasError()) {
@@ -160,7 +153,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return messageId;
 	}
 
-	@DebugLog
 	private void notifyCompletion(@NonNull Results results, @StringRes int messageId) {
 		EventBus.getDefault().postSticky(new ColorAssignmentCompleteEvent(results.resultCode == SUCCESS, messageId));
 	}
@@ -170,7 +162,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 *
 	 * @return <code>true</code> if a color was assigned, <code>false</code> if not.
 	 */
-	@DebugLog
 	private boolean assignTopChoice() {
 		for (String colorToAssign : colorsAvailable) {
 			PlayerColorChoices playerWhoWantsThisColor = getLonePlayerWithTopChoice(colorToAssign);
@@ -183,7 +174,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return false;
 	}
 
-	@DebugLog
 	@Nullable
 	private PlayerColorChoices getLonePlayerWithTopChoice(String colorToAssign) {
 		List<PlayerColorChoices> players = getPlayersWithTopChoice(colorToAssign);
@@ -197,7 +187,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return players.get(0);
 	}
 
-	@DebugLog
 	@NonNull
 	private List<PlayerColorChoices> getPlayersWithTopChoice(String colorToAssign) {
 		List<PlayerColorChoices> players = new ArrayList<>();
@@ -209,7 +198,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return players;
 	}
 
-	@DebugLog
 	private boolean assignMostPreferredChoice() {
 		List<PlayerColorChoices> players = new ArrayList<>();
 		double maxPreference = 0.0;
@@ -256,7 +244,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return false;
 	}
 
-	@DebugLog
 	private int populatePlayersNeedingColor() {
 		playersNeedingColor = new ArrayList<>();
 		List<String> users = new ArrayList<>();
@@ -284,7 +271,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		return SUCCESS;
 	}
 
-	@DebugLog
 	private void populateColorsAvailable() {
 		if (context == null) return;
 		colorsAvailable = ResolverUtils.queryStrings(context.getContentResolver(), Games.buildColorsUri(play.gameId), GameColors.COLOR);
@@ -298,7 +284,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	/**
 	 * Populates the remaining players list with their color choices, limited to the colors remaining in the game.
 	 */
-	@DebugLog
 	private void populatePlayerColorChoices() {
 		if (context == null) return;
 		for (PlayerColorChoices player : playersNeedingColor) {
@@ -334,7 +319,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	/**
 	 * Gets the player from the play based on the player result. Returns null if the player couldn't be found or their color is already set.
 	 */
-	@DebugLog
 	private Player getPlayerFromResult(@NonNull PlayerResult pr) {
 		for (Player player : play.getPlayers()) {
 			if ((pr.type == TYPE_PLAYER_USER && pr.name.equals(player.username)) ||
@@ -351,7 +335,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 * Assign a color to a player, and remove both from the list of remaining colors and players. This can't be called
 	 * from a for each loop without ending the iteration.
 	 */
-	@DebugLog
 	private void assignColorToPlayer(@NonNull String color, @NonNull PlayerColorChoices player, String reason) {
 		PlayerResult playerResult = new PlayerResult(player.name, player.type, color, reason);
 		results.results.add(playerResult);
@@ -404,14 +387,12 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		final int type;
 		@NonNull final List<ColorChoice> colors;
 
-		@DebugLog
 		public PlayerColorChoices(String name, int type) {
 			this.name = name;
 			this.type = type;
 			this.colors = new ArrayList<>();
 		}
 
-		@DebugLog
 		public boolean isTopChoice(String color) {
 			return colors.size() > 0 && colors.get(0).color.equals(color);
 		}
@@ -419,7 +400,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		/**
 		 * Gets the player's top remaining color choice, or <code>null</code> if they have no choices left.
 		 */
-		@DebugLog
 		@Nullable
 		public ColorChoice getTopChoice() {
 			if (colors.size() > 0) {
@@ -428,7 +408,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			return null;
 		}
 
-		@DebugLog
 		public boolean removeChoice(@NonNull String color) {
 			if (TextUtils.isEmpty(color)) {
 				return false;
@@ -442,7 +421,6 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			return false;
 		}
 
-		@DebugLog
 		public double calculateCurrentPreferenceFor(@NonNull String color) {
 			int MAX_PREFERENCE = 100;
 			if (colors.size() == 0) {

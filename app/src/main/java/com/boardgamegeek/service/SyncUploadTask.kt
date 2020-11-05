@@ -16,7 +16,6 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
 import com.boardgamegeek.util.LargeIconLoader.Callback
 import com.boardgamegeek.util.NotificationUtils
-import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.util.*
 
@@ -38,7 +37,6 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     @get:PluralsRes
     protected abstract val summarySuffixResId: Int
 
-    @DebugLog
     protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
         if (prefs[KEY_SYNC_UPLOADS, true] != true) return
 
@@ -78,7 +76,6 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
         showNotificationSummary()
     }
 
-    @DebugLog
     private fun showNotificationSummary() {
         val builder = NotificationUtils
                 .createNotificationBuilder(context,
@@ -103,12 +100,10 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
         NotificationUtils.notify(context, notificationMessageTag, 0, builder)
     }
 
-    @DebugLog
     protected open fun createMessageAction(): Action? {
         return null
     }
 
-    @DebugLog
     protected fun notifyUploadError(errorMessage: CharSequence) {
         if (errorMessage.isBlank()) return
         Timber.e(errorMessage.toString())

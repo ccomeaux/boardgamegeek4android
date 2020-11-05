@@ -15,7 +15,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.util.SelectionBuilder
-import hugo.weaving.DebugLog
 import timber.log.Timber
 
 class CollectionDao(private val context: BggApplication) {
@@ -376,7 +375,6 @@ class CollectionDao(private val context: BggApplication) {
      * @param protectedCollectionIds list of collection IDs not to delete.
      * @return the number or rows deleted.
      */
-    @DebugLog
     fun delete(gameId: Int, protectedCollectionIds: List<Int>): Int {
         // determine the collection IDs that are no longer in the collection
         val collectionIdsToDelete = resolver.queryInts(
@@ -398,7 +396,6 @@ class CollectionDao(private val context: BggApplication) {
         return collectionIdsToDelete.size
     }
 
-    @DebugLog
     fun saveItem(item: CollectionItemEntity, game: CollectionItemGameEntity, timestamp: Long, includeStats: Boolean = true, includePrivateInfo: Boolean = true, isBrief: Boolean = false): Int {
         val candidate = SyncCandidate.find(resolver, item.collectionId, item.gameId)
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
@@ -411,7 +408,6 @@ class CollectionDao(private val context: BggApplication) {
         return item.collectionId
     }
 
-    @DebugLog
     private fun toGameValues(game: CollectionItemGameEntity, includeStats: Boolean, isBrief: Boolean, timestamp: Long): ContentValues {
         val values = ContentValues()
         values.put(Games.UPDATED_LIST, timestamp)
@@ -439,7 +435,6 @@ class CollectionDao(private val context: BggApplication) {
         return values
     }
 
-    @DebugLog
     private fun upsertGame(gameId: Int, values: ContentValues, isBrief: Boolean) {
         val uri = Games.buildGameUri(gameId)
         if (resolver.rowExists(uri)) {
@@ -454,7 +449,6 @@ class CollectionDao(private val context: BggApplication) {
         }
     }
 
-    @DebugLog
     private fun toCollectionValues(item: CollectionItemEntity, includeStats: Boolean, includePrivateInfo: Boolean, isBrief: Boolean, timestamp: Long): ContentValues {
         val values = ContentValues()
         if (!isBrief && includePrivateInfo && includeStats) {
@@ -504,7 +498,6 @@ class CollectionDao(private val context: BggApplication) {
         return values
     }
 
-    @DebugLog
     private fun upsertItem(candidate: SyncCandidate, values: ContentValues, isBrief: Boolean) {
         if (candidate.internalId != INVALID_ID.toLong()) {
             removeDirtyValues(values, candidate)
@@ -516,7 +509,6 @@ class CollectionDao(private val context: BggApplication) {
         }
     }
 
-    @DebugLog
     private fun removeDirtyValues(values: ContentValues, candidate: SyncCandidate) {
         removeValuesIfDirty(values, candidate.statusDirtyTimestamp,
                 Collection.STATUS_OWN,
@@ -546,12 +538,10 @@ class CollectionDao(private val context: BggApplication) {
         removeValuesIfDirty(values, candidate.hasPartsDirtyTimestamp, Collection.HASPARTS_LIST)
     }
 
-    @DebugLog
     private fun removeValuesIfDirty(values: ContentValues, dirtyFlag: Long, vararg columns: String) {
         if (dirtyFlag != NOT_DIRTY) columns.forEach { values.remove(it) }
     }
 
-    @DebugLog
     private fun maybeDeleteThumbnail(values: ContentValues, uri: Uri) {
         val newThumbnailUrl: String = values.getAsString(Collection.COLLECTION_THUMBNAIL_URL) ?: ""
         val oldThumbnailUrl = resolver.queryString(uri, Collection.COLLECTION_THUMBNAIL_URL) ?: ""
