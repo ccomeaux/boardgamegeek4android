@@ -102,7 +102,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		context.getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
 	}
 
-	public class CompletedEvent extends SyncTask.CompletedEvent {
+	public class CompletedEvent extends SyncTask<?,?>.CompletedEvent {
 		private final int gameId;
 
 		public CompletedEvent(String errorMessage, int gameId) {

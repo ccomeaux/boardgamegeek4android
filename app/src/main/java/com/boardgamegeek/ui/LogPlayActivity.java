@@ -668,7 +668,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ColorAssignmentCompleteEvent event) {
 		firebaseAnalytics.logEvent("LogPlayColorAssignment", null);

@@ -321,7 +321,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		triggerRefresh();
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		if (play != null && event.getGameId() == play.gameId) {
@@ -333,7 +332,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private void updateRefreshStatus(final boolean value) {
 		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
