@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.collection.ArrayMap
+import androidx.collection.arrayMapOf
 import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -16,7 +16,6 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
-import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -97,7 +96,6 @@ class SettingsActivity : DrawerActivity() {
                                 .withFields(R.string::class.java.fields)
                                 .withLibraries(
                                         "AndroidIcons",
-                                        "Hugo",
                                         "MaterialRangeBar"
                                 )
                                 .withAutoDetect(true)
@@ -115,7 +113,6 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        @DebugLog
         override fun onStart() {
             super.onStart()
             EventBus.getDefault().register(this)
@@ -131,7 +128,6 @@ class SettingsActivity : DrawerActivity() {
             preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         }
 
-        @DebugLog
         override fun onStop() {
             super.onStop()
             EventBus.getDefault().unregister(this)
@@ -235,18 +231,15 @@ class SettingsActivity : DrawerActivity() {
         private const val ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED"
         private const val ACTION_ABOUT = ACTION_PREFIX + "ABOUT"
         private const val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
-        private val FRAGMENT_MAP = buildFragmentMap()
 
-        private fun buildFragmentMap(): ArrayMap<String, Int> {
-            val map = ArrayMap<String, Int>()
-            map[ACTION_ACCOUNT] = R.xml.preference_account
-            map[ACTION_SYNC] = R.xml.preference_sync
-            map[ACTION_DATA] = R.xml.preference_data
-            map[ACTION_LOG] = R.xml.preference_log
-            map[ACTION_ADVANCED] = R.xml.preference_advanced
-            map[ACTION_ABOUT] = R.xml.preference_about
-            map[ACTION_AUTHORS] = R.xml.preference_authors
-            return map
-        }
+        private val FRAGMENT_MAP = arrayMapOf(
+                ACTION_ACCOUNT to R.xml.preference_account,
+                ACTION_SYNC to R.xml.preference_sync,
+                ACTION_DATA to R.xml.preference_data,
+                ACTION_LOG to R.xml.preference_log,
+                ACTION_ADVANCED to R.xml.preference_advanced,
+                ACTION_ABOUT to R.xml.preference_about,
+                ACTION_AUTHORS to R.xml.preference_authors
+        )
     }
 }

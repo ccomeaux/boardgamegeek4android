@@ -3,8 +3,6 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.os.Handler;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
 
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
@@ -17,7 +15,6 @@ import java.util.List;
 
 import androidx.annotation.StringRes;
 import androidx.core.util.Pair;
-import hugo.weaving.DebugLog;
 
 public class ShowcaseViewWizard {
 	private final WeakReference<Activity> activityWeakReference;
@@ -38,19 +35,13 @@ public class ShowcaseViewWizard {
 		helpTargets.add(new Pair<>(contextResId, target));
 	}
 
-	@DebugLog
 	public void showHelp() {
 		final Activity activity = activityWeakReference.get();
 		if (activity == null) return;
 		helpIndex = 0;
 		Builder builder = HelpUtils.getShowcaseBuilder(activity);
 		if (builder == null) return;
-		builder.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showNextHelp();
-			}
-		});
+		builder.setOnClickListener(v -> showNextHelp());
 		showcaseView = builder.build();
 		showcaseView.setOnShowcaseEventListener(new OnShowcaseEventListener() {
 			@Override
@@ -74,7 +65,6 @@ public class ShowcaseViewWizard {
 		showNextHelp();
 	}
 
-	@DebugLog
 	private void showNextHelp() {
 		Activity activity = activityWeakReference.get();
 		if (activity == null) return;
@@ -96,17 +86,11 @@ public class ShowcaseViewWizard {
 		helpIndex++;
 	}
 
-	@DebugLog
 	public void maybeShowHelp() {
 		Activity activity = activityWeakReference.get();
 		if (activity == null) return;
 		if (HelpUtils.shouldShowHelp(activity, helpKey, helpVersion)) {
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					showHelp();
-				}
-			}, 100);
+			new Handler().postDelayed(this::showHelp, 100);
 		}
 	}
 }

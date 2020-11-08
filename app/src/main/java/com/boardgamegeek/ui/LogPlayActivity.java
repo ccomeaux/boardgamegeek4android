@@ -118,7 +118,6 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity implements
@@ -266,7 +265,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 			super(cr);
 		}
 
-		@DebugLog
 		@Override
 		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 			// If the query didn't return a cursor for some reason return
@@ -337,7 +335,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void setModelIfDone(int queryType) {
 		synchronized (this) {
 			outstandingQueries &= ~queryType;
@@ -371,7 +368,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void finishDataLoad() {
 		outstandingQueries = 0;
 		if (isRequestingToEndPlay) {
@@ -385,7 +381,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		recyclerView.setVisibility(View.VISIBLE);
 	}
 
-	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -586,14 +581,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 		fab.postDelayed(() -> fab.show(), 2000);
 	}
 
-	@DebugLog
 	@Override
 	protected void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
 	}
 
-	@DebugLog
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -602,7 +595,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.refresh();
 	}
 
-	@DebugLog
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -622,7 +614,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		outState.putBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED, arePlayersCustomSorted);
 	}
 
-	@DebugLog
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -632,14 +623,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	@Override
 	protected void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
 
-	@DebugLog
 	@Override
 	public void onBackPressed() {
 		saveDraft(true);
@@ -647,7 +636,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		finish();
 	}
 
-	@DebugLog
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -680,8 +668,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ColorAssignmentCompleteEvent event) {
 		firebaseAnalytics.logEvent("LogPlayColorAssignment", null);
@@ -694,48 +680,39 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void setUpShowcaseViewWizard() {
 		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION);
 		showcaseWizard.addTarget(R.string.help_logplay, Target.NONE);
 	}
 
-	@DebugLog
 	private boolean shouldHideLocation() {
 		return play != null && !PreferenceUtils.showLogPlayLocation(prefs) && !isUserShowingLocation && TextUtils.isEmpty(play.location);
 	}
 
-	@DebugLog
 	private boolean shouldHideLength() {
 		return play != null && !PreferenceUtils.showLogPlayLength(prefs) && !isUserShowingLength && !(play.length > 0) && !play.hasStarted();
 	}
 
-	@DebugLog
 	private boolean shouldHideQuantity() {
 		return play != null && !PreferenceUtils.showLogPlayQuantity(prefs) && !isUserShowingQuantity && !(play.quantity > 1);
 	}
 
-	@DebugLog
 	private boolean shouldHideIncomplete() {
 		return play != null && !PreferenceUtils.showLogPlayIncomplete(prefs) && !isUserShowingIncomplete && !play.incomplete;
 	}
 
-	@DebugLog
 	private boolean shouldHideNoWinStats() {
 		return play != null && !PreferenceUtils.showLogPlayNoWinStats(prefs) && !isUserShowingNoWinStats && !play.noWinStats;
 	}
 
-	@DebugLog
 	private boolean shouldHideComments() {
 		return play != null && !PreferenceUtils.showLogPlayComments(prefs) && !isUserShowingComments && TextUtils.isEmpty(play.comments);
 	}
 
-	@DebugLog
 	private boolean shouldHidePlayers() {
 		return play != null && !PreferenceUtils.showLogPlayPlayerList(prefs) && !isUserShowingPlayers && (play.getPlayerCount() == 0);
 	}
 
-	@DebugLog
 	private void startQuery() {
 		if (play != null) {
 			// we already have the play from the saved instance
@@ -759,7 +736,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
@@ -781,7 +757,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void logPlay() {
 		play.updateTimestamp = System.currentTimeMillis();
 		play.deleteTimestamp = 0;
@@ -807,7 +782,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		finish();
 	}
 
-	@DebugLog
 	private void saveDraft(boolean showToast) {
 		if (play == null) return;
 		play.dirtyTimestamp = System.currentTimeMillis();
@@ -829,7 +803,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return true;
 	}
 
-	@DebugLog
 	private void cancel() {
 		shouldSaveOnPause = false;
 		if (play == null) {
@@ -860,12 +833,10 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void triggerUpload() {
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
-	@DebugLog
 	@OnClick(R.id.fab)
 	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
@@ -911,7 +882,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 			}).show();
 	}
 
-	@DebugLog
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<>();
@@ -928,7 +898,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return array;
 	}
 
-	@DebugLog
 	private boolean containsPlayer(String username, String name) {
 		for (Player p : play.getPlayers()) {
 			if (!TextUtils.isEmpty(username)) {
@@ -944,7 +913,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return false;
 	}
 
-	@DebugLog
 	private boolean showPlayersToAddDialog() {
 		if (addPlayersBuilder == null) {
 			addPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
@@ -1009,8 +977,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
-
 	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
 		return (dialog, which) -> {
 			play.setPlayers(playersToAdd);
@@ -1030,7 +996,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.notifyPlayersChanged();
 	}
 
-	@DebugLog
 	private void promptPickStartPlayer() {
 		CharSequence[] array = createArrayOfPlayerDescriptions();
 		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
@@ -1042,7 +1007,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 			.show();
 	}
 
-	@DebugLog
 	private CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
 		List<CharSequence> list = new ArrayList<>();
@@ -1059,7 +1023,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return array;
 	}
 
-	@DebugLog
 	private void notifyStartPlayer() {
 		Player p = play.getPlayerAtSeat(1);
 		if (p != null) {
@@ -1071,7 +1034,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void addNewPlayer() {
 		Intent intent = new Intent();
 		if (!arePlayersCustomSorted) {
@@ -1080,7 +1042,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		editPlayer(intent, REQUEST_ADD_PLAYER);
 	}
 
-	@DebugLog
 	private void editPlayer(int position) {
 		Player player = playAdapter.getPlayer(position);
 		Intent intent = new Intent();
@@ -1094,7 +1055,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.notifyPlayerChanged(position);
 	}
 
-	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
 		isLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -1114,14 +1074,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 		startActivityForResult(intent, requestCode);
 	}
 
-	@DebugLog
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
 			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
 		}
 	}
 
-	@DebugLog
 	private void cancelNotification() {
 		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
@@ -1498,7 +1456,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 				}
 			}
 
-			@DebugLog
 			@OnClick(R.id.timer_toggle)
 			public void onTimer() {
 				if (play.hasStarted()) {
@@ -1524,7 +1481,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 				}
 			}
 
-			@DebugLog
 			private void startTimer() {
 				logTimer("On");
 				play.start();
@@ -1532,7 +1488,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 				maybeShowNotification();
 			}
 
-			@DebugLog
 			private void resumeTimer() {
 				logTimer("On");
 				play.resume();

@@ -28,7 +28,6 @@ import java.util.Set;
 
 import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
@@ -38,7 +37,6 @@ public class BggApplication extends MultiDexApplication {
 	private AppExecutors appExecutors;
 
 	@Override
-	@DebugLog
 	public void onCreate() {
 		super.onCreate();
 		appExecutors = new AppExecutors();

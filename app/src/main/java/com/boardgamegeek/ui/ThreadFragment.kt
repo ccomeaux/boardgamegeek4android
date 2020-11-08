@@ -25,7 +25,6 @@ import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.github.amlcurran.showcaseview.targets.Target
-import hugo.weaving.DebugLog
 import kotlinx.android.synthetic.main.fragment_thread.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.withArguments
@@ -187,7 +186,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         }
     }
 
-    @DebugLog
     private fun showHelp() {
         val builder = HelpUtils.getShowcaseBuilder(activity)
         if (builder != null) {

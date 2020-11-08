@@ -12,7 +12,7 @@ import androidx.core.view.isVisible
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
@@ -32,8 +32,8 @@ class NewPlayActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME)
+        val gameId = intent.getIntExtra(KEY_GAME_ID, INVALID_ID)
+        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
 
         setContentView(R.layout.activity_new_play)
 
@@ -160,8 +160,8 @@ class NewPlayActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
             android.R.id.home -> {
                 if (!maybeDiscard()) {
                     setResult(Activity.RESULT_CANCELED)

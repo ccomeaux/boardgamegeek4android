@@ -97,17 +97,18 @@ private fun getCalendar(date: String): Calendar {
 }
 
 private fun parseDate(date: String?, format: DateFormat): Long {
+    val defaultMillis = 0L
     return if (date.isNullOrBlank()) {
-        0L
+        defaultMillis
     } else {
         try {
-            format.parse(date).time
+            format.parse(date)?.time ?: defaultMillis
         } catch (e: ParseException) {
             Timber.w(e, "Unable to parse %s as %s", date, format)
-            0L
+            defaultMillis
         } catch (e: ArrayIndexOutOfBoundsException) {
             Timber.w(e, "Unable to parse %s as %s", date, format)
-            0L
+            defaultMillis
         }
     }
 }

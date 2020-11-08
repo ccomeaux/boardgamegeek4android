@@ -16,7 +16,6 @@ import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
-import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -45,7 +44,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     override val notificationSummaryMessageId = R.string.sync_notification_collection_full
 
-    @DebugLog
     override fun execute() {
         Timber.i("Syncing complete collection")
         try {
@@ -156,7 +154,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         }
     }
 
-    @DebugLog
     private fun getStatusDescription(status: String): String {
         for (i in statusEntries.indices) {
             if (statusValues[i].equals(status, ignoreCase = true)) {
@@ -166,7 +163,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         return status
     }
 
-    @DebugLog
     private fun getSubtypeDescription(subtype: String): String {
         return context.getString(when (subtype) {
             BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
@@ -176,7 +172,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         })
     }
 
-    @DebugLog
     private fun deleteUnusedItems() {
         val timestamp = syncPrefs.getCurrentCollectionSyncTimestamp()
         val formattedDateTime = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
@@ -189,7 +184,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }
 
-    @DebugLog
     private fun updateTimestamps() {
         syncPrefs.setLastCompleteCollectionTimestamp(syncPrefs.getCurrentCollectionSyncTimestamp())
         syncPrefs.setLastPartialCollectionTimestamp(syncPrefs.getCurrentCollectionSyncTimestamp())
