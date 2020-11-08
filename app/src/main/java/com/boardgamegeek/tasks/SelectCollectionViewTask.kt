@@ -1,6 +1,5 @@
 package com.boardgamegeek.tasks
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
@@ -12,27 +11,23 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.contentValuesOf
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.load
-import com.boardgamegeek.extensions.truncate
+import com.boardgamegeek.extensions.*
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.util.ShortcutUtils
-import java.util.*
+import kotlin.io.use
 
-class SelectCollectionViewTask(context: Context?, private val viewId: Long) : AsyncTask<Void?, Void?, Void?>() {
-    @SuppressLint("StaticFieldLeak")
-    private val context: Context? = context?.applicationContext
-
+class SelectCollectionViewTask(private val context: Context?, private val viewId: Long) : AsyncTask<Void?, Void?, Void?>() {
     private val shortcutManager: ShortcutManager? by lazy {
-        if (context != null && VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
-            context.getSystemService<ShortcutManager>()
+        if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
+            context?.applicationContext?.getSystemService()
         } else {
             null
         }
     }
 
     override fun doInBackground(vararg params: Void?): Void? {
-        if (context == null) return null
         if (viewId <= 0) return null
         updateSelection()
         if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
@@ -43,53 +38,50 @@ class SelectCollectionViewTask(context: Context?, private val viewId: Long) : As
     }
 
     private fun updateSelection() {
-        if (context == null) return
-        val uri = CollectionViews.buildViewUri(viewId)
-        context.contentResolver.load(uri, arrayOf(CollectionViews.SELECTED_COUNT))?.use {
-            if (it.moveToFirst()) {
-                val currentCount = it.getInt(0)
-                val contentValues = contentValuesOf(
-                        CollectionViews.SELECTED_COUNT to currentCount + 1,
-                        CollectionViews.SELECTED_TIMESTAMP to System.currentTimeMillis()
-                )
-                context.contentResolver.update(uri, contentValues, null, null)
+        context?.applicationContext?.contentResolver?.let { resolver ->
+            val uri = CollectionViews.buildViewUri(viewId)
+            resolver.load(uri, arrayOf(CollectionViews.SELECTED_COUNT))?.use {
+                if (it.moveToFirst()) {
+                    val currentCount = it.getIntOrNull(0) ?: 0
+                    val values = contentValuesOf(
+                            CollectionViews.SELECTED_COUNT to currentCount + 1,
+                            CollectionViews.SELECTED_TIMESTAMP to System.currentTimeMillis()
+                    )
+                    resolver.update(uri, values, null, null)
+                }
             }
         }
     }
 
     @RequiresApi(VERSION_CODES.N_MR1)
     private fun setShortcuts() {
-        if (context == null || shortcutManager == null) return
-        val shortcuts: MutableList<ShortcutInfo> = ArrayList(SHORTCUT_COUNT)
-        context.contentResolver.load(CollectionViews.CONTENT_URI,
-                arrayOf(CollectionViews._ID, CollectionViews.NAME),
-                sortOrder = "${CollectionViews.SELECTED_COUNT} DESC, ${CollectionViews.SELECTED_TIMESTAMP} DESC"
-        )?.use {
-            while (it.moveToNext()) {
-                val name = it.getString(1)
-                if (name.isNotBlank()) {
-                    shortcuts.add(createShortcutInfo(context, it.getLong(0), name))
-                    if (shortcuts.size >= SHORTCUT_COUNT) break
+        context?.applicationContext?.let { ctx ->
+            val shortcuts = mutableListOf<ShortcutInfo>()
+            ctx.contentResolver.load(CollectionViews.CONTENT_URI,
+                    arrayOf(CollectionViews._ID, CollectionViews.NAME),
+                    sortOrder = "${CollectionViews.SELECTED_COUNT} DESC, ${CollectionViews.SELECTED_TIMESTAMP} DESC"
+            )?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val viewId = cursor.getLongOrNull(0) ?: BggContract.INVALID_ID.toLong()
+                    val name = cursor.getStringOrNull(1)
+                    if (name?.isNotBlank() == true) {
+                        shortcuts.add(ShortcutInfo.Builder(ctx, createShortcutName(viewId))
+                                .setShortLabel(name.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
+                                .setLongLabel(name.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
+                                .setIcon(Icon.createWithResource(ctx, R.drawable.ic_shortcut_ic_collection))
+                                .setIntent(CollectionActivity.createIntentAsShortcut(ctx, viewId))
+                                .build())
+                        if (shortcuts.size >= SHORTCUT_COUNT) break
+                    }
                 }
             }
+            shortcutManager?.dynamicShortcuts = shortcuts
         }
-        shortcutManager?.dynamicShortcuts = shortcuts
     }
 
-    @RequiresApi(VERSION_CODES.N_MR1)
-    private fun createShortcutInfo(context: Context, viewId: Long, viewName: String): ShortcutInfo {
-        return ShortcutInfo.Builder(context, createShortcutName(viewId))
-                .setShortLabel(viewName.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
-                .setLongLabel(viewName.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
-                .setIcon(Icon.createWithResource(context, R.drawable.ic_shortcut_ic_collection))
-                .setIntent(CollectionActivity.createIntentAsShortcut(context, viewId))
-                .build()
-    }
+    private fun createShortcutName(viewId: Long) = "collection-view-$viewId"
 
     companion object {
         private const val SHORTCUT_COUNT = 3
-        private fun createShortcutName(viewId: Long): String {
-            return "collection-view-$viewId"
-        }
     }
 }
