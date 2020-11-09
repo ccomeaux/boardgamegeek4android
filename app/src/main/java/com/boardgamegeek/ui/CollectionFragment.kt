@@ -288,7 +288,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
                 dao.projection(),
                 where.toString(),
                 null,
-                if (sorter == null) null else sorter!!.orderByClause)
+                null)
     }
 
     val dao by lazy { CollectionDao(requireActivity().application as BggApplication) }
@@ -304,6 +304,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
             }
             filters.forEach { f ->
                 items = items.filter { f.filter(it) }.toMutableList()
+            }
+            sorter?.let {
+                items = it.sort(items).toMutableList()
             }
             adapter.items = items
             val sectionItemDecoration = RecyclerSectionItemDecoration(

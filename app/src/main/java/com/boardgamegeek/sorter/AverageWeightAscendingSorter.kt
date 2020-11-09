@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class AverageWeightAscendingSorter(context: Context) : AverageWeightSorter(context) {
     @StringRes
@@ -11,4 +12,6 @@ class AverageWeightAscendingSorter(context: Context) : AverageWeightSorter(conte
 
     @StringRes
     public override val subDescriptionResId = R.string.lightest
+
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.averageWeight }
 }

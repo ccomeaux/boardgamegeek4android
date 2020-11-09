@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class LastPlayDateAscendingSorter(context: Context) : LastPlayDateSorter(context) {
     @StringRes
@@ -11,5 +12,5 @@ class LastPlayDateAscendingSorter(context: Context) : LastPlayDateSorter(context
     @StringRes
     override val descriptionResId = R.string.collection_sort_play_date_min
 
-    override val isSortDescending = false
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.lastPlayDate }
 }

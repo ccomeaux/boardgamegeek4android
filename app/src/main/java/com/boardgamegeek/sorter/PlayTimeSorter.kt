@@ -5,15 +5,12 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asMinutes
-import com.boardgamegeek.provider.BggContract.Collection
 
 abstract class PlayTimeSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue = context.resources.getString(R.string.text_unknown)
 
     @StringRes
     override val descriptionResId = R.string.collection_sort_play_time
-
-    override val sortColumn = Collection.PLAYING_TIME
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         val minutes = item.playingTime

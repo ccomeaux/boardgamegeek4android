@@ -10,8 +10,6 @@ import java.text.DecimalFormat
 abstract class RatingSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue: String = context.getString(R.string.text_unknown)
 
-    override val isSortDescending = true
-
     protected abstract val displayFormat: DecimalFormat
 
     override fun getHeaderText(item: CollectionItemEntity): String {

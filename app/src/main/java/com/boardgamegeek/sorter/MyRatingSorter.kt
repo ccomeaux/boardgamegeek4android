@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asPersonalRating
-import com.boardgamegeek.provider.BggContract.Collection
 import java.text.DecimalFormat
 
 class MyRatingSorter(context: Context) : RatingSorter(context) {
@@ -15,7 +14,7 @@ class MyRatingSorter(context: Context) : RatingSorter(context) {
     @StringRes
     override val descriptionResId = R.string.collection_sort_my_rating
 
-    override val sortColumn = Collection.RATING
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.rating }
 
     override val displayFormat = DecimalFormat("0.0")
 

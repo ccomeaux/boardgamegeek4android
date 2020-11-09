@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RANK_UNKNOWN
-import com.boardgamegeek.provider.BggContract.Games
 import java.text.NumberFormat
 
 class RankSorter(context: Context) : CollectionSorter(context) {
@@ -19,7 +18,7 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     @StringRes
     override val descriptionResId = R.string.collection_sort_rank
 
-    override val sortColumn = Games.GAME_RANK
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.rank }
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         return (0 until ranks.size())

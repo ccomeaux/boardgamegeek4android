@@ -14,6 +14,10 @@ class CollectionNameSorter(context: Context) : CollectionSorter(context) {
     @StringRes
     override val descriptionResId = R.string.collection_sort_collection_name
 
+    override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
+        return items.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, { it.sortName }))
+    }
+
     override fun getHeaderText(item: CollectionItemEntity) = item.sortName.firstChar()
 
     override fun getRating(item: CollectionItemEntity): Double = item.averageRating

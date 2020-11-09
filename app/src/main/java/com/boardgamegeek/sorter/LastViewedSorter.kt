@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asPastDaySpan
-import com.boardgamegeek.provider.BggContract.Games
 
 class LastViewedSorter(context: Context) : CollectionSorter(context) {
     @StringRes
@@ -14,9 +13,7 @@ class LastViewedSorter(context: Context) : CollectionSorter(context) {
     @StringRes
     public override val typeResId = R.string.collection_sort_type_last_viewed
 
-    override val sortColumn = Games.LAST_VIEWED
-
-    override val isSortDescending = true
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.lastViewedDate }
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         return item.lastViewedDate.asPastDaySpan(context).toString()

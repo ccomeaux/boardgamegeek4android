@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.provider.BggContract.Collection
 import java.text.DecimalFormat
 
 abstract class AverageWeightSorter(context: Context) : CollectionSorter(context) {
@@ -12,8 +11,6 @@ abstract class AverageWeightSorter(context: Context) : CollectionSorter(context)
 
     @StringRes
     override val descriptionResId = R.string.collection_sort_average_weight
-
-    override val sortColumn = Collection.STATS_AVERAGE_WEIGHT
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         val averageWeight = item.averageWeight

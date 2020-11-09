@@ -7,16 +7,12 @@ import java.text.DecimalFormat
 import kotlin.math.ceil
 
 abstract class MoneySorter(context: Context) : CollectionSorter(context) {
-
-    override val sortColumn: String
-        get() = "$currencyColumnName DESC, $amountColumnName"
-
-    override val isSortDescending = true
-
-    protected abstract val amountColumnName: String
-    protected abstract val currencyColumnName: String
     protected abstract fun amount(item: CollectionItemEntity): Double
     protected abstract fun currency(item: CollectionItemEntity): String
+
+    override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
+        return items.sortedWith(compareBy<CollectionItemEntity> { currency(it) }.thenByDescending { amount(it) })
+    }
 
     private fun round(value: Double): Double {
         return (ceil(value / 10).toInt() * 10).toDouble()

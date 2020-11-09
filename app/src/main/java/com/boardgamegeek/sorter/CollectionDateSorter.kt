@@ -13,8 +13,6 @@ abstract class CollectionDateSorter(context: Context) : CollectionSorter(context
     @StringRes
     protected open val defaultValueResId = R.string.text_unknown
 
-    override val isSortDescending = true
-
     override fun getHeaderText(item: CollectionItemEntity): String {
         val time =  getTimestamp(item)
         return if (time == 0L) context.getString(defaultValueResId) else headerDateFormat.format(time)

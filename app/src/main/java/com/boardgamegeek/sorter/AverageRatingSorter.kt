@@ -2,11 +2,8 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import androidx.annotation.StringRes
-
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.provider.BggContract.Collection
-
 import java.text.DecimalFormat
 
 class AverageRatingSorter(context: Context) : RatingSorter(context) {
@@ -16,7 +13,7 @@ class AverageRatingSorter(context: Context) : RatingSorter(context) {
     @StringRes
     override val descriptionResId = R.string.collection_sort_average_rating
 
-    override val sortColumn = Collection.STATS_AVERAGE
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.averageRating }
 
     override val displayFormat = DecimalFormat("0.00")
 

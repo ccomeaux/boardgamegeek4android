@@ -3,8 +3,6 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.Collection
 
 abstract class CollectionSorter(protected val context: Context) {
     @get:StringRes
@@ -35,23 +33,7 @@ abstract class CollectionSorter(protected val context: Context) {
     @get:StringRes
     protected abstract val typeResId: Int
 
-    /**
-     * Gets the sort order clause to use in the query.
-     */
-    val orderByClause: String
-        get() = if (sortColumn.isEmpty()) {
-            Collection.DEFAULT_SORT
-        } else {
-            val sortOrder = if (isSortDescending) "DESC" else "ASC"
-            val collateNoCase = if (shouldCollate) BggContract.COLLATE_NOCASE else ""
-            "$sortColumn $collateNoCase $sortOrder, ${Collection.DEFAULT_SORT}"
-        }
-
-    protected open val sortColumn = ""
-
-    protected open val isSortDescending = false
-
-    protected open val shouldCollate = false
+    open fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> = items.toList()
 
     open fun getHeaderText(item: CollectionItemEntity): String = ""
 
