@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
-import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -22,14 +21,10 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
-import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.events.SyncCompleteEvent
@@ -46,7 +41,6 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListener
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
@@ -73,7 +67,7 @@ import timber.log.Timber
 import java.util.*
 import kotlin.properties.Delegates
 
-class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager.LoaderCallbacks<Cursor>, ActionMode.Callback, OnFilterChangedListener {
+class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Callback, OnFilterChangedListener {
     private var viewId = CollectionView.DEFAULT_DEFAULT_ID
     private var viewName = ""
     private var sorter: CollectionSorter? = null
@@ -83,23 +77,11 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
     private var isSyncing = false
     private var actionMode: ActionMode? = null
 
-    private val collectionSorterFactory: CollectionSorterFactory by lazy {
-        CollectionSorterFactory(requireContext())
-    }
-
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    private val prefs: SharedPreferences by lazy { requireContext().preferences() }
-
-    private val defaultWhereClause: String by lazy {
-        prefs.getSyncStatusesAsSql()
-    }
-
     private val viewModel by activityViewModels<CollectionViewViewModel>()
-
-    private val adapter by lazy {
-        CollectionAdapter()
-    }
+    private val adapter by lazy { CollectionAdapter() }
+    private val prefs: SharedPreferences by lazy { requireContext().preferences() }
+    private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,8 +102,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
 
     private fun readBundle(bundle: Bundle?) {
         isCreatingShortcut = bundle?.getBoolean(KEY_IS_CREATING_SHORTCUT) ?: false
-        changingGamePlayId = bundle?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
-                ?: BggContract.INVALID_ID.toLong()
+        changingGamePlayId = bundle?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -150,18 +131,42 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         viewModel.selectedViewId.observe(viewLifecycleOwner, { id: Long -> viewId = id })
         viewModel.selectedViewName.observe(viewLifecycleOwner, { name: String -> viewName = name })
         viewModel.effectiveSortType.observe(viewLifecycleOwner, { sortType: Int ->
-            adapter.items = emptyList() // force the display info to be updated. Need to do this in the adapter diff
-            progressBar.show()
             sorter = collectionSorterFactory.create(sortType)
-            LoaderManager.getInstance(this).restartLoader(0, null, this)
+            sortDescriptionView.text = if (sorter == null) "" else String.format(requireActivity().getString(R.string.by_prefix), sorter?.description.orEmpty())
         })
         viewModel.effectiveFilters.observe(viewLifecycleOwner, {
-            progressBar.show()
             filters.clear()
             it?.let { filters.addAll(it) }
             setEmptyText()
-            LoaderManager.getInstance(this).restartLoader(0, null, this)
+            bindFilterButtons()
         })
+        viewModel.items.observe(viewLifecycleOwner, {
+            it?.let { showData(it) }
+        })
+    }
+
+    private fun showData(items: List<CollectionItemEntity>) {
+        progressBar.show()
+        adapter.items = items
+        val sectionItemDecoration = RecyclerSectionItemDecoration(
+                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
+                getSectionCallback(items)
+        )
+        while (listView.itemDecorationCount > 0) {
+            listView.removeItemDecorationAt(0)
+        }
+        listView.addItemDecoration(sectionItemDecoration)
+        rowCountView.text = String.format(Locale.getDefault(), "%,d", items.size)
+        invalidateMenu()
+
+        if (items.isEmpty()) {
+            emptyContainer.fadeIn()
+            listView.fadeOut()
+        } else {
+            listView.fadeIn()
+            emptyContainer.fadeOut()
+        }
+        progressBar.hide()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -196,8 +201,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
             menu.findItem(R.id.menu_collection_view_delete)?.isVisible = true
             menu.findItem(R.id.menu_share)?.isVisible = true
             val hasFiltersApplied = filters.size > 0
-            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT }
-                    ?: false
+            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
             val hasViews = activity?.contentResolver?.getCount(CollectionViews.CONTENT_URI) ?: 0 > 0
             val hasItems = adapter.itemCount > 0
             val hasViewSelected = viewId > 0
@@ -277,73 +281,13 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
                 R.string.title_share_collection)
     }
 
-    override fun onCreateLoader(id: Int, data: Bundle?): Loader<Cursor> {
-        val where = StringBuilder()
-        val having = StringBuilder()
-        if (viewId == 0L && filters.size == 0) {
-            where.append(defaultWhereClause)
-        }
-        return CursorLoader(requireContext(),
-                BggContract.Collection.buildUri(having.toString()),
-                dao.projection(),
-                where.toString(),
-                null,
-                null)
-    }
-
-    val dao by lazy { CollectionDao(requireActivity().application as BggApplication) }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
-        if (activity == null) return
-        if (loader.id == 0) {
-            var items = mutableListOf<CollectionItemEntity>()
-            if (cursor.moveToFirst()) {
-                do {
-                    items.add(dao.entityFromCursor(cursor))
-                } while (cursor.moveToNext())
-            }
-            filters.forEach { f ->
-                items = items.filter { f.filter(it) }.toMutableList()
-            }
-            sorter?.let {
-                items = it.sort(items).toMutableList()
-            }
-            adapter.items = items
-            val sectionItemDecoration = RecyclerSectionItemDecoration(
-                    resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                    getSectionCallback(items)
-            )
-            while (listView.itemDecorationCount > 0) {
-                listView.removeItemDecorationAt(0)
-            }
-            listView.addItemDecoration(sectionItemDecoration)
-            rowCountView.text = String.format(Locale.getDefault(), "%,d", items.size)
-            sortDescriptionView.text = if (sorter == null) "" else String.format(requireActivity().getString(R.string.by_prefix), sorter?.description.orEmpty())
-            bindFilterButtons()
-            invalidateMenu()
-            if (items.size > 0) {
-                listView.fadeIn()
-                emptyContainer.fadeOut()
-            } else {
-                emptyContainer.fadeIn()
-                listView.fadeOut()
-            }
-            progressBar.hide()
-        } else {
-            Timber.d("Query complete, Not Actionable: %s", loader.id)
-            cursor.close()
-        }
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.items = arrayListOf()
-    }
-
-    override fun removeFilter(type: Int) {
+   override fun removeFilter(type: Int) {
+        progressBar.show()
         viewModel.removeFilter(type)
     }
 
     override fun addFilter(filter: CollectionFilterer) {
+        progressBar.show()
         viewModel.addFilter(filter)
         firebaseAnalytics.logEvent("Filter", bundleOf(
                 FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
@@ -419,11 +363,15 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
         }
     }
 
-    inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), AutoUpdatableAdapter {
-        var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, old, new ->
-            autoNotify(old, new) { o, n ->
-                o.internalId == n.internalId
-            }
+    inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>() {
+        var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+            val diffCallback = Diff(oldValue, newValue)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            diffResult.dispatchUpdatesTo(this)
+        }
+
+        init {
+            setHasStableIds(true)
         }
 
         private val selectedItems = SparseBooleanArray()
@@ -521,9 +469,19 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
                 }
             }
         }
+    }
 
-        init {
-            setHasStableIds(true)
+    private class Diff(private val oldList: List<CollectionItemEntity>, private val newList: List<CollectionItemEntity>) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].internalId == newList[newItemPosition].internalId
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return false
         }
     }
 
@@ -591,9 +549,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), LoaderManager
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = adapter.selectedItemCount
         mode.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
-        menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
-        menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
-        menu.findItem(R.id.menu_link).isVisible = count == 1
+        menu.findItem(R.id.menu_log_play_form)?.isVisible = count == 1
+        menu.findItem(R.id.menu_log_play_wizard)?.isVisible = count == 1
+        menu.findItem(R.id.menu_link)?.isVisible = count == 1
         return true
     }
 

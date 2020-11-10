@@ -9,7 +9,6 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     var selectedStatuses: BooleanArray = BooleanArray(0)
     var shouldJoinWithOr: Boolean = false
 
-
     override val typeResourceId = R.string.collection_filter_type_collection_status
 
     override fun inflate(data: String) {

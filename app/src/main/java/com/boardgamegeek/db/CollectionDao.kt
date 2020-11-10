@@ -24,6 +24,12 @@ class CollectionDao(private val context: BggApplication) {
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    fun loadAsLiveData(): LiveData<List<CollectionItemEntity>> {
+        return RegisteredLiveData(context, Collection.CONTENT_URI, true) {
+            return@RegisteredLiveData load()
+        }
+    }
+
     fun loadAsLiveData(collectionId: Int): LiveData<CollectionItemEntity> {
         return RegisteredLiveData(context, Collection.CONTENT_URI, true) {
             return@RegisteredLiveData load(collectionId)
@@ -58,8 +64,7 @@ class CollectionDao(private val context: BggApplication) {
         return list
     }
 
-    // TEMP
-    fun projection(): Array<String> {
+    private fun projection(): Array<String> {
         return arrayOf(
                 Collection._ID,
                 Collection.GAME_ID,
@@ -128,8 +133,7 @@ class CollectionDao(private val context: BggApplication) {
         )
     }
 
-    // TEMP
-    fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
+    private fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
         return CollectionItemEntity(
                 internalId = cursor.getLong(Collection._ID),
                 gameId = cursor.getInt(Collection.GAME_ID),
@@ -338,7 +342,7 @@ class CollectionDao(private val context: BggApplication) {
                 COLLECTION_STATUS_PREVIOUSLY_OWNED -> Collection.STATUS_PREVIOUSLY_OWNED.isTrue()
                 COLLECTION_STATUS_PREORDERED -> Collection.STATUS_PREORDERED.isTrue()
                 COLLECTION_STATUS_FOR_TRADE -> Collection.STATUS_FOR_TRADE.isTrue()
-                COLLECTION_STATUS_WANT -> Collection.STATUS_WANT.isTrue()
+                COLLECTION_STATUS_WANT_IN_TRADE -> Collection.STATUS_WANT.isTrue()
                 COLLECTION_STATUS_WANT_TO_BUY -> Collection.STATUS_WANT_TO_BUY.isTrue()
                 COLLECTION_STATUS_WANT_TO_PLAY -> Collection.STATUS_WANT_TO_PLAY.isTrue()
                 COLLECTION_STATUS_WISHLIST -> Collection.STATUS_WISHLIST.isTrue()
