@@ -4,9 +4,7 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.entities.CollectionViewFilterEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -16,6 +14,7 @@ import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.tasks.SelectCollectionViewTask
+import java.util.concurrent.TimeUnit
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
     private val viewRepository = CollectionViewRepository(getApplication())
@@ -38,7 +37,13 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val effectiveSortType = MediatorLiveData<Int>()
     val effectiveFilters = MediatorLiveData<List<CollectionFilterer>>()
     val items = MediatorLiveData<List<CollectionItemEntity>>()
-    private val _items: LiveData<List<CollectionItemEntity>> = itemRepository.load()
+    private val syncTimestamp = MutableLiveData<Long>()
+    private val _items: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(syncTimestamp){
+        itemRepository.loadCollection()
+    }
+    val isRefreshing: LiveData<Boolean> = Transformations.map(_items) {
+        it.status == Status.REFRESHING
+    }
 
     private val selectedView: LiveData<CollectionViewEntity> = Transformations.switchMap(_selectedViewId) {
         _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
@@ -57,19 +62,19 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
 
         effectiveFilters.addSource(selectedView) {
             createEffectiveFilters(it,
-                    _addedFilters.value ?: emptyList(),
-                    _removedFilters.value ?: emptyList()
+                    _addedFilters.value.orEmpty(),
+                    _removedFilters.value.orEmpty()
             )
         }
         effectiveFilters.addSource(_addedFilters) {
             createEffectiveFilters(selectedView.value,
                     it,
-                    _removedFilters.value ?: emptyList()
+                    _removedFilters.value.orEmpty()
             )
         }
         effectiveFilters.addSource(_removedFilters) {
             createEffectiveFilters(selectedView.value,
-                    _addedFilters.value ?: emptyList(),
+                    _addedFilters.value.orEmpty(),
                     it
             )
         }
@@ -81,7 +86,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             filterAndSortItems(sortType = it)
         }
         items.addSource(_items) {
-            filterAndSortItems(itemList = it)
+            filterAndSortItems(itemList = it.data.orEmpty())
         }
 
         _selectedViewId.value = defaultViewId
@@ -93,7 +98,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     private fun createEffectiveFilters(loadedView: CollectionViewEntity?, addedFilters: List<CollectionFilterer>, removedFilters: List<Int>) {
         // inflate filters
         val loadedFilters = mutableListOf<CollectionFilterer>()
-        for ((type, data) in loadedView?.filters ?: emptyList()) {
+        for ((type, data) in loadedView?.filters.orEmpty()) {
             val filter = collectionFiltererFactory.create(type)
             filter?.inflate(data)
             if (filter?.isValid == true) {
@@ -173,8 +178,8 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun filterAndSortItems(
-            itemList: List<CollectionItemEntity> = _items.value ?: emptyList(),
-            filters: List<CollectionFilterer> = effectiveFilters.value ?: emptyList(),
+            itemList: List<CollectionItemEntity> = _items.value?.data.orEmpty(),
+            filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
             sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
         var list = itemList.asSequence()
@@ -182,7 +187,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             list = list.filter {
                 (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
                         (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade ) ||
+                        (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade) ||
                         (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_IN_TRADE) && it.wantInTrade) ||
                         (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_BUY) && it.wantToPlay) ||
                         (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
@@ -205,6 +210,13 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         } else {
             items.value = sorter.sort(list.toList())
         }
+    }
+
+    fun refresh(): Boolean {
+        return if ((syncTimestamp.value ?: 0).isOlderThan(1, TimeUnit.MINUTES)) {
+            syncTimestamp.postValue(System.currentTimeMillis())
+            true
+        } else false
     }
 
     fun insert(name: String, isDefault: Boolean): Long {

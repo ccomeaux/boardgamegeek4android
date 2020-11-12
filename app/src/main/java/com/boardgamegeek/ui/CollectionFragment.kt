@@ -27,8 +27,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
-import com.boardgamegeek.events.SyncCompleteEvent
-import com.boardgamegeek.events.SyncEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
@@ -37,7 +35,6 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.noPreviousCollectionSync
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
@@ -57,9 +54,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_collection.*
 import kotlinx.android.synthetic.main.row_collection.view.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.toast
 import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
@@ -73,7 +67,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     private val filters: MutableList<CollectionFilterer> = ArrayList()
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = 0
-    private var isSyncing = false
     private var actionMode: ActionMode? = null
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -87,16 +80,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         firebaseAnalytics = Firebase.analytics
         readBundle(arguments)
         setHasOptionsMenu(true)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
     }
 
     private fun readBundle(bundle: Bundle?) {
@@ -125,8 +108,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
 
         swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { SyncService.sync(activity, SyncService.FLAG_SYNC_COLLECTION) }
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
 
+        progressBar.show()
         viewModel.selectedViewId.observe(viewLifecycleOwner, { id: Long -> viewId = id })
         viewModel.selectedViewName.observe(viewLifecycleOwner, { name: String -> viewName = name })
         viewModel.effectiveSortType.observe(viewLifecycleOwner, { sortType: Int ->
@@ -142,6 +126,10 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         viewModel.items.observe(viewLifecycleOwner, {
             it?.let { showData(it) }
         })
+        viewModel.isRefreshing.observe(viewLifecycleOwner, {
+            swipeRefreshLayout.post { swipeRefreshLayout.isRefreshing = it }
+        })
+        viewModel.refresh()
     }
 
     private fun showData(items: List<CollectionItemEntity>) {
@@ -166,23 +154,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             emptyContainer.fadeOut()
         }
         progressBar.hide()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(event: SyncEvent) {
-        if (event.type and SyncService.FLAG_SYNC_COLLECTION == SyncService.FLAG_SYNC_COLLECTION) {
-            isSyncing(true)
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(event: SyncCompleteEvent?) {
-        isSyncing(false)
-    }
-
-    private fun isSyncing(value: Boolean) {
-        isSyncing = value
-        swipeRefreshLayout.post { swipeRefreshLayout.isRefreshing = isSyncing }
     }
 
     private fun invalidateMenu() {

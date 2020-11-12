@@ -36,9 +36,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
-open class PlayRefresher
-
-class PlayRepository(val application: BggApplication) : PlayRefresher() {
+class PlayRepository(val application: BggApplication) {
     private val playDao = PlayDao(application)
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
@@ -368,7 +366,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             Timber.i("Synced page %,d of plays", 1)
         }
 
-        override fun hasMorePages(result: PlaysResponse): Boolean {
+        override fun hasMorePages(result: PlaysResponse, currentPage: Int): Boolean {
             return when {
                 result.hasMorePages() -> true
                 refreshingNewest -> {
