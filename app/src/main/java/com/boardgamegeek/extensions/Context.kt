@@ -3,7 +3,6 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.text.Html
@@ -56,15 +55,11 @@ fun Context.versionName(): String {
     }
 }
 
-fun Context.logQuickPlay(gameId: Int, gameName: String) {
-    val play = Play(gameId, gameName)
-    play.setCurrentDate()
-    play.updateTimestamp = System.currentTimeMillis()
+fun Context?.logQuickPlay(gameId: Int, gameName: String) {
+    val play = Play(gameId, gameName).apply {
+        setCurrentDate()
+        updateTimestamp = System.currentTimeMillis()
+    }
     PlayPersister(this).save(play, BggContract.INVALID_ID.toLong(), false)
     SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-}
-
-fun Context.isIntentAvailable(intent: Intent): Boolean {
-    val list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-    return list.size > 0
 }

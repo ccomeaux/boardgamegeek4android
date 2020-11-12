@@ -9,9 +9,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.extensions.link
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
-import com.boardgamegeek.util.ActivityUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
@@ -74,7 +74,7 @@ class GeekListItemActivity : HeroTabActivity() {
                         if (glItem.objectUrl.isBlank()) {
                             false
                         } else {
-                            ActivityUtils.link(this, glItem.objectUrl)
+                            link(glItem.objectUrl)
                             true
                         }
                     }

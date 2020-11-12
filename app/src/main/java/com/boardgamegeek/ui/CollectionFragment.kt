@@ -46,7 +46,6 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListene
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
@@ -265,7 +264,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 .append("\n")
 
         val maxGames = 10
-        adapter.items.take(maxGames).map { text.append("\u2022 ${ActivityUtils.formatGameLink(it.gameId, it.collectionName)}") }
+        adapter.items.take(maxGames).map { text.append("\u2022 ${formatGameLink(it.gameId, it.collectionName)}") }
         val leftOverCount = adapter.itemCount - maxGames
         if (leftOverCount > 0) text.append(getString(R.string.and_more, leftOverCount)).append("\n")
 
@@ -275,13 +274,10 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 .append("\n")
                 .append("\n")
                 .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${HttpUtils.encode(username)}"))
-        ActivityUtils.share(activity,
-                getString(R.string.share_collection_subject, AccountUtils.getFullName(context), username),
-                text,
-                R.string.title_share_collection)
+        requireActivity().share(getString(R.string.share_collection_subject, AccountUtils.getFullName(context), username), text, R.string.title_share_collection)
     }
 
-   override fun removeFilter(type: Int) {
+    override fun removeFilter(type: Int) {
         progressBar.show()
         viewModel.removeFilter(type)
     }
@@ -572,7 +568,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             R.id.menu_log_play_quick -> {
                 toast(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
                 for (position in adapter.selectedItemPositions) {
-                    adapter.getItem(position)?.let { ActivityUtils.logQuickPlay(activity, it.gameId, it.gameName) }
+                    adapter.getItem(position)?.let { context.logQuickPlay(it.gameId, it.gameName) }
                 }
                 mode.finish()
                 return true
@@ -585,13 +581,13 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             R.id.menu_share -> {
                 val shareMethod = "Collection"
                 if (adapter.selectedItemCount == 1) {
-                    ci?.let { ActivityUtils.shareGame(requireActivity(), it.gameId, it.gameName, shareMethod) }
+                    ci?.let { requireActivity().shareGame(it.gameId, it.gameName, shareMethod, firebaseAnalytics) }
                 } else {
                     val games: MutableList<Pair<Int, String>> = ArrayList(adapter.selectedItemCount)
                     for (position in adapter.selectedItemPositions) {
                         adapter.getItem(position)?.let { games.add(Pair.create(it.gameId, it.gameName)) }
                     }
-                    ActivityUtils.shareGames(requireActivity(), games, shareMethod)
+                    requireActivity().shareGames(games, shareMethod, firebaseAnalytics)
                 }
                 mode.finish()
                 return true

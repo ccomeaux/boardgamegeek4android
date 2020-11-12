@@ -229,7 +229,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 context?.toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
-                        requireActivity().logQuickPlay(it.id, it.name)
+                        context.logQuickPlay(it.id, it.name)
                     }
                 }
                 mode.finish()

@@ -2,7 +2,6 @@ package com.boardgamegeek.ui
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -15,13 +14,13 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.logQuickPlay
+import com.boardgamegeek.extensions.shareGame
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ShortcutUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -39,7 +38,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var arePlayersCustomSorted = false
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
-    private val prefs: SharedPreferences by lazy { this.preferences() }
     private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
@@ -128,7 +126,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_share -> {
-                ActivityUtils.shareGame(this, gameId, gameName, "Game")
+                shareGame(gameId, gameName, "Game", firebaseAnalytics)
                 return true
             }
             R.id.menu_favorite -> {
@@ -142,7 +140,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
             R.id.menu_log_play_quick -> {
                 getCoordinatorLayout().snackbar(R.string.msg_logging_play)
-                ActivityUtils.logQuickPlay(this, gameId, gameName)
+                logQuickPlay(gameId, gameName)
                 return true
             }
             R.id.menu_log_play -> {

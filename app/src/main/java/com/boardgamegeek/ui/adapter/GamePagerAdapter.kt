@@ -7,7 +7,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
@@ -16,7 +15,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.ActivityUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GamePagerAdapter(private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
@@ -112,7 +110,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private fun logPlay() {
         when (prefs.logPlayPreference()) {
             LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
-            LOG_PLAY_TYPE_QUICK -> ActivityUtils.logQuickPlay(activity, gameId, gameName)
+            LOG_PLAY_TYPE_QUICK -> activity.logQuickPlay(gameId, gameName)
             LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
         }
     }
