@@ -57,6 +57,7 @@ import kotlinx.android.synthetic.main.row_collection.view.*
 import org.jetbrains.anko.support.v4.toast
 import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
+import java.text.NumberFormat
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -74,6 +75,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     private val adapter by lazy { CollectionAdapter() }
     private val prefs: SharedPreferences by lazy { requireContext().preferences() }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(requireContext()) }
+    private val numberFormat = NumberFormat.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,7 +117,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         viewModel.selectedViewName.observe(viewLifecycleOwner, { name: String -> viewName = name })
         viewModel.effectiveSortType.observe(viewLifecycleOwner, { sortType: Int ->
             sorter = collectionSorterFactory.create(sortType)
-            sortDescriptionView.text = if (sorter == null) "" else String.format(requireActivity().getString(R.string.by_prefix), sorter?.description.orEmpty())
+            sortDescriptionView.text = if (sorter == null) "" else requireActivity().getString(R.string.by_prefix, sorter?.description.orEmpty())
         })
         viewModel.effectiveFilters.observe(viewLifecycleOwner, {
             filters.clear()
@@ -127,7 +129,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             it?.let { showData(it) }
         })
         viewModel.isRefreshing.observe(viewLifecycleOwner, {
-            swipeRefreshLayout.post { swipeRefreshLayout.isRefreshing = it }
+            swipeRefreshLayout.post { swipeRefreshLayout?.isRefreshing = it }
         })
         viewModel.refresh()
     }
@@ -143,7 +145,8 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             listView.removeItemDecorationAt(0)
         }
         listView.addItemDecoration(sectionItemDecoration)
-        rowCountView.text = String.format(Locale.getDefault(), "%,d", items.size)
+
+        rowCountView.text = numberFormat.format(items.size)
         invalidateMenu()
 
         if (items.isEmpty()) {
