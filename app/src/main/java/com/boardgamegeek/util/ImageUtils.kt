@@ -138,7 +138,6 @@ object ImageUtils {
         }
     }
 
-    @JvmStatic
     fun ImageView.loadThumbnail(imageId: Int) {
         if (imageId == 0) {
             Timber.i(" Not attempting to fetch invalid image ID of 0.")
@@ -176,7 +175,6 @@ object ImageUtils {
         }
     }
 
-    @JvmStatic
     fun ImageView.loadThumbnail(vararg paths: String) {
         val queue = LinkedList<String>()
         queue += paths
@@ -185,23 +183,8 @@ object ImageUtils {
 
     private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
         var url: String? = null
-        val savedUrl = getTag(R.id.url) as String?
-        if (savedUrl?.isNotEmpty() == true) {
-            if (imageUrls.contains(savedUrl)) {
-                url = savedUrl
-            } else {
-                setTag(R.id.url, null)
-            }
-        }
         while (url.isNullOrEmpty() && imageUrls.isNotEmpty()) {
             url = imageUrls.poll()
-        }
-        if (url.isNullOrEmpty()) {
-            if (imageUrls.isEmpty()) {
-                url = null
-            } else {
-                return
-            }
         }
         val imageUrl = url
         Picasso.with(context)
@@ -212,7 +195,6 @@ object ImageUtils {
                 .centerCrop()
                 .into(this, object : com.squareup.picasso.Callback {
                     override fun onSuccess() {
-                        setTag(R.id.url, imageUrl)
                     }
 
                     override fun onError() {
