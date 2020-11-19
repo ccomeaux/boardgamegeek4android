@@ -2,15 +2,14 @@ package com.boardgamegeek.service
 
 import android.accounts.Account
 import android.content.SyncResult
-import androidx.collection.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.service.model.GameList
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
@@ -37,10 +36,11 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
         try {
             var numberOfFetches = 0
             val dao = CollectionDao(application)
-            val options = ArrayMap<String, String>()
-            options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
-            options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
-            var previousGameList = GameList(0)
+            val options = mutableMapOf(
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+            )
+            var previousGameList = mapOf<Int, String>()
 
             do {
                 if (isCancelled) break
@@ -48,22 +48,23 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
                 if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis)) return
 
                 numberOfFetches++
-                val gameIds = queryGames()
-                if (areGamesListsEqual(gameIds, previousGameList)) {
+                val gameList = queryGames()
+                if (gameList == previousGameList) {
                     Timber.i("...didn't update any games; breaking out of fetch loop")
                     break
                 }
-                previousGameList = gameIds
+                previousGameList = gameList.toMap()
 
-                if (gameIds.size > 0) {
-                    detail = context.getString(R.string.sync_notification_collection_update_games, gameIds.size, gameIds.description)
+                if (gameList.isNotEmpty()) {
+                    val gameDescription = gameList.values.toList().formatList()
+                    detail = context.getString(R.string.sync_notification_collection_update_games, gameList.size, gameDescription)
                     if (numberOfFetches > 1) {
                         detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches)
                     }
                     updateProgressNotification(detail)
-                    Timber.i("...found %,d games to update [%s]", gameIds.size, gameIds.description)
+                    Timber.i("...found %,d games to update [%s]", gameList.size, gameDescription)
 
-                    options[BggService.COLLECTION_QUERY_KEY_ID] = gameIds.ids
+                    options[BggService.COLLECTION_QUERY_KEY_ID] = gameList.keys.joinToString(",")
                     options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE)
                     val itemCount = requestAndPersist(account.name, dao, options)
 
@@ -96,8 +97,8 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
         }
     }
 
-    private fun queryGames(): GameList {
-        val list = GameList(gamesPerFetch)
+    private fun queryGames(): Map<Int, String> {
+        val games = mutableMapOf<Int, String>()
         val cursor = context.contentResolver.query(Collection.CONTENT_URI,
                 arrayOf(Collection.GAME_ID, Collection.GAME_NAME),
                 SelectionBuilder.whereZeroOrNull("collection.${Collection.UPDATED}"),
@@ -105,14 +106,14 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
                 "collection.${Collection.UPDATED_LIST} DESC LIMIT $gamesPerFetch")
         cursor?.use {
             while (it.moveToNext()) {
-                list.addGame(it.getInt(0), it.getString(1))
+                games[it.getInt(0)] = it.getString(1)
             }
         }
-        return list
+        return games
     }
 
 
-    private fun requestAndPersist(username: String, dao: CollectionDao, options: ArrayMap<String, String>): Int {
+    private fun requestAndPersist(username: String, dao: CollectionDao, options: Map<String, String>): Int {
         Timber.i("..requesting collection items with options %s", options)
 
         val call = service.collection(username, options)
@@ -144,15 +145,5 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
             syncResult.stats.numIoExceptions++
             return -1
         }
-    }
-
-    private fun areGamesListsEqual(gameList1: GameList, gameList2: GameList): Boolean {
-        for (i in gameList1.idList) {
-            if (!gameList2.idList.contains(i)) return false
-        }
-        for (i in gameList2.idList) {
-            if (!gameList1.idList.contains(i)) return false
-        }
-        return true
     }
 }
