@@ -14,8 +14,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.ui.adapter.Callback
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
+import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
