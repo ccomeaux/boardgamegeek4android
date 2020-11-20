@@ -9,7 +9,7 @@
 			  android:padding="@dimen/material_margin_horizontal">
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/pending_timestamp"
+		android:id="@+id/pendingTimestampView"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
 		tools:text="Updated pending as of 1 hour ago"/>
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/dirty_timestamp"
+		android:id="@+id/dirtyTimestampView"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -26,14 +26,14 @@
 		tools:text="Editing, last saved 1 hour ago"/>
 
 	<TextView
-		android:id="@+id/play_id"
+		android:id="@+id/playIdView"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		tools:text="Play ID: 123456789"/>
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/sync_timestamp"
+		android:id="@+id/syncTimestampView"
 		style="@style/Text.Footnote2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

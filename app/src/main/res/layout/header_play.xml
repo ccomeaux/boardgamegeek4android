@@ -6,21 +6,21 @@
 			  android:orientation="vertical">
 
 	<FrameLayout
-		android:id="@+id/header_container"
+		android:id="@+id/headerContainer"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/image_header_height"
 		android:layout_gravity="center"
 		android:background="@color/primary">
 
 		<com.boardgamegeek.ui.widget.ForegroundImageView
-			android:id="@+id/thumbnail"
+			android:id="@+id/thumbnailView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:foreground="?attr/selectableItemBackground"
 			android:scaleType="centerCrop"/>
 
 		<TextView
-			android:id="@+id/header"
+			android:id="@+id/gameNameView"
 			style="@style/Text.Title.Overlay"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -54,7 +54,7 @@
 				android:text="@string/on"/>
 
 			<TextView
-				android:id="@+id/play_date"
+				android:id="@+id/dateView"
 				style="@style/Text.Big"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
@@ -64,7 +64,7 @@
 		</LinearLayout>
 
 		<LinearLayout
-			android:id="@+id/location_root"
+			android:id="@+id/locationContainer"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
 			android:orientation="horizontal">
@@ -76,7 +76,7 @@
 				android:text="@string/at"/>
 
 			<TextView
-				android:id="@+id/play_location"
+				android:id="@+id/locationView"
 				style="@style/Text.Big"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
@@ -86,7 +86,7 @@
 		</LinearLayout>
 
 		<LinearLayout
-			android:id="@+id/length_root"
+			android:id="@+id/lengthContainer"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
 			android:gravity="center_vertical"
@@ -105,7 +105,7 @@
 				android:gravity="left|center_vertical">
 
 				<TextView
-					android:id="@+id/play_length"
+					android:id="@+id/lengthView"
 					style="@style/Text.Big"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
@@ -113,14 +113,14 @@
 					tools:text="1 hrs 26 mins"/>
 
 				<LinearLayout
-					android:id="@+id/timer_root"
+					android:id="@+id/timerContainer"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:gravity="center_vertical"
 					android:orientation="horizontal">
 
 					<Chronometer
-						android:id="@+id/timer"
+						android:id="@+id/timerView"
 						style="@style/Text.Big"
 						android:layout_width="0dp"
 						android:layout_height="match_parent"
@@ -128,7 +128,7 @@
 						android:gravity="center_vertical"/>
 
 					<ImageView
-						android:id="@+id/timer_end"
+						android:id="@+id/timerEndButton"
 						android:layout_width="@dimen/image_button_size"
 						android:layout_height="@dimen/image_button_size"
 						android:layout_gravity="center_vertical"
@@ -140,7 +140,7 @@
 		</LinearLayout>
 
 		<TextView
-			android:id="@+id/play_quantity"
+			android:id="@+id/quantityView"
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
@@ -149,7 +149,7 @@
 			tools:text="2 times"/>
 
 		<TextView
-			android:id="@+id/play_incomplete"
+			android:id="@+id/incompleteView"
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
@@ -158,7 +158,7 @@
 			android:text="@string/incomplete"/>
 
 		<TextView
-			android:id="@+id/play_no_win_stats"
+			android:id="@+id/noWinStatsView"
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
@@ -167,7 +167,7 @@
 			android:text="@string/noWinStats"/>
 
 		<TextView
-			android:id="@+id/play_comments_label"
+			android:id="@+id/commentsLabel"
 			style="@style/Text.Header.Underline"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
@@ -175,14 +175,14 @@
 			android:text="@string/comments"/>
 
 		<TextView
-			android:id="@+id/play_comments"
+			android:id="@+id/commentsView"
 			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			tools:text="I've got something to say."/>
 
 		<TextView
-			android:id="@+id/play_players_label"
+			android:id="@+id/playersLabel"
 			style="@style/Text.Header.Underline"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"

@@ -92,33 +92,33 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private XmlApiMarkupConverter markupConverter;
 
 	private Unbinder unbinder;
-	private ListView playersView;
-	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.progress) View progressContainer;
-	@BindView(R.id.list_container) View listContainer;
-	@BindView(R.id.empty) TextView emptyView;
-	@BindView(R.id.thumbnail) ImageView thumbnailView;
-	@BindView(R.id.header) TextView gameNameView;
-	@BindView(R.id.play_date) TextView dateView;
-	@BindView(R.id.play_quantity) TextView quantityView;
-	@BindView(R.id.length_root) View lengthContainer;
-	@BindView(R.id.play_length) TextView lengthView;
-	@BindView(R.id.timer_root) View timerContainer;
-	@BindView(R.id.timer) Chronometer timerView;
-	@BindView(R.id.location_root) View locationContainer;
-	@BindView(R.id.play_location) TextView locationView;
-	@BindView(R.id.play_incomplete) View incompleteView;
-	@BindView(R.id.play_no_win_stats) View noWinStatsView;
-	@BindView(R.id.play_comments) TextView commentsView;
-	@BindView(R.id.play_comments_label) View commentsLabel;
-	@BindView(R.id.play_players_label) View playersLabel;
-	@BindView(R.id.play_id) TextView playIdView;
-	@BindView(R.id.pending_timestamp) TimestampView pendingTimestampView;
-	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
-	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
+	@BindView(android.R.id.list) ListView playersView;
+	@BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.progressContainer) View progressContainer;
+	@BindView(R.id.listContainer) View listContainer;
+	@BindView(R.id.emptyView) TextView emptyView;
+	@BindView(R.id.thumbnailView) ImageView thumbnailView;
+	@BindView(R.id.gameNameView) TextView gameNameView;
+	@BindView(R.id.dateView) TextView dateView;
+	@BindView(R.id.quantityView) TextView quantityView;
+	@BindView(R.id.lengthContainer) View lengthContainer;
+	@BindView(R.id.lengthView) TextView lengthView;
+	@BindView(R.id.timerContainer) View timerContainer;
+	@BindView(R.id.timerView) Chronometer timerView;
+	@BindView(R.id.locationContainer) View locationContainer;
+	@BindView(R.id.locationView) TextView locationView;
+	@BindView(R.id.incompleteView) View incompleteView;
+	@BindView(R.id.noWinStatsView) View noWinStatsView;
+	@BindView(R.id.commentsView) TextView commentsView;
+	@BindView(R.id.commentsLabel) View commentsLabel;
+	@BindView(R.id.playersLabel) View playersLabel;
+	@BindView(R.id.playIdView) TextView playIdView;
+	@BindView(R.id.pendingTimestampView) TimestampView pendingTimestampView;
+	@BindView(R.id.dirtyTimestampView) TimestampView dirtyTimestampView;
+	@BindView(R.id.syncTimestampView) TimestampView syncTimestampView;
 	private PlayPlayerAdapter adapter;
 	private boolean hasBeenNotified;
-	FirebaseAnalytics firebaseAnalytics;
+	private FirebaseAnalytics firebaseAnalytics;
 
 	final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
@@ -341,12 +341,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	}
 
-	@OnClick(R.id.header_container)
+	@OnClick(R.id.headerContainer)
 	void viewGame() {
 		GameActivity.start(getContext(), play.gameId, play.gameName);
 	}
 
-	@OnClick(R.id.timer_end)
+	@OnClick(R.id.timerEndButton)
 	void onTimerClick() {
 		LogPlayActivity.endPlay(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 	}

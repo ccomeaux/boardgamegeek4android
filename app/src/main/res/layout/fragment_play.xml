@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
+	android:id="@+id/swipeRefreshLayout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -10,7 +10,7 @@
 		android:layout_height="match_parent">
 
 		<LinearLayout
-			android:id="@+id/progress"
+			android:id="@+id/progressContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:gravity="center"
@@ -24,7 +24,7 @@
 		</LinearLayout>
 
 		<FrameLayout
-			android:id="@+id/list_container"
+			android:id="@+id/listContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
@@ -38,7 +38,7 @@
 				android:visibility="gone"/>
 
 			<TextView
-				android:id="@+id/empty"
+				android:id="@+id/emptyView"
 				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
