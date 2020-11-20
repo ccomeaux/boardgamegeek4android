@@ -72,16 +72,8 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
         viewModel.plays.observe(viewLifecycleOwner, Observer {
             progressBar.isVisible = it.status == Status.REFRESHING
-            adapter.items = it.data ?: emptyList()
-            val sectionItemDecoration = RecyclerSectionItemDecoration(
-                    resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                    adapter
-            )
-            while (recyclerView.itemDecorationCount > 0) {
-                recyclerView.removeItemDecorationAt(0)
-            }
-            recyclerView.addItemDecoration(sectionItemDecoration)
-
+            adapter.items = it.data.orEmpty()
+            recyclerView.addHeader(adapter)
             if (it.data.isNullOrEmpty()) {
                 emptyContainer.fadeIn()
                 recyclerView.fadeOut()

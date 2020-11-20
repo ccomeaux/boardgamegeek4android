@@ -41,7 +41,6 @@ import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemV
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListener
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.HttpUtils
@@ -137,14 +136,8 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     private fun showData(items: List<CollectionItemEntity>) {
         progressBar.show()
         adapter.items = items
-        val sectionItemDecoration = RecyclerSectionItemDecoration(
-                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                getSectionCallback(items)
-        )
-        while (listView.itemDecorationCount > 0) {
-            listView.removeItemDecorationAt(0)
-        }
-        listView.addItemDecoration(sectionItemDecoration)
+
+        listView.addHeader(adapter)
 
         rowCountView.text = numberFormat.format(items.size)
         invalidateMenu()
@@ -333,7 +326,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
     }
 
-    inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>() {
+    inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), SectionCallback {
         var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             val diffCallback = Diff(oldValue, newValue)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
@@ -404,7 +397,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 itemView.yearView.text = year.asYear(context)
                 itemView.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
                 itemView.favoriteView.isVisible = item.isFavorite
-                val ratingText = sorter?.getRatingText(item) ?: ""
+                val ratingText = sorter?.getRatingText(item).orEmpty()
                 if (ratingText.isNotEmpty()) {
                     itemView.ratingView.text = ratingText
                     sorter?.getRating(item)?.let { itemView.ratingView.setTextViewBackground(it.toColor(ratingColors)) }
@@ -438,6 +431,21 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                     true
                 }
             }
+        }
+
+        override fun isSection(position: Int): Boolean {
+            if (position == RecyclerView.NO_POSITION) return false
+            if (items.isEmpty()) return false
+            if (position == 0) return true
+            if (position < 0 || position >= items.size) return false
+            val thisLetter = getSectionHeader(position)
+            val lastLetter = getSectionHeader(position - 1)
+            return thisLetter != lastLetter
+        }
+
+        override fun getSectionHeader(position: Int): CharSequence {
+            val item = items.getOrNull(position) ?: return "-"
+            return sorter?.getHeaderText(item) ?: return "-"
         }
     }
 
@@ -489,25 +497,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             builder.setIcon(Icon.createWithResource(context, R.drawable.ic_adaptive_game))
         }
         return shortcutManager.createShortcutResultIntent(builder.build())
-    }
-
-    private fun getSectionCallback(items: List<CollectionItemEntity>): SectionCallback {
-        return object : SectionCallback {
-            override fun isSection(position: Int): Boolean {
-                if (position == RecyclerView.NO_POSITION) return false
-                if (items.isEmpty()) return false
-                if (position == 0) return true
-                if (position < 0 || position >= items.size) return false
-                val thisLetter = getSectionHeader(position)
-                val lastLetter = getSectionHeader(position - 1)
-                return thisLetter != lastLetter
-            }
-
-            override fun getSectionHeader(position: Int): CharSequence {
-                val item = items.getOrNull(position) ?: return "-"
-                return sorter?.getHeaderText(item) ?: "-"
-            }
-        }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
