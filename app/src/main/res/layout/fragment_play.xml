@@ -1,53 +1,284 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/swipeRefreshLayout"
-	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<FrameLayout
+	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
-
-		<LinearLayout
-			android:id="@+id/progressContainer"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:gravity="center"
-			android:orientation="vertical"
-			android:visibility="gone">
-
-			<ProgressBar
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
-		</LinearLayout>
+		android:layout_height="wrap_content">
 
 		<FrameLayout
-			android:id="@+id/listContainer"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<ListView
-				android:id="@android:id/list"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:drawSelectorOnTop="false"
-				android:footerDividersEnabled="false"
-				android:headerDividersEnabled="false"
-				android:visibility="gone"/>
+			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+				android:id="@+id/progressBar"
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:gravity="center" />
 
-			<TextView
-				android:id="@+id/emptyView"
-				style="@style/Text"
+			<androidx.coordinatorlayout.widget.CoordinatorLayout
+				android:id="@+id/listContainer"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:gravity="center"
-				android:paddingBottom="@dimen/material_margin_vertical"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/material_margin_vertical"/>
+				android:layout_height="match_parent">
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:orientation="vertical">
+
+					<FrameLayout
+						android:id="@+id/headerContainer"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/image_header_height"
+						android:layout_gravity="center"
+						android:background="@color/primary">
+
+						<com.boardgamegeek.ui.widget.ForegroundImageView
+							android:id="@+id/thumbnailView"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:foreground="?attr/selectableItemBackground"
+							android:scaleType="centerCrop" />
+
+						<TextView
+							android:id="@+id/gameNameView"
+							style="@style/Text.Title.Overlay"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:ellipsize="end"
+							android:gravity="left|center_vertical"
+							android:maxLines="2"
+							android:paddingLeft="@dimen/material_indent_horizontal"
+							android:paddingRight="@dimen/material_margin_horizontal"
+							tools:text="Puerto Rico" />
+					</FrameLayout>
+
+					<LinearLayout
+						android:id="@+id/details"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical"
+						android:paddingLeft="@dimen/material_margin_horizontal"
+						android:paddingTop="@dimen/padding_small"
+						android:paddingRight="@dimen/material_margin_horizontal"
+						android:paddingBottom="@dimen/padding_small">
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:orientation="horizontal">
+
+							<TextView
+								style="@style/TextLabel"
+								android:layout_width="@dimen/edit_label_width"
+								android:layout_height="match_parent"
+								android:text="@string/on" />
+
+							<TextView
+								android:id="@+id/dateView"
+								style="@style/Text.Big"
+								android:layout_width="0dp"
+								android:layout_height="match_parent"
+								android:layout_weight="1"
+								android:gravity="left|center_vertical"
+								tools:text="January 1, 2015" />
+						</LinearLayout>
+
+						<LinearLayout
+							android:id="@+id/locationContainer"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:orientation="horizontal">
+
+							<TextView
+								style="@style/TextLabel"
+								android:layout_width="@dimen/edit_label_width"
+								android:layout_height="match_parent"
+								android:text="@string/at" />
+
+							<TextView
+								android:id="@+id/locationView"
+								style="@style/Text.Big"
+								android:layout_width="0dp"
+								android:layout_height="match_parent"
+								android:layout_weight="1"
+								android:gravity="left|center_vertical"
+								tools:text="Game Store" />
+						</LinearLayout>
+
+						<LinearLayout
+							android:id="@+id/lengthContainer"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:gravity="center_vertical"
+							android:orientation="horizontal">
+
+							<TextView
+								style="@style/TextLabel"
+								android:layout_width="@dimen/edit_label_width"
+								android:layout_height="match_parent"
+								android:text="@string/for_" />
+
+							<FrameLayout
+								android:layout_width="0dp"
+								android:layout_height="match_parent"
+								android:layout_weight="1"
+								android:gravity="left|center_vertical">
+
+								<TextView
+									android:id="@+id/lengthView"
+									style="@style/Text.Big"
+									android:layout_width="match_parent"
+									android:layout_height="match_parent"
+									android:gravity="center_vertical"
+									tools:text="1 hrs 26 mins" />
+
+								<LinearLayout
+									android:id="@+id/timerContainer"
+									android:layout_width="match_parent"
+									android:layout_height="match_parent"
+									android:gravity="center_vertical"
+									android:orientation="horizontal">
+
+									<Chronometer
+										android:id="@+id/timerView"
+										style="@style/Text.Big"
+										android:layout_width="0dp"
+										android:layout_height="match_parent"
+										android:layout_weight="1"
+										android:gravity="center_vertical" />
+
+									<ImageView
+										android:id="@+id/timerEndButton"
+										android:layout_width="@dimen/image_button_size"
+										android:layout_height="@dimen/image_button_size"
+										android:layout_gravity="center_vertical"
+										android:background="?attr/selectableItemBackgroundBorderless"
+										android:scaleType="center"
+										android:src="@drawable/ic_timer_off" />
+								</LinearLayout>
+							</FrameLayout>
+						</LinearLayout>
+
+						<TextView
+							android:id="@+id/quantityView"
+							style="@style/Text.Big"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:gravity="left|center_vertical"
+							android:paddingLeft="@dimen/edit_label_width"
+							tools:text="2 times" />
+
+						<TextView
+							android:id="@+id/incompleteView"
+							style="@style/Text.Big"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:gravity="left|center_vertical"
+							android:paddingLeft="@dimen/edit_label_width"
+							android:text="@string/incomplete" />
+
+						<TextView
+							android:id="@+id/noWinStatsView"
+							style="@style/Text.Big"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:gravity="left|center_vertical"
+							android:paddingLeft="@dimen/edit_label_width"
+							android:text="@string/noWinStats" />
+
+						<TextView
+							android:id="@+id/commentsLabel"
+							style="@style/Text.Header.Underline"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:gravity="bottom"
+							android:text="@string/comments" />
+
+						<TextView
+							android:id="@+id/commentsView"
+							style="@style/Text"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							tools:text="I've got something to say." />
+
+						<TextView
+							android:id="@+id/playersLabel"
+							style="@style/Text.Header.Underline"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/view_row_height"
+							android:gravity="bottom"
+							android:text="@string/title_players" />
+					</LinearLayout>
+
+					<androidx.recyclerview.widget.RecyclerView
+						android:id="@+id/recyclerView"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:drawSelectorOnTop="false"
+						app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+						app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+					<LinearLayout
+						android:id="@+id/footer"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical"
+						android:padding="@dimen/material_margin_horizontal">
+
+						<com.boardgamegeek.ui.widget.TimestampView
+							android:id="@+id/pendingTimestampView"
+							style="@style/Text.Footnote2"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							app:format="@string/saved_prefix"
+							tools:text="Updated pending as of 1 hour ago" />
+
+						<com.boardgamegeek.ui.widget.TimestampView
+							android:id="@+id/dirtyTimestampView"
+							style="@style/Text.Footnote2"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							app:format="@string/saved_prefix"
+							app:hideWhenEmpty="true"
+							tools:text="Editing, last saved 1 hour ago" />
+
+						<TextView
+							android:id="@+id/playIdView"
+							style="@style/Text.Footnote2"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							tools:text="Play ID: 123456789" />
+
+						<com.boardgamegeek.ui.widget.TimestampView
+							android:id="@+id/syncTimestampView"
+							style="@style/Text.Footnote2"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							app:format="@string/synced_prefix"
+							app:hideWhenEmpty="true"
+							tools:text="Synced Yesterday" />
+
+					</LinearLayout>
+				</LinearLayout>
+
+				<TextView
+					android:id="@+id/emptyView"
+					style="@style/Text"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:gravity="center"
+					android:paddingLeft="@dimen/material_margin_horizontal"
+					android:paddingTop="@dimen/material_margin_vertical"
+					android:paddingRight="@dimen/material_margin_horizontal"
+					android:paddingBottom="@dimen/material_margin_vertical" />
+			</androidx.coordinatorlayout.widget.CoordinatorLayout>
 		</FrameLayout>
-
-	</FrameLayout>
+	</androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

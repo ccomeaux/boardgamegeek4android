@@ -10,12 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.Chronometer;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +32,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter;
+import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -51,18 +48,20 @@ import com.google.firebase.analytics.FirebaseAnalytics.Param;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.ListFragment;
+import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.palette.graphics.Palette;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import butterknife.BindView;
@@ -70,7 +69,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -92,9 +91,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private XmlApiMarkupConverter markupConverter;
 
 	private Unbinder unbinder;
-	@BindView(android.R.id.list) ListView playersView;
+	@BindView(R.id.recyclerView) RecyclerView playersView;
 	@BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.progressContainer) View progressContainer;
+	@BindView(R.id.progressBar) ContentLoadingProgressBar progressBar;
 	@BindView(R.id.listContainer) View listContainer;
 	@BindView(R.id.emptyView) TextView emptyView;
 	@BindView(R.id.thumbnailView) ImageView thumbnailView;
@@ -119,20 +118,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private PlayPlayerAdapter adapter;
 	private boolean hasBeenNotified;
 	private FirebaseAnalytics firebaseAnalytics;
-
-	final private OnScrollListener onScrollListener = new OnScrollListener() {
-		@Override
-		public void onScrollStateChanged(AbsListView view, int scrollState) {
-		}
-
-		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if (swipeRefreshLayout != null) {
-				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
-				swipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-			}
-		}
-	};
 
 	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl) {
 		Bundle args = new Bundle();
@@ -175,34 +160,23 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, container, false);
+		return inflater.inflate(R.layout.fragment_play, container, false);
+	}
 
-		playersView = rootView.findViewById(android.R.id.list);
-		playersView.setHeaderDividersEnabled(false);
-		playersView.setFooterDividersEnabled(false);
-
-		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
-		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
-
-		unbinder = ButterKnife.bind(this, rootView);
+	@Override
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		unbinder = ButterKnife.bind(this, view);
 
 		if (swipeRefreshLayout != null) {
 			SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
 			swipeRefreshLayout.setOnRefreshListener(this);
 		}
 
-		adapter = new PlayPlayerAdapter(getContext(), play);
+		adapter = new PlayPlayerAdapter(play);
 		playersView.setAdapter(adapter);
 
 		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, null, this);
-
-		return rootView;
-	}
-
-	@Override
-	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getListView().setOnScrollListener(onScrollListener);
 	}
 
 	@Override
@@ -239,12 +213,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.play, menu);
 	}
 
 	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
+	public void onPrepareOptionsMenu(@NotNull Menu menu) {
 		UIUtils.showMenuItem(menu, R.id.menu_send, play.dirtyTimestamp > 0);
 		UIUtils.showMenuItem(menu, R.id.menu_discard, play.playId > 0 && play.dirtyTimestamp > 0);
 		UIUtils.enableMenuItem(menu, R.id.menu_share, play.playId > 0);
@@ -297,7 +271,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.share(getActivity(), play.toShortDescription(getActivity()), play.toLongDescription(getActivity()), R.string.share_play_title);
+				ActivityUtils.share(getActivity(), play.toShortDescription(requireContext()), play.toLongDescription(requireContext()), R.string.share_play_title);
 				Bundle bundle = new Bundle();
 				bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Play");
 				bundle.putString(Param.ITEM_ID, String.valueOf(play.playId));
@@ -343,7 +317,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@OnClick(R.id.headerContainer)
 	void viewGame() {
-		GameActivity.start(getContext(), play.gameId, play.gameName);
+		GameActivity.start(requireContext(), play.gameId, play.gameName);
 	}
 
 	@OnClick(R.id.timerEndButton)
@@ -352,14 +326,14 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+	public @NotNull Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
 			case PLAY_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
+				loader = new CursorLoader(requireContext(), Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
 				break;
 			case PLAYER_QUERY_TOKEN:
-				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
+				loader = new CursorLoader(requireContext(), Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
 				break;
 		}
 		if (loader != null) {
@@ -369,7 +343,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(@NotNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
 		}
@@ -396,14 +370,12 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void showList() {
-		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		progressContainer.setVisibility(View.GONE);
-		listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		progressBar.hide();
 		listContainer.setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NotNull Loader<Cursor> loader) {
 	}
 
 	/**
@@ -411,7 +383,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	 */
 	private boolean onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(internalId)));
+			emptyView.setText(getResources().getString(R.string.empty_play, String.valueOf(internalId)));
 			emptyView.setVisibility(View.VISIBLE);
 			return true;
 		}
@@ -444,7 +416,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		if (play.length > 0) {
 			lengthContainer.setVisibility(View.VISIBLE);
-			lengthView.setText(DateTimeUtils.describeMinutes(getActivity(), play.length));
+			lengthView.setText(DateTimeUtils.describeMinutes(requireContext(), play.length));
 			lengthView.setVisibility(View.VISIBLE);
 			timerContainer.setVisibility(View.GONE);
 			timerView.stop();
@@ -487,7 +459,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 
 		if (play.playId > 0) {
-			playIdView.setText(String.format(getResources().getString(R.string.play_id_prefix), String.valueOf(play.playId)));
+			playIdView.setText(getResources().getString(R.string.play_id_prefix, String.valueOf(play.playId)));
 		}
 
 		syncTimestampView.setTimestamp(play.syncTimestamp);

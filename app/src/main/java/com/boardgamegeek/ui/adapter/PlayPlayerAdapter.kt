@@ -1,37 +1,39 @@
 package com.boardgamegeek.ui.adapter
 
-import android.content.Context
-import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView.LayoutParams
-import android.widget.BaseAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.ui.BuddyActivity
 import com.boardgamegeek.ui.widget.PlayerRow
 
-class PlayPlayerAdapter(private val context: Context, private var play: Play) : BaseAdapter() {
+class PlayPlayerAdapter(private var play: Play) : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolder>() {
     fun replace(play: Play) {
         this.play = play
         notifyDataSetChanged()
     }
 
-    override fun isEnabled(position: Int) = false
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayPlayerAdapter.PlayerViewHolder {
+        return PlayerViewHolder(PlayerRow(parent.context))
+    }
 
-    override fun getCount() = play.getPlayerCount()
+    override fun onBindViewHolder(holder: PlayPlayerAdapter.PlayerViewHolder, position: Int) {
+        holder.bind(play.players.getOrNull(position))
+    }
 
-    override fun getItem(position: Int): Any? = play.players.getOrNull(position)
+    override fun getItemCount() = play.getPlayerCount()
 
     override fun getItemId(position: Int) = position.toLong()
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val row = convertView as PlayerRow? ?: PlayerRow(context)
-        row.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        val player = getItem(position) as Player?
-        row.setPlayer(player)
-        if (player != null) {
-            row.setOnClickListener { BuddyActivity.start(context, player.username, player.name) }
+    inner class PlayerViewHolder(itemView: PlayerRow) : RecyclerView.ViewHolder(itemView) {
+        fun bind(player: Player?) {
+            itemView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            (itemView as? PlayerRow)?.let { row ->
+                row.isEnabled = false
+                row.setPlayer(player)
+                player?.let { p -> row.setOnClickListener { BuddyActivity.start(itemView.context, p.username, p.name) } }
+            }
         }
-        return row
     }
 }
