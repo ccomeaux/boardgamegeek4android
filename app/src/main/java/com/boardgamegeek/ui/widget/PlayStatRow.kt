@@ -44,7 +44,7 @@ class PlayStatRow(context: Context) : TableRow(context) {
         if (date.isNotEmpty()) {
             try {
                 setValue(DateUtils.formatDateTime(context,
-                        FORMAT.parse(date).time,
+                        FORMAT.parse(date)?.time ?: 0L,
                         DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH))
             } catch (e: ParseException) {
                 setValue(date)
