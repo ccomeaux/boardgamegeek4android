@@ -108,7 +108,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                         row.findViewById<InProgressPlay>(R.id.line1).timeHintUpdateInterval = 1_000L
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
-                            PlayActivity.start(context, play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
+                            PlayActivity.start(context, play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
                         }
                         inProgressPlaysList?.addView(row)
                     }
@@ -138,7 +138,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                     lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
                     lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
                     lastPlayContainer.setOnClickListener {
-                        PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
+                        PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
                     }
                     lastPlayContainer.fadeIn()
                 } else {

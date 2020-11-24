@@ -228,8 +228,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
+	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, Boolean customPlayerSort) {
+		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		context.startActivity(intent);
 	}
 
@@ -239,8 +239,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		context.startActivity(intent);
 	}
 
-	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
+	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, Boolean customPlayerSort) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
@@ -1076,7 +1076,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
-			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
+			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
 		}
 	}
 

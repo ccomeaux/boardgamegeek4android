@@ -131,7 +131,9 @@ class PlaysSummaryFragment : Fragment() {
                     play.gameName,
                     play.thumbnailUrl,
                     play.imageUrl,
-                    play.heroImageUrl)
+                    play.heroImageUrl,
+                    play.arePlayersCustomSorted(),
+            )
         }
     }
 

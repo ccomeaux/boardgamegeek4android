@@ -184,25 +184,25 @@ public class NotificationUtils {
 	/**
 	 * Launch the "Playing" notification.
 	 */
-	public static void launchPlayingNotification(final Context context, final long internalId, final Play play, final String thumbnailUrl, final String imageUrl, final String heroImageUrl) {
+	public static void launchPlayingNotification(final Context context, final long internalId, final Play play, final String thumbnailUrl, final String imageUrl, final String heroImageUrl, final boolean customPlayerSort) {
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
 			@Override
 			public void onSuccessfulIconLoad(Bitmap bitmap) {
-				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, bitmap);
+				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort, bitmap);
 			}
 
 			@Override
 			public void onFailedIconLoad() {
-				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, null);
+				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort,null);
 			}
 		});
 		loader.executeOnMainThread();
 	}
 
-	private static void buildAndNotifyPlaying(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, String heroImageUrl, Bitmap largeIcon) {
+	private static void buildAndNotifyPlaying(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort, Bitmap largeIcon) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName, NotificationUtils.CHANNEL_ID_PLAYING);
 
-		Intent intent = PlayActivity.createIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
+		Intent intent = PlayActivity.createIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 

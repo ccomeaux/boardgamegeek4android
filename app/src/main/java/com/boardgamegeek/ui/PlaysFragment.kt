@@ -259,7 +259,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
                 itemView.setOnClickListener {
                     if (actionMode == null) {
-                        PlayActivity.start(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                        PlayActivity.start(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl, play.arePlayersCustomSorted())
                     } else {
                         toggleSelection(position)
                     }

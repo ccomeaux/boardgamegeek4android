@@ -76,6 +76,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
+	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_HAS_BEEN_NOTIFIED = "HAS_BEEN_NOTIFIED";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int PLAY_QUERY_TOKEN = 0x01;
@@ -86,6 +87,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private String thumbnailUrl;
 	private String imageUrl;
 	private String heroImageUrl;
+	private boolean customPlayerSort = false;
 	private boolean isRefreshing;
 	private SharedPreferences prefs;
 	private XmlApiMarkupConverter markupConverter;
@@ -119,7 +121,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private boolean hasBeenNotified;
 	private FirebaseAnalytics firebaseAnalytics;
 
-	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl) {
+	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl, boolean customPlayerSort) {
 		Bundle args = new Bundle();
 		args.putLong(KEY_ID, internalId);
 		args.putInt(KEY_GAME_ID, gameId);
@@ -127,6 +129,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		args.putString(KEY_IMAGE_URL, imageUrl);
 		args.putString(KEY_THUMBNAIL_URL, thumbnailUrl);
 		args.putString(KEY_HERO_IMAGE_URL, heroImageUrl);
+		args.putBoolean(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		PlayFragment fragment = new PlayFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -152,6 +155,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
 		imageUrl = bundle.getString(KEY_IMAGE_URL);
 		heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
+		customPlayerSort = bundle.getBoolean(KEY_CUSTOM_PLAYER_SORT, false);
 
 		if (thumbnailUrl == null) thumbnailUrl = "";
 		if (imageUrl == null) imageUrl = "";
@@ -262,7 +266,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 			case R.id.menu_rematch:
 				logDataManipulationAction("Rematch");
-				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
+				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_change_game:
@@ -484,7 +488,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	private void showNotification() {
-		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
+		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 	}
 
 	private void cancelNotification() {

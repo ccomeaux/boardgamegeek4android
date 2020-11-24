@@ -22,19 +22,21 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
+	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private long internalId = BggContract.INVALID_ID;
 	private int gameId = BggContract.INVALID_ID;
 	private String gameName;
 	private String thumbnailUrl;
 	private String imageUrl;
 	private String heroImageUrl;
+	private boolean customPlayerSort;
 
-	public static void start(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
+	public static void start(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	public static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
+	public static Intent createIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort) {
 		Intent intent = new Intent(context, PlayActivity.class);
 		intent.putExtra(KEY_ID, internalId);
 		intent.putExtra(KEY_GAME_ID, gameId);
@@ -42,6 +44,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 		intent.putExtra(KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(KEY_IMAGE_URL, imageUrl);
 		intent.putExtra(KEY_HERO_IMAGE_URL, heroImageUrl);
+		intent.putExtra(KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		return intent;
 	}
 
@@ -64,6 +67,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 		thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL);
+		customPlayerSort = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 	}
 
 	@Override
@@ -73,7 +77,7 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		return PlayFragment.newInstance(internalId, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl);
+		return PlayFragment.newInstance(internalId, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, customPlayerSort);
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })

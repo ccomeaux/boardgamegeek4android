@@ -43,6 +43,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         var imageUrl: String = ""
         var thumbnailUrl: String = ""
         var heroImageUrl: String = ""
+        var customPlayerSort: Boolean = false
     }
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_UPLOAD
@@ -68,7 +69,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.gameName,
                     currentPlay.imageUrl,
                     currentPlay.thumbnailUrl,
-                    currentPlay.heroImageUrl)
+                    currentPlay.heroImageUrl,
+                    currentPlay.customPlayerSort
+            )
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_PLAY
 
@@ -300,7 +303,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         if (play.gameId != INVALID_ID) {
             val gameCursor = context.contentResolver.query(
                     Games.buildGameUri(play.gameId),
-                    arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL),
+                    arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL, Games.CUSTOM_PLAYER_SORT),
                     null,
                     null,
                     null)
@@ -309,6 +312,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.imageUrl = it.getString(0) ?: ""
                     currentPlay.thumbnailUrl = it.getString(1) ?: ""
                     currentPlay.heroImageUrl = it.getString(2) ?: ""
+                    currentPlay.customPlayerSort = it.getInt(3) == 1
                 }
             }
         }
@@ -328,7 +332,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.gameName,
                     currentPlay.imageUrl,
                     currentPlay.thumbnailUrl,
-                    currentPlay.heroImageUrl)
+                    currentPlay.heroImageUrl,
+                    currentPlay.customPlayerSort,
+            )
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val builder = Action.Builder(
                     R.drawable.ic_replay_black_24dp,

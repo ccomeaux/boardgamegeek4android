@@ -21,14 +21,16 @@ fun Context.launchPlayingNotification(
         startTime: Long,
         thumbnailUrl: String = "",
         imageUrl: String = "",
-        heroImageUrl: String = "") {
+        heroImageUrl: String = "",
+        customPlayerSort: Boolean = false,
+) {
     val loader = LargeIconLoader(this, imageUrl, thumbnailUrl, heroImageUrl, object : LargeIconLoader.Callback {
         override fun onSuccessfulIconLoad(bitmap: Bitmap) {
-            buildAndNotifyPlaying(internalId, gameId, gameName, location, playerCount, startTime, thumbnailUrl, imageUrl, heroImageUrl, bitmap)
+            buildAndNotifyPlaying(internalId, gameId, gameName, location, playerCount, startTime, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort, largeIcon = bitmap)
         }
 
         override fun onFailedIconLoad() {
-            buildAndNotifyPlaying(internalId, gameId, gameName, location, playerCount, startTime, thumbnailUrl, imageUrl, heroImageUrl)
+            buildAndNotifyPlaying(internalId, gameId, gameName, location, playerCount, startTime, thumbnailUrl, imageUrl, heroImageUrl,customPlayerSort)
         }
     })
     loader.executeOnMainThread()
@@ -44,9 +46,10 @@ private fun Context.buildAndNotifyPlaying(
         thumbnailUrl: String,
         imageUrl: String,
         heroImageUrl: String,
+        customPlayerSort: Boolean,
         largeIcon: Bitmap? = null) {
     val builder = NotificationUtils.createNotificationBuilder(this, gameName, NotificationUtils.CHANNEL_ID_PLAYING)
-    val intent = PlayActivity.createIntent(this, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl)
+    val intent = PlayActivity.createIntent(this, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort)
             .clearTop().newTask()
     val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
