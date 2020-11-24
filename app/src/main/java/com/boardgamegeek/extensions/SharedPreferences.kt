@@ -9,7 +9,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.model.Player
-import com.boardgamegeek.provider.BggContract
 import java.util.*
 
 /**
@@ -62,7 +61,7 @@ const val COLLECTION_STATUS_OWN = "own"
 const val COLLECTION_STATUS_PREVIOUSLY_OWNED = "prevowned"
 const val COLLECTION_STATUS_PREORDERED = "preordered"
 const val COLLECTION_STATUS_FOR_TRADE = "trade"
-const val COLLECTION_STATUS_WANT = "want"
+const val COLLECTION_STATUS_WANT_IN_TRADE = "want"
 const val COLLECTION_STATUS_WANT_TO_BUY = "wanttobuy"
 const val COLLECTION_STATUS_WANT_TO_PLAY = "wanttoplay"
 const val COLLECTION_STATUS_WISHLIST = "wishlist"
@@ -94,32 +93,6 @@ fun SharedPreferences.isStatusSetToSync(status: String): Boolean {
 
 fun SharedPreferences.getSyncStatusesOrDefault(): Set<String> {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, setOf(COLLECTION_STATUS_OWN)).orEmpty()
-}
-
-fun SharedPreferences.getSyncStatusesAsSql(): String {
-    val selection = StringBuilder()
-    val statuses = this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null) ?: emptySet()
-    for (status in statuses) {
-        if (status.isBlank()) continue
-        if (selection.isNotBlank()) selection.append(" OR ")
-        selection.append(when (status) {
-            COLLECTION_STATUS_OWN -> BggContract.Collection.STATUS_OWN.isTrue()
-            COLLECTION_STATUS_PREVIOUSLY_OWNED -> BggContract.Collection.STATUS_PREVIOUSLY_OWNED.isTrue()
-            COLLECTION_STATUS_PREORDERED -> BggContract.Collection.STATUS_PREORDERED.isTrue()
-            COLLECTION_STATUS_FOR_TRADE -> BggContract.Collection.STATUS_FOR_TRADE.isTrue()
-            COLLECTION_STATUS_WANT -> BggContract.Collection.STATUS_WANT.isTrue()
-            COLLECTION_STATUS_WANT_TO_BUY -> BggContract.Collection.STATUS_WANT_TO_BUY.isTrue()
-            COLLECTION_STATUS_WANT_TO_PLAY -> BggContract.Collection.STATUS_WANT_TO_PLAY.isTrue()
-            COLLECTION_STATUS_WISHLIST -> BggContract.Collection.STATUS_WISHLIST.isTrue()
-            COLLECTION_STATUS_RATED -> BggContract.Collection.RATING.greaterThanZero()
-            COLLECTION_STATUS_PLAYED -> BggContract.Collection.NUM_PLAYS.greaterThanZero()
-            COLLECTION_STATUS_COMMENTED -> BggContract.Collection.COMMENT.notBlank()
-            COLLECTION_STATUS_HAS_PARTS -> BggContract.Collection.HASPARTS_LIST.notBlank()
-            COLLECTION_STATUS_WANT_PARTS -> BggContract.Collection.WANTPARTS_LIST.notBlank()
-            else -> ""
-        })
-    }
-    return selection.toString()
 }
 
 const val KEY_SYNC_UPLOADS = "sync_uploads"

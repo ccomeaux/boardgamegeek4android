@@ -219,8 +219,8 @@ class GameFragment : Fragment() {
         val bestCounts = entity?.bestCounts ?: emptySet()
         val goodCounts = entity?.recommendedAndBestCounts ?: emptySet()
 
-        val best = context?.getText(R.string.best_prefix, bestCounts.asRange(max = maxPlayerCount)) ?: ""
-        val good = context?.getText(R.string.recommended_prefix, goodCounts.asRange(max = maxPlayerCount)) ?: ""
+        val best = context?.getText(R.string.best_prefix, bestCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount)) ?: ""
+        val good = context?.getText(R.string.recommended_prefix, goodCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount)) ?: ""
         val communityText = when {
             bestCounts.isNotEmpty() && goodCounts.isNotEmpty() && bestCounts != goodCounts -> TextUtils.concat(best, " & ", good)
             bestCounts.isNotEmpty() -> best

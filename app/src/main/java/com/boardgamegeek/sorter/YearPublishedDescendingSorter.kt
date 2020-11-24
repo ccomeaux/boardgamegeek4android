@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class YearPublishedDescendingSorter(context: Context) : YearPublishedSorter(context) {
     @StringRes
@@ -12,5 +13,5 @@ class YearPublishedDescendingSorter(context: Context) : YearPublishedSorter(cont
     @StringRes
     public override val subDescriptionResId = R.string.newest
 
-    override val isSortDescending = true
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.gameYearPublished }
 }

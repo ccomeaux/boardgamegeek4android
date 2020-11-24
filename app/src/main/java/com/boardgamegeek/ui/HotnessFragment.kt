@@ -6,7 +6,6 @@ import android.util.SparseBooleanArray
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -15,7 +14,6 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel
-import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_hotness.*
 import kotlinx.android.synthetic.main.row_hotness.view.*
@@ -33,7 +31,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        viewModel.hotness.observe(viewLifecycleOwner, Observer { (status, data, message) ->
+        viewModel.hotness.observe(viewLifecycleOwner, { (status, data, message) ->
             when (status) {
                 Status.REFRESHING -> progressView.show()
                 Status.ERROR -> {
@@ -205,7 +203,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
                 val text = resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount)
                 containerView.snackbar(text).show()
                 for (game in selectedGames) {
-                    requireContext().logQuickPlay(game.id, game.name)
+                    context.logQuickPlay(game.id, game.name)
                 }
                 return true
             }
@@ -221,14 +219,14 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
                 val shareMethod = "Hotness"
                 if (selectedGames.size == 1) {
                     selectedGames.firstOrNull()?.let { game ->
-                        ActivityUtils.shareGame(activity, game.id, game.name, shareMethod)
+                        requireActivity().shareGame(game.id, game.name, shareMethod)
                     }
                 } else {
                     val games = mutableListOf<Pair<Int, String>>()
                     for (game in selectedGames) {
                         games.add(Pair.create(game.id, game.name))
                     }
-                    ActivityUtils.shareGames(activity, games, shareMethod)
+                    requireActivity().shareGames(games, shareMethod)
                 }
                 return true
             }

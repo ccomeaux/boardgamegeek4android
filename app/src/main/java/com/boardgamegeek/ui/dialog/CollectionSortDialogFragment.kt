@@ -73,7 +73,7 @@ class CollectionSortDialogFragment : DialogFragment() {
         radioGroup.children.filterIsInstance<RadioButton>().forEach {
             val sortType = getTypeFromView(it)
             val sorter = factory.create(sortType)
-            if (sorter != null) it.text = sorter.description
+            it.text = sorter?.description.orEmpty()
         }
     }
 

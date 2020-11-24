@@ -56,11 +56,11 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             itemView.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
-                    item.yearPublished != YEAR_UNKNOWN && item.yearPublished != gameYearPublished) {
-                if (item.yearPublished == YEAR_UNKNOWN) {
+                    item.collectionYearPublished != YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished) {
+                if (item.collectionYearPublished == YEAR_UNKNOWN) {
                     item.collectionName
                 } else {
-                    "${item.collectionName} (${item.yearPublished.asYear(itemView.context)})"
+                    "${item.collectionName} (${item.collectionYearPublished.asYear(itemView.context)})"
                 }
             } else ""
             itemView.description.setTextOrHide(description)
@@ -95,7 +95,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
                             item.thumbnailUrl,
                             item.heroImageUrl,
                             gameYearPublished,
-                            item.yearPublished)
+                            item.collectionYearPublished)
                 }
             }
         }

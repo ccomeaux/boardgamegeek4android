@@ -4,18 +4,18 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.service.model.GameList
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
 import java.io.IOException
-import java.util.*
 
 abstract class SyncGames(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val dao = GameDao(application)
+    private val gameMapper = GameMapper()
 
     protected open val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX)
 
@@ -38,24 +38,25 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
 
                 numberOfFetches++
                 val gameList = getGames(gamesPerFetch)
-                if (gameList.size > 0) {
-                    Timber.i("...found ${gameList.size} games to update [${gameList.description}]")
-                    var detail = context.resources.getQuantityString(R.plurals.sync_notification_games, gameList.size, gameList.size, gameList.description)
+                if (gameList.isNotEmpty()) {
+                    val gamesDescription = gameList.values.toList().formatList()
+                    Timber.i("...found ${gameList.size} games to update [$gamesDescription]")
+                    var detail = context.resources.getQuantityString(R.plurals.sync_notification_games, gameList.size, gameList.size, gamesDescription)
                     if (numberOfFetches > 1) {
                         detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches)
                     }
                     updateProgressNotification(detail)
 
-                    val call = service.thing(gameList.ids, 1)
+                    val gameIds = gameList.keys.joinToString(",")
+                    val call = service.thing(gameIds, 1)
                     try {
                         val timestamp = System.currentTimeMillis()
                         val response = call.execute()
                         if (response.isSuccessful) {
-                            val body = response.body()
-                            val games = body?.games ?: emptyList()
+                            val games = response.body()?.games.orEmpty()
                             if (games.isNotEmpty()) {
                                 for (game in games) {
-                                    val entity = GameMapper().map(game)
+                                    val entity = gameMapper.map(game)
                                     if (entity.name.isBlank()) {
                                         dao.delete(entity.id)
                                     } else {
@@ -81,11 +82,10 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                     } catch (e: RuntimeException) {
                         val cause = e.cause
                         if (cause is ClassNotFoundException) {
-                            val message = cause.message ?: ""
-                            if (message.startsWith("Didn't find class \"messagebox error\" on path")) {
-                                Timber.i("Invalid list of game IDs: %s", gameList.ids)
-                                for (i in 0 until gameList.size) {
-                                    val shouldBreak = syncGame(gameList.getId(i), gameList.getName(i))
+                            if (cause.message.orEmpty().startsWith("Didn't find class \"messagebox error\" on path")) {
+                                Timber.i("Invalid list of game IDs: %s", gameIds)
+                                for ((id, name) in gameList) {
+                                    val shouldBreak = syncGame(id, name)
                                     if (shouldBreak) break
                                 }
                             } else {
@@ -116,10 +116,10 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
             val timestamp = System.currentTimeMillis()
             val response = call.execute()
             if (response.isSuccessful) {
-                val games = if (response.body() == null) ArrayList(0) else response.body()!!.games
+                val games =  response.body()?.games.orEmpty()
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
                 for (game in games) {
-                    val entity = GameMapper().map(game)
+                    val entity = gameMapper.map(game)
                     if (entity.name.isBlank()) {
                         dao.delete(entity.id)
                     } else {
@@ -141,8 +141,7 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
         } catch (e: RuntimeException) {
             val cause = e.cause
             if (cause is ClassNotFoundException) {
-                val message = cause.message ?: ""
-                if (message.startsWith("Didn't find class \"messagebox error\" on path")) {
+                if (cause.message.orEmpty().startsWith("Didn't find class \"messagebox error\" on path")) {
                     Timber.i("Invalid game $gameName ($id)")
                     showError(detail, e)
                     // otherwise just ignore this error
@@ -162,8 +161,8 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
 
     protected abstract fun getIntroLogMessage(gamesPerFetch: Int): String
 
-    private fun getGames(gamesPerFetch: Int): GameList {
-        val list = GameList(gamesPerFetch)
+    private fun getGames(gamesPerFetch: Int): Map<Int, String> {
+        val games = mutableMapOf<Int, String>()
         val cursor = context.contentResolver.query(Games.CONTENT_URI,
                 arrayOf(Games.GAME_ID, Games.GAME_NAME),
                 selection,
@@ -171,9 +170,9 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                 "games.${Games.UPDATED_LIST} LIMIT $gamesPerFetch")
         cursor?.use {
             while (it.moveToNext()) {
-                list.addGame(it.getInt(0), it.getString(1))
+                games[it.getInt(0)] = it.getString(1)
             }
         }
-        return list
+        return games
     }
 }

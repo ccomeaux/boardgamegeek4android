@@ -1,10 +1,7 @@
 package com.boardgamegeek.entities
 
-const val maxPlayerCount = 100
 
-data class GamePlayerPollEntity(
-        val results: List<GamePlayerPollResultsEntity>
-) {
+data class GamePlayerPollEntity(val results: List<GamePlayerPollResultsEntity>) {
     val totalVotes: Int = results.maxByOrNull { it.totalVotes }?.totalVotes ?: 0
 
     val bestCounts: Set<Int> by lazy {
@@ -27,5 +24,9 @@ data class GamePlayerPollEntity(
 
     val recommendedAndBestCounts: Set<Int> by lazy {
         (bestCounts + recommendedCounts).sorted().toSet()
+    }
+
+    companion object {
+        const val maxPlayerCount = 100
     }
 }

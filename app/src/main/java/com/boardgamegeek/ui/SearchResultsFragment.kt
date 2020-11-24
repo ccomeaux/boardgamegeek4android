@@ -14,8 +14,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.ui.adapter.Callback
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
+import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
@@ -229,7 +229,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 context?.toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
-                        requireActivity().logQuickPlay(it.id, it.name)
+                        context.logQuickPlay(it.id, it.name)
                     }
                 }
                 mode.finish()

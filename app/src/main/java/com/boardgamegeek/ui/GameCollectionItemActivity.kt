@@ -72,7 +72,7 @@ class GameCollectionItemActivity : HeroActivity() {
             if (resource?.status == Status.SUCCESS) {
                 resource.data?.let { entity ->
                     collectionName = entity.collectionName
-                    collectionYearPublished = entity.yearPublished
+                    collectionYearPublished = entity.collectionYearPublished
                     thumbnailUrl = entity.thumbnailUrl
                     heroImageUrl = entity.heroImageUrl
                     safelySetTitle()

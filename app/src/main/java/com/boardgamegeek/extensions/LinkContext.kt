@@ -2,6 +2,7 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.HttpUtils
@@ -24,17 +25,17 @@ fun Context?.linkBgg(gameId: Int) {
 
 fun Context?.linkBgPrices(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName))
+    link("http://boardgameprices.com/compare-prices-for?q=${HttpUtils.encode(gameName)}")
 }
 
 fun Context?.linkBgPricesUk(gameName: String) {
     if (gameName.isBlank()) return
-    link("https://boardgameprices.co.uk/item/search?search=" + HttpUtils.encode(gameName))
+    link("https://boardgameprices.co.uk/item/search?search=${HttpUtils.encode(gameName)}")
 }
 
 fun Context?.linkAmazon(gameName: String, domain: String) {
     if (gameName.isBlank()) return
-    link(String.format("http://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)))
+    link("http://$domain/gp/aw/s/?i=toys&keywords=${HttpUtils.encode(gameName)}")
 }
 
 fun Context?.linkEbay(gameName: String) {
@@ -67,6 +68,10 @@ private fun Context?.link(link: Uri) {
         Timber.w(message)
         toast(message)
     }
+}
+
+fun Context.isIntentAvailable(intent: Intent): Boolean {
+    return packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).isNotEmpty()
 }
 
 fun createBggUri(path: String): Uri = BGG_URI.buildUpon().appendEncodedPath(path).build()

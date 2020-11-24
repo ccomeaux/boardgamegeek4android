@@ -83,11 +83,11 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
         privateInfoEditContainer.setOnClickListener {
             val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
                     editPrivateInfoView.getTag(R.id.priceCurrencyView).toString(),
-                    getDoubleFromTag(editPrivateInfoView, R.id.priceView),
+                    editPrivateInfoView.getTag(R.id.priceView) as? Double,
                     editPrivateInfoView.getTag(R.id.currentValueCurrencyView).toString(),
-                    getDoubleFromTag(editPrivateInfoView, R.id.currentValueView),
-                    getIntFromTag(editPrivateInfoView, R.id.quantityView),
-                    editPrivateInfoView.getTag(R.id.acquisitionDateView).toString(),
+                    editPrivateInfoView.getTag(R.id.currentValueView) as? Double,
+                    editPrivateInfoView.getTag(R.id.quantityView) as? Int,
+                    editPrivateInfoView.getTag(R.id.acquisitionDateView) as? Long,
                     editPrivateInfoView.getTag(R.id.acquiredFromView).toString(),
                     editPrivateInfoView.getTag(R.id.inventoryLocationView).toString()
             )
@@ -202,14 +202,6 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
                 view.contentText,
                 textColumn,
                 timestampColumn))
-    }
-
-    private fun getDoubleFromTag(textView: View?, @IdRes key: Int): Double? {
-        return textView?.getTag(key) as? Double
-    }
-
-    private fun getIntFromTag(textView: View?, @IdRes key: Int): Int? {
-        return textView?.getTag(key) as? Int
     }
 
     private fun updateUi(item: CollectionItemEntity) {
@@ -355,7 +347,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
 
         fun hasPrivateInfo(item: CollectionItemEntity): Boolean {
             return item.quantity > 1 ||
-                    item.acquisitionDate.isNotEmpty() ||
+                    item.acquisitionDate > 0L ||
                     item.acquiredFrom.isNotEmpty() ||
                     item.pricePaid > 0.0 ||
                     item.currentValue > 0.0 ||

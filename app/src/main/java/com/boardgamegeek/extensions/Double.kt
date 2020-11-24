@@ -13,6 +13,7 @@ import java.text.NumberFormat
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
+import kotlin.reflect.KProperty
 
 fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
     return asScore(context, defaultResId, DecimalFormat("#0.#"))
@@ -75,4 +76,14 @@ private fun setUpMoneyFormatter(): DecimalFormat {
     symbols.currencySymbol = ""
     format.decimalFormatSymbols = symbols
     return format
+}
+
+class DoubleIntervalDelegate(var value: Double, private val minValue: Double, private val maxValue: Double) {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): Double {
+        return value
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Double) {
+        this.value = value.coerceIn(minValue, maxValue)
+    }
 }

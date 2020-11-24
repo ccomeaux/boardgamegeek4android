@@ -7,10 +7,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.appendBold
 import com.boardgamegeek.extensions.asMoney
-import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.provider.BggContract
-import java.text.SimpleDateFormat
-import java.util.*
 
 data class CollectionItemEntity(
         val internalId: Long = BggContract.INVALID_ID.toLong(),
@@ -19,10 +16,12 @@ data class CollectionItemEntity(
         val collectionId: Int = BggContract.INVALID_ID,
         val collectionName: String = "",
         val sortName: String = "",
-        val yearPublished: Int = YEAR_UNKNOWN,
+        val gameYearPublished: Int = YEAR_UNKNOWN,
+        val collectionYearPublished: Int = YEAR_UNKNOWN,
         override val imageUrl: String = "",
         override val thumbnailUrl: String = "",
         override val heroImageUrl: String = "",
+        val averageRating: Double = 0.0,
         val rating: Double = 0.0,
         val own: Boolean = false,
         val previouslyOwned: Boolean = false,
@@ -34,13 +33,14 @@ data class CollectionItemEntity(
         val wishListPriority: Int = WISHLIST_PRIORITY_UNKNOWN,
         val preOrdered: Boolean = false,
         val lastModifiedDate: Long = 0L,
+        val lastViewedDate: Long = 0L,
         val numberOfPlays: Int = 0,
         val pricePaidCurrency: String = "",
         val pricePaid: Double = 0.0,
         val currentValueCurrency: String = "",
         val currentValue: Double = 0.0,
         val quantity: Int = 1,
-        val acquisitionDate: String = "",
+        val acquisitionDate: Long = 0L,
         val acquiredFrom: String = "",
         val privateComment: String = "",
         val inventoryLocation: String = "",
@@ -63,7 +63,20 @@ data class CollectionItemEntity(
         val winsColor: Int = Color.TRANSPARENT,
         val winnablePlaysColor: Int = Color.TRANSPARENT,
         val allPlaysColor: Int = Color.TRANSPARENT,
-        val playingTime: Int = 0
+        val playingTime: Int = 0,
+        val minimumAge: Int = 0,
+        val rank: Int = RANK_UNKNOWN,
+        val geekRating: Double = 0.0,
+        val averageWeight: Double = 0.0,
+        val isFavorite: Boolean = false,
+        val lastPlayDate: Long = 0L,
+        val arePlayersCustomSorted: Boolean = false,
+        val minPlayerCount: Int = 0,
+        val maxPlayerCount: Int = 0,
+        val subType: String = "",
+        val bestPlayerCounts: String = "",
+        val recommendedPlayerCounts: String = "",
+
 ) : ImagesEntity {
     val isDirty: Boolean by lazy {
         when {
@@ -83,7 +96,7 @@ data class CollectionItemEntity(
 
     fun hasPrivateInfo(): Boolean {
         return quantity > 1 ||
-                acquisitionDate.isNotBlank() ||
+                acquisitionDate > 0L ||
                 acquiredFrom.isNotBlank() ||
                 pricePaid > 0.0 ||
                 currentValue > 0.0 ||
@@ -97,13 +110,10 @@ data class CollectionItemEntity(
         if (quantity > 1) {
             sb.append(" ").appendBold(quantity.toString())
         }
-        if (acquisitionDate.isNotBlank()) {
-            val millis = acquisitionDate.toMillis(FORMAT)
-            if (millis > 0L) {
-                val date = DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE)
-                if (!date.isNullOrEmpty()) {
-                    sb.append(" ").append(context.getString(R.string.on)).append(" ").appendBold(date)
-                }
+        if (acquisitionDate > 0L) {
+            val date = DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
+            if (!date.isNullOrEmpty()) {
+                sb.append(" ").append(context.getString(R.string.on)).append(" ").appendBold(date)
             }
         }
         if (acquiredFrom.isNotBlank()) {
@@ -133,7 +143,4 @@ data class CollectionItemEntity(
     override val imagesEntityDescription: String
         get() = "$collectionName ($collectionId)"
 
-    companion object {
-        private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    }
 }
