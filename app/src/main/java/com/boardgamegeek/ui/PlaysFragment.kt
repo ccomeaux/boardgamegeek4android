@@ -13,7 +13,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
@@ -70,7 +69,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.plays.observe(viewLifecycleOwner, Observer {
+        viewModel.plays.observe(viewLifecycleOwner) {
             progressBar.isVisible = it.status == Status.REFRESHING
             adapter.items = it.data.orEmpty()
             recyclerView.addHeader(adapter)
@@ -81,11 +80,11 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 recyclerView.fadeIn()
                 emptyContainer.fadeOut()
             }
-        })
+        }
 
-        viewModel.filterType.observe(viewLifecycleOwner, Observer {
+        viewModel.filterType.observe(viewLifecycleOwner) {
             updateEmptyText()
-        })
+        }
     }
 
     private fun updateEmptyText() {

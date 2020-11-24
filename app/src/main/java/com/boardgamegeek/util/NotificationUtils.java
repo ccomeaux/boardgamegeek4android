@@ -17,6 +17,8 @@ import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.ui.PlayActivity;
 import com.boardgamegeek.util.LargeIconLoader.Callback;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -187,7 +189,7 @@ public class NotificationUtils {
 	public static void launchPlayingNotification(final Context context, final long internalId, final Play play, final String thumbnailUrl, final String imageUrl, final String heroImageUrl, final boolean customPlayerSort) {
 		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
 			@Override
-			public void onSuccessfulIconLoad(Bitmap bitmap) {
+			public void onSuccessfulIconLoad(@NotNull Bitmap bitmap) {
 				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort, bitmap);
 			}
 
