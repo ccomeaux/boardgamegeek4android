@@ -21,7 +21,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -58,7 +57,6 @@ import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
 import java.text.NumberFormat
 import java.util.*
-import kotlin.properties.Delegates
 
 class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Callback, OnFilterChangedListener {
     private var viewId = CollectionView.DEFAULT_DEFAULT_ID
@@ -183,7 +181,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         when (item.itemId) {
             R.id.menu_collection_random_game -> {
                 firebaseAnalytics.logEvent("RandomGame", null)
-                adapter.randomItem?.let {
+                adapter.items.random().let {
                     GameActivity.start(requireContext(), it.gameId, it.gameName, it.thumbnailUrl, it.heroImageUrl)
                 }
                 return@OnMenuItemClickListener true
@@ -327,10 +325,10 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     }
 
     inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), SectionCallback {
-        var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            val diffCallback = Diff(oldValue, newValue)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            diffResult.dispatchUpdatesTo(this)
+        var items: List<CollectionItemEntity> = emptyList()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
         }
 
         init {
@@ -339,15 +337,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
 
         private val selectedItems = SparseBooleanArray()
 
-        fun getItem(position: Int): CollectionItemEntity? {
-            return items.getOrNull(position)
-        }
+        fun getItem(position: Int) = items.getOrNull(position)
 
-        val randomItem: CollectionItemEntity?
-            get() = items.random()
-
-        val selectedItemCount: Int
-            get() = selectedItems.size()
+        val selectedItemCount = selectedItems.size()
 
         val selectedItemPositions: List<Int>
             get() {
@@ -449,20 +441,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
     }
 
-    private class Diff(private val oldList: List<CollectionItemEntity>, private val newList: List<CollectionItemEntity>) : DiffUtil.Callback() {
-        override fun getOldListSize() = oldList.size
-
-        override fun getNewListSize() = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].internalId == newList[newItemPosition].internalId
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return false
-        }
-    }
-
     fun createShortcut(id: Int, name: String, thumbnailUrl: String) {
         val shortcutIntent = GameActivity.createIntentAsShortcut(requireContext(), id, name, thumbnailUrl)
         if (shortcutIntent != null) {
@@ -477,7 +455,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                     intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.absolutePath))
                 }
             }
-            if (intent != null) requireActivity().setResult(Activity.RESULT_OK, intent)
+            intent?.let { requireActivity().setResult(Activity.RESULT_OK, it) }
         }
         requireActivity().finish()
     }
