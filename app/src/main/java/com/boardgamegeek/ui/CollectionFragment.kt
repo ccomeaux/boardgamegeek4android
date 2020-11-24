@@ -110,29 +110,33 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
 
         progressBar.show()
-        viewModel.selectedViewId.observe(viewLifecycleOwner, { id: Long -> viewId = id })
-        viewModel.selectedViewName.observe(viewLifecycleOwner, { name: String -> viewName = name })
-        viewModel.effectiveSortType.observe(viewLifecycleOwner, { sortType: Int ->
+        viewModel.selectedViewId.observe(viewLifecycleOwner) {
+            progressBar.show()
+            viewId = it
+        }
+        viewModel.selectedViewName.observe(viewLifecycleOwner) {
+            viewName = it
+        }
+        viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->
             sorter = collectionSorterFactory.create(sortType)
             sortDescriptionView.text = if (sorter == null) "" else requireActivity().getString(R.string.by_prefix, sorter?.description.orEmpty())
-        })
-        viewModel.effectiveFilters.observe(viewLifecycleOwner, {
+        }
+        viewModel.effectiveFilters.observe(viewLifecycleOwner) {
             filters.clear()
             it?.let { filters.addAll(it) }
             setEmptyText()
             bindFilterButtons()
-        })
-        viewModel.items.observe(viewLifecycleOwner, {
-            it?.let { showData(it) }
-        })
-        viewModel.isRefreshing.observe(viewLifecycleOwner, {
+        }
+        viewModel.items.observe(viewLifecycleOwner) {
+                it?.let { showData(it) }
+        }
+        viewModel.isRefreshing.observe(viewLifecycleOwner) {
             swipeRefreshLayout.post { swipeRefreshLayout?.isRefreshing = it }
-        })
+        }
         viewModel.refresh()
     }
 
     private fun showData(items: List<CollectionItemEntity>) {
-        progressBar.show()
         adapter.items = items
 
         listView.addHeader(adapter)
@@ -329,7 +333,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             set(value) {
                 field = value
                 notifyDataSetChanged()
-        }
+            }
 
         init {
             setHasStableIds(true)

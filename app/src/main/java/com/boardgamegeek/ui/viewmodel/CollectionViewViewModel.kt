@@ -178,10 +178,11 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun filterAndSortItems(
-            itemList: List<CollectionItemEntity> = _items.value?.data.orEmpty(),
+            itemList: List<CollectionItemEntity>? = _items.value?.data,
             filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
             sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
+        if (itemList == null) return
         var list = itemList.asSequence()
         if (_selectedViewId.value == DEFAULT_DEFAULT_ID) {
             list = list.filter {
