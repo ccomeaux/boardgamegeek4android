@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
+	android:baselineAligned="false"
+	android:descendantFocusability="blocksDescendants"
+	android:focusable="false"
+	android:gravity="center_vertical"
+	android:minHeight="@dimen/player_row_height"
+	android:orientation="horizontal"
+	android:paddingHorizontal="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/material_margin_vertical"
+	tools:layout_width="match_parent">
+
+	<FrameLayout
+		style="@style/FormButton"
+		android:layout_width="48dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:layout_marginEnd="@dimen/padding_standard"
+		android:layout_marginRight="@dimen/padding_standard"
+		android:background="#0000"
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp">
+
+		<ImageView
+			android:id="@+id/colorView"
+			android:layout_width="@dimen/color_circle_diameter"
+			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_gravity="center"
+			android:scaleType="fitXY"
+			tools:background="#0f0" />
+
+		<TextView
+			android:id="@+id/seatView"
+			style="@style/Text.Huge"
+			android:layout_width="@dimen/color_circle_diameter"
+			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_gravity="center"
+			android:fontFamily="sans-serif-condensed"
+			android:gravity="center"
+			tools:text="1" />
+	</FrameLayout>
+
+	<LinearLayout
+		android:id="@+id/nameContainer"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:layout_weight="1"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/nameView"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="Chris" />
+
+		<TextView
+			android:id="@+id/usernameView"
+			style="@style/Text.Footnote"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="ccomeaux" />
+
+		<TextView
+			android:id="@+id/teamColorView"
+			style="@style/Text.Footnote"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="They" />
+
+		<TextView
+			android:id="@+id/startingPositionView"
+			style="@style/Text.Footnote"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			tools:text="First" />
+	</LinearLayout>
+
+	<FrameLayout
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="center">
+
+		<ImageView
+			android:id="@+id/ratingButton"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:layout_gravity="center"
+			android:scaleType="center"
+			android:src="@drawable/ic_rating"
+			tools:tint="#2000"
+			tools:tintMode="src_in" />
+
+		<TextView
+			android:id="@+id/ratingView"
+			style="@style/Text.Big"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:text="7.5" />
+	</FrameLayout>
+
+	<FrameLayout
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="center">
+
+		<ImageView
+			android:id="@+id/scoreButton"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:layout_gravity="center"
+			android:scaleType="center"
+			android:src="@drawable/ic_score"
+			tools:tint="#2000"
+			tools:tintMode="src_in" />
+
+		<TextView
+			android:id="@+id/scoreView"
+			style="@style/Text.Big"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:text="529" />
+	</FrameLayout>
+</LinearLayout>

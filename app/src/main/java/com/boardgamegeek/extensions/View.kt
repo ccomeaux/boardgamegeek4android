@@ -180,7 +180,6 @@ fun View.setSelectableBackgroundBorderless() {
     }
 }
 
-@JvmOverloads
 fun View.setSelectableBackground(backgroundResId: Int = android.R.attr.selectableItemBackground) {
     val outValue = TypedValue()
     context.theme.resolveAttribute(backgroundResId, outValue, true)

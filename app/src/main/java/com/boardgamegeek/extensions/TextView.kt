@@ -2,14 +2,18 @@
 
 package com.boardgamegeek.extensions
 
+import android.graphics.Color
+import android.graphics.Typeface
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
+import com.boardgamegeek.R
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.text = text
@@ -66,6 +70,19 @@ fun TextView.setTextViewBackground(@ColorInt color: Int) {
 fun View.setTextViewBackground(color: Int): Int {
     this.setViewBackground(color)
     return color.getTextColor()
+}
+
+fun TextView.setText(text: String, tf: Typeface, italic: Boolean, bold: Boolean, @ColorInt textColor: Int = Color.BLACK) {
+    setTextOrHide(text)
+    if (text.isNotBlank()) {
+        when {
+            italic && bold -> setTypeface(tf, Typeface.BOLD_ITALIC)
+            italic -> setTypeface(tf, Typeface.ITALIC)
+            bold -> setTypeface(tf, Typeface.BOLD)
+            else -> setTypeface(tf, Typeface.NORMAL)
+        }
+        setTextColor(textColor)
+    }
 }
 
 private fun fixInternalLinks(html: String): String {

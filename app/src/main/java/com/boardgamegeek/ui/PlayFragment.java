@@ -361,7 +361,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			case PLAYER_QUERY_TOKEN:
 				PlayBuilder.addPlayers(cursor, play);
 				playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
-				adapter.replace(play);
+				adapter.setPlayers(play.getPlayers());
 				maybeShowNotification();
 				showList();
 				break;
