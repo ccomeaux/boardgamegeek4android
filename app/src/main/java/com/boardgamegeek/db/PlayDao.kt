@@ -18,6 +18,112 @@ class PlayDao(private val context: BggApplication) {
         DATE, LOCATION, GAME, LENGTH
     }
 
+    fun loadPlayAsLiveData(id: Long): LiveData<PlayEntity> {
+        return RegisteredLiveData(context, Plays.buildPlayWithGameUri(id), true) {
+            return@RegisteredLiveData loadPlay(id)
+        }
+    }
+
+    private fun loadPlay(id: Long): PlayEntity? {
+        val uri = Plays.buildPlayWithGameUri(id)
+        return context.contentResolver.load(
+                uri,
+                arrayOf(
+                        Plays._ID,
+                        Plays.PLAY_ID,
+                        Plays.DATE,
+                        Plays.OBJECT_ID,
+                        Plays.ITEM_NAME,
+                        Plays.QUANTITY,
+                        Plays.LENGTH,
+                        Plays.LOCATION,
+                        Plays.INCOMPLETE,
+                        Plays.NO_WIN_STATS,
+                        Plays.COMMENTS,
+                        Plays.SYNC_TIMESTAMP,
+                        Plays.PLAYER_COUNT,
+                        Plays.DIRTY_TIMESTAMP,
+                        Plays.UPDATE_TIMESTAMP,
+                        Plays.DELETE_TIMESTAMP,
+                        Plays.START_TIME,
+                        Games.THUMBNAIL_URL,
+                        Games.IMAGE_URL,
+                        Games.HERO_IMAGE_URL,
+                        Games.UPDATED_PLAYS,
+                ),
+        )?.use {
+            if (it.moveToFirst()) {
+                val play = PlayEntity(
+                        internalId = it.getLong(Plays._ID),
+                        playId = it.getInt(Plays.PLAY_ID),
+                        rawDate = it.getString(Plays.DATE),
+                        gameId = it.getInt(Plays.OBJECT_ID),
+                        gameName = it.getString(Plays.ITEM_NAME),
+                        quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,
+                        length = it.getIntOrNull(Plays.LENGTH) ?: 0,
+                        location = it.getStringOrEmpty(Plays.LOCATION),
+                        incomplete = it.getInt(Plays.INCOMPLETE) == 1,
+                        noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
+                        comments = it.getStringOrEmpty(Plays.COMMENTS),
+                        syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
+                        playerCount = it.getInt(Plays.PLAYER_COUNT),
+                        dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
+                        updateTimestamp = it.getLong(Plays.UPDATE_TIMESTAMP),
+                        deleteTimestamp = it.getLong(Plays.DELETE_TIMESTAMP),
+                        startTime = it.getLong(Plays.START_TIME),
+                        imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
+                        thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
+                        heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL),
+                        updatedPlaysTimestamp = it.getLongOrZero(Games.UPDATED_PLAYS),
+                )
+                loadPlayers(id).forEach { player ->
+                    play.addPlayer(player)
+                }
+                play
+            } else null
+        }
+    }
+
+    private fun loadPlayers(internalId: Long): List<PlayPlayerEntity> {
+        val players = mutableListOf<PlayPlayerEntity>()
+        val uri = Plays.buildPlayerUri(internalId)
+        context.contentResolver.load(
+                uri,
+                arrayOf(
+                        PlayPlayers._ID,
+                        PlayPlayers.NAME,
+                        PlayPlayers.USER_NAME,
+                        PlayPlayers.START_POSITION,
+                        PlayPlayers.COLOR,
+                        PlayPlayers.SCORE,
+                        PlayPlayers.RATING,
+                        PlayPlayers.USER_ID,
+                        PlayPlayers.NEW,
+                        PlayPlayers.WIN,
+                        PlayPlayers.PLAY_ID,
+                ),
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    players += PlayPlayerEntity(
+                            name = it.getStringOrEmpty(PlayPlayers.NAME),
+                            username = it.getStringOrEmpty(PlayPlayers.USER_NAME),
+                            startingPosition = it.getStringOrEmpty(PlayPlayers.START_POSITION),
+                            color = it.getStringOrEmpty(PlayPlayers.COLOR),
+                            score = it.getStringOrEmpty(PlayPlayers.SCORE),
+                            rating = it.getDoubleOrZero(PlayPlayers.RATING),
+                            userId = it.getStringOrEmpty(PlayPlayers.USER_ID),
+                            isNew = it.getBoolean(PlayPlayers.NEW),
+                            isWin = it.getBoolean(PlayPlayers.WIN),
+                            playId = it.getIntOrNull(PlayPlayers.PLAY_ID) ?: INVALID_ID,
+
+                            )
+                } while (it.moveToNext())
+            }
+        }
+        return players
+    }
+
     fun loadPlays(sortBy: PlaysSortBy): LiveData<List<PlayEntity>> {
         val uri = Plays.CONTENT_URI
         return RegisteredLiveData(context, uri, true) {
@@ -71,7 +177,7 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser:Boolean): List<PlayEntity> {
+    fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
         val uri = Plays.buildPlayersByPlayUri()
         val selection = createNamePlaySelectionAndArgs(name, isUser)
         return loadPlays(uri, addGamePlaySelectionAndArgs(selection, gameId))
@@ -106,7 +212,7 @@ class PlayDao(private val context: BggApplication) {
                         Games.THUMBNAIL_URL,
                         Games.IMAGE_URL,
                         Games.HERO_IMAGE_URL,
-                        Games.UPDATED_PLAYS
+                        Games.UPDATED_PLAYS,
                 ),
                 selection.first,
                 selection.second,

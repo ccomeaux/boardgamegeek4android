@@ -17,21 +17,15 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlayDeletedEvent;
-import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.extensions.ActivityUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.extensions.TextViewUtils;
-import com.boardgamegeek.model.Play;
-import com.boardgamegeek.model.Player;
-import com.boardgamegeek.model.builder.PlayBuilder;
-import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask;
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter;
+import com.boardgamegeek.ui.viewmodel.PlayViewModel;
 import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -50,15 +44,10 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,7 +58,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
+public class PlayFragment extends Fragment implements OnRefreshListener {
 	private static final String KEY_ID = "ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_GAME_NAME = "GAME_NAME";
@@ -78,16 +67,20 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_HAS_BEEN_NOTIFIED = "HAS_BEEN_NOTIFIED";
-	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int PLAY_QUERY_TOKEN = 0x01;
-	private static final int PLAYER_QUERY_TOKEN = 0x02;
 
 	private long internalId = BggContract.INVALID_ID;
-	private Play play = new Play();
+	private int gameId = BggContract.INVALID_ID;
+	private String gameName = "";
 	private String thumbnailUrl;
 	private String imageUrl;
 	private String heroImageUrl;
 	private boolean customPlayerSort = false;
+
+	private int playId = BggContract.INVALID_ID;
+	private boolean hasStarted = false;
+	private boolean isDirty = false;
+	String shortDescription = "";
+	String longDescription = "";
 	private boolean isRefreshing;
 	private SharedPreferences prefs;
 	private XmlApiMarkupConverter markupConverter;
@@ -121,6 +114,8 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private boolean hasBeenNotified;
 	private FirebaseAnalytics firebaseAnalytics;
 
+	private PlayViewModel viewModel;
+
 	public static PlayFragment newInstance(long internalId, int gameId, String gameName, String imageUrl, String thumbnailUrl, String heroImageUrl, boolean customPlayerSort) {
 		Bundle args = new Bundle();
 		args.putLong(KEY_ID, internalId);
@@ -151,7 +146,8 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	private void readBundle(@Nullable Bundle bundle) {
 		if (bundle == null) return;
 		internalId = bundle.getLong(KEY_ID, BggContract.INVALID_ID);
-		play = new Play(bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID), bundle.getString(KEY_GAME_NAME));
+		gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID);
+		gameName = bundle.getString(KEY_GAME_NAME);
 		thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL);
 		imageUrl = bundle.getString(KEY_IMAGE_URL);
 		heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL);
@@ -170,6 +166,8 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@Override
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		viewModel = new ViewModelProvider(requireActivity()).get(PlayViewModel.class);
+
 		unbinder = ButterKnife.bind(this, view);
 
 		if (swipeRefreshLayout != null) {
@@ -177,10 +175,105 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			swipeRefreshLayout.setOnRefreshListener(this);
 		}
 
-		adapter = new PlayPlayerAdapter(play);
+		adapter = new PlayPlayerAdapter();
 		playersView.setAdapter(adapter);
 
-		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, null, this);
+		viewModel.getPlay().observe(getViewLifecycleOwner(), play -> {
+			if (play == null) {
+				emptyView.setText(getResources().getString(R.string.empty_play, String.valueOf(internalId)));
+				emptyView.setVisibility(View.VISIBLE); // TODO fade in
+				listContainer.setVisibility(View.GONE);
+				return;
+			}
+
+			playId = play.getPlayId();
+			hasStarted = play.hasStarted();
+			isDirty = play.getDirtyTimestamp() > 0;
+			shortDescription = getString(R.string.play_description_game_segment, gameName) + getString(R.string.play_description_date_segment, play.dateForDisplay(requireContext()));
+			longDescription = play.describe(requireContext(), true);
+
+			gameNameView.setText(play.getGameName());
+
+			dateView.setText(play.dateForDisplay(requireContext()));
+
+			quantityView.setText(getResources().getQuantityString(R.plurals.times_suffix, play.getQuantity(), play.getQuantity()));
+			quantityView.setVisibility((play.getQuantity() == 1) ? View.GONE : View.VISIBLE);
+
+			if (play.getLength() > 0) {
+				lengthContainer.setVisibility(View.VISIBLE);
+				lengthView.setText(DateTimeUtils.describeMinutes(requireContext(), play.getLength()));
+				lengthView.setVisibility(View.VISIBLE);
+				timerContainer.setVisibility(View.GONE);
+				timerView.stop();
+			} else if (play.hasStarted()) {
+				lengthContainer.setVisibility(View.VISIBLE);
+				lengthView.setVisibility(View.GONE);
+				timerContainer.setVisibility(View.VISIBLE);
+				UIUtils.startTimerWithSystemTime(timerView, play.getStartTime());
+			} else {
+				lengthContainer.setVisibility(View.GONE);
+			}
+
+			locationView.setText(play.getLocation());
+			locationContainer.setVisibility(TextUtils.isEmpty(play.getLocation()) ? View.GONE : View.VISIBLE);
+
+			incompleteView.setVisibility(play.getIncomplete() ? View.VISIBLE : View.GONE);
+			noWinStatsView.setVisibility(play.getNoWinStats() ? View.VISIBLE : View.GONE);
+
+			TextViewUtils.setTextMaybeHtml(commentsView, markupConverter.toHtml(play.getComments()));
+			commentsView.setVisibility(TextUtils.isEmpty(play.getComments()) ? View.GONE : View.VISIBLE);
+			commentsLabel.setVisibility(TextUtils.isEmpty(play.getComments()) ? View.GONE : View.VISIBLE);
+
+			if (play.getDeleteTimestamp() > 0) {
+				pendingTimestampView.setVisibility(View.VISIBLE);
+				pendingTimestampView.setFormat(getString(R.string.delete_pending_prefix));
+				pendingTimestampView.setTimestamp(play.getDeleteTimestamp());
+			} else if (play.getUpdateTimestamp() > 0) {
+				pendingTimestampView.setVisibility(View.VISIBLE);
+				pendingTimestampView.setFormat(getString(R.string.update_pending_prefix));
+				pendingTimestampView.setTimestamp(play.getUpdateTimestamp());
+			} else {
+				pendingTimestampView.setVisibility(View.GONE);
+			}
+
+			if (play.getDirtyTimestamp() > 0) {
+				dirtyTimestampView.setFormat(getString(play.getPlayId() > 0 ? R.string.editing_prefix : R.string.draft_prefix));
+				dirtyTimestampView.setTimestamp(play.getDirtyTimestamp());
+			} else {
+				dirtyTimestampView.setVisibility(View.GONE);
+			}
+
+			if (play.getPlayId() > 0) {
+				playIdView.setText(getResources().getString(R.string.play_id_prefix, String.valueOf(play.getPlayId())));
+			}
+
+			syncTimestampView.setTimestamp(play.getSyncTimestamp());
+
+			// players
+			playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
+			adapter.setPlayers(play.getPlayers());
+			maybeShowNotification();
+
+			requireActivity().invalidateOptionsMenu();
+
+			emptyView.setVisibility(View.GONE); // TODO fade
+			listContainer.setVisibility(View.VISIBLE);
+			progressBar.hide();
+		});
+		viewModel.setId(internalId);
+
+		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
+			@Override
+			public void onSuccessfulImageLoad(Palette palette) {
+				if (gameNameView != null && isAdded()) {
+					gameNameView.setBackgroundResource(R.color.black_overlay_light);
+				}
+			}
+
+			@Override
+			public void onFailedImageLoad() {
+			}
+		});
 	}
 
 	@Override
@@ -192,7 +285,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (play != null && play.hasStarted()) {
+		if (hasStarted) {
 			showNotification();
 			hasBeenNotified = true;
 		}
@@ -223,9 +316,9 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@Override
 	public void onPrepareOptionsMenu(@NotNull Menu menu) {
-		UIUtils.showMenuItem(menu, R.id.menu_send, play.dirtyTimestamp > 0);
-		UIUtils.showMenuItem(menu, R.id.menu_discard, play.playId > 0 && play.dirtyTimestamp > 0);
-		UIUtils.enableMenuItem(menu, R.id.menu_share, play.playId > 0);
+		UIUtils.showMenuItem(menu, R.id.menu_send, isDirty);
+		UIUtils.showMenuItem(menu, R.id.menu_discard, playId > 0 && isDirty);
+		UIUtils.enableMenuItem(menu, R.id.menu_share, playId > 0);
 		super.onPrepareOptionsMenu(menu);
 	}
 
@@ -233,31 +326,34 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, () -> {
-					play.dirtyTimestamp = 0;
-					play.updateTimestamp = 0;
-					play.deleteTimestamp = 0;
-					save("Discard");
-				}).show();
+				// TODO move to ViewModel
+//				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, () -> {
+//					play.dirtyTimestamp = 0;
+//					play.updateTimestamp = 0;
+//					play.deleteTimestamp = 0;
+//					save("Discard");
+//				}).show();
 				return true;
 			case R.id.menu_edit:
 				logDataManipulationAction("Edit");
-				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
+				LogPlayActivity.editPlay(getActivity(), internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				return true;
 			case R.id.menu_send:
-				play.updateTimestamp = System.currentTimeMillis();
-				save("Save");
-				EventBus.getDefault().post(new PlaySentEvent());
+				// TODO move to ViewModel
+//				play.updateTimestamp = System.currentTimeMillis();
+//				save("Save");
+//				EventBus.getDefault().post(new PlaySentEvent());
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createThemedBuilder(getContext())
 					.setMessage(R.string.are_you_sure_delete_play)
 					.setPositiveButton(R.string.delete, (dialog, id) -> {
-						if (play.hasStarted()) cancelNotification();
-						play.end(); // this prevents the timer from reappearing
-						play.deleteTimestamp = System.currentTimeMillis();
-						save("Delete");
-						EventBus.getDefault().post(new PlayDeletedEvent());
+						// TODO move to ViewModel
+//						if (hasStarted) cancelNotification();
+//						play.end(); // this prevents the timer from reappearing
+//						play.deleteTimestamp = System.currentTimeMillis();
+//						save("Delete");
+//						EventBus.getDefault().post(new PlayDeletedEvent());
 					})
 					.setNegativeButton(R.string.cancel, null)
 					.setCancelable(true)
@@ -266,7 +362,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 			}
 			case R.id.menu_rematch:
 				logDataManipulationAction("Rematch");
-				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
+				LogPlayActivity.rematch(getContext(), internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_change_game:
@@ -275,11 +371,11 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
-				ActivityUtils.share(getActivity(), play.toShortDescription(requireContext()), play.toLongDescription(requireContext()), R.string.share_play_title);
+				ActivityUtils.share(requireActivity(), shortDescription, longDescription, R.string.share_play_title);
 				Bundle bundle = new Bundle();
 				bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Play");
-				bundle.putString(Param.ITEM_ID, String.valueOf(play.playId));
-				bundle.putString(Param.ITEM_NAME, play.toShortDescription(requireContext()));
+				bundle.putString(Param.ITEM_ID, String.valueOf(playId));
+				bundle.putString(Param.ITEM_NAME, shortDescription);
 				firebaseAnalytics.logEvent(Event.SHARE, bundle);
 				return true;
 		}
@@ -290,7 +386,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 		Bundle bundle = new Bundle();
 		bundle.putString(Param.CONTENT_TYPE, "Play");
 		bundle.putString("Action", action);
-		bundle.putString("GameName", play.gameName);
+		bundle.putString("GameName", gameName);
 		firebaseAnalytics.logEvent("DataManipulation", bundle);
 	}
 
@@ -301,7 +397,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
-		if (play != null && event.getGameId() == play.gameId) {
+		if (event.getGameId() == gameId) {
 			if (!TextUtils.isEmpty(event.getErrorMessage()) && PreferenceUtils.getSyncShowErrors(prefs)) {
 				// TODO: 3/30/17 change to a snackbar (will need to change from a ListFragment)
 				Toast.makeText(getContext(), event.getErrorMessage(), Toast.LENGTH_LONG).show();
@@ -321,166 +417,30 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 
 	@OnClick(R.id.headerContainer)
 	void viewGame() {
-		GameActivity.start(requireContext(), play.gameId, play.gameName);
+		GameActivity.start(requireContext(), gameId, gameName);
 	}
 
 	@OnClick(R.id.timerEndButton)
 	void onTimerClick() {
-		LogPlayActivity.endPlay(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
-	}
-
-	@Override
-	public @NotNull Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		switch (id) {
-			case PLAY_QUERY_TOKEN:
-				loader = new CursorLoader(requireContext(), Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null);
-				break;
-			case PLAYER_QUERY_TOKEN:
-				loader = new CursorLoader(requireContext(), Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null);
-				break;
-		}
-		if (loader != null) {
-			loader.setUpdateThrottle(1000);
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(@NotNull Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
-
-		switch (loader.getId()) {
-			case PLAY_QUERY_TOKEN:
-				if (onPlayQueryComplete(cursor)) {
-					showList();
-				}
-				break;
-			case PLAYER_QUERY_TOKEN:
-				PlayBuilder.addPlayers(cursor, play);
-				playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
-				adapter.setPlayers(play.getPlayers());
-				maybeShowNotification();
-				showList();
-				break;
-			default:
-				if (cursor != null) {
-					cursor.close();
-				}
-				break;
-		}
-	}
-
-	private void showList() {
-		progressBar.hide();
-		listContainer.setVisibility(View.VISIBLE);
-	}
-
-	@Override
-	public void onLoaderReset(@NotNull Loader<Cursor> loader) {
+		LogPlayActivity.endPlay(getContext(), internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
 	}
 
 	/**
 	 * @return true if the we're done loading
 	 */
 	private boolean onPlayQueryComplete(Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			emptyView.setText(getResources().getString(R.string.empty_play, String.valueOf(internalId)));
-			emptyView.setVisibility(View.VISIBLE);
-			return true;
-		}
-		playersView.setVisibility(View.VISIBLE);
-		emptyView.setVisibility(View.GONE);
-
-		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
-			@Override
-			public void onSuccessfulImageLoad(Palette palette) {
-				if (gameNameView != null && isAdded()) {
-					gameNameView.setBackgroundResource(R.color.black_overlay_light);
-				}
-			}
-
-			@Override
-			public void onFailedImageLoad() {
-			}
-		});
-
-		List<Player> players = play.getPlayers();
-		play = PlayBuilder.fromCursor(cursor);
-		play.setPlayers(players);
-
-		gameNameView.setText(play.gameName);
-
-		dateView.setText(play.getDateForDisplay(getActivity()));
-
-		quantityView.setText(getResources().getQuantityString(R.plurals.times_suffix, play.quantity, play.quantity));
-		quantityView.setVisibility((play.quantity == 1) ? View.GONE : View.VISIBLE);
-
-		if (play.length > 0) {
-			lengthContainer.setVisibility(View.VISIBLE);
-			lengthView.setText(DateTimeUtils.describeMinutes(requireContext(), play.length));
-			lengthView.setVisibility(View.VISIBLE);
-			timerContainer.setVisibility(View.GONE);
-			timerView.stop();
-		} else if (play.hasStarted()) {
-			lengthContainer.setVisibility(View.VISIBLE);
-			lengthView.setVisibility(View.GONE);
-			timerContainer.setVisibility(View.VISIBLE);
-			UIUtils.startTimerWithSystemTime(timerView, play.startTime);
-		} else {
-			lengthContainer.setVisibility(View.GONE);
-		}
-
-		locationView.setText(play.location);
-		locationContainer.setVisibility(TextUtils.isEmpty(play.location) ? View.GONE : View.VISIBLE);
-
-		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
-		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
-
-		TextViewUtils.setTextMaybeHtml(commentsView, markupConverter.toHtml(play.comments));
-		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
-		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
-
-		if (play.deleteTimestamp > 0) {
-			pendingTimestampView.setVisibility(View.VISIBLE);
-			pendingTimestampView.setFormat(getString(R.string.delete_pending_prefix));
-			pendingTimestampView.setTimestamp(play.deleteTimestamp);
-		} else if (play.updateTimestamp > 0) {
-			pendingTimestampView.setVisibility(View.VISIBLE);
-			pendingTimestampView.setFormat(getString(R.string.update_pending_prefix));
-			pendingTimestampView.setTimestamp(play.updateTimestamp);
-		} else {
-			pendingTimestampView.setVisibility(View.GONE);
-		}
-
-		if (play.dirtyTimestamp > 0) {
-			dirtyTimestampView.setFormat(getString(play.playId > 0 ? R.string.editing_prefix : R.string.draft_prefix));
-			dirtyTimestampView.setTimestamp(play.dirtyTimestamp);
-		} else {
-			dirtyTimestampView.setVisibility(View.GONE);
-		}
-
-		if (play.playId > 0) {
-			playIdView.setText(getResources().getString(R.string.play_id_prefix, String.valueOf(play.playId)));
-		}
-
-		syncTimestampView.setTimestamp(play.syncTimestamp);
-
-		getActivity().invalidateOptionsMenu();
-		LoaderManager.getInstance(this).restartLoader(PLAYER_QUERY_TOKEN, null, this);
-
-		if (play.playId > 0 &&
-			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
-			triggerRefresh();
-		}
+		// Move to refreshable resource loader
+//		private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+//		if (playId > 0 &&
+//			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
+//			triggerRefresh();
+//		}
 
 		return false;
 	}
 
 	private void maybeShowNotification() {
-		if (play.hasStarted()) {
+		if (hasStarted) {
 			showNotification();
 		} else if (hasBeenNotified) {
 			cancelNotification();
@@ -488,7 +448,7 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	private void showNotification() {
-		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
+//		NotificationUtils.launchPlayingNotification(getActivity(), internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 	}
 
 	private void cancelNotification() {
@@ -496,15 +456,17 @@ public class PlayFragment extends Fragment implements LoaderCallbacks<Cursor>, O
 	}
 
 	private void triggerRefresh() {
+		// TODO move this logic to the view model
 		if (!isRefreshing) {
-			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) getActivity().getApplication(), play.gameId));
+			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) requireActivity().getApplication(), gameId));
 			updateRefreshStatus(true);
 		}
 	}
 
 	private void save(String action) {
-		logDataManipulationAction(TextUtils.isEmpty(action) ? "Save" : action);
-		new PlayPersister(requireContext()).save(play, internalId, false);
-		triggerRefresh();
+		// TODO move this logic to the view model
+//		logDataManipulationAction(TextUtils.isEmpty(action) ? "Save" : action);
+//		new PlayPersister(requireContext()).save(play, internalId, false);
+//		triggerRefresh();
 	}
 }

@@ -49,6 +49,10 @@ data class PlayEntity(
         return dateInMillis.forDatabase()
     }
 
+    fun hasStarted(): Boolean {
+        return length == 0 && startTime > 0
+    }
+
     fun addPlayer(player: PlayPlayerEntity) {
         _players.add(player)
     }

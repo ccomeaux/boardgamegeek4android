@@ -42,6 +42,10 @@ class PlayRepository(val application: BggApplication) {
     private val collectionDao = CollectionDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
+    fun getPlay(id: Long): LiveData<PlayEntity> {
+        return playDao.loadPlayAsLiveData(id)
+    }
+
     fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : PlayRefreshableResourceLoader(application) {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {

@@ -25,7 +25,9 @@
 			<androidx.coordinatorlayout.widget.CoordinatorLayout
 				android:id="@+id/listContainer"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent">
+				android:layout_height="match_parent"
+				android:visibility="gone"
+				tools:visibility="visible">
 
 				<LinearLayout
 					android:layout_width="match_parent"
@@ -277,7 +279,9 @@
 					android:paddingLeft="@dimen/material_margin_horizontal"
 					android:paddingTop="@dimen/material_margin_vertical"
 					android:paddingRight="@dimen/material_margin_horizontal"
-					android:paddingBottom="@dimen/material_margin_vertical" />
+					android:paddingBottom="@dimen/material_margin_vertical"
+					android:visibility="gone"
+					tools:visibility="visible" />
 			</androidx.coordinatorlayout.widget.CoordinatorLayout>
 		</FrameLayout>
 	</androidx.core.widget.NestedScrollView>
