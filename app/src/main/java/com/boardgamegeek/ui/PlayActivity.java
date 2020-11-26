@@ -4,14 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.boardgamegeek.events.PlayDeletedEvent;
-import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.service.SyncService;
 import com.google.firebase.analytics.FirebaseAnalytics.Event;
 import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
-import org.greenrobot.eventbus.Subscribe;
+import org.jetbrains.annotations.NotNull;
 
 import androidx.fragment.app.Fragment;
 
@@ -71,25 +68,14 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(@NotNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
-	protected Fragment onCreatePane(Intent intent) {
+	protected @NotNull Fragment onCreatePane(@NotNull Intent intent) {
 		return PlayFragment.newInstance(internalId, gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, customPlayerSort);
 	}
 
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@Subscribe
-	public void onEvent(PlaySentEvent event) {
-		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-	}
-
-	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@Subscribe
-	public void onEvent(PlayDeletedEvent event) {
-		finish();
-		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-	}
+	// TODO finish activity when delete is successful
 }

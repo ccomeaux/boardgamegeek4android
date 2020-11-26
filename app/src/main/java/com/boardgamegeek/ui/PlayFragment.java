@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -329,34 +328,27 @@ public class PlayFragment extends Fragment implements OnRefreshListener {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
-				// TODO move to ViewModel
-//				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, () -> {
-//					play.dirtyTimestamp = 0;
-//					play.updateTimestamp = 0;
-//					play.deleteTimestamp = 0;
-//					save("Discard");
-//				}).show();
+				DialogUtils.createDiscardDialog(getActivity(), R.string.play, false, false, () -> {
+					logDataManipulationAction("Discard");
+					viewModel.discard();
+				}).show();
 				return true;
 			case R.id.menu_edit:
 				logDataManipulationAction("Edit");
 				LogPlayActivity.editPlay(getActivity(), internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				return true;
 			case R.id.menu_send:
-				// TODO move to ViewModel
-//				play.updateTimestamp = System.currentTimeMillis();
-//				save("Save");
-//				EventBus.getDefault().post(new PlaySentEvent());
+				logDataManipulationAction("Send");
+				viewModel.send();
 				return true;
 			case R.id.menu_delete: {
 				DialogUtils.createThemedBuilder(getContext())
 					.setMessage(R.string.are_you_sure_delete_play)
 					.setPositiveButton(R.string.delete, (dialog, id) -> {
-						// TODO move to ViewModel
-//						if (hasStarted) cancelNotification();
-//						play.end(); // this prevents the timer from reappearing
-//						play.deleteTimestamp = System.currentTimeMillis();
-//						save("Delete");
-//						EventBus.getDefault().post(new PlayDeletedEvent());
+						if (hasStarted) cancelNotification();
+						logDataManipulationAction("Delete");
+						viewModel.delete();
+						getActivity().finish(); // don't want to show an empty screen upon return
 					})
 					.setNegativeButton(R.string.cancel, null)
 					.setCancelable(true)
@@ -450,12 +442,5 @@ public class PlayFragment extends Fragment implements OnRefreshListener {
 			TaskUtils.executeAsyncTask(new SyncPlaysByGameTask((BggApplication) requireActivity().getApplication(), gameId));
 			updateRefreshStatus(true);
 		}
-	}
-
-	private void save(String action) {
-		// TODO move this logic to the view model
-//		logDataManipulationAction(TextUtils.isEmpty(action) ? "Save" : action);
-//		new PlayPersister(requireContext()).save(play, internalId, false);
-//		triggerRefresh();
 	}
 }
