@@ -124,7 +124,7 @@ class PlaysSummaryFragment : Fragment() {
     private fun addPlayToContainer(play: PlayEntity, container: LinearLayout) {
         val view = createRow(container, play.gameName, play.describe(requireContext(), true))
         view.setOnClickListener {
-            PlayActivity.start(context,
+            PlayActivity.start(requireContext(),
                     play.internalId,
                     play.gameId,
                     play.gameName,
