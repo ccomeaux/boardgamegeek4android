@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.entities.PlayEntity;
 import com.boardgamegeek.extensions.ActivityUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
@@ -178,7 +179,9 @@ public class PlayFragment extends Fragment implements OnRefreshListener {
 		adapter = new PlayPlayerAdapter();
 		playersView.setAdapter(adapter);
 
-		viewModel.getPlay().observe(getViewLifecycleOwner(), play -> {
+		viewModel.getPlay().observe(getViewLifecycleOwner(), data -> {
+			// TODO handle error and refreshing states
+			PlayEntity play = data.getData();
 			if (play == null) {
 				emptyView.setText(getResources().getString(R.string.empty_play, String.valueOf(internalId)));
 				emptyView.setVisibility(View.VISIBLE); // TODO fade in
@@ -423,20 +426,6 @@ public class PlayFragment extends Fragment implements OnRefreshListener {
 	@OnClick(R.id.timerEndButton)
 	void onTimerClick() {
 		LogPlayActivity.endPlay(getContext(), internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
-	}
-
-	/**
-	 * @return true if the we're done loading
-	 */
-	private boolean onPlayQueryComplete(Cursor cursor) {
-		// Move to refreshable resource loader
-//		private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-//		if (playId > 0 &&
-//			(play.syncTimestamp == 0 || DateTimeUtils.howManyDaysOld(play.syncTimestamp) > AGE_IN_DAYS_TO_REFRESH)) {
-//			triggerRefresh();
-//		}
-
-		return false;
 	}
 
 	private void maybeShowNotification() {

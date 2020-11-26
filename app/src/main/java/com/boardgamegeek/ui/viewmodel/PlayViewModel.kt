@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.repository.PlayRepository
 
@@ -14,7 +15,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     private val internalId = MutableLiveData<Long>()
 
-    val play: LiveData<PlayEntity> = Transformations.switchMap(internalId) { id ->
+    val play: LiveData<RefreshableResource<PlayEntity>> = Transformations.switchMap(internalId) { id ->
         when (id) {
             null -> AbsentLiveData.create()
             else -> repository.getPlay(id)

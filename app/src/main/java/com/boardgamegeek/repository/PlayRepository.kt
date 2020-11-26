@@ -41,9 +41,44 @@ class PlayRepository(val application: BggApplication) {
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
+    private val username: String? by lazy { AccountUtils.getUsername(application) }
 
-    fun getPlay(id: Long): LiveData<PlayEntity> {
-        return playDao.loadPlayAsLiveData(id)
+    fun getPlay(id: Long): LiveData<RefreshableResource<PlayEntity>> {
+        return object : RefreshableResourceLoader<PlayEntity, PlaysResponse>(application) {
+            val persister = PlayPersister(application)
+            val playMapper = PlayMapper()
+            var timestamp = 0L
+            var gameId = BggContract.INVALID_ID
+
+            override fun loadFromDatabase(): LiveData<PlayEntity> {
+                return playDao.loadPlayAsLiveData(id)
+            }
+
+            override fun shouldRefresh(data: PlayEntity?): Boolean {
+                if (data == null) return false
+                gameId = data.gameId
+                return gameId != BggContract.INVALID_ID &&
+                        !username.isNullOrBlank() &&
+                        data.playId > 0 &&
+                        (data.syncTimestamp == 0L || data.syncTimestamp.isOlderThan(2, TimeUnit.HOURS))
+            }
+
+            override val typeDescriptionResId = R.string.title_plays
+
+            override fun createCall(page: Int): Call<PlaysResponse> {
+                if (page == 1) timestamp = System.currentTimeMillis()
+                return Adapter.createForXml().playsByGame(username, gameId, page)
+            }
+
+            override fun saveCallResult(result: PlaysResponse) {
+                // TODO replace persister with DAO
+                val plays = playMapper.map(result.plays)
+                persister.save(plays, timestamp)
+                Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
+            }
+
+            override fun hasMorePages(result: PlaysResponse, currentPage: Int) = result.hasMorePages()
+        }.asLiveData()
     }
 
     fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE): LiveData<RefreshableResource<List<PlayEntity>>> {
