@@ -31,6 +31,10 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
         if (internalId.value != id) internalId.value = id
     }
 
+    fun refresh() {
+        internalId.value = internalId.value
+    }
+
     fun discard() {
         play.value?.data?.let {
             val p = it.copy(
