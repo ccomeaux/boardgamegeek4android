@@ -18,7 +18,9 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     val repository = PlayRepository(getApplication())
 
     private val internalId = MutableLiveData<Long>()
-    private val _insertedId = MutableLiveData<Long>()
+    private val _updatedId = MutableLiveData<Long>()
+    val updatedId: LiveData<Long>
+        get() = _updatedId
 
     val play: LiveData<RefreshableResource<PlayEntity>> = Transformations.switchMap(internalId) { id ->
         when (id) {
@@ -37,47 +39,19 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
 
     fun discard() {
         play.value?.data?.let {
-            val p = it.copy(
-                    dirtyTimestamp = 0,
-                    updateTimestamp = 0,
-                    deleteTimestamp = 0,
-            )
-            it.players.forEach { player ->
-                p.addPlayer(player)
-            }
-            repository.save(p, _insertedId)
-            // TODO move this to fragment when insertedId changes?
-            SyncPlaysByGameTask(getApplication() as BggApplication, p.gameId).executeAsyncTask()
+            repository.markAsDiscarded(it.internalId, _updatedId)
         }
     }
 
     fun send() {
         play.value?.data?.let {
-            val p = it.copy(
-                    updateTimestamp = System.currentTimeMillis(),
-            )
-            it.players.forEach { player ->
-                p.addPlayer(player)
-            }
-            repository.save(p, _insertedId)
-            // TODO move this to fragment when insertedId changes?
-            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+            repository.markAsUpdated(it.internalId, _updatedId)
         }
     }
 
     fun delete() {
         play.value?.data?.let {
-            val p = it.copy(
-                    length = 0,
-                    startTime = 0,
-                    deleteTimestamp = System.currentTimeMillis(),
-            )
-            it.players.forEach { player ->
-                p.addPlayer(player)
-            }
-            repository.save(p, _insertedId)
-            // TODO move this to fragment when insertedId changes?
-            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+            repository.markAsDeleted(it.internalId, _updatedId)
         }
     }
 }

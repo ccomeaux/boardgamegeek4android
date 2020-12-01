@@ -236,14 +236,37 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadLocationsAsLiveData(sortBy)
     }
 
-    fun markAsDeleted(internalId: Long) {
+    fun markAsDiscarded(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
         val values = contentValuesOf(
-                BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.DELETE_TIMESTAMP to 0,
                 BggContract.Plays.UPDATE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
         )
         application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
+            updatedId?.postValue(internalId)
+        }
+    }
+
+    fun markAsUpdated(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
+        val values = contentValuesOf(
+                BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+        )
+        application.appExecutors.diskIO.execute {
+            application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
+            updatedId?.postValue(internalId)
+        }
+    }
+
+    fun markAsDeleted(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
+        val values = contentValuesOf(
+                BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.UPDATE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+        )
+        application.appExecutors.diskIO.execute {
+            application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
+            updatedId?.postValue(internalId)
         }
     }
 

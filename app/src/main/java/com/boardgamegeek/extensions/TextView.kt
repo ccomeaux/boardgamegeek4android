@@ -73,7 +73,6 @@ fun View.setTextViewBackground(color: Int): Int {
 }
 
 fun TextView.setText(text: String, tf: Typeface, italic: Boolean, bold: Boolean, @ColorInt textColor: Int = Color.BLACK) {
-    setTextOrHide(text)
     if (text.isNotBlank()) {
         when {
             italic && bold -> setTypeface(tf, Typeface.BOLD_ITALIC)
@@ -83,6 +82,7 @@ fun TextView.setText(text: String, tf: Typeface, italic: Boolean, bold: Boolean,
         }
         setTextColor(textColor)
     }
+    setTextOrHide(text)
 }
 
 private fun fixInternalLinks(html: String): String {

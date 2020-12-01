@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -14,12 +15,16 @@ import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.CollectionActivity.Companion.createIntentForGameChange
 import com.boardgamegeek.ui.GameActivity.Companion.start
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.DialogUtils
+import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
+import com.boardgamegeek.util.UIUtils
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -78,7 +83,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             LogPlayActivity.endPlay(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl)
         }
         playersView.adapter = adapter
-        viewModel.play.observe(viewLifecycleOwner, {
+        viewModel.play.observe(viewLifecycleOwner) {
             swipeRefreshLayout?.post { swipeRefreshLayout?.isRefreshing = it?.status == Status.REFRESHING }
             val message = resources.getString(R.string.empty_play, internalId.toString())
             when {
@@ -92,7 +97,13 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                     requireActivity().invalidateOptionsMenu()
                 }
             }
-        })
+        }
+        viewModel.updatedId.observe(viewLifecycleOwner) {
+            Handler().postDelayed({
+                SyncService.sync(requireContext(), SyncService.FLAG_SYNC_PLAYS)
+                viewModel.refresh()
+            }, 200)
+        }
         viewModel.setId(internalId)
         thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
             override fun onSuccessfulImageLoad(palette: Palette?) {

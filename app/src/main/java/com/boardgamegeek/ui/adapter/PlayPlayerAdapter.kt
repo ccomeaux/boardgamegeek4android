@@ -15,6 +15,10 @@ import kotlinx.android.synthetic.main.row_play_player.view.*
 import java.text.DecimalFormat
 
 class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolder>() {
+    init {
+        setHasStableIds(false)
+    }
+
     var players: List<PlayPlayerEntity> = emptyList()
         set(value) {
             field = value
@@ -30,8 +34,6 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
     }
 
     override fun getItemCount() = players.size
-
-    override fun getItemId(position: Int) = position.toLong()
 
     inner class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val ratingFormat = DecimalFormat("0.0######")

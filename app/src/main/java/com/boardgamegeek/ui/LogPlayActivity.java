@@ -764,7 +764,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 		if (save()) {
 			if (internalIdToDelete != BggContract.INVALID_ID) {
 				PlayRepository playRepository = new PlayRepository((BggApplication) getApplication());
-				playRepository.markAsDeleted(internalIdToDelete);
+				playRepository.markAsDeleted(internalIdToDelete, null);
 			}
 			if (play.playId == 0 &&
 				(DateUtils.isToday(play.dateInMillis) ||
