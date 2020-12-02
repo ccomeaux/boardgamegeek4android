@@ -248,7 +248,6 @@ class NewPlayActivity : AppCompatActivity() {
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_GAME_NAME = "GAME_NAME"
 
-        @JvmStatic
         fun start(context: Context, gameId: Int, gameName: String) {
             context.startActivity<NewPlayActivity>(
                     KEY_GAME_ID to gameId,

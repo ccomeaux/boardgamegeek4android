@@ -52,9 +52,6 @@ class DeleteViewDialogFragment : DialogFragment() {
     }
 
     companion object {
-        @JvmStatic
-        fun newInstance(): DeleteViewDialogFragment {
-            return DeleteViewDialogFragment()
-        }
+        fun newInstance() = DeleteViewDialogFragment()
     }
 }

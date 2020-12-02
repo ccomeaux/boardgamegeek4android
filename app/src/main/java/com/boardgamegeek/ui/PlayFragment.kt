@@ -16,8 +16,6 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.ui.CollectionActivity.Companion.createIntentForGameChange
-import com.boardgamegeek.ui.GameActivity.Companion.start
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.boardgamegeek.util.DialogUtils
@@ -65,7 +63,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         super.onViewCreated(view, savedInstanceState)
         swipeRefreshLayout?.setBggColors()
         swipeRefreshLayout?.setOnRefreshListener { viewModel.refresh() }
-        headerContainer.setOnClickListener { start(requireContext(), gameId, gameName) }
+        headerContainer.setOnClickListener { GameActivity.start(requireContext(), gameId, gameName) }
         timerEndButton.setOnClickListener {
             LogPlayActivity.endPlay(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl)
         }
@@ -260,7 +258,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             }
             R.id.menu_change_game -> {
                 logDataManipulationAction("ChangeGame")
-                startActivity(createIntentForGameChange(requireContext(), internalId))
+                CollectionActivity.startForGameChange(requireContext(), internalId)
                 requireActivity().finish() // don't want to show the "old" play upon return
                 return true
             }
