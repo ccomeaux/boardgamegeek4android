@@ -6,18 +6,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build.VERSION_CODES;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
-import com.boardgamegeek.ui.PlayActivity;
-import com.boardgamegeek.util.LargeIconLoader.Callback;
-
-import org.jetbrains.annotations.NotNull;
 
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
@@ -28,7 +21,6 @@ public class NotificationUtils {
 	private static final String TAG_PREFIX = "com.boardgamegeek.";
 	public static final String TAG_PLAY_STATS = TAG_PREFIX + "PLAY_STATS";
 	public static final String TAG_PERSIST_ERROR = TAG_PREFIX + "PERSIST_ERROR";
-	public static final String TAG_PLAY_TIMER = TAG_PREFIX + "PLAY_TIMER";
 	public static final String TAG_PROVIDER_ERROR = TAG_PREFIX + "PROVIDER_ERROR";
 	public static final String TAG_SYNC_PROGRESS = TAG_PREFIX + "SYNC_PROGRESS";
 	public static final String TAG_SYNC_ERROR = TAG_PREFIX + "SYNC_ERROR";
@@ -181,53 +173,6 @@ public class NotificationUtils {
 	public static void cancel(Context context, String tag, long id) {
 		NotificationManagerCompat nm = NotificationManagerCompat.from(context);
 		nm.cancel(tag, getIntegerId(id));
-	}
-
-	/**
-	 * Launch the "Playing" notification.
-	 */
-	public static void launchPlayingNotification(final Context context, final long internalId, final Play play, final String thumbnailUrl, final String imageUrl, final String heroImageUrl, final boolean customPlayerSort) {
-		LargeIconLoader loader = new LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
-			@Override
-			public void onSuccessfulIconLoad(@NotNull Bitmap bitmap) {
-				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort, bitmap);
-			}
-
-			@Override
-			public void onFailedIconLoad() {
-				buildAndNotifyPlaying(context, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort,null);
-			}
-		});
-		loader.executeOnMainThread();
-	}
-
-	private static void buildAndNotifyPlaying(Context context, long internalId, Play play, String thumbnailUrl, String imageUrl, String heroImageUrl, boolean customPlayerSort, Bitmap largeIcon) {
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName, NotificationUtils.CHANNEL_ID_PLAYING);
-
-		Intent intent = PlayActivity.createIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-		String info = "";
-		if (!TextUtils.isEmpty(play.location)) {
-			info += context.getString(R.string.at) + " " + play.location + " ";
-		}
-		if (play.getPlayerCount() > 0) {
-			info += context.getResources().getQuantityString(R.plurals.player_description, play.getPlayerCount(), play.getPlayerCount());
-		}
-
-		builder
-			.setContentText(info.trim())
-			.setLargeIcon(largeIcon)
-			.setOnlyAlertOnce(true)
-			.setContentIntent(pendingIntent);
-		if (play.startTime > 0) {
-			builder.setWhen(play.startTime).setUsesChronometer(true);
-		}
-		if (largeIcon != null) {
-			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
-		}
-		NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_TIMER, getIntegerId(internalId), builder);
 	}
 
 	public static int getIntegerId(long id) {

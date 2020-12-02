@@ -70,7 +70,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.extensions.NotificationUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
@@ -1076,7 +1076,15 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
-			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted);
+			NotificationUtils.launchPlayingNotification(this,
+				internalId,
+				play.gameName,
+				play.location,
+				play.playerCount,
+				play.startTime,
+				thumbnailUrl,
+				imageUrl,
+				heroImageUrl);
 		}
 	}
 

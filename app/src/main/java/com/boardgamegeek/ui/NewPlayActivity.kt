@@ -17,7 +17,6 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
 import com.boardgamegeek.util.ImageUtils
-import com.boardgamegeek.util.NotificationUtils
 import kotlinx.android.synthetic.main.activity_new_play.*
 import org.jetbrains.anko.startActivity
 
@@ -43,11 +42,10 @@ class NewPlayActivity : AppCompatActivity() {
 
         viewModel.insertedId.observe(this, {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
-                this.cancel(NotificationUtils.TAG_PLAY_TIMER, it)
+                this.cancel(TAG_PLAY_TIMER, it)
                 SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
             } else {
                 launchPlayingNotification(it,
-                        gameId,
                         gameName,
                         viewModel.location.value.orEmpty(),
                         viewModel.addedPlayers.value?.size ?: 0,

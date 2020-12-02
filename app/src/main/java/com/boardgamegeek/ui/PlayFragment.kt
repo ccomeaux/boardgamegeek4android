@@ -35,19 +35,18 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     private var internalId = BggContract.INVALID_ID.toLong()
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
+    private var playId = BggContract.INVALID_ID
+    private var hasStarted = false
+    private var location = ""
+    private var playerCount = 0
+    private var startTime = 0L
     private var thumbnailUrl = ""
     private var imageUrl = ""
     private var heroImageUrl = ""
     private var customPlayerSort = false
-
-    private var playId = BggContract.INVALID_ID
-    private var hasStarted = false
-    private var isDirty = false
     private var shortDescription = ""
     private var longDescription = ""
-    private var location = ""
-    private var playerCount = 0
-    private var startTime = 0L
+    private var isDirty = false
     private var hasBeenNotified = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -57,21 +56,9 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        readBundle(arguments)
         firebaseAnalytics = Firebase.analytics
         hasBeenNotified = savedInstanceState?.getBoolean(KEY_HAS_BEEN_NOTIFIED) ?: false
         setHasOptionsMenu(true)
-    }
-
-    private fun readBundle(bundle: Bundle?) {
-        if (bundle == null) return
-        internalId = bundle.getLong(KEY_ID, BggContract.INVALID_ID.toLong())
-        gameId = bundle.getInt(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = bundle.getString(KEY_GAME_NAME).orEmpty()
-        thumbnailUrl = bundle.getString(KEY_THUMBNAIL_URL).orEmpty()
-        imageUrl = bundle.getString(KEY_IMAGE_URL).orEmpty()
-        heroImageUrl = bundle.getString(KEY_HERO_IMAGE_URL).orEmpty()
-        customPlayerSort = bundle.getBoolean(KEY_CUSTOM_PLAYER_SORT, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,16 +91,6 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                 viewModel.refresh()
             }, 200)
         }
-        viewModel.setId(internalId)
-        thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
-            override fun onSuccessfulImageLoad(palette: Palette?) {
-                if (gameNameView != null && isAdded) {
-                    gameNameView.setBackgroundResource(R.color.black_overlay_light)
-                }
-            }
-
-            override fun onFailedImageLoad() {}
-        })
     }
 
     private fun showError(message: String) {
@@ -124,14 +101,31 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     }
 
     private fun showData(play: PlayEntity) {
+        internalId = play.internalId
+        gameId = play.gameId
+        gameName = play.gameName
         playId = play.playId
         hasStarted = play.hasStarted()
         isDirty = play.dirtyTimestamp > 0
         location = play.location
         playerCount = play.playerCount
         startTime = play.startTime
+        thumbnailUrl = play.thumbnailUrl
+        imageUrl = play.imageUrl
+        heroImageUrl = play.heroImageUrl
+        customPlayerSort = play.arePlayersCustomSorted()
         shortDescription = getString(R.string.play_description_game_segment, gameName) + getString(R.string.play_description_date_segment, play.dateForDisplay(requireContext()))
         longDescription = play.describe(requireContext(), true)
+
+        thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageUtils.Callback {
+            override fun onSuccessfulImageLoad(palette: Palette?) {
+                if (gameNameView != null && isAdded) {
+                    gameNameView.setBackgroundResource(R.color.black_overlay_light)
+                }
+            }
+
+            override fun onFailedImageLoad() {}
+        })
 
         gameNameView.text = play.gameName
         dateView.text = play.dateForDisplay(requireContext())
@@ -300,8 +294,8 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     }
 
     private fun showNotification() {
-        requireContext().launchPlayingNotification(internalId,
-                gameId,
+        requireContext().launchPlayingNotification(
+                internalId,
                 gameName,
                 location,
                 playerCount,
@@ -309,7 +303,6 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                 thumbnailUrl,
                 imageUrl,
                 heroImageUrl,
-                customPlayerSort
         )
     }
 
@@ -318,26 +311,6 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     }
 
     companion object {
-        private const val KEY_ID = "ID"
-        private const val KEY_GAME_ID = "GAME_ID"
-        private const val KEY_GAME_NAME = "GAME_NAME"
-        private const val KEY_IMAGE_URL = "IMAGE_URL"
-        private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
-        private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
-        private const val KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT"
         private const val KEY_HAS_BEEN_NOTIFIED = "HAS_BEEN_NOTIFIED"
-        fun newInstance(internalId: Long, gameId: Int, gameName: String?, imageUrl: String?, thumbnailUrl: String?, heroImageUrl: String?, customPlayerSort: Boolean): PlayFragment {
-            val args = Bundle()
-            args.putLong(KEY_ID, internalId)
-            args.putInt(KEY_GAME_ID, gameId)
-            args.putString(KEY_GAME_NAME, gameName)
-            args.putString(KEY_IMAGE_URL, imageUrl)
-            args.putString(KEY_THUMBNAIL_URL, thumbnailUrl)
-            args.putString(KEY_HERO_IMAGE_URL, heroImageUrl)
-            args.putBoolean(KEY_CUSTOM_PLAYER_SORT, customPlayerSort)
-            val fragment = PlayFragment()
-            fragment.arguments = args
-            return fragment
-        }
     }
 }

@@ -1,3 +1,5 @@
+@file:JvmName("NotificationUtils")
+
 package com.boardgamegeek.extensions
 
 import android.app.PendingIntent
@@ -12,9 +14,11 @@ import com.boardgamegeek.util.NotificationUtils
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.newTask
 
+private const val TAG_PREFIX = "com.boardgamegeek."
+const val TAG_PLAY_TIMER = TAG_PREFIX + "PLAY_TIMER"
+
 fun Context.launchPlayingNotification(
         internalId: Long,
-        gameId: Int,
         gameName: String,
         location: String,
         playerCount: Int,
@@ -22,15 +26,14 @@ fun Context.launchPlayingNotification(
         thumbnailUrl: String = "",
         imageUrl: String = "",
         heroImageUrl: String = "",
-        customPlayerSort: Boolean = false,
 ) {
     val loader = LargeIconLoader(this, imageUrl, thumbnailUrl, heroImageUrl, object : LargeIconLoader.Callback {
         override fun onSuccessfulIconLoad(bitmap: Bitmap) {
-            buildAndNotifyPlaying(internalId, gameId, gameName, location, playerCount, startTime, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort, largeIcon = bitmap)
+            buildAndNotifyPlaying(internalId, gameName, location, playerCount, startTime, largeIcon = bitmap)
         }
 
         override fun onFailedIconLoad() {
-            buildAndNotifyPlaying(internalId, gameId, gameName, location, playerCount, startTime, thumbnailUrl, imageUrl, heroImageUrl,customPlayerSort)
+            buildAndNotifyPlaying(internalId, gameName, location, playerCount, startTime)
         }
     })
     loader.executeOnMainThread()
@@ -38,19 +41,13 @@ fun Context.launchPlayingNotification(
 
 private fun Context.buildAndNotifyPlaying(
         internalId: Long,
-        gameId: Int,
         gameName: String,
         location: String,
         playerCount: Int,
         startTime: Long,
-        thumbnailUrl: String,
-        imageUrl: String,
-        heroImageUrl: String,
-        customPlayerSort: Boolean,
         largeIcon: Bitmap? = null) {
     val builder = NotificationUtils.createNotificationBuilder(this, gameName, NotificationUtils.CHANNEL_ID_PLAYING)
-    val intent = PlayActivity.createIntent(this, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort)
-            .clearTop().newTask()
+    val intent = PlayActivity.createIntent(this, internalId).clearTop().newTask()
     val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
     var info = ""
@@ -65,7 +62,7 @@ private fun Context.buildAndNotifyPlaying(
     if (startTime > 0) builder.setWhen(startTime).setUsesChronometer(true)
     largeIcon?.let { builder.extend(NotificationCompat.WearableExtender().setBackground(it)) }
 
-    notify(NotificationUtils.TAG_PLAY_TIMER, internalId.toInt(), builder)
+    notify(TAG_PLAY_TIMER, internalId.toInt(), builder)
 }
 
 /**

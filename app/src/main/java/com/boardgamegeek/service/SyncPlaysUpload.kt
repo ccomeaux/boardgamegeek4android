@@ -63,15 +63,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.thumbnailUrl,
                     currentPlay.heroImageUrl)
         else
-            PlayActivity.createIntent(context,
-                    currentPlay.internalId,
-                    currentPlay.gameId,
-                    currentPlay.gameName,
-                    currentPlay.imageUrl,
-                    currentPlay.thumbnailUrl,
-                    currentPlay.heroImageUrl,
-                    currentPlay.customPlayerSort
-            )
+            PlayActivity.createIntent(context, currentPlay.internalId)
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_PLAY
 
