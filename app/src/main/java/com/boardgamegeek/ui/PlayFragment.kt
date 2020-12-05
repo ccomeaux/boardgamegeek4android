@@ -63,7 +63,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         super.onViewCreated(view, savedInstanceState)
         swipeRefreshLayout?.setBggColors()
         swipeRefreshLayout?.setOnRefreshListener { viewModel.refresh() }
-        headerContainer.setOnClickListener { GameActivity.start(requireContext(), gameId, gameName) }
+        thumbnailView.setOnClickListener { GameActivity.start(requireContext(), gameId, gameName) }
         timerEndButton.setOnClickListener {
             LogPlayActivity.endPlay(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl)
         }
@@ -117,9 +117,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
 
         thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageUtils.Callback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
-                if (gameNameView != null && isAdded) {
-                    gameNameView.setBackgroundResource(R.color.black_overlay_light)
-                }
+                if (isAdded) gameNameView?.setBackgroundResource(R.color.black_overlay_light)
             }
 
             override fun onFailedImageLoad() {}
@@ -131,25 +129,33 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         quantityView.text = resources.getQuantityString(R.plurals.times_suffix, play.quantity, play.quantity)
         quantityView.isVisible = play.quantity != 1
 
+        locationView.setTextOrHide(play.location)
+        locationLabel.isVisible = play.location.isNotBlank()
+
         when {
             play.length > 0 -> {
-                lengthContainer.isVisible = true
+                lengthLabel.isVisible = true
                 lengthView.text = play.length.asMinutes(requireContext())
                 lengthView.isVisible = true
-                timerContainer.isVisible = false
+                timerView.isVisible = false
                 timerView.stop()
+                timerEndButton.isVisible = false
             }
             play.hasStarted() -> {
-                lengthContainer.isVisible = true
-                lengthView.isVisible = false
-                timerContainer.isVisible = true
+                lengthLabel.isVisible = true
+                lengthView.text = ""
+                lengthView.isVisible = true
+                timerView.isVisible = true
                 UIUtils.startTimerWithSystemTime(timerView, play.startTime)
+                timerEndButton.isVisible = true
             }
-            else -> lengthContainer.isVisible = false
+            else -> {
+                lengthLabel.isVisible = false
+                lengthView.isVisible = false
+                timerView.isVisible = false
+                timerEndButton.isVisible = false
+            }
         }
-
-        locationView.text = play.location
-        locationContainer.isVisible = play.location.isNotBlank()
 
         incompleteView.isVisible = play.incomplete
         noWinStatsView.isVisible = play.noWinStats
@@ -212,9 +218,9 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.menu_send).isVisible = isDirty
-        menu.findItem(R.id.menu_discard).isVisible = playId > 0 && isDirty
-        menu.findItem(R.id.menu_share).isEnabled = playId > 0
+        menu.findItem(R.id.menu_send)?.isVisible = isDirty
+        menu.findItem(R.id.menu_discard)?.isVisible = playId > 0 && isDirty
+        menu.findItem(R.id.menu_share)?.isEnabled = playId > 0
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

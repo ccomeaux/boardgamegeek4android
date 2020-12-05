@@ -17,6 +17,7 @@
 	<dimen name="edit_row_height">48dp</dimen>
 	<dimen name="form_row_height">56dp</dimen>
 	<dimen name="game_detail_row_height">48dp</dimen>
+	<dimen name="play_detail_row_height">32dp</dimen>
 	<dimen name="edit_label_width">56dp</dimen>
 	<dimen name="player_row_height">56dp</dimen>
 	<dimen name="thumbnail_list_size">56dp</dimen>
@@ -56,6 +57,6 @@
 	<dimen name="material_progress_bar_unclipped_height">24dp</dimen>
 	<dimen name="recycler_section_header_height">32dp</dimen>
 	<dimen name="chip_group_height">48dp</dimen>
-	<string name="hero_aspect_ratio">H,16:9</string>
+	<string name="hero_aspect_ratio" translatable="false">H,16:9</string>
 
 </resources>
