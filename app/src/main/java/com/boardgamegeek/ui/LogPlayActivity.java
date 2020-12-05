@@ -1439,7 +1439,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					UIUtils.startTimerWithSystemTime(timerView, play.startTime);
 					canEdit = true;
 					if (play.hasStarted()) {
-						lengthViewRoot.setVisibility(View.GONE);
+						lengthViewRoot.setVisibility(View.INVISIBLE);
 						timerView.setVisibility(View.VISIBLE);
 					} else {
 						lengthViewRoot.setVisibility(View.VISIBLE);
