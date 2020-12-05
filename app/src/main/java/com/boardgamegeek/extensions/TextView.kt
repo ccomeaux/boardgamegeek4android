@@ -10,10 +10,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
-import com.boardgamegeek.R
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.text = text
@@ -29,7 +27,6 @@ fun TextView.setTextOrHide(@StringRes textResId: Int) {
     }
 }
 
-@JvmOverloads
 fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true, tagHandler: Html.TagHandler? = null) {
     when {
         text == null -> this.text = ""
