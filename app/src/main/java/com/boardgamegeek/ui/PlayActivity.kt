@@ -35,8 +35,6 @@ class PlayActivity : SimpleSinglePaneActivity() {
 
     override fun onCreatePane(intent: Intent) = PlayFragment()
 
-    // TODO finish activity when delete is successful
-
     companion object {
         private const val KEY_ID = "ID"
 
