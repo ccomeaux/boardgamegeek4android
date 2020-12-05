@@ -30,10 +30,11 @@ class MechanicActivity : SimpleSinglePaneActivity() {
     override val optionsMenuId = R.menu.mechanic
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_view) {
+        return if (item.itemId == R.id.menu_view) {
             linkToBgg("boardgamemechanic", id)
-        }
-        return super.onOptionsItemSelected(item)
+            true
+        } else
+            super.onOptionsItemSelected(item)
     }
 
     companion object {
