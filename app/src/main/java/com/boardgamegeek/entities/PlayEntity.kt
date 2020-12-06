@@ -3,10 +3,7 @@ package com.boardgamegeek.entities
 import android.content.Context
 import android.text.format.DateUtils
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.asPastDaySpan
-import com.boardgamegeek.extensions.asTime
-import com.boardgamegeek.extensions.forDatabase
-import com.boardgamegeek.extensions.toMillis
+import com.boardgamegeek.extensions.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,10 +54,6 @@ data class PlayEntity(
         _players.add(player)
     }
 
-    private fun hasStartingPositions(): Boolean {
-        return _players.all { !it.startingPosition.isNullOrBlank() }
-    }
-
     /**
      * Determine if the starting positions indicate the players are custom sorted.
      */
@@ -72,6 +65,14 @@ data class PlayEntity(
             if (!foundSeat) return true
         }
         return true
+    }
+
+    private fun hasStartingPositions(): Boolean {
+        return _players.all { !it.startingPosition.isNullOrBlank() }
+    }
+
+    private fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
+        return players.find { it.seat == seat }
     }
 
     fun generateSyncHashCode(): Int {
@@ -108,6 +109,38 @@ data class PlayEntity(
         if (length > 0) info.append(context.getString(R.string.play_description_length_segment, length.asTime()))
         if (playerCount > 0) info.append(context.resources.getQuantityString(R.plurals.play_description_players_segment, playerCount, playerCount))
         return info.trim().toString()
+    }
+
+    fun toLongDescription(context: Context): String {
+        val sb = StringBuilder()
+        sb.append(context.getString(R.string.play_description_game_segment, gameName))
+        if (dateInMillis != UNKNOWN_DATE) sb.append(context.getString(R.string.play_description_date_segment, dateInMillis.asDate(context, includeWeekDay = true)))
+        if (quantity > 1) sb.append(context.resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity))
+        if (location.isNotBlank()) sb.append(context.getString(R.string.play_description_location_segment, location))
+        if (length > 0) sb.append(context.getString(R.string.play_description_length_segment, length.asTime()))
+        if (players.isNotEmpty()) {
+            sb.append(" ").append(context.getString(R.string.with))
+            if (arePlayersCustomSorted()) {
+                for (player in players) {
+                    sb.append("\n").append(player.toLongDescription(context))
+                }
+            } else {
+                for (i in players.indices) {
+                    getPlayerAtSeat(i + 1)?.let { player ->
+                        sb.append("\n").append(player.toLongDescription(context))
+                    }
+                }
+            }
+        }
+        if (comments.isNotBlank()) {
+            sb.append("\n\n").append(comments)
+        }
+        if (playId > 0) {
+            sb.append("\n\n").append(context.getString(R.string.play_description_play_url_segment, playId.toString()).trim())
+        } else {
+            sb.append("\n\n").append(context.getString(R.string.play_description_game_url_segment, gameId.toString()).trim())
+        }
+        return sb.toString()
     }
 
     companion object {

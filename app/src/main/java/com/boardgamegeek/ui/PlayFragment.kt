@@ -114,8 +114,8 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         imageUrl = play.imageUrl
         heroImageUrl = play.heroImageUrl
         customPlayerSort = play.arePlayersCustomSorted()
-        shortDescription = getString(R.string.play_description_game_segment, gameName) + getString(R.string.play_description_date_segment, play.dateForDisplay(requireContext()))
-        longDescription = play.describe(requireContext(), true)
+        shortDescription = getString(R.string.play_description_game_segment, gameName) + getString(R.string.play_description_date_segment, play.dateInMillis.asDate(requireContext()))
+        longDescription = play.toLongDescription(requireContext())
 
         thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageUtils.Callback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
@@ -222,7 +222,6 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.menu_send)?.isVisible = isDirty
         menu.findItem(R.id.menu_discard)?.isVisible = playId > 0 && isDirty
-        menu.findItem(R.id.menu_share)?.isEnabled = playId > 0
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
