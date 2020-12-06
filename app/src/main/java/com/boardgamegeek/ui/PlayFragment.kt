@@ -28,6 +28,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_play.*
+import org.jetbrains.anko.support.v4.longToast
 
 class PlayFragment : Fragment(R.layout.fragment_play) {
     private var internalId = BggContract.INVALID_ID.toLong()
@@ -74,7 +75,8 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             when {
                 it?.data == null -> showError(message)
                 it.status == Status.ERROR -> {
-                    showError(if (it.message.isNotBlank()) it.message else message)
+                    showData(it.data)
+                    longToast(if (it.message.isNotBlank()) it.message else message)
                 }
                 else -> {
                     showData(it.data)
