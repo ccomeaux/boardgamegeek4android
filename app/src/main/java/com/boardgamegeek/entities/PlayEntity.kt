@@ -1,7 +1,6 @@
 package com.boardgamegeek.entities
 
 import android.content.Context
-import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import java.text.SimpleDateFormat
@@ -61,7 +60,7 @@ data class PlayEntity(
         if (_players.size == 0) return false
         if (!hasStartingPositions()) return true
         for (i in 1.._players.size) {
-            val foundSeat = (_players.find { it.seat == i } != null)
+            val foundSeat = (getPlayerAtSeat(i) != null)
             if (!foundSeat) return true
         }
         return true
@@ -71,7 +70,7 @@ data class PlayEntity(
         return _players.all { !it.startingPosition.isNullOrBlank() }
     }
 
-    private fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
+    fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
         return players.find { it.seat == seat }
     }
 
@@ -102,8 +101,7 @@ data class PlayEntity(
         val info = StringBuilder()
         if (quantity > 1) info.append(context.resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity))
         if (includeDate && dateInMillis != UNKNOWN_DATE) {
-            val date = DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_WEEKDAY)
-            info.append(context.getString(R.string.play_description_date_segment, date))
+            info.append(context.getString(R.string.play_description_date_segment, dateInMillis.asDate(context, includeWeekDay = true)))
         }
         if (location.isNotBlank()) info.append(context.getString(R.string.play_description_location_segment, location))
         if (length > 0) info.append(context.getString(R.string.play_description_length_segment, length.asTime()))
@@ -111,41 +109,9 @@ data class PlayEntity(
         return info.trim().toString()
     }
 
-    fun toLongDescription(context: Context): String {
-        val sb = StringBuilder()
-        sb.append(context.getString(R.string.play_description_game_segment, gameName))
-        if (dateInMillis != UNKNOWN_DATE) sb.append(context.getString(R.string.play_description_date_segment, dateInMillis.asDate(context, includeWeekDay = true)))
-        if (quantity > 1) sb.append(context.resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity))
-        if (location.isNotBlank()) sb.append(context.getString(R.string.play_description_location_segment, location))
-        if (length > 0) sb.append(context.getString(R.string.play_description_length_segment, length.asTime()))
-        if (players.isNotEmpty()) {
-            sb.append(" ").append(context.getString(R.string.with))
-            if (arePlayersCustomSorted()) {
-                for (player in players) {
-                    sb.append("\n").append(player.toLongDescription(context))
-                }
-            } else {
-                for (i in players.indices) {
-                    getPlayerAtSeat(i + 1)?.let { player ->
-                        sb.append("\n").append(player.toLongDescription(context))
-                    }
-                }
-            }
-        }
-        if (comments.isNotBlank()) {
-            sb.append("\n\n").append(comments)
-        }
-        if (playId > 0) {
-            sb.append("\n\n").append(context.getString(R.string.play_description_play_url_segment, playId.toString()).trim())
-        } else {
-            sb.append("\n\n").append(context.getString(R.string.play_description_game_url_segment, gameId.toString()).trim())
-        }
-        return sb.toString()
-    }
-
     companion object {
         private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        private const val UNKNOWN_DATE: Long = -1L
+        const val UNKNOWN_DATE: Long = -1L
 
         fun currentDate(): String {
             val c = Calendar.getInstance()
