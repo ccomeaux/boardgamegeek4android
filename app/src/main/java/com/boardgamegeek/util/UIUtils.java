@@ -30,16 +30,4 @@ public class UIUtils {
 		if (inputMethodManager != null)
 			inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
 	}
-
-	public static void showMenuItem(Menu menu, int itemId, boolean visible) {
-		MenuItem menuItem = menu.findItem(itemId);
-		if (menuItem == null) return;
-		menuItem.setVisible(visible);
-	}
-
-	public static void enableMenuItem(Menu menu, int itemId, boolean enabled) {
-		MenuItem menuItem = menu.findItem(itemId);
-		if (menuItem == null) return;
-		menuItem.setEnabled(enabled);
-	}
 }

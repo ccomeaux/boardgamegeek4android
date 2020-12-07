@@ -113,7 +113,6 @@ class SaveViewDialogFragment : DialogFragment() {
         private const val KEY_NAME = "title_id"
         private const val KEY_DESCRIPTION = "color_count"
 
-        @JvmStatic
         fun newInstance(name: String, description: String): SaveViewDialogFragment {
             return SaveViewDialogFragment().apply {
                 arguments = Bundle().apply {

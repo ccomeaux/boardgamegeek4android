@@ -198,8 +198,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_FROM_SHORTCUT = "FROM_SHORTCUT"
 
-        @JvmOverloads
-        @JvmStatic
         fun start(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
                     ?: return

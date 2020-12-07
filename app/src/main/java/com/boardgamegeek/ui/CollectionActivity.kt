@@ -21,10 +21,7 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.clearTask
-import org.jetbrains.anko.defaultSharedPreferences
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.newTask
+import org.jetbrains.anko.*
 
 class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogFragment.Listener {
     private var viewId: Long = 0
@@ -141,16 +138,16 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
         fun createIntentAsShortcut(context: Context, viewId: Long): Intent {
-            val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
+            return context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
                     .clearTask()
                     .newTask()
-            intent.action = Intent.ACTION_VIEW
-            return intent
+                    .apply {
+                        action = Intent.ACTION_VIEW
+                    }
         }
 
-        @JvmStatic
-        fun createIntentForGameChange(context: Context, playId: Long): Intent {
-            return context.intentFor<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
+        fun startForGameChange(context: Context, playId: Long) {
+            context.startActivity<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
         }
     }
 }

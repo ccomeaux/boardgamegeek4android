@@ -74,7 +74,6 @@ class CollectionFilterDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_FILTER_TYPES = "filter_types"
 
-        @JvmStatic
         fun newInstance(filterTypes: List<Int>): CollectionFilterDialogFragment {
             return CollectionFilterDialogFragment().apply {
                 arguments = Bundle().apply {

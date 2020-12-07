@@ -70,7 +70,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.extensions.NotificationUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
@@ -228,8 +228,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
+	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, Boolean customPlayerSort) {
+		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		context.startActivity(intent);
 	}
 
@@ -239,8 +239,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		context.startActivity(intent);
 	}
 
-	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
+	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, Boolean customPlayerSort) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
@@ -764,7 +764,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 		if (save()) {
 			if (internalIdToDelete != BggContract.INVALID_ID) {
 				PlayRepository playRepository = new PlayRepository((BggApplication) getApplication());
-				playRepository.markAsDeleted(internalIdToDelete);
+				playRepository.markAsDeleted(internalIdToDelete, null);
 			}
 			if (play.playId == 0 &&
 				(DateUtils.isToday(play.dateInMillis) ||
@@ -1076,7 +1076,15 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
-			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
+			NotificationUtils.launchPlayingNotification(this,
+				internalId,
+				play.gameName,
+				play.location,
+				play.playerCount,
+				play.startTime,
+				thumbnailUrl,
+				imageUrl,
+				heroImageUrl);
 		}
 	}
 
@@ -1431,7 +1439,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					UIUtils.startTimerWithSystemTime(timerView, play.startTime);
 					canEdit = true;
 					if (play.hasStarted()) {
-						lengthViewRoot.setVisibility(View.GONE);
+						lengthViewRoot.setVisibility(View.INVISIBLE);
 						timerView.setVisibility(View.VISIBLE);
 					} else {
 						lengthViewRoot.setVisibility(View.VISIBLE);

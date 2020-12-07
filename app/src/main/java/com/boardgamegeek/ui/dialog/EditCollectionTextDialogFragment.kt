@@ -60,7 +60,6 @@ class EditCollectionTextDialogFragment : DialogFragment() {
         private const val KEY_TEXT_COLUMN = "text_column"
         private const val KEY_TIMESTAMP_COLUMN = "timestamp_column"
 
-        @JvmStatic
         fun newInstance(title: String, text: String?, textColumn: String, timestampColumn: String): EditCollectionTextDialogFragment {
             return EditCollectionTextDialogFragment().apply {
                 arguments = Bundle().apply {

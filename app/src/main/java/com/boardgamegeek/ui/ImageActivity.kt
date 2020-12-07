@@ -67,7 +67,6 @@ class ImageActivity : AppCompatActivity() {
     companion object {
         private const val KEY_IMAGE_URL = "IMAGE_URL"
 
-        @JvmStatic
         fun start(context: Context, imageUrl: String?) {
             if (imageUrl.isNullOrBlank()) {
                 Timber.w("Missing the required image URL.")

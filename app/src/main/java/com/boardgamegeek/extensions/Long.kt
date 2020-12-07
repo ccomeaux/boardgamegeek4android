@@ -17,9 +17,19 @@ fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.ne
     return if (this == 0L)
         context.getString(zeroResId)
     else {
-        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_MONTH
+        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_ALL
         if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
         getRelativeTimeSpanString(this, System.currentTimeMillis(), DAY_IN_MILLIS, flags)
+    }
+}
+
+fun Long.asDate(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
+    return if (this == 0L)
+        context.getString(zeroResId)
+    else {
+        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_ALL
+        if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
+        formatDateTime(context, this, flags)
     }
 }
 

@@ -901,6 +901,10 @@ public class BggContract {
 		 * content://com.boardgamegeek/plays/#
 		 */
 		public static Uri buildPlayUri(long internalId) {
+			return CONTENT_SIMPLE_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
+		}
+
+		public static Uri buildPlayWithGameUri(long internalId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
 		}
 
