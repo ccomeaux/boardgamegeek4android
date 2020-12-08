@@ -65,7 +65,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         viewModel.play.observe(viewLifecycleOwner) {
             swipeRefreshLayout?.post { swipeRefreshLayout?.isRefreshing = it?.status == Status.REFRESHING }
             play = it.data
-            val message = resources.getString(R.string.empty_play, play?.internalId.toString())
+            val message = resources.getString(R.string.empty_play)
             when {
                 it?.data == null -> showError(message)
                 it.status == Status.ERROR -> {
