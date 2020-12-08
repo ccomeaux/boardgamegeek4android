@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.logQuickPlay
 import com.boardgamegeek.extensions.shareGame
 import com.boardgamegeek.provider.BggContract
@@ -160,7 +161,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_view -> {
-                ActivityUtils.linkBgg(this, gameId);
+                linkToBgg("boardgame",gameId);
                 return true
             }
         }
