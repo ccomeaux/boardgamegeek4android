@@ -4,6 +4,6 @@ import org.simpleframework.xml.ElementList;
 
 import java.util.List;
 
-public class CompanyResponse2 {
+public class CompanyResponse {
 	@ElementList(inline = true, required = false) public List<CompanyItem> items;
 }

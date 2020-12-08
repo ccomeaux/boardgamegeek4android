@@ -7,7 +7,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.model.CompanyResponse2
+import com.boardgamegeek.io.model.CompanyItem
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
@@ -105,20 +105,18 @@ class PublisherDao(private val context: BggApplication) {
         }
     }
 
-    fun savePublisher(publisher: CompanyResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (publisher != null) {
-            publisher.items[0]?.let {
-                val sortName = if (it.nameType == "primary") it.name.sortName(it.sortindex) else it.name
-                val values = contentValuesOf(
-                        Publishers.PUBLISHER_NAME to it.name,
-                        Publishers.PUBLISHER_SORT_NAME to sortName,
-                        Publishers.PUBLISHER_DESCRIPTION to it.description,
-                        Publishers.PUBLISHER_IMAGE_URL to it.image,
-                        Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnail,
-                        Publishers.UPDATED to updateTime
-                )
-                return upsert(values, it.id.toIntOrNull() ?: BggContract.INVALID_ID)
-            }
+    fun savePublisher(item: CompanyItem?, updateTime: Long = System.currentTimeMillis()): Int {
+        item?.let {
+            val sortName = if (it.nameType == "primary") it.name.sortName(it.sortindex) else it.name
+            val values = contentValuesOf(
+                    Publishers.PUBLISHER_NAME to it.name,
+                    Publishers.PUBLISHER_SORT_NAME to sortName,
+                    Publishers.PUBLISHER_DESCRIPTION to it.description,
+                    Publishers.PUBLISHER_IMAGE_URL to it.image,
+                    Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnail,
+                    Publishers.UPDATED to updateTime
+            )
+            return upsert(values, it.id.toIntOrNull() ?: BggContract.INVALID_ID)
         }
         return 0
     }
