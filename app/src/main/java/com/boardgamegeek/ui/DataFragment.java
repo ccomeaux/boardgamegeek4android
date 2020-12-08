@@ -3,8 +3,6 @@ package com.boardgamegeek.ui;
 import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -34,9 +32,8 @@ import com.boardgamegeek.ui.widget.DataStepRow;
 import com.boardgamegeek.ui.widget.DataStepRow.Listener;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,7 +47,6 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class DataFragment extends Fragment implements Listener {
@@ -60,11 +56,18 @@ public class DataFragment extends Fragment implements Listener {
 	private static final String ANSWERS_EVENT_NAME = "DataManagement";
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 
+	private FirebaseAnalytics firebaseAnalytics;
+
 	private Unbinder unbinder;
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
 	private String currentType;
 
-	@DebugLog
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,21 +82,19 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	private void createDataRow(String type, @StringRes int typeResId, @StringRes int descriptionResId) {
-		DataStepRow row = new DataStepRow(getContext());
+		DataStepRow row = new DataStepRow(requireContext());
 		row.setListener(this);
 		row.bind(type, typeResId, descriptionResId);
 		row.setTag(type);
 		fileTypesView.addView(row);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
@@ -107,7 +108,7 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@Nullable
-	private JsonExportTask getExportTask(String type, Uri uri) {
+	private JsonExportTask<?> getExportTask(String type, Uri uri) {
 		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
@@ -121,7 +122,7 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	@Nullable
-	private JsonImportTask getImportTask(String type, Uri uri) {
+	private JsonImportTask<?> getImportTask(String type, Uri uri) {
 		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
@@ -139,18 +140,15 @@ public class DataFragment extends Fragment implements Listener {
 		if (FileUtils.shouldUseDefaultFolders()) {
 			DialogUtils.createConfirmationDialog(getActivity(),
 				R.string.msg_export_confirmation,
-				new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (PackageManager.PERMISSION_GRANTED ==
-							ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
-							performExport(type, null);
-						} else {
-							if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
-								showSnackbar(R.string.msg_export_permission_rationale);
-							}
-							requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, REQUEST_PERMISSIONS);
+				(dialog, which) -> {
+					if (PackageManager.PERMISSION_GRANTED ==
+						ContextCompat.checkSelfPermission(requireContext(), permission.WRITE_EXTERNAL_STORAGE)) {
+						performExport(type, null);
+					} else {
+						if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
+							showSnackbar(R.string.msg_export_permission_rationale);
 						}
+						requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, REQUEST_PERMISSIONS);
 					}
 				}).show();
 		} else {
@@ -168,12 +166,7 @@ public class DataFragment extends Fragment implements Listener {
 		if (FileUtils.shouldUseDefaultFolders()) {
 			DialogUtils.createConfirmationDialog(getActivity(),
 				R.string.msg_import_confirmation,
-				new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						performImport(type, null);
-					}
-				}).show();
+				(dialog, which) -> performImport(type, null)).show();
 		} else {
 			currentType = type;
 			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -194,7 +187,7 @@ public class DataFragment extends Fragment implements Listener {
 
 		try {
 			int modeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-			getContext().getContentResolver().takePersistableUriPermission(uri, modeFlags);
+			requireContext().getContentResolver().takePersistableUriPermission(uri, modeFlags);
 		} catch (SecurityException e) {
 			Timber.e(e, "Could not persist URI permissions for '%s'.", uri.toString());
 		}
@@ -219,40 +212,36 @@ public class DataFragment extends Fragment implements Listener {
 		}
 	}
 
-	@DebugLog
 	private void performExport(String type, Uri uri) {
-		JsonExportTask task = getExportTask(type, uri);
+		JsonExportTask<?> task = getExportTask(type, uri);
 		if (task == null) {
 			Timber.i("No task found for %s", type);
 			return;
 		}
 		DataStepRow row = findRow(type);
 		if (row != null) row.initProgressBar();
-		//noinspection unchecked
-		TaskUtils.<Void>executeAsyncTask(task);
-		logAnswer("Export");
+		TaskUtils.executeAsyncTask(task);
+		logAction("Export");
 	}
 
-	@DebugLog
 	private void performImport(String type, Uri uri) {
-		JsonImportTask task = getImportTask(type, uri);
+		JsonImportTask<?> task = getImportTask(type, uri);
 		if (task == null) {
 			Timber.i("No task found for %s", type);
 			return;
 		}
 		DataStepRow row = findRow(type);
 		if (row != null) row.initProgressBar();
-		//noinspection unchecked
-		TaskUtils.<Void>executeAsyncTask(task);
-		logAnswer("Import");
+		TaskUtils.executeAsyncTask(task);
+		logAction("Import");
 	}
 
-	private void logAnswer(String action) {
-		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, action));
+	private void logAction(String action) {
+		Bundle bundle = new Bundle();
+		bundle.putString(ANSWERS_ATTRIBUTE_KEY_ACTION, action);
+		firebaseAnalytics.logEvent(ANSWERS_EVENT_NAME, bundle);
 	}
 
-	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportFinishedEvent event) {
 		DataStepRow row = findRow(event.getType());
@@ -260,8 +249,6 @@ public class DataFragment extends Fragment implements Listener {
 		notifyEnd(event.getErrorMessage(), R.string.msg_export_success, R.string.msg_export_failed);
 	}
 
-	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportFinishedEvent event) {
 		DataStepRow row = findRow(event.getType());
@@ -269,16 +256,12 @@ public class DataFragment extends Fragment implements Listener {
 		notifyEnd(event.getErrorMessage(), R.string.msg_import_success, R.string.msg_import_failed);
 	}
 
-	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportProgressEvent event) {
 		DataStepRow row = findRow(event.getType());
 		if (row != null) row.updateProgressBar(event.getTotalCount(), event.getCurrentCount());
 	}
 
-	@DebugLog
-	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportProgressEvent event) {
 		DataStepRow row = findRow(event.getType());

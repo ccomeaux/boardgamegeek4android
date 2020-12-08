@@ -70,19 +70,17 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
-import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.extensions.NotificationUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.fabric.AddFieldEvent;
-import com.boardgamegeek.util.fabric.PlayManipulationEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -120,7 +118,6 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class LogPlayActivity extends AppCompatActivity implements
@@ -157,6 +154,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final int TOKEN_UNINITIALIZED = 1 << 15;
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.#########");
 
+	private FirebaseAnalytics firebaseAnalytics;
 	private long internalId = BggContract.INVALID_ID;
 	private int gameId;
 	private String gameName;
@@ -215,7 +213,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 	}
 
 	public static void editPlay(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		PlayManipulationEvent.log("Edit", gameName);
+		Bundle bundle = new Bundle();
+		bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Play");
+		bundle.putString("Action", "Edit");
+		bundle.putString("GameName", gameName);
+		FirebaseAnalytics.getInstance(context).logEvent("DataManipulation", bundle);
 		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
 		context.startActivity(intent);
 	}
@@ -226,8 +228,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		context.startActivity(intent);
 	}
 
-	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl);
+	public static void rematch(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, Boolean customPlayerSort) {
+		Intent intent = createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		context.startActivity(intent);
 	}
 
@@ -237,8 +239,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		context.startActivity(intent);
 	}
 
-	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl) {
-		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false);
+	public static Intent createRematchIntent(Context context, long internalId, int gameId, String gameName, String thumbnailUrl, String imageUrl, String heroImageUrl, Boolean customPlayerSort) {
+		Intent intent = createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort);
 		intent.putExtra(KEY_REMATCH, true);
 		return intent;
 	}
@@ -263,7 +265,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 			super(cr);
 		}
 
-		@DebugLog
 		@Override
 		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 			// If the query didn't return a cursor for some reason return
@@ -334,7 +335,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void setModelIfDone(int queryType) {
 		synchronized (this) {
 			outstandingQueries &= ~queryType;
@@ -368,7 +368,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void finishDataLoad() {
 		outstandingQueries = 0;
 		if (isRequestingToEndPlay) {
@@ -382,10 +381,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 		recyclerView.setVisibility(View.VISIBLE);
 	}
 
-	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
 		setContentView(R.layout.activity_logplay);
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -581,14 +581,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 		fab.postDelayed(() -> fab.show(), 2000);
 	}
 
-	@DebugLog
 	@Override
 	protected void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
 	}
 
-	@DebugLog
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -597,7 +595,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.refresh();
 	}
 
-	@DebugLog
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -617,7 +614,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		outState.putBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED, arePlayersCustomSorted);
 	}
 
-	@DebugLog
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -627,14 +623,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	@Override
 	protected void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
 	}
 
-	@DebugLog
 	@Override
 	public void onBackPressed() {
 		saveDraft(true);
@@ -642,7 +636,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		finish();
 	}
 
-	@DebugLog
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -675,11 +668,9 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ColorAssignmentCompleteEvent event) {
-		Answers.getInstance().logCustom(new CustomEvent("LogPlayColorAssignment"));
+		firebaseAnalytics.logEvent("LogPlayColorAssignment", null);
 		EventBus.getDefault().removeStickyEvent(event);
 		if (event.isSuccessful()) {
 			playAdapter.notifyPlayersChanged();
@@ -689,48 +680,39 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void setUpShowcaseViewWizard() {
 		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION);
 		showcaseWizard.addTarget(R.string.help_logplay, Target.NONE);
 	}
 
-	@DebugLog
 	private boolean shouldHideLocation() {
 		return play != null && !PreferenceUtils.showLogPlayLocation(prefs) && !isUserShowingLocation && TextUtils.isEmpty(play.location);
 	}
 
-	@DebugLog
 	private boolean shouldHideLength() {
 		return play != null && !PreferenceUtils.showLogPlayLength(prefs) && !isUserShowingLength && !(play.length > 0) && !play.hasStarted();
 	}
 
-	@DebugLog
 	private boolean shouldHideQuantity() {
 		return play != null && !PreferenceUtils.showLogPlayQuantity(prefs) && !isUserShowingQuantity && !(play.quantity > 1);
 	}
 
-	@DebugLog
 	private boolean shouldHideIncomplete() {
 		return play != null && !PreferenceUtils.showLogPlayIncomplete(prefs) && !isUserShowingIncomplete && !play.incomplete;
 	}
 
-	@DebugLog
 	private boolean shouldHideNoWinStats() {
 		return play != null && !PreferenceUtils.showLogPlayNoWinStats(prefs) && !isUserShowingNoWinStats && !play.noWinStats;
 	}
 
-	@DebugLog
 	private boolean shouldHideComments() {
 		return play != null && !PreferenceUtils.showLogPlayComments(prefs) && !isUserShowingComments && TextUtils.isEmpty(play.comments);
 	}
 
-	@DebugLog
 	private boolean shouldHidePlayers() {
 		return play != null && !PreferenceUtils.showLogPlayPlayerList(prefs) && !isUserShowingPlayers && (play.getPlayerCount() == 0);
 	}
 
-	@DebugLog
 	private void startQuery() {
 		if (play != null) {
 			// we already have the play from the saved instance
@@ -754,7 +736,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
@@ -776,7 +757,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void logPlay() {
 		play.updateTimestamp = System.currentTimeMillis();
 		play.deleteTimestamp = 0;
@@ -784,7 +764,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 		if (save()) {
 			if (internalIdToDelete != BggContract.INVALID_ID) {
 				PlayRepository playRepository = new PlayRepository((BggApplication) getApplication());
-				playRepository.markAsDeleted(internalIdToDelete);
+				playRepository.markAsDeleted(internalIdToDelete, null);
 			}
 			if (play.playId == 0 &&
 				(DateUtils.isToday(play.dateInMillis) ||
@@ -802,7 +782,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		finish();
 	}
 
-	@DebugLog
 	private void saveDraft(boolean showToast) {
 		if (play == null) return;
 		play.dirtyTimestamp = System.currentTimeMillis();
@@ -824,7 +803,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return true;
 	}
 
-	@DebugLog
 	private void cancel() {
 		shouldSaveOnPause = false;
 		if (play == null) {
@@ -855,12 +833,10 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void triggerUpload() {
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
-	@DebugLog
 	@OnClick(R.id.fab)
 	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
@@ -896,12 +872,16 @@ public class LogPlayActivity extends AppCompatActivity implements
 					isUserShowingPlayers = true;
 					playAdapter.insertRow(R.layout.row_log_play_add_player);
 				}
-				AddFieldEvent.log("Play", selection);
+
+				Bundle bundle = new Bundle();
+				bundle.putString(Param.CONTENT_TYPE, "Play");
+				bundle.putString(Param.ITEM_NAME, selection);
+				firebaseAnalytics.logEvent("AddField", bundle);
+
 				supportInvalidateOptionsMenu();
 			}).show();
 	}
 
-	@DebugLog
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<>();
@@ -918,7 +898,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return array;
 	}
 
-	@DebugLog
 	private boolean containsPlayer(String username, String name) {
 		for (Player p : play.getPlayers()) {
 			if (!TextUtils.isEmpty(username)) {
@@ -934,7 +913,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return false;
 	}
 
-	@DebugLog
 	private boolean showPlayersToAddDialog() {
 		if (addPlayersBuilder == null) {
 			addPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
@@ -999,8 +977,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
-
 	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
 		return (dialog, which) -> {
 			play.setPlayers(playersToAdd);
@@ -1020,7 +996,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.notifyPlayersChanged();
 	}
 
-	@DebugLog
 	private void promptPickStartPlayer() {
 		CharSequence[] array = createArrayOfPlayerDescriptions();
 		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
@@ -1032,7 +1007,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 			.show();
 	}
 
-	@DebugLog
 	private CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
 		List<CharSequence> list = new ArrayList<>();
@@ -1049,7 +1023,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		return array;
 	}
 
-	@DebugLog
 	private void notifyStartPlayer() {
 		Player p = play.getPlayerAtSeat(1);
 		if (p != null) {
@@ -1061,7 +1034,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 	}
 
-	@DebugLog
 	private void addNewPlayer() {
 		Intent intent = new Intent();
 		if (!arePlayersCustomSorted) {
@@ -1070,7 +1042,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		editPlayer(intent, REQUEST_ADD_PLAYER);
 	}
 
-	@DebugLog
 	private void editPlayer(int position) {
 		Player player = playAdapter.getPlayer(position);
 		Intent intent = new Intent();
@@ -1084,7 +1055,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.notifyPlayerChanged(position);
 	}
 
-	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
 		isLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -1104,14 +1074,20 @@ public class LogPlayActivity extends AppCompatActivity implements
 		startActivityForResult(intent, requestCode);
 	}
 
-	@DebugLog
 	private void maybeShowNotification() {
 		if (play != null && play.hasStarted() && internalId != BggContract.INVALID_ID) {
-			NotificationUtils.launchPlayingNotification(this, internalId, play, thumbnailUrl, imageUrl, heroImageUrl);
+			NotificationUtils.launchPlayingNotification(this,
+				internalId,
+				play.gameName,
+				play.location,
+				play.playerCount,
+				play.startTime,
+				thumbnailUrl,
+				imageUrl,
+				heroImageUrl);
 		}
 	}
 
-	@DebugLog
 	private void cancelNotification() {
 		NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.TAG_PLAY_TIMER, internalId);
 	}
@@ -1463,7 +1439,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					UIUtils.startTimerWithSystemTime(timerView, play.startTime);
 					canEdit = true;
 					if (play.hasStarted()) {
-						lengthViewRoot.setVisibility(View.GONE);
+						lengthViewRoot.setVisibility(View.INVISIBLE);
 						timerView.setVisibility(View.VISIBLE);
 					} else {
 						lengthViewRoot.setVisibility(View.VISIBLE);
@@ -1488,12 +1464,11 @@ public class LogPlayActivity extends AppCompatActivity implements
 				}
 			}
 
-			@DebugLog
 			@OnClick(R.id.timer_toggle)
 			public void onTimer() {
 				if (play.hasStarted()) {
 					isRequestingToEndPlay = true;
-					Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "Off"));
+					logTimer("Off");
 					play.end();
 					bind();
 					cancelNotification();
@@ -1514,17 +1489,15 @@ public class LogPlayActivity extends AppCompatActivity implements
 				}
 			}
 
-			@DebugLog
 			private void startTimer() {
-				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
+				logTimer("On");
 				play.start();
 				bind();
 				maybeShowNotification();
 			}
 
-			@DebugLog
 			private void resumeTimer() {
-				Answers.getInstance().logCustom(new CustomEvent("LogPlayTimer").putCustomAttribute("State", "On"));
+				logTimer("On");
 				play.resume();
 				bind();
 				maybeShowNotification();
@@ -1708,7 +1681,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					switch (item.getItemId()) {
 						case R.id.menu_custom_player_order:
 							if (arePlayersCustomSorted) {
-								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "NotCustom"));
+								logPlayerOrder("NotCustom");
 								if (play.hasStartingPositions() && play.arePlayersCustomSorted()) {
 									DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 										R.string.are_you_sure_player_sort_custom_off,
@@ -1719,7 +1692,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 									autoSortPlayers();
 								}
 							} else {
-								Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Custom"));
+								logPlayerOrder("Custom");
 								if (play.hasStartingPositions()) {
 									Builder builder = new Builder(LogPlayActivity.this)
 										.setMessage(R.string.message_custom_player_order)
@@ -1738,18 +1711,18 @@ public class LogPlayActivity extends AppCompatActivity implements
 							}
 							return true;
 						case R.id.menu_pick_start_player:
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+							logPlayerOrder("Prompt");
 							promptPickStartPlayer();
 							return true;
 						case R.id.menu_random_start_player:
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "RandomStarter"));
+							logPlayerOrder("RandomStarter");
 							int newSeat = new Random().nextInt(play.getPlayerCount());
 							play.pickStartPlayer(newSeat);
 							playAdapter.notifyPlayersChanged();
 							notifyStartPlayer();
 							return true;
 						case R.id.menu_random_player_order:
-							Answers.getInstance().logCustom(new CustomEvent("LogPlayPlayerOrder").putCustomAttribute("Order", "Random"));
+							logPlayerOrder("Random");
 							play.randomizePlayerOrder();
 							playAdapter.notifyPlayersChanged();
 							notifyStartPlayer();
@@ -1863,5 +1836,17 @@ public class LogPlayActivity extends AppCompatActivity implements
 				});
 			}
 		}
+	}
+
+	private void logPlayerOrder(String order) {
+		Bundle bundle = new Bundle();
+		bundle.putString("Order", order);
+		firebaseAnalytics.logEvent("LogPlayPlayerOrder", bundle);
+	}
+
+	private void logTimer(String state) {
+		Bundle bundle = new Bundle();
+		bundle.putString("State", state);
+		firebaseAnalytics.logEvent("LogPlayTimer", bundle);
 	}
 }

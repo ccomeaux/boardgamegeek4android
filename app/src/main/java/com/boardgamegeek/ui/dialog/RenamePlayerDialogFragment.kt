@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui.dialog
 
-import android.os.Bundle
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import kotlinx.android.synthetic.main.dialog_edit_text.*
+import org.jetbrains.anko.support.v4.withArguments
 
 class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<BuddyViewModel>()
@@ -24,13 +24,8 @@ class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     companion object {
         private const val KEY_TEXT = "text"
 
-        @JvmStatic
         fun newInstance(text: String?): RenamePlayerDialogFragment {
-            return RenamePlayerDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putString(KEY_TEXT, text)
-                }
-            }
+            return RenamePlayerDialogFragment().withArguments(KEY_TEXT to text)
         }
     }
 }

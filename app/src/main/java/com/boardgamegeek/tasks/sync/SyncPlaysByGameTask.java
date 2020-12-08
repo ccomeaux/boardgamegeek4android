@@ -24,7 +24,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import hugo.weaving.DebugLog;
 import retrofit2.Call;
 import timber.log.Timber;
 
@@ -86,7 +85,6 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		return new CompletedEvent(errorMessage, gameId);
 	}
 
-	@DebugLog
 	private void deleteUnupdatedPlays(@NonNull Context context, long startTime) {
 		int count = context.getContentResolver().delete(Plays.CONTENT_URI,
 			Plays.SYNC_TIMESTAMP + "<? AND " +
@@ -98,14 +96,13 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		Timber.i("Deleted %,d unupdated play(s) of game ID=%s", count, gameId);
 	}
 
-	@DebugLog
 	private void updateGameTimestamp(@NonNull Context context) {
 		ContentValues values = new ContentValues(1);
 		values.put(Games.UPDATED_PLAYS, System.currentTimeMillis());
 		context.getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
 	}
 
-	public class CompletedEvent extends SyncTask.CompletedEvent {
+	public class CompletedEvent extends SyncTask<?,?>.CompletedEvent {
 		private final int gameId;
 
 		public CompletedEvent(String errorMessage, int gameId) {

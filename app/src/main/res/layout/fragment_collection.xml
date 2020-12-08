@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-		android:id="@+id/swipe_refresh"
+		android:id="@+id/swipeRefreshLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
@@ -16,40 +15,40 @@
 			android:layout_height="match_parent">
 
 			<androidx.recyclerview.widget.RecyclerView
-				android:id="@android:id/list"
+				android:id="@+id/listView"
 				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:visibility="gone"
 				app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-				tools:listitem="@layout/row_collection"/>
+				tools:listitem="@layout/row_collection" />
 
 			<LinearLayout
-				android:id="@+id/empty_container"
+				android:id="@+id/emptyContainer"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
 				android:orientation="vertical"
-				android:paddingBottom="@dimen/material_margin_vertical"
 				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
 				android:paddingTop="@dimen/material_margin_vertical"
+				android:paddingRight="@dimen/material_margin_horizontal"
+				android:paddingBottom="@dimen/material_margin_vertical"
 				android:visibility="gone">
 
 				<TextView
-					android:id="@android:id/empty"
+					android:id="@+id/emptyTextView"
 					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center"
-					android:text="@string/empty_collection"/>
+					android:text="@string/empty_collection" />
 
 				<Button
-					android:id="@+id/empty_button"
+					android:id="@+id/emptyButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="@string/title_settings"
-					android:visibility="gone"/>
+					android:visibility="gone" />
 			</LinearLayout>
 		</FrameLayout>
 
@@ -63,10 +62,10 @@
 		android:background="@color/primary"
 		android:clipToPadding="false"
 		android:minHeight="@dimen/chip_group_height"
-		android:paddingBottom="@dimen/padding_half"
 		android:paddingLeft="@dimen/padding_standard"
-		android:paddingRight="@dimen/padding_standard"
 		android:paddingTop="@dimen/padding_half"
+		android:paddingRight="@dimen/padding_standard"
+		android:paddingBottom="@dimen/padding_half"
 		android:visibility="gone"
 		app:layout_dodgeInsetEdges="bottom">
 
@@ -77,11 +76,11 @@
 			android:layout_gravity="center_vertical"
 			app:chipSpacing="@dimen/padding_half"
 			app:singleLine="true"
-			app:singleSelection="true"/>
+			app:singleSelection="true" />
 	</HorizontalScrollView>
 
 	<com.google.android.material.bottomappbar.BottomAppBar
-		android:id="@+id/toolbar_footer"
+		android:id="@+id/footerToolbar"
 		style="@style/BottomActionBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -96,29 +95,29 @@
 			android:orientation="vertical">
 
 			<TextView
-				android:id="@+id/row_count"
+				android:id="@+id/rowCountView"
 				style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
-				tools:text="42"/>
+				tools:text="42" />
 
 			<TextView
-				android:id="@+id/sort_description"
+				android:id="@+id/sortDescriptionView"
 				style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
-				tools:text="by Name"/>
+				tools:text="by Name" />
 
 		</LinearLayout>
 	</com.google.android.material.bottomappbar.BottomAppBar>
 
 	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressBar"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:gravity="center"/>
+		android:gravity="center" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -72,11 +72,4 @@ class CategoryCollectionFragment : Fragment() {
         })
         return true
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(): CategoryCollectionFragment {
-            return CategoryCollectionFragment()
-        }
-    }
 }

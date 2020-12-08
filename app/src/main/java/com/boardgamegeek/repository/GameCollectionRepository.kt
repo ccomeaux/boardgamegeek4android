@@ -3,26 +3,26 @@ package com.boardgamegeek.repository
 import android.content.ContentValues
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
-import com.boardgamegeek.io.model.Image
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.util.ImageUtils.getImageId
+import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.util.RemoteConfig
 import retrofit2.Call
-import retrofit2.Response
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -35,20 +35,23 @@ class GameCollectionRepository(val application: BggApplication) {
         AccountUtils.getUsername(application)
     }
 
-    /**
-     * Get a game from the database and potentially refresh it from BGG.
-     */
-    fun getCollectionItems(gameId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
-        return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
-            private var timestamp = 0L
+    fun getCollectionItem(collectionId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): LiveData<RefreshableResource<CollectionItemEntity>> {
+        val started = AtomicBoolean()
+        val mediatorLiveData = MediatorLiveData<RefreshableResource<CollectionItemEntity>>()
+        val liveData = object : RefreshableResourceLoader<CollectionItemEntity, CollectionResponse>(application) {
+            var gameId = BggContract.INVALID_ID
+            var timestamp = 0L
 
             override val typeDescriptionResId = R.string.title_collection
 
-            override fun loadFromDatabase() = dao.load(gameId)
+            override fun loadFromDatabase(): LiveData<CollectionItemEntity> {
+                return dao.loadAsLiveData(collectionId)
+            }
 
-            override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
-                if (gameId == BggContract.INVALID_ID || username == null) return false
-                val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+            override fun shouldRefresh(data: CollectionItemEntity?): Boolean {
+                if (collectionId == BggContract.INVALID_ID || username == null) return false
+                gameId = data?.gameId ?: BggContract.INVALID_ID
+                val syncTimestamp = data?.syncTimestamp ?: 0L
                 return syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
@@ -69,10 +72,69 @@ class GameCollectionRepository(val application: BggApplication) {
 
                 result.items?.forEach { item ->
                     val pair = mapper.map(item)
+                    val id = dao.saveItem(pair.first, pair.second, timestamp)
+                    collectionIds.add(id)
+                }
+                Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size
+                        ?: 0, gameId)
+
+                val deleteCount = dao.delete(gameId, collectionIds)
+                Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
+            }
+        }.asLiveData()
+        mediatorLiveData.addSource(liveData) {
+            it?.data?.maybeRefreshHeroImageUrl("collection", started) { url ->
+                application.appExecutors.diskIO.execute {
+                    dao.update(it.data.internalId, ContentValues().apply {
+                        put(BggContract.Collection.COLLECTION_HERO_IMAGE_URL, url)
+                    })
+                }
+            }
+            mediatorLiveData.value = it
+        }
+        return mediatorLiveData
+    }
+
+    /**
+     * Get a game from the database and potentially refresh it from BGG.
+     */
+    fun getCollectionItems(gameId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
+        return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
+            private var timestamp = 0L
+
+            override val typeDescriptionResId = R.string.title_collection
+
+            override fun loadFromDatabase() = dao.loadByGame(gameId)
+
+            override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
+                if (gameId == BggContract.INVALID_ID || username == null) return false
+                val syncTimestamp = data?.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
+                return syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
+            }
+
+            override fun createCall(page: Int): Call<CollectionResponse> {
+                timestamp = System.currentTimeMillis()
+                val options = mutableMapOf(
+                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                        BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+                        BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
+                )
+                return Adapter.createForXmlWithAuth(application).collection(username, options)
+            }
+
+            override fun saveCallResult(result: CollectionResponse) {
+                val mapper = CollectionItemMapper()
+                val collectionIds = arrayListOf<Int>()
+
+                // TODO This doesn't sync only played games (the played flag needs to be set explicitly)
+                result.items?.forEach { item ->
+                    val pair = mapper.map(item)
                     val collectionId = dao.saveItem(pair.first, pair.second, timestamp)
                     collectionIds.add(collectionId)
                 }
-                Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId)
+                Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size
+                        ?: 0, gameId)
 
                 val deleteCount = dao.delete(gameId, collectionIds)
                 Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
@@ -117,7 +179,8 @@ class GameCollectionRepository(val application: BggApplication) {
 
             val gameName = values.getAsString(BggContract.Collection.COLLECTION_NAME)
             val response = application.contentResolver.insert(BggContract.Collection.CONTENT_URI, values)
-            val internalId = response?.lastPathSegment?.toLongOrNull() ?: BggContract.INVALID_ID.toLong()
+            val internalId = response?.lastPathSegment?.toLongOrNull()
+                    ?: BggContract.INVALID_ID.toLong()
             if (internalId == BggContract.INVALID_ID.toLong()) {
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {
@@ -134,48 +197,39 @@ class GameCollectionRepository(val application: BggApplication) {
     private fun putWishList(statuses: List<String>, wishListPriority: Int?, values: ContentValues) {
         if (statuses.contains(BggContract.Collection.STATUS_WISHLIST)) {
             values.put(BggContract.Collection.STATUS_WISHLIST, 1)
-            values.put(BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3) // like to have
+            values.put(BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishListPriority
+                    ?: 3) // like to have
             return
         } else {
             values.put(BggContract.Collection.STATUS_WISHLIST, 0)
         }
     }
 
-    /**
-     * If the hero image is different from the thumbnail, attempt to update it. This will be true if the hero image has
-     * never been fetched, or if the collection's image has changed.
-     */
-    fun maybeRefreshHeroImageUrl(internalId: Long, thumbnailUrl: String?, heroImageUrl: String?, started: AtomicBoolean) {
-        val heroImageId = heroImageUrl?.getImageId() ?: 0
-        val thumbnailId = thumbnailUrl?.getImageId() ?: 0
-        if (heroImageId != thumbnailId && started.compareAndSet(false, true)) {
-            val call = Adapter.createGeekdoApi().image(thumbnailId)
-            call.enqueue(object : retrofit2.Callback<Image> {
-                override fun onResponse(call: Call<Image>?, response: Response<Image>?) {
-                    if (response?.isSuccessful == true) {
-                        val body = response.body()
-                        if (body != null) {
-                            application.appExecutors.diskIO.execute {
-                                val values = ContentValues()
-                                values.put(BggContract.Collection.COLLECTION_HERO_IMAGE_URL, body.images.medium.url)
-                                dao.update(internalId, values)
-                            }
-                        } else {
-                            Timber.w("Empty body while fetching image $thumbnailId for collection $internalId")
-                        }
-                    } else {
-                        val message = response?.message() ?: response?.code().toString()
-                        Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for collection $internalId")
-                    }
-                    started.set(false)
-                }
+    fun update(internalId: Long, values: ContentValues) {
+        if (internalId == BggContract.INVALID_ID.toLong()) return
+        application.appExecutors.diskIO.execute {
+            dao.update(internalId, values)
+        }
+    }
 
-                override fun onFailure(call: Call<Image>?, t: Throwable?) {
-                    val message = t?.localizedMessage ?: "Unknown error"
-                    Timber.w("Unsuccessful response of '$message' while fetching image $thumbnailId for collection $internalId")
-                    started.set(false)
-                }
-            })
+    fun resetTimestamps(internalId: Long, gameId: Int) {
+        if (internalId == BggContract.INVALID_ID.toLong()) return
+        application.appExecutors.diskIO.execute {
+            val values = contentValuesOf(
+                    BggContract.Collection.COLLECTION_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.STATUS_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.COMMENT_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.RATING_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.WANT_PARTS_DIRTY_TIMESTAMP to 0,
+                    BggContract.Collection.HAS_PARTS_DIRTY_TIMESTAMP to 0
+            )
+
+            val success = dao.update(internalId, values) > 0
+            if (success && gameId != BggContract.INVALID_ID)
+                SyncCollectionByGameTask(application, gameId).executeAsyncTask()
         }
     }
 }

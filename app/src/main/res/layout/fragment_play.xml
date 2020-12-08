@@ -1,53 +1,304 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/swipeRefreshLayout"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior"
+	tools:context=".ui.PlayActivity">
 
-	<FrameLayout
+	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
-
-		<LinearLayout
-			android:id="@+id/progress"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:gravity="center"
-			android:orientation="vertical"
-			android:visibility="gone">
-
-			<ProgressBar
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
-		</LinearLayout>
+		android:layout_height="wrap_content">
 
 		<FrameLayout
-			android:id="@+id/list_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<ListView
-				android:id="@android:id/list"
+			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+				android:id="@+id/progressBar"
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:gravity="center"
+				android:padding="@dimen/material_margin_horizontal"
+				tools:visibility="gone" />
+
+			<androidx.constraintlayout.widget.ConstraintLayout
+				android:id="@+id/listContainer"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:drawSelectorOnTop="false"
-				android:footerDividersEnabled="false"
-				android:headerDividersEnabled="false"
-				android:visibility="gone"/>
+				android:orientation="vertical"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<androidx.constraintlayout.widget.Guideline
+					android:id="@+id/guidelineStart"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					app:layout_constraintGuide_begin="@dimen/material_margin_horizontal" />
+
+				<androidx.constraintlayout.widget.Guideline
+					android:id="@+id/guidelineEnd"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					app:layout_constraintGuide_end="@dimen/material_margin_horizontal" />
+
+				<androidx.constraintlayout.widget.Guideline
+					android:id="@+id/guidelineData"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					app:layout_constraintGuide_begin="@dimen/material_indent_horizontal" />
+
+				<com.boardgamegeek.ui.widget.ForegroundImageView
+					android:id="@+id/thumbnailView"
+					android:layout_width="0dp"
+					android:layout_height="@dimen/image_header_height"
+					android:background="@color/primary"
+					android:foreground="?attr/selectableItemBackground"
+					android:scaleType="centerCrop"
+					app:layout_constraintLeft_toLeftOf="parent"
+					app:layout_constraintRight_toRightOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					tools:ignore="UnusedAttribute" />
+
+				<TextView
+					android:id="@+id/gameNameView"
+					style="@style/Text.Title.Overlay"
+					android:layout_width="0dp"
+					android:layout_height="0dp"
+					android:background="#5000"
+					android:ellipsize="end"
+					android:gravity="left|center_vertical"
+					android:maxLines="2"
+					android:paddingLeft="@dimen/material_indent_horizontal"
+					android:paddingRight="@dimen/material_margin_horizontal"
+					app:layout_constraintBottom_toBottomOf="@id/thumbnailView"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="@id/thumbnailView"
+					tools:text="Puerto Rico" />
+
+				<TextView
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_marginRight="@dimen/material_margin_horizontal"
+					android:gravity="right"
+					android:text="@string/on"
+					android:textAppearance="@style/Text.Secondary"
+					app:layout_constraintBaseline_toBaselineOf="@id/dateView"
+					app:layout_constraintEnd_toEndOf="@id/guidelineData"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart" />
+
+				<TextView
+					android:id="@+id/dateView"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:layout_marginTop="@dimen/padding_half"
+					android:gravity="left|center_vertical"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/thumbnailView"
+					tools:text="January 1, 2015" />
+
+				<TextView
+					android:id="@+id/locationLabel"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_marginRight="@dimen/material_margin_horizontal"
+					android:gravity="right"
+					android:text="@string/at"
+					app:layout_constraintBaseline_toBaselineOf="@id/locationView"
+					app:layout_constraintEnd_toEndOf="@id/guidelineData"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart" />
+
+				<TextView
+					android:id="@+id/locationView"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="left|center_vertical"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/dateView"
+					tools:text="Game Store" />
+
+				<TextView
+					android:id="@+id/lengthLabel"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_marginRight="@dimen/material_margin_horizontal"
+					android:gravity="right"
+					android:text="@string/for_"
+					app:layout_constraintBaseline_toBaselineOf="@id/lengthView"
+					app:layout_constraintEnd_toEndOf="@id/guidelineData"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart" />
+
+				<TextView
+					android:id="@+id/lengthView"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="left|center_vertical"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/locationView"
+					tools:text="1 hrs 26 mins" />
+
+				<Chronometer
+					android:id="@+id/timerView"
+					android:layout_width="0dp"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="center_vertical"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintEnd_toStartOf="@id/timerEndButton"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/locationView" />
+
+				<ImageView
+					android:id="@+id/timerEndButton"
+					android:layout_width="@dimen/image_button_size"
+					android:layout_height="@dimen/image_button_size"
+					android:layout_gravity="right"
+					android:background="?attr/selectableItemBackgroundBorderless"
+					android:contentDescription="@string/timer"
+					android:scaleType="center"
+					android:src="@drawable/ic_timer_off"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintTop_toBottomOf="@id/locationView" />
+
+				<TextView
+					android:id="@+id/quantityView"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/view_row_height"
+					android:gravity="left|center_vertical"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/lengthView"
+					tools:text="2 times" />
+
+				<TextView
+					android:id="@+id/incompleteView"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="left|center_vertical"
+					android:text="@string/incomplete"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/quantityView" />
+
+				<TextView
+					android:id="@+id/noWinStatsView"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="left|center_vertical"
+					android:text="@string/noWinStats"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/incompleteView" />
+
+				<TextView
+					android:id="@+id/commentsLabel"
+					style="@style/Text.Header.Underline"
+					android:layout_width="0dp"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="bottom"
+					android:text="@string/comments"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/noWinStatsView" />
+
+				<TextView
+					android:id="@+id/commentsView"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/commentsLabel"
+					tools:text="I've got something to say." />
+
+				<TextView
+					android:id="@+id/playersLabel"
+					style="@style/Text.Header.Underline"
+					android:layout_width="0dp"
+					android:layout_height="@dimen/play_detail_row_height"
+					android:gravity="bottom"
+					android:text="@string/title_players"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/commentsView" />
+
+				<androidx.recyclerview.widget.RecyclerView
+					android:id="@+id/playersView"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:drawSelectorOnTop="false"
+					app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+					app:layout_behavior="@string/appbar_scrolling_view_behavior"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/playersLabel"
+					tools:itemCount="3"
+					tools:listitem="@layout/row_play_player" />
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/pendingTimestampView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text.Footnote2"
+					app:format="@string/saved_prefix"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/playersView"
+					tools:text="Updated pending as of 1 hour ago" />
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/dirtyTimestampView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text.Footnote2"
+					app:format="@string/saved_prefix"
+					app:hideWhenEmpty="true"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/pendingTimestampView"
+					tools:text="Editing, last saved 1 hour ago" />
+
+				<TextView
+					android:id="@+id/playIdView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text.Footnote2"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/dirtyTimestampView"
+					tools:text="Play ID: 123456789" />
+
+				<com.boardgamegeek.ui.widget.TimestampView
+					android:id="@+id/syncTimestampView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textAppearance="@style/Text.Footnote2"
+					app:format="@string/synced_prefix"
+					app:hideWhenEmpty="true"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/playIdView"
+					tools:text="Synced Yesterday" />
+			</androidx.constraintlayout.widget.ConstraintLayout>
 
 			<TextView
-				android:id="@+id/empty"
+				android:id="@+id/emptyView"
 				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
-				android:paddingBottom="@dimen/material_margin_vertical"
 				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingTop="@dimen/material_margin_vertical"
 				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/material_margin_vertical"/>
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:visibility="gone"
+				tools:visibility="visible" />
 		</FrameLayout>
-
-	</FrameLayout>
+	</androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

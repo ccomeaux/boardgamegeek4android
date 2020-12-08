@@ -30,10 +30,11 @@ class CategoryActivity : SimpleSinglePaneActivity() {
     override val optionsMenuId = R.menu.category
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_view) {
+        return if (item.itemId == R.id.menu_view) {
             linkToBgg("boardgamecategory", id)
-        }
-        return super.onOptionsItemSelected(item)
+            true
+        } else
+            super.onOptionsItemSelected(item)
     }
 
     companion object {

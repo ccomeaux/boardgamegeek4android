@@ -4,11 +4,11 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.text.TextUtils
 import androidx.core.content.edit
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.model.Player
-import com.boardgamegeek.provider.BggContract
 import java.util.*
 
 /**
@@ -61,7 +61,7 @@ const val COLLECTION_STATUS_OWN = "own"
 const val COLLECTION_STATUS_PREVIOUSLY_OWNED = "prevowned"
 const val COLLECTION_STATUS_PREORDERED = "preordered"
 const val COLLECTION_STATUS_FOR_TRADE = "trade"
-const val COLLECTION_STATUS_WANT = "want"
+const val COLLECTION_STATUS_WANT_IN_TRADE = "want"
 const val COLLECTION_STATUS_WANT_TO_BUY = "wanttobuy"
 const val COLLECTION_STATUS_WANT_TO_PLAY = "wanttoplay"
 const val COLLECTION_STATUS_WISHLIST = "wishlist"
@@ -93,32 +93,6 @@ fun SharedPreferences.isStatusSetToSync(status: String): Boolean {
 
 fun SharedPreferences.getSyncStatusesOrDefault(): Set<String> {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, setOf(COLLECTION_STATUS_OWN)).orEmpty()
-}
-
-fun SharedPreferences.getSyncStatusesAsSql(): String {
-    val selection = StringBuilder()
-    val statuses = this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null) ?: emptySet()
-    for (status in statuses) {
-        if (status.isBlank()) continue
-        if (selection.isNotBlank()) selection.append(" OR ")
-        selection.append(when (status) {
-            COLLECTION_STATUS_OWN -> BggContract.Collection.STATUS_OWN.isTrue()
-            COLLECTION_STATUS_PREVIOUSLY_OWNED -> BggContract.Collection.STATUS_PREVIOUSLY_OWNED.isTrue()
-            COLLECTION_STATUS_PREORDERED -> BggContract.Collection.STATUS_PREORDERED.isTrue()
-            COLLECTION_STATUS_FOR_TRADE -> BggContract.Collection.STATUS_FOR_TRADE.isTrue()
-            COLLECTION_STATUS_WANT -> BggContract.Collection.STATUS_WANT.isTrue()
-            COLLECTION_STATUS_WANT_TO_BUY -> BggContract.Collection.STATUS_WANT_TO_BUY.isTrue()
-            COLLECTION_STATUS_WANT_TO_PLAY -> BggContract.Collection.STATUS_WANT_TO_PLAY.isTrue()
-            COLLECTION_STATUS_WISHLIST -> BggContract.Collection.STATUS_WISHLIST.isTrue()
-            COLLECTION_STATUS_RATED -> BggContract.Collection.RATING.greaterThanZero()
-            COLLECTION_STATUS_PLAYED -> BggContract.Collection.NUM_PLAYS.greaterThanZero()
-            COLLECTION_STATUS_COMMENTED -> BggContract.Collection.COMMENT.notBlank()
-            COLLECTION_STATUS_HAS_PARTS -> BggContract.Collection.HASPARTS_LIST.notBlank()
-            COLLECTION_STATUS_WANT_PARTS -> BggContract.Collection.WANTPARTS_LIST.notBlank()
-            else -> ""
-        })
-    }
-    return selection.toString()
 }
 
 const val KEY_SYNC_UPLOADS = "sync_uploads"
@@ -159,6 +133,9 @@ fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String?> {
 
 private const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
 private const val LOG_EDIT_PLAYER = "logEditPlayer"
+const val LOG_PLAY_TYPE_FORM = "form"
+const val LOG_PLAY_TYPE_QUICK = "quick"
+const val LOG_PLAY_TYPE_WIZARD = "wizard"
 
 fun SharedPreferences.getEditPlayerPrompted(): Boolean {
     return this[LOG_EDIT_PLAYER_PROMPTED, false] ?: false
@@ -176,12 +153,13 @@ fun SharedPreferences.putEditPlayer(value: Boolean) {
     this[LOG_EDIT_PLAYER] = value
 }
 
-fun SharedPreferences.showLogPlay(): Boolean {
-    return showLogPlayField("logPlay", "logHideLog", true)
-}
-
-fun SharedPreferences.showQuickLogPlay(): Boolean {
-    return showLogPlayField("quickLogPlay", "logHideQuickLog", true)
+fun SharedPreferences.logPlayPreference(): String {
+    return this.getString("logPlayType", null)
+            ?: return when {
+                showLogPlayField("logPlay", "logHideLog", true) -> LOG_PLAY_TYPE_FORM
+                showLogPlayField("quickLogPlay", "logHideQuickLog", true) -> LOG_PLAY_TYPE_QUICK
+                else -> LOG_PLAY_TYPE_WIZARD
+            }
 }
 
 fun SharedPreferences.showLogPlayLocation(): Boolean {
@@ -259,20 +237,7 @@ object PlayStats {
 
 // region FORUMS
 
-const val INVALID_ARTICLE_ID = -1
 const val KEY_ADVANCED_DATES = "advancedForumDates"
-
-fun SharedPreferences.putThreadArticle(threadId: Int, articleId: Int) {
-    this[getThreadKey(threadId.toLong()), articleId]
-}
-
-fun SharedPreferences.getThreadArticle(threadId: Int): Int {
-    return this[getThreadKey(threadId.toLong()), INVALID_ARTICLE_ID] ?: INVALID_ARTICLE_ID
-}
-
-private fun getThreadKey(threadId: Long): String {
-    return "THREAD-$threadId"
-}
 
 // endregion FORUMS
 
@@ -305,7 +270,7 @@ fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
     val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
     val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
     for (playerString in playerStringArray) {
-        if (!TextUtils.isEmpty(playerString)) {
+        if (playerString.isNotEmpty()) {
             val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
             if (playerSplit.size in 1..2) {
                 val player = Player()
@@ -320,7 +285,36 @@ fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
     return players
 }
 
+// TODO
+fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity>? {
+    val players: MutableList<PlayerEntity> = ArrayList()
+    val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
+    val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
+    for (playerString in playerStringArray) {
+        if (playerString.isNotEmpty()) {
+            val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
+            if (playerSplit.size in 1..2) {
+                val player = PlayerEntity(
+                        playerSplit[0],
+                        if (playerSplit.size == 2) playerSplit[1] else ""
+                )
+                players.add(player)
+            }
+        }
+    }
+    return players
+}
+
 fun SharedPreferences.putLastPlayPlayers(players: List<Player>) {
+    val sb = StringBuilder()
+    for (player in players) {
+        sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)
+    }
+    this[KEY_LAST_PLAY_PLAYERS] = sb.toString()
+}
+
+// TODO
+fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>) {
     val sb = StringBuilder()
     for (player in players) {
         sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)

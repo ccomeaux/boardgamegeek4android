@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
@@ -20,7 +19,7 @@ import org.jetbrains.anko.support.v4.toast
 
 class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
     private val adapter: GameCollectionItemAdapter by lazy {
-        GameCollectionItemAdapter()
+        GameCollectionItemAdapter(requireContext())
     }
 
     private val viewModel by activityViewModels<GameViewModel>()
@@ -35,11 +34,11 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         recyclerView?.setHasFixedSize(false)
         recyclerView?.adapter = adapter
 
-        viewModel.game.observe(viewLifecycleOwner, Observer {
+        viewModel.game.observe(viewLifecycleOwner, {
             adapter.gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
         })
 
-        viewModel.collectionItems.observe(viewLifecycleOwner, Observer {
+        viewModel.collectionItems.observe(viewLifecycleOwner, {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError()
@@ -62,7 +61,7 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         if (!isAdded) return
         if (items.isNotEmpty()) {
             adapter.items = items
-            syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+            syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
             emptyMessage.fadeOut()
             recyclerView?.fadeIn()
         } else {
@@ -84,12 +83,6 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         } else {
             emptyMessage.text = message
             emptyMessage.fadeIn()
-        }
-    }
-
-    companion object {
-        fun newInstance(): GameCollectionFragment {
-            return GameCollectionFragment()
         }
     }
 }

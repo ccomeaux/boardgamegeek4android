@@ -97,26 +97,27 @@ private fun getCalendar(date: String): Calendar {
 }
 
 private fun parseDate(date: String?, format: DateFormat): Long {
+    val defaultMillis = 0L
     return if (date.isNullOrBlank()) {
-        0L
+        defaultMillis
     } else {
         try {
-            format.parse(date).time
+            format.parse(date)?.time ?: defaultMillis
         } catch (e: ParseException) {
             Timber.w(e, "Unable to parse %s as %s", date, format)
-            0L
+            defaultMillis
         } catch (e: ArrayIndexOutOfBoundsException) {
             Timber.w(e, "Unable to parse %s as %s", date, format)
-            0L
+            defaultMillis
         }
     }
 }
 
-inline fun String.whereZeroOrNull() = "(${this}=0 OR ${this} IS NULL)"
+inline fun String.whereZeroOrNull() = "($this=0 OR $this IS NULL)"
 
-inline fun String.whereEqualsOrNull() = "(${this}=? OR ${this} IS NULL)"
+inline fun String.whereEqualsOrNull() = "($this=? OR $this IS NULL)"
 
-inline fun String.whereNotEqualsOrNull() = "(${this}!=? OR ${this} IS NULL)"
+inline fun String.whereNotEqualsOrNull() = "($this!=? OR $this IS NULL)"
 
 /**
  * Fix for Cursor not implementing Closeable until API level 16.

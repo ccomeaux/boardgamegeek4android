@@ -10,9 +10,11 @@ import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
 class CollectionItemMapper {
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+
     fun map(from: CollectionItem): Pair<CollectionItemEntity, CollectionItemGameEntity> {
         val item = CollectionItemEntity(
                 gameId = from.objectid,
@@ -20,7 +22,8 @@ class CollectionItemMapper {
                 collectionId = from.collid.toIntOrNull() ?: BggContract.INVALID_ID,
                 collectionName = from.name,
                 sortName = if (from.originalname.isNullOrBlank()) from.name.sortName(from.sortindex) else from.name,
-                yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+                gameYearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+                collectionYearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
                 imageUrl = from.image ?: "",
                 thumbnailUrl = from.thumbnail ?: "",
                 rating = from.stats?.rating?.toDoubleOrNull() ?: 0.0,
@@ -39,13 +42,13 @@ class CollectionItemMapper {
                 wishList = from.wishlist?.equals("1") ?: false,
                 wishListPriority = from.wishlistpriority,
                 preOrdered = from.preordered?.equals("1") ?: false,
-                lastModifiedDate = from.lastmodified.toMillis(FORMAT),
+                lastModifiedDate = from.lastmodified.toMillis(dateTimeFormat),
                 pricePaidCurrency = from.pp_currency ?: "",
                 pricePaid = from.pricepaid?.toDoubleOrNull() ?: 0.0,
                 currentValueCurrency = from.cv_currency ?: "",
                 currentValue = from.currvalue?.toDoubleOrNull() ?: 0.0,
                 quantity = from.quantity?.toIntOrNull() ?: 1,
-                acquisitionDate = from.acquisitiondate ?: "",
+                acquisitionDate = from.acquisitiondate.toMillis(dateFormat),
                 acquiredFrom = from.acquiredfrom ?: "",
                 privateComment = from.privatecomment ?: "",
                 inventoryLocation = from.inventorylocation ?: ""

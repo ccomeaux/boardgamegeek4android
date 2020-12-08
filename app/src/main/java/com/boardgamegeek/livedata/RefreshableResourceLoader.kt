@@ -76,7 +76,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                             application.appExecutors.diskIO.execute {
                                 saveCallResult(body)
                                 application.appExecutors.mainThread.execute {
-                                    if (hasMorePages(body)) {
+                                    if (hasMorePages(body, currentPage)) {
                                         result.addSource(loadFromDatabase()) { newData ->
                                             setValue(RefreshableResource.refreshing(newData))
                                         }
@@ -127,7 +127,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
     protected abstract fun saveCallResult(result: U)
 
     @MainThread
-    protected open fun hasMorePages(result: U) = false
+    protected open fun hasMorePages(result: U, currentPage: Int) = false
 
     @WorkerThread
     protected open fun onRefreshSucceeded() {

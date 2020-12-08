@@ -6,6 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
@@ -13,8 +14,12 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.io.model.User
+import com.boardgamegeek.livedata.NetworkLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
+import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
@@ -49,6 +54,29 @@ class UserRepository(val application: BggApplication) {
             override fun saveCallResult(result: User) {
                 userDao.saveUser(result)
             }
+        }.asLiveData()
+    }
+
+    fun loadCollection(username: String, status: String): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
+        return object : NetworkLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
+            override fun createCall(): Call<CollectionResponse> {
+                val options = mapOf(
+                        status to "1",
+                        BggService.COLLECTION_QUERY_KEY_BRIEF to "1"
+                )
+                return Adapter.createForXml().collection(username, options)
+            }
+
+            override fun parseResult(result: CollectionResponse): List<CollectionItemEntity> {
+                val items = mutableListOf<CollectionItemEntity>()
+                val mapper = CollectionItemMapper()
+                result.items.forEach {
+                    items += mapper.map(it).first
+                }
+                return items
+            }
+
+            override val typeDescriptionResId = R.string.title_collection
         }.asLiveData()
     }
 

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
@@ -27,7 +27,7 @@ public class AccountUtils {
 	public static void setUsername(final Context context, final String username) {
 		setString(context, username, KEY_USERNAME);
 		if (!TextUtils.isEmpty(username))
-			Crashlytics.setUserIdentifier(String.valueOf(username.hashCode()));
+			FirebaseCrashlytics.getInstance().setUserId(String.valueOf(username.hashCode()));
 	}
 
 	public static void setFullName(final Context context, String fullName) {

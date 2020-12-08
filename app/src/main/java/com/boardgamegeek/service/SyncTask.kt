@@ -13,8 +13,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.fabric.CrashKeys
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -65,7 +64,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
     @JvmOverloads
     protected fun updateProgressNotification(detail: String? = null) {
         Timber.i(detail)
-        Crashlytics.setString(CrashKeys.SYNC_DETAIL, detail)
+        FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_DETAIL, detail ?: "")
         if (prefs[KEY_SYNC_NOTIFICATIONS, false] != true) return
 
         val message = if (notificationSummaryMessageId == NO_NOTIFICATION)
@@ -156,5 +155,9 @@ abstract class SyncTask(protected val application: BggApplication, protected val
 
     companion object {
         const val NO_NOTIFICATION = 0
+    }
+
+    object CrashKeys {
+        const val SYNC_DETAIL = "SYNC_DETAIL"
     }
 }

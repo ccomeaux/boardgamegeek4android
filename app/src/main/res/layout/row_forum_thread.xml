@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout style="@style/RowContainer.Tall"
-			  xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:app="http://schemas.android.com/apk/res-auto"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content"
-			  android:background="?android:attr/selectableItemBackground"
-			  android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.VeryTall"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?android:attr/selectableItemBackground"
+	android:orientation="vertical">
 
 	<TextView
 		android:id="@+id/subject"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:maxLines="2"
 		android:paddingBottom="4dp"
 		android:textAppearance="@style/TextAppearance.RowTitle"
-		tools:text="The Best way to Play!"/>
+		tools:text="The Best way to Play!" />
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -28,14 +29,14 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_user_small"
-			tools:text="ccomeaux"/>
+			tools:text="ccomeaux" />
 
 		<View
 			android:layout_width="1dp"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<TextView
 			android:id="@+id/number_of_articles"
@@ -43,14 +44,14 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_forums_small"
-			tools:text="42"/>
+			tools:text="42" />
 
 		<View
 			android:layout_width="1dp"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/last_post_date"
@@ -59,7 +60,7 @@
 			android:layout_height="wrap_content"
 			android:drawableLeft="@drawable/ic_clock_small"
 			app:isForumTimestamp="true"
-			tools:text="Yesterday"/>
+			tools:text="Yesterday" />
 	</LinearLayout>
 
 </LinearLayout>

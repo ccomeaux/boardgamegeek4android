@@ -2,6 +2,9 @@
 
 package com.boardgamegeek.extensions
 
+import android.graphics.Color
+import android.graphics.Typeface
+import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
@@ -24,8 +27,7 @@ fun TextView.setTextOrHide(@StringRes textResId: Int) {
     }
 }
 
-@JvmOverloads
-fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true) {
+fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FROM_HTML_MODE_LEGACY, useLinkMovementMethod: Boolean = true, tagHandler: Html.TagHandler? = null) {
     when {
         text == null -> this.text = ""
         text.isBlank() -> this.text = ""
@@ -47,7 +49,7 @@ fun TextView.setTextMaybeHtml(text: String?, fromHtmlFlags: Int = HtmlCompat.FRO
             html = html.replace("(<br\\s?/>){3,}".toRegex(), "<br/><br/>")
             html = fixInternalLinks(html)
 
-            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags)
+            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags, null, tagHandler)
             this.text = spanned.trim()
             if (useLinkMovementMethod)
                 this.movementMethod = LinkMovementMethod.getInstance()
@@ -65,6 +67,19 @@ fun TextView.setTextViewBackground(@ColorInt color: Int) {
 fun View.setTextViewBackground(color: Int): Int {
     this.setViewBackground(color)
     return color.getTextColor()
+}
+
+fun TextView.setText(text: String, tf: Typeface, italic: Boolean, bold: Boolean, @ColorInt textColor: Int = Color.BLACK) {
+    if (text.isNotBlank()) {
+        when {
+            italic && bold -> setTypeface(tf, Typeface.BOLD_ITALIC)
+            italic -> setTypeface(tf, Typeface.ITALIC)
+            bold -> setTypeface(tf, Typeface.BOLD)
+            else -> setTypeface(tf, Typeface.NORMAL)
+        }
+        setTextColor(textColor)
+    }
+    setTextOrHide(text)
 }
 
 private fun fixInternalLinks(html: String): String {

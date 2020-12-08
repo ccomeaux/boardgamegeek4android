@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.RefreshableResource
@@ -27,8 +28,9 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
             username.isNotBlank() -> {
                 val mediatorLiveData = MediatorLiveData<RefreshableResource<UserEntity>>()
                 mediatorLiveData.addSource(userRepository.loadUser(username)) {
-                    if (it.status == Status.SUCCESS) {
-                        if (username == Authenticator.getAccount(application)?.name) {
+                    getApplication<BggApplication>().appExecutors.diskIO.execute {
+                        if (it.status == Status.SUCCESS &&
+                                username == Authenticator.getAccount(application)?.name) {
                             it.data?.let { user ->
                                 Authenticator.putUserId(application, user.id)
                                 AccountUtils.setUsername(application, user.userName)

@@ -13,7 +13,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
@@ -29,13 +28,14 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.DateTimeUtils
-import com.boardgamegeek.util.XmlConverter
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
+import org.jetbrains.anko.support.v4.withArguments
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -43,7 +43,7 @@ import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(), ActionMode.Callback {
     private val viewModel by activityViewModels<PlaysViewModel>()
-    private val xmlConverter = XmlConverter()
+    private val markupConverter by lazy { XmlApiMarkupConverter(requireContext()) }
 
     private val adapter: PlayAdapter by lazy {
         PlayAdapter()
@@ -69,18 +69,10 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.plays.observe(viewLifecycleOwner, Observer {
+        viewModel.plays.observe(viewLifecycleOwner) {
             progressBar.isVisible = it.status == Status.REFRESHING
-            adapter.items = it.data ?: emptyList()
-            val sectionItemDecoration = RecyclerSectionItemDecoration(
-                    resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                    adapter
-            )
-            while (recyclerView.itemDecorationCount > 0) {
-                recyclerView.removeItemDecorationAt(0)
-            }
-            recyclerView.addItemDecoration(sectionItemDecoration)
-
+            adapter.items = it.data.orEmpty()
+            recyclerView.addHeader(adapter)
             if (it.data.isNullOrEmpty()) {
                 emptyContainer.fadeIn()
                 recyclerView.fadeOut()
@@ -88,11 +80,11 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 recyclerView.fadeIn()
                 emptyContainer.fadeOut()
             }
-        })
+        }
 
-        viewModel.filterType.observe(viewLifecycleOwner, Observer {
+        viewModel.filterType.observe(viewLifecycleOwner) {
             updateEmptyText()
-        })
+        }
     }
 
     private fun updateEmptyText() {
@@ -252,7 +244,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
                 itemView.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
                 itemView.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
-                itemView.commentView.setTextOrHide(xmlConverter.strip(play.comments))
+                itemView.commentView.setTextOrHide(markupConverter.strip(play.comments))
 
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete
@@ -266,7 +258,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
                 itemView.setOnClickListener {
                     if (actionMode == null) {
-                        PlayActivity.start(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                        PlayActivity.start(requireContext(), play.internalId)
                     } else {
                         toggleSelection(position)
                     }
@@ -411,9 +403,9 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         private const val KEY_SHOW_GAME_NAME = "SHOW_GAME_NAME"
 
         fun newInstance(): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays)
-            }
+            return PlaysFragment().withArguments(
+                    KEY_EMPTY_STRING_RES_ID to R.string.empty_plays
+            )
         }
 
         fun newInstanceForGame(gameId: Int, gameName: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String, arePlayersCustomSorted: Boolean, @ColorInt iconColor: Int): PlaysFragment {

@@ -49,7 +49,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         }
 
         includeSettingsButton.setOnClickListener {
-            activity?.showFragment(PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
+            showAndSurvive(PlayStatsIncludeSettingsDialogFragment())
         }
 
         viewModel.includeIncomplete.observe(viewLifecycleOwner, Observer {

@@ -17,7 +17,7 @@ import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.CompanyResponse2
+import com.boardgamegeek.io.model.CompanyResponse
 import com.boardgamegeek.livedata.CalculatingListLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.provider.BggContract
@@ -70,7 +70,7 @@ class PublisherRepository(val application: BggApplication) {
     fun loadPublisher(id: Int): LiveData<RefreshableResource<CompanyEntity>> {
         val started = AtomicBoolean()
         val mediatorLiveData = MediatorLiveData<RefreshableResource<CompanyEntity>>()
-        val liveData = object : RefreshableResourceLoader<CompanyEntity, CompanyResponse2>(application) {
+        val liveData = object : RefreshableResourceLoader<CompanyEntity, CompanyResponse>(application) {
             override fun loadFromDatabase(): LiveData<CompanyEntity> {
                 return dao.loadPublisherAsLiveData(id)
             }
@@ -84,12 +84,12 @@ class PublisherRepository(val application: BggApplication) {
 
             override val typeDescriptionResId = R.string.title_publisher
 
-            override fun createCall(page: Int): Call<CompanyResponse2> {
+            override fun createCall(page: Int): Call<CompanyResponse> {
                 return Adapter.createForXml().company(id)
             }
 
-            override fun saveCallResult(result: CompanyResponse2) {
-                dao.savePublisher(result)
+            override fun saveCallResult(result: CompanyResponse) {
+                dao.savePublisher(result.items.firstOrNull())
             }
         }.asLiveData()
         mediatorLiveData.addSource(liveData) {
@@ -105,7 +105,7 @@ class PublisherRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>> {
         return dao.loadCollectionAsLiveData(id, sortBy)
     }
 

@@ -15,7 +15,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import kotlinx.android.synthetic.main.dialog_collection_filter.*
 import timber.log.Timber
-import java.util.*
+import kotlin.collections.ArrayList
 
 class CollectionFilterDialogFragment : DialogFragment() {
     private lateinit var layout: View
@@ -74,11 +74,10 @@ class CollectionFilterDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_FILTER_TYPES = "filter_types"
 
-        @JvmStatic
-        fun newInstance(filterTypes: ArrayList<Int>): CollectionFilterDialogFragment {
+        fun newInstance(filterTypes: List<Int>): CollectionFilterDialogFragment {
             return CollectionFilterDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putIntegerArrayList(KEY_FILTER_TYPES, filterTypes)
+                    putIntegerArrayList(KEY_FILTER_TYPES, ArrayList(filterTypes))
                 }
             }
         }

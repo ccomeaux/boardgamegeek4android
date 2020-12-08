@@ -30,10 +30,10 @@ class LocationsViewModel(application: Application) : AndroidViewModel(applicatio
         playRepository.loadLocations(it.sortBy)
     }
 
-    fun sort(sortType: LocationsViewModel.SortType) {
+    fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
             SortType.NAME -> LocationsSortByName()
-            LocationsViewModel.SortType.PLAY_COUNT -> LocationsSortByPlayCount()
+            SortType.PLAY_COUNT -> LocationsSortByPlayCount()
         }
     }
 

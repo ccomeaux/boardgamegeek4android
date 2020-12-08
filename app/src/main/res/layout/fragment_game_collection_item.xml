@@ -11,7 +11,7 @@
 	tools:context=".ui.GameCollectionItemActivity">
 
 	<TextView
-		android:id="@+id/invalid_status"
+		android:id="@+id/invalidStatusView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="@dimen/material_margin_horizontal"
@@ -21,7 +21,7 @@
 		tools:visibility="visible"/>
 
 	<androidx.cardview.widget.CardView
-		android:id="@+id/main_container"
+		android:id="@+id/mainContainer"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
 				android:tag="container">
 
 				<TextView
-					android:id="@+id/status"
+					android:id="@+id/statusView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_vertical"
@@ -53,14 +53,14 @@
 					tools:text="Own"/>
 
 				<LinearLayout
-					android:id="@+id/status_edit_container"
+					android:id="@+id/statusEditContainer"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:orientation="vertical"
 					android:visibility="gone">
 
 					<CheckBox
-						android:id="@+id/own"
+						android:id="@+id/ownView"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
 						android:text="@string/collection_status_own"/>
 
 					<CheckBox
-						android:id="@+id/preordered"
+						android:id="@+id/preorderedView"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
 						android:text="@string/collection_status_preordered"/>
 
 					<CheckBox
-						android:id="@+id/previously_owned"
+						android:id="@+id/previouslyOwnedView"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
 						android:text="@string/collection_status_prev_owned"/>
 
 					<CheckBox
-						android:id="@+id/want_to_buy"
+						android:id="@+id/wantToBuyView"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
 						android:text="@string/collection_status_want_to_buy"/>
 
 					<CheckBox
-						android:id="@+id/want_to_play"
+						android:id="@+id/wantToPlayView"
 						style="@style/EditCheckbox.Card"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
 					android:tag="header"/>
 
 				<com.boardgamegeek.ui.widget.RatingView
-					android:id="@+id/rating"
+					android:id="@+id/personalRatingView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="top|end"
@@ -117,7 +117,7 @@
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
-				android:id="@+id/comment"
+				android:id="@+id/commentView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:headerText="@string/comment"/>
@@ -125,7 +125,7 @@
 	</androidx.cardview.widget.CardView>
 
 	<androidx.cardview.widget.CardView
-		android:id="@+id/wishlist_container"
+		android:id="@+id/wishlistContainer"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
 			android:tag="container">
 
 			<TextView
-				android:id="@+id/wishlist_header"
+				android:id="@+id/wishlistHeader"
 				style="@style/Text.Header.Card"
 				android:layout_width="match_parent"
 				android:tag="header"
@@ -147,7 +147,7 @@
 				android:textStyle="bold"/>
 
 			<TextView
-				android:id="@+id/wishlist_status"
+				android:id="@+id/wishlistStatusView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
@@ -156,7 +156,7 @@
 				tools:text="Love to have"/>
 
 			<LinearLayout
-				android:id="@+id/wishlist_edit_container"
+				android:id="@+id/wishlistEditContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
@@ -165,7 +165,7 @@
 				android:visibility="gone">
 
 				<CheckBox
-					android:id="@+id/wishlist"
+					android:id="@+id/wishlistView"
 					style="@style/EditCheckbox.Card"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -173,7 +173,7 @@
 					android:text="@string/collection_status_wishlist"/>
 
 				<Spinner
-					android:id="@+id/wishlist_priority"
+					android:id="@+id/wishlistPriorityView"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -181,7 +181,7 @@
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
-				android:id="@+id/wishlist_comment"
+				android:id="@+id/wishlistCommentView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:headerText="@string/wishlist_comment"/>
@@ -189,7 +189,7 @@
 	</androidx.cardview.widget.CardView>
 
 	<androidx.cardview.widget.CardView
-		android:id="@+id/private_info_container"
+		android:id="@+id/privateInfoContainer"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -203,7 +203,7 @@
 			android:tag="container">
 
 			<TextView
-				android:id="@+id/card_header_private_info"
+				android:id="@+id/privateInfoHeader"
 				style="@style/Text.Header.Card"
 				android:layout_width="match_parent"
 				android:tag="header"
@@ -211,14 +211,14 @@
 				android:textStyle="bold"/>
 
 			<TextView
-				android:id="@+id/private_info_view"
+				android:id="@+id/viewPrivateInfoView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textAppearance="@style/Text"
 				tools:text="Acquired on Jan 1, 1999"/>
 
 			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-				android:id="@+id/private_info_edit_container"
+				android:id="@+id/privateInfoEditContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:clickable="true"
@@ -229,7 +229,7 @@
 				android:orientation="horizontal">
 
 				<TextView
-					android:id="@+id/private_info_hint"
+					android:id="@+id/privateInfoHintView"
 					style="@style/Text.Header.Card"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -237,7 +237,7 @@
 					android:text="@string/edit"/>
 
 				<TextView
-					android:id="@+id/private_info_edit"
+					android:id="@+id/editPrivateInfoView"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -252,7 +252,7 @@
 			</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
-				android:id="@+id/private_comment"
+				android:id="@+id/privateInfoCommentView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:headerText="@string/private_comment"/>
@@ -260,7 +260,7 @@
 	</androidx.cardview.widget.CardView>
 
 	<androidx.cardview.widget.CardView
-		android:id="@+id/trade_container"
+		android:id="@+id/tradeContainer"
 		style="@style/Card"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -274,7 +274,7 @@
 			android:tag="container">
 
 			<TextView
-				android:id="@+id/trade_header"
+				android:id="@+id/tradeHeader"
 				style="@style/Text.Header.Card"
 				android:layout_width="match_parent"
 				android:tag="header"
@@ -282,7 +282,7 @@
 				android:textStyle="bold"/>
 
 			<TextView
-				android:id="@+id/trade_status"
+				android:id="@+id/tradeStatusView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
@@ -290,7 +290,7 @@
 				tools:text="For Trade"/>
 
 			<LinearLayout
-				android:id="@+id/trade_edit_container"
+				android:id="@+id/tradeEditContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
@@ -298,7 +298,7 @@
 				android:visibility="gone">
 
 				<CheckBox
-					android:id="@+id/want_in_trade"
+					android:id="@+id/wantInTradeView"
 					style="@style/EditCheckbox.Card"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -306,7 +306,7 @@
 					android:text="@string/collection_status_want_in_trade"/>
 
 				<CheckBox
-					android:id="@+id/for_trade"
+					android:id="@+id/forTradeView"
 					style="@style/EditCheckbox.Card"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -315,19 +315,19 @@
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
-				android:id="@+id/condition"
+				android:id="@+id/conditionView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:headerText="@string/trade_condition"/>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
-				android:id="@+id/want_parts"
+				android:id="@+id/wantPartsView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:headerText="@string/want_parts_list"/>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
-				android:id="@+id/has_parts"
+				android:id="@+id/hasPartsView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:headerText="@string/has_parts_list"/>
@@ -342,7 +342,7 @@
 		android:paddingRight="@dimen/material_margin_horizontal">
 
 		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/last_modified"
+			android:id="@+id/lastModifiedView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
@@ -352,7 +352,7 @@
 			tools:text="Last modified Yesterday"/>
 
 		<TextView
-			android:id="@+id/collection_id"
+			android:id="@+id/idView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:paddingLeft="@dimen/padding_standard"
@@ -361,7 +361,7 @@
 	</LinearLayout>
 
 	<com.boardgamegeek.ui.widget.TimestampView
-		android:id="@+id/updated"
+		android:id="@+id/updatedView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/fab_buffer"

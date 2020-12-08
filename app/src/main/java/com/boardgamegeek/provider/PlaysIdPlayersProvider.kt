@@ -26,6 +26,7 @@ class PlaysIdPlayersProvider : BaseProvider() {
         val internalId = Plays.getInternalId(uri)
         return SelectionBuilder()
                 .table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+                .mapToTable(PlayPlayers._ID, Tables.PLAY_PLAYERS)
                 .whereEquals(PlayPlayers._PLAY_ID, internalId)
     }
 

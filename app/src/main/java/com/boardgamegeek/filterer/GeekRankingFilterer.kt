@@ -3,7 +3,9 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.RANK_UNKNOWN
+import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
 class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
@@ -14,7 +16,7 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_geek_ranking
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
         max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
         includeUnranked = d.getOrNull(2) == "1"
@@ -37,23 +39,13 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
         return "#$range$unranked"
     }
 
-    override fun getSelection(): String {
-        var format = when {
-            max == upperBound -> "%1\$s>=?"
-            min == max -> "%1\$s=?"
-            min == lowerBound -> "%1\$s<=?"
-            else -> "(%1\$s>=? AND %1\$s<=?)"
-        }
-        if (includeUnranked) format += " OR %1\$s=0 OR %1\$s IS NULL"
-        return String.format(format, Collection.GAME_RANK)
-    }
-
-    override fun getSelectionArgs(): Array<String>? {
+    override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            max == upperBound -> arrayOf(min.toString())
-            min == max -> arrayOf(min.toString())
-            min == lowerBound -> arrayOf(max.toString())
-            else -> arrayOf(min.toString(), max.toString())
+            item.rank == RANK_UNKNOWN -> includeUnranked
+            max == upperBound -> item.rank >= min
+            min == lowerBound -> item.rank <= max
+            min == max -> item.rank == min
+            else -> item.rank in min..max
         }
     }
 

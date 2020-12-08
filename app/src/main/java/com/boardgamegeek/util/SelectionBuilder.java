@@ -22,6 +22,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -234,6 +236,7 @@ public class SelectionBuilder {
 		}
 	}
 
+	@NotNull
 	@Override
 	public String toString() {
 		return "table=[" + tableName + "], selection=[" + getSelection() + "], selectionArgs="
@@ -289,10 +292,6 @@ public class SelectionBuilder {
 
 	public static String whereNullOrEmpty(String columnName) {
 		return String.format("(%1$S IS NULL OR %1$S='')", columnName);
-	}
-
-	public static String whereNotNullOrEmpty(String columnName) {
-		return String.format("(%1$S IS NOT NULL AND %1$S<>'')", columnName);
 	}
 
 	@NonNull

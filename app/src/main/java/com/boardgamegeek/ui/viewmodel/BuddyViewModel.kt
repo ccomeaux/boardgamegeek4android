@@ -7,17 +7,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.PlayerColorEntity
+import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.util.fabric.DataManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
     private val playRepository = PlayRepository(getApplication())
+    private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
     private val _user = MutableLiveData<Pair<String?, Int>>()
     val user: LiveData<Pair<String?, Int>>
@@ -87,7 +92,10 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName))
         }
-        DataManipulationEvent.log("BuddyNickname", "Edit")
+        firebaseAnalytics.logEvent("DataManipulation") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
+            param("Action", "Edit")
+        }
     }
 
     fun renamePlayer(newName: String) {

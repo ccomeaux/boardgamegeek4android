@@ -21,7 +21,6 @@ import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.SelectionBuilder
-import hugo.weaving.DebugLog
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
@@ -74,7 +73,6 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         return tasks
     }
 
-    @DebugLog
     override fun execute() {
         val deletedItemsCursor = fetchDeletedCollectionItems()
         deletedItemsCursor?.use {

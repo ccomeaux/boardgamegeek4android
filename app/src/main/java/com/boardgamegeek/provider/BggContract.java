@@ -66,6 +66,9 @@ public class BggContract {
 		String WINS_COLOR = "WINS_COLOR";
 		String WINNABLE_PLAYS_COLOR = "WINNABLE_PLAYS_COLOR";
 		String ALL_PLAYS_COLOR = "ALL_PLAYS_COLOR";
+		String PLAYER_COUNTS_BEST = "player_counts_best";
+		String PLAYER_COUNTS_RECOMMENDED = "player_counts_recommended";
+		String PLAYER_COUNTS_NOT_RECOMMENDED = "player_count_nots_recommended";
 	}
 
 	interface GameRanksColumns {
@@ -898,6 +901,10 @@ public class BggContract {
 		 * content://com.boardgamegeek/plays/#
 		 */
 		public static Uri buildPlayUri(long internalId) {
+			return CONTENT_SIMPLE_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
+		}
+
+		public static Uri buildPlayWithGameUri(long internalId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(internalId)).build();
 		}
 
@@ -961,6 +968,7 @@ public class BggContract {
 
 		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + COLLATE_NOCASE + " ASC";
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
+		public static final String SORT_BY_SUM_QUANTITY = PlaysColumns.SUM_QUANTITY + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
 			if (uri != null) {

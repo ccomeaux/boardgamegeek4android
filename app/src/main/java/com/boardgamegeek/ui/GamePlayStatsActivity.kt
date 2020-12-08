@@ -11,8 +11,8 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.startUp
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class GamePlayStatsActivity : SimpleSinglePaneActivity() {
@@ -27,16 +27,17 @@ class GamePlayStatsActivity : SimpleSinglePaneActivity() {
             supportActionBar?.subtitle = gameName
         }
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GamePlayStats")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GamePlayStats")
+                param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
+            }
         }
     }
 
     override fun readIntent(intent: Intent) {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME)
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         headerColor = intent.getIntExtra(KEY_HEADER_COLOR, ContextCompat.getColor(this, R.color.accent))
     }
 

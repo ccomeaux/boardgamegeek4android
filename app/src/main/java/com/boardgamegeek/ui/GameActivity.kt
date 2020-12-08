@@ -2,7 +2,6 @@ package com.boardgamegeek.ui
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -15,17 +14,16 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.extensions.showQuickLogPlay
+import com.boardgamegeek.extensions.logQuickPlay
+import com.boardgamegeek.extensions.shareGame
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.ShortcutUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_hero_tab.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.snackbar
@@ -36,13 +34,14 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var gameName: String = ""
     private var heroImageUrl = ""
     private var thumbnailUrl = ""
+    private var imageUrl = ""
+    private var arePlayersCustomSorted = false
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
-    private val prefs: SharedPreferences by lazy { this.preferences() }
     private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
-        GamePagerAdapter(this, gameId, intent.getStringExtra(KEY_GAME_NAME))
+        GamePagerAdapter(this, gameId, intent.getStringExtra(KEY_GAME_NAME).orEmpty())
     }
 
     override val optionsMenuId = R.menu.game
@@ -59,7 +58,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         initializeViewPager()
 
         changeName(intent.getStringExtra(KEY_GAME_NAME) ?: "")
-        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL), intent.getStringExtra(KEY_THUMBNAIL_URL))
+        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty(), intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty())
 
         viewModel.setId(gameId)
 
@@ -76,6 +75,8 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                         this@GameActivity.isFavorite = isFavorite
                         this@GameActivity.isUserMenuEnabled = maxUsers > 0
                         this@GameActivity.thumbnailUrl = thumbnailUrl
+                        this@GameActivity.imageUrl = imageUrl
+                        arePlayersCustomSorted = customPlayerSort
                     }
                 }
             }
@@ -84,10 +85,11 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         viewModel.updateLastViewed(System.currentTimeMillis())
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Game")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Game")
+                param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
+            }
         }
     }
 
@@ -102,12 +104,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     override fun getPageTitle(position: Int) = adapter.getPageTitle(position)
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        menu.findItem(R.id.menu_log_play_quick)?.isVisible = prefs.showQuickLogPlay()
-        return true
-    }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.menu_favorite)?.setTitle(if (isFavorite) R.string.menu_unfavorite else R.string.menu_favorite)
@@ -130,7 +126,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_share -> {
-                ActivityUtils.shareGame(this, gameId, gameName, "Game")
+                shareGame(gameId, gameName, "Game", firebaseAnalytics)
                 return true
             }
             R.id.menu_favorite -> {
@@ -144,7 +140,15 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
             R.id.menu_log_play_quick -> {
                 getCoordinatorLayout().snackbar(R.string.msg_logging_play)
-                ActivityUtils.logQuickPlay(this, gameId, gameName)
+                logQuickPlay(gameId, gameName)
+                return true
+            }
+            R.id.menu_log_play -> {
+                LogPlayActivity.logPlay(this, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                return true
+            }
+            R.id.menu_log_play_wizard -> {
+                NewPlayActivity.start(this, gameId, gameName)
                 return true
             }
             R.id.menu_view_image -> {
@@ -198,30 +202,24 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_FROM_SHORTCUT = "FROM_SHORTCUT"
 
-        @JvmOverloads
-        @JvmStatic
         fun start(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
                     ?: return
             context.startActivity(intent)
         }
 
-        @JvmOverloads
-        @JvmStatic
         fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
                     ?: return
             context.startActivity(intent.clearTask().clearTop())
         }
 
-        @JvmStatic
         fun createIntentAsShortcut(context: Context, gameId: Int, gameName: String, thumbnailUrl: String): Intent? {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl) ?: return null
             intent.action = Intent.ACTION_VIEW
             return intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
         }
 
-        @JvmStatic
         fun createIntent(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
             if (gameId == BggContract.INVALID_ID) return null
             return context.intentFor<GameActivity>(

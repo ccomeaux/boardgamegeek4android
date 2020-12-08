@@ -69,10 +69,4 @@ class CollectionStatusDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
     }
-
-    companion object {
-        fun newInstance(): CollectionStatusDialogFragment {
-            return CollectionStatusDialogFragment()
-        }
-    }
 }

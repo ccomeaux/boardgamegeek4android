@@ -36,6 +36,7 @@ abstract class ShortcutTask @JvmOverloads constructor(context: Context?, thumbna
 
     override fun doInBackground(vararg params: Void?): Void? {
         if (context == null) return null
+        if (shortcutName.isEmpty()) return null
         if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
             createShortcutForOreo()
         } else {

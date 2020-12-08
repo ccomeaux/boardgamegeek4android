@@ -41,6 +41,7 @@
 	<string name="send">Send</string>
 	<string name="save">Save</string>
 	<string name="done">Done</string>
+	<string name="next">Next</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="discard">Discard</string>
@@ -61,6 +62,8 @@
 	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
+	<string name="randomize_all">All</string>
+	<string name="randomize_start">1st</string>
 	<string name="plays">plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>
@@ -81,6 +84,7 @@
 	<string name="username">Username</string>
 	<string name="colors">Colors</string>
 	<string name="team_color">Team/Color</string>
+	<string name="team_color_prefix">Team/Color for %s</string>
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
@@ -110,6 +114,7 @@
 	<string name="before">before</string>
 	<string name="after">after</string>
 	<string name="status_of_prefix">Status of %s</string>
+	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
@@ -166,12 +171,16 @@
 	<string name="title_buddy">User</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
-	<string name="title_add_players">Add Players</string>
+	<string name="title_new_play">New Play</string>
+	<string name="title_new_players">New Players</string>
+	<string name="title_winners">Scores &amp; Winners</string>
+	<string name="title_add_players">Add Playfers</string>
 	<string name="title_comments">Comments</string>
 	<string name="title_private_info">Private Info</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_ranks_ratings">Ranks &amp; Ratings</string>
 	<string name="title_colors">Colors</string>
+	<string name="title_team_colors">Team/Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
@@ -203,11 +212,13 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
+	<string name="title_add_team_color">Add Team/Color</string>
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
 	<string name="comment">Comment</string>
-	<string name="title_sort">Sort by</string>
+	<string name="title_sort">Sort</string>
+	<string name="title_sort_by">Sort by</string>
 	<string name="title_filter">Filter by</string>
 	<string name="color_name">Color name</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>
@@ -260,6 +271,11 @@
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. Maybe you should try different filters.</string>
 	<string name="empty_collection_filter_on_sync_partial">Collection sync for some of the filtered statuses is off. Try to enable it from Settings > Sync to display some games.</string>
+	<string name="empty_new_play_locations">No previous locations. Add a new one.</string>
+	<string name="empty_new_play_locations_filter">No locations matching the filter.</string>
+	<string name="empty_new_play_players">No previous players. Add a new one</string>
+	<string name="empty_new_play_players_filter">No players matching the filter.</string>
+	<string name="new_play_location_hint">Filter or add new</string>
 	<string name="sync">Sync</string>
 	<string name="empty_game_collection">This game isn\'t in your collection.</string>
 	<string name="re_sync">Re-sync</string>
@@ -274,7 +290,7 @@
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
-	<string name="empty_play">No play found (ID=%s)."</string>
+	<string name="empty_play">No play found."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
@@ -311,7 +327,11 @@
 	<string name="menu_view">View</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
+	<string name="menu_log_play_short">Form</string>
+	<string name="menu_log_play_wizard">Log play wizard</string>
+	<string name="menu_log_play_wizard_short">Wizard</string>
 	<string name="menu_log_play_quick">Quick log play</string>
+	<string name="menu_log_play_quick_short">Quick</string>
 	<string name="menu_favorite">Favorite</string>
 	<string name="menu_unfavorite">Unfavorite</string>
 	<string name="menu_users">Users</string>
@@ -710,6 +730,10 @@
 		<item quantity="one">Deleted %s color</item>
 		<item quantity="other">Deleted %s colors</item>
 	</plurals>
+	<plurals name="plays">
+		<item quantity="one">%s play</item>
+		<item quantity="other">%s plays</item>
+	</plurals>
 	<plurals name="msg_plays_selected">
 		<item quantity="one">%s play</item>
 		<item quantity="other">%s plays</item>
@@ -755,8 +779,8 @@
 		<item quantity="other"><b>%,d</b> comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
-		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
-		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="one">Changed %1$s play entry from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="other">Changed %1$s play entries from \"%2$s\" to \"%3$s\"</item>
 	</plurals>
 	<plurals name="search_results">
 		<item quantity="one">%1$s match for \"%2$s\"</item>

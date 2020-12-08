@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.dialog
 
 import android.content.Context
-import android.util.Pair
 import com.boardgamegeek.util.ColorUtils
 import java.util.*
 
@@ -40,7 +39,7 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
             return ColorPickerWithListenerDialogFragment().apply {
                 arguments = createBundle(
                         0,
-                        ColorUtils.getColorList(),
+                        ColorUtils.colorList,
                         featuredColors,
                         selectedColor,
                         disabledColors,

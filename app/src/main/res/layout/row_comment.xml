@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout style="@style/RowContainer"
-				xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:tools="http://schemas.android.com/tools"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:gravity="center_vertical"
-				android:paddingBottom="@dimen/padding_extra"
-				android:paddingTop="@dimen/padding_extra">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_vertical"
+	android:paddingTop="@dimen/padding_extra"
+	android:paddingBottom="@dimen/padding_extra">
 
 	<TextView
-		android:id="@+id/username"
+		android:id="@+id/usernameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
+		android:layout_alignParentLeft="true"
 		android:layout_alignParentTop="true"
 		android:textAppearance="@style/TextAppearance.RowTitle"
-		tools:text="ccomeaux"/>
+		tools:text="ccomeaux" />
 
 	<TextView
-		android:id="@+id/rating"
+		android:id="@+id/ratingView"
 		style="@style/RatingSmall.Regular"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
-		android:layout_alignParentTop="true"
-		android:layout_gravity="right|center_vertical"
+		android:layout_gravity="end|center_vertical"
+		android:gravity="center"
+		android:minWidth="56dp"
 		tools:background="#0f0"
-		tools:text="8.5"/>
+		tools:text="8.5" />
 
 	<TextView
-		android:id="@+id/comment"
+		android:id="@+id/commentView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/rating"
+		android:layout_below="@+id/ratingView"
 		android:paddingTop="@dimen/padding_half"
 		android:textAppearance="@style/TextAppearance.RowDetail"
-		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!"/>
+		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!" />
 
 </RelativeLayout>

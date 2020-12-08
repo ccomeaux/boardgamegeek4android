@@ -16,7 +16,8 @@ import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.SortEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import timber.log.Timber
@@ -29,7 +30,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_sort, null)
-        return AlertDialog.Builder(requireContext()).setView(layout).setTitle(R.string.title_sort).create()
+        return AlertDialog.Builder(requireContext()).setView(layout).setTitle(R.string.title_sort_by).create()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -52,7 +53,10 @@ class CollectionSortDialogFragment : DialogFragment() {
             val sortType = getTypeFromView(group.findViewById(checkedId))
             Timber.d("Sort by $sortType")
             viewModel.setSort(sortType)
-            SortEvent.log("Collection", sortType.toString())
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+                param("SortBy", sortType.toString())
+            }
             dismiss()
         }
     }
@@ -69,7 +73,7 @@ class CollectionSortDialogFragment : DialogFragment() {
         radioGroup.children.filterIsInstance<RadioButton>().forEach {
             val sortType = getTypeFromView(it)
             val sorter = factory.create(sortType)
-            if (sorter != null) it.text = sorter.description
+            it.text = sorter?.description.orEmpty()
         }
     }
 
@@ -86,7 +90,6 @@ class CollectionSortDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_SORT_TYPE = "sort_type"
 
-        @JvmStatic
         fun newInstance(sortType: Int): CollectionSortDialogFragment {
             return CollectionSortDialogFragment().apply {
                 arguments = Bundle().apply {

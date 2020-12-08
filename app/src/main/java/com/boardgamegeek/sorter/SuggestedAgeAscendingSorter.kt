@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class SuggestedAgeAscendingSorter(context: Context) : SuggestedAgeSorter(context) {
     @StringRes
@@ -11,4 +12,6 @@ class SuggestedAgeAscendingSorter(context: Context) : SuggestedAgeSorter(context
 
     @StringRes
     public override val subDescriptionResId = R.string.youngest
+
+    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.minimumAge }
 }

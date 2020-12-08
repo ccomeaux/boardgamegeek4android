@@ -16,10 +16,4 @@ class AddColorToGameDialogFragment : AbstractEditTextDialogFragment() {
         val text = editText?.text?.toString()
         viewModel.addColor(text)
     }
-
-    companion object {
-        fun newInstance(): AddColorToGameDialogFragment {
-            return AddColorToGameDialogFragment()
-        }
-    }
 }
