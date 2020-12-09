@@ -44,9 +44,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class DataFragment extends Fragment implements Listener {
@@ -58,8 +55,7 @@ public class DataFragment extends Fragment implements Listener {
 
 	private FirebaseAnalytics firebaseAnalytics;
 
-	private Unbinder unbinder;
-	@BindView(R.id.backup_types) ViewGroup fileTypesView;
+	private ViewGroup fileTypesView;
 	private String currentType;
 
 	@Override
@@ -71,14 +67,18 @@ public class DataFragment extends Fragment implements Listener {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View root = inflater.inflate(R.layout.fragment_data, container, false);
+		return inflater.inflate(R.layout.fragment_data, container, false);
+	}
 
-		unbinder = ButterKnife.bind(this, root);
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		fileTypesView = view.findViewById(R.id.backup_types);
+
 		createDataRow(Constants.TYPE_COLLECTION_VIEWS, R.string.backup_type_collection_view, R.string.backup_description_collection_view);
 		createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game);
 		createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user);
-
-		return root;
 	}
 
 	private void createDataRow(String type, @StringRes int typeResId, @StringRes int descriptionResId) {
@@ -99,12 +99,6 @@ public class DataFragment extends Fragment implements Listener {
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		unbinder.unbind();
 	}
 
 	@Nullable
