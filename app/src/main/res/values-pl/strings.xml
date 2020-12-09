@@ -199,8 +199,6 @@
 	<string name="title_sort_by">Sortuj wg</string>
 	<string name="title_filter">Filtruj wg</string>
 	<string name="description_backup">Eksport zapisze dane aplikacji we wskazancyh lokalizacjach nadpisując istniejące pliki. Import odtworzy dane z tych samych plików potencjalnie nadpisując istniejące dane.</string>
-	<string name="msg_export_confirmation">Na pewno chcesz (potencjalnie) zastąpić pliki z eksportem?</string>
-	<string name="msg_import_confirmation">Na pewno chcesz zastąpić dane aplikacji danymi z plików?</string>
 	<string name="msg_export_success">Eksport pomyślny.</string>
 	<string name="msg_export_failed">Eksport nieudany.</string>
 	<string name="msg_export_failed_external_permissions">Brak uprawnień na zapis w pamięci zewnętrznej.</string>
@@ -225,7 +223,6 @@
 	<string name="backup_description_game">Lista kolorów powiązana z każdą grą.</string>
 	<string name="backup_description_user">Ulubione kolory użytkowników, włączając GeekBuddies oraz graczy, z którymi grałeś.</string>
 	<string name="msg_export_permission_rationale">Aplikacja potrzebuje uprawnień zapisywania w pamięci zewnętrznej, aby zapisywać pliki eksportu.</string>
-	<string name="msg_export_permission_denied">Nie można wyeksportować bez odpowiedniego uprawnienia.</string>
 	<string name="msg_shortcut_create">Wybierz grę do umieszczenie na ekranie głównym.</string>
 	<string name="msg_change_play_game">Wybierz grę do tej rozgrywki</string>
 	<string name="msg_missing_nickname">Musisz podać nazwę aby zaktualizować rozgrywki</string>
