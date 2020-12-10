@@ -99,11 +99,11 @@ public class DataFragment extends Fragment implements Listener {
 		if (TextUtils.isEmpty(type)) return null;
 		switch (type) {
 			case Constants.TYPE_COLLECTION_VIEWS:
-				return new CollectionViewExportTask(getContext(), uri);
+				return new CollectionViewExportTask(requireContext(), uri);
 			case Constants.TYPE_GAMES:
-				return new GameExportTask(getContext(), uri);
+				return new GameExportTask(requireContext(), uri);
 			case Constants.TYPE_USERS:
-				return new UserExportTask(getContext(), uri);
+				return new UserExportTask(requireContext(), uri);
 		}
 		return null;
 	}
