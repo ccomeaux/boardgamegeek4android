@@ -21,11 +21,9 @@ class CollectionViewImportTask(context: Context, uri: Uri) : JsonImportTask<Coll
     }
 
     override fun importRecord(item: CollectionView, version: Int) {
-        if (item.filters == null || item.filters.size == 0) return
-
         val values = contentValuesOf(
                 CollectionViews.NAME to item.name,
-                CollectionViews.STARRED to item.isStarred,
+                CollectionViews.STARRED to item.starred,
                 CollectionViews.SORT_TYPE to item.sortType,
         )
         val uri = context.contentResolver.insert(CollectionViews.CONTENT_URI, values)

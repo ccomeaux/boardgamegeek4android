@@ -17,16 +17,15 @@ class GameImportTask(context: Context, uri: Uri) : JsonImportTask<Game>(context,
     }
 
     override fun importRecord(item: Game, version: Int) {
-        if (context.contentResolver.rowExists(Games.buildGameUri(item.gameId))) {
-            val gameColorsUri = Games.buildColorsUri(item.gameId)
+        if (context.contentResolver.rowExists(Games.buildGameUri(item.id))) {
+            val gameColorsUri = Games.buildColorsUri(item.id)
             context.contentResolver.delete(gameColorsUri, null, null)
-            val values = arrayListOf<ContentValues>()
+            val values = mutableListOf<ContentValues>()
             item.colors.filter { it.color.isNotBlank() }.forEach { color ->
                 values.add(contentValuesOf(GameColors.COLOR to color.color))
             }
-            if (values.size > 0) {
-                val array = arrayOf<ContentValues>()
-                context.contentResolver.bulkInsert(gameColorsUri, values.toArray(array))
+            if (values.isNotEmpty()) {
+                context.contentResolver.bulkInsert(gameColorsUri, values.toTypedArray())
             }
         }
     }
