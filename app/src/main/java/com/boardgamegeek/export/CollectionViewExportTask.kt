@@ -12,7 +12,7 @@ import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.google.gson.Gson
 import com.google.gson.stream.JsonWriter
 
-class CollectionViewExportTask(context: Context, uri: Uri) : JsonExportTask<CollectionView>(context, Constants.TYPE_COLLECTION_VIEWS, uri) {
+class CollectionViewExportTask(context: Context, uri: Uri) : JsonExportTask<CollectionView>(context, Constants.TYPE_COLLECTION_VIEWS, Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION, uri) {
     override val version: Int
         get() = 1
 

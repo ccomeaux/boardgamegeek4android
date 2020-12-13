@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggContract.Games
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 
-class GameImportTask(context: Context, uri: Uri) : JsonImportTask<Game>(context, Constants.TYPE_GAMES, uri) {
+class GameImportTask(context: Context, uri: Uri) : JsonImportTask<Game>(context, Constants.TYPE_GAMES, Constants.TYPE_GAMES_DESCRIPTION, uri) {
     override fun parseItem(gson: Gson, reader: JsonReader): Game {
         return gson.fromJson(reader, Game::class.java)
     }

@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 
-class UserImportTask(context: Context, uri: Uri) : JsonImportTask<User>(context, Constants.TYPE_USERS, uri) {
+class UserImportTask(context: Context, uri: Uri) : JsonImportTask<User>(context, Constants.TYPE_USERS, Constants.TYPE_USERS_DESCRIPTION, uri) {
     override fun parseItem(gson: Gson, reader: JsonReader): User {
         return gson.fromJson(reader, User::class.java)
     }

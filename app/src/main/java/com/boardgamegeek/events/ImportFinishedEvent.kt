@@ -1,3 +1,3 @@
 package com.boardgamegeek.events
 
-class ImportFinishedEvent(val type: String, val errorMessage: String?)
+class ImportFinishedEvent(val type: Int, val errorMessage: String?)

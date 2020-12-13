@@ -20,7 +20,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStreamReader
 
-abstract class JsonImportTask<T : Model>(context: Context, private val type: String, private val uri: Uri) : AsyncTask<Void, Int, String?>() {
+abstract class JsonImportTask<T : Model>(context: Context, private val type: Int, private val typeDescription: String, private val uri: Uri) : AsyncTask<Void, Int, String?>() {
     @SuppressLint("StaticFieldLeak")
     protected val context: Context = context.applicationContext
     private val items: MutableList<T> = mutableListOf()
@@ -53,8 +53,8 @@ abstract class JsonImportTask<T : Model>(context: Context, private val type: Str
                 while (reader.hasNext()) {
                     when (reader.nextName()) {
                         Constants.NAME_TYPE -> reader.nextString().also {
-                            if (it != type) {
-                                return context.getString(R.string.msg_import_failed_wrong_type, type, it)
+                            if (it != typeDescription) {
+                                return context.getString(R.string.msg_import_failed_wrong_type, typeDescription, it)
                             }
                         }
                         Constants.NAME_VERSION -> version = reader.nextInt()

@@ -12,12 +12,11 @@ import com.boardgamegeek.export.model.Model
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonWriter
-import okhttp3.internal.closeQuietly
 import org.greenrobot.eventbus.EventBus
 import timber.log.Timber
 import java.io.*
 
-abstract class JsonExportTask<T : Model>(context: Context, private val type: String, private val uri: Uri) : AsyncTask<Void, Int, String?>() {
+abstract class JsonExportTask<T : Model>(context: Context, private val type: Int, private val typeDescription: String, private val uri: Uri) : AsyncTask<Void, Int, String?>() {
     @SuppressLint("StaticFieldLeak")
     private val context: Context = context.applicationContext
     protected open val version: Int
@@ -83,7 +82,7 @@ abstract class JsonExportTask<T : Model>(context: Context, private val type: Str
         JsonWriter(OutputStreamWriter(out, "UTF-8")).use {
             it.setIndent("  ")
             it.beginObject()
-            it.name(Constants.NAME_TYPE).value(type)
+            it.name(Constants.NAME_TYPE).value(typeDescription)
             it.name(Constants.NAME_VERSION).value(version.toLong())
             it.name(Constants.NAME_ITEMS)
             it.beginArray()

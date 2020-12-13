@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 
-class CollectionViewImportTask(context: Context, uri: Uri) : JsonImportTask<CollectionView>(context, Constants.TYPE_COLLECTION_VIEWS, uri) {
+class CollectionViewImportTask(context: Context, uri: Uri) : JsonImportTask<CollectionView>(context, Constants.TYPE_COLLECTION_VIEWS, Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION, uri) {
     override fun initializeImport() {
         context.contentResolver.delete(CollectionViews.CONTENT_URI, null, null)
     }

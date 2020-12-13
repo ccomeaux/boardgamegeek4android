@@ -1,3 +1,3 @@
 package com.boardgamegeek.events
 
-class ExportFinishedEvent(val type: String, val errorMessage: String?)
+class ExportFinishedEvent(val type: Int, val errorMessage: String?)

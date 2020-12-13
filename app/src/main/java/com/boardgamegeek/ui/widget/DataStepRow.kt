@@ -14,13 +14,13 @@ import kotlinx.android.synthetic.main.widget_data_step_row.view.*
 
 @SuppressLint("ViewConstructor")
 class DataStepRow(context: Context) : LinearLayout(context) {
-    private var type: String? = null
+    private var type: Int = 0
     private var listener: Listener? = null
 
     interface Listener {
-        fun onExportClicked(type: String?)
+        fun onExportClicked(type: Int)
 
-        fun onImportClicked(type: String?)
+        fun onImportClicked(type: Int)
     }
 
     init {
@@ -46,7 +46,7 @@ class DataStepRow(context: Context) : LinearLayout(context) {
         this.listener = listener
     }
 
-    fun bind(type: String, @StringRes typeResId: Int, @StringRes descriptionResId: Int) {
+    fun bind(type: Int, @StringRes typeResId: Int, @StringRes descriptionResId: Int) {
         this.type = type
         typeView.setText(typeResId)
         descriptionView.setText(descriptionResId)

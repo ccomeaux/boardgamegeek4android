@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors
 import com.google.gson.Gson
 import com.google.gson.stream.JsonWriter
 
-class UserExportTask(context: Context, uri: Uri) : JsonExportTask<User>(context, Constants.TYPE_USERS, uri) {
+class UserExportTask(context: Context, uri: Uri) : JsonExportTask<User>(context, Constants.TYPE_USERS, Constants.TYPE_USERS_DESCRIPTION, uri) {
     override val version: Int
         get() = 1
 

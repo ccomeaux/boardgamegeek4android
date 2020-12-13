@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggContract.Games
 import com.google.gson.Gson
 import com.google.gson.stream.JsonWriter
 
-class GameExportTask(context: Context, uri: Uri) : JsonExportTask<Game>(context, Constants.TYPE_GAMES, uri) {
+class GameExportTask(context: Context, uri: Uri) : JsonExportTask<Game>(context, Constants.TYPE_GAMES, Constants.TYPE_GAMES_DESCRIPTION, uri) {
     override val version: Int
         get() = 1
 
