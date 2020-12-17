@@ -10,26 +10,22 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.events.ExportFinishedEvent
-import com.boardgamegeek.events.ExportProgressEvent
-import com.boardgamegeek.events.ImportFinishedEvent
-import com.boardgamegeek.events.ImportProgressEvent
-import com.boardgamegeek.export.*
-import com.boardgamegeek.extensions.executeAsyncTask
+import com.boardgamegeek.export.Constants
+import com.boardgamegeek.ui.viewmodel.DataPortViewModel
 import com.boardgamegeek.ui.widget.DataStepRow
 import com.boardgamegeek.util.FileUtils
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.support.v4.toast
 import timber.log.Timber
 
 class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
     private lateinit var fileTypesView: ViewGroup
+    private val viewModel by activityViewModels<DataPortViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,6 +33,27 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         createDataRow(Constants.TYPE_COLLECTION_VIEWS, R.string.backup_type_collection_view, R.string.backup_description_collection_view)
         createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game)
         createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user)
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) {
+            toast(it)
+        }
+        viewModel.collectionViewProgress.observe(viewLifecycleOwner) { event ->
+            updateProgress(Constants.TYPE_COLLECTION_VIEWS, event.first, event.second) // TODO separate import / export
+        }
+        viewModel.gameProgress.observe(viewLifecycleOwner) { event ->
+            updateProgress(Constants.TYPE_GAMES, event.first, event.second)
+        }
+        viewModel.userProgress.observe(viewLifecycleOwner) { event ->
+            updateProgress(Constants.TYPE_USERS, event.first, event.second)
+        }
+    }
+
+    private fun updateProgress(type: Int, max: Int, progress: Int) {
+        findRow(type)?.updateProgressBar(max, progress)
+        if (progress >= max) {
+            findRow(type)?.hideProgressBar()
+            notifyEnd(null, R.string.msg_export_success, R.string.msg_export_failed)
+        }
     }
 
     private fun createDataRow(type: Int, @StringRes typeResId: Int, @StringRes descriptionResId: Int) {
@@ -45,16 +62,6 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         row.bind(type, typeResId, descriptionResId)
         row.tag = type
         fileTypesView.addView(row)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        EventBus.getDefault().unregister(this)
-        super.onStop()
     }
 
     override fun onExportClicked(type: Int) {
@@ -88,80 +95,44 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         } catch (e: SecurityException) {
             Timber.e(e, "Could not persist URI permissions for '%s'.", uri.toString())
         }
-        // TODO
-        if (requestCode >= REQUEST_IMPORT) {
-            performImport(requestCode, uri)
-        } else if (requestCode >= REQUEST_EXPORT) {
-            performExport(requestCode, uri)
-        }
-    }
-
-    private fun performExport(type: Int, uri: Uri) {
-        val task = getExportTask(type, uri)
-        if (task == null) {
-            Timber.i("No task found for %s", type)
-            return
-        }
-        findRow(type - REQUEST_EXPORT)?.initProgressBar()
-        task.executeAsyncTask()
-        logAction("Export")
-    }
-
-    private fun performImport(type: Int, uri: Uri) {
-        val task = getImportTask(type, uri)
-        if (task == null) {
-            Timber.i("No task found for %s", type)
-            return
-        }
-        findRow(type - REQUEST_IMPORT)?.initProgressBar()
-        task.executeAsyncTask()
-        logAction("Import")
-    }
-
-    private fun getExportTask(type: Int, uri: Uri): JsonExportTask<*>? {
-        return when (type) {
-            REQUEST_EXPORT_COLLECTION_VIEW -> CollectionViewExportTask(requireContext(), uri)
-            REQUEST_EXPORT_GAME -> GameExportTask(requireContext(), uri)
-            REQUEST_EXPORT_USER -> UserExportTask(requireContext(), uri)
-            else -> null
-        }
-    }
-
-    private fun getImportTask(type: Int, uri: Uri): JsonImportTask<*>? {
-        return when (type) {
-            REQUEST_IMPORT_COLLECTION_VIEW -> CollectionViewImportTask(requireContext(), uri)
-            REQUEST_IMPORT_GAME -> GameImportTask(requireContext(), uri)
-            REQUEST_IMPORT_USER -> UserImportTask(requireContext(), uri)
-            else -> null
+        when (requestCode) {
+            REQUEST_EXPORT_COLLECTION_VIEW -> {
+                findRow(Constants.TYPE_COLLECTION_VIEWS)?.initProgressBar()
+                viewModel.exportCollectionViews(uri)
+                logAction("Export")
+            }
+            REQUEST_EXPORT_GAME -> {
+                findRow(Constants.TYPE_GAMES)?.initProgressBar()
+                viewModel.exportGames(uri)
+                logAction("Export")
+            }
+            REQUEST_EXPORT_USER -> {
+                findRow(Constants.TYPE_USERS)?.initProgressBar()
+                viewModel.exportUsers(uri)
+                logAction("Export")
+            }
+            REQUEST_IMPORT_COLLECTION_VIEW -> {
+                findRow(Constants.TYPE_COLLECTION_VIEWS)?.initProgressBar()
+                viewModel.importCollectionViews(uri)
+                logAction("Import")
+            }
+            REQUEST_IMPORT_GAME -> {
+                findRow(Constants.TYPE_GAMES)?.initProgressBar()
+                viewModel.importGames(uri)
+                logAction("Import")
+            }
+            REQUEST_IMPORT_USER -> {
+                findRow(Constants.TYPE_USERS)?.initProgressBar()
+                viewModel.importUsers(uri)
+                logAction("Import")
+            }
         }
     }
 
     private fun logAction(action: String) {
-        Firebase.analytics.logEvent(ANSWERS_EVENT_NAME) {
-            param(ANSWERS_ATTRIBUTE_KEY_ACTION, action)
+        Firebase.analytics.logEvent("DataManagement") {
+            param("Action", action)
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: ExportFinishedEvent) {
-        findRow(event.type)?.hideProgressBar()
-        notifyEnd(event.errorMessage, R.string.msg_export_success, R.string.msg_export_failed)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: ImportFinishedEvent) {
-        findRow(event.type)?.hideProgressBar()
-        notifyEnd(event.errorMessage, R.string.msg_import_success, R.string.msg_import_failed)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: ExportProgressEvent) {
-        findRow(event.type)?.updateProgressBar(event.totalCount, event.currentCount)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: ImportProgressEvent) {
-        findRow(event.type)?.updateProgressBar(event.totalCount, event.currentCount)
     }
 
     private fun findRow(type: Int): DataStepRow? {
@@ -184,7 +155,5 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         private const val REQUEST_IMPORT_COLLECTION_VIEW = REQUEST_IMPORT + Constants.TYPE_COLLECTION_VIEWS
         private const val REQUEST_IMPORT_GAME = REQUEST_IMPORT + Constants.TYPE_GAMES
         private const val REQUEST_IMPORT_USER = REQUEST_IMPORT + Constants.TYPE_USERS
-        private const val ANSWERS_EVENT_NAME = "DataManagement"
-        private const val ANSWERS_ATTRIBUTE_KEY_ACTION = "Action"
     }
 }
