@@ -5,6 +5,7 @@ import android.content.ContentProviderOperation
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -17,6 +18,7 @@ import com.boardgamegeek.extensions.applyBatch
 import com.boardgamegeek.extensions.getIntOrNull
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.extensions.rowExists
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.google.gson.Gson
@@ -33,8 +35,8 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             .excludeFieldsWithoutExposeAnnotation()
             .create()
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
+    private val _errorMessage = MutableLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
     private val _collectionViewProgress = MutableLiveData<Pair<Int, Int>>()
@@ -174,7 +176,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
 
         val cursor = getCursor()
         if (cursor == null) {
-            _errorMessage.value = context.getString(R.string.msg_export_failed_null_cursor)
+            error(R.string.msg_export_failed_null_cursor)
             return
         }
 
@@ -182,15 +184,15 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             context.contentResolver.openFileDescriptor(uri, "w")
         } catch (e: SecurityException) {
             Timber.w(e)
-            _errorMessage.value = context.getString(R.string.msg_export_failed_permissions, uri)
+            error(R.string.msg_export_failed_permissions, uri)
             return
         } catch (e: FileNotFoundException) {
             Timber.w(e)
-            _errorMessage.value = context.getString(R.string.msg_export_failed_file_not_found, uri)
+            error(R.string.msg_export_failed_file_not_found, uri)
             return
         }
         if (pfd == null) {
-            _errorMessage.value = context.getString(R.string.msg_export_failed_null_pfd, uri)
+            error(R.string.msg_export_failed_null_pfd, uri)
             return
         }
 
@@ -222,7 +224,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 Timber.e(e)
-                _errorMessage.postValue(context.getString(R.string.msg_export_failed_write_json))
+                error(R.string.msg_export_failed_write_json)
             } finally {
                 cursor.close()
             }
@@ -233,6 +235,10 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 Timber.w(e)
             }
         }
+    }
+
+    private fun error(@StringRes resId: Int, vararg formatArgs: Any?) {
+        _errorMessage.postValue(Event(getApplication<BggApplication>().getString(resId, *formatArgs)))
     }
 
     fun importCollectionViews(uri: Uri) {
@@ -337,15 +343,15 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             context.contentResolver.openFileDescriptor(uri, "r")
         } catch (e: SecurityException) {
             Timber.w(e)
-            _errorMessage.value = context.getString(R.string.msg_import_failed_file_not_exist, uri)
+            error(R.string.msg_import_failed_file_not_exist, uri)
             return
         } catch (e: FileNotFoundException) {
             Timber.w(e)
-            _errorMessage.value = context.getString(R.string.msg_export_failed_null_pfd, uri) // TODO
+            error(R.string.msg_export_failed_null_pfd, uri) // TODO
             return
         }
         if (pfd == null) {
-            _errorMessage.value = context.getString(R.string.msg_export_failed_null_pfd, uri)
+            error(R.string.msg_export_failed_null_pfd, uri)
             return
         }
 
@@ -360,7 +366,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                     when (reader.nextName()) {
                         Constants.NAME_TYPE -> reader.nextString().also {
                             if (it != typeDescription) {
-                                _errorMessage.postValue(context.getString(R.string.msg_import_failed_wrong_type, typeDescription, it))
+                                error(R.string.msg_import_failed_wrong_type, typeDescription, it!!)
                                 return // TODO
                             }
                         }
@@ -373,7 +379,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             }
         } catch (e: Exception) {
             Timber.w(e, "Importing %s JSON file.", typeDescription)
-            _errorMessage.postValue(context.getString(R.string.msg_import_failed_parse_json))
+            error(R.string.msg_import_failed_parse_json)
         } finally {
             try {
                 reader.close()

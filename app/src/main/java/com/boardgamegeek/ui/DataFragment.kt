@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
@@ -16,7 +15,6 @@ import com.boardgamegeek.export.Constants
 import com.boardgamegeek.ui.viewmodel.DataPortViewModel
 import com.boardgamegeek.ui.widget.DataStepRow
 import com.boardgamegeek.util.FileUtils
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
@@ -34,8 +32,10 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game)
         createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user)
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) {
-            toast(it)
+        viewModel.errorMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { content ->
+                toast(content)
+            }
         }
         viewModel.collectionViewProgress.observe(viewLifecycleOwner) { event ->
             updateProgress(Constants.TYPE_COLLECTION_VIEWS, event.first, event.second) // TODO separate import / export
@@ -52,7 +52,7 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         findRow(type)?.updateProgressBar(max, progress)
         if (progress >= max) {
             findRow(type)?.hideProgressBar()
-            notifyEnd(null, R.string.msg_export_success, R.string.msg_export_failed)
+            toast(R.string.msg_export_success)
         }
     }
 
@@ -137,13 +137,6 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
 
     private fun findRow(type: Int): DataStepRow? {
         return fileTypesView.children.firstOrNull { (it.tag as? Int) == type } as? DataStepRow
-    }
-
-    private fun notifyEnd(errorMessage: String?, @StringRes successResId: Int, @StringRes failureResId: Int) {
-        val message = if (TextUtils.isEmpty(errorMessage)) getString(successResId) else getString(failureResId) + " - " + errorMessage
-        this.view?.let {
-            Snackbar.make(it, message, Snackbar.LENGTH_LONG).show()
-        }
     }
 
     companion object {
