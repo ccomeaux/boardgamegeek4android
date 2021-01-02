@@ -371,7 +371,14 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                             }
                         }
                         Constants.NAME_VERSION -> version = reader.nextInt()
-                        Constants.NAME_ITEMS -> parseItems(reader)
+                        Constants.NAME_ITEMS -> {
+                            items.clear();
+                            reader.beginArray()
+                            while (reader.hasNext()) {
+                                parseItems(reader)
+                            }
+                            reader.endArray();
+                        }
                         else -> reader.skipValue()
                     }
                 }
