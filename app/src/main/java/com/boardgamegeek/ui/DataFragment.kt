@@ -32,7 +32,7 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game)
         createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user)
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) { event ->
+        viewModel.message.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { content ->
                 toast(content)
             }
@@ -49,10 +49,11 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
     }
 
     private fun updateProgress(type: Int, max: Int, progress: Int) {
-        findRow(type)?.updateProgressBar(max, progress)
-        if (progress >= max) {
-            findRow(type)?.hideProgressBar()
-            toast(R.string.msg_export_success)
+        findRow(type)?.let { row ->
+            row.updateProgressBar(max, progress)
+            if (progress >= max) {
+                row.hideProgressBar()
+            }
         }
     }
 

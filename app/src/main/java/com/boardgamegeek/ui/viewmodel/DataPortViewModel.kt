@@ -35,9 +35,9 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             .excludeFieldsWithoutExposeAnnotation()
             .create()
 
-    private val _errorMessage = MutableLiveData<Event<String>>()
-    val errorMessage: LiveData<Event<String>>
-        get() = _errorMessage
+    private val _message = MutableLiveData<Event<String>>()
+    val message: LiveData<Event<String>>
+        get() = _message
 
     private val _collectionViewProgress = MutableLiveData<Pair<Int, Int>>()
     val collectionViewProgress: LiveData<Pair<Int, Int>>
@@ -176,7 +176,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
 
         val cursor = getCursor()
         if (cursor == null) {
-            error(R.string.msg_export_failed_null_cursor)
+            postMessage(R.string.msg_export_failed_null_cursor)
             return
         }
 
@@ -184,15 +184,15 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             context.contentResolver.openFileDescriptor(uri, "w")
         } catch (e: SecurityException) {
             Timber.w(e)
-            error(R.string.msg_export_failed_permissions, uri)
+            postMessage(R.string.msg_export_failed_permissions, uri)
             return
         } catch (e: FileNotFoundException) {
             Timber.w(e)
-            error(R.string.msg_export_failed_file_not_found, uri)
+            postMessage(R.string.msg_export_failed_file_not_found, uri)
             return
         }
         if (pfd == null) {
-            error(R.string.msg_export_failed_null_pfd, uri)
+            postMessage(R.string.msg_export_failed_null_pfd, uri)
             return
         }
 
@@ -224,7 +224,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 Timber.e(e)
-                error(R.string.msg_export_failed_write_json)
+                postMessage(R.string.msg_export_failed_write_json)
             } finally {
                 cursor.close()
             }
@@ -234,11 +234,13 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             } catch (e: IOException) {
                 Timber.w(e)
             }
+
+            postMessage(R.string.msg_export_success)
         }
     }
 
-    private fun error(@StringRes resId: Int, vararg formatArgs: Any?) {
-        _errorMessage.postValue(Event(getApplication<BggApplication>().getString(resId, *formatArgs)))
+    private fun postMessage(@StringRes resId: Int, vararg formatArgs: Any?) {
+        _message.postValue(Event(getApplication<BggApplication>().getString(resId, *formatArgs)))
     }
 
     fun importCollectionViews(uri: Uri) {
@@ -332,7 +334,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             uri: Uri,
             typeDescription: String,
             progress: MutableLiveData<Pair<Int, Int>>,
-            parseItems: (reader: JsonReader) -> Unit,
+            parseItem: (reader: JsonReader) -> T,
             importRecord: (item: T, version: Int) -> Unit,
             initializeImport: () -> Unit = {},
     ) {
@@ -343,70 +345,79 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             context.contentResolver.openFileDescriptor(uri, "r")
         } catch (e: SecurityException) {
             Timber.w(e)
-            error(R.string.msg_import_failed_file_not_exist, uri)
+            postMessage(R.string.msg_import_failed_file_not_read, uri)
             return
         } catch (e: FileNotFoundException) {
             Timber.w(e)
-            error(R.string.msg_export_failed_null_pfd, uri) // TODO
+            postMessage(R.string.msg_import_failed_file_not_exist, uri)
             return
         }
         if (pfd == null) {
-            error(R.string.msg_export_failed_null_pfd, uri)
+            postMessage(R.string.msg_export_failed_null_pfd, uri)
             return
         }
 
         var version = 0
-        val reader = JsonReader(InputStreamReader(FileInputStream(pfd.fileDescriptor), "UTF-8"))
-        try {
-            if (reader.peek() == JsonToken.BEGIN_ARRAY) {
-                parseItems(reader)
-            } else {
-                reader.beginObject()
-                while (reader.hasNext()) {
-                    when (reader.nextName()) {
-                        Constants.NAME_TYPE -> reader.nextString().also {
-                            if (it != typeDescription) {
-                                error(R.string.msg_import_failed_wrong_type, typeDescription, it!!)
-                                return // TODO
-                            }
-                        }
-                        Constants.NAME_VERSION -> version = reader.nextInt()
-                        Constants.NAME_ITEMS -> {
-                            items.clear();
-                            reader.beginArray()
-                            while (reader.hasNext()) {
-                                parseItems(reader)
-                            }
-                            reader.endArray();
-                        }
-                        else -> reader.skipValue()
-                    }
-                }
-                reader.endObject()
-            }
-        } catch (e: Exception) {
-            Timber.w(e, "Importing %s JSON file.", typeDescription)
-            error(R.string.msg_import_failed_parse_json)
-        } finally {
+        getApplication<BggApplication>().appExecutors.diskIO.execute {
+            val reader = JsonReader(InputStreamReader(FileInputStream(pfd.fileDescriptor), "UTF-8"))
             try {
-                reader.close()
-            } catch (e: IOException) {
-                Timber.w(e, "Failed trying to close the JsonReader")
+                if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+                    reader.beginArray()
+                    while (reader.hasNext()) {
+                        items += parseItem(reader)
+                    }
+                    reader.endArray()
+                } else {
+                    reader.beginObject()
+                    while (reader.hasNext()) {
+                        when (reader.nextName()) {
+                            Constants.NAME_TYPE -> reader.nextString().also {
+                                if (it != typeDescription) {
+                                    progress.postValue(items.size to items.size)
+                                    postMessage(R.string.msg_import_failed_wrong_type, typeDescription, it!!)
+                                    return@execute
+                                }
+                            }
+                            Constants.NAME_VERSION -> version = reader.nextInt()
+                            Constants.NAME_ITEMS -> {
+                                reader.beginArray()
+                                while (reader.hasNext()) {
+                                    items += parseItem(reader)
+                                }
+                                reader.endArray()
+                            }
+                            else -> reader.skipValue()
+                        }
+                    }
+                    reader.endObject()
+                }
+            } catch (e: Exception) {
+                progress.postValue(items.size to items.size)
+                Timber.w(e, "Importing %s JSON file.", typeDescription)
+                postMessage(R.string.msg_import_failed_parse_json)
+            } finally {
+                try {
+                    reader.close()
+                } catch (e: IOException) {
+                    progress.postValue(items.size to items.size)
+                    Timber.w(e, "Failed trying to close the JsonReader")
+                }
             }
-        }
 
-        initializeImport()
+            initializeImport()
+            items.forEachWithIndex { i, item ->
+                progress.postValue(items.size to i)
+                importRecord(item, version)
+            }
 
-        items.forEachWithIndex { i, item ->
-            progress.postValue(items.size to i)
-            importRecord(item, version)
-        }
-        progress.postValue(items.size to items.size) // TODO move this to a finally
+            try {
+                pfd.close()
+            } catch (e: IOException) {
+                Timber.w(e)
+            }
 
-        try {
-            pfd.close()
-        } catch (e: IOException) {
-            Timber.w(e)
+            progress.postValue(items.size to items.size)
+            postMessage(R.string.msg_import_success)
         }
     }
 }

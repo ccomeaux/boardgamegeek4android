@@ -54,6 +54,7 @@ class DataStepRow(context: Context) : LinearLayout(context) {
 
     fun initProgressBar() {
         progressBar.isIndeterminate = false
+        progressBar.progress = 0
         progressBar.fadeIn()
         importButton?.isEnabled = false
         exportButton?.isEnabled = false
