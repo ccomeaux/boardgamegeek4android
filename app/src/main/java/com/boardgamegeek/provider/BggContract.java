@@ -555,6 +555,10 @@ public class BggContract {
 			return getPathValue(uri, PATH_POLL_RESULTS_RESULT);
 		}
 
+		public static String getPollPlayerCount(Uri uri) {
+			return getPathValue(uri, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS);
+		}
+
 		public static String getPathValue(Uri uri, String path) {
 			if (TextUtils.isEmpty(path)) {
 				return "";
