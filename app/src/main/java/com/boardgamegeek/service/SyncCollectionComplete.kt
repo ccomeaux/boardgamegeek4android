@@ -186,7 +186,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     private fun updateTimestamps() {
         syncPrefs.setLastCompleteCollectionTimestamp(syncPrefs.getCurrentCollectionSyncTimestamp())
-        syncPrefs.setLastPartialCollectionTimestamp(syncPrefs.getCurrentCollectionSyncTimestamp())
+        syncPrefs.setPartialCollectionSyncLastCompletedAt(syncPrefs.getCurrentCollectionSyncTimestamp())
         syncPrefs.setCurrentCollectionSyncTimestamp(0L)
     }
 }

@@ -20,7 +20,7 @@ class SyncTimestampsDialogFragment : PreferenceDialogFragmentCompat() {
         val playsView = view.findViewById<TextView>(R.id.sync_timestamp_plays)
 
         setDateTime(collectionFull, syncPrefs.getLastCompleteCollectionTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-        setDateTime(collectionPartial, syncPrefs.getLastPartialCollectionTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        setDateTime(collectionPartial, syncPrefs.getPartialCollectionSyncLastCompletedAt(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
         setDateTime(buddies, syncPrefs.getBuddiesTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 

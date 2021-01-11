@@ -33,7 +33,7 @@ class SyncPrefs {
             val prefs = getPrefs(context)
             if (prefs.contains(TIMESTAMP_COLLECTION_COMPLETE)) return
             prefs.setLastCompleteCollectionTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE", 0L))
-            prefs.setLastPartialCollectionTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL", 0L))
+            prefs.setPartialCollectionSyncLastCompletedAt(getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL", 0L))
             prefs.setBuddiesTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_BUDDIES", 0L))
             prefs.setPlaysNewestTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE", 0L))
             prefs.setPlaysOldestTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE", Long.MAX_VALUE))
@@ -80,19 +80,19 @@ fun SharedPreferences.setCompleteCollectionSyncTimestamp(subtype: String, status
     this["${TIMESTAMP_COLLECTION_COMPLETE}.$subtype.$status"] = timestamp
 }
 
-fun SharedPreferences.getLastPartialCollectionTimestamp() = this[TIMESTAMP_COLLECTION_PARTIAL, 0L]
+fun SharedPreferences.getPartialCollectionSyncLastCompletedAt() = this[TIMESTAMP_COLLECTION_PARTIAL, 0L]
         ?: 0L
 
-fun SharedPreferences.setLastPartialCollectionTimestamp(timestamp: Long = System.currentTimeMillis()) {
+fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(timestamp: Long = System.currentTimeMillis()) {
     this[TIMESTAMP_COLLECTION_PARTIAL] = timestamp
 }
 
-fun SharedPreferences.getPartialCollectionSyncTimestamp(subtype: String): Long {
-    val ts = this.getLastPartialCollectionTimestamp()
+fun SharedPreferences.getPartialCollectionSyncLastCompletedAt(subtype: String): Long {
+    val ts = this.getPartialCollectionSyncLastCompletedAt()
     return this["${TIMESTAMP_COLLECTION_PARTIAL}.$subtype", ts] ?: ts
 }
 
-fun SharedPreferences.setPartialCollectionSyncTimestamp(subtype: String, timestamp: Long = System.currentTimeMillis()) {
+fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(subtype: String, timestamp: Long = System.currentTimeMillis()) {
     this["${TIMESTAMP_COLLECTION_PARTIAL}.$subtype"] = timestamp
 }
 
@@ -107,7 +107,7 @@ fun SharedPreferences.clearCollection() {
     map.keys
             .filter { it.startsWith("$TIMESTAMP_COLLECTION_COMPLETE.") }
             .forEach { this.remove(it) }
-    setLastPartialCollectionTimestamp(0L)
+    setPartialCollectionSyncLastCompletedAt(0L)
     map.keys
             .filter { it.startsWith("$TIMESTAMP_COLLECTION_PARTIAL.") }
             .forEach { this.remove(it) }
