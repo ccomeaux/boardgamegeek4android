@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Plays
@@ -140,11 +139,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
         swipeRefreshLayout.setBggColors()
         swipeRefreshLayout.setOnRefreshListener { triggerRefresh() }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(event: SyncCompleteEvent) {
-        isSyncing(false)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

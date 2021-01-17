@@ -20,21 +20,19 @@ import android.text.TextUtils;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.SyncCompleteEvent;
-import com.boardgamegeek.events.SyncEvent;
 import com.boardgamegeek.extensions.BatteryUtils;
 import com.boardgamegeek.extensions.NetworkUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.pref.SyncPrefUtils;
+import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.boardgamegeek.util.StringUtils;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -59,7 +57,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private SyncTask currentTask;
 	private boolean isCancelled;
 	private final CancelReceiver cancelReceiver = new CancelReceiver();
-	SharedPreferences prefs;
+	private SharedPreferences prefs;
+	private final SharedPreferences syncPrefs;
 
 	static class CrashKeys {
 		private static final String SYNC_TYPES = "SYNC_TYPES";
@@ -70,6 +69,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	public SyncAdapter(BggApplication context) {
 		super(context.getApplicationContext(), false);
 		application = context;
+		syncPrefs = SyncPrefs.getPrefs(context);
 
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build."));
@@ -127,11 +127,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 			currentTask = tasks.get(i);
 			try {
-				EventBus.getDefault().postSticky(new SyncEvent(currentTask.getSyncType()));
+				SyncPrefUtils.setCurrentTimestamp(syncPrefs);
 				FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_TYPE, currentTask.getSyncType());
 				currentTask.updateProgressNotification();
 				currentTask.execute();
-				EventBus.getDefault().removeStickyEvent(SyncEvent.class);
 				if (currentTask.isCancelled()) {
 					Timber.i("Sync task %s has requested the sync operation to be cancelled", currentTask);
 					break;
@@ -151,7 +150,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private void finishSync() {
 		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
-		EventBus.getDefault().post(new SyncCompleteEvent());
+		SyncPrefUtils.setCurrentTimestamp(syncPrefs, 0L);
 		try {
 			getContext().unregisterReceiver(cancelReceiver);
 		} catch (Exception e) {
