@@ -66,10 +66,6 @@ public class DialogUtils {
 			.create();
 	}
 
-	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener) {
-		return createConfirmationDialog(context, messageId, okListener, R.string.ok);
-	}
-
 	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener, @StringRes int positiveButtonTextId) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context)
 			.setCancelable(true)
