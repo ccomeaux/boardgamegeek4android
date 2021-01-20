@@ -211,7 +211,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
                 Authenticator.clearPassword(context)
                 true
             }
-            response.hasError() -> {
+            !response.errorMessage.isNullOrBlank() -> {
                 syncResult.stats.numIoExceptions++
                 notifyUploadError(response.errorMessage)
                 true
