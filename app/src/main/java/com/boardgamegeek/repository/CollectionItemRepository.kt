@@ -15,10 +15,7 @@ import com.boardgamegeek.io.BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
 import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.getPartialCollectionSyncTimestamp
-import com.boardgamegeek.pref.setLastPartialCollectionTimestamp
-import com.boardgamegeek.pref.setPartialCollectionSyncTimestamp
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.RateLimiter
 import retrofit2.Call
@@ -41,7 +38,7 @@ class CollectionItemRepository(val application: BggApplication) {
     fun loadCollection(): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
         return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
             private val timestamp = System.currentTimeMillis()
-            private val rateLimiter = RateLimiter<Int>(2, TimeUnit.MINUTES)
+            private val rateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
             private val subtypes = listOf("", THING_SUBTYPE_BOARDGAME_ACCESSORY)
             private var subtype = ""
 
@@ -50,16 +47,21 @@ class CollectionItemRepository(val application: BggApplication) {
             }
 
             override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
+                val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
+                val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
+                val isSyncUnderway = syncPrefs.getCurrentCollectionSyncTimestamp() > 0
                 return prefs.isCollectionSetToSync() &&
                         !username.isNullOrBlank() &&
-                        rateLimiter.shouldProcess(0)
+                        rateLimiter.shouldProcess(0) &&
+                        (lastStatusSync <= lastPartialSync) &&
+                        !isSyncUnderway
             }
 
             override val typeDescriptionResId = R.string.title_collection
 
             override fun createCall(page: Int): Call<CollectionResponse> {
                 subtype = subtypes.getOrNull(page - 1) ?: ""
-                val lastStatusSync = syncPrefs.getPartialCollectionSyncTimestamp(subtype)
+                val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
                 val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
                 val options = mutableMapOf(
                         BggService.COLLECTION_QUERY_KEY_STATS to "1",
@@ -81,7 +83,7 @@ class CollectionItemRepository(val application: BggApplication) {
                         Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
                     }
                 }
-                syncPrefs.setPartialCollectionSyncTimestamp(subtype, timestamp)
+                syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
                 Timber.i("...saved %,d %s collection items", count, subtype)
             }
 
@@ -90,7 +92,7 @@ class CollectionItemRepository(val application: BggApplication) {
             }
 
             override fun onRefreshSucceeded() {
-                syncPrefs.setLastPartialCollectionTimestamp()
+                syncPrefs.setPartialCollectionSyncLastCompletedAt()
             }
 
             override fun onRefreshFailed() {

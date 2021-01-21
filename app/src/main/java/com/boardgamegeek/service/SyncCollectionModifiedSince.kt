@@ -60,15 +60,15 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 return
             }
 
-            syncPrefs.setLastPartialCollectionTimestamp()
+            syncPrefs.setPartialCollectionSyncLastCompletedAt()
         } finally {
             Timber.i("...complete!")
         }
     }
 
     private fun syncBySubtype(subtype: String = "") {
-        val lastStatusSync = syncPrefs.getPartialCollectionSyncTimestamp(subtype)
-        val lastPartialSync = syncPrefs.getLastPartialCollectionTimestamp()
+        val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
+        val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
         if (lastStatusSync > lastPartialSync) {
             Timber.i("Subtype [$subtype] has been synced in the current sync request.")
             return
@@ -117,7 +117,7 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 } else {
                     Timber.i("...no new collection %s modifications", subtypeDescription)
                 }
-                syncPrefs.setPartialCollectionSyncTimestamp(subtype, timestamp)
+                syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
             } else {
                 showError(context.getString(R.string.sync_notification_collection_since, subtypeDescription, formattedDateTime), response.code())
                 syncResult.stats.numIoExceptions++
