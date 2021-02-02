@@ -12,7 +12,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.NewPlayPlayerEntity
@@ -47,28 +46,12 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
         }
     }
 
-    private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
-        override fun getOldListSize() = oldList.size
-
-        override fun getNewListSize() = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].id == newList[newItemPosition].id
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].isWin == newList[newItemPosition].isWin &&
-                    oldList[oldItemPosition].score == newList[newItemPosition].score
-        }
-    }
-
     private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
         : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            val diffCallback = Diff(oldValue, newValue)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            diffResult.dispatchUpdatesTo(this)
+            // using a DiffUtil causes too many crashes
+            notifyDataSetChanged()
         }
 
         init {
