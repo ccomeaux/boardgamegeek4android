@@ -4,7 +4,6 @@ import android.text.TextUtils;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.List;
 
 /**
  * Provides utility methods for dealing with strings.
@@ -95,33 +94,5 @@ public class StringUtils {
 		System.arraycopy(array1, 0, result, 0, array1.length);
 		System.arraycopy(array2, 0, result, array1.length, array2.length);
 		return result;
-	}
-
-	/**
-	 * Formats a list of items with commas and ampersands where necessary.
-	 */
-	public static <E> String formatList(List<E> list) {
-		return formatList(list, "&", ",");
-	}
-
-	public static <E> String formatList(List<E> list, String and, final String comma) {
-		StringBuilder sb = new StringBuilder();
-		if (list != null && list.size() > 0) {
-			if (list.size() == 1) {
-				sb.append(list.get(0));
-			} else if (list.size() == 2) {
-				sb.append(list.get(0)).append(" ").append(and).append(" ").append(list.get(1));
-			} else {
-				for (int i = 0; i < list.size(); i++) {
-					sb.append(list.get(i));
-					if (i == list.size() - 2) {
-						sb.append(comma).append(" ").append(and).append(" ");
-					} else if (i < list.size() - 2) {
-						sb.append(comma).append(" ");
-					}
-				}
-			}
-		}
-		return sb.toString();
 	}
 }

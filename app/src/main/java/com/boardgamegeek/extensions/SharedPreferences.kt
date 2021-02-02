@@ -326,7 +326,7 @@ fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>)
 
 private const val KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp"
 
-fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long? {
+fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long {
     return this[KEY_PRIVACY_CHECK_TIMESTAMP, 0L] ?: 0L
 }
 
