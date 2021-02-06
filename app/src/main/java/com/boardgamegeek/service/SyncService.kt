@@ -9,7 +9,6 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.NotificationUtils
 
 class SyncService : Service() {
     override fun onCreate() {
@@ -51,20 +50,6 @@ class SyncService : Service() {
                 )
                 ContentResolver.requestSync(account, BggContract.CONTENT_AUTHORITY, extras)
             }
-        }
-
-        fun cancelSync(context: Context?) {
-            NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
-            Authenticator.getAccount(context)?.let { account ->
-                ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY)
-            }
-        }
-
-        fun isActiveOrPending(context: Context?): Boolean {
-            val account = Authenticator.getAccount(context) ?: return false
-            val syncActive = ContentResolver.isSyncActive(account, BggContract.CONTENT_AUTHORITY)
-            val syncPending = ContentResolver.isSyncPending(account, BggContract.CONTENT_AUTHORITY)
-            return syncActive || syncPending
         }
     }
 }
