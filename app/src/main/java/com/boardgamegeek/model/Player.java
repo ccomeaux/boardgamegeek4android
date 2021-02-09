@@ -76,7 +76,7 @@ public class Player implements Parcelable {
 	public String getScoreDescription() {
 		if (StringUtils.isNumeric(score)) {
 			double s = StringUtils.parseDouble(score);
-			return DoubleUtils.asScore(s, null, 0, new DecimalFormat("#,##0.#"));
+			return DoubleUtils.asScore(s, null, 0, new DecimalFormat("#,##0.###"));
 		} else {
 			return score;
 		}

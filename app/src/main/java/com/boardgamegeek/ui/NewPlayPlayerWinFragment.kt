@@ -49,7 +49,7 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
     private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
         : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
-        var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, _, _ ->
             // using a DiffUtil causes too many crashes
             notifyDataSetChanged()
         }

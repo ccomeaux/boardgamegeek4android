@@ -25,9 +25,8 @@ data class NewPlayPlayerEntity(
 
     var score: String = ""
 
-    fun getScoreDescription(context: Context?): String? {
-        val scoreAsDouble = score.toDoubleOrNull()
-        return scoreAsDouble?.asScore(context, format = DecimalFormat("#,##0.#")) ?: score
+    fun getScoreDescription(context: Context?): String {
+        return score.toDoubleOrNull()?.asScore(context, format = DecimalFormat("#,##0.###")) ?: score
     }
 
     var color: String = ""
