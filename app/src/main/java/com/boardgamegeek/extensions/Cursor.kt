@@ -77,6 +77,8 @@ inline fun Cursor.getStringOrEmpty(columnName: String) =
 
 // Below is copied from KTX. Replace with library once it's released
 
+inline fun Cursor.getDouble(columnName: String): Double = getDouble(getColumnIndexOrThrow(columnName))
+
 inline fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
 
 inline fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))

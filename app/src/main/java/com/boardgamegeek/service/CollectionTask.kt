@@ -8,14 +8,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
-abstract class CollectionTask(protected val client: OkHttpClient) {
-    protected var collectionItem: CollectionItem = CollectionItem()
+abstract class CollectionTask(protected val client: OkHttpClient, var collectionItem: CollectionItem) {
     protected var error: String? = null
     protected var exception: Exception? = null
-
-    open fun addCollectionItem(collectionItem: CollectionItem) {
-        this.collectionItem = collectionItem
-    }
 
     fun post() {
         val request: Request = Request.Builder()
@@ -61,6 +56,8 @@ abstract class CollectionTask(protected val client: OkHttpClient) {
 
     companion object {
         private const val GEEK_COLLECTION_URL = "https://www.boardgamegeek.com/geekcollection.php"
+
+        @Suppress("SpellCheckingInspection")
         private const val ERROR_DIV = "<div class='messagebox error'>"
         private const val AUTH_ERROR_TEXT = "login"
     }
