@@ -1,8 +1,8 @@
-package com.boardgamegeek.service.model
+package com.boardgamegeek.entities
 
 import com.boardgamegeek.provider.BggContract
 
-data class CollectionItem(
+data class CollectionItemForUploadEntity(
         val internalId: Long = BggContract.INVALID_ID.toLong(),
         val collectionId: Int = BggContract.INVALID_ID,
         val gameId: Int = BggContract.INVALID_ID,

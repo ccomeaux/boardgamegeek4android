@@ -1,8 +1,8 @@
 package com.boardgamegeek.service
 
 import android.content.ContentValues
+import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.service.model.CollectionItem
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 
@@ -13,7 +13,7 @@ class CollectionRatingUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
 
     override val isDirty = collectionItem.ratingTimestamp > 0
 
-    override fun addCollectionItem(collectionItem: CollectionItem) {
+    override fun addCollectionItem(collectionItem: CollectionItemForUploadEntity) {
         super.addCollectionItem(collectionItem)
         rating = INVALID_RATING
     }
@@ -49,6 +49,7 @@ class CollectionRatingUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
 
     companion object {
         private const val N_A_SPAN = "<span>N/A</span>"
+
         @Suppress("SpellCheckingInspection")
         private const val RATING_DIV = "<div class='ratingtext'>"
         const val INVALID_RATING = -1.0

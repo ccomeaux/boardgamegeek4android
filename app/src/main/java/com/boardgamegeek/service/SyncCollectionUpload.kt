@@ -9,11 +9,11 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.INVALID_ID
-import com.boardgamegeek.service.model.CollectionItem
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
@@ -88,8 +88,8 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         }
     }
 
-    private fun fetchList(cursor: Cursor?): MutableList<CollectionItem> {
-        val list = mutableListOf<CollectionItem>()
+    private fun fetchList(cursor: Cursor?): MutableList<CollectionItemForUploadEntity> {
+        val list = mutableListOf<CollectionItemForUploadEntity>()
         cursor?.use {
             if (it.moveToFirst()) {
                 do {
@@ -100,8 +100,8 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         return list
     }
 
-    private fun fromCursor(cursor: Cursor): CollectionItem {
-        return CollectionItem(
+    private fun fromCursor(cursor: Cursor): CollectionItemForUploadEntity {
+        return CollectionItemForUploadEntity(
                 cursor.getLong(Collection._ID),
                 cursor.getIntOrNull(Collection.COLLECTION_ID) ?: INVALID_ID,
                 cursor.getInt(Collection.GAME_ID),
@@ -182,7 +182,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         return cursor
     }
 
-    private fun processDeletedCollectionItem(item: CollectionItem) {
+    private fun processDeletedCollectionItem(item: CollectionItemForUploadEntity) {
         val deleteTask = CollectionDeleteTask(okHttpClient, item)
         deleteTask.post()
         if (processResponseForError(deleteTask)) {
@@ -192,7 +192,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         notifySuccess(item, item.collectionId, R.string.sync_notification_collection_deleted)
     }
 
-    private fun processNewCollectionItem(item: CollectionItem) {
+    private fun processNewCollectionItem(item: CollectionItemForUploadEntity) {
         val addTask = CollectionAddTask(okHttpClient, item)
         addTask.post()
         if (processResponseForError(addTask)) {
@@ -205,7 +205,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }
 
-    private fun processDirtyCollectionItem(item: CollectionItem) {
+    private fun processDirtyCollectionItem(item: CollectionItemForUploadEntity) {
         if (item.collectionId != INVALID_ID) {
             val contentValues = ContentValues()
             for (task in uploadTasks) {
@@ -220,7 +220,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         }
     }
 
-    private fun processUploadTask(task: CollectionUploadTask, collectionItem: CollectionItem, contentValues: ContentValues): Boolean {
+    private fun processUploadTask(task: CollectionUploadTask, collectionItem: CollectionItemForUploadEntity, contentValues: ContentValues): Boolean {
         task.addCollectionItem(collectionItem)
         if (task.isDirty) {
             task.post()
@@ -232,7 +232,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         return false
     }
 
-    private fun notifySuccess(item: CollectionItem, id: Int, @StringRes messageResId: Int) {
+    private fun notifySuccess(item: CollectionItemForUploadEntity, id: Int, @StringRes messageResId: Int) {
         syncResult.stats.numUpdates++
         currentGameId = item.gameId
         currentGameName = item.collectionName

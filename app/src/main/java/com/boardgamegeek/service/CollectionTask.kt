@@ -2,13 +2,13 @@ package com.boardgamegeek.service
 
 import android.content.ContentValues
 import android.text.Html
-import com.boardgamegeek.service.model.CollectionItem
+import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
-abstract class CollectionTask(protected val client: OkHttpClient, var collectionItem: CollectionItem) {
+abstract class CollectionTask(protected val client: OkHttpClient, var collectionItem: CollectionItemForUploadEntity) {
     protected var error: String? = null
     protected var exception: Exception? = null
 
