@@ -12,8 +12,6 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.PlayDeleteResponse
-import com.boardgamegeek.model.PlaySaveResponse
 import com.boardgamegeek.model.builder.PlayBuilder
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract.*
@@ -318,7 +316,8 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
     override fun createMessageAction(): Action? {
         if (currentPlay.internalId != INVALID_ID.toLong()) {
-            val intent = LogPlayActivity.createRematchIntent(context,
+            val intent = LogPlayActivity.createRematchIntent(
+                    context,
                     currentPlay.internalId,
                     currentPlay.gameId,
                     currentPlay.gameName,
