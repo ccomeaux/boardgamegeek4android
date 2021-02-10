@@ -1,10 +1,10 @@
-package com.boardgamegeek.model;
-
-import java.util.List;
+package com.boardgamegeek.io.model;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.util.List;
 
 @Root(name = "buddies")
 public class Buddies {
