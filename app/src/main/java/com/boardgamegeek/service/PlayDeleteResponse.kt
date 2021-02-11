@@ -11,9 +11,9 @@ class PlayDeleteResponse(client: OkHttpClient, request: Request) : PlayPostRespo
     }
 
     val isSuccessful: Boolean
-        get() = !(hasError()) && playDelete?.isSuccessful == true
+        get() = !(hasError()) && playDelete?.success == true
 
     private class PlayDelete {
-        val isSuccessful = false
+        val success = false
     }
 }

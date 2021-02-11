@@ -16,20 +16,22 @@ class PlaySaveResponse(client: OkHttpClient, request: Request) : PlayPostRespons
         get() = if (hasError()) {
             -1
         } else {
-            playSave?.numberOfPlays ?: -1
+            playSave?.numplays ?: -1
         }
 
     val playId: Int
         get() = if (hasError()) {
             BggContract.INVALID_ID
         } else {
-            playSave?.playId ?: BggContract.INVALID_ID
+            playSave?.playid ?: BggContract.INVALID_ID
         }
 
+    @Suppress("SpellCheckingInspection")
     private class PlaySave {
-        val playId = 0
-        val numberOfPlays = 0
-        private val html: String? = null
+        val playid = 0
+        val numplays = 0
+        @Suppress("unused")
+        val html: String? = null
         val error: String? = null
     }
 }

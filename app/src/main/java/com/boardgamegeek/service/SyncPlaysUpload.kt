@@ -1,19 +1,18 @@
 package com.boardgamegeek.service
 
 import android.app.PendingIntent
-import android.content.ContentValues
 import android.content.Intent
 import android.content.SyncResult
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat.Action
+import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.db.PlayDao
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.builder.PlayBuilder
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
@@ -31,7 +30,7 @@ import java.util.concurrent.TimeUnit
 
 class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
-    private val persister = PlayPersister(context)
+    private val dao = PlayDao(application)
     private var currentPlay = PlayForNotification()
 
     inner class PlayForNotification(
@@ -78,7 +77,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     private fun updatePendingPlays() {
         val cursor = context.contentResolver.query(
                 Plays.CONTENT_SIMPLE_URI,
-                PlayBuilder.PLAY_PROJECTION_WITH_ID,
+                arrayOf(Plays._ID),
                 Plays.UPDATE_TIMESTAMP + ">0",
                 null,
                 Plays.UPDATE_TIMESTAMP)
@@ -95,12 +94,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 try {
                     val internalId = it.getLongOrNull(Plays._ID) ?: INVALID_ID.toLong()
-                    val play = PlayBuilder.fromCursor(it)
-                    val playerCursor = PlayBuilder.queryPlayers(context, internalId)
-                    playerCursor?.use { cursor ->
-                        PlayBuilder.addPlayers(cursor, play)
-                    }
-
+                    val play = dao.loadPlay(internalId) ?: break
                     val response = postPlayUpdate(play)
                     if (response.hasAuthError()) {
                         syncResult.stats.numAuthExceptions++
@@ -123,16 +117,11 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                             else -> context.getText(R.string.msg_play_added)
                         }
 
-                        play.playId = response.playId
-                        play.dirtyTimestamp = 0
-                        play.updateTimestamp = 0
-                        play.deleteTimestamp = 0
                         currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
-
                         notifyUser(play, message)
-                        persister.save(play, internalId, false)
 
-                        updateGamePlayCount(play)
+                        dao.setAsSynced(internalId, response.playId)
+                        updateGamePlayCount(play.gameId)
                     }
                 } catch (e: Exception) {
                     syncResult.stats.numParseExceptions++
@@ -144,7 +133,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
     private fun deletePendingPlays() {
         val cursor = context.contentResolver.query(Plays.CONTENT_SIMPLE_URI,
-                PlayBuilder.PLAY_PROJECTION_WITH_ID,
+                arrayOf(Plays._ID),
                 Plays.DELETE_TIMESTAMP + ">0",
                 null,
                 Plays.DELETE_TIMESTAMP)
@@ -160,19 +149,19 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 try {
-                    val play = PlayBuilder.fromCursor(it)
                     val internalId = it.getLongOrNull(Plays._ID) ?: INVALID_ID.toLong()
+                    val play = dao.loadPlay(internalId) ?: break
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                     if (play.playId > 0) {
                         val response = postPlayDelete(play.playId)
                         if (response.isSuccessful) {
                             syncResult.stats.numDeletes++
-                            deletePlay(internalId)
-                            updateGamePlayCount(play)
+                            dao.delete(internalId)
+                            updateGamePlayCount(play.gameId)
                             notifyUserOfDelete(R.string.msg_play_deleted, play)
                         } else if (response.hasInvalidIdError()) {
                             syncResult.stats.numConflictDetectedExceptions++
-                            deletePlay(internalId)
+                            dao.delete(internalId)
                             notifyUserOfDelete(R.string.msg_play_deleted, play)
                         } else if (response.hasAuthError()) {
                             syncResult.stats.numAuthExceptions++
@@ -184,7 +173,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                         }
                     } else {
                         syncResult.stats.numDeletes++
-                        deletePlay(internalId)
+                        dao.delete(internalId)
                         notifyUserOfDelete(R.string.msg_play_deleted_draft, play)
                     }
                 } catch (e: Exception) {
@@ -195,35 +184,34 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         }
     }
 
-    private fun updateGamePlayCount(play: Play) {
+    private fun updateGamePlayCount(gameId: Int) {
         val resolver = context.contentResolver
         val cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
                 arrayOf(Plays.SUM_QUANTITY),
-                String.format("%s=? AND %s", Plays.OBJECT_ID, SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP)),
-                arrayOf(play.gameId.toString()),
+                "${Plays.OBJECT_ID}=? AND ${SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP)}",
+                arrayOf(gameId.toString()),
                 null)
         cursor?.use {
             if (it.moveToFirst()) {
-                val newPlayCount = it.getInt(0)
-                val values = ContentValues()
-                values.put(Collection.NUM_PLAYS, newPlayCount)
-                resolver.update(Games.buildGameUri(play.gameId), values, null, null)
+                val values = contentValuesOf(Collection.NUM_PLAYS to it.getInt(0))
+                resolver.update(Games.buildGameUri(gameId), values, null, null)
             }
         }
     }
 
-    private fun postPlayUpdate(play: Play): PlaySaveResponse {
-        val builder = FormBody.Builder()
+    @Suppress("SpellCheckingInspection")
+    private fun postPlayUpdate(play: PlayEntity): PlaySaveResponse {
+        val bodyBuilder = FormBody.Builder()
                 .add("ajax", "1")
                 .add("action", "save")
                 .add("version", "2")
                 .add("objecttype", "thing")
         if (play.playId > 0) {
-            builder.add("playid", play.playId.toString())
+            bodyBuilder.add("playid", play.playId.toString())
         }
-        builder.add("objectid", play.gameId.toString())
-                .add("playdate", play.dateForApi)
-                .add("dateinput", play.dateForApi)
+        bodyBuilder.add("objectid", play.gameId.toString())
+                .add("playdate", play.dateInMillis.asDateForApi())
+                .add("dateinput", play.dateInMillis.asDateForApi())
                 .add("length", play.length.toString())
                 .add("location", play.location)
                 .add("quantity", play.quantity.toString())
@@ -233,13 +221,13 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         val players = play.players
         for (i in players.indices) {
             val player = players[i]
-            builder
+            bodyBuilder
                     .add(getMapKey(i, "playerid"), "player_$i")
                     .add(getMapKey(i, "name"), player.name)
                     .add(getMapKey(i, "username"), player.username)
-                    .add(getMapKey(i, "color"), player.color)
-                    .add(getMapKey(i, "position"), player.startingPosition)
-                    .add(getMapKey(i, "score"), player.score)
+                    .add(getMapKey(i, "color"), player.color.orEmpty())
+                    .add(getMapKey(i, "position"), player.startingPosition.orEmpty())
+                    .add(getMapKey(i, "score"), player.score.orEmpty())
                     .add(getMapKey(i, "rating"), player.rating.toString())
                     .add(getMapKey(i, "new"), if (player.isNew) "1" else "0")
                     .add(getMapKey(i, "win"), if (player.isWin) "1" else "0")
@@ -247,13 +235,14 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
         val request = Builder()
                 .url(GEEK_PLAY_URL)
-                .post(builder.build())
+                .post(bodyBuilder.build())
                 .build()
         return PlaySaveResponse(httpClient, request)
     }
 
     private fun postPlayDelete(playId: Int): PlayDeleteResponse {
-        val builder = FormBody.Builder()
+        @Suppress("SpellCheckingInspection")
+        val bodyBuilder = FormBody.Builder()
                 .add("ajax", "1")
                 .add("action", "delete")
                 .add("playid", playId.toString())
@@ -261,16 +250,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
         val request = Builder()
                 .url(GEEK_PLAY_URL)
-                .post(builder.build())
+                .post(bodyBuilder.build())
                 .build()
         return PlayDeleteResponse(httpClient, request)
-    }
-
-    /**
-     * Deletes the specified play from the content provider
-     */
-    private fun deletePlay(internalId: Long) {
-        persister.delete(internalId)
     }
 
     private fun getPlayCountDescription(count: Int, quantity: Int): String {
@@ -281,7 +263,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         }
     }
 
-    private fun notifyUserOfDelete(@StringRes messageId: Int, play: Play) {
+    private fun notifyUserOfDelete(@StringRes messageId: Int, play: PlayEntity) {
         NotificationUtils.cancel(context,
                 notificationMessageTag,
                 NotificationUtils.getIntegerId(currentPlay.internalId).toLong())
@@ -289,7 +271,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         notifyUser(play, context.getText(messageId, play.gameName))
     }
 
-    private fun notifyUser(play: Play, message: CharSequence) {
+    private fun notifyUser(play: PlayEntity, message: CharSequence) {
         if (play.gameId != INVALID_ID) {
             val gameCursor = context.contentResolver.query(
                     Games.buildGameUri(play.gameId),
@@ -339,8 +321,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     companion object {
         const val GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php"
 
-        private fun getMapKey(index: Int, key: String): String {
-            return "players[$index][$key]"
-        }
+        private fun getMapKey(index: Int, key: String) = "players[$index][$key]"
     }
 }

@@ -24,7 +24,7 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    private fun loadPlay(id: Long): PlayEntity? {
+    fun loadPlay(id: Long): PlayEntity? {
         val uri = Plays.buildPlayWithGameUri(id)
         return context.contentResolver.load(
                 uri,
@@ -192,7 +192,8 @@ class PlayDao(private val context: BggApplication) {
             PlaysSortBy.LENGTH -> Plays.LENGTH.descending()
         }
         context.contentResolver.load(uri,
-                arrayOf(Plays._ID,
+                arrayOf(
+                        Plays._ID,
                         Plays.PLAY_ID,
                         Plays.DATE,
                         Plays.OBJECT_ID,
@@ -553,6 +554,28 @@ class PlayDao(private val context: BggApplication) {
             }
         }
         return results
+    }
+
+    fun delete(internalId: Long): Boolean {
+        return context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
+    }
+
+    /**
+     * Set the play indicated by internalId as synced. Play ID is necessary when syncing for the first time.
+     */
+    fun setAsSynced(internalId: Long, playId: Int) {
+        val contentValues = contentValuesOf(
+                Plays.PLAY_ID to playId,
+                Plays.DIRTY_TIMESTAMP to 0,
+                Plays.UPDATE_TIMESTAMP to 0,
+                Plays.DELETE_TIMESTAMP to 0,
+        )
+        val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), contentValues, null, null)
+        if (rowsUpdated == 1) {
+            Timber.i("Updated play _ID=$internalId, PLAY_ID=$playId as synced")
+        } else {
+            Timber.w("Updated $rowsUpdated plays when trying to set _ID=$internalId as synced")
+        }
     }
 
     fun save(play: PlayEntity): Long {

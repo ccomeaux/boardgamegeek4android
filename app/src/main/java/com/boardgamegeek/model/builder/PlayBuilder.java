@@ -1,6 +1,5 @@
 package com.boardgamegeek.model.builder;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -11,7 +10,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
-import com.boardgamegeek.util.StringUtils;
 
 import java.util.ArrayList;
 
@@ -34,9 +32,6 @@ public class PlayBuilder {
 		Plays.UPDATE_TIMESTAMP,
 		Plays.DIRTY_TIMESTAMP
 	};
-
-	public static final String[] PLAY_PROJECTION_WITH_ID = StringUtils.concatenate(
-		new String[] { Plays._ID }, PLAY_PROJECTION);
 
 	public static final String[] PLAYER_PROJECTION = {
 		PlayPlayers.USER_ID,
@@ -88,7 +83,7 @@ public class PlayBuilder {
 		return play;
 	}
 
-	public static Player playerFromCursor(Cursor cursor) {
+	private static Player playerFromCursor(Cursor cursor) {
 		Player player = new Player();
 		player.userId = CursorUtils.getInt(cursor, PlayPlayers.USER_ID);
 		player.username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
@@ -100,10 +95,6 @@ public class PlayBuilder {
 		player.isNew = CursorUtils.getBoolean(cursor, PlayPlayers.NEW);
 		player.isWin = CursorUtils.getBoolean(cursor, PlayPlayers.WIN);
 		return player;
-	}
-
-	public static Cursor queryPlayers(Context context, long internalId) {
-		return context.getContentResolver().query(Plays.buildPlayerUri(internalId), null, null, null, null);
 	}
 
 	public static void addPlayers(Cursor cursor, Play play) {
