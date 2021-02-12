@@ -9,32 +9,31 @@ import com.boardgamegeek.extensions.IntUtils;
 import com.boardgamegeek.extensions.NetworkUtils;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.tasks.sync.SyncTask.CompletedEvent;
 import com.boardgamegeek.util.RemoteConfig;
 
-import org.greenrobot.eventbus.EventBus;
-
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.lifecycle.MutableLiveData;
 import retrofit2.Call;
 import retrofit2.Response;
 import timber.log.Timber;
 
-public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Void, Void, String> {
-	@SuppressLint("StaticFieldLeak") @Nullable protected final Context context;
+public abstract class SyncTask<T> extends AsyncTask<Void, Void, String> {
+	@SuppressLint("StaticFieldLeak") @NonNull protected final Context context;
 	protected final long startTime;
 	protected BggService bggService;
 	private Call<T> call;
 	private int page = 1;
 
-	SyncTask(@Nullable Context context) {
-		this.context = context == null ? null : context.getApplicationContext();
+	public final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
+
+	SyncTask(@NonNull Context context) {
+		this.context = context.getApplicationContext();
 		startTime = System.currentTimeMillis();
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
-		if (context == null) return "Error.";
 		bggService = createService();
 		if (!isRequestParamsValid())
 			return context.getString(R.string.msg_update_invalid_request, context.getString(getTypeDescriptionResId()));
@@ -73,7 +72,7 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		Timber.w(errorMessage);
-		EventBus.getDefault().post(createEvent(errorMessage));
+		errorMessageLiveData.postValue(errorMessage);
 	}
 
 	@Override
@@ -94,9 +93,7 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 		return Adapter.createForXml();
 	}
 
-	protected boolean isRequestParamsValid() {
-		return context != null;
-	}
+	protected abstract boolean isRequestParamsValid();
 
 	protected boolean isResponseBodyValid(T body) {
 		return body != null;
@@ -109,19 +106,5 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 	}
 
 	protected void finishSync() {
-	}
-
-	protected abstract E createEvent(String errorMessage);
-
-	protected class CompletedEvent {
-		private final String errorMessage;
-
-		public CompletedEvent(String errorMessage) {
-			this.errorMessage = errorMessage;
-		}
-
-		public String getErrorMessage() {
-			return errorMessage;
-		}
 	}
 }

@@ -17,7 +17,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.tasks.CalculatePlayStatsTask;
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask.CompletedEvent;
 import com.boardgamegeek.util.SelectionBuilder;
 
 import java.util.List;
@@ -27,7 +26,7 @@ import androidx.annotation.StringRes;
 import retrofit2.Call;
 import timber.log.Timber;
 
-public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent> {
+public class SyncPlaysByGameTask extends SyncTask<PlaysResponse> {
 	private final BggApplication application;
 	private final int gameId;
 	private final String username;
@@ -52,9 +51,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected boolean isRequestParamsValid() {
-		return super.isRequestParamsValid() &&
-			gameId != BggContract.INVALID_ID &&
-			!TextUtils.isEmpty(username);
+		return gameId != BggContract.INVALID_ID && !TextUtils.isEmpty(username);
 	}
 
 	@Override
@@ -73,16 +70,9 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected void finishSync() {
-		if (context == null) return;
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
 		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(application));
-	}
-
-	@NonNull
-	@Override
-	protected CompletedEvent createEvent(String errorMessage) {
-		return new CompletedEvent(errorMessage, gameId);
 	}
 
 	private void deleteUnupdatedPlays(@NonNull Context context, long startTime) {
@@ -100,18 +90,5 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		ContentValues values = new ContentValues(1);
 		values.put(Games.UPDATED_PLAYS, System.currentTimeMillis());
 		context.getContentResolver().update(Games.buildGameUri(gameId), values, null, null);
-	}
-
-	public class CompletedEvent extends SyncTask<?,?>.CompletedEvent {
-		private final int gameId;
-
-		public CompletedEvent(String errorMessage, int gameId) {
-			super(errorMessage);
-			this.gameId = gameId;
-		}
-
-		public int getGameId() {
-			return gameId;
-		}
 	}
 }

@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
-import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -21,8 +20,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -30,9 +27,6 @@ import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.withArguments
 import java.text.SimpleDateFormat
@@ -100,16 +94,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         )
     }
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -141,11 +125,11 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         swipeRefreshLayout.setOnRefreshListener { triggerRefresh() }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncPlaysByDateTask.CompletedEvent) {
-        isSyncing(false)
-    }
-
+    //    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun onEvent(event: SyncPlaysByDateTask.CompletedEvent) {
+//        isSyncing(false)
+//    }
+//
     fun isSyncing(value: Boolean) {
         isSyncing = value
         swipeRefreshLayout?.post {
@@ -153,15 +137,15 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncPlaysByGameTask.CompletedEvent) {
-        if (!showGameName && event.gameId == gameId) {
-            isSyncing(false)
-            if (!event.errorMessage.isNullOrBlank()) {
-                Toast.makeText(context, event.errorMessage, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun onEvent(event: SyncPlaysByGameTask.CompletedEvent) {
+//        if (!showGameName && event.gameId == gameId) {
+//            isSyncing(false)
+//            if (!event.errorMessage.isNullOrBlank()) {
+//                Toast.makeText(context, event.errorMessage, Toast.LENGTH_LONG).show()
+//            }
+//        }
+//    }
 
     private fun triggerRefresh() {
         viewModel.refresh()
