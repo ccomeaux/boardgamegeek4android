@@ -4,9 +4,9 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.queryStrings
+import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.util.SelectionBuilder
 
 /**
  * Syncs all buddies that haven't been updated completely.
@@ -23,6 +23,6 @@ class SyncBuddiesDetailUnupdated(application: BggApplication, service: BggServic
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
                 Buddies.BUDDY_NAME,
-                SelectionBuilder.whereZeroOrNull(Buddies.UPDATED))
+                Buddies.UPDATED.whereZeroOrNull())
     }
 }

@@ -29,12 +29,6 @@ fun Cursor.getString(columnName: String, defaultValue: String = ""): String {
     } else value
 }
 
-inline fun String.whereZeroOrNull() = "($this=0 OR $this IS NULL)"
-
-inline fun String.whereEqualsOrNull() = "($this=? OR $this IS NULL)"
-
-inline fun String.whereNotEqualsOrNull() = "($this!=? OR $this IS NULL)"
-
 /**
  * Fix for Cursor not implementing Closeable until API level 16.
  */

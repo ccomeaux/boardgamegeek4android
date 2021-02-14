@@ -188,7 +188,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         val resolver = context.contentResolver
         val cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
                 arrayOf(Plays.SUM_QUANTITY),
-                "${Plays.OBJECT_ID}=? AND ${SelectionBuilder.whereZeroOrNull(Plays.DELETE_TIMESTAMP)}",
+                "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
                 arrayOf(gameId.toString()),
                 null)
         cursor?.use {

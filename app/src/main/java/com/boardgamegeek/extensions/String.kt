@@ -107,31 +107,3 @@ fun String.truncate(length: Int): String {
         else -> this.take(length)
     }
 }
-
-fun String.ascending(): String {
-    return this.plus(" ASC")
-}
-
-fun String.descending(): String {
-    return this.plus(" DESC")
-}
-
-fun String.collateNoCase(): String {
-    return this.plus(" COLLATE NOCASE")
-}
-
-fun String.isTrue(): String {
-    return this.plus("=1")
-}
-
-fun String.greaterThanZero(): String {
-    return this.plus(">0")
-}
-
-fun String.blank(): String {
-    return "$this='' OR $this IS NULL"
-}
-
-fun String.notBlank(): String {
-    return "$this<>''"
-}

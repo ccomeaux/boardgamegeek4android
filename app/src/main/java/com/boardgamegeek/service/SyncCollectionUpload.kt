@@ -19,7 +19,6 @@ import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.SelectionBuilder
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
@@ -149,7 +148,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
     }
 
     private fun fetchNewCollectionItems(): Cursor? {
-        val selection = "(${getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP))}) AND ${SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID)}"
+        val selection = "(${getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP))}) AND ${Collection.COLLECTION_ID.whereNullOrBlank()}"
         return getCollectionItems(selection, R.plurals.sync_notification_collection_adding)
     }
 
