@@ -4,17 +4,16 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
-import com.boardgamegeek.util.DateTimeUtils
 import retrofit2.Call
 import timber.log.Timber
 
-class SyncPlaysByDateTask(private val application: BggApplication, year: Int, month: Int, day: Int) : SyncTask<PlaysResponse>(application.applicationContext) {
-    private val date: String = DateTimeUtils.formatDateForApi(year, month, day)
+class SyncPlaysByDateTask(private val application: BggApplication, private val timeInMillis: Long) : SyncTask<PlaysResponse>(application.applicationContext) {
     private val username = AccountUtils.getUsername(context)
     private val persister = PlayPersister(context)
     private val mapper = PlayMapper()
@@ -24,18 +23,19 @@ class SyncPlaysByDateTask(private val application: BggApplication, year: Int, mo
         get() = R.string.title_plays
 
     override fun createCall(): Call<PlaysResponse>? {
+        val date = timeInMillis.asDateForApi()
         return bggService?.playsByDate(username, date, date, currentPage)
     }
 
     override val isRequestParamsValid: Boolean
-        get() = date.isNotBlank() && !username.isNullOrBlank()
+        get() = timeInMillis > 0L && !username.isNullOrBlank()
 
     override fun persistResponse(body: PlaysResponse?) {
         body?.plays?.let {
             val plays = mapper.map(it)
             persister.save(plays, startTime)
         }
-        Timber.i("Synced plays for %s (page %,d)", date, currentPage)
+        Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), currentPage)
     }
 
     override fun hasMorePages(body: PlaysResponse?): Boolean {

@@ -44,6 +44,7 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
 import com.boardgamegeek.extensions.FloatingActionButtonUtils;
+import com.boardgamegeek.extensions.LongUtils;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.boardgamegeek.model.Play;
@@ -66,7 +67,6 @@ import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment;
 import com.boardgamegeek.ui.dialog.ScoreNumberPadDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -345,7 +345,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					play.setCurrentDate();
 
 					long lastPlay = PreferenceUtils.getLastPlayTime(prefs);
-					if (DateTimeUtils.howManyHoursOld(lastPlay) < 12) {
+					if (LongUtils.howManyHoursOld(lastPlay) < 12) {
 						play.location = PreferenceUtils.getLastPlayLocation(prefs);
 						play.setPlayers(PreferenceUtils.getLastPlayPlayers(prefs));
 						play.pickStartPlayer(0);

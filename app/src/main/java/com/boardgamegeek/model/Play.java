@@ -5,19 +5,22 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
 public class Play {
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
+	private static final DateFormat FORMAT_DATABASE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	public int playId;
 	public long dateInMillis;
@@ -60,12 +63,10 @@ public class Play {
 
 	// DATE
 
-	public String getDateForApi() {
-		return DateTimeUtils.formatDateForApi(dateInMillis);
-	}
-
 	public String getDateForDatabase() {
-		return DateTimeUtils.formatDateForDatabase(dateInMillis);
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(dateInMillis);
+		return FORMAT_DATABASE.format(c.getTime());
 	}
 
 	public CharSequence getDateForDisplay(Context context) {
@@ -81,7 +82,7 @@ public class Play {
 	}
 
 	public void setDateFromDatabase(String date) {
-		dateInMillis = com.boardgamegeek.extensions.StringUtils.toMillis(date, DateTimeUtils.FORMAT_DATABASE);
+		dateInMillis = com.boardgamegeek.extensions.StringUtils.toMillis(date, FORMAT_DATABASE);
 	}
 
 	public void setCurrentDate() {
@@ -324,11 +325,18 @@ public class Play {
 
 	public void end() {
 		if (startTime > 0) {
-			length = DateTimeUtils.howManyMinutesOld(startTime);
+			length = howManyMinutesOld(startTime);
 			startTime = 0;
 		} else {
 			length = 0;
 		}
+	}
+
+	/**
+	 * Determines how many minutes ago time was (rounded up/down).
+	 */
+	private static int howManyMinutesOld(long time) {
+		return (int) ((System.currentTimeMillis() - time + 30000) / DateUtils.MINUTE_IN_MILLIS);
 	}
 
 	@Override

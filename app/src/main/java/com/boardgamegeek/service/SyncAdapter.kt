@@ -161,7 +161,7 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
 
     private fun hasPrivacyError(): Boolean {
         val weeksToCompare = RemoteConfig.getInt(RemoteConfig.KEY_PRIVACY_CHECK_WEEKS)
-        val weeks = DateTimeUtils.howManyWeeksOld(prefs.getLastPrivacyCheckTimestamp())
+        val weeks = prefs.getLastPrivacyCheckTimestamp().howManyWeeksOld()
         if (weeks < weeksToCompare) {
             Timber.i("We checked the privacy statement less than %,d weeks ago; skipping", weeksToCompare)
             return false

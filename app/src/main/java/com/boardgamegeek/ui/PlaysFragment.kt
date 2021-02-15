@@ -23,7 +23,6 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
@@ -271,7 +270,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             val play = items.getOrNull(position) ?: return "-"
             return when (viewModel.sortType.value ?: PlaysViewModel.SortType.DATE) {
                 PlaysViewModel.SortType.DATE -> {
-                    if (play.dateInMillis == DateTimeUtils.UNKNOWN_DATE)
+                    if (play.dateInMillis == PlayEntity.UNKNOWN_DATE)
                         getString(R.string.text_unknown)
                     else
                         dateFormat.format(play.dateInMillis)
