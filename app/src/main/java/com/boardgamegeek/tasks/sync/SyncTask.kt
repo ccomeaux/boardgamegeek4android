@@ -15,7 +15,7 @@ import com.boardgamegeek.util.RemoteConfig.Companion.getBoolean
 import retrofit2.Call
 import timber.log.Timber
 
-abstract class SyncTask<T> internal constructor(context: Context) : AsyncTask<Void, Void, String>() {
+abstract class SyncTask<T> internal constructor(context: Context, private val errorMessageLiveData: MutableLiveData<String>? = null) : AsyncTask<Void, Void, String>() {
     @SuppressLint("StaticFieldLeak")
     protected val context: Context = context.applicationContext
 
@@ -27,8 +27,6 @@ abstract class SyncTask<T> internal constructor(context: Context) : AsyncTask<Vo
 
     protected var currentPage = 1
         private set
-
-    private val errorMessageLiveData = MutableLiveData<String>()
 
     override fun doInBackground(vararg params: Void): String {
         bggService = createService()
@@ -70,7 +68,7 @@ abstract class SyncTask<T> internal constructor(context: Context) : AsyncTask<Vo
 
     override fun onPostExecute(errorMessage: String) {
         Timber.w(errorMessage)
-        errorMessageLiveData.postValue(errorMessage)
+        errorMessageLiveData?.postValue(errorMessage)
     }
 
     override fun onCancelled() {

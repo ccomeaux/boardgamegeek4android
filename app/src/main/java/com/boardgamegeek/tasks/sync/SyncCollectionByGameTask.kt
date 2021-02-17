@@ -1,6 +1,7 @@
 package com.boardgamegeek.tasks.sync
 
 import androidx.annotation.StringRes
+import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -13,7 +14,8 @@ import com.boardgamegeek.provider.BggContract
 import retrofit2.Call
 import timber.log.Timber
 
-class SyncCollectionByGameTask(application: BggApplication, private val gameId: Int) : SyncTask<CollectionResponse>(application.applicationContext) {
+class SyncCollectionByGameTask(application: BggApplication, private val gameId: Int, errorMessageLiveData: MutableLiveData<String>? = null) :
+        SyncTask<CollectionResponse>(application.applicationContext, errorMessageLiveData) {
     private val username = AccountUtils.getUsername(context)
     private val dao = CollectionDao(application)
     private val results = mutableListOf<Int>()
