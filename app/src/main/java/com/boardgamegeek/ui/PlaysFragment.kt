@@ -99,17 +99,15 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        emptyStringResId = arguments?.getInt(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
-                ?: R.string.empty_plays
-        showGameName = arguments?.getBoolean(KEY_SHOW_GAME_NAME, true) ?: true
-        gameId = arguments?.getInt(KEY_GAME_ID, INVALID_ID) ?: INVALID_ID
+        emptyStringResId = arguments.getIntOrElse(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
+        showGameName = arguments.getBooleanOrElse(KEY_SHOW_GAME_NAME, true)
+        gameId = arguments.getIntOrElse(KEY_GAME_ID, INVALID_ID)
         gameName = arguments?.getString(KEY_GAME_NAME)
         thumbnailUrl = arguments?.getString(KEY_THUMBNAIL_URL)
         imageUrl = arguments?.getString(KEY_IMAGE_URL)
         heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
-        arePlayersCustomSorted = arguments?.getBoolean(KEY_CUSTOM_PLAYER_SORT) ?: false
-        @ColorInt val iconColor = arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
-                ?: Color.TRANSPARENT
+        arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
+        @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
 
         if (gameId != INVALID_ID) {
             fabView.colorize(iconColor)
