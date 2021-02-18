@@ -17,6 +17,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
 import java.util.concurrent.TimeUnit
 
@@ -51,6 +52,13 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     private val _updateMessage = MutableLiveData<Event<String>>()
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
+
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<Event<String>> = Transformations.map(_errorMessage) { Event(it) }
+
+    private val _syncingStatus = MutableLiveData<Boolean>()
+    val syncingStatus: LiveData<Boolean>
+        get() = _syncingStatus
 
     val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(playInfo) {
         when (it.mode) {
@@ -120,7 +128,7 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
             playInfo.value?.let {
                 if (it.mode == Mode.GAME) {
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-                    SyncPlaysByGameTask(getApplication(), it.id).executeAsyncTask()
+                    SyncPlaysByGameTask(getApplication(), it.id, _errorMessage, _syncingStatus).executeAsyncTask()
                 } else {
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS)
                 }
@@ -134,10 +142,14 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     fun renameLocation(oldLocationName: String, newLocationName: String) {
         playRepository.renameLocation(oldLocationName, newLocationName, locationRenameCount)
         SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        // TODO implement this with a coroutine to be able to capture the count
+        // result = context.getResources().getQuantityString(R.plurals.msg_play_location_change, count, count, oldLocationName, newLocationName)
         setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_location_change, oldLocationName, newLocationName))
         setLocation(newLocationName)
-        // TODO implement this with a coroutine
-        // result = context.getResources().getQuantityString(R.plurals.msg_play_location_change, count, count, oldLocationName, newLocationName)
+    }
+
+    fun syncPlaysByDate(timeInMillis: Long) {
+        SyncPlaysByDateTask(getApplication(), timeInMillis, _errorMessage, _syncingStatus).executeAsyncTask()
     }
 
     private fun setUpdateMessage(message: String) {

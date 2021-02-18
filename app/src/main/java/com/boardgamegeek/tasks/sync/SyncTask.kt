@@ -15,7 +15,11 @@ import com.boardgamegeek.util.RemoteConfig.Companion.getBoolean
 import retrofit2.Call
 import timber.log.Timber
 
-abstract class SyncTask<T> internal constructor(context: Context, private val errorMessageLiveData: MutableLiveData<String>? = null) : AsyncTask<Void, Void, String>() {
+abstract class SyncTask<T> internal constructor(
+        context: Context,
+        private val errorMessageLiveData: MutableLiveData<String>? = null,
+        private val syncingLiveData: MutableLiveData<Boolean>? = null) :
+        AsyncTask<Void, Void, String>() {
     @SuppressLint("StaticFieldLeak")
     protected val context: Context = context.applicationContext
 
@@ -34,6 +38,7 @@ abstract class SyncTask<T> internal constructor(context: Context, private val er
         if (context.isOffline()) return context.getString(R.string.msg_offline)
         if (!getBoolean(RemoteConfig.KEY_SYNC_ENABLED)) return context.getString(R.string.msg_sync_remotely_disabled)
         try {
+            syncingLiveData?.postValue(true)
             var shouldContinue = false
             currentPage = 0
             do {
@@ -69,10 +74,12 @@ abstract class SyncTask<T> internal constructor(context: Context, private val er
     override fun onPostExecute(errorMessage: String) {
         Timber.w(errorMessage)
         errorMessageLiveData?.postValue(errorMessage)
+        syncingLiveData?.postValue(false)
     }
 
     override fun onCancelled() {
         call?.cancel()
+        syncingLiveData?.postValue(false)
     }
 
     @get:StringRes

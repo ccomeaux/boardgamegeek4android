@@ -1,6 +1,7 @@
 package com.boardgamegeek.tasks.sync
 
 import androidx.annotation.StringRes
+import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -13,7 +14,12 @@ import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import retrofit2.Call
 import timber.log.Timber
 
-class SyncPlaysByDateTask(private val application: BggApplication, private val timeInMillis: Long) : SyncTask<PlaysResponse>(application.applicationContext) {
+class SyncPlaysByDateTask(
+        private val application: BggApplication,
+        private val timeInMillis: Long,
+        errorMessageLiveData: MutableLiveData<String>,
+        syncingLiveData: MutableLiveData<Boolean>) :
+        SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData, syncingLiveData) {
     private val username = AccountUtils.getUsername(context)
     private val persister = PlayPersister(context)
     private val mapper = PlayMapper()

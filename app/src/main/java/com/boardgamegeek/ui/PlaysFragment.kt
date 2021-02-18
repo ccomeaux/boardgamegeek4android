@@ -9,7 +9,6 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -33,13 +32,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
-open class PlaysFragment : Fragment(), ActionMode.Callback {
+open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callback {
     private val viewModel by activityViewModels<PlaysViewModel>()
     private val markupConverter by lazy { XmlApiMarkupConverter(requireContext()) }
 
-    private val adapter: PlayAdapter by lazy {
-        PlayAdapter()
-    }
+    private val adapter: PlayAdapter by lazy { PlayAdapter() }
 
     private var gameId: Int = INVALID_ID
     private var gameName: String? = null
@@ -49,22 +46,22 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var arePlayersCustomSorted: Boolean = false
     private var emptyStringResId: Int = 0
     private var showGameName = true
-    private var isSyncing = false
     private var actionMode: ActionMode? = null
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_plays, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
+        viewModel.syncingStatus.observe(viewLifecycleOwner) {
+            showSyncingState(it)
+        }
+
         viewModel.plays.observe(viewLifecycleOwner) {
-            progressBar.isVisible = it.status == Status.REFRESHING
+            showSyncingState(it.status == Status.REFRESHING)
             adapter.items = it.data.orEmpty()
             recyclerView.addHeader(adapter)
+            progressBar.hide()
             if (it.data.isNullOrEmpty()) {
                 emptyContainer.fadeIn()
                 recyclerView.fadeOut()
@@ -76,6 +73,12 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
         viewModel.filterType.observe(viewLifecycleOwner) {
             updateEmptyText()
+        }
+    }
+
+    private fun showSyncingState(it: Boolean?) {
+        swipeRefreshLayout?.post {
+            swipeRefreshLayout?.isRefreshing = it ?: false
         }
     }
 
@@ -121,33 +124,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         updateEmptyText()
 
         swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { triggerRefresh() }
-    }
-
-    //    @Subscribe(threadMode = ThreadMode.MAIN)
-//    fun onEvent(event: SyncPlaysByDateTask.CompletedEvent) {
-//        isSyncing(false)
-//    }
-//
-    fun isSyncing(value: Boolean) {
-        isSyncing = value
-        swipeRefreshLayout?.post {
-            swipeRefreshLayout?.isRefreshing = isSyncing
-        }
-    }
-
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    fun onEvent(event: SyncPlaysByGameTask.CompletedEvent) {
-//        if (!showGameName && event.gameId == gameId) {
-//            isSyncing(false)
-//            if (!event.errorMessage.isNullOrBlank()) {
-//                Toast.makeText(context, event.errorMessage, Toast.LENGTH_LONG).show()
-//            }
-//        }
-//    }
-
-    private fun triggerRefresh() {
-        viewModel.refresh()
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
