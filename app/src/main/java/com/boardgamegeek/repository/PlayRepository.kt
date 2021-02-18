@@ -296,7 +296,9 @@ class PlayRepository(val application: BggApplication) {
         }
     }
 
-    fun renameLocation(oldLocationName: String, newLocationName: String, count: MutableLiveData<Int>? = null) {
+    data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
+
+    fun renameLocation(oldLocationName: String, newLocationName: String, resultLiveData: MutableLiveData<RenameLocationResults>? = null) {
         val batch = ArrayList<ContentProviderOperation>()
 
         val values = contentValuesOf(BggContract.Plays.LOCATION to newLocationName)
@@ -314,7 +316,8 @@ class PlayRepository(val application: BggApplication) {
         batch.add(cpo.build())
         application.appExecutors.diskIO.execute {
             val results = application.contentResolver.applyBatch(batch)
-            count?.postValue(results.sumBy { it.count })
+            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count })
+            resultLiveData?.postValue(result)
         }
     }
 

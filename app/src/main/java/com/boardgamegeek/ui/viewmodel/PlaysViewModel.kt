@@ -49,9 +49,14 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
 
     private val playInfo = MutableLiveData<PlayInfo>()
 
-    private val _updateMessage = MutableLiveData<Event<String>>()
-    val updateMessage: LiveData<Event<String>>
-        get() = _updateMessage
+    private val locationRenameCount = MutableLiveData<PlayRepository.RenameLocationResults>()
+    val updateMessage: LiveData<Event<String>> = Transformations.map(locationRenameCount) { result ->
+        result?.let {
+            setLocation(it.newLocationName)
+            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+            Event(getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_play_location_change, it.count, it.count, it.oldLocationName, it.newLocationName))
+        }
+    }
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<Event<String>> = Transformations.map(_errorMessage) { Event(it) }
@@ -59,6 +64,9 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     private val _syncingStatus = MutableLiveData<Boolean>()
     val syncingStatus: LiveData<Boolean>
         get() = _syncingStatus
+
+    private var syncPlaysByDateTask: SyncPlaysByDateTask? = null
+    private var syncPlaysByGameTask: SyncPlaysByGameTask? = null
 
     val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(playInfo) {
         when (it.mode) {
@@ -128,7 +136,8 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
             playInfo.value?.let {
                 if (it.mode == Mode.GAME) {
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-                    SyncPlaysByGameTask(getApplication(), it.id, _errorMessage, _syncingStatus).executeAsyncTask()
+                    syncPlaysByGameTask = SyncPlaysByGameTask(getApplication(), it.id, _errorMessage, _syncingStatus)
+                    syncPlaysByGameTask?.executeAsyncTask()
                 } else {
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS)
                 }
@@ -137,22 +146,18 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
         } else false
     }
 
-    private val locationRenameCount = MutableLiveData<Int>()
-
     fun renameLocation(oldLocationName: String, newLocationName: String) {
         playRepository.renameLocation(oldLocationName, newLocationName, locationRenameCount)
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-        // TODO implement this with a coroutine to be able to capture the count
-        // result = context.getResources().getQuantityString(R.plurals.msg_play_location_change, count, count, oldLocationName, newLocationName)
-        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_location_change, oldLocationName, newLocationName))
-        setLocation(newLocationName)
     }
 
     fun syncPlaysByDate(timeInMillis: Long) {
-        SyncPlaysByDateTask(getApplication(), timeInMillis, _errorMessage, _syncingStatus).executeAsyncTask()
+        syncPlaysByDateTask = SyncPlaysByDateTask(getApplication(), timeInMillis, _errorMessage, _syncingStatus)
+        syncPlaysByDateTask?.executeAsyncTask()
     }
 
-    private fun setUpdateMessage(message: String) {
-        _updateMessage.value = Event(message)
+    override fun onCleared() {
+        super.onCleared()
+        syncPlaysByDateTask?.cancel(true)
+        syncPlaysByGameTask?.cancel(true)
     }
 }

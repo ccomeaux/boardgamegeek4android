@@ -24,7 +24,7 @@ class SyncPlaysByGameTask(
         private val gameId: Int,
         errorMessageLiveData: MutableLiveData<String>,
         syncingStatus: MutableLiveData<Boolean>) :
-        SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData) {
+        SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData, syncingStatus) {
     private val username = AccountUtils.getUsername(context)
     private val persister = PlayPersister(context)
     private val mapper = PlayMapper()
