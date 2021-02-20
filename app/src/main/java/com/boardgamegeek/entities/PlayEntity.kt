@@ -19,7 +19,7 @@ data class PlayEntity(
         val noWinStats: Boolean,
         val comments: String,
         val syncTimestamp: Long,
-        val playerCount: Int,
+        private val initialPlayerCount: Int,
         val dirtyTimestamp: Long = 0L,
         val updateTimestamp: Long = 0L,
         val deleteTimestamp: Long = 0L,
@@ -49,9 +49,19 @@ data class PlayEntity(
         return length == 0 && startTime > 0
     }
 
+    private var playersAdded = false
+
     fun addPlayer(player: PlayPlayerEntity) {
+        playersAdded = true
         _players.add(player)
     }
+
+    val playerCount: Int
+        get() = if (playersAdded) {
+            _players.size
+        } else {
+            initialPlayerCount
+        }
 
     /**
      * Determine if the starting positions indicate the players are custom sorted.

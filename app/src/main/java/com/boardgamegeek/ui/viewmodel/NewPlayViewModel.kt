@@ -472,7 +472,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 noWinStats = false,
                 comments = _comments,
                 syncTimestamp = 0,
-                playerCount = _addedPlayers.value?.size ?: 0,
+                initialPlayerCount = _addedPlayers.value?.size ?: 0,
                 startTime = startTime,
                 updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
                 dirtyTimestamp = System.currentTimeMillis()
