@@ -1,6 +1,7 @@
 package com.boardgamegeek.db
 
 import android.content.ContentProviderOperation
+import android.content.ContentResolver
 import android.net.Uri
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
@@ -578,7 +579,43 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    fun save(play: PlayEntity): Long {
+    fun save(plays: List<PlayEntity>, startTime: Long) {
+        var updateCount = 0
+        var insertCount = 0
+        var unchangedCount = 0
+        var dirtyCount = 0
+        var errorCount = 0
+        for (play: PlayEntity in plays) {
+            //val play = p.copy(syncTimestamp = startTime)
+            val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
+            when {
+                play.playId <= 0 -> {
+                    Timber.i("Can't sync a play without a play ID.")
+                    errorCount++
+                }
+                candidate.internalId == INVALID_ID.toLong() -> {
+                    save(play, INVALID_ID.toLong())
+                    insertCount++
+                }
+                candidate.isDirty -> {
+                    Timber.i("Not saving during the sync; local play is modified.")
+                    dirtyCount++
+                }
+                candidate.syncHashCode == play.generateSyncHashCode() -> {
+                    context.contentResolver.update(Plays.buildPlayUri(candidate.internalId), contentValuesOf(Plays.SYNC_TIMESTAMP to startTime), null, null)
+                    unchangedCount++
+                }
+                else -> {
+                    save(play, candidate.internalId)
+                    updateCount++
+                }
+            }
+        }
+
+        Timber.i("Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d", updateCount, insertCount, unchangedCount, dirtyCount, errorCount)
+    }
+
+    fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
         val batch = arrayListOf<ContentProviderOperation>()
 
         val values = contentValuesOf(
@@ -601,8 +638,6 @@ class PlayDao(private val context: BggApplication) {
                 Plays.DIRTY_TIMESTAMP to play.dirtyTimestamp
         )
 
-        val resolver = context.contentResolver
-        val internalId = play.internalId
         when {
             internalId != INVALID_ID.toLong() -> {
                 batch.add(ContentProviderOperation
@@ -628,16 +663,16 @@ class PlayDao(private val context: BggApplication) {
         removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
 
         if (play.playId > 0 || play.updateTimestamp > 0) {
-            // Do these when the play has been is is about to be synced
+            // Do these when a new play is ready to be synced
             saveGamePlayerSortOrderToBatch(play, batch)
             updateColorsInBatch(play, batch)
             saveBuddyNicknamesToBatch(play, batch)
         }
 
-        val results = resolver.applyBatch(batch)
+        val results = context.contentResolver.applyBatch(batch)
         var insertedId = internalId
         if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
-            insertedId = results[0].uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
+            insertedId = results.getOrNull(0)?.uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
         }
         Timber.i("Saved play _ID=$insertedId")
         return insertedId
@@ -1012,4 +1047,48 @@ class PlayDao(private val context: BggApplication) {
      */
     private fun createNonUserPlayerSelectionAndArgs(playerName: String) =
             "play_players.${PlayPlayers.NAME}=? AND (${PlayPlayers.USER_NAME}=? OR ${PlayPlayers.USER_NAME} IS NULL)" to arrayOf(playerName, "")
+
+    data class PlaySyncCandidate(
+            val internalId: Long = INVALID_ID.toLong(),
+            val syncHashCode: Int = 0,
+            val deleteTimestamp: Long = 0L,
+            val updateTimestamp: Long = 0L,
+            val dirtyTimestamp: Long = 0L,
+    ) {
+        val isDirty: Boolean
+            get() = dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0
+
+        companion object {
+            fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate {
+                if (playId <= 0) {
+                    Timber.i("Can't sync a play without a play ID.")
+                    return PlaySyncCandidate()
+                }
+                val cursor = resolver.query(Plays.CONTENT_URI,
+                        arrayOf(
+                                Plays._ID,
+                                Plays.SYNC_HASH_CODE,
+                                Plays.DELETE_TIMESTAMP,
+                                Plays.UPDATE_TIMESTAMP,
+                                Plays.DIRTY_TIMESTAMP
+                        ),
+                        "${Plays.PLAY_ID}=?",
+                        arrayOf(playId.toString()),
+                        null)
+                return cursor?.use {
+                    if (it.moveToFirst()) {
+                        PlaySyncCandidate(
+                                it.getLong(Plays._ID, INVALID_ID.toLong()),
+                                it.getIntOrZero(Plays.SYNC_HASH_CODE),
+                                it.getLongOrZero(Plays.DELETE_TIMESTAMP),
+                                it.getLongOrZero(Plays.UPDATE_TIMESTAMP),
+                                it.getLongOrZero(Plays.DIRTY_TIMESTAMP),
+                        )
+                    } else {
+                        PlaySyncCandidate()
+                    }
+                } ?: PlaySyncCandidate()
+            }
+        }
+    }
 }

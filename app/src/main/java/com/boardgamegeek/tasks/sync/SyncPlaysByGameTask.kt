@@ -7,11 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggContract.Plays
@@ -26,7 +26,7 @@ class SyncPlaysByGameTask(
         syncingStatus: MutableLiveData<Boolean>) :
         SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData, syncingStatus) {
     private val username = AccountUtils.getUsername(context)
-    private val persister = PlayPersister(context)
+    private val dao = PlayDao(application)
     private val mapper = PlayMapper()
 
     @get:StringRes
@@ -42,8 +42,8 @@ class SyncPlaysByGameTask(
 
     override fun persistResponse(body: PlaysResponse?) {
         body?.plays?.let {
-            val plays = mapper.map(it)
-            persister.save(plays, startTime)
+            val plays = mapper.map(it, startTime)
+            dao.save(plays, startTime)
         }
         Timber.i("Synced plays for game ID %s (page %,d)", gameId, currentPage)
     }

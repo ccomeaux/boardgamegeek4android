@@ -18,7 +18,6 @@ import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.mappers.PlayMapper
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.RemoteConfig
@@ -112,7 +111,6 @@ class GameRepository(val application: BggApplication) {
 
     fun getPlays(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
-            val persister = PlayPersister(application)
             var timestamp = 0L
             var isFullRefresh = false
 
@@ -144,8 +142,8 @@ class GameRepository(val application: BggApplication) {
 
             override fun saveCallResult(result: PlaysResponse) {
                 val mapper = PlayMapper()
-                val plays = mapper.map(result.plays)
-                persister.save(plays, timestamp)
+                val plays = mapper.map(result.plays, timestamp)
+                playDao.save(plays, timestamp)
                 Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
             }
 

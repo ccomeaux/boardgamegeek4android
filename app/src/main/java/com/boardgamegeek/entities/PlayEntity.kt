@@ -27,7 +27,8 @@ data class PlayEntity(
         val imageUrl: String = "",
         val thumbnailUrl: String = "",
         val heroImageUrl: String = "",
-        val updatedPlaysTimestamp: Long = 0L
+        val updatedPlaysTimestamp: Long = 0L,
+        val subtypes: List<String> = emptyList(),
 ) {
     private val _players = mutableListOf<PlayPlayerEntity>()
     val players: List<PlayPlayerEntity>
