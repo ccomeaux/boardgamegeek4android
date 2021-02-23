@@ -201,7 +201,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete
                     play.updateTimestamp > 0 -> R.string.sync_pending_update
-                    play.dirtyTimestamp > 0 -> if (play.playId > 0) R.string.sync_editing else R.string.sync_draft
+                    play.dirtyTimestamp > 0 -> if (play.isSynced) R.string.sync_editing else R.string.sync_draft
                     else -> 0
                 }
                 itemView.statusView.setTextOrHide(statusMessageId)

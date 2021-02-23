@@ -112,7 +112,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     } else {
                         syncResult.stats.numUpdates++
                         val message = when {
-                            play.playId > 0 -> context.getText(R.string.msg_play_updated)
+                            play.isSynced -> context.getText(R.string.msg_play_updated)
                             play.quantity > 0 -> context.getText(R.string.msg_play_added_quantity, getPlayCountDescription(response.playCount, play.quantity))
                             else -> context.getText(R.string.msg_play_added)
                         }
@@ -152,7 +152,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     val internalId = it.getLongOrNull(Plays._ID) ?: INVALID_ID.toLong()
                     val play = dao.loadPlay(internalId) ?: break
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
-                    if (play.playId > 0) {
+                    if (play.isSynced) {
                         val response = postPlayDelete(play.playId)
                         if (response.isSuccessful) {
                             syncResult.stats.numDeletes++

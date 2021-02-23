@@ -159,7 +159,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
 
         if (play.dirtyTimestamp > 0) {
-            dirtyTimestampView.format = getString(if (play.playId > 0) R.string.editing_prefix else R.string.draft_prefix)
+            dirtyTimestampView.format = getString(if (play.isSynced) R.string.editing_prefix else R.string.draft_prefix)
             dirtyTimestampView.timestamp = play.dirtyTimestamp
             dirtyTimestampView.isVisible = true
         } else {

@@ -332,11 +332,10 @@ class PlayRepository(val application: BggApplication) {
             val id = playDao.save(play)
 
             // if the play is "current" (for today and about to be synced), remember some things, like the location and players to be used in the next play
-            val isUnsynced = play.playId <= 0
             val isUpdating = play.updateTimestamp > 0
             val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
             val isToday = play.dateInMillis.isToday() || endTime.isToday()
-            if (isUnsynced && isUpdating && isToday) {
+            if (!play.isSynced && isUpdating && isToday) {
                 prefs.putLastPlayTime(System.currentTimeMillis())
                 prefs.putLastPlayLocation(play.location)
                 prefs.putLastPlayPlayerEntities(play.players)

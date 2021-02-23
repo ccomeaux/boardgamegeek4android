@@ -34,6 +34,9 @@ data class PlayEntity(
     val players: List<PlayPlayerEntity>
         get() = _players
 
+    val isSynced
+        get() = playId > 0
+
     val dateInMillis: Long by lazy {
         rawDate.toMillis(FORMAT, UNKNOWN_DATE)
     }

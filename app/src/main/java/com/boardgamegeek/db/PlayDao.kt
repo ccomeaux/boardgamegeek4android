@@ -589,7 +589,7 @@ class PlayDao(private val context: BggApplication) {
             //val play = p.copy(syncTimestamp = startTime)
             val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
             when {
-                play.playId <= 0 -> {
+                !play.isSynced -> {
                     Timber.i("Can't sync a play without a play ID.")
                     errorCount++
                 }
@@ -662,7 +662,7 @@ class PlayDao(private val context: BggApplication) {
         addPlayersToBatch(play, existingPlayerIds, internalId, batch)
         removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
 
-        if (play.playId > 0 || play.updateTimestamp > 0) {
+        if (play.isSynced || play.updateTimestamp > 0) {
             // Do these when a new play is ready to be synced
             saveGamePlayerSortOrderToBatch(play, batch)
             updateColorsInBatch(play, batch)
