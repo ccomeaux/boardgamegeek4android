@@ -35,7 +35,7 @@ class PlayMapper {
                 noWinStats = from.nowinstats == 1,
                 comments = from.comments.orEmpty(),
                 syncTimestamp = syncTimestamp,
-                initialPlayerCount = from.players.size,
+                initialPlayerCount = from.players?.size ?: 0,
                 subtypes = from.subtypes.map { it.value }
         )
         from.players?.forEach {
