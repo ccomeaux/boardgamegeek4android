@@ -245,6 +245,8 @@ class PlayRepository(val application: BggApplication) {
     fun markAsUpdated(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
         val values = contentValuesOf(
                 BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.DELETE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
         )
         application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
