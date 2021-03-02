@@ -59,8 +59,7 @@ fun Context.versionName(): String {
 }
 
 fun Context?.logQuickPlay(gameId: Int, gameName: String) {
-    val play = Play(gameId, gameName).apply {
-        setCurrentDate()
+    val play = Play(gameId = gameId, gameName = gameName).apply {
         updateTimestamp = System.currentTimeMillis()
     }
     PlayPersister(this).save(play, BggContract.INVALID_ID.toLong(), false)

@@ -5,7 +5,6 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -17,7 +16,6 @@ import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -109,7 +107,7 @@ public class PlayPersister {
 			sb.append(player.username).append("\n");
 			sb.append(player.userId).append("\n");
 			sb.append(player.name).append("\n");
-			sb.append(player.getStartingPosition()).append("\n");
+			sb.append(player.startingPosition).append("\n");
 			sb.append(player.color).append("\n");
 			sb.append(player.score).append("\n");
 			sb.append(player.isNew).append("\n");
@@ -189,7 +187,7 @@ public class PlayPersister {
 			values.put(PlayPlayers.USER_ID, player.userId);
 			values.put(PlayPlayers.USER_NAME, userName);
 			values.put(PlayPlayers.NAME, player.name);
-			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
+			values.put(PlayPlayers.START_POSITION, player.startingPosition);
 			values.put(PlayPlayers.COLOR, player.color);
 			values.put(PlayPlayers.SCORE, player.score);
 			values.put(PlayPlayers.NEW, player.isNew);

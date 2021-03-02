@@ -135,6 +135,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final String KEY_REMATCH = "REMATCH";
 	private static final String KEY_CHANGE_GAME = "CHANGE_GAME";
 	private static final String KEY_INTERNAL_ID = "INTERNAL_ID";
+	private static final String KEY_PLAY = "PLAY";
+	private static final String KEY_ORIGINAL_PLAY = "ORIGINAL_PLAY";
 	private static final String KEY_IS_USER_SHOWING_LOCATION = "IS_USER_SHOWING_LOCATION";
 	private static final String KEY_IS_USER_SHOWING_LENGTH = "IS_USER_SHOWING_LENGTH";
 	private static final String KEY_IS_USER_SHOWING_QUANTITY = "IS_USER_SHOWING_QUANTITY";
@@ -342,7 +344,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 				if (play == null) {
 					// create a new play
 					play = new Play(gameId, gameName);
-					play.setCurrentDate();
 
 					long lastPlay = PreferenceUtils.getLastPlayTime(prefs);
 					if (LongUtils.howManyHoursOld(lastPlay) < 12) {
@@ -561,8 +562,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 		playAdapter.notifyLayoutChanged(R.layout.row_log_play_player_header);
 
 		if (savedInstanceState != null) {
-			play = PlayBuilder.fromBundle(savedInstanceState, "P");
-			originalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
+			play = savedInstanceState.getParcelable(KEY_PLAY);
+			originalPlay = savedInstanceState.getParcelable(KEY_ORIGINAL_PLAY);
 			internalId = savedInstanceState.getLong(KEY_INTERNAL_ID, BggContract.INVALID_ID);
 			isUserShowingLocation = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_LOCATION);
 			isUserShowingLength = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_LENGTH);
@@ -599,8 +600,8 @@ public class LogPlayActivity extends AppCompatActivity implements
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (outstandingQueries == 0) {
-			PlayBuilder.toBundle(play, outState, "P");
-			PlayBuilder.toBundle(originalPlay, outState, "O");
+			outState.putParcelable(KEY_PLAY, play);
+			outState.putParcelable(KEY_ORIGINAL_PLAY, originalPlay);
 		}
 		outState.putLong(KEY_INTERNAL_ID, internalId);
 		outState.putBoolean(KEY_IS_USER_SHOWING_LOCATION, isUserShowingLocation);
@@ -1080,7 +1081,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 				internalId,
 				play.gameName,
 				play.location,
-				play.playerCount,
+				play.getPlayerCount(),
 				play.startTime,
 				thumbnailUrl,
 				imageUrl,

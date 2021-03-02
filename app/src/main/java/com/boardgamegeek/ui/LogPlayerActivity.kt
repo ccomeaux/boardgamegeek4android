@@ -133,7 +133,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             if (hasAutoPosition()) {
                 player.seat = autoPosition
             }
-            originalPlayer = Player(player)
+            originalPlayer = player.copy()
         } else {
             player = savedInstanceState.getParcelable(KEY_PLAYER) ?: Player()
             userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR)
@@ -214,9 +214,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         nameView.setTextKeepState(player.name)
         usernameView.setTextKeepState(player.username)
         teamColorView.setTextKeepState(player.color)
-        if (player.startingPosition != null) {
-            positionView.setTextKeepState(player.startingPosition)
-        }
+        positionView.setTextKeepState(player.startingPosition)
         scoreView.setTextKeepState(player.score)
         ratingView.setTextKeepState(if (player.rating == Player.DEFAULT_RATING) "" else player.rating.toString())
         newView.isChecked = player.isNew
@@ -241,15 +239,15 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     }
 
     private fun shouldHideTeamColor(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerTeamColor() && !userHasShownTeamColor && player.color.isNullOrEmpty()
+        return !defaultSharedPreferences.showLogPlayerTeamColor() && !userHasShownTeamColor && player.color.isEmpty()
     }
 
     private fun shouldHidePosition(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerPosition() && !userHasShownPosition && player.startingPosition.isNullOrEmpty()
+        return !defaultSharedPreferences.showLogPlayerPosition() && !userHasShownPosition && player.startingPosition.isEmpty()
     }
 
     private fun shouldHideScore(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerScore() && !userHasShownScore && player.score.isNullOrEmpty()
+        return !defaultSharedPreferences.showLogPlayerScore() && !userHasShownScore && player.score.isEmpty()
     }
 
     private fun shouldHideRating(): Boolean {
