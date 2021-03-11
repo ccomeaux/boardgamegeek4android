@@ -58,7 +58,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
         timerEndButton.setOnClickListener {
             play?.let { play ->
-                LogPlayActivity.endPlay(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                LogPlayActivity.endPlay(requireContext(), play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
             }
         }
         playersView.adapter = adapter
@@ -212,7 +212,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             R.id.menu_edit -> {
                 play?.let {
                     logDataManipulationAction("Edit")
-                    LogPlayActivity.editPlay(activity, it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl)
+                    LogPlayActivity.editPlay(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl)
                     return true
                 }
             }
@@ -240,7 +240,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             R.id.menu_rematch -> {
                 play?.let {
                     logDataManipulationAction("Rematch")
-                    LogPlayActivity.rematch(context, it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted())
+                    LogPlayActivity.rematch(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted())
                     requireActivity().finish() // don't want to show the "old" play upon return
                     return true
                 }

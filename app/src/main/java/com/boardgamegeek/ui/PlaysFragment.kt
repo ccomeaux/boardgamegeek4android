@@ -112,7 +112,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         if (gameId != INVALID_ID) {
             fabView.colorize(iconColor)
             fabView.setOnClickListener {
-                LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                LogPlayActivity.logPlay(requireContext(), gameId, gameName.orEmpty(), thumbnailUrl.orEmpty(), imageUrl.orEmpty(), heroImageUrl.orEmpty(), arePlayersCustomSorted)
             }
             fabView.show()
         } else {
@@ -309,7 +309,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
             R.id.menu_edit -> {
                 val play = adapter.getItem(adapter.selectedItemPositions.iterator().next())
                 if (play != null)
-                    LogPlayActivity.editPlay(activity, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                    LogPlayActivity.editPlay(requireContext(), play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
                 mode.finish()
                 return true
             }

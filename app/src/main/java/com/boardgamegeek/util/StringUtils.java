@@ -51,13 +51,6 @@ public class StringUtils {
 	}
 
 	/**
-	 * Parse a string to an double, returning the 0.0 if it's not parsable.
-	 */
-	public static double parseDouble(String text) {
-		return parseDouble(text, 0.0);
-	}
-
-	/**
 	 * Parse a string to an double, returning the default value if it's not parsable.
 	 */
 	public static double parseDouble(String text, double defaultValue) {
@@ -69,30 +62,5 @@ public class StringUtils {
 		} catch (ParseException | NullPointerException ex) {
 			return defaultValue;
 		}
-	}
-
-	/**
-	 * Determines if the string can be converted to a number.
-	 */
-	public static boolean isNumeric(String text) {
-		if (TextUtils.isEmpty(text)) return false;
-		try {
-			NumberFormat.getNumberInstance().parse(text);
-		} catch (ParseException e) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Concatenates 2 arrays of strings into 1.
-	 */
-	public static String[] concatenate(String[] array1, String[] array2) {
-		if (array1 == null) return array2;
-		if (array2 == null) return array1;
-		String[] result = new String[array1.length + array2.length];
-		System.arraycopy(array1, 0, result, 0, array1.length);
-		System.arraycopy(array2, 0, result, array1.length, array2.length);
-		return result;
 	}
 }

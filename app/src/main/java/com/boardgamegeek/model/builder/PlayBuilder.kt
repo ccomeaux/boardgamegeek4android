@@ -88,14 +88,6 @@ object PlayBuilder {
         }
     }
 
-    /**
-     * Copy the semantic play information to a new play. Does not include data related to syncing.
-     */
-    @JvmStatic
-    fun copy(play: Play): Play {
-        return play.copy()
-    }
-
     @JvmStatic
     fun rematch(play: Play): Play {
         val rematch = Play(

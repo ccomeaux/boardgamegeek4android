@@ -29,7 +29,6 @@ import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.ShowcaseViewWizard
 import com.boardgamegeek.util.ToolbarUtils
-import com.boardgamegeek.util.UIUtils
 import com.github.amlcurran.showcaseview.targets.Target
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -193,7 +192,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             }
             til.setEndIconDrawable(R.drawable.ic_keyboard)
         }
-        UIUtils.focusWithKeyboard(editText)
+        editText.focusWithKeyboard()
     }
 
     private fun setUpShowcaseViewWizard() {
