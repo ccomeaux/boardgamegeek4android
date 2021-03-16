@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -9,41 +8,329 @@
 	android:orientation="vertical"
 	tools:context=".ui.LogPlayActivity">
 
-	<include layout="@layout/actionbar_done_cancel"/>
+	<include layout="@layout/actionbar_done_cancel" />
 
-	<androidx.coordinatorlayout.widget.CoordinatorLayout
-		android:id="@+id/coordinatorLayout"
+	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:fillViewport="true">
 
-		<androidx.core.widget.ContentLoadingProgressBar
-			android:id="@+id/progressView"
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			tools:visibility="gone"/>
-
-		<androidx.recyclerview.widget.RecyclerView
-			android:id="@+id/recyclerView"
-			style="@style/RecyclerViewVerticalList.Edit"
+		<androidx.coordinatorlayout.widget.CoordinatorLayout
+			android:id="@+id/coordinatorLayout"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:visibility="gone"
-			tools:visibility="visible"/>
+			android:layout_height="match_parent">
 
-		<com.google.android.material.floatingactionbutton.FloatingActionButton
-			android:id="@+id/fab"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="bottom|right"
-			android:layout_margin="@dimen/padding_fab"
-			android:src="@drawable/ic_action_add"
-			android:visibility="gone"
-			app:elevation="@dimen/fab_elevation"
-			app:pressedTranslationZ="@dimen/fab_translation"
-			app:rippleColor="@color/medium_blue"
-			tools:visibility="visible"/>
-	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+			<androidx.core.widget.ContentLoadingProgressBar
+				android:id="@+id/progressView"
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				tools:visibility="gone" />
 
+			<androidx.constraintlayout.widget.ConstraintLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+				<FrameLayout
+					android:id="@+id/headerFrame"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/image_header_height"
+					android:layout_gravity="center"
+					android:layout_marginBottom="@dimen/padding_standard"
+					android:background="@color/primary"
+					android:descendantFocusability="blocksDescendants"
+					android:focusable="false"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent">
+
+					<ImageView
+						android:id="@+id/thumbnailView"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:scaleType="centerCrop" />
+
+					<TextView
+						android:id="@+id/headerView"
+						style="@style/Text.Title.Overlay"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:ellipsize="end"
+						android:gravity="left|center_vertical"
+						android:maxLines="2"
+						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingRight="@dimen/material_margin_horizontal"
+						tools:text="Puerto Rico" />
+				</FrameLayout>
+
+				<TextView
+					android:id="@+id/dateButton"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:background="?attr/selectableItemBackground"
+					android:clickable="true"
+					android:drawablePadding="20dp"
+					android:focusable="true"
+					android:gravity="start|center_vertical"
+					android:minHeight="56dp"
+					android:paddingVertical="@dimen/padding_half"
+					android:paddingStart="12dp"
+					android:paddingLeft="12dp"
+					android:textAppearance="?attr/textAppearanceSubtitle1"
+					app:drawableLeftCompat="@drawable/ic_today"
+					app:drawableStartCompat="@drawable/ic_today"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/headerFrame"
+					tools:text="January 1, 1970" />
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:id="@+id/locationFrame"
+					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:hint="@string/location"
+					android:labelFor="@id/locationView"
+					android:paddingHorizontal="@dimen/material_margin_horizontal"
+					android:paddingVertical="@dimen/padding_half"
+					app:endIconMode="dropdown_menu"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/dateButton"
+					app:startIconDrawable="@drawable/ic_location">
+
+					<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+						android:id="@+id/locationView"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:imeOptions="actionNext"
+						android:inputType="textCapWords"
+						android:textAppearance="?attr/textAppearanceSubtitle1" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:id="@+id/lengthFrame"
+					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:hint="@string/length_hint"
+					android:minHeight="@dimen/form_row_height"
+					android:paddingVertical="@dimen/padding_half"
+					app:layout_constraintEnd_toStartOf="@+id/timerButton"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/locationFrame"
+					app:startIconDrawable="@drawable/ic_time">
+
+					<com.google.android.material.textfield.TextInputEditText
+						android:id="@+id/lengthView"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:imeOptions="actionNext"
+						android:inputType="number" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<Chronometer
+					android:id="@+id/timer"
+					android:layout_width="0dp"
+					android:layout_height="0dp"
+					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:layout_marginVertical="4dp"
+					android:background="@color/light_blue_transparent"
+					android:focusable="false"
+					android:gravity="center"
+					android:maxLines="1"
+					android:paddingVertical="@dimen/padding_half"
+					android:textAppearance="@style/Text.Big"
+					app:layout_constraintBottom_toBottomOf="@id/lengthFrame"
+					app:layout_constraintEnd_toStartOf="@+id/timerButton"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/locationFrame" />
+
+				<ImageView
+					android:id="@+id/timerButton"
+					style="@style/FormButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:background="?attr/selectableItemBackgroundBorderless"
+					android:contentDescription="@string/timer"
+					android:src="@drawable/ic_timer"
+					app:layout_constraintBottom_toBottomOf="@id/lengthFrame"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="@id/lengthFrame" />
+
+				<androidx.constraintlayout.widget.Group
+					android:id="@+id/lengthGroup"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:constraint_referenced_ids="lengthFrame,timer,timerButton" />
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:id="@+id/quantityFrame"
+					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:hint="@string/quantity"
+					android:minHeight="@dimen/edit_row_height"
+					android:paddingVertical="@dimen/padding_half"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/lengthFrame"
+					app:startIconDrawable="@drawable/ic_quantity">
+
+					<com.google.android.material.textfield.TextInputEditText
+						android:id="@+id/quantityView"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:imeOptions="actionNext"
+						android:inputType="number" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<androidx.appcompat.widget.SwitchCompat
+					android:id="@+id/incompleteView"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_row_height"
+					android:layout_marginStart="@dimen/material_indent_horizontal"
+					android:layout_marginLeft="@dimen/material_indent_horizontal"
+					android:layout_marginEnd="@dimen/material_margin_horizontal"
+					android:layout_marginRight="@dimen/material_margin_horizontal"
+					android:checked="false"
+					android:paddingVertical="@dimen/padding_half"
+					android:text="@string/incomplete"
+					android:textAppearance="?attr/textAppearanceSubtitle1"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/quantityFrame" />
+
+				<androidx.appcompat.widget.SwitchCompat
+					android:id="@+id/noWinStatsView"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_row_height"
+					android:layout_marginStart="@dimen/material_indent_horizontal"
+					android:layout_marginLeft="@dimen/material_indent_horizontal"
+					android:layout_marginEnd="@dimen/material_margin_horizontal"
+					android:layout_marginRight="@dimen/material_margin_horizontal"
+					android:paddingVertical="@dimen/padding_half"
+					android:text="@string/noWinStats"
+					android:textAppearance="?attr/textAppearanceSubtitle1"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/incompleteView" />
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:id="@+id/commentsFrame"
+					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:hint="@string/comments"
+					android:paddingHorizontal="@dimen/material_margin_horizontal"
+					android:paddingVertical="@dimen/padding_half"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/noWinStatsView">
+
+					<com.google.android.material.textfield.TextInputEditText
+						android:id="@+id/commentsView"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:imeOptions="actionDone"
+						android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<LinearLayout
+					android:id="@+id/playerHeader"
+					style="@style/FormRow"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:descendantFocusability="blocksDescendants"
+					android:focusable="false"
+					android:gravity="center_vertical"
+					android:paddingTop="@dimen/padding_standard"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/commentsFrame">
+
+					<ImageView
+						android:id="@+id/assignColorsButton"
+						style="@style/FormButton"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackgroundBorderless"
+						android:contentDescription="@string/colors"
+						android:src="@drawable/ic_colors" />
+
+					<TextView
+						android:id="@+id/playersLabel"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_marginHorizontal="@dimen/padding_standard"
+						android:layout_weight="1"
+						android:background="@drawable/underline"
+						android:text="@string/title_players"
+						android:textAppearance="@style/TextAppearance.Title" />
+
+					<ImageView
+						android:id="@+id/playerSortButton"
+						style="@style/FormButton"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackgroundBorderless"
+						android:contentDescription="@string/sort"
+						android:src="@drawable/ic_sort" />
+				</LinearLayout>
+
+				<androidx.recyclerview.widget.RecyclerView
+					android:id="@+id/recyclerView"
+					style="@style/RecyclerViewVerticalList"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/playerHeader"
+					tools:visibility="visible" />
+
+				<LinearLayout
+					android:id="@+id/addPlayerFrame"
+					style="@style/FormRow"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:descendantFocusability="blocksDescendants"
+					android:focusable="false"
+					android:gravity="center"
+					android:minHeight="64dp"
+					android:paddingVertical="@dimen/padding_half"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/recyclerView">
+
+					<Button
+						android:id="@+id/addPlayerButton"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:layout_gravity="center_horizontal"
+						android:layout_marginTop="@dimen/padding_extra"
+						android:text="@string/title_add_players" />
+				</LinearLayout>
+			</androidx.constraintlayout.widget.ConstraintLayout>
+
+			<com.google.android.material.floatingactionbutton.FloatingActionButton
+				android:id="@+id/fab"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="bottom|right"
+				android:layout_margin="@dimen/padding_fab"
+				android:src="@drawable/ic_action_add"
+				android:visibility="gone"
+				app:elevation="@dimen/fab_elevation"
+				app:pressedTranslationZ="@dimen/fab_translation"
+				app:rippleColor="@color/medium_blue"
+				tools:visibility="visible" />
+		</androidx.coordinatorlayout.widget.CoordinatorLayout>
+	</androidx.core.widget.NestedScrollView>
 </LinearLayout>
