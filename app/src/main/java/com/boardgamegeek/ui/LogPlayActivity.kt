@@ -117,8 +117,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     private var isLaunchingActivity = false
     private var shouldSaveOnPause = true
 
-    private val actionBarListener = View.OnClickListener { v: View -> onActionBarItemSelected(v.id) }
-
     @SuppressLint("HandlerLeak")
     private inner class QueryHandler(cr: ContentResolver?) : AsyncQueryHandler(cr) {
         override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor?) {
@@ -516,7 +514,22 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener)
+        setDoneCancelActionBarView { v: View ->
+            when (v.id) {
+                R.id.menu_done -> if (play != null && outstandingQueries == 0) {
+                    if (play?.hasStarted() == true) {
+                        saveDraft(true)
+                        setResult(RESULT_OK)
+                        finish()
+                    } else {
+                        logPlay()
+                    }
+                } else {
+                    cancel()
+                }
+                R.id.menu_cancel -> cancel()
+            }
+        }
 
         horizontalPadding = resources.getDimension(R.dimen.material_margin_horizontal)
         fab.setOnClickListener { addField() }
@@ -818,23 +831,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
             }
             queryHandler?.startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId), arrayOf(GameColors.COLOR), null, null, null)
-        }
-    }
-
-    private fun onActionBarItemSelected(itemId: Int) {
-        when (itemId) {
-            R.id.menu_done -> if (play != null && outstandingQueries == 0) {
-                if (play?.hasStarted() == true) {
-                    saveDraft(true)
-                    setResult(RESULT_OK)
-                    finish()
-                } else {
-                    logPlay()
-                }
-            } else {
-                cancel()
-            }
-            R.id.menu_cancel -> cancel()
         }
     }
 

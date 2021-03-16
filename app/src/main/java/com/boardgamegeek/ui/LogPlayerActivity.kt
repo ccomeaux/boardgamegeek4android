@@ -28,7 +28,6 @@ import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.ShowcaseViewWizard
-import com.boardgamegeek.util.ToolbarUtils
 import com.github.amlcurran.showcaseview.targets.Target
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -104,7 +103,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         }
         fab.setOnClickListener { addField() }
 
-        ToolbarUtils.setDoneCancelActionBarView(this) { v: View ->
+        setDoneCancelActionBarView { v: View ->
             when (v.id) {
                 R.id.menu_done -> save()
                 R.id.menu_cancel -> cancel()
