@@ -4,6 +4,7 @@ import android.os.Parcelable
 import com.boardgamegeek.extensions.asScore
 import kotlinx.android.parcel.Parcelize
 import java.text.DecimalFormat
+import java.util.*
 
 @Parcelize
 data class Player @JvmOverloads constructor(
@@ -30,6 +31,9 @@ data class Player @JvmOverloads constructor(
         @JvmField
         var isWin: Boolean = false,
 ) : Parcelable {
+    val id: String
+        get() = createId(username, name)
+
     var seat: Int
         get() = startingPosition.toIntOrNull() ?: SEAT_UNKNOWN
         set(value) {
@@ -67,5 +71,8 @@ data class Player @JvmOverloads constructor(
     companion object {
         const val DEFAULT_RATING = 0.0
         const val SEAT_UNKNOWN = -1
+
+        fun createId(username: String, name: String) =
+                if (username.isBlank()) "P|$name" else "U|${username.toLowerCase(Locale.getDefault())}"
     }
 }

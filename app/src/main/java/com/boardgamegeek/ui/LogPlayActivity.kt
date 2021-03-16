@@ -90,11 +90,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     private var outstandingQueries = TOKEN_UNINITIALIZED
     private var play: Play? = null
     private var originalPlay: Play? = null
-    private var addPlayersBuilder: AlertDialog.Builder? = null
     private var lastRemovedPlayer: Player? = null
-    private val playersToAdd = mutableListOf<Player>()
-    private val userNames = mutableListOf<String>()
-    private val names = mutableListOf<String>()
     private val gameColors = ArrayList<String>()
 
     @ColorInt
@@ -961,65 +957,54 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         return list.toTypedArray()
     }
 
-    private fun containsPlayer(username: String, name: String): Boolean {
-        return play?.players?.find {
-            (username.isNotBlank() && username == it.username) ||
-                    (name.isNotBlank() && username.isBlank() && name == it.name)
-        } != null
-    }
-
-    private fun showPlayersToAddDialog(): Boolean {
-        if (addPlayersBuilder == null) {
-            addPlayersBuilder = AlertDialog.Builder(this).setTitle(R.string.title_add_players)
-                    .setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
-                    .setNeutralButton(R.string.more, addPlayersButtonClickListener())
-                    .setNegativeButton(android.R.string.cancel, null)
-        }
-        playersToAdd.clear()
-        userNames.clear()
-        names.clear()
-        val descriptions = mutableListOf<String>()
-//        val sel = if (play?.location.isNullOrEmpty()) Pair<String?, Array<String?>?>(null, null) else "${Plays.LOCATION}=?" to arrayOf(play!!.location)
-        val sel = play?.location?.let {
-            "${Plays.LOCATION}=?" to arrayOf(it)
-        }
-        contentResolver.query(Plays.buildPlayersByUniqueNameUri(),
-                arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION, PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME),
-                sel?.first,
-                sel?.second,
-                PlayPlayers.SORT_BY_COUNT
-        )?.use { cursor ->
-            while (cursor.moveToNext()) {
-                val username = cursor.getString(1)
-                val name = cursor.getString(2)
-                if (!containsPlayer(username, name)) {
-                    userNames.add(username)
-                    names.add(name)
-                    descriptions.add(cursor.getString(3))
-                }
-            }
-        }
-        if (descriptions.size == 0) {
-            return false
-        }
-        addPlayersBuilder?.setMultiChoiceItems(descriptions.toTypedArray<CharSequence>(), null) { _, which, isChecked ->
-            val player = Player(name = names[which], username = userNames[which])
-            if (isChecked) {
-                playersToAdd.add(player)
-            } else {
-                playersToAdd.remove(player)
-            }
-        }?.create()?.show()
-        return true
-    }
-
     internal class LocationAdapter(context: Context) : AutoCompleteAdapter(context, Plays.LOCATION, Plays.buildLocationsUri(), PlayLocations.SORT_BY_SUM_QUANTITY, Plays.SUM_QUANTITY) {
         //String.format("%1$s='' OR %1s$ IS NULL", Plays.LOCATION);
         override val defaultSelection: String
             get() = "${Plays.LOCATION}<>''" //String.format("%1$s='' OR %1s$ IS NULL", Plays.LOCATION);
     }
 
-    private fun addPlayersButtonClickListener(): DialogInterface.OnClickListener {
+    private fun showPlayersToAddDialog(): Boolean {
+        val playersToAdd = mutableListOf<Player>()
+        val userNames = mutableListOf<String>()
+        val names = mutableListOf<String>()
+        val descriptions = mutableListOf<String>()
+        val selection = play?.location?.let {
+            if (it.isBlank()) null else "${Plays.LOCATION}=?" to arrayOf(it)
+        }
+        contentResolver.query(Plays.buildPlayersByUniqueNameUri(),
+                arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION, PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME),
+                selection?.first,
+                selection?.second,
+                PlayPlayers.SORT_BY_COUNT
+        )?.use { cursor ->
+            while (cursor.moveToNext()) {
+                val username = cursor.getString(1)
+                val name = cursor.getString(2)
+                val createId = Player.createId(username, name)
+                if (play?.players?.find { it.id == createId } == null) {
+                    userNames.add(username)
+                    names.add(name)
+                    descriptions.add(cursor.getString(3))
+                }
+            }
+        }
+        if (descriptions.isEmpty()) return false
+        AlertDialog.Builder(this).setTitle(R.string.title_add_players)
+                .setPositiveButton(android.R.string.ok, addPlayersButtonClickListener(playersToAdd))
+                .setNeutralButton(R.string.more, addPlayersButtonClickListener(playersToAdd))
+                .setNegativeButton(android.R.string.cancel, null)
+                .setMultiChoiceItems(descriptions.toTypedArray<CharSequence>(), null) { _, which, isChecked ->
+                    val player = Player(name = names[which], username = userNames[which])
+                    if (isChecked) {
+                        playersToAdd.add(player)
+                    } else {
+                        playersToAdd.remove(player)
+                    }
+                }.create().show()
+        return true
+    }
+
+    private fun addPlayersButtonClickListener(playersToAdd: MutableList<Player>): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { _: DialogInterface?, which: Int ->
             play?.let {
                 it.setPlayers(playersToAdd)
