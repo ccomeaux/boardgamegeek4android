@@ -48,7 +48,6 @@ import com.boardgamegeek.ui.widget.PlayerRow
 import com.boardgamegeek.util.*
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.PaletteUtils.getIconSwatch
-import com.github.amlcurran.showcaseview.targets.Target
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -97,8 +96,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     private val userNames = mutableListOf<String>()
     private val names = mutableListOf<String>()
     private val gameColors = ArrayList<String>()
-
-    private var showcaseWizard: ShowcaseViewWizard? = null
 
     @ColorInt
     private var fabColor = Color.TRANSPARENT
@@ -685,8 +682,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
             arePlayersCustomSorted = it.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED)
         }
         startQuery()
-        setUpShowcaseViewWizard()
-        showcaseWizard?.maybeShowHelp()
         fab.postDelayed({ fab.show() }, 2000)
     }
 
@@ -775,11 +770,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         if (event.messageId != 0) {
             Snackbar.make(coordinatorLayout, event.messageId, Snackbar.LENGTH_LONG).show()
         }
-    }
-
-    private fun setUpShowcaseViewWizard() {
-        showcaseWizard = ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION)
-        showcaseWizard?.addTarget(R.string.help_logplay, Target.NONE)
     }
 
     private fun shouldHideLocation(): Boolean {
