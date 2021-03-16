@@ -59,6 +59,7 @@ import kotlinx.android.synthetic.main.fragment_play.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.design.indefiniteSnackbar
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
@@ -84,6 +85,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     private var thumbnailUrl: String = ""
     private var imageUrl: String = ""
     private var heroImageUrl: String = ""
+
     private var internalIdToDelete = INVALID_ID.toLong()
     private var queryHandler: QueryHandler? = null
     private var outstandingQueries = TOKEN_UNINITIALIZED
@@ -101,8 +103,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     @ColorInt
     private var fabColor = Color.TRANSPARENT
     private val swipePaint = Paint()
-    private var deleteIcon: Bitmap? = null
-    private var editIcon: Bitmap? = null
+    private val deleteIcon: Bitmap by lazy { BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white) }
+    private val editIcon: Bitmap by lazy { BitmapFactory.decodeResource(resources, R.drawable.ic_edit_white) }
     private var horizontalPadding = 0f
     private var itemTouchHelper: ItemTouchHelper? = null
     private var isUserShowingLocation = false
@@ -534,11 +536,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         horizontalPadding = resources.getDimension(R.dimen.material_margin_horizontal)
         fab.setOnClickListener { addField() }
 
-        recyclerView.adapter = playAdapter
         recyclerView.setHasFixedSize(false)
+        recyclerView.adapter = playAdapter
+
         swipePaint.color = ContextCompat.getColor(this, R.color.medium_blue)
-        deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
-        editIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_edit_white)
         itemTouchHelper = ItemTouchHelper(
                 object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                     override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
@@ -553,11 +554,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                             itemView.translationX = dX
 
                             // show background with an icon
-                            var icon = editIcon
-                            if (dX > 0) {
-                                icon = deleteIcon
+                            val icon = if (dX > 0) {
+                                deleteIcon
+                            } else {
+                                editIcon
                             }
-                            val verticalPadding = (itemView.height - icon!!.height) / 2f
+                            val verticalPadding = (itemView.height - icon.height) / 2f
                             val background: RectF
                             val iconSrc: Rect
                             val iconDst: RectF
@@ -598,17 +600,15 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                         if (swipeDir == ItemTouchHelper.RIGHT) {
                             lastRemovedPlayer = playAdapter.getPlayer(viewHolder.adapterPosition)
                             lastRemovedPlayer?.let {
-                                val description = it.description.ifEmpty { getString(R.string.title_player) }
-                                val message = getString(R.string.msg_player_deleted, description)
-                                Snackbar
-                                        .make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
-                                        .setAction(R.string.undo) {
-                                            if (lastRemovedPlayer == null) return@setAction
-                                            play!!.addPlayer(lastRemovedPlayer!!)
-                                            playAdapter.notifyPlayerAdded(viewHolder.adapterPosition)
-                                        }
-                                        .show()
-                                play?.removePlayer(lastRemovedPlayer!!, !arePlayersCustomSorted)
+                                coordinatorLayout.indefiniteSnackbar(
+                                        getString(R.string.msg_player_deleted, it.description.ifEmpty { getString(R.string.title_player) }),
+                                        getString(R.string.undo)) {
+                                    lastRemovedPlayer?.let { p ->
+                                        play?.addPlayer(p)
+                                        playAdapter.notifyPlayersChanged()
+                                    }
+                                }
+                                play?.removePlayer(it, !arePlayersCustomSorted)
                                 playAdapter.notifyPlayerRemoved(viewHolder.adapterPosition)
                             }
                         } else {
@@ -617,17 +617,16 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                     }
 
                     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                        if (play == null) return false
                         if (target !is PlayAdapter.PlayerViewHolder) return false
                         val fromPosition = viewHolder.adapterPosition
-                        val toPosition = target.getAdapterPosition()
-                        if (!play!!.reorderPlayers(fromPosition + 1, toPosition + 1)) {
-                            longToast("Something went wrong")
-                        } else {
+                        val toPosition = target.adapterPosition
+                        return if (play?.reorderPlayers(fromPosition + 1, toPosition + 1) == true) {
                             playAdapter.notifyItemMoved(fromPosition, toPosition)
-                            return true
+                            true
+                        } else {
+                            longToast("Something went wrong")
+                            false
                         }
-                        return false
                     }
 
                     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
@@ -639,7 +638,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                         // We only want the active item to change
                         if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-                            viewHolder!!.itemView.setBackgroundColor(ContextCompat.getColor(this@LogPlayActivity, R.color.light_blue_transparent))
+                            viewHolder?.itemView?.setBackgroundColor(ContextCompat.getColor(this@LogPlayActivity, R.color.light_blue_transparent))
                         }
                         super.onSelectedChanged(viewHolder, actionState)
                     }
@@ -671,19 +670,19 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
             Toast.makeText(this, message, Toast.LENGTH_LONG).show()
             finish()
         }
-        if (savedInstanceState != null) {
-            play = savedInstanceState.getParcelable(KEY_PLAY)
-            originalPlay = savedInstanceState.getParcelable(KEY_ORIGINAL_PLAY)
-            internalId = savedInstanceState.getLong(KEY_INTERNAL_ID, INVALID_ID.toLong())
-            isUserShowingLocation = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_LOCATION)
-            isUserShowingLength = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_LENGTH)
-            isUserShowingQuantity = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_QUANTITY)
-            isUserShowingIncomplete = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_INCOMPLETE)
-            isUserShowingNoWinStats = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS)
-            isUserShowingComments = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_COMMENTS)
-            isUserShowingPlayers = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
-            shouldDeletePlayOnActivityCancel = savedInstanceState.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL)
-            arePlayersCustomSorted = savedInstanceState.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED)
+        savedInstanceState?.let {
+            play = it.getParcelable(KEY_PLAY)
+            originalPlay = it.getParcelable(KEY_ORIGINAL_PLAY)
+            internalId = it.getLong(KEY_INTERNAL_ID, INVALID_ID.toLong())
+            isUserShowingLocation = it.getBoolean(KEY_IS_USER_SHOWING_LOCATION)
+            isUserShowingLength = it.getBoolean(KEY_IS_USER_SHOWING_LENGTH)
+            isUserShowingQuantity = it.getBoolean(KEY_IS_USER_SHOWING_QUANTITY)
+            isUserShowingIncomplete = it.getBoolean(KEY_IS_USER_SHOWING_INCOMPLETE)
+            isUserShowingNoWinStats = it.getBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS)
+            isUserShowingComments = it.getBoolean(KEY_IS_USER_SHOWING_COMMENTS)
+            isUserShowingPlayers = it.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
+            shouldDeletePlayOnActivityCancel = it.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL)
+            arePlayersCustomSorted = it.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED)
         }
         startQuery()
         setUpShowcaseViewWizard()
