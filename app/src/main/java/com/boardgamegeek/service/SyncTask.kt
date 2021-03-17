@@ -61,7 +61,6 @@ abstract class SyncTask(protected val application: BggApplication, protected val
      * If the user's preferences are set, show a notification with the current progress of the sync status. The content
      * text is set by the sync task, while the detail message is displayed in BigTextStyle.
      */
-    @JvmOverloads
     fun updateProgressNotification(detail: String? = null) {
         Timber.i(detail)
         FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_DETAIL, detail ?: "")

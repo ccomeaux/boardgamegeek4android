@@ -21,8 +21,6 @@ class PlayRatingNumberPadDialogFragment : NumberPadDialogFragment() {
     }
 
     companion object {
-        @JvmStatic
-        @JvmOverloads
         fun newInstance(requestCode: Int,
                         initialValue: String,
                         colorDescription: String? = null,

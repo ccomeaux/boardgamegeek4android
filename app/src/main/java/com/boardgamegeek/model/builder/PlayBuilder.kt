@@ -10,7 +10,6 @@ import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.util.CursorUtils
 
 object PlayBuilder {
-    @JvmField
     val PLAY_PROJECTION = arrayOf(
             Plays.PLAY_ID,
             Plays.ITEM_NAME,
@@ -29,7 +28,6 @@ object PlayBuilder {
             Plays.DIRTY_TIMESTAMP
     )
 
-    @JvmField
     val PLAYER_PROJECTION = arrayOf(
             PlayPlayers.USER_ID,
             PlayPlayers.USER_NAME,
@@ -42,7 +40,6 @@ object PlayBuilder {
             PlayPlayers.WIN
     )
 
-    @JvmStatic
     fun fromCursor(cursor: Cursor): Play {
         return Play(
                 gameId = cursor.getIntOrNull(Plays.OBJECT_ID) ?: BggContract.INVALID_ID,
@@ -77,7 +74,6 @@ object PlayBuilder {
         )
     }
 
-    @JvmStatic
     fun addPlayers(cursor: Cursor, play: Play) {
         play.clearPlayers()
         while (cursor.moveToNext()) {
@@ -88,7 +84,6 @@ object PlayBuilder {
         }
     }
 
-    @JvmStatic
     fun rematch(play: Play): Play {
         val rematch = Play(
                 gameId = play.gameId,

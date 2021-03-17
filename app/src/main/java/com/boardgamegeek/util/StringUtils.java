@@ -2,9 +2,6 @@ package com.boardgamegeek.util;
 
 import android.text.TextUtils;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
-
 /**
  * Provides utility methods for dealing with strings.
  */
@@ -46,20 +43,6 @@ public class StringUtils {
 		try {
 			return Long.parseLong(text);
 		} catch (NumberFormatException | NullPointerException ex) {
-			return defaultValue;
-		}
-	}
-
-	/**
-	 * Parse a string to an double, returning the default value if it's not parsable.
-	 */
-	public static double parseDouble(String text, double defaultValue) {
-		if (TextUtils.isEmpty(text)) return defaultValue;
-		try {
-			Number parsed = NumberFormat.getNumberInstance().parse(text);
-			if (parsed == null) return defaultValue;
-			return parsed.doubleValue();
-		} catch (ParseException | NullPointerException ex) {
 			return defaultValue;
 		}
 	}

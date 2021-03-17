@@ -30,8 +30,6 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
          * @param disabledColors colors that should be displayed as disabled (but still selectable
          * @return new ColorPickerDialog
          */
-        @JvmStatic
-        @JvmOverloads
         fun newInstance(featuredColors: ArrayList<String>?,
                         selectedColor: String?,
                         disabledColors: ArrayList<String>?,

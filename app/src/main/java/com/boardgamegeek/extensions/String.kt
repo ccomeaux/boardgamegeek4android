@@ -53,7 +53,6 @@ fun String.asRankDescription(context: Context, type: String = BggService.RANK_TY
     }
 }
 
-@JvmOverloads
 fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     return if (isNullOrBlank()) {
         defaultMillis
