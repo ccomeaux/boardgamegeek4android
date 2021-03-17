@@ -1298,9 +1298,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         private const val TOKEN_UNINITIALIZED = 1 shl 15
         private val SCORE_FORMAT = DecimalFormat("0.#########")
 
-        // TODO add default parameters
-
-        fun logPlay(context: Context, gameId: Int, gameName: String, thumbnailUrl: String, imageUrl: String, heroImageUrl: String, customPlayerSort: Boolean) {
+        fun logPlay(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", imageUrl: String = "", heroImageUrl: String = "", customPlayerSort: Boolean = false) {
             context.startActivity(createIntent(context, INVALID_ID.toLong(), gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort))
         }
 
