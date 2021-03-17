@@ -68,7 +68,6 @@ import kotlin.math.abs
 
 class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPickerWithListenerDialogFragment.Listener, ScoreNumberPadDialogFragment.Listener, PlayRatingNumberPadDialogFragment.Listener {
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
-    private val prefs: SharedPreferences by lazy { preferences() } // TODO - just use `preferences()` directly
     private val playAdapter: PlayAdapter by lazy { PlayAdapter() }
     private val locationAdapter: LocationAdapter by lazy { LocationAdapter(this) }
 
@@ -182,10 +181,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 if (play == null) {
                     // create a new play
                     play = Play(gameId, gameName)
-                    val lastPlay = prefs.getLastPlayTime()
+                    val lastPlay = preferences()[KEY_LAST_PLAY_TIME, 0L] ?: 0L
                     if (lastPlay.howManyHoursOld() < 12) {
-                        play?.location = prefs.getLastPlayLocation()
-                        play?.setPlayers(prefs.getLastPlayPlayers().orEmpty())
+                        play?.location = preferences()[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
+                        play?.setPlayers(preferences().getLastPlayPlayers())
                         play?.pickStartPlayer(0)
                     }
                 }
@@ -384,8 +383,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         }
 
         addPlayerButton.setOnClickListener {
-            if (prefs.getEditPlayerPrompted()) {
-                addPlayers(prefs.getEditPlayer())
+            if (preferences()[LOG_EDIT_PLAYER_PROMPTED, false] == true) {
+                addPlayers(preferences()[LOG_EDIT_PLAYER, false] ?: false)
             } else {
                 promptToEditPlayers()
             }
@@ -422,12 +421,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 .setPositiveButton(R.string.pref_edit_player_prompt_positive, onPromptClickListener(true))
                 .setNegativeButton(R.string.pref_edit_player_prompt_negative, onPromptClickListener(false))
                 .create().show()
-        prefs.putEditPlayerPrompted()
+        preferences()[LOG_EDIT_PLAYER_PROMPTED] = true
     }
 
     private fun onPromptClickListener(value: Boolean): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { _, _ ->
-            prefs.putEditPlayer(value)
+            preferences()[LOG_EDIT_PLAYER] = value
             addPlayers(value)
         }
     }
@@ -766,31 +765,31 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     }
 
     private fun shouldHideLocation(): Boolean {
-        return play != null && !prefs.showLogPlayLocation() && !isUserShowingLocation && play?.location.isNullOrEmpty()
+        return play != null && !preferences().showLogPlayLocation() && !isUserShowingLocation && play?.location.isNullOrEmpty()
     }
 
     private fun shouldHideLength(): Boolean {
-        return play != null && !prefs.showLogPlayLength() && !isUserShowingLength && play!!.length <= 0 && !play!!.hasStarted()
+        return play != null && !preferences().showLogPlayLength() && !isUserShowingLength && play!!.length <= 0 && !play!!.hasStarted()
     }
 
     private fun shouldHideQuantity(): Boolean {
-        return play != null && !prefs.showLogPlayQuantity() && !isUserShowingQuantity && play!!.quantity <= 1
+        return play != null && !preferences().showLogPlayQuantity() && !isUserShowingQuantity && play!!.quantity <= 1
     }
 
     private fun shouldHideIncomplete(): Boolean {
-        return play != null && !prefs.showLogPlayIncomplete() && !isUserShowingIncomplete && !play!!.incomplete
+        return play != null && !preferences().showLogPlayIncomplete() && !isUserShowingIncomplete && !play!!.incomplete
     }
 
     private fun shouldHideNoWinStats(): Boolean {
-        return play != null && !prefs.showLogPlayNoWinStats() && !isUserShowingNoWinStats && !play!!.noWinStats
+        return play != null && !preferences().showLogPlayNoWinStats() && !isUserShowingNoWinStats && !play!!.noWinStats
     }
 
     private fun shouldHideComments(): Boolean {
-        return play != null && !prefs.showLogPlayComments() && !isUserShowingComments && play?.comments.isNullOrEmpty()
+        return play != null && !preferences().showLogPlayComments() && !isUserShowingComments && play?.comments.isNullOrEmpty()
     }
 
     private fun shouldHidePlayers(): Boolean {
-        return play != null && !prefs.showLogPlayPlayerList() && !isUserShowingPlayers && play!!.getPlayerCount() == 0
+        return play != null && !preferences().showLogPlayPlayerList() && !isUserShowingPlayers && play!!.getPlayerCount() == 0
     }
 
     private fun startQuery() {
@@ -829,9 +828,9 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 }
                 // TODO move this to !it.isSynced
                 if (it.playId == 0 && (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())) {
-                    prefs.putLastPlayTime(now)
-                    prefs.putLastPlayLocation(it.location)
-                    prefs.putLastPlayPlayers(it.players)
+                    preferences()[KEY_LAST_PLAY_TIME] = now
+                    preferences()[KEY_LAST_PLAY_LOCATION] = it.location
+                    preferences().putLastPlayPlayers(it.players)
                 }
                 cancelNotification()
                 triggerUpload()

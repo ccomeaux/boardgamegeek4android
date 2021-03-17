@@ -374,7 +374,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         //  2. last played at this location
         if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {
             val lastPlayers = prefs.getLastPlayPlayerEntities()
-            lastPlayers?.forEach { lastPlayer ->
+            lastPlayers.forEach { lastPlayer ->
                 allPlayers?.find { it == lastPlayer && !newList.contains(it) }?.let {
                     newList.add(it)
                 }
@@ -437,7 +437,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun isLastPlayRecent(): Boolean {
-        val lastPlayTime = prefs.getLastPlayTime()
+        val lastPlayTime = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
         return !lastPlayTime.isOlderThan(6, TimeUnit.HOURS)
     }
 
