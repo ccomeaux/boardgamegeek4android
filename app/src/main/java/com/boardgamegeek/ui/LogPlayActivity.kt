@@ -38,16 +38,12 @@ import com.boardgamegeek.service.SyncService.Companion.sync
 import com.boardgamegeek.tasks.ColorAssignerTask
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
-import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment.Companion.newInstance
-import com.boardgamegeek.ui.dialog.NumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment
-import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment.Companion.newInstance
 import com.boardgamegeek.ui.dialog.ScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import com.boardgamegeek.ui.widget.PlayerRow
 import com.boardgamegeek.util.*
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
-import com.boardgamegeek.util.PaletteUtils.getIconSwatch
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -59,6 +55,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.design.indefiniteSnackbar
+import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
@@ -219,7 +216,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 thumbnailView.setBackgroundResource(R.color.black_overlay_light)
-                fabColor = getIconSwatch(palette).rgb
+                fabColor = palette.getIconSwatch().rgb
                 fab.colorize(fabColor)
                 fab.post { fab.show() }
                 bindPlayerHeader(play!!)
@@ -846,7 +843,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     }
 
     private fun saveDraft(showToast: Boolean) {
-        if (play == null) return
         play?.let {
             it.dirtyTimestamp = System.currentTimeMillis()
             it.deleteTimestamp = 0
@@ -1026,9 +1022,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     }
 
     private fun promptPickStartPlayer() {
-        val array = createArrayOfPlayerDescriptions()
-        AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
-                .setItems(array) { _: DialogInterface?, which: Int ->
+        val playerDescriptions = play?.players?.mapIndexed { i, p ->
+            p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
+        }.orEmpty()
+        AlertDialog.Builder(this)
+                .setTitle(R.string.title_pick_start_player)
+                .setItems(playerDescriptions.toTypedArray()) { _, which: Int ->
                     play?.pickStartPlayer(which)
                     notifyStartPlayer()
                     playAdapter.notifyPlayersChanged()
@@ -1036,66 +1035,56 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 .show()
     }
 
-    private fun createArrayOfPlayerDescriptions(): Array<CharSequence> {
-        val playerPrefix = resources.getString(R.string.generic_player)
-        val list: MutableList<CharSequence> = ArrayList()
-        for (i in 0 until play!!.getPlayerCount()) {
-            val p = play!!.players[i]
-            list.add(p.description.ifEmpty { String.format(playerPrefix, i + 1) })
-        }
-        return list.toTypedArray()
-    }
-
     private fun notifyStartPlayer() {
         play?.getPlayerAtSeat(1)?.let {
             val name = it.description.ifEmpty { String.format(resources.getString(R.string.generic_player), 1) }
-            Snackbar.make(coordinatorLayout, String.format(resources.getString(R.string.notification_start_player), name), Snackbar.LENGTH_LONG).show()
+            coordinatorLayout.longSnackbar(String.format(resources.getString(R.string.notification_start_player), name))
         }
     }
 
     private fun addNewPlayer() {
         val intent = Intent()
         if (!arePlayersCustomSorted) {
-            intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, play!!.getPlayerCount() + 1)
+            intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, (play?.getPlayerCount() ?: 0) + 1)
         }
         editPlayer(intent, REQUEST_ADD_PLAYER)
     }
 
     private fun editPlayer(position: Int) {
         val player = playAdapter.getPlayer(position)
-        val intent = Intent()
-        intent.putExtra(LogPlayerActivity.KEY_PLAYER, player)
-        intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
-        if (!arePlayersCustomSorted && player != null) {
-            intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.seat)
+        val intent = Intent().apply {
+            putExtra(LogPlayerActivity.KEY_PLAYER, player)
+            putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
+            if (!arePlayersCustomSorted && player != null) {
+                putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.seat)
+            }
+            putExtra(LogPlayerActivity.KEY_POSITION, position)
         }
-        intent.putExtra(LogPlayerActivity.KEY_POSITION, position)
         editPlayer(intent, REQUEST_EDIT_PLAYER)
         playAdapter.notifyPlayerChanged(position)
     }
 
     private fun editPlayer(intent: Intent, requestCode: Int) {
         isLaunchingActivity = true
-        intent.setClass(this@LogPlayActivity, LogPlayerActivity::class.java)
-        intent.putExtra(LogPlayerActivity.KEY_GAME_ID, play!!.gameId)
-        intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, play!!.gameName)
-        intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl)
-        intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, thumbnailUrl)
-        intent.putExtra(LogPlayerActivity.KEY_HERO_IMAGE_URL, heroImageUrl)
-        intent.putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
-        intent.putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor)
-        val colors: MutableList<String> = ArrayList()
-        for ((_, _, color) in play!!.players) {
-            colors.add(color)
+        intent.apply {
+            setClass(this@LogPlayActivity, LogPlayerActivity::class.java)
+            putExtra(LogPlayerActivity.KEY_GAME_ID, play?.gameId)
+            putExtra(LogPlayerActivity.KEY_GAME_NAME, play?.gameName)
+            putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl)
+            putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, thumbnailUrl)
+            putExtra(LogPlayerActivity.KEY_HERO_IMAGE_URL, heroImageUrl)
+            putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
+            putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor)
+            putExtra(LogPlayerActivity.KEY_USED_COLORS, play?.players?.map { it.color }?.toTypedArray())
+            putExtra(LogPlayerActivity.KEY_NEW_PLAYER, requestCode == REQUEST_ADD_PLAYER)
         }
-        intent.putExtra(LogPlayerActivity.KEY_USED_COLORS, colors.toTypedArray())
-        intent.putExtra(LogPlayerActivity.KEY_NEW_PLAYER, requestCode == REQUEST_ADD_PLAYER)
         startActivityForResult(intent, requestCode)
     }
 
     private fun maybeShowNotification() {
         if (play?.hasStarted() == true && internalId != INVALID_ID.toLong()) {
-            this.launchPlayingNotification(internalId, play!!.gameName, play!!.location!!, play!!.getPlayerCount(), play!!.startTime, thumbnailUrl, imageUrl, heroImageUrl)
+            this.launchPlayingNotification(internalId, play?.gameName.orEmpty(), play?.location.orEmpty(), play?.getPlayerCount()
+                    ?: 0, play?.startTime ?: 0L, thumbnailUrl, imageUrl, heroImageUrl)
         }
     }
 
@@ -1114,9 +1103,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
             val player = it.players[position]
             if (requestCode % 2 == 0) {
                 player.score = SCORE_FORMAT.format(output)
-                val highScore = it.highScore
                 for (p in it.players) {
-                    p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == highScore
+                    p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == it.highScore
                 }
                 playAdapter.notifyPlayersChanged()
             } else {
@@ -1127,14 +1115,14 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     }
 
     private fun startTimer(play: Play?) {
-        logTimer("On")
+        logTimer("Start")
         play?.start()
         play?.let { bindLength(it) }
         maybeShowNotification()
     }
 
     private fun resumeTimer(play: Play?) {
-        logTimer("On")
+        logTimer("Resume")
         play?.resume()
         play?.let { bindLength(it) }
         maybeShowNotification()
@@ -1147,6 +1135,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
     }
 
     inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {
+        //var artists: List<Player>
+
         init {
             setHasStableIds(false)
         }
@@ -1200,74 +1190,73 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         inner class PlayerViewHolder(context: Context) : RecyclerView.ViewHolder(PlayerRow(context)) {
             private val row: PlayerRow = itemView as PlayerRow
 
+            init {
+                row.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+
             @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
                 row.setAutoSort(!arePlayersCustomSorted)
                 row.setPlayer(getPlayer(position))
                 row.setNameListener { editPlayer(position) }
                 row.setOnMoreListener {
-                    if (position < 0 || position > play!!.players.size) return@setOnMoreListener
-                    val player = play!!.players[position]
-                    val popup = PopupMenu(this@LogPlayActivity, row.getMoreButton())
-                    popup.inflate(R.menu.log_play_player)
-                    popup.menu.findItem(R.id.new_).isChecked = player.isNew
-                    popup.menu.findItem(R.id.win).isChecked = player.isWin
-                    popup.setOnMenuItemClickListener { item: MenuItem ->
-                        when (item.itemId) {
-                            R.id.new_ -> {
-                                player.isNew = !item.isChecked
-                                bind(position)
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.win -> {
-                                player.isWin = !item.isChecked
-                                bind(position)
-                                return@setOnMenuItemClickListener true
+                    play?.players?.getOrNull(position)?.let { player ->
+                        val popup = PopupMenu(this@LogPlayActivity, row.getMoreButton())
+                        popup.inflate(R.menu.log_play_player)
+                        popup.menu.findItem(R.id.new_)?.isChecked = player.isNew
+                        popup.menu.findItem(R.id.win)?.isChecked = player.isWin
+                        popup.setOnMenuItemClickListener { item: MenuItem ->
+                            when (item.itemId) {
+                                R.id.new_ -> {
+                                    player.isNew = !item.isChecked
+                                    bind(position)
+                                    true
+                                }
+                                R.id.win -> {
+                                    player.isWin = !item.isChecked
+                                    bind(position)
+                                    true
+                                }
+                                else -> false
                             }
                         }
-                        false
+                        popup.show()
                     }
-                    popup.show()
                 }
                 row.getDragHandle().setOnTouchListener { _: View?, event: MotionEvent ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         itemTouchHelper?.startDrag(this@PlayerViewHolder)
-                        return@setOnTouchListener true
-                    }
-                    false
+                        true
+                    } else false
                 }
                 row.setOnColorListener {
-                    val player = play!!.players[position]
-                    val usedColors = ArrayList<String>()
-                    for (p in play!!.players) {
-                        if (p !== player) usedColors.add(p.color)
+                    play?.players?.getOrNull(position)?.let { player ->
+                        val usedColors = play?.players?.filter { it != player }?.map { it.color }.orEmpty() as ArrayList<String>
+                        val fragment = ColorPickerWithListenerDialogFragment.newInstance(gameColors, player.color, usedColors, position)
+                        fragment.show(supportFragmentManager, "color_picker")
                     }
-                    val fragment = newInstance(gameColors, player.color, usedColors, position)
-                    fragment.show(supportFragmentManager, "color_picker")
                 }
                 row.setOnRatingListener {
-                    val player = play!!.players[position]
-                    val fragment: NumberPadDialogFragment = newInstance(
-                            position * 2 + 1,
-                            player.ratingDescription,
-                            player.color,
-                            player.description
-                    )
-                    DialogUtils.showFragment(this@LogPlayActivity, fragment, "rating_dialog")
+                    play?.players?.getOrNull(position)?.let { player ->
+                        val fragment = PlayRatingNumberPadDialogFragment.newInstance(
+                                position * 2 + 1,
+                                player.ratingDescription,
+                                player.color,
+                                player.description
+                        )
+                        DialogUtils.showFragment(this@LogPlayActivity, fragment, "rating_dialog")
+                    }
                 }
                 row.setOnScoreListener {
-                    val player = play!!.players[position]
-                    val fragment = ScoreNumberPadDialogFragment.newInstance(
-                            position * 2,
-                            player.score,
-                            player.color,
-                            player.description)
-                    DialogUtils.showFragment(this@LogPlayActivity, fragment, "score_dialog")
+                    play?.players?.getOrNull(position)?.let { player ->
+                        val fragment = ScoreNumberPadDialogFragment.newInstance(
+                                position * 2,
+                                player.score,
+                                player.color,
+                                player.description)
+                        DialogUtils.showFragment(this@LogPlayActivity, fragment, "score_dialog")
+                    }
                 }
-            }
-
-            init {
-                row.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
         }
     }
@@ -1301,7 +1290,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         private const val KEY_IS_USER_SHOWING_PLAYERS = "IS_USER_SHOWING_PLAYERS"
         private const val KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL = "SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL"
         private const val KEY_ARE_PLAYERS_CUSTOM_SORTED = "ARE_PLAYERS_CUSTOM_SORTED"
-        private const val HELP_VERSION = 3
         private const val REQUEST_ADD_PLAYER = 1
         private const val REQUEST_EDIT_PLAYER = 2
         private const val TOKEN_PLAY = 1
@@ -1309,6 +1297,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         private const val TOKEN_COLORS = 1 shl 2
         private const val TOKEN_UNINITIALIZED = 1 shl 15
         private val SCORE_FORMAT = DecimalFormat("0.#########")
+
+        // TODO add default parameters
 
         fun logPlay(context: Context, gameId: Int, gameName: String, thumbnailUrl: String, imageUrl: String, heroImageUrl: String, customPlayerSort: Boolean) {
             context.startActivity(createIntent(context, INVALID_ID.toLong(), gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort))

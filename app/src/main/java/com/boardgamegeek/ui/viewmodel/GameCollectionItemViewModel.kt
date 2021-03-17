@@ -10,11 +10,11 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.getHeaderSwatch
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.util.PaletteUtils
 
 class GameCollectionItemViewModel(application: Application) : AndroidViewModel(application) {
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
@@ -53,9 +53,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
     }
 
     fun updateGameColors(palette: Palette?) {
-        if (palette != null) {
-            _swatch.value = PaletteUtils.getHeaderSwatch(palette)
-        }
+        palette?.let { _swatch.value = it.getHeaderSwatch() }
     }
 
     fun updatePrivateInfo(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: Long?, acquiredFrom: String?, inventoryLocation: String?) {
