@@ -653,6 +653,13 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
 
+        val action = if (internalId == INVALID_ID.toLong()) "Action" else "Edit"
+        FirebaseAnalytics.getInstance(this).logEvent("DataManipulation") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
+            param("Action", action)
+            param("GameName", gameName)
+        }
+
         if (gameId <= 0) {
             val message = "Can't log a play without a game ID."
             Timber.w(message)
@@ -673,6 +680,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
             shouldDeletePlayOnActivityCancel = it.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL)
             arePlayersCustomSorted = it.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED)
         }
+
         startQuery()
         fab.postDelayed({ fab.show() }, 2000)
     }
@@ -826,8 +834,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                     val playRepository = PlayRepository((application as BggApplication))
                     playRepository.markAsDeleted(internalIdToDelete, null)
                 }
-                // TODO move this to !it.isSynced
-                if (it.playId == 0 && (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())) {
+                if (!it.isSynced &&
+                        (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())) {
                     preferences()[KEY_LAST_PLAY_TIME] = now
                     preferences()[KEY_LAST_PLAY_LOCATION] = it.location
                     preferences().putLastPlayPlayers(it.players)
@@ -1302,12 +1310,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         }
 
         fun editPlay(context: Context, internalId: Long, gameId: Int, gameName: String, thumbnailUrl: String, imageUrl: String, heroImageUrl: String) {
-            // TODO move this to onCreate?
-            FirebaseAnalytics.getInstance(context).logEvent("DataManipulation") {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
-                param("Action", "Edit")
-                param("GameName", gameName)
-            }
             context.startActivity(createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false))
         }
 

@@ -52,6 +52,9 @@ data class Play @JvmOverloads constructor(
     @JvmField
     var subtypes: List<String>? = null
 
+    val isSynced
+        get() = playId > 0
+
     // DATE
     val dateForDatabase: String
         get() = dateInMillis.forDatabase()
