@@ -451,7 +451,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
             lengthGroup.isVisible = true
             lengthView.isVisible = true
             lengthView.setTextKeepState(if (play.length == Play.LENGTH_DEFAULT) "" else play.length.toString())
-            UIUtils.startTimerWithSystemTime(timer, play.startTime)
+            timer.startTimerWithSystemTime(play.startTime)
             if (play.hasStarted()) {
                 lengthFrame.visibility = View.INVISIBLE
                 timer.visibility = View.VISIBLE

@@ -22,7 +22,6 @@ import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
-import com.boardgamegeek.util.UIUtils
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -126,7 +125,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                 lengthView.text = ""
                 lengthView.isVisible = true
                 timerView.isVisible = true
-                UIUtils.startTimerWithSystemTime(timerView, play.startTime)
+                timerView.startTimerWithSystemTime(play.startTime)
                 timerEndButton.isVisible = true
             }
             else -> {
