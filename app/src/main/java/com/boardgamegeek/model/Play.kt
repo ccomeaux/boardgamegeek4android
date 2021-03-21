@@ -63,14 +63,6 @@ data class Play @JvmOverloads constructor(
         return DateUtils.formatDateTime(context, dateInMillis, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY)
     }
 
-    fun setDate(year: Int, month: Int, day: Int) {
-        val c = Calendar.getInstance()
-        c[Calendar.DAY_OF_MONTH] = day
-        c[Calendar.MONTH] = month
-        c[Calendar.YEAR] = year
-        dateInMillis = c.timeInMillis
-    }
-
     // PLAYERS
     val players: List<Player>
         get() = _players
