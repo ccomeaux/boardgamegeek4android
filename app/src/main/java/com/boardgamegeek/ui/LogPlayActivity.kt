@@ -915,26 +915,25 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 row.setNameListener { editPlayer(position) }
                 row.setOnMoreListener {
                     players.getOrNull(position)?.let { player ->
-                        val popup = PopupMenu(this@LogPlayActivity, row.getMoreButton())
-                        popup.inflate(R.menu.log_play_player)
-                        popup.menu.findItem(R.id.new_)?.isChecked = player.isNew
-                        popup.menu.findItem(R.id.win)?.isChecked = player.isWin
-                        popup.setOnMenuItemClickListener { item: MenuItem ->
-                            when (item.itemId) {
-                                R.id.new_ -> {
-                                    player.isNew = !item.isChecked
-                                    bind(position)
-                                    true
+                        PopupMenu(this@LogPlayActivity, row.getMoreButton()).apply {
+                            inflate(R.menu.log_play_player)
+                            menu.findItem(R.id.win)?.isChecked = player.isWin
+                            menu.findItem(R.id.new_)?.isChecked = player.isNew
+                            setOnMenuItemClickListener { item: MenuItem ->
+                                when (item.itemId) {
+                                    R.id.win -> {
+                                        viewModel.win(!item.isChecked, position)
+                                        true
+                                    }
+                                    R.id.new_ -> {
+                                        viewModel.new(!item.isChecked, position)
+                                        true
+                                    }
+                                    else -> false
                                 }
-                                R.id.win -> {
-                                    player.isWin = !item.isChecked
-                                    bind(position)
-                                    true
-                                }
-                                else -> false
                             }
+                            show()
                         }
-                        popup.show()
                     }
                 }
                 row.getDragHandle().setOnTouchListener { _: View?, event: MotionEvent ->

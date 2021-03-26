@@ -234,7 +234,21 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun logPlay(internalIdToDelete:Long = BggContract.INVALID_ID.toLong()) {
+    fun win(isWin: Boolean, playerIndex: Int) {
+        play.value?.copy()?.let {
+            it.players[playerIndex].isWin = isWin
+            _play.value = it
+        }
+    }
+
+    fun new(isNew: Boolean, playerIndex: Int) {
+        play.value?.copy()?.let {
+            it.players[playerIndex].isNew = isNew
+            _play.value = it
+        }
+    }
+
+    fun logPlay(internalIdToDelete: Long = BggContract.INVALID_ID.toLong()) {
         play.value?.let {
             val now = System.currentTimeMillis()
 
