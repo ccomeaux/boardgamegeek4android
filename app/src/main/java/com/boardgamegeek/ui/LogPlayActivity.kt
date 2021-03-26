@@ -15,18 +15,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
 import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment
@@ -41,7 +40,14 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_logplay.*
-import kotlinx.android.synthetic.main.fragment_play.view.*
+import kotlinx.android.synthetic.main.activity_logplay.commentsView
+import kotlinx.android.synthetic.main.activity_logplay.incompleteView
+import kotlinx.android.synthetic.main.activity_logplay.lengthView
+import kotlinx.android.synthetic.main.activity_logplay.locationView
+import kotlinx.android.synthetic.main.activity_logplay.noWinStatsView
+import kotlinx.android.synthetic.main.activity_logplay.playersLabel
+import kotlinx.android.synthetic.main.activity_logplay.quantityView
+import kotlinx.android.synthetic.main.activity_logplay.thumbnailView
 import org.jetbrains.anko.design.indefiniteSnackbar
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.toast
@@ -119,52 +125,40 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         if (locationView.adapter == null) locationView.setAdapter(locationAdapter)
         locationView.doAfterTextChanged { viewModel.updateLocation(it.toString().trim()) }
 
-        //lengthView.doAfterTextChanged {  }
-        lengthView.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                viewModel.updateLength(lengthView.toString().trim().toIntOrNull() ?: 0)
-            }
+        lengthView.doAfterTextChanged {
+            viewModel.updateLength(it.toString().trim().toIntOrNull() ?: 0)
         }
         timerButton.setOnClickListener {
-            if (startTime > 0L) {
-                isRequestingToEndPlay = true
-                viewModel.endTimer()
-                cancelNotification()
-
-                // TODO move this to the bind?
-//                if (play?.length ?: 0 > 0) {
-//                    lengthView.apply {
-//                        this.selectAll()
-//                        this.focusWithKeyboard()
-//                    }
-//                }
+            if (length == 0) {
+                viewModel.startTimer()
             } else {
-                if (length == 0) {
-                    viewModel.startTimer()
-                } else {
-                    DialogUtils.createThemedBuilder(this@LogPlayActivity)
-                            .setMessage(R.string.are_you_sure_timer_reset)
-                            .setPositiveButton(R.string.continue_) { _, _ -> viewModel.resumeTimer() }
-                            .setNegativeButton(R.string.reset) { _, _ -> viewModel.startTimer() }
-                            .setCancelable(true)
-                            .show()
-                }
+                DialogUtils.createThemedBuilder(this@LogPlayActivity)
+                        .setMessage(R.string.are_you_sure_timer_reset)
+                        .setPositiveButton(R.string.continue_) { _, _ -> viewModel.resumeTimer() }
+                        .setNegativeButton(R.string.reset) { _, _ -> viewModel.startTimer() }
+                        .setCancelable(true)
+                        .show()
+            }
+        }
+        timerOffButton.setOnClickListener {
+            isRequestingToEndPlay = true
+            viewModel.endTimer()
+            cancelNotification()
+            lengthView.apply {
+                this.selectAll()
+                this.focusWithKeyboard()
             }
         }
 
-        quantityView.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                viewModel.updateQuantity(quantityView.text?.trim().toString().toIntOrNull() ?: 1)
-            }
+        quantityView.doAfterTextChanged {
+            it?.let { viewModel.updateQuantity(it.toString().trim().toIntOrNull()) }
         }
 
         incompleteView.setOnCheckedChangeListener { _, isChecked -> viewModel.updateIncomplete(isChecked) }
 
         noWinStatsView.setOnCheckedChangeListener { _, isChecked -> viewModel.updateNoWinStats(isChecked) }
 
-        commentsView.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) viewModel.updateComments(commentsView.toString())
-        }
+        commentsView.doAfterTextChanged { viewModel.updateComments(it.toString()) }
 
         assignColorsButton.setOnClickListener {
             if (playersHaveColors) {
@@ -278,94 +272,82 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         }
     }
 
-    private fun bindHeader(play: Play) {
+    private fun bindHeader() {
         headerView.text = gameName
-        fabColor = ContextCompat.getColor(this@LogPlayActivity, R.color.accent)
         thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 headerView.setBackgroundResource(R.color.black_overlay_light)
-                fabColor = palette.getIconSwatch().rgb
-                fab.colorize(fabColor)
-                fab.post { fab.show() }
-                bindPlayerHeader(play.getPlayerCount())
+                updateColors(palette.getIconSwatch().rgb)
             }
 
             override fun onFailedImageLoad() {
-                fab.show()
+                updateColors(ContextCompat.getColor(this@LogPlayActivity, R.color.accent))
+            }
+
+            private fun updateColors(color: Int) {
+                fabColor = color
+                fab.colorize(color)
+                fab.post { fab.show() }
+                ViewCompat.setBackgroundTintList(addPlayerButton, ColorStateList.valueOf(color))
             }
         })
     }
 
     private fun bindDate(play: Play) {
-        dateInMillis = play.dateInMillis
         dateButton.text = play.getDateForDisplay(this)
     }
 
     private fun bindLocation(play: Play) {
-        locationFrame.isVisible = !shouldHideLocation()
         locationView.setTextKeepState(play.location)
+        locationFrame.isVisible = !play.location.isNullOrEmpty() || isUserShowingLocation || preferences().showLogPlayLocation()
     }
 
-    private fun bindLength(play: Play) {
-        length = play.length
-        startTime = play.startTime
-        if (shouldHideLength()) {
-            lengthGroup.isVisible = false
-        } else {
-            lengthGroup.isVisible = true
-            lengthView.isVisible = true
-            lengthView.setTextKeepState(if (play.length == Play.LENGTH_DEFAULT) "" else play.length.toString())
-            timer.startTimerWithSystemTime(play.startTime)
-            if (play.hasStarted()) {
-                lengthFrame.visibility = View.INVISIBLE
-                timer.visibility = View.VISIBLE
-            } else {
-                lengthView.visibility = View.VISIBLE
-                timer.visibility = View.GONE
+    private fun bindLength() {
+        when {
+            startTime > 0L -> {
+                timer.startTimerWithSystemTime(startTime)
+                lengthGroup.isInvisible = true // This keeps the constraint layout happy
+                timerGroup.isVisible = true
             }
-            val endTime = play.dateInMillis + (play.length * DateUtils.MINUTE_IN_MILLIS)
-            when {
-                play.hasStarted() -> {
-                    timerButton.isEnabled = true
-                    timerButton.setImageResource(R.drawable.ic_timer_off)
-                }
-                endTime.isToday() -> {
-                    timerButton.isEnabled = true
-                    timerButton.setImageResource(R.drawable.ic_timer)
-                }
-                else -> {
-                    timerButton.isEnabled = false
-                }
+            length > 0 -> {
+                lengthView.setTextKeepState(if (length == Play.LENGTH_DEFAULT) "" else length.toString())
+                timerButton.isEnabled = (dateInMillis
+                        ?: 0 + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
+                lengthGroup.isVisible = true
+                timerGroup.isVisible = false
+            }
+            else -> {
+                lengthGroup.isVisible = isUserShowingLength || preferences().showLogPlayLength()
+                timerGroup.isVisible = false
             }
         }
     }
 
     private fun bindQuantity(play: Play) {
-        quantityFrame.isVisible = !shouldHideQuantity()
-        quantityView.setTextKeepState(if (play.quantity == Play.QUANTITY_DEFAULT) "" else play.quantity.toString())
+        quantityView.setTextKeepState(play.quantity.toString())
+        quantityFrame.isVisible = play.quantity != null || isUserShowingQuantity || preferences().showLogPlayQuantity()
     }
 
     private fun bindIncomplete(play: Play) {
-        incompleteView.isVisible = !shouldHideIncomplete()
         incompleteView.isChecked = play.incomplete
+        incompleteView.isVisible = play.incomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete()
     }
 
     private fun bindNoWinStats(play: Play) {
-        noWinStatsView.isVisible = !shouldHideIncomplete()
         noWinStatsView.isChecked = play.noWinStats
+        noWinStatsView.isVisible = play.noWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats()
     }
 
     private fun bindComments(play: Play) {
-        commentsFrame.isVisible = !shouldHideComments()
-        commentsView.setTextKeepState(play.comments)
+        commentsView.setTextKeepState(play.comments.orEmpty())
+        commentsFrame.isVisible = !play.comments.isNullOrEmpty() || isUserShowingComments || preferences().showLogPlayComments()
     }
 
     private fun bindPlayerHeader(playerCount: Int) {
-        playerHeader.isVisible = !shouldHidePlayers()
+        playerHeader.isVisible = isUserShowingPlayers || preferences().showLogPlayPlayerList() || playerCount != 0
         playersLabel.text = if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
         assignColorsButton.isEnabled = playerCount > 0
         playerSortButton.isEnabled = !arePlayersCustomSorted && playerCount > 1
-        ViewCompat.setBackgroundTintList(addPlayerButton, ColorStateList.valueOf(fabColor))
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -544,6 +526,9 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         viewModel.internalId.observe(this) { internalId = it }
         viewModel.play.observe(this) {
             this.play = it
+            dateInMillis = it.dateInMillis
+            length = it.length
+            startTime = it.startTime
             playersHaveColors = it.hasColors()
             playersHaveStartingPositions = it.hasStartingPositions()
             playersAreCustomSorted = it.arePlayersCustomSorted()
@@ -558,10 +543,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
             }
 
-            bindHeader(it)
+            bindHeader()
             bindDate(it)
             bindLocation(it)
-            bindLength(it)
+            bindLength()
             bindQuantity(it)
             bindIncomplete(it)
             bindNoWinStats(it)
@@ -669,34 +654,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         }
     }
 
-    private fun shouldHideLocation(): Boolean {
-        return play != null && !preferences().showLogPlayLocation() && !isUserShowingLocation && play?.location.isNullOrEmpty()
-    }
-
-    private fun shouldHideLength(): Boolean {
-        return play != null && !preferences().showLogPlayLength() && !isUserShowingLength && play!!.length <= 0 && !play!!.hasStarted()
-    }
-
-    private fun shouldHideQuantity(): Boolean {
-        return play != null && !preferences().showLogPlayQuantity() && !isUserShowingQuantity && play!!.quantity <= 1
-    }
-
-    private fun shouldHideIncomplete(): Boolean {
-        return play != null && !preferences().showLogPlayIncomplete() && !isUserShowingIncomplete && !play!!.incomplete
-    }
-
-    private fun shouldHideNoWinStats(): Boolean {
-        return play != null && !preferences().showLogPlayNoWinStats() && !isUserShowingNoWinStats && !play!!.noWinStats
-    }
-
-    private fun shouldHideComments(): Boolean {
-        return play != null && !preferences().showLogPlayComments() && !isUserShowingComments && play?.comments.isNullOrEmpty()
-    }
-
-    private fun shouldHidePlayers(): Boolean {
-        return play != null && !preferences().showLogPlayPlayerList() && !isUserShowingPlayers && play!!.getPlayerCount() == 0
-    }
-
     private fun cancel() {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
@@ -718,20 +675,23 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         val array = createAddFieldArray()
         if (array.isEmpty()) return
         AlertDialog.Builder(this).setTitle(R.string.add_field)
-                .setItems(array) { _: DialogInterface?, which: Int ->
+                .setItems(array) { _, which: Int ->
                     val selection = array[which].toString()
                     when (selection) {
                         resources.getString(R.string.location) -> {
                             isUserShowingLocation = true
-                            play?.let { bindLocation(it) }
+                            locationFrame.isVisible = true
+                            locationView.requestFocus()
                         }
                         resources.getString(R.string.length) -> {
                             isUserShowingLength = true
-                            play?.let { bindLength(it) }
+                            lengthGroup.isVisible = true
+                            lengthView.requestFocus()
                         }
                         resources.getString(R.string.quantity) -> {
                             isUserShowingQuantity = true
-                            play?.let { bindQuantity(it) }
+                            quantityFrame.isVisible = true
+                            quantityView.requestFocus()
                         }
                         resources.getString(R.string.incomplete) -> {
                             isUserShowingIncomplete = true
@@ -743,7 +703,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                         }
                         resources.getString(R.string.comments) -> {
                             isUserShowingComments = true
-                            play?.let { bindComments(it) }
+                            commentsFrame.isVisible = true
+                            commentsView.requestFocus()
                         }
                         resources.getString(R.string.title_players) -> {
                             isUserShowingPlayers = true
@@ -760,13 +721,13 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
 
     private fun createAddFieldArray(): Array<CharSequence> {
         val list = mutableListOf<CharSequence>()
-        if (shouldHideLocation()) list.add(getString(R.string.location))
-        if (shouldHideLength()) list.add(getString(R.string.length))
-        if (shouldHideQuantity()) list.add(getString(R.string.quantity))
-        if (shouldHideIncomplete()) list.add(getString(R.string.incomplete))
-        if (shouldHideNoWinStats()) list.add(getString(R.string.noWinStats))
-        if (shouldHideComments()) list.add(getString(R.string.comments))
-        if (shouldHidePlayers()) list.add(getString(R.string.title_players))
+        if (!locationFrame.isVisible) list.add(getString(R.string.location))
+        if (!lengthFrame.isVisible || !timer.isVisible) list.add(getString(R.string.length))
+        if (!quantityFrame.isVisible) list.add(getString(R.string.quantity))
+        if (!incompleteView.isVisible) list.add(getString(R.string.incomplete))
+        if (!noWinStatsView.isVisible) list.add(getString(R.string.noWinStats))
+        if (!commentsFrame.isVisible) list.add(getString(R.string.comments))
+        if (!playerHeader.isVisible) list.add(getString(R.string.title_players))
         return list.toTypedArray()
     }
 

@@ -20,7 +20,7 @@ data class Play @JvmOverloads constructor(
         @JvmField
         var dateInMillis: Long = Calendar.getInstance().timeInMillis,
         @JvmField
-        var quantity: Int = QUANTITY_DEFAULT,
+        var quantity: Int? = null,
         @JvmField
         var length: Int = LENGTH_DEFAULT,
         @JvmField

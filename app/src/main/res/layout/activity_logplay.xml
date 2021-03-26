@@ -33,74 +33,90 @@
 				android:layout_width="match_parent"
 				android:layout_height="match_parent">
 
-				<FrameLayout
-					android:id="@+id/headerFrame"
-					android:layout_width="match_parent"
+				<androidx.constraintlayout.widget.Guideline
+					android:id="@+id/guidelineStart"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					app:layout_constraintGuide_begin="@dimen/material_margin_horizontal" />
+
+				<androidx.constraintlayout.widget.Guideline
+					android:id="@+id/guidelineEnd"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					app:layout_constraintGuide_end="@dimen/material_margin_horizontal" />
+
+				<androidx.constraintlayout.widget.Guideline
+					android:id="@+id/guidelineData"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					app:layout_constraintGuide_begin="@dimen/material_indent_horizontal" />
+
+				<com.boardgamegeek.ui.widget.ForegroundImageView
+					android:id="@+id/thumbnailView"
+					android:layout_width="0dp"
 					android:layout_height="@dimen/image_header_height"
-					android:layout_gravity="center"
-					android:layout_marginBottom="@dimen/padding_standard"
 					android:background="@color/primary"
-					android:descendantFocusability="blocksDescendants"
-					android:focusable="false"
+					android:foreground="?attr/selectableItemBackground"
+					android:scaleType="centerCrop"
+					app:layout_constraintLeft_toLeftOf="parent"
+					app:layout_constraintRight_toRightOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					tools:ignore="UnusedAttribute" />
+
+				<TextView
+					android:id="@+id/headerView"
+					style="@style/Text.Title.Overlay"
+					android:layout_width="0dp"
+					android:layout_height="0dp"
+					android:background="#5000"
+					android:ellipsize="end"
+					android:gravity="left|center_vertical"
+					android:maxLines="2"
+					android:paddingLeft="@dimen/material_indent_horizontal"
+					android:paddingRight="@dimen/material_margin_horizontal"
+					app:layout_constraintBottom_toBottomOf="@id/thumbnailView"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent">
-
-					<ImageView
-						android:id="@+id/thumbnailView"
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:scaleType="centerCrop" />
-
-					<TextView
-						android:id="@+id/headerView"
-						style="@style/Text.Title.Overlay"
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:ellipsize="end"
-						android:gravity="left|center_vertical"
-						android:maxLines="2"
-						android:paddingLeft="@dimen/material_indent_horizontal"
-						android:paddingRight="@dimen/material_margin_horizontal"
-						tools:text="Puerto Rico" />
-				</FrameLayout>
+					app:layout_constraintTop_toTopOf="@id/thumbnailView"
+					tools:text="Puerto Rico" />
 
 				<TextView
 					android:id="@+id/dateButton"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:layout_marginTop="8dp"
 					android:background="?attr/selectableItemBackground"
 					android:clickable="true"
-					android:drawablePadding="20dp"
+					android:drawablePadding="16dp"
 					android:focusable="true"
 					android:gravity="start|center_vertical"
 					android:minHeight="56dp"
-					android:paddingVertical="@dimen/padding_half"
 					android:paddingStart="12dp"
-					android:paddingLeft="12dp"
 					android:textAppearance="?attr/textAppearanceSubtitle1"
-					app:drawableLeftCompat="@drawable/ic_today"
 					app:drawableStartCompat="@drawable/ic_today"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/headerFrame"
-					tools:text="January 1, 1970" />
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/thumbnailView"
+					tools:text="February 1, 1970" />
 
 				<com.google.android.material.textfield.TextInputLayout
 					android:id="@+id/locationFrame"
 					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:hint="@string/location"
 					android:labelFor="@id/locationView"
-					android:paddingHorizontal="@dimen/material_margin_horizontal"
 					android:paddingVertical="@dimen/padding_half"
+					android:visibility="gone"
 					app:endIconMode="dropdown_menu"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/dateButton"
-					app:startIconDrawable="@drawable/ic_location">
+					app:startIconDrawable="@drawable/ic_location"
+					tools:visibility="visible">
 
 					<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
 						android:id="@+id/locationView"
@@ -116,12 +132,11 @@
 					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
 					android:hint="@string/length_hint"
 					android:minHeight="@dimen/form_row_height"
 					android:paddingVertical="@dimen/padding_half"
 					app:layout_constraintEnd_toStartOf="@+id/timerButton"
-					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/locationFrame"
 					app:startIconDrawable="@drawable/ic_time">
 
@@ -136,8 +151,7 @@
 				<Chronometer
 					android:id="@+id/timer"
 					android:layout_width="0dp"
-					android:layout_height="0dp"
-					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:layout_height="@dimen/form_row_height"
 					android:layout_marginVertical="4dp"
 					android:background="@color/light_blue_transparent"
 					android:focusable="false"
@@ -145,9 +159,8 @@
 					android:maxLines="1"
 					android:paddingVertical="@dimen/padding_half"
 					android:textAppearance="@style/Text.Big"
-					app:layout_constraintBottom_toBottomOf="@id/lengthFrame"
 					app:layout_constraintEnd_toStartOf="@+id/timerButton"
-					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/locationFrame" />
 
 				<ImageView
@@ -163,25 +176,48 @@
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="@id/lengthFrame" />
 
+				<ImageView
+					android:id="@+id/timerOffButton"
+					style="@style/FormButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+					android:background="?attr/selectableItemBackgroundBorderless"
+					android:contentDescription="@string/timer"
+					android:src="@drawable/ic_timer_off"
+					app:layout_constraintBottom_toBottomOf="@id/timer"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="@id/timer" />
+
 				<androidx.constraintlayout.widget.Group
 					android:id="@+id/lengthGroup"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					app:constraint_referenced_ids="lengthFrame,timer,timerButton" />
+					android:visibility="gone"
+					app:constraint_referenced_ids="lengthFrame,timerButton"
+					tools:visibility="visible" />
+
+				<androidx.constraintlayout.widget.Group
+					android:id="@+id/timerGroup"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					app:constraint_referenced_ids="timer,timerOffButton" />
 
 				<com.google.android.material.textfield.TextInputLayout
 					android:id="@+id/quantityFrame"
 					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
 					android:hint="@string/quantity"
 					android:minHeight="@dimen/edit_row_height"
 					android:paddingVertical="@dimen/padding_half"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
+					android:visibility="gone"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/lengthFrame"
-					app:startIconDrawable="@drawable/ic_quantity">
+					app:startIconDrawable="@drawable/ic_quantity"
+					tools:visibility="visible">
 
 					<com.google.android.material.textfield.TextInputEditText
 						android:id="@+id/quantityView"
@@ -193,34 +229,30 @@
 
 				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/incompleteView"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="@dimen/form_row_height"
-					android:layout_marginStart="@dimen/material_indent_horizontal"
-					android:layout_marginLeft="@dimen/material_indent_horizontal"
-					android:layout_marginEnd="@dimen/material_margin_horizontal"
-					android:layout_marginRight="@dimen/material_margin_horizontal"
 					android:checked="false"
 					android:paddingVertical="@dimen/padding_half"
 					android:text="@string/incomplete"
 					android:textAppearance="?attr/textAppearanceSubtitle1"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/quantityFrame" />
+					android:visibility="gone"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/quantityFrame"
+					tools:visibility="visible" />
 
 				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/noWinStatsView"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="@dimen/form_row_height"
-					android:layout_marginStart="@dimen/material_indent_horizontal"
-					android:layout_marginLeft="@dimen/material_indent_horizontal"
-					android:layout_marginEnd="@dimen/material_margin_horizontal"
-					android:layout_marginRight="@dimen/material_margin_horizontal"
 					android:paddingVertical="@dimen/padding_half"
 					android:text="@string/noWinStats"
 					android:textAppearance="?attr/textAppearanceSubtitle1"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/incompleteView" />
+					android:visibility="gone"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineData"
+					app:layout_constraintTop_toBottomOf="@id/incompleteView"
+					tools:visibility="visible" />
 
 				<com.google.android.material.textfield.TextInputLayout
 					android:id="@+id/commentsFrame"
@@ -228,11 +260,12 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:hint="@string/comments"
-					android:paddingHorizontal="@dimen/material_margin_horizontal"
 					android:paddingVertical="@dimen/padding_half"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/noWinStatsView">
+					android:visibility="gone"
+					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+					app:layout_constraintStart_toStartOf="@id/guidelineStart"
+					app:layout_constraintTop_toBottomOf="@id/noWinStatsView"
+					tools:visibility="visible">
 
 					<com.google.android.material.textfield.TextInputEditText
 						android:id="@+id/commentsView"
@@ -287,13 +320,14 @@
 				<androidx.recyclerview.widget.RecyclerView
 					android:id="@+id/recyclerView"
 					style="@style/RecyclerViewVerticalList"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:visibility="gone"
 					app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintTop_toBottomOf="@id/playerHeader"
+					tools:listitem="@layout/row_play_player"
 					tools:visibility="visible" />
 
 				<LinearLayout
@@ -326,6 +360,7 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="bottom|right"
 				android:layout_margin="@dimen/padding_fab"
+				android:contentDescription="@string/add_field"
 				android:src="@drawable/ic_action_add"
 				android:visibility="gone"
 				app:elevation="@dimen/fab_elevation"
