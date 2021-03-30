@@ -5,7 +5,6 @@ buildscript {
     ext.anko_version='0.10.8'
     ext.arch_lifecycle_version = '1.1.1'
     ext.retrofit_version = '2.9.0'
-    ext.butterknife_version = '10.2.0'
     ext.okhttp_version = '4.9.0'
     ext.stetho_version = '1.5.1'
 
