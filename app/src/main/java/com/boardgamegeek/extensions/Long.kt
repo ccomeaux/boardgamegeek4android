@@ -36,7 +36,7 @@ fun Long.asDate(context: Context, @StringRes zeroResId: Int = R.string.never, in
 }
 
 fun Long.howManyMinutesOld(): Int {
-    return ((System.currentTimeMillis() - this + 30_000) / SECOND_IN_MILLIS).toInt()
+    return ((System.currentTimeMillis() - this + 30_000) / MINUTE_IN_MILLIS).toInt()
 }
 
 fun Long.howManyHoursOld(): Int {
