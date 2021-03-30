@@ -11,5 +11,6 @@ class CollectionTradeConditionUploadTask(client: OkHttpClient) : CollectionTextU
 
     override fun getValue() = collectionItem.tradeCondition.orEmpty()
 
-    override val isDirty = collectionItem.tradeConditionDirtyTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.tradeConditionDirtyTimestamp > 0
 }

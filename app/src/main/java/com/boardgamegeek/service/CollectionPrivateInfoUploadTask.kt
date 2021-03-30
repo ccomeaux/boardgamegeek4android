@@ -10,7 +10,8 @@ import java.text.DecimalFormat
 class CollectionPrivateInfoUploadTask(client: OkHttpClient) : CollectionUploadTask(client) {
     override val timestampColumn = BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP
 
-    override val isDirty = collectionItem.privateInfoTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.privateInfoTimestamp > 0
 
     override fun createForm(): FormBody {
         @Suppress("SpellCheckingInspection")

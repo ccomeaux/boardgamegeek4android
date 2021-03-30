@@ -11,7 +11,8 @@ class CollectionRatingUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
 
     override val timestampColumn = BggContract.Collection.RATING_DIRTY_TIMESTAMP
 
-    override val isDirty = collectionItem.ratingTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.ratingTimestamp > 0
 
     override fun addCollectionItem(collectionItem: CollectionItemForUploadEntity) {
         super.addCollectionItem(collectionItem)

@@ -10,5 +10,6 @@ class CollectionCommentUploadTask(client: OkHttpClient) : CollectionTextUploadTa
 
     override fun getValue() = collectionItem.comment.orEmpty()
 
-    override val isDirty = collectionItem.commentTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.commentTimestamp > 0
 }

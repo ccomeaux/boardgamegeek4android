@@ -13,7 +13,8 @@ class CollectionStatusUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
     //	</div>
     override val timestampColumn = BggContract.Collection.STATUS_DIRTY_TIMESTAMP
 
-    override val isDirty = collectionItem.statusTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.statusTimestamp > 0L
 
     override fun createForm(): FormBody {
         @Suppress("SpellCheckingInspection")

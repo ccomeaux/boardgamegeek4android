@@ -11,5 +11,6 @@ class CollectionWishlistCommentUploadTask(client: OkHttpClient) : CollectionText
 
     override fun getValue() = collectionItem.wishlistComment.orEmpty()
 
-    override val isDirty = collectionItem.wishlistCommentDirtyTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.wishlistCommentDirtyTimestamp > 0
 }

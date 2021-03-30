@@ -11,5 +11,6 @@ class CollectionWantPartsUploadTask(client: OkHttpClient) : CollectionTextUpload
 
     override fun getValue() = collectionItem.wantParts.orEmpty()
 
-    override val isDirty = collectionItem.wantPartsDirtyTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.wantPartsDirtyTimestamp > 0
 }
