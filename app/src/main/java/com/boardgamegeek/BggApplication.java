@@ -9,7 +9,6 @@ import android.os.StrictMode.VmPolicy;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
@@ -65,7 +64,6 @@ public class BggApplication extends MultiDexApplication {
 		EventBus.builder()
 			.logNoSubscriberMessages(BuildConfig.DEBUG)
 			.throwSubscriberException(BuildConfig.DEBUG)
-			.addIndex(new BggEventBusIndex())
 			.installDefaultEventBus();
 
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
@@ -90,9 +88,7 @@ public class BggApplication extends MultiDexApplication {
 			.detectLeakedClosableObjects()
 			.detectLeakedSqlLiteObjects()
 			.penaltyLog();
-		if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
-			builder.detectFileUriExposure().detectLeakedRegistrationObjects();
-		}
+		builder.detectFileUriExposure().detectLeakedRegistrationObjects();
 		if (VERSION.SDK_INT >= VERSION_CODES.M) {
 			builder.detectCleartextNetwork();
 		}
