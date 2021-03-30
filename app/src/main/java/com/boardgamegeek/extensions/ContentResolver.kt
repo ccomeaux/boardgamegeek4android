@@ -5,6 +5,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.RemoteException
 import android.provider.BaseColumns
+import androidx.core.database.getStringOrNull
 import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
 import java.util.*
@@ -59,11 +60,11 @@ fun ContentResolver.queryStrings(
         selection: String? = null,
         selectionArgs: Array<String>? = null,
         sortOrder: String? = null
-): List<String> {
-    val list = arrayListOf<String>()
+): List<String?> {
+    val list = arrayListOf<String?>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         while (it.moveToNext()) {
-            list.add(it.getString(0))
+            list.add(it.getStringOrNull(0))
         }
     }
     return list

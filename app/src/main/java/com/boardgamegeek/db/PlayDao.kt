@@ -688,7 +688,7 @@ class PlayDao(private val context: BggApplication) {
 
     private fun removeDuplicateUserNamesFromBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>): List<String> {
         if (internalId == INVALID_ID.toLong()) return emptyList()
-        val userNames = context.contentResolver.queryStrings(Plays.buildPlayerUri(internalId), PlayPlayers.USER_NAME)
+        val userNames = context.contentResolver.queryStrings(Plays.buildPlayerUri(internalId), PlayPlayers.USER_NAME).filterNotNull()
         if (userNames.isEmpty()) return emptyList()
 
         val uniqueUserNames = mutableListOf<String>()

@@ -206,7 +206,7 @@ class ColorAssignerTask(context: Context?, private val play: Play) : AsyncTask<V
 
     private fun populateColorsAvailable() {
         colorsAvailable.clear()
-        colorsAvailable.addAll(context?.contentResolver?.queryStrings(Games.buildColorsUri(play.gameId), GameColors.COLOR)
+        colorsAvailable.addAll(context?.contentResolver?.queryStrings(Games.buildColorsUri(play.gameId), GameColors.COLOR)?.filterNotNull()
                 ?: emptyList())
         // remove already selected colors
         play.players.filter { it.color.isNotEmpty() }.forEach { colorsAvailable.remove(it.color) }
