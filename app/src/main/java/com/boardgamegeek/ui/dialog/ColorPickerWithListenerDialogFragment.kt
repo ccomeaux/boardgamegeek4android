@@ -41,9 +41,7 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
                         featuredColors,
                         selectedColor,
                         disabledColors,
-                        4,
-                        requestCode,
-                        null)
+                        requestCode = requestCode)
 
             }
         }

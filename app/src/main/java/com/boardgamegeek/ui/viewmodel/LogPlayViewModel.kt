@@ -235,6 +235,13 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun addColorToPlayer(playerIndex: Int, color: String) {
+        play.value?.copy()?.let {
+            it.players[playerIndex].color = color
+            _play.value = it
+        }
+    }
+
     fun win(isWin: Boolean, playerIndex: Int) {
         play.value?.copy()?.let {
             it.players[playerIndex].isWin = isWin

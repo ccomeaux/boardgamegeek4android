@@ -2,16 +2,15 @@ package com.boardgamegeek.ui.dialog
 
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
-import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
+import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
+import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.util.ColorUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import java.util.*
 
-class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
-    private val viewModel by activityViewModels<PlayerColorsViewModel>()
+class LogPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
+    private val viewModel by activityViewModels<LogPlayViewModel>()
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {
         item?.let {
@@ -20,20 +19,22 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
                 param("Action", "Add")
                 param("Color", it.first)
             }
-            viewModel.add(it.first)
+            viewModel.addColorToPlayer(requestCode, it.first)
         }
     }
 
     companion object {
-        fun launch(activity: FragmentActivity, hiddenColors: ArrayList<String>) {
-            val dialogFragment = PlayerColorPickerDialogFragment().apply {
+        fun launch(activity: FragmentActivity, playerDescription: String, featuredColors: List<String>, selectedColor: String?, disabledColors: List<String>, playerIndex: Int) {
+            val df = LogPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
-                        R.string.title_add_color,
+                        title = playerDescription,
                         ColorUtils.colorList,
-                        hiddenColors = hiddenColors)
-
+                        ArrayList(featuredColors),
+                        selectedColor,
+                        ArrayList(disabledColors),
+                        requestCode = playerIndex)
             }
-            activity.showAndSurvive(dialogFragment)
+            activity.showAndSurvive(df)
         }
     }
 }

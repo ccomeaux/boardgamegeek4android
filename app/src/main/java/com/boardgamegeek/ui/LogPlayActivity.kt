@@ -27,9 +27,7 @@ import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
-import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
-import com.boardgamegeek.ui.dialog.PlayRatingNumberPadDialogFragment
-import com.boardgamegeek.ui.dialog.ScoreNumberPadDialogFragment
+import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import com.boardgamegeek.ui.widget.PlayerRow
@@ -58,7 +56,7 @@ import kotlin.collections.ArrayList
 import kotlin.io.use
 import kotlin.math.abs
 
-class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPickerWithListenerDialogFragment.Listener, ScoreNumberPadDialogFragment.Listener, PlayRatingNumberPadDialogFragment.Listener {
+class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ScoreNumberPadDialogFragment.Listener, PlayRatingNumberPadDialogFragment.Listener {
     private val viewModel by viewModels<LogPlayViewModel>()
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
     private val playAdapter: PlayAdapter by lazy { PlayAdapter() }
@@ -839,11 +837,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
         cancel(TAG_PLAY_TIMER, internalId)
     }
 
-    override fun onColorSelected(description: String, color: Int, requestCode: Int) {
-        play?.players?.get(requestCode)?.color = description
-        playAdapter.notifyPlayerChanged(requestCode)
-    }
-
     override fun onNumberPadDone(output: Double, requestCode: Int) {
         play?.let {
             val position = requestCode / 2
@@ -945,8 +938,13 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
                 row.setOnColorListener {
                     players.getOrNull(position)?.let { player ->
                         val usedColors = players.filter { it != player }.map { it.color } as ArrayList<String>
-                        val fragment = ColorPickerWithListenerDialogFragment.newInstance(gameColors, player.color, usedColors, position)
-                        fragment.show(supportFragmentManager, "color_picker")
+                        LogPlayPlayerColorPickerDialogFragment.launch(
+                                this@LogPlayActivity,
+                                player.description,
+                                gameColors,
+                                player.color,
+                                usedColors,
+                                adapterPosition)
                     }
                 }
                 row.setOnRatingListener {
