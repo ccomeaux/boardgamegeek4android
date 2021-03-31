@@ -50,13 +50,12 @@ import org.jetbrains.anko.design.indefiniteSnackbar
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.toast
 import timber.log.Timber
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.io.use
 import kotlin.math.abs
 
-class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ScoreNumberPadDialogFragment.Listener, PlayRatingNumberPadDialogFragment.Listener {
+class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private val viewModel by viewModels<LogPlayViewModel>()
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
     private val playAdapter: PlayAdapter by lazy { PlayAdapter() }
@@ -837,23 +836,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ScoreNumbe
         cancel(TAG_PLAY_TIMER, internalId)
     }
 
-    override fun onNumberPadDone(output: Double, requestCode: Int) {
-        play?.let {
-            val position = requestCode / 2
-            val player = it.players[position]
-            if (requestCode % 2 == 0) {
-                player.score = SCORE_FORMAT.format(output)
-                for (p in it.players) {
-                    p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == it.highScore
-                }
-                playAdapter.notifyPlayersChanged()
-            } else {
-                player.rating = output
-                playAdapter.notifyPlayerChanged(position)
-            }
-        }
-    }
-
     inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {
         var players: List<Player> = mutableListOf()
             set(value) {
@@ -949,8 +931,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ScoreNumbe
                 }
                 row.setOnRatingListener {
                     players.getOrNull(position)?.let { player ->
-                        val fragment = PlayRatingNumberPadDialogFragment.newInstance(
-                                position * 2 + 1,
+                        val fragment = LogPlayPlayerRatingNumberPadDialogFragment.newInstance(
+                                position,
                                 player.ratingDescription,
                                 player.color,
                                 player.description
@@ -960,8 +942,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ScoreNumbe
                 }
                 row.setOnScoreListener {
                     players.getOrNull(position)?.let { player ->
-                        val fragment = ScoreNumberPadDialogFragment.newInstance(
-                                position * 2,
+                        val fragment = LogPlayPlayerScoreNumberPadDialogFragment.newInstance(
+                                position,
                                 player.score,
                                 player.color,
                                 player.description)
@@ -1001,7 +983,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ScoreNumbe
         private const val KEY_ARE_PLAYERS_CUSTOM_SORTED = "ARE_PLAYERS_CUSTOM_SORTED"
         private const val REQUEST_ADD_PLAYER = 1
         private const val REQUEST_EDIT_PLAYER = 2
-        private val SCORE_FORMAT = DecimalFormat("0.#########")
 
         fun logPlay(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", imageUrl: String = "", heroImageUrl: String = "", customPlayerSort: Boolean = false) {
             context.startActivity(createIntent(context, INVALID_ID.toLong(), gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort))

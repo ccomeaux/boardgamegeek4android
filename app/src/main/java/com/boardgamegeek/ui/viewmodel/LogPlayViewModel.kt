@@ -20,6 +20,7 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.ColorAssignerTask
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import java.text.DecimalFormat
 import java.util.*
 import kotlin.io.use
 
@@ -30,6 +31,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private var originalPlay: Play? = null
+    private val SCORE_FORMAT = DecimalFormat("0.#########")
 
     private val _internalId = MutableLiveData<Long>()
     val internalId: LiveData<Long>
@@ -238,6 +240,23 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     fun addColorToPlayer(playerIndex: Int, color: String) {
         play.value?.copy()?.let {
             it.players[playerIndex].color = color
+            _play.value = it
+        }
+    }
+
+    fun addScoreToPlayer(playerIndex: Int, score: Double) {
+        play.value?.copy()?.let {
+            it.players[playerIndex].score = SCORE_FORMAT.format(score)
+            for (p in it.players) {
+                p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == it.highScore
+            }
+            _play.value = it
+        }
+    }
+
+    fun addRatingToPlayer(playerIndex: Int, rating: Double) {
+        play.value?.copy()?.let {
+            it.players[playerIndex].rating = rating
             _play.value = it
         }
     }
