@@ -146,8 +146,9 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateQuantity(quantity: Int?) {
-        if (play.value?.quantity != quantity) {
-            _play.value = play.value?.copy(quantity = quantity)
+        val q = quantity ?: Play.QUANTITY_DEFAULT
+        if (play.value?.quantity != q) {
+            _play.value = play.value?.copy(quantity = q)
         }
     }
 

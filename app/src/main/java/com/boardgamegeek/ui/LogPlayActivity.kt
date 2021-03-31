@@ -325,7 +325,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay), ColorPicke
 
     private fun bindQuantity(play: Play) {
         quantityView.setTextKeepState(play.quantity.toString())
-        quantityFrame.isVisible = play.quantity != null || isUserShowingQuantity || preferences().showLogPlayQuantity()
+        quantityFrame.isVisible = play.quantity != Play.QUANTITY_DEFAULT || isUserShowingQuantity || preferences().showLogPlayQuantity()
     }
 
     private fun bindIncomplete(play: Play) {
