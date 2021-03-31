@@ -341,10 +341,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     }
 
     private fun bindPlayerHeader(playerCount: Int) {
-        playerHeader.isVisible = isUserShowingPlayers || preferences().showLogPlayPlayerList() || playerCount != 0
+        val showPlayers = isUserShowingPlayers || preferences().showLogPlayPlayerList() || playerCount != 0
+        playerHeader.isVisible = showPlayers
         playersLabel.text = if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
         assignColorsButton.isEnabled = playerCount > 0
-        playerSortButton.isEnabled = !arePlayersCustomSorted && playerCount > 1
+        recyclerView.isVisible = showPlayers
+        addPlayerFrame.isVisible = showPlayers
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -564,7 +566,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 }
             }
             progressView.hide()
-            recyclerView.isVisible = true // TODO - move to bind players
         }
         if (internalId != INVALID_ID.toLong()) {
             // Editing or copying an existing play

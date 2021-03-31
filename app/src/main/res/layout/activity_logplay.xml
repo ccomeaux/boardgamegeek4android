@@ -338,6 +338,8 @@
 					android:descendantFocusability="blocksDescendants"
 					android:focusable="false"
 					android:gravity="center"
+					android:visibility="gone"
+					tools:visibility="visible"
 					android:minHeight="64dp"
 					android:paddingVertical="@dimen/padding_half"
 					app:layout_constraintEnd_toEndOf="parent"
