@@ -7,7 +7,7 @@ buildscript {
     ext.retrofit_version = '2.9.0'
     ext.butterknife_version = '10.2.0'
     ext.okhttp_version = '4.9.1'
-    ext.stetho_version = '1.5.1'
+    ext.stetho_version = '1.6.0'
 
     repositories {
         google()
