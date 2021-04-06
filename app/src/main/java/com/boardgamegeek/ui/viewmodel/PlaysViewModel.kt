@@ -115,11 +115,11 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refresh(): Boolean {
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         return if ((syncTimestamp.value ?: 0).isOlderThan(1, TimeUnit.MINUTES)) {
             syncTimestamp.postValue(System.currentTimeMillis())
             playInfo.value?.let {
                 if (it.mode == Mode.GAME) {
-                    SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
                     SyncPlaysByGameTask(getApplication(), it.id).executeAsyncTask()
                 } else {
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS)
