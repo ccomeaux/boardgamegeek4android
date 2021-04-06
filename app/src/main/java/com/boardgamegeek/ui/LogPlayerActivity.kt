@@ -36,7 +36,7 @@ import kotlinx.android.synthetic.main.activity_logplayer.*
 import org.jetbrains.anko.defaultSharedPreferences
 import java.util.*
 
-class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
+class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private var gameName = ""
@@ -79,7 +79,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_logplayer)
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
@@ -113,9 +112,9 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         val gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
-        val imageUrl = intent.getStringExtra(KEY_IMAGE_URL) ?: ""
-        val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL) ?: ""
-        val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL) ?: ""
+        val imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
+        val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
+        val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
 
@@ -129,7 +128,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         if (savedInstanceState == null) {
             player = intent.getParcelableExtra(KEY_PLAYER) ?: Player()
             if (hasAutoPosition()) {
-                player.seat = autoPosition
+                player.seat = autoPosition // TODO
             }
             originalPlayer = player.copy()
         } else {
@@ -220,44 +219,16 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     }
 
     private fun setViewVisibility() {
-        teamColorContainer.isVisible = !shouldHideTeamColor()
-        positionContainer.isVisible = !hasAutoPosition() && !shouldHidePosition()
-        scoreContainer.isVisible = !shouldHideScore()
-        ratingContainer.isVisible = !shouldHideRating()
-        newView.isVisible = !shouldHideNew()
-        winView.isVisible = !shouldHideWin()
+        teamColorContainer.isVisible = defaultSharedPreferences.showLogPlayerTeamColor() || userHasShownTeamColor || player.color.isNotEmpty()
+        positionContainer.isVisible = !hasAutoPosition() && (defaultSharedPreferences.showLogPlayerPosition() || userHasShownPosition || player.startingPosition.isNotEmpty())
+        scoreContainer.isVisible = defaultSharedPreferences.showLogPlayerScore() || userHasShownScore || player.score.isNotEmpty()
+        ratingContainer.isVisible = defaultSharedPreferences.showLogPlayerRating() || userHasShownRating || player.rating > 0
+        newView.isVisible = defaultSharedPreferences.showLogPlayerNew() || userHasShownNew || player.isNew
+        winView.isVisible = defaultSharedPreferences.showLogPlayerWin() || userHasShownWin || player.isWin
 
         val enableButton = createAddFieldArray().isNotEmpty()
-        if (enableButton) {
-            fab.show()
-        } else {
-            fab.hide()
-        }
+        if (enableButton) fab.show() else fab.hide()
         fabBuffer.isVisible = enableButton
-    }
-
-    private fun shouldHideTeamColor(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerTeamColor() && !userHasShownTeamColor && player.color.isEmpty()
-    }
-
-    private fun shouldHidePosition(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerPosition() && !userHasShownPosition && player.startingPosition.isEmpty()
-    }
-
-    private fun shouldHideScore(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerScore() && !userHasShownScore && player.score.isEmpty()
-    }
-
-    private fun shouldHideRating(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerRating() && !userHasShownRating && player.rating <= 0
-    }
-
-    private fun shouldHideNew(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerNew() && !userHasShownNew && !player.isNew
-    }
-
-    private fun shouldHideWin(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerWin() && !userHasShownWin && !player.isWin
     }
 
     private fun hasAutoPosition(): Boolean {
@@ -313,24 +284,12 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
     private fun createAddFieldArray(): Array<CharSequence> {
         val list = mutableListOf<CharSequence>()
-        if (shouldHideTeamColor()) {
-            list.add(resources.getString(R.string.team_color))
-        }
-        if (!hasAutoPosition() && shouldHidePosition()) {
-            list.add(resources.getString(R.string.starting_position))
-        }
-        if (shouldHideScore()) {
-            list.add(resources.getString(R.string.score))
-        }
-        if (shouldHideRating()) {
-            list.add(resources.getString(R.string.rating))
-        }
-        if (shouldHideNew()) {
-            list.add(resources.getString(R.string.new_label))
-        }
-        if (shouldHideWin()) {
-            list.add(resources.getString(R.string.win))
-        }
+        if (!teamColorContainer.isVisible) list.add(resources.getString(R.string.team_color))
+        if (!hasAutoPosition() && !positionContainer.isVisible) list.add(resources.getString(R.string.starting_position))
+        if (!scoreContainer.isVisible) list.add(resources.getString(R.string.score))
+        if (!ratingContainer.isVisible) list.add(resources.getString(R.string.rating))
+        if (!newView.isVisible) list.add(resources.getString(R.string.new_label))
+        if (!winView.isVisible) list.add(resources.getString(R.string.win))
         return list.toTypedArray()
     }
 
