@@ -93,9 +93,7 @@ public class BggApplication extends MultiDexApplication {
 			.detectLeakedClosableObjects()
 			.detectLeakedSqlLiteObjects()
 			.penaltyLog();
-		if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
-			builder.detectFileUriExposure().detectLeakedRegistrationObjects();
-		}
+		builder.detectFileUriExposure().detectLeakedRegistrationObjects();
 		if (VERSION.SDK_INT >= VERSION_CODES.M) {
 			builder.detectCleartextNetwork();
 		}
