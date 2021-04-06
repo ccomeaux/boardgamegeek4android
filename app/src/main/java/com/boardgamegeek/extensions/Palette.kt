@@ -6,6 +6,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
 import androidx.palette.graphics.Target
+import androidx.palette.graphics.get
 import com.boardgamegeek.R
 
 /**
@@ -43,11 +44,7 @@ fun Palette.getPlayCountColors(context: Context): IntArray {
 }
 
 private fun Palette.getColor(targets: Array<Target>, context: Context, @ColorRes defaultColorResId: Int, vararg usedTargets: Target): Pair<Int, Target> {
-    for (target in targets) {
-        if (!usedTargets.contains(target)) {
-            val swatch = getSwatchForTarget(target)
-            if (swatch != null) return swatch.rgb to target
-        }
-    }
-    return ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build()
+    return targets.find { !usedTargets.contains(it) && this[it] != null }?.let {
+        this[it]!!.rgb to it
+    } ?: ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build()
 }
