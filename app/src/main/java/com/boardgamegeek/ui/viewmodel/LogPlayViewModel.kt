@@ -16,8 +16,8 @@ import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
+import com.boardgamegeek.repository.PlayerColorAssigner
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.ColorAssignerTask
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import java.text.DecimalFormat
@@ -31,7 +31,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private var originalPlay: Play? = null
-    private val SCORE_FORMAT = DecimalFormat("0.#########")
+    private val scoreFormat = DecimalFormat("0.#########")
 
     private val _internalId = MutableLiveData<Long>()
     val internalId: LiveData<Long>
@@ -230,10 +230,20 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun assignColors(clearExisting: Boolean = false) {
-        _play.value?.let {
-            if (clearExisting) it.players.forEach { p -> p.color = "" }
-            ColorAssignerTask(getApplication(), it).executeAsyncTask()
-            // TODO handle event?
+        _play.value?.copy()?.let {
+            getApplication<BggApplication>().appExecutors.diskIO.execute {
+                if (clearExisting) it.players.forEach { p -> p.color = "" }
+                val results = PlayerColorAssigner(getApplication(), it).execute()
+                if (results is PlayerColorAssigner.Results.SuccessResult) {
+                    for (pr in results.results) {
+                        when (pr.type) {
+                            PlayerColorAssigner.PlayerType.USER -> it.players.find { player -> player.username == pr.name }?.color = pr.color
+                            PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }?.color = pr.color
+                        }
+                    }
+               } // else show error
+            }
+            _play.value = it
         }
     }
 
@@ -246,7 +256,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun addScoreToPlayer(playerIndex: Int, score: Double) {
         play.value?.copy()?.let {
-            it.players[playerIndex].score = SCORE_FORMAT.format(score)
+            it.players[playerIndex].score = scoreFormat.format(score)
             for (p in it.players) {
                 p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == it.highScore
             }
