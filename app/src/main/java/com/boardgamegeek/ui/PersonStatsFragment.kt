@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -19,8 +19,8 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
 
     private val viewModel by activityViewModels<PersonViewModel>()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         collectionStatusButton.setOnClickListener {
             requireActivity().createThemedBuilder()
@@ -40,7 +40,7 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
         bindCollectionStatusMessage()
 
         objectDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
-        viewModel.person.observe(viewLifecycleOwner, Observer {
+        viewModel.person.observe(viewLifecycleOwner, {
             val resourceId = when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
                 PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
@@ -49,7 +49,7 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
             objectDescription = getString(resourceId).toLowerCase(Locale.getDefault())
         })
 
-        viewModel.stats.observe(viewLifecycleOwner, Observer {
+        viewModel.stats.observe(viewLifecycleOwner, {
             when (it) {
                 null -> showEmpty()
                 else -> showData(it)

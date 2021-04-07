@@ -1,9 +1,9 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.Status
@@ -18,19 +18,19 @@ import kotlinx.android.synthetic.main.include_game_footer.*
 class GameDescriptionFragment : Fragment(R.layout.fragment_game_description) {
     private val viewModel by activityViewModels<GameViewModel>()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh?.setBggColors()
 
         lastModifiedView.timestamp = 0L
 
-        viewModel.gameId.observe(viewLifecycleOwner, Observer {
+        viewModel.gameId.observe(viewLifecycleOwner, {
             gameIdView.text = it.toString()
         })
 
-        viewModel.game.observe(viewLifecycleOwner, Observer {
+        viewModel.game.observe(viewLifecycleOwner, {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
