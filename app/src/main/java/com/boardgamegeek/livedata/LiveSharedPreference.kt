@@ -7,15 +7,14 @@ import com.boardgamegeek.extensions.preferences
 
 @Suppress("UNCHECKED_CAST")
 class LiveSharedPreference<T>(context: Context, preferenceKey: String, sharedPreferencesName: String? = null) : MutableLiveData<T>() {
-    private val listener: SharedPreferences.OnSharedPreferenceChangeListener
+    private val listener: SharedPreferences.OnSharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+        if (key == preferenceKey) {
+            value = sharedPreferences.all[key] as T
+        }
+    }
     private val sharedPreferences: SharedPreferences = context.preferences(sharedPreferencesName)
 
     init {
-        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == preferenceKey) {
-                value = sharedPreferences.all[key] as T
-            }
-        }
         value = sharedPreferences.all[preferenceKey] as T
     }
 
