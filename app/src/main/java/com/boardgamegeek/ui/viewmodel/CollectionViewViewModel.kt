@@ -38,7 +38,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val effectiveFilters = MediatorLiveData<List<CollectionFilterer>>()
     val items = MediatorLiveData<List<CollectionItemEntity>>()
     private val syncTimestamp = MutableLiveData<Long>()
-    private val _items: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(syncTimestamp){
+    private val _items: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(syncTimestamp) {
         itemRepository.loadCollection()
     }
     val isRefreshing: LiveData<Boolean> = Transformations.map(_items) {
@@ -245,7 +245,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         val view = CollectionViewEntity(
                 _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
                 selectedViewName.value ?: "",
-                _sortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
                 filterEntities
         )
         viewRepository.updateView(view)
