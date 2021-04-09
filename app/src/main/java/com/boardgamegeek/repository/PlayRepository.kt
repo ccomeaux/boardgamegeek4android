@@ -314,7 +314,7 @@ class PlayRepository(val application: BggApplication) {
         batch.add(cpo.build())
         application.appExecutors.diskIO.execute {
             val results = application.contentResolver.applyBatch(batch)
-            count?.postValue(results.sumBy { it.count })
+            count?.postValue(results.sumBy { it.count ?:0 })
         }
     }
 

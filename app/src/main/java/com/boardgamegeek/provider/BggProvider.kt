@@ -14,11 +14,6 @@ import java.io.FileNotFoundException
 class BggProvider : ContentProvider() {
     private lateinit var openHelper: BggDatabase
 
-    private fun requireContext(): Context {
-        return this.context
-                ?: throw IllegalStateException("ContentProvider $this not attached to a context.")
-    }
-
     override fun onCreate(): Boolean {
         openHelper = BggDatabase(context)
         return true
