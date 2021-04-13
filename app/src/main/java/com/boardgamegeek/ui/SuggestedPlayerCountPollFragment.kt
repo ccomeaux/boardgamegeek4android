@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -44,25 +45,25 @@ class SuggestedPlayerCountPollFragment : DialogFragment(R.layout.fragment_poll_s
                     val row = PlayerNumberRow(requireContext())
                     row.setText(playerCount)
                     row.setVotes(bestVoteCount, recommendedVoteCount, notRecommendedVoteCount, totalVoteCount)
-                    row.setOnClickListener { v ->
-                        for (i in 0 until pollList.childCount) {
-                            (pollList.getChildAt(i) as PlayerNumberRow).clearHighlight()
+                    row.setOnClickListener { view ->
+                        pollList.children.forEach {
+                            (it as? PlayerNumberRow)?.clearHighlight()
                         }
-                        val playerNumberRow = v as PlayerNumberRow
-                        playerNumberRow.setHighlight()
+                        (view as? PlayerNumberRow)?.let { playerNumberRow ->
+                            playerNumberRow.setHighlight()
 
-                        val voteCount = playerNumberRow.votes
-                        for (i in 0 until keyContainer.childCount) {
-                            keyContainer.getChildAt(i).findViewById<TextView>(R.id.infoView).text = voteCount[i].toString()
+                            val voteCount = playerNumberRow.votes
+                            keyContainer.children.forEachIndexed { index, view ->
+                                view.findViewById<TextView>(R.id.infoView).text = voteCount[index].toString()
+                            }
                         }
                     }
                     pollList.addView(row)
                 }
 
                 noVotesSwitch?.setOnClickListener {
-                    for (i in 0 until pollList.childCount) {
-                        val row = pollList.getChildAt(i) as PlayerNumberRow
-                        row.showNoVotes(noVotesSwitch.isChecked)
+                    pollList.children.forEach { row ->
+                        (row as? PlayerNumberRow)?.showNoVotes(noVotesSwitch.isChecked)
                     }
                 }
             }
