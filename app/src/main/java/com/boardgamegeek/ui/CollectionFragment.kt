@@ -107,7 +107,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
 
         swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        swipeRefreshLayout.setOnRefreshListener {
+            swipeRefreshLayout.isRefreshing = viewModel.refresh()
+        }
 
         progressBar.show()
         viewModel.selectedViewId.observe(viewLifecycleOwner) {
@@ -128,7 +130,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             bindFilterButtons()
         }
         viewModel.items.observe(viewLifecycleOwner) {
-                it?.let { showData(it) }
+            it?.let { showData(it) }
         }
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
             swipeRefreshLayout.post { swipeRefreshLayout?.isRefreshing = it }
