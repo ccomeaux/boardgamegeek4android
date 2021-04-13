@@ -25,6 +25,7 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.withStyledAttributes
 import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 
@@ -36,16 +37,17 @@ import com.boardgamegeek.R
 class BezelImageView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyle: Int = 0)
-    : AppCompatImageView(context, attrs, defStyle) {
+        defStyleAttr: Int = 0,
+        defStyleRes: Int = 0
+) : AppCompatImageView(context, attrs, defStyleAttr) {
     private val blackPaint: Paint
     private val maskedPaint: Paint
 
     private var bounds: Rect = Rect(0, 0, 0, 0)
     private var boundsF: RectF = RectF(bounds)
 
-    private val borderDrawable: Drawable?
-    private val maskDrawable: Drawable?
+    private var borderDrawable: Drawable? = null
+    private var maskDrawable: Drawable? = null
 
     private var desaturateColorFilter: ColorMatrixColorFilter? = null
     private var shouldDesaturateOnPress = false
@@ -56,18 +58,13 @@ class BezelImageView @JvmOverloads constructor(
     private var cachedHeight: Int = 0
 
     init {
-        val a = context.obtainStyledAttributes(attrs, R.styleable.BezelImageView, defStyle, 0)
-        try {
-            maskDrawable = a.getDrawable(R.styleable.BezelImageView_maskDrawable)
-            maskDrawable?.callback = this
-
-            borderDrawable = a.getDrawable(R.styleable.BezelImageView_borderDrawable)
-            borderDrawable?.callback = this
-
-            shouldDesaturateOnPress = a.getBoolean(R.styleable.BezelImageView_desaturateOnPress, shouldDesaturateOnPress)
-        } finally {
-            a.recycle()
+        context.withStyledAttributes(attrs, R.styleable.BezelImageView, defStyleAttr, defStyleRes) {
+            maskDrawable = getDrawable(R.styleable.BezelImageView_maskDrawable)
+            borderDrawable = getDrawable(R.styleable.BezelImageView_borderDrawable)
+            shouldDesaturateOnPress = getBoolean(R.styleable.BezelImageView_desaturateOnPress, shouldDesaturateOnPress)
         }
+        maskDrawable?.callback = this
+        borderDrawable?.callback = this
 
         // Other initialization
         blackPaint = Paint()
@@ -126,7 +123,7 @@ class BezelImageView @JvmOverloads constructor(
             val cacheCanvas = Canvas(cacheBitmap)
             if (maskDrawable != null) {
                 val savedCanvas = cacheCanvas.save()
-                maskDrawable.draw(cacheCanvas)
+                maskDrawable?.draw(cacheCanvas)
                 maskedPaint.colorFilter = if (shouldDesaturateOnPress && isPressed) desaturateColorFilter else null
                 cacheCanvas.saveLayer(boundsF, maskedPaint, Canvas.ALL_SAVE_FLAG)
                 super.onDraw(cacheCanvas)
@@ -152,10 +149,10 @@ class BezelImageView @JvmOverloads constructor(
     override fun drawableStateChanged() {
         super.drawableStateChanged()
         if (borderDrawable?.isStateful == true) {
-            borderDrawable.state = drawableState
+            borderDrawable?.state = drawableState
         }
         if (maskDrawable?.isStateful == true) {
-            maskDrawable.state = drawableState
+            maskDrawable?.state = drawableState
         }
         if (isDuplicateParentStateEnabled) {
             ViewCompat.postInvalidateOnAnimation(this)

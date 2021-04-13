@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.content.withStyledAttributes
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.palette.graphics.Palette
@@ -17,7 +18,9 @@ import kotlinx.android.synthetic.main.widget_text_editor.view.*
 class TextEditorView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0) : ForegroundLinearLayout(context, attrs, defStyleAttr) {
+        defStyleAttr: Int = 0,
+        defStyleRes: Int = 0
+) : ForegroundLinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     private val markupConverter = XmlApiMarkupConverter(context)
 
@@ -31,13 +34,8 @@ class TextEditorView @JvmOverloads constructor(
         orientation = HORIZONTAL
         this.setSelectableBackground()
 
-        if (attrs != null) {
-            val a = context.obtainStyledAttributes(attrs, R.styleable.TextEditorView, defStyleAttr, 0)
-            try {
-                headerView.text = a.getString(R.styleable.TextEditorView_headerText)
-            } finally {
-                a.recycle()
-            }
+        context.withStyledAttributes(attrs, R.styleable.TextEditorView, defStyleAttr, defStyleRes) {
+            headerView.text = getString(R.styleable.TextEditorView_headerText).orEmpty()
         }
     }
 

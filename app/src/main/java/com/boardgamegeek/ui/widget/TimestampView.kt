@@ -7,6 +7,7 @@ import android.text.Html
 import android.text.SpannedString
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.withStyledAttributes
 import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
@@ -15,7 +16,8 @@ import com.boardgamegeek.extensions.trimTrailingWhitespace
 class TimestampView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = android.R.attr.textViewStyle
+        defStyleAttr: Int = android.R.attr.textViewStyle,
+        defStyleRes: Int = 0
 ) : SelfUpdatingView(context, attrs, defStyleAttr) {
 
     var timestamp: Long = 0
@@ -36,21 +38,18 @@ class TimestampView @JvmOverloads constructor(
             updateText()
         }
 
-    private val isForumTimeStamp: Boolean
-    private val includeTime: Boolean
-    private val defaultMessage: String
-    private val hideWhenEmpty: Boolean
+    private var isForumTimeStamp: Boolean = false
+    private var includeTime: Boolean = false
+    private var defaultMessage: String = ""
+    private var hideWhenEmpty: Boolean = false
 
     init {
-        val a = context.theme.obtainStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, 0)
-        try {
-            isForumTimeStamp = a.getBoolean(R.styleable.TimestampView_isForumTimestamp, false)
-            includeTime = a.getBoolean(R.styleable.TimestampView_includeTime, false)
-            defaultMessage = a.getString(R.styleable.TimestampView_emptyMessage) ?: ""
-            hideWhenEmpty = a.getBoolean(R.styleable.TimestampView_hideWhenEmpty, false)
-            format = a.getString(R.styleable.TimestampView_format) ?: ""
-        } finally {
-            a.recycle()
+        context.withStyledAttributes(attrs, R.styleable.TimestampView, defStyleAttr, defStyleRes) {
+            isForumTimeStamp = getBoolean(R.styleable.TimestampView_isForumTimestamp, false)
+            includeTime = getBoolean(R.styleable.TimestampView_includeTime, false)
+            defaultMessage = getString(R.styleable.TimestampView_emptyMessage).orEmpty()
+            hideWhenEmpty = getBoolean(R.styleable.TimestampView_hideWhenEmpty, false)
+            format = getString(R.styleable.TimestampView_format).orEmpty()
         }
         if (maxLines == -1 || maxLines == Integer.MAX_VALUE) {
             maxLines = 1
@@ -111,7 +110,7 @@ class TimestampView @JvmOverloads constructor(
 
         constructor(source: Parcel) : super(source) {
             timestamp = source.readLong()
-            format = source.readString() ?: ""
+            format = source.readString().orEmpty()
             formatArg = source.readString()
         }
 
@@ -124,6 +123,7 @@ class TimestampView @JvmOverloads constructor(
 
         companion object {
             @JvmField
+            @Suppress("unused")
             val CREATOR = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
                     return SavedState(source)

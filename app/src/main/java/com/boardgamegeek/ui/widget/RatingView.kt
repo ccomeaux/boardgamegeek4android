@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.boardgamegeek.R
@@ -17,9 +18,10 @@ import java.text.DecimalFormat
 class RatingView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0)
-    : ForegroundLinearLayout(context, attrs) {
-    private val hideWhenZero: Boolean
+        defStyleAttr: Int = 0,
+        defStyleRes: Int = 0
+) : ForegroundLinearLayout(context, attrs, defStyleAttr, defStyleRes) {
+    private var hideWhenZero: Boolean = false
     private var isEditMode: Boolean = false
     private var gameId = BggContract.INVALID_ID
     private var collectionId = BggContract.INVALID_ID
@@ -34,11 +36,8 @@ class RatingView @JvmOverloads constructor(
         orientation = VERTICAL
         setSelectableBackgroundBorderless()
 
-        val a = getContext().obtainStyledAttributes(attrs, R.styleable.RatingView, defStyleAttr, 0)
-        try {
-            hideWhenZero = a.getBoolean(R.styleable.RatingView_hideWhenZero, false)
-        } finally {
-            a.recycle()
+        context.withStyledAttributes(attrs, R.styleable.RatingView, defStyleAttr, defStyleRes) {
+            hideWhenZero = getBoolean(R.styleable.RatingView_hideWhenZero, false)
         }
 
         setOnClickListener {
