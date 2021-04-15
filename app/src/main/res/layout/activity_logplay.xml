@@ -327,6 +327,7 @@
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintTop_toBottomOf="@id/playerHeader"
+					tools:itemCount="4"
 					tools:listitem="@layout/row_play_player"
 					tools:visibility="visible" />
 
