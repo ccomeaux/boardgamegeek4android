@@ -2,6 +2,9 @@ package com.boardgamegeek.db
 
 import android.content.ContentValues
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
@@ -13,6 +16,7 @@ import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Designers
 import timber.log.Timber
+import kotlin.io.use
 
 class DesignerDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -52,14 +56,14 @@ class DesignerDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            it.getInt(Designers.DESIGNER_ID),
-                            it.getStringOrEmpty(Designers.DESIGNER_NAME),
-                            it.getStringOrEmpty(Designers.DESIGNER_DESCRIPTION),
-                            it.getLongOrZero(Designers.UPDATED),
-                            it.getStringOrEmpty(Designers.DESIGNER_THUMBNAIL_URL),
-                            it.getIntOrZero(Designers.ITEM_COUNT),
-                            it.getIntOrZero(Designers.WHITMORE_SCORE),
-                            it.getLongOrZero(Designers.DESIGNER_STATS_UPDATED_TIMESTAMP)
+                            it.getInt(0),
+                            it.getStringOrNull(1).orEmpty(),
+                            it.getStringOrNull(2).orEmpty(),
+                            it.getLongOrNull(3) ?: 0L,
+                            it.getStringOrNull(4).orEmpty(),
+                            it.getIntOrNull(5) ?: 0,
+                            it.getIntOrNull(6) ?: 0,
+                            it.getLongOrNull(7) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -86,26 +90,14 @@ class DesignerDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        it.getInt(Designers.DESIGNER_ID),
-                        it.getStringOrEmpty(Designers.DESIGNER_NAME),
-                        it.getStringOrEmpty(Designers.DESIGNER_DESCRIPTION),
-                        it.getLongOrZero(Designers.UPDATED),
-                        whitmoreScore = it.getIntOrZero(Designers.WHITMORE_SCORE)
+                        it.getInt(0),
+                        it.getStringOrNull(1).orEmpty(),
+                        it.getStringOrNull(2).orEmpty(),
+                        it.getLongOrNull(3) ?: 0L,
+                        whitmoreScore = it.getIntOrNull(4) ?: 0,
                 )
             } else null
         }
-    }
-
-    fun saveDesigner(id: Int, designer: Person?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (designer != null && !designer.name.isNullOrBlank()) {
-            val values = contentValuesOf(
-                    Designers.DESIGNER_NAME to designer.name,
-                    Designers.DESIGNER_DESCRIPTION to (if (designer.description == "This page does not exist. You can edit this page to create it.") "" else designer.description),
-                    Designers.UPDATED to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
     }
 
     fun loadDesignerImagesAsLiveData(id: Int): LiveData<PersonImagesEntity> {
@@ -127,26 +119,14 @@ class DesignerDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 PersonImagesEntity(
-                        it.getInt(Designers.DESIGNER_ID),
-                        it.getStringOrEmpty(Designers.DESIGNER_IMAGE_URL),
-                        it.getStringOrEmpty(Designers.DESIGNER_THUMBNAIL_URL),
-                        it.getStringOrEmpty(Designers.DESIGNER_HERO_IMAGE_URL),
-                        it.getLongOrZero(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP)
+                        it.getInt(0),
+                        it.getStringOrNull(1).orEmpty(),
+                        it.getStringOrNull(2).orEmpty(),
+                        it.getStringOrNull(3).orEmpty(),
+                        it.getLongOrNull(4) ?: 0L,
                 )
             } else null
         }
-    }
-
-    fun saveDesignerImage(id: Int, designer: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (designer != null) {
-            val values = contentValuesOf(
-                    Designers.DESIGNER_IMAGE_URL to designer.items[0].image,
-                    Designers.DESIGNER_THUMBNAIL_URL to designer.items[0].thumbnail,
-                    Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
     }
 
     fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
@@ -159,6 +139,31 @@ class DesignerDao(private val context: BggApplication) {
     fun loadCollection(id: Int): List<BriefGameEntity> {
         val uri = Designers.buildDesignerCollectionUri(id)
         return collectionDao.loadLinkedCollection(uri)
+    }
+
+    fun saveDesigner(id: Int, designer: Person?, updateTime: Long = System.currentTimeMillis()): Int {
+        if (designer != null && !designer.name.isNullOrBlank()) {
+            val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
+            val values = contentValuesOf(
+                    Designers.DESIGNER_NAME to designer.name,
+                    Designers.DESIGNER_DESCRIPTION to (if (designer.description == missingDesignerMessage) "" else designer.description),
+                    Designers.UPDATED to updateTime
+            )
+            return upsert(values, id)
+        }
+        return 0
+    }
+
+    fun saveDesignerImage(id: Int, designer: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
+        if (designer != null) {
+            val values = contentValuesOf(
+                    Designers.DESIGNER_IMAGE_URL to designer.items[0].image,
+                    Designers.DESIGNER_THUMBNAIL_URL to designer.items[0].thumbnail,
+                    Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP to updateTime
+            )
+            return upsert(values, id)
+        }
+        return 0
     }
 
     fun update(designerId: Int, values: ContentValues): Int {

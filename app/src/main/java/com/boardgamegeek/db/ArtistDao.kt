@@ -2,6 +2,9 @@ package com.boardgamegeek.db
 
 import android.content.ContentValues
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
@@ -13,6 +16,7 @@ import com.boardgamegeek.io.model.PersonResponse2
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Artists
 import timber.log.Timber
+import kotlin.io.use
 
 class ArtistDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -52,14 +56,14 @@ class ArtistDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            it.getInt(Artists.ARTIST_ID),
-                            it.getStringOrEmpty(Artists.ARTIST_NAME),
-                            it.getStringOrEmpty(Artists.ARTIST_DESCRIPTION),
-                            it.getLongOrZero(Artists.UPDATED),
-                            it.getStringOrEmpty(Artists.ARTIST_THUMBNAIL_URL),
-                            it.getIntOrZero(Artists.ITEM_COUNT),
-                            it.getIntOrZero(Artists.WHITMORE_SCORE),
-                            it.getLongOrZero(Artists.ARTIST_STATS_UPDATED_TIMESTAMP)
+                            it.getInt(0),
+                            it.getStringOrNull(1).orEmpty(),
+                            it.getStringOrNull(2).orEmpty(),
+                            it.getLongOrNull(3) ?: 0L,
+                            it.getStringOrNull(4).orEmpty(),
+                            it.getIntOrNull(5) ?: 0,
+                            it.getIntOrNull(6) ?: 0,
+                            it.getLongOrNull(7) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -86,26 +90,14 @@ class ArtistDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        it.getInt(Artists.ARTIST_ID),
-                        it.getStringOrEmpty(Artists.ARTIST_NAME),
-                        it.getStringOrEmpty(Artists.ARTIST_DESCRIPTION),
-                        it.getLongOrZero(Artists.UPDATED),
-                        whitmoreScore = it.getIntOrZero(Artists.WHITMORE_SCORE)
+                        it.getInt(0),
+                        it.getStringOrNull(1).orEmpty(),
+                        it.getStringOrNull(2).orEmpty(),
+                        it.getLongOrNull(3) ?: 0L,
+                        whitmoreScore = it.getIntOrNull(4) ?: 0,
                 )
             } else null
         }
-    }
-
-    fun saveArtist(id: Int, artist: Person?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (artist != null && !artist.name.isNullOrBlank()) {
-            val values = contentValuesOf(
-                    Artists.ARTIST_NAME to artist.name,
-                    Artists.ARTIST_DESCRIPTION to (if (artist.description == "This page does not exist. You can edit this page to create it.") "" else artist.description),
-                    Artists.UPDATED to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
     }
 
     fun loadArtistImagesAsLiveData(id: Int): LiveData<PersonImagesEntity> {
@@ -127,26 +119,14 @@ class ArtistDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 PersonImagesEntity(
-                        it.getInt(Artists.ARTIST_ID),
-                        it.getStringOrEmpty(Artists.ARTIST_IMAGE_URL),
-                        it.getStringOrEmpty(Artists.ARTIST_THUMBNAIL_URL),
-                        it.getStringOrEmpty(Artists.ARTIST_HERO_IMAGE_URL),
-                        it.getLongOrZero(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP)
+                        it.getInt(0),
+                        it.getStringOrNull(1).orEmpty(),
+                        it.getStringOrNull(2).orEmpty(),
+                        it.getStringOrNull(3).orEmpty(),
+                        it.getLongOrNull(4) ?: 0L,
                 )
             } else null
         }
-    }
-
-    fun saveArtistImage(id: Int, artist: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (artist != null) {
-            val values = contentValuesOf(
-                    Artists.ARTIST_IMAGE_URL to artist.items[0].image,
-                    Artists.ARTIST_THUMBNAIL_URL to artist.items[0].thumbnail,
-                    Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
     }
 
     fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
@@ -159,6 +139,31 @@ class ArtistDao(private val context: BggApplication) {
     fun loadCollection(id: Int): List<BriefGameEntity> {
         val uri = Artists.buildArtistCollectionUri(id)
         return collectionDao.loadLinkedCollection(uri)
+    }
+
+    fun saveArtist(id: Int, artist: Person?, updateTime: Long = System.currentTimeMillis()): Int {
+        if (artist != null && !artist.name.isNullOrBlank()) {
+            val missingArtistMessage = "This page does not exist. You can edit this page to create it."
+            val values = contentValuesOf(
+                    Artists.ARTIST_NAME to artist.name,
+                    Artists.ARTIST_DESCRIPTION to (if (artist.description == missingArtistMessage) "" else artist.description),
+                    Artists.UPDATED to updateTime,
+            )
+            return upsert(values, id)
+        }
+        return 0
+    }
+
+    fun saveArtistImage(id: Int, artist: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
+        if (artist != null) {
+            val values = contentValuesOf(
+                    Artists.ARTIST_IMAGE_URL to artist.items[0].image,
+                    Artists.ARTIST_THUMBNAIL_URL to artist.items[0].thumbnail,
+                    Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to updateTime
+            )
+            return upsert(values, id)
+        }
+        return 0
     }
 
     fun update(artistId: Int, values: ContentValues): Int {

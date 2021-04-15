@@ -2,6 +2,9 @@ package com.boardgamegeek.db
 
 import android.content.ContentValues
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
@@ -12,6 +15,7 @@ import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
 import timber.log.Timber
+import kotlin.io.use
 
 class PublisherDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -53,16 +57,16 @@ class PublisherDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += CompanyEntity(
-                            it.getInt(Publishers.PUBLISHER_ID),
-                            it.getStringOrEmpty(Publishers.PUBLISHER_NAME),
-                            it.getStringOrEmpty(Publishers.PUBLISHER_DESCRIPTION),
-                            it.getStringOrEmpty(Publishers.PUBLISHER_IMAGE_URL),
-                            it.getStringOrEmpty(Publishers.PUBLISHER_THUMBNAIL_URL),
-                            it.getStringOrEmpty(Publishers.PUBLISHER_HERO_IMAGE_URL),
-                            it.getLongOrZero(Publishers.UPDATED),
-                            it.getIntOrZero(Publishers.ITEM_COUNT),
-                            it.getIntOrZero(Publishers.WHITMORE_SCORE),
-                            it.getLongOrZero(Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP)
+                            it.getInt(0),
+                            it.getStringOrNull(1).orEmpty(),
+                            it.getStringOrNull(2).orEmpty(),
+                            it.getStringOrNull(3).orEmpty(),
+                            it.getStringOrNull(4).orEmpty(),
+                            it.getStringOrNull(5).orEmpty(),
+                            it.getLongOrNull(6) ?: 0L,
+                            it.getIntOrNull(7) ?: 0,
+                            it.getIntOrNull(8) ?: 0,
+                            it.getLongOrNull(9) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -92,17 +96,29 @@ class PublisherDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 CompanyEntity(
-                        it.getInt(Publishers.PUBLISHER_ID),
-                        it.getStringOrEmpty(Publishers.PUBLISHER_NAME),
-                        it.getStringOrEmpty(Publishers.PUBLISHER_DESCRIPTION),
-                        it.getStringOrEmpty(Publishers.PUBLISHER_IMAGE_URL),
-                        it.getStringOrEmpty(Publishers.PUBLISHER_THUMBNAIL_URL),
-                        it.getStringOrEmpty(Publishers.PUBLISHER_HERO_IMAGE_URL),
-                        it.getLongOrZero(Publishers.UPDATED),
-                        whitmoreScore = it.getIntOrZero(Publishers.WHITMORE_SCORE)
+                        it.getInt(0),
+                        it.getStringOrNull(1).orEmpty(),
+                        it.getStringOrNull(2).orEmpty(),
+                        it.getStringOrNull(3).orEmpty(),
+                        it.getStringOrNull(4).orEmpty(),
+                        it.getStringOrNull(5).orEmpty(),
+                        it.getLongOrNull(6) ?: 0L,
+                        whitmoreScore = it.getIntOrNull(7) ?: 0,
                 )
             } else null
         }
+    }
+
+    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
+        val uri = Publishers.buildCollectionUri(id)
+        return RegisteredLiveData(context, uri, true) {
+            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
+        }
+    }
+
+    fun loadCollection(id: Int): List<BriefGameEntity> {
+        val uri = Publishers.buildCollectionUri(id)
+        return collectionDao.loadLinkedCollection(uri)
     }
 
     fun savePublisher(item: CompanyItem?, updateTime: Long = System.currentTimeMillis()): Int {
@@ -119,18 +135,6 @@ class PublisherDao(private val context: BggApplication) {
             return upsert(values, it.id.toIntOrNull() ?: BggContract.INVALID_ID)
         }
         return 0
-    }
-
-    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
-        val uri = Publishers.buildCollectionUri(id)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
-        }
-    }
-
-    fun loadCollection(id: Int): List<BriefGameEntity> {
-        val uri = Publishers.buildCollectionUri(id)
-        return collectionDao.loadLinkedCollection(uri)
     }
 
     fun update(publisherId: Int, values: ContentValues): Int {
