@@ -8,7 +8,6 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -32,20 +31,16 @@ class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
         recyclerView?.adapter = adapter
 
         setHasOptionsMenu(true)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         setEmptyMessage(R.string.title_person)
-        viewModel.person.observe(viewLifecycleOwner, Observer {
+        viewModel.person.observe(viewLifecycleOwner, {
             setEmptyMessage(when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
                 PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
                 PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             })
         })
-        viewModel.collection.observe(viewLifecycleOwner, Observer {
+        viewModel.collection.observe(viewLifecycleOwner, {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()
@@ -57,7 +52,7 @@ class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
             }
             progressView?.hide()
         })
-        viewModel.sort.observe(viewLifecycleOwner, Observer {
+        viewModel.sort.observe(viewLifecycleOwner, {
             sortType = it ?: PersonViewModel.CollectionSort.RATING
             activity?.invalidateOptionsMenu()
         })

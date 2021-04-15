@@ -31,6 +31,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refresh() {
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         internalId.value = internalId.value
     }
 

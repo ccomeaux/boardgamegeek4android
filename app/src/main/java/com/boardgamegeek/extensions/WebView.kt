@@ -6,7 +6,7 @@ fun WebView.setWebViewText(html: String) {
     this.loadDataWithBaseURL(null, fixInternalLinks(html), "text/html", "UTF-8", null)
 }
 
-private fun fixInternalLinks(text: String): String? {
+private fun fixInternalLinks(text: String): String {
     // ensure internal, path-only links are complete with the hostname
     if (text.isEmpty()) return ""
     var fixedText = text.replace("<a\\s+href=\"/".toRegex(), "<a href=\"https://www.boardgamegeek.com/")

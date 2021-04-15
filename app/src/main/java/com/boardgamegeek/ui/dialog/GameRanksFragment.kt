@@ -1,13 +1,10 @@
 package com.boardgamegeek.ui.dialog
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -15,18 +12,14 @@ import com.boardgamegeek.ui.widget.GameRankRow
 import kotlinx.android.synthetic.main.dialog_game_ranks.*
 import timber.log.Timber
 
-class GameRanksFragment : DialogFragment() {
+class GameRanksFragment : DialogFragment(R.layout.dialog_game_ranks) {
     private val viewModel by activityViewModels<GameViewModel>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.dialog_game_ranks, container, false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         dialog?.setTitle(R.string.title_ranks_ratings)
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(this, {
             val voteCount = it?.data?.numberOfRatings ?: 0
             val standardDeviation = it?.data?.standardDeviation ?: 0.0
             votesView?.text = context?.getQuantityText(R.plurals.votes_suffix, voteCount, voteCount)
@@ -38,7 +31,7 @@ class GameRanksFragment : DialogFragment() {
             }
         })
 
-        viewModel.ranks.observe(this, Observer { gameRankEntities ->
+        viewModel.ranks.observe(this, { gameRankEntities ->
             subtypesView?.removeAllViews()
             familiesView?.removeAllViews()
 

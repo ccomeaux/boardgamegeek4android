@@ -3,15 +3,21 @@ package com.boardgamegeek.db
 import android.content.ContentValues
 import android.net.Uri
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.entities.CollectionViewShortcutEntity
+import com.boardgamegeek.extensions.load
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters
 import com.boardgamegeek.provider.BggContract.CollectionViews
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class CollectionViewDao(private val context: BggApplication) {
@@ -37,8 +43,8 @@ class CollectionViewDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     val cv = CollectionViewEntity(
-                            it.getLongOrNull(CollectionViews._ID) ?: BggContract.INVALID_ID.toLong(),
-                            it.getStringOrEmpty(CollectionViews.NAME)
+                            it.getLongOrNull(0) ?: BggContract.INVALID_ID.toLong(),
+                            it.getStringOrNull(1).orEmpty()
                     )
                     list.add(cv)
                 } while (it.moveToNext())
@@ -73,14 +79,14 @@ class CollectionViewDao(private val context: BggApplication) {
                 projection
         )?.use {
             if (it.moveToFirst()) {
-                val viewName = it.getStringOrEmpty(CollectionViewFilters.NAME)
-                val sortType = it.getIntOrZero(CollectionViewFilters.SORT_TYPE)
+                val viewName = it.getStringOrNull(0).orEmpty()
+                val sortType = it.getIntOrNull(1) ?: 0
                 val filters = mutableListOf<CollectionViewFilterEntity>()
                 do {
-                    filters.add(CollectionViewFilterEntity(
-                            it.getIntOrNull(CollectionViewFilters.TYPE) ?: BggContract.INVALID_ID,
-                            it.getStringOrEmpty(CollectionViewFilters.DATA)
-                    ))
+                    filters += CollectionViewFilterEntity(
+                            it.getIntOrNull(2) ?: BggContract.INVALID_ID,
+                            it.getStringOrNull(3).orEmpty()
+                    )
                 } while (it.moveToNext())
                 CollectionViewEntity(
                         viewId,
@@ -89,6 +95,40 @@ class CollectionViewDao(private val context: BggApplication) {
                         filters
                 )
             } else null
+        }
+    }
+
+    suspend fun loadShortcuts(): MutableList<CollectionViewShortcutEntity> {
+        val shortcuts = mutableListOf<CollectionViewShortcutEntity>()
+        withContext(Dispatchers.IO) {
+            resolver.load(CollectionViews.CONTENT_URI,
+                    arrayOf(CollectionViews._ID, CollectionViews.NAME),
+                    sortOrder = "${CollectionViews.SELECTED_COUNT} DESC, ${CollectionViews.SELECTED_TIMESTAMP} DESC"
+            )?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val viewId = cursor.getLongOrNull(0) ?: BggContract.INVALID_ID.toLong()
+                    val name = cursor.getStringOrNull(1).orEmpty()
+                    shortcuts += CollectionViewShortcutEntity(viewId, name)
+                }
+            }
+        }
+        return shortcuts
+    }
+
+    suspend fun updateShortcutCount(viewId: Long) {
+        if (viewId <= 0) return
+        withContext(Dispatchers.IO) {
+            val uri = CollectionViews.buildViewUri(viewId)
+            resolver.load(uri, arrayOf(CollectionViews.SELECTED_COUNT))?.use {
+                if (it.moveToFirst()) {
+                    val currentCount = it.getIntOrNull(0) ?: 0
+                    val values = contentValuesOf(
+                            CollectionViews.SELECTED_COUNT to currentCount + 1,
+                            CollectionViews.SELECTED_TIMESTAMP to System.currentTimeMillis()
+                    )
+                    resolver.update(uri, values, null, null)
+                }
+            }
         }
     }
 

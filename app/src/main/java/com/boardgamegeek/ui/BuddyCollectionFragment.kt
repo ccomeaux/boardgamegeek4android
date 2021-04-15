@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
@@ -44,15 +43,11 @@ class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter))
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        viewModel.status.observe(viewLifecycleOwner, Observer {
+        viewModel.status.observe(viewLifecycleOwner, {
             currentStatus = it ?: BuddyCollectionViewModel.DEFAULT_STATUS
         })
-        viewModel.collection.observe(viewLifecycleOwner, Observer { (status, data, message) ->
+        viewModel.collection.observe(viewLifecycleOwner, { (status, data, message) ->
             when (status) {
                 Status.REFRESHING -> progressView.show()
                 Status.ERROR -> {

@@ -7,7 +7,6 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -47,6 +46,25 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
         super.onViewCreated(view, savedInstanceState)
         fab.colorize(iconColor)
         setUpRecyclerView()
+
+        arguments?.let {
+            iconColor = it.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
+        }
+
+        fab.colorize(iconColor)
+        fab.setOnClickListener {
+            requireActivity().showAndSurvive(AddColorToGameDialogFragment())
+        }
+
+        viewModel.colors.observe(viewLifecycleOwner, {
+            adapter.colors = it
+
+            emptyView.fade(it.isEmpty())
+            recyclerView.fade(it.isNotEmpty(), isResumed)
+            fab.show()
+            progressView.fadeOut()
+
+        })
     }
 
     private fun setUpRecyclerView() {
@@ -98,28 +116,6 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             }
         })
         itemTouchHelper.attachToRecyclerView(recyclerView)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        arguments?.let {
-            iconColor = it.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
-        }
-
-        fab.colorize(iconColor)
-        fab.setOnClickListener {
-            requireActivity().showAndSurvive(AddColorToGameDialogFragment())
-        }
-
-        viewModel.colors.observe(viewLifecycleOwner, Observer {
-            adapter.colors = it
-
-            emptyView.fade(it.isEmpty())
-            recyclerView.fade(it.isNotEmpty(), isResumed)
-            fab.show()
-            progressView.fadeOut()
-
-        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

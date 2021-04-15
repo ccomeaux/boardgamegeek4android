@@ -48,5 +48,4 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
             else -> AbsentLiveData.create()
         }
     }
-
 }

@@ -312,7 +312,7 @@ class PlayRepository(val application: BggApplication) {
         batch.add(cpo.build())
         application.appExecutors.diskIO.execute {
             val results = application.contentResolver.applyBatch(batch)
-            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count })
+            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count ?:0 })
             resultLiveData?.postValue(result)
         }
     }

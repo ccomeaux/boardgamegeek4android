@@ -1,13 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.extensions.fadeIn
@@ -32,7 +29,7 @@ import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.*
 
-class PollFragment : DialogFragment() {
+class PollFragment : DialogFragment(R.layout.fragment_poll) {
     private var pollType = UNKNOWN
     private var snackBar: Snackbar? = null
 
@@ -45,10 +42,6 @@ class PollFragment : DialogFragment() {
             Timber.w("Unknown type of $pollType")
             dismiss()
         }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_poll, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -85,18 +78,15 @@ class PollFragment : DialogFragment() {
         val lp = chartView?.layoutParams
         lp?.width = (display.widthPixels * .8).toInt()
         chartView?.layoutParams = lp
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         when (pollType) {
             LANGUAGE_DEPENDENCE -> {
                 dialog?.setTitle(R.string.language_dependence)
-                viewModel.languagePoll.observe(this, Observer { showData(it, fiveStageColors) })
+                viewModel.languagePoll.observe(this, { showData(it, fiveStageColors) })
             }
             SUGGESTED_PLAYER_AGE -> {
                 dialog?.setTitle(R.string.suggested_playerage)
-                viewModel.agePoll.observe(this, Observer { showData(it, twelveStageColors) })
+                viewModel.agePoll.observe(this, { showData(it, twelveStageColors) })
             }
         }
     }

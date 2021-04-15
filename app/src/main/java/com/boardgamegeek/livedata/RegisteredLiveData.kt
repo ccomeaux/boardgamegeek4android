@@ -45,9 +45,9 @@ open class RegisteredLiveData<T>(val application: BggApplication,
     }
 
     private fun updateData() {
-        rateLimiter.reset(key)
         application.appExecutors.diskIO.execute {
             postValue(loadData())
+            rateLimiter.reset(key)
         }
     }
 }

@@ -1,9 +1,9 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.Status
@@ -20,8 +20,8 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
 
     private val viewModel by activityViewModels<PersonViewModel>()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh?.setBggColors()
@@ -29,7 +29,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
         emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
         lastUpdated.timestamp = 0L
 
-        viewModel.person.observe(viewLifecycleOwner, Observer {
+        viewModel.person.observe(viewLifecycleOwner, {
             idView.text = it.id.toString()
             val resourceId = when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
@@ -39,7 +39,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
             emptyMessageDescription = getString(resourceId).toLowerCase(Locale.getDefault())
         })
 
-        viewModel.details.observe(viewLifecycleOwner, Observer {
+        viewModel.details.observe(viewLifecycleOwner, {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_person, emptyMessageDescription))

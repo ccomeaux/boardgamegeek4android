@@ -1,11 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -54,17 +53,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
             }
         })
 
-        filterEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                viewModel.filterLocations(s.toString())
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-        })
+        filterEditText.doAfterTextChanged { viewModel.filterLocations(it.toString()) }
 
         next.setOnClickListener {
             viewModel.setLocation(filterEditText.text.toString())

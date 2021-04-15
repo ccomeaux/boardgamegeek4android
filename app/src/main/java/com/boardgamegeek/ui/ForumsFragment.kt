@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
@@ -39,10 +38,7 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
         recyclerView?.setHasFixedSize(true)
         recyclerView?.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView?.adapter = adapter
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         when (forumType) {
             ForumEntity.ForumType.GAME -> viewModel.setGameId(objectId)
             ForumEntity.ForumType.REGION -> viewModel.setRegion()
@@ -50,7 +46,7 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
             ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
             ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
-        viewModel.forums.observe(viewLifecycleOwner, Observer {
+        viewModel.forums.observe(viewLifecycleOwner, {
             when (it?.status) {
                 null, Status.REFRESHING -> {
                     progressView?.show()
