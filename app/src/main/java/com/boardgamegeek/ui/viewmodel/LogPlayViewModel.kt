@@ -234,14 +234,12 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             getApplication<BggApplication>().appExecutors.diskIO.execute {
                 if (clearExisting) it.players.forEach { p -> p.color = "" }
                 val results = PlayerColorAssigner(getApplication(), it).execute()
-                if (results is PlayerColorAssigner.Results.SuccessResult) {
-                    for (pr in results.results) {
-                        when (pr.type) {
-                            PlayerColorAssigner.PlayerType.USER -> it.players.find { player -> player.username == pr.name }?.color = pr.color
-                            PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }?.color = pr.color
-                        }
+                for (pr in results) {
+                    when (pr.type) {
+                        PlayerColorAssigner.PlayerType.USER -> it.players.find { player -> player.username == pr.name }?.color = pr.color
+                        PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }?.color = pr.color
                     }
-               } // else show error
+                }
             }
             _play.value = it
         }
