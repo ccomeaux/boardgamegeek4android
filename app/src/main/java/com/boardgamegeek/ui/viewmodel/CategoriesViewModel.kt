@@ -1,12 +1,8 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.db.CategoryDao
-import com.boardgamegeek.entities.CategoryEntity
 import com.boardgamegeek.repository.CategoryRepository
 
 class CategoriesViewModel(application: Application) : AndroidViewModel(application) {
@@ -24,29 +20,31 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         sort(SortType.ITEM_COUNT)
     }
 
-    val categories: LiveData<List<CategoryEntity>> = Transformations.switchMap(sort) {
-        repository.loadCategories(it.sortBy)
+    val categories = sort.switchMap {
+        liveData {
+            emitSource(repository.loadCategoriesAsLiveData(viewModelScope, it.sortBy))
+        }
     }
 
     fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
-            SortType.NAME -> CategoriesSortByName()
-            SortType.ITEM_COUNT -> CategoriesSortByItemCount()
+            SortType.NAME -> CategoriesSort.ByName()
+            SortType.ITEM_COUNT -> CategoriesSort.ByItemCount()
         }
     }
-}
 
-sealed class CategoriesSort {
-    abstract val sortType: CategoriesViewModel.SortType
-    abstract val sortBy: CategoryDao.SortType
-}
+    sealed class CategoriesSort {
+        abstract val sortType: SortType
+        abstract val sortBy: CategoryDao.SortType
 
-class CategoriesSortByName : CategoriesSort() {
-    override val sortType = CategoriesViewModel.SortType.NAME
-    override val sortBy = CategoryDao.SortType.NAME
-}
+        class ByName : CategoriesSort() {
+            override val sortType = SortType.NAME
+            override val sortBy = CategoryDao.SortType.NAME
+        }
 
-class CategoriesSortByItemCount : CategoriesSort() {
-    override val sortType = CategoriesViewModel.SortType.ITEM_COUNT
-    override val sortBy = CategoryDao.SortType.ITEM_COUNT
+        class ByItemCount : CategoriesSort() {
+            override val sortType = SortType.ITEM_COUNT
+            override val sortBy = CategoryDao.SortType.ITEM_COUNT
+        }
+    }
 }

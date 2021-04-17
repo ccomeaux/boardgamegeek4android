@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CategoryEntity
@@ -19,16 +17,9 @@ import kotlinx.android.synthetic.main.fragment_categories.*
 import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
-class CategoriesFragment : Fragment() {
+class CategoriesFragment : Fragment(R.layout.fragment_categories) {
     private val viewModel by activityViewModels<CategoriesViewModel>()
-
-    private val adapter: CategoriesAdapter by lazy {
-        CategoriesAdapter()
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_categories, container, false)
-    }
+    private val adapter: CategoriesAdapter by lazy { CategoriesAdapter() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,7 +27,7 @@ class CategoriesFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.categories.observe(viewLifecycleOwner, Observer {
+        viewModel.categories.observe(viewLifecycleOwner, {
             showData(it)
             progressBar.hide()
         })
