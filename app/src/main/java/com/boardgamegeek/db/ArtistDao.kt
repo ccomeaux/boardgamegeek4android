@@ -12,7 +12,7 @@ import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.Person
-import com.boardgamegeek.io.model.PersonResponse2
+import com.boardgamegeek.io.model.PersonResponse
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Artists
 import timber.log.Timber
@@ -154,7 +154,7 @@ class ArtistDao(private val context: BggApplication) {
         return 0
     }
 
-    fun saveArtistImage(id: Int, artist: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
+    fun saveArtistImage(id: Int, artist: PersonResponse?, updateTime: Long = System.currentTimeMillis()): Int {
         if (artist != null) {
             val values = contentValuesOf(
                     Artists.ARTIST_IMAGE_URL to artist.items[0].image,

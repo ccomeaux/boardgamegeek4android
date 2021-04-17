@@ -8,7 +8,7 @@ import com.boardgamegeek.io.model.GeekListResponse;
 import com.boardgamegeek.io.model.GeekListsResponse;
 import com.boardgamegeek.io.model.HotnessResponse;
 import com.boardgamegeek.io.model.Person;
-import com.boardgamegeek.io.model.PersonResponse2;
+import com.boardgamegeek.io.model.PersonResponse;
 import com.boardgamegeek.io.model.PlaysResponse;
 import com.boardgamegeek.io.model.SearchResponse;
 import com.boardgamegeek.io.model.ThingResponse;
@@ -88,7 +88,7 @@ public interface BggService {
 	Call<Person> person(@Path("type") String type, @Path("id") int id);
 
 	@GET("/xmlapi2/person")
-	Call<PersonResponse2> person(@Query("id") int id);
+	Call<PersonResponse> person(@Query("id") int id);
 
 	@GET("/xmlapi2/company/{id}")
 	Call<CompanyResponse> company(@Query("id") int id);

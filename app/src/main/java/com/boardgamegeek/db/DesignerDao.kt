@@ -12,7 +12,7 @@ import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.Person
-import com.boardgamegeek.io.model.PersonResponse2
+import com.boardgamegeek.io.model.PersonResponse
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Designers
 import timber.log.Timber
@@ -154,7 +154,7 @@ class DesignerDao(private val context: BggApplication) {
         return 0
     }
 
-    fun saveDesignerImage(id: Int, designer: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
+    fun saveDesignerImage(id: Int, designer: PersonResponse?, updateTime: Long = System.currentTimeMillis()): Int {
         if (designer != null) {
             val values = contentValuesOf(
                     Designers.DESIGNER_IMAGE_URL to designer.items[0].image,

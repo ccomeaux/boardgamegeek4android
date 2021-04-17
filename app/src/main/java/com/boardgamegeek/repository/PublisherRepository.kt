@@ -115,16 +115,15 @@ class PublisherRepository(val application: BggApplication) {
             val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
             mediatorLiveData.value = linkedCollection
             application.appExecutors.diskIO.execute {
-                updateWhitmoreScore(id, linkedCollection.whitmoreScore, -1)
+                updateWhitmoreScore(id, linkedCollection.whitmoreScore)
             }
         }
         return mediatorLiveData
     }
 
     @WorkerThread
-    private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int) {
-        val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore
-                ?: 0 else oldScore
+    private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) {
+        val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Publishers.WHITMORE_SCORE, newScore)

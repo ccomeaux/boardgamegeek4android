@@ -16,7 +16,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Person
-import com.boardgamegeek.io.model.PersonResponse2
+import com.boardgamegeek.io.model.PersonResponse
 import com.boardgamegeek.livedata.CalculatingListLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.provider.BggContract
@@ -94,7 +94,7 @@ class DesignerRepository(val application: BggApplication) {
     fun loadDesignerImages(id: Int): LiveData<RefreshableResource<PersonImagesEntity>> {
         val started = AtomicBoolean()
         val mediatorLiveData = MediatorLiveData<RefreshableResource<PersonImagesEntity>>()
-        val liveData = object : RefreshableResourceLoader<PersonImagesEntity, PersonResponse2>(application) {
+        val liveData = object : RefreshableResourceLoader<PersonImagesEntity, PersonResponse>(application) {
             override fun loadFromDatabase(): LiveData<PersonImagesEntity> {
                 return dao.loadDesignerImagesAsLiveData(id)
             }
@@ -108,11 +108,11 @@ class DesignerRepository(val application: BggApplication) {
 
             override val typeDescriptionResId = R.string.title_designer
 
-            override fun createCall(page: Int): Call<PersonResponse2> {
+            override fun createCall(page: Int): Call<PersonResponse> {
                 return Adapter.createForXml().person(id)
             }
 
-            override fun saveCallResult(result: PersonResponse2) {
+            override fun saveCallResult(result: PersonResponse) {
                 dao.saveDesignerImage(id, result)
             }
         }.asLiveData()
@@ -129,7 +129,7 @@ class DesignerRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
+    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>> {
         return dao.loadCollectionAsLiveData(id, sortBy)
     }
 
@@ -139,17 +139,15 @@ class DesignerRepository(val application: BggApplication) {
             val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
             mediatorLiveData.value = linkedCollection
             application.appExecutors.diskIO.execute {
-                updateWhitmoreScore(id, linkedCollection.whitmoreScore, -1)
+                updateWhitmoreScore(id, linkedCollection.whitmoreScore)
             }
         }
         return mediatorLiveData
     }
 
     @WorkerThread
-    private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int) {
-        val realOldScore = if (oldScore == -1)
-            dao.loadDesigner(id)?.whitmoreScore ?: 0
-        else oldScore
+    private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) {
+        val realOldScore = if (oldScore == -1) dao.loadDesigner(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Designers.WHITMORE_SCORE, newScore)
