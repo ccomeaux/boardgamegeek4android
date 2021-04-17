@@ -10,7 +10,6 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Collection

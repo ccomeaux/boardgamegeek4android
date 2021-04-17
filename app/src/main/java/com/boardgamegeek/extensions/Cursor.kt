@@ -35,31 +35,6 @@ inline fun String.whereEqualsOrNull() = "($this=? OR $this IS NULL)"
 
 inline fun String.whereNotEqualsOrNull() = "($this!=? OR $this IS NULL)"
 
-/**
- * Fix for Cursor not implementing Closeable until API level 16.
- */
-inline fun <T : Cursor?, R> T.use(block: (T) -> R): R {
-    var exception: Throwable? = null
-    try {
-        return block(this)
-    } catch (e: Throwable) {
-        exception = e
-        throw e
-    } finally {
-        when {
-            this == null -> {
-            }
-            exception == null -> close()
-            else ->
-                try {
-                    close()
-                } catch (closeException: Throwable) {
-                    // exception.addSuppressed(closeException) - available in API 19
-                }
-        }
-    }
-}
-
 inline fun Cursor.getDoubleOrZero(columnName: String) =
         getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0.0 else getDouble(it) }
 
@@ -88,8 +63,6 @@ inline fun Cursor.getDoubleOrZero(index: Int) = if (isNull(index)) 0.0 else getD
 inline fun Cursor.getIntOrNull(index: Int) = if (isNull(index)) null else getInt(index)
 
 inline fun Cursor.getIntOrZero(index: Int) = if (isNull(index)) 0 else getInt(index)
-
-inline fun Cursor.getLongOrNull(index: Int) = if (isNull(index)) null else getLong(index)
 
 inline fun Cursor.getLongOrZero(index: Int) = if (isNull(index)) 0L else getLong(index)
 

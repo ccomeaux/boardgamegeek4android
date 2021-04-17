@@ -6,7 +6,6 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract.Collection
