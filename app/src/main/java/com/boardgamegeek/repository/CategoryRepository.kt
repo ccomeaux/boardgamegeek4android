@@ -15,7 +15,7 @@ class CategoryRepository(val application: BggApplication) {
         return categoryDao.loadCategoriesAsLiveData(scope, sortBy)
     }
 
-    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>> {
-        return categoryDao.loadCollectionAsLiveData(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
+        return categoryDao.loadCollection(id, sortBy)
     }
 }

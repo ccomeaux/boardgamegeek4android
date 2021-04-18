@@ -5,5 +5,5 @@
 		android:id="@+id/menu_view"
 		android:icon="@drawable/menu_view"
 		android:title="@string/menu_view_in_browser"
-		app:showAsAction="never"/>
+		app:showAsAction="ifRoom"/>
 </menu>

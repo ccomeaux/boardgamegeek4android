@@ -12,39 +12,34 @@ import com.boardgamegeek.ui.viewmodel.CategoryViewModel
 import kotlinx.android.synthetic.main.fragment_game_details.*
 import java.util.*
 
-class CategoryCollectionFragment : Fragment() {
+class CategoryCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
     private var sortType = CategoryViewModel.CollectionSort.RATING
     private val viewModel by activityViewModels<CategoryViewModel>()
-
-    private val adapter: LinkedCollectionAdapter by lazy {
-        LinkedCollectionAdapter()
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_linked_collection, container, false)
-    }
+    private val adapter: LinkedCollectionAdapter by lazy { LinkedCollectionAdapter() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView?.setHasFixedSize(true)
-        recyclerView?.adapter = adapter
+
         setHasOptionsMenu(true)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.adapter = adapter
 
         emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).toLowerCase(Locale.getDefault()))
         viewModel.sort.observe(viewLifecycleOwner, {
             sortType = it
+            activity?.invalidateOptionsMenu()
         })
         viewModel.collection.observe(viewLifecycleOwner, {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
-                emptyMessage?.fadeOut()
-                recyclerView?.fadeIn()
+                emptyMessage.fadeOut()
+                recyclerView.fadeIn()
             } else {
                 adapter.items = emptyList()
-                emptyMessage?.fadeIn()
-                recyclerView?.fadeOut()
+                emptyMessage.fadeIn()
+                recyclerView.fadeOut()
             }
-            progressView?.hide()
+            progressView.hide()
         })
     }
 

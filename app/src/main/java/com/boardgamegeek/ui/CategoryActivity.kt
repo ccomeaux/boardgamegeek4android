@@ -21,8 +21,7 @@ class CategoryActivity : SimpleSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         id = intent.getIntExtra(KEY_CATEGORY_ID, BggContract.INVALID_ID)
-        val name = intent.getStringExtra(KEY_CATEGORY_NAME)
-        title = name
+        title = intent.getStringExtra(KEY_CATEGORY_NAME)
         supportActionBar?.subtitle = getString(R.string.title_category)
         viewModel.setId(id)
     }
@@ -30,11 +29,11 @@ class CategoryActivity : SimpleSinglePaneActivity() {
     override val optionsMenuId = R.menu.category
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_view) {
-            linkToBgg("boardgamecategory", id)
-            true
-        } else
-            super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.menu_view -> linkToBgg("boardgamecategory", id)
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
     }
 
     companion object {

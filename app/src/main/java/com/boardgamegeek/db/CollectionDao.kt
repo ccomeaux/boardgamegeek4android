@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
+import androidx.core.database.getDoubleOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
@@ -15,6 +16,8 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.util.SelectionBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -258,6 +261,83 @@ class CollectionDao(private val context: BggApplication) {
 
     enum class SortType {
         NAME, RATING
+    }
+
+    suspend fun loadLinkedCollectionC(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> = withContext(Dispatchers.IO) {
+        val list = arrayListOf<BriefGameEntity>()
+
+        val selection = StringBuilder()
+        val statuses = prefs.getSyncStatusesOrDefault()
+        for (status in statuses) {
+            if (status.isBlank()) continue
+            if (selection.isNotBlank()) selection.append(" OR ")
+            selection.append(when (status) {
+                COLLECTION_STATUS_OWN -> Collection.STATUS_OWN.isTrue()
+                COLLECTION_STATUS_PREVIOUSLY_OWNED -> Collection.STATUS_PREVIOUSLY_OWNED.isTrue()
+                COLLECTION_STATUS_PREORDERED -> Collection.STATUS_PREORDERED.isTrue()
+                COLLECTION_STATUS_FOR_TRADE -> Collection.STATUS_FOR_TRADE.isTrue()
+                COLLECTION_STATUS_WANT_IN_TRADE -> Collection.STATUS_WANT.isTrue()
+                COLLECTION_STATUS_WANT_TO_BUY -> Collection.STATUS_WANT_TO_BUY.isTrue()
+                COLLECTION_STATUS_WANT_TO_PLAY -> Collection.STATUS_WANT_TO_PLAY.isTrue()
+                COLLECTION_STATUS_WISHLIST -> Collection.STATUS_WISHLIST.isTrue()
+                COLLECTION_STATUS_RATED -> Collection.RATING.greaterThanZero()
+                COLLECTION_STATUS_PLAYED -> Collection.NUM_PLAYS.greaterThanZero()
+                COLLECTION_STATUS_COMMENTED -> Collection.COMMENT.notBlank()
+                COLLECTION_STATUS_HAS_PARTS -> Collection.HASPARTS_LIST.notBlank()
+                COLLECTION_STATUS_WANT_PARTS -> Collection.WANTPARTS_LIST.notBlank()
+                else -> ""
+            })
+        }
+
+        val sortByName = Collection.GAME_SORT_NAME.collateNoCase().ascending()
+        val sortOrder = when (sortBy) {
+            SortType.NAME -> sortByName
+            SortType.RATING -> Collection.RATING.descending()
+                    .plus(", ${Collection.STARRED}").descending()
+                    .plus(", $sortByName")
+        }
+        context.contentResolver.load(
+                uri,
+                arrayOf(
+                        Collection._ID,
+                        Collection.GAME_ID,
+                        Collection.GAME_NAME,
+                        Collection.COLLECTION_NAME,
+                        Collection.YEAR_PUBLISHED,
+                        Collection.COLLECTION_YEAR_PUBLISHED,
+                        Collection.COLLECTION_THUMBNAIL_URL,
+                        Collection.THUMBNAIL_URL,
+                        Collection.HERO_IMAGE_URL,
+                        Collection.RATING,
+                        Collection.STARRED,
+                        Collection.SUBTYPE,
+                        Collection.NUM_PLAYS
+                ),
+                selection.toString(),
+                emptyArray(),
+                sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list += BriefGameEntity(
+                            it.getLong(0),
+                            it.getInt(1),
+                            it.getStringOrNull(2).orEmpty(),
+                            it.getStringOrNull(3).orEmpty(),
+                            it.getIntOrNull(4) ?: YEAR_UNKNOWN,
+                            it.getIntOrNull(5) ?: YEAR_UNKNOWN,
+                            it.getStringOrNull(6).orEmpty(),
+                            it.getStringOrNull(7).orEmpty(),
+                            it.getStringOrNull(8).orEmpty(),
+                            it.getDoubleOrNull(9) ?: 0.0,
+                            it.getBoolean(10),
+                            it.getStringOrNull(11).orEmpty(),
+                            it.getIntOrNull(12) ?: 0
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return@withContext list
     }
 
     fun loadLinkedCollection(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> {

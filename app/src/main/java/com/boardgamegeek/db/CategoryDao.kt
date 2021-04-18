@@ -10,7 +10,6 @@ import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
 import com.boardgamegeek.extensions.descending
 import com.boardgamegeek.extensions.load
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.livedata.RegisteredLiveDataCoroutine
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.*
@@ -57,11 +56,9 @@ class CategoryDao(private val context: BggApplication) {
         return@withContext results
     }
 
-    fun loadCollectionAsLiveData(categoryId: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>> {
+    suspend fun loadCollection(categoryId: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
         val uri = BggContract.Categories.buildCollectionUri(categoryId)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
-        }
+        return collectionDao.loadLinkedCollectionC(uri, sortBy)
     }
 }
 
