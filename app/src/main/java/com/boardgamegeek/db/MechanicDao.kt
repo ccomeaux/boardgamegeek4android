@@ -1,12 +1,17 @@
 package com.boardgamegeek.db
 
-import androidx.lifecycle.LiveData
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.MechanicEntity
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.livedata.RegisteredLiveData
+import com.boardgamegeek.extensions.ascending
+import com.boardgamegeek.extensions.collateNoCase
+import com.boardgamegeek.extensions.descending
+import com.boardgamegeek.extensions.load
 import com.boardgamegeek.provider.BggContract.Mechanics
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MechanicDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -15,13 +20,7 @@ class MechanicDao(private val context: BggApplication) {
         NAME, ITEM_COUNT
     }
 
-    fun loadMechanicsAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<MechanicEntity>> {
-        return RegisteredLiveData(context, Mechanics.CONTENT_URI, true) {
-            return@RegisteredLiveData loadMechanics(sortBy)
-        }
-    }
-
-    private fun loadMechanics(sortBy: SortType): List<MechanicEntity> {
+    suspend fun loadMechanics(sortBy: SortType): List<MechanicEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<MechanicEntity>()
         val sortByName = Mechanics.MECHANIC_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
@@ -40,21 +39,17 @@ class MechanicDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += MechanicEntity(
-                            it.getInt(Mechanics.MECHANIC_ID),
-                            it.getStringOrEmpty(Mechanics.MECHANIC_NAME),
-                            it.getIntOrZero(Mechanics.ITEM_COUNT)
+                            it.getInt(0),
+                            it.getStringOrNull(1).orEmpty(),
+                            it.getIntOrNull(2) ?: 0
                     )
                 } while (it.moveToNext())
             }
         }
-        return results
+        return@withContext results
     }
 
-    fun loadCollectionAsLiveData(mechanicId: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>>? {
-        val uri = Mechanics.buildCollectionUri(mechanicId)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
-        }
-
+    suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
+        return collectionDao.loadLinkedCollectionC(Mechanics.buildCollectionUri(mechanicId), sortBy)
     }
 }

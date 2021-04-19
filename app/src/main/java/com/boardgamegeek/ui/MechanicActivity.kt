@@ -21,8 +21,7 @@ class MechanicActivity : SimpleSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         id = intent.getIntExtra(KEY_MECHANIC_ID, BggContract.INVALID_ID)
-        val name = intent.getStringExtra(KEY_MECHANIC_NAME)
-        title = name
+        title = intent.getStringExtra(KEY_MECHANIC_NAME)
         supportActionBar?.subtitle = getString(R.string.title_mechanic)
         viewModel.setId(id)
     }
@@ -30,11 +29,11 @@ class MechanicActivity : SimpleSinglePaneActivity() {
     override val optionsMenuId = R.menu.mechanic
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_view) {
-            linkToBgg("boardgamemechanic", id)
-            true
-        } else
-            super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.menu_view -> linkToBgg("boardgamemechanic", id)
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
     }
 
     companion object {

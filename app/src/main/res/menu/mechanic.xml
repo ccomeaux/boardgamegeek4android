@@ -6,5 +6,5 @@
 		android:icon="@drawable/menu_view"
 		android:orderInCategory="1"
 		android:title="@string/menu_view_in_browser"
-		app:showAsAction="never"/>
+		app:showAsAction="ifRoom"/>
 </menu>

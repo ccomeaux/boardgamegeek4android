@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.MechanicEntity
@@ -15,20 +13,13 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
-import kotlinx.android.synthetic.main.fragment_artists.*
+import kotlinx.android.synthetic.main.fragment_mechanics.*
 import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
-class MechanicsFragment : Fragment() {
+class MechanicsFragment : Fragment(R.layout.fragment_mechanics) {
     private val viewModel by activityViewModels<MechanicsViewModel>()
-
-    private val adapter: MechanicsAdapter by lazy {
-        MechanicsAdapter()
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_mechanics, container, false)
-    }
+    private val adapter: MechanicsAdapter by lazy { MechanicsAdapter() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,9 +27,12 @@ class MechanicsFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.mechanics.observe(viewLifecycleOwner, Observer {
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+
+        viewModel.mechanics.observe(viewLifecycleOwner, {
             showData(it)
             progressBar.hide()
+            swipeRefresh.isRefreshing = false
         })
     }
 
