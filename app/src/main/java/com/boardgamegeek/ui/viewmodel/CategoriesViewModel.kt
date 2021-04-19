@@ -22,15 +22,21 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     val categories = sort.switchMap {
         liveData {
-            emitSource(repository.loadCategoriesAsLiveData(viewModelScope, it.sortBy))
+            emit(repository.loadCategories(it.sortBy))
         }
     }
 
     fun sort(sortType: SortType) {
-        _sort.value = when (sortType) {
-            SortType.NAME -> CategoriesSort.ByName()
-            SortType.ITEM_COUNT -> CategoriesSort.ByItemCount()
+        if (_sort.value?.sortType != sortType) {
+            _sort.value = when (sortType) {
+                SortType.NAME -> CategoriesSort.ByName()
+                SortType.ITEM_COUNT -> CategoriesSort.ByItemCount()
+            }
         }
+    }
+
+    fun refresh() {
+        _sort.value?.let { _sort.value = it }
     }
 
     sealed class CategoriesSort {

@@ -2,7 +2,6 @@ package com.boardgamegeek.db
 
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CategoryEntity
@@ -10,8 +9,7 @@ import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
 import com.boardgamegeek.extensions.descending
 import com.boardgamegeek.extensions.load
-import com.boardgamegeek.livedata.RegisteredLiveDataCoroutine
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Categories
 import kotlinx.coroutines.*
 
 class CategoryDao(private val context: BggApplication) {
@@ -21,25 +19,19 @@ class CategoryDao(private val context: BggApplication) {
         NAME, ITEM_COUNT
     }
 
-    suspend fun loadCategoriesAsLiveData(scope: CoroutineScope, sortBy: SortType = SortType.NAME): LiveData<List<CategoryEntity>> {
-        return RegisteredLiveDataCoroutine(context, BggContract.Categories.CONTENT_URI, true, scope) {
-            return@RegisteredLiveDataCoroutine loadCategories(sortBy)
-        }
-    }
-
-    private suspend fun loadCategories(sortBy: SortType, ioDispatcher: CoroutineDispatcher = Dispatchers.IO): List<CategoryEntity> = withContext(ioDispatcher) {
+    suspend fun loadCategories(sortBy: SortType, ioDispatcher: CoroutineDispatcher = Dispatchers.IO): List<CategoryEntity> = withContext(ioDispatcher) {
         val results = mutableListOf<CategoryEntity>()
-        val sortByName = BggContract.Categories.CATEGORY_NAME.collateNoCase().ascending()
+        val sortByName = Categories.CATEGORY_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> BggContract.Categories.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Categories.ITEM_COUNT.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                BggContract.Categories.CONTENT_URI,
+                Categories.CONTENT_URI,
                 arrayOf(
-                        BggContract.Categories.CATEGORY_ID,
-                        BggContract.Categories.CATEGORY_NAME,
-                        BggContract.Categories.ITEM_COUNT
+                        Categories.CATEGORY_ID,
+                        Categories.CATEGORY_NAME,
+                        Categories.ITEM_COUNT
                 ),
                 sortOrder = sortOrder
         )?.use {
@@ -57,8 +49,6 @@ class CategoryDao(private val context: BggApplication) {
     }
 
     suspend fun loadCollection(categoryId: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        val uri = BggContract.Categories.buildCollectionUri(categoryId)
-        return collectionDao.loadLinkedCollectionC(uri, sortBy)
+        return collectionDao.loadLinkedCollectionC(Categories.buildCollectionUri(categoryId), sortBy)
     }
 }
-

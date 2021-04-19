@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CategoryRepository
 
@@ -30,11 +29,11 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
         _category.value?.let { _category.value = it }
     }
 
-    val sort: LiveData<CollectionSort> = _category.map {
+    val sort = _category.map {
         it.second
     }
 
-    val collection: LiveData<List<BriefGameEntity>> = _category.switchMap { c ->
+    val collection = _category.switchMap { c ->
         liveData {
             emit(
                     when (c.first) {
@@ -43,7 +42,8 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
                             CollectionSort.NAME -> repository.loadCollection(c.first, CollectionDao.SortType.NAME)
                             CollectionSort.RATING -> repository.loadCollection(c.first, CollectionDao.SortType.RATING)
                         }
-                    })
+                    }
+            )
         }
     }
 }

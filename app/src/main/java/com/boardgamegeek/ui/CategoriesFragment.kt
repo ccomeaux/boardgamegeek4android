@@ -27,9 +27,12 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+
         viewModel.categories.observe(viewLifecycleOwner, {
             showData(it)
             progressBar.hide()
+            swipeRefresh.isRefreshing = false
         })
     }
 

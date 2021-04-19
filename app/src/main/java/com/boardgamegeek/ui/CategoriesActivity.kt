@@ -9,11 +9,11 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
+import com.boardgamegeek.ui.viewmodel.CategoriesViewModel.SortType
 
 class CategoriesActivity : SimpleSinglePaneActivity() {
     private var numberOfCategories = -1
-    private var sortBy = CategoriesViewModel.SortType.ITEM_COUNT
-
+    private var sortBy = SortType.ITEM_COUNT
     private val viewModel by viewModels<CategoriesViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,19 +35,20 @@ class CategoriesActivity : SimpleSinglePaneActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(when (sortBy) {
-            CategoriesViewModel.SortType.NAME -> R.id.menu_sort_name
-            CategoriesViewModel.SortType.ITEM_COUNT -> R.id.menu_sort_item_count
+            SortType.NAME -> R.id.menu_sort_name
+            SortType.ITEM_COUNT -> R.id.menu_sort_item_count
         })?.isChecked = true
         menu.setActionBarCount(R.id.menu_list_count, numberOfCategories, getString(R.string.by_prefix, title))
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.sort(when (item.itemId) {
-            R.id.menu_sort_name -> CategoriesViewModel.SortType.NAME
-            R.id.menu_sort_item_count -> CategoriesViewModel.SortType.ITEM_COUNT
+        when (item.itemId) {
+            R.id.menu_sort_name -> viewModel.sort(SortType.NAME)
+            R.id.menu_sort_item_count -> viewModel.sort(SortType.ITEM_COUNT)
+            R.id.menu_refresh -> viewModel.refresh()
             else -> return super.onOptionsItemSelected(item)
-        })
+        }
         return true
     }
 }
