@@ -266,12 +266,8 @@ class CollectionDao(private val context: BggApplication) {
     suspend fun loadLinkedCollectionC(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> = withContext(Dispatchers.IO) {
         val list = arrayListOf<BriefGameEntity>()
 
-        val selection = StringBuilder()
-        val statuses = prefs.getSyncStatusesOrDefault()
-        for (status in statuses) {
-            if (status.isBlank()) continue
-            if (selection.isNotBlank()) selection.append(" OR ")
-            selection.append(when (status) {
+        val selection = prefs.getSyncStatusesOrDefault().map {
+            when (it) {
                 COLLECTION_STATUS_OWN -> Collection.STATUS_OWN.isTrue()
                 COLLECTION_STATUS_PREVIOUSLY_OWNED -> Collection.STATUS_PREVIOUSLY_OWNED.isTrue()
                 COLLECTION_STATUS_PREORDERED -> Collection.STATUS_PREORDERED.isTrue()
@@ -286,8 +282,8 @@ class CollectionDao(private val context: BggApplication) {
                 COLLECTION_STATUS_HAS_PARTS -> Collection.HASPARTS_LIST.notBlank()
                 COLLECTION_STATUS_WANT_PARTS -> Collection.WANTPARTS_LIST.notBlank()
                 else -> ""
-            })
-        }
+            }
+        }.filter { it.isNotBlank() }.joinToString(" OR ")
 
         val sortByName = Collection.GAME_SORT_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
@@ -313,7 +309,7 @@ class CollectionDao(private val context: BggApplication) {
                         Collection.SUBTYPE,
                         Collection.NUM_PLAYS
                 ),
-                selection.toString(),
+                selection,
                 emptyArray(),
                 sortOrder
         )?.use {

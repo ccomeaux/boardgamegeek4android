@@ -15,6 +15,8 @@ import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonResponse
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Artists
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.io.use
 
@@ -25,13 +27,7 @@ class ArtistDao(private val context: BggApplication) {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    fun loadArtistsAsLiveData(sortBy: SortType): LiveData<List<PersonEntity>> {
-        return RegisteredLiveData(context, Artists.CONTENT_URI, true) {
-            return@RegisteredLiveData loadArtists(sortBy)
-        }
-    }
-
-    private fun loadArtists(sortBy: SortType): List<PersonEntity> {
+    suspend fun loadArtists(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<PersonEntity>()
         val sortByName = Artists.ARTIST_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
@@ -68,7 +64,7 @@ class ArtistDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return results
+         results
     }
 
     fun loadArtistAsLiveData(id: Int): LiveData<PersonEntity> {
@@ -136,9 +132,8 @@ class ArtistDao(private val context: BggApplication) {
         }
     }
 
-    fun loadCollection(id: Int): List<BriefGameEntity> {
-        val uri = Artists.buildArtistCollectionUri(id)
-        return collectionDao.loadLinkedCollection(uri)
+    suspend fun loadCollection(id: Int): List<BriefGameEntity> {
+        return collectionDao.loadLinkedCollectionC(Artists.buildArtistCollectionUri(id))
     }
 
     fun saveArtist(id: Int, artist: Person?, updateTime: Long = System.currentTimeMillis()): Int {

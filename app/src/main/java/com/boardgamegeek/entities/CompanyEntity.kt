@@ -10,7 +10,7 @@ data class CompanyEntity(
         val updatedTimestamp: Long,
         val itemCount: Int = 0,
         val whitmoreScore: Int = 0,
-        val statsUpdatedTimestamp: Long = 0L
+        val statsUpdatedTimestamp: Long = 0L,
 ) : ImagesEntity {
     override val imagesEntityDescription: String
         get() = id.toString()

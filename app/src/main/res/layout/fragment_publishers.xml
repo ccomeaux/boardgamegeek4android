@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/swipeRefresh"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-
-	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:gravity="center"
-		tools:visibility="gone"/>
 
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
 		android:id="@+id/coordinatorLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
+
+		<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"
+			tools:visibility="gone" />
 
 		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/recyclerView"
@@ -28,7 +28,7 @@
 			android:visibility="gone"
 			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 			tools:listitem="@layout/row_publisher"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 
 		<TextView
 			android:id="@+id/emptyTextView"
@@ -36,13 +36,13 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:paddingBottom="@dimen/material_margin_vertical"
 			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal"
 			android:paddingTop="@dimen/material_margin_vertical"
+			android:paddingRight="@dimen/material_margin_horizontal"
+			android:paddingBottom="@dimen/material_margin_vertical"
 			android:text="@string/empty_publishers"
-			android:visibility="gone"/>
+			android:visibility="gone" />
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-	<include layout="@layout/include_horizontal_progress"/>
-</FrameLayout>
+	<include layout="@layout/include_horizontal_progress" />
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
@@ -15,7 +14,7 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.viewmodel.DesignsViewModel
+import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import kotlinx.android.synthetic.main.fragment_designers.*
 import kotlinx.android.synthetic.main.include_horizontal_progress.*
@@ -23,7 +22,7 @@ import kotlinx.android.synthetic.main.row_designer.view.*
 import kotlin.properties.Delegates
 
 class DesignersFragment : Fragment(R.layout.fragment_designers) {
-    private val viewModel by activityViewModels<DesignsViewModel>()
+    private val viewModel by activityViewModels<DesignersViewModel>()
 
     private val adapter: DesignersAdapter by lazy {
         DesignersAdapter(viewModel)
@@ -38,12 +37,15 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.designers.observe(viewLifecycleOwner, Observer {
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+
+        viewModel.designers.observe(viewLifecycleOwner, {
             showData(it)
             progressBar.hide()
+            swipeRefresh.isRefreshing = false
         })
 
-        viewModel.progress.observe(viewLifecycleOwner, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {
@@ -65,7 +67,7 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
         }
     }
 
-    class DesignersAdapter(private val viewModel: DesignsViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
+    class DesignersAdapter(private val viewModel: DesignersViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
         var designers: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id

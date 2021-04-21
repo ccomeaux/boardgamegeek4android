@@ -14,6 +14,8 @@ import com.boardgamegeek.io.model.CompanyItem
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.io.use
 
@@ -24,13 +26,7 @@ class PublisherDao(private val context: BggApplication) {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    fun loadPublishersAsLiveData(sortBy: SortType): LiveData<List<CompanyEntity>> {
-        return RegisteredLiveData(context, Publishers.CONTENT_URI, true) {
-            return@RegisteredLiveData loadPublishers(sortBy)
-        }
-    }
-
-    private fun loadPublishers(sortBy: SortType): List<CompanyEntity> {
+    suspend fun loadPublishers(sortBy: SortType): List<CompanyEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<CompanyEntity>()
         val sortByName = Publishers.PUBLISHER_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
@@ -71,7 +67,7 @@ class PublisherDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return results
+        results
     }
 
     fun loadPublisherAsLiveData(id: Int): LiveData<CompanyEntity> {
@@ -116,9 +112,8 @@ class PublisherDao(private val context: BggApplication) {
         }
     }
 
-    fun loadCollection(id: Int): List<BriefGameEntity> {
-        val uri = Publishers.buildCollectionUri(id)
-        return collectionDao.loadLinkedCollection(uri)
+    suspend fun loadCollection(id: Int): List<BriefGameEntity> {
+        return collectionDao.loadLinkedCollectionC(Publishers.buildCollectionUri(id))
     }
 
     fun savePublisher(item: CompanyItem?, updateTime: Long = System.currentTimeMillis()): Int {

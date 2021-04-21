@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
@@ -38,12 +37,15 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.artists.observe(viewLifecycleOwner, Observer {
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+
+        viewModel.artists.observe(viewLifecycleOwner, {
             showData(it)
             progressBar.hide()
+            swipeRefresh.isRefreshing = false
         })
 
-        viewModel.progress.observe(viewLifecycleOwner, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {

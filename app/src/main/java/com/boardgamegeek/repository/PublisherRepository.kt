@@ -2,69 +2,46 @@ package com.boardgamegeek.repository
 
 import android.content.ContentValues
 import android.content.SharedPreferences
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.BriefGameEntity
-import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.entities.PersonStatsEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.CompanyResponse
-import com.boardgamegeek.livedata.CalculatingListLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.jetbrains.anko.collections.forEachWithIndex
 import retrofit2.Call
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class PublisherRepository(val application: BggApplication) {
     private val dao = PublisherDao(application)
-    private var loader = getLoader(PublisherDao.SortType.NAME)
-    private val sort = MutableLiveData<PublisherDao.SortType>()
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    fun loadPublishers(sortBy: PublisherDao.SortType): LiveData<List<CompanyEntity>> {
-        loader = getLoader(sortBy)
-        sort.value = sortBy
-        return loader.asLiveData()
+    suspend fun loadPublishers(sortBy: PublisherDao.SortType): List<CompanyEntity> {
+        return dao.loadPublishers(sortBy)
     }
 
-    val progress: LiveData<Pair<Int, Int>> = Transformations.switchMap(sort) {
-        loader.progress
-    }
-
-    private fun getLoader(sortBy: PublisherDao.SortType): CalculatingListLoader<CompanyEntity> {
-        return object : CalculatingListLoader<CompanyEntity>(application) {
-            override fun loadFromDatabase() = dao.loadPublishersAsLiveData(sortBy)
-
-            override fun shouldCalculate(data: List<CompanyEntity>?): Boolean {
-                val lastCalculated = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L]
-                        ?: 0L
-                return data != null && lastCalculated.isOlderThan(1, TimeUnit.HOURS)
-            }
-
-            override fun sortList(data: List<CompanyEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
-
-            override fun calculate(data: CompanyEntity) {
-                if (data.statsUpdatedTimestamp > data.updatedTimestamp) return
-                val collection = dao.loadCollection(data.id)
-                val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
-                updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
-            }
-
-            override fun finishCalculating() {
-                prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
-            }
+    suspend fun calculateWhitmoreScores(publishers: List<CompanyEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+        val sortedList = publishers.sortedBy { it.statsUpdatedTimestamp }
+        val maxProgress = sortedList.size
+        sortedList.forEachWithIndex { i, data ->
+            progress.postValue(i to maxProgress)
+            val collection = dao.loadCollection(data.id)
+            val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+            updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
         }
+        prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
+        progress.postValue(0 to 0)
     }
 
     fun loadPublisher(id: Int): LiveData<RefreshableResource<CompanyEntity>> {
@@ -109,20 +86,16 @@ class PublisherRepository(val application: BggApplication) {
         return dao.loadCollectionAsLiveData(id, sortBy)
     }
 
-    fun calculateStats(id: Int): LiveData<PersonStatsEntity> {
-        val mediatorLiveData = MediatorLiveData<PersonStatsEntity>()
-        mediatorLiveData.addSource(dao.loadCollectionAsLiveData(id)) { collection ->
-            val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
-            mediatorLiveData.value = linkedCollection
-            application.appExecutors.diskIO.execute {
-                updateWhitmoreScore(id, linkedCollection.whitmoreScore)
-            }
+    suspend fun calculateStats(publisherId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {
+        val collection = withContext(Dispatchers.IO) {
+            dao.loadCollection(publisherId)
         }
-        return mediatorLiveData
+        val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
+        updateWhitmoreScore(publisherId, linkedCollection.whitmoreScore)
+        linkedCollection
     }
 
-    @WorkerThread
-    private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) {
+    private suspend fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
         val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
