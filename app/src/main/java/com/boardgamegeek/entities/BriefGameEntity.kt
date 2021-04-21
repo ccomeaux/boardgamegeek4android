@@ -13,9 +13,9 @@ data class BriefGameEntity(
         val personalRating: Double = 0.0,
         val isFavorite: Boolean = false,
         val subtype: String = "boardgame",
-        val playCount: Int = 0
+        val playCount: Int = 0,
 ) {
-    val name = if (collectionName.isBlank()) gameName else collectionName
-    val thumbnailUrl = if (collectionThumbnailUrl.isBlank()) gameThumbnailUrl else collectionThumbnailUrl
+    val name = collectionName.ifBlank { gameName }
+    val thumbnailUrl = collectionThumbnailUrl.ifBlank { gameThumbnailUrl }
     val year = if (collectionYearPublished == YEAR_UNKNOWN) yearPublished else collectionYearPublished
 }

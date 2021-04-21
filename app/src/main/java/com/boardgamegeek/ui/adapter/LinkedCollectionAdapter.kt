@@ -3,36 +3,45 @@ package com.boardgamegeek.ui.adapter
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.GameActivity
 import kotlinx.android.synthetic.main.row_collection.view.*
-import kotlin.properties.Delegates
 
-class LinkedCollectionAdapter : RecyclerView.Adapter<LinkedCollectionAdapter.DetailViewHolder>(), AutoUpdatableAdapter {
+class LinkedCollectionAdapter :
+        ListAdapter<BriefGameEntity, LinkedCollectionAdapter.DetailViewHolder>(
+                object : DiffUtil.ItemCallback<BriefGameEntity>() {
+                    override fun areItemsTheSame(oldItem: BriefGameEntity, newItem: BriefGameEntity) =
+                            oldItem.gameId == newItem.gameId
+
+                    override fun areContentsTheSame(oldItem: BriefGameEntity, newItem: BriefGameEntity) =
+                            oldItem == newItem
+                }
+        ) {
+
     init {
         setHasStableIds(true)
     }
 
-    var items: List<BriefGameEntity> by Delegates.observable(emptyList()) { _, old, new ->
-        autoNotify(old, new) { o, n ->
-            o.gameId == n.gameId
+    var items: List<BriefGameEntity>
+        get() = currentList
+        set(value) {
+            submitList(value)
         }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailViewHolder {
         return DetailViewHolder(parent.inflate(R.layout.row_collection))
     }
 
     override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {
-        holder.bind(items.getOrNull(position))
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int = items.size
-
-    override fun getItemId(position: Int): Long = items.getOrNull(position)?.internalId ?: RecyclerView.NO_ID
+    override fun getItemId(position: Int): Long = getItem(position).internalId
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(gameDetail: BriefGameEntity?) {

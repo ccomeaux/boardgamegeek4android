@@ -82,8 +82,8 @@ class PublisherRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun loadCollection(id: Int, sortBy: CollectionDao.SortType): LiveData<List<BriefGameEntity>> {
-        return dao.loadCollectionAsLiveData(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
+        return dao.loadCollection(id, sortBy)
     }
 
     suspend fun calculateStats(publisherId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {

@@ -46,10 +46,10 @@ class MechanicDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return@withContext results
+        results
     }
 
     suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return collectionDao.loadLinkedCollectionC(Mechanics.buildCollectionUri(mechanicId), sortBy)
+        return collectionDao.loadLinkedCollection(Mechanics.buildCollectionUri(mechanicId), sortBy)
     }
 }

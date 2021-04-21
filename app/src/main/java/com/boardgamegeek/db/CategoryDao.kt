@@ -45,10 +45,10 @@ class CategoryDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return@withContext results
+        results
     }
 
     suspend fun loadCollection(categoryId: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return collectionDao.loadLinkedCollectionC(Categories.buildCollectionUri(categoryId), sortBy)
+        return collectionDao.loadLinkedCollection(Categories.buildCollectionUri(categoryId), sortBy)
     }
 }

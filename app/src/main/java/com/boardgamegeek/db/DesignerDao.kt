@@ -125,15 +125,8 @@ class DesignerDao(private val context: BggApplication) {
         }
     }
 
-    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
-        val uri = Designers.buildDesignerCollectionUri(id)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
-        }
-    }
-
-    suspend fun loadCollection(id: Int): List<BriefGameEntity> {
-        return collectionDao.loadLinkedCollectionC(Designers.buildDesignerCollectionUri(id))
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): List<BriefGameEntity> {
+        return collectionDao.loadLinkedCollection(Designers.buildDesignerCollectionUri(id), sortBy)
     }
 
     fun saveDesigner(id: Int, designer: Person?, updateTime: Long = System.currentTimeMillis()): Int {
