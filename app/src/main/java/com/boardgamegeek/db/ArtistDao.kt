@@ -43,6 +43,7 @@ class ArtistDao(private val context: BggApplication) {
                         Artists.ARTIST_DESCRIPTION,
                         Artists.UPDATED,
                         Artists.ARTIST_THUMBNAIL_URL,
+                        Artists.ARTIST_HERO_IMAGE_URL,
                         Artists.ITEM_COUNT,
                         Artists.WHITMORE_SCORE,
                         Artists.ARTIST_STATS_UPDATED_TIMESTAMP
@@ -52,19 +53,20 @@ class ArtistDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            it.getInt(0),
-                            it.getStringOrNull(1).orEmpty(),
-                            it.getStringOrNull(2).orEmpty(),
-                            it.getLongOrNull(3) ?: 0L,
-                            it.getStringOrNull(4).orEmpty(),
-                            it.getIntOrNull(5) ?: 0,
-                            it.getIntOrNull(6) ?: 0,
-                            it.getLongOrNull(7) ?: 0L,
+                            id = it.getInt(0),
+                            name = it.getStringOrNull(1).orEmpty(),
+                            description = it.getStringOrNull(2).orEmpty(),
+                            updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                            thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                            heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                            itemCount = it.getIntOrNull(6) ?: 0,
+                            whitmoreScore = it.getIntOrNull(7) ?: 0,
+                            statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
         }
-         results
+        results
     }
 
     fun loadArtistAsLiveData(id: Int): LiveData<PersonEntity> {
@@ -86,10 +88,10 @@ class ArtistDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        it.getInt(0),
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getStringOrNull(2).orEmpty(),
-                        it.getLongOrNull(3) ?: 0L,
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        updatedTimestamp = it.getLongOrNull(3) ?: 0L,
                         whitmoreScore = it.getIntOrNull(4) ?: 0,
                 )
             } else null

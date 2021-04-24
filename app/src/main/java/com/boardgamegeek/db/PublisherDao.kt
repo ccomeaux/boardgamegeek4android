@@ -53,16 +53,16 @@ class PublisherDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += CompanyEntity(
-                            it.getInt(0),
-                            it.getStringOrNull(1).orEmpty(),
-                            it.getStringOrNull(2).orEmpty(),
-                            it.getStringOrNull(3).orEmpty(),
-                            it.getStringOrNull(4).orEmpty(),
-                            it.getStringOrNull(5).orEmpty(),
-                            it.getLongOrNull(6) ?: 0L,
-                            it.getIntOrNull(7) ?: 0,
-                            it.getIntOrNull(8) ?: 0,
-                            it.getLongOrNull(9) ?: 0L,
+                            id = it.getInt(0),
+                            name = it.getStringOrNull(1).orEmpty(),
+                            description = it.getStringOrNull(2).orEmpty(),
+                            imageUrl = it.getStringOrNull(3).orEmpty(),
+                            thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                            heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                            updatedTimestamp = it.getLongOrNull(6) ?: 0L,
+                            itemCount = it.getIntOrNull(7) ?: 0,
+                            whitmoreScore = it.getIntOrNull(8) ?: 0,
+                            statsUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -92,13 +92,13 @@ class PublisherDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 CompanyEntity(
-                        it.getInt(0),
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getStringOrNull(2).orEmpty(),
-                        it.getStringOrNull(3).orEmpty(),
-                        it.getStringOrNull(4).orEmpty(),
-                        it.getStringOrNull(5).orEmpty(),
-                        it.getLongOrNull(6) ?: 0L,
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        imageUrl = it.getStringOrNull(3).orEmpty(),
+                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                        updatedTimestamp = it.getLongOrNull(6) ?: 0L,
                         whitmoreScore = it.getIntOrNull(7) ?: 0,
                 )
             } else null

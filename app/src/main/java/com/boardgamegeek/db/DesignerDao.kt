@@ -43,6 +43,7 @@ class DesignerDao(private val context: BggApplication) {
                         Designers.DESIGNER_DESCRIPTION,
                         Designers.UPDATED,
                         Designers.DESIGNER_THUMBNAIL_URL,
+                        Designers.DESIGNER_HERO_IMAGE_URL,
                         Designers.ITEM_COUNT,
                         Designers.WHITMORE_SCORE,
                         Designers.DESIGNER_STATS_UPDATED_TIMESTAMP
@@ -52,14 +53,15 @@ class DesignerDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            it.getInt(0),
-                            it.getStringOrNull(1).orEmpty(),
-                            it.getStringOrNull(2).orEmpty(),
-                            it.getLongOrNull(3) ?: 0L,
-                            it.getStringOrNull(4).orEmpty(),
-                            it.getIntOrNull(5) ?: 0,
-                            it.getIntOrNull(6) ?: 0,
-                            it.getLongOrNull(7) ?: 0L,
+                            id = it.getInt(0),
+                            name = it.getStringOrNull(1).orEmpty(),
+                            description = it.getStringOrNull(2).orEmpty(),
+                            updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                            thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                            heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                            itemCount = it.getIntOrNull(6) ?: 0,
+                            whitmoreScore = it.getIntOrNull(7) ?: 0,
+                            statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -86,10 +88,10 @@ class DesignerDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        it.getInt(0),
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getStringOrNull(2).orEmpty(),
-                        it.getLongOrNull(3) ?: 0L,
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        updatedTimestamp = it.getLongOrNull(3) ?: 0L,
                         whitmoreScore = it.getIntOrNull(4) ?: 0,
                 )
             } else null
