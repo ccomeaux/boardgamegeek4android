@@ -108,7 +108,7 @@ abstract class RefreshableResourceLoader<T, U>(val application: BggApplication) 
                     result.removeSource(dbSource)
                     application.appExecutors.diskIO.execute { onRefreshFailed() }
                     result.addSource(dbSource) { newData ->
-                        setValue(RefreshableResource.error(t, newData))
+                        setValue(RefreshableResource.error(t, application, newData))
                     }
                 }
             })

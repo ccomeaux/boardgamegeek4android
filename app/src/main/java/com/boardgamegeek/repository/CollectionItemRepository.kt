@@ -11,7 +11,6 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
 import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
@@ -39,7 +38,7 @@ class CollectionItemRepository(val application: BggApplication) {
         return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
             private val timestamp = System.currentTimeMillis()
             private val rateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
-            private val subtypes = listOf("", THING_SUBTYPE_BOARDGAME_ACCESSORY)
+            private val subtypes = listOf("", BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
             private var subtype = ""
 
             override fun loadFromDatabase(): LiveData<List<CollectionItemEntity>> {

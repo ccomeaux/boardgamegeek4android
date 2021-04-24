@@ -5,19 +5,16 @@ import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.model.CompanyItem
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import kotlin.io.use
 
 class PublisherDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -70,14 +67,8 @@ class PublisherDao(private val context: BggApplication) {
         results
     }
 
-    fun loadPublisherAsLiveData(id: Int): LiveData<CompanyEntity> {
-        return RegisteredLiveData(context, Publishers.buildPublisherUri(id), true) {
-            return@RegisteredLiveData loadPublisher(id)
-        }
-    }
-
-    fun loadPublisher(id: Int): CompanyEntity? {
-        return context.contentResolver.load(
+    suspend fun loadPublisher(id: Int): CompanyEntity? = withContext(Dispatchers.IO) {
+        context.contentResolver.load(
                 Publishers.buildPublisherUri(id),
                 arrayOf(
                         Publishers.PUBLISHER_ID,

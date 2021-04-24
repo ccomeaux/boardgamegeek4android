@@ -1,17 +1,20 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.annotation.StringRes
+import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
+import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
+import retrofit2.HttpException
+import java.util.concurrent.TimeUnit
 
 class PersonViewModel(application: Application) : AndroidViewModel(application) {
     data class Person(
@@ -59,15 +62,11 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private val publisher: LiveData<RefreshableResource<CompanyEntity>> = Transformations.switchMap(_person) { publisher ->
-        if (publisher.type == PersonType.PUBLISHER && publisher.id != BggContract.INVALID_ID) {
-            publisherRepository.loadPublisher(publisher.id)
-        } else {
-            AbsentLiveData.create()
-        }
+    fun refresh() {
+        _person.value?.let { _person.value = Person(it.type, it.id) }
     }
 
-    val details: LiveData<RefreshableResource<PersonEntity>> = Transformations.switchMap(_person) { person ->
+    val details = _person.switchMap { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
@@ -75,15 +74,8 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                     PersonType.ARTIST -> artistRepository.loadArtist(person.id)
                     PersonType.DESIGNER -> designerRepository.loadDesigner(person.id)
                     PersonType.PUBLISHER -> {
-                        Transformations.map(publisher) { company ->
-                            RefreshableResource.map(company, company.data?.let {
-                                PersonEntity(
-                                        it.id,
-                                        it.name,
-                                        it.description,
-                                        it.updatedTimestamp
-                                )
-                            })
+                        liveData {
+                            loadPublisher(person, application)
                         }
                     }
                 }
@@ -91,36 +83,84 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    val images: LiveData<RefreshableResource<PersonImagesEntity>> = Transformations.switchMap(_person) { person ->
+    private suspend fun LiveDataScope<RefreshableResource<PersonEntity>>.loadPublisher(person: Person, application: Application) {
+        val publisher = publisherRepository.loadPublisher(person.id)
+        if (publisher == null || publisher.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            emit(RefreshableResource.refreshing(publisher.toPersonEntity()))
+            try {
+                publisherRepository.refreshPublisher(person.id)?.let { r ->
+                    publisherRepository.refreshImages(r)
+                    publisherRepository.loadPublisher(r.id)?.let {
+                        emit(RefreshableResource.success(it.toPersonEntity()))
+                    } ?: emit(RefreshableResource.success(r.toPersonEntity()))
+                } ?: emit(RefreshableResource.error(application.getString(R.string.msg_update_invalid_response, application.getString(R.string.title_publisher)), null))
+            } catch (e: Exception) {
+                emit(RefreshableResource.error(getHttpErrorMessage(e, application), publisher.toPersonEntity()))
+            }
+        } else {
+            emit(RefreshableResource.success(publisher.toPersonEntity()))
+        }
+    }
+
+    private fun getHttpErrorMessage(exception: Exception, application: Application): String {
+        return        when (exception){
+            is HttpException ->{
+                @StringRes val resId: Int = when {
+                    exception.code() >= 500 -> R.string.msg_sync_response_500
+                    exception.code() == 429 -> R.string.msg_sync_response_429
+                    else -> R.string.msg_sync_error_http_code
+                }
+                return application.getString(resId, exception.code().toString())
+            }
+            else -> exception.message ?:application.getString(R.string.msg_sync_error)
+        }
+    }
+
+
+    private fun CompanyEntity?.toPersonEntity(): PersonEntity? {
+        return this?.let {
+            PersonEntity(
+                    it.id,
+                    it.name,
+                    it.description,
+                    it.updatedTimestamp,
+                    it.thumbnailUrl,
+                    it.heroImageUrl,
+            )
+        }
+    }
+
+    val images = _person.switchMap { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
                 when (person.type) {
                     PersonType.ARTIST -> artistRepository.loadArtistImages(person.id)
                     PersonType.DESIGNER -> designerRepository.loadDesignerImages(person.id)
-                    PersonType.PUBLISHER -> {
-                        Transformations.map(publisher) { company ->
-                            RefreshableResource.map(company, company.data?.let {
-                                PersonImagesEntity(
-                                        it.id,
-                                        it.imageUrl,
-                                        it.thumbnailUrl,
-                                        it.heroImageUrl,
-                                        it.updatedTimestamp
-                                )
-                            })
-                        }
-                    }
+                    PersonType.PUBLISHER -> AbsentLiveData.create()
+//                    PersonType.PUBLISHER -> {
+//                        publisher.map { company ->
+//                            RefreshableResource.map(company, company.data?.let {
+//                                PersonImagesEntity(
+//                                        it.id,
+//                                        it.imageUrl,
+//                                        it.thumbnailUrl,
+//                                        it.heroImageUrl,
+//                                        it.updatedTimestamp
+//                                )
+//                            })
+//                        }
+//                    }
                 }
             }
         }
     }
 
-    val sort: LiveData<CollectionSort> = Transformations.map(_person) {
+    val collectionSort: LiveData<CollectionSort> = _person.map {
         it.sort
     }
 
-    val collection: LiveData<List<BriefGameEntity>> = Transformations.switchMap(_person) { person ->
+    val collection: LiveData<List<BriefGameEntity>> = _person.switchMap { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
@@ -128,29 +168,29 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                     CollectionSort.NAME -> CollectionDao.SortType.NAME
                     CollectionSort.RATING -> CollectionDao.SortType.RATING
                 }
-                when (person.type) {
-                    PersonType.ARTIST -> artistRepository.loadCollection(person.id, sortBy)
-                    PersonType.DESIGNER -> designerRepository.loadCollection(person.id, sortBy)
-                    PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, sortBy)
+                liveData {
+                    emit(when (person.type) {
+                        PersonType.ARTIST -> artistRepository.loadCollection(person.id, sortBy)
+                        PersonType.DESIGNER -> designerRepository.loadCollection(person.id, sortBy)
+                        PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, sortBy)
+                    })
                 }
             }
         }
     }
 
-    val stats: LiveData<PersonStatsEntity> = Transformations.switchMap(_person) { person ->
+    val stats: LiveData<PersonStatsEntity> = _person.switchMap { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
-                when (person.type) {
-                    PersonType.ARTIST -> artistRepository.calculateStats(person.id)
-                    PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
-                    PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
+                liveData {
+                    emit(when (person.type) {
+                        PersonType.ARTIST -> artistRepository.calculateStats(person.id)
+                        PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
+                        PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
+                    })
                 }
             }
         }
-    }
-
-    fun refresh() {
-        _person.value?.let { _person.value = Person(it.type, it.id) }
     }
 }

@@ -53,7 +53,7 @@ abstract class NetworkLoader<T, U>(val application: BggApplication) {
                     if (t is RuntimeException && t.cause is XmlPullParserException) {
                         setValue(RefreshableResource.error(application.getString(R.string.parse_error), null))
                     } else {
-                        setValue(RefreshableResource.error(t, null))
+                        setValue(RefreshableResource.error(t, application, null))
                     }
                 }
             })

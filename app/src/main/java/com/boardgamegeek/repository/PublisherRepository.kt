@@ -2,26 +2,22 @@ package com.boardgamegeek.repository
 
 import android.content.ContentValues
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.BriefGameEntity
+import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.CompanyResponse
-import com.boardgamegeek.livedata.RefreshableResourceLoader
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Publishers
+import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.collections.forEachWithIndex
-import retrofit2.Call
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 
 class PublisherRepository(val application: BggApplication) {
     private val dao = PublisherDao(application)
@@ -29,6 +25,28 @@ class PublisherRepository(val application: BggApplication) {
 
     suspend fun loadPublishers(sortBy: PublisherDao.SortType): List<CompanyEntity> {
         return dao.loadPublishers(sortBy)
+    }
+
+    suspend fun loadPublisher(publisherId: Int): CompanyEntity? {
+        return dao.loadPublisher(publisherId)
+    }
+
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
+        return dao.loadCollection(id, sortBy)
+    }
+
+    suspend fun refreshPublisher(publisherId: Int): CompanyEntity? = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().company(publisherId)
+        val dto = response.items.firstOrNull()
+        dao.savePublisher(dto)
+        dto?.mapToEntity()
+    }
+
+    suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
+        val response = Adapter.createGeekdoApi().image2(publisher.thumbnailUrl.getImageId())
+        val url = response.images.medium.url
+        dao.update(publisher.id, contentValuesOf(Publishers.PUBLISHER_HERO_IMAGE_URL to url))
+        publisher.copy(heroImageUrl = url)
     }
 
     suspend fun calculateWhitmoreScores(publishers: List<CompanyEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
@@ -42,48 +60,6 @@ class PublisherRepository(val application: BggApplication) {
         }
         prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
         progress.postValue(0 to 0)
-    }
-
-    fun loadPublisher(id: Int): LiveData<RefreshableResource<CompanyEntity>> {
-        val started = AtomicBoolean()
-        val mediatorLiveData = MediatorLiveData<RefreshableResource<CompanyEntity>>()
-        val liveData = object : RefreshableResourceLoader<CompanyEntity, CompanyResponse>(application) {
-            override fun loadFromDatabase(): LiveData<CompanyEntity> {
-                return dao.loadPublisherAsLiveData(id)
-            }
-
-            override fun shouldRefresh(data: CompanyEntity?): Boolean {
-                return data == null ||
-                        data.id == 0 ||
-                        data.id == BggContract.INVALID_ID ||
-                        data.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)
-            }
-
-            override val typeDescriptionResId = R.string.title_publisher
-
-            override fun createCall(page: Int): Call<CompanyResponse> {
-                return Adapter.createForXml().company(id)
-            }
-
-            override fun saveCallResult(result: CompanyResponse) {
-                dao.savePublisher(result.items.firstOrNull())
-            }
-        }.asLiveData()
-        mediatorLiveData.addSource(liveData) {
-            it?.data?.maybeRefreshHeroImageUrl("publisher", started) { url ->
-                application.appExecutors.diskIO.execute {
-                    dao.update(id, ContentValues().apply {
-                        put(Publishers.PUBLISHER_HERO_IMAGE_URL, url)
-                    })
-                }
-            }
-            mediatorLiveData.value = it
-        }
-        return mediatorLiveData
-    }
-
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return dao.loadCollection(id, sortBy)
     }
 
     suspend fun calculateStats(publisherId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {
