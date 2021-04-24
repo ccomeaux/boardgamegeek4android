@@ -23,8 +23,8 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh?.setBggColors()
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        swipeRefresh.setBggColors()
 
         emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
         lastUpdated.timestamp = 0L
@@ -40,7 +40,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
         })
 
         viewModel.details.observe(viewLifecycleOwner, {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+            swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
             when {
                 it == null -> showError(getString(R.string.empty_person, emptyMessageDescription))
                 it.status == Status.ERROR && it.data == null -> showError(it.message)

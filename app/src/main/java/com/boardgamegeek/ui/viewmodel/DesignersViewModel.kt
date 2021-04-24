@@ -40,8 +40,7 @@ class DesignersViewModel(application: Application) : AndroidViewModel(applicatio
         liveData {
             val designers = designerRepository.loadDesigners(it.sortBy)
             emit(designers)
-            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L]
-                    ?: 0L
+            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
             if (!isCalculating && lastCalculation.isOlderThan(1, TimeUnit.HOURS)) {
                 isCalculating = true
                 val job = viewModelScope.launch { designerRepository.calculateWhitmoreScores(designers, _progress) }

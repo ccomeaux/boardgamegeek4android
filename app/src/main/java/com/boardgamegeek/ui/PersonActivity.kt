@@ -64,19 +64,20 @@ class PersonActivity : HeroTabActivity() {
             }
         }
 
-        viewModel.details.observe(this, Observer {
-            when {
-                it == null -> return@Observer
-                it.status == Status.ERROR -> toast(if (it.message.isBlank()) getString(R.string.empty_person, emptyMessageDescription) else it.message)
-                it.data == null -> return@Observer
-                else -> {
-                    it.data.apply {
-                        safelySetTitle(name)
-                    }
+        viewModel.details.observe(this, {
+            if (it?.status == Status.ERROR) {
+                toast(if (it.message.isBlank()) getString(R.string.empty_person, emptyMessageDescription) else it.message)
+            }
+            it?.data?.let { person ->
+                safelySetTitle(person.name)
+                if (person.heroImageUrl.isNotBlank()) {
+                    loadToolbarImage(person.heroImageUrl)
+                } else if (person.thumbnailUrl.isNotBlank()) {
+                    loadToolbarImage(person.thumbnailUrl)
                 }
             }
         })
-        viewModel.images.observe(this, Observer { resource ->
+        viewModel.images.observe(this, { resource ->
             resource?.let { entity ->
                 entity.data?.let {
                     if (it.heroImageUrl.isBlank()) {
@@ -108,7 +109,6 @@ class PersonActivity : HeroTabActivity() {
                     PersonType.PUBLISHER -> "boardgamepublisher"
                 }
                 linkToBgg(path, id)
-                return true
             }
             android.R.id.home -> {
                 when (personType) {
@@ -117,10 +117,10 @@ class PersonActivity : HeroTabActivity() {
                     PersonType.PUBLISHER -> startActivity(intentFor<PublishersActivity>().clearTop())
                 }
                 finish()
-                return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
     override fun createAdapter() = adapter
