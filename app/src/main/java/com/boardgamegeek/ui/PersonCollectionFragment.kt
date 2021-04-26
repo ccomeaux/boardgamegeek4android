@@ -43,17 +43,19 @@ class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
             })
         })
         viewModel.collection.observe(viewLifecycleOwner, {
-            if (it?.isNotEmpty() == true) {
-                adapter.items = it
-                emptyMessage.fadeOut()
-                recyclerView.fadeIn()
-            } else {
-                adapter.items = emptyList()
-                emptyMessage.fadeIn()
-                recyclerView.fadeOut()
+            it?.let { list ->
+                if (list.isNotEmpty()) {
+                    adapter.items = it
+                    emptyMessage.fadeOut()
+                    recyclerView.fadeIn()
+                } else {
+                    adapter.items = emptyList()
+                    emptyMessage.fadeIn()
+                    recyclerView.fadeOut()
+                }
+                progressView.hide()
+                swipeRefresh.isRefreshing = false
             }
-            progressView.hide()
-            swipeRefresh.isRefreshing = false
         })
         viewModel.collectionSort.observe(viewLifecycleOwner, {
             sortType = it ?: CollectionSort.RATING
