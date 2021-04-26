@@ -43,7 +43,8 @@ class PublisherDao(private val context: BggApplication) {
                         Publishers.UPDATED,
                         Publishers.ITEM_COUNT,
                         Publishers.WHITMORE_SCORE,
-                        Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP
+                        Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP,
+                        Publishers.PUBLISHER_SORT_NAME,
                 ),
                 sortOrder = sortOrder
         )?.use {
@@ -52,6 +53,7 @@ class PublisherDao(private val context: BggApplication) {
                     results += CompanyEntity(
                             id = it.getInt(0),
                             name = it.getStringOrNull(1).orEmpty(),
+                            sortName = it.getStringOrNull(10).orEmpty(),
                             description = it.getStringOrNull(2).orEmpty(),
                             imageUrl = it.getStringOrNull(3).orEmpty(),
                             thumbnailUrl = it.getStringOrNull(4).orEmpty(),
@@ -78,13 +80,15 @@ class PublisherDao(private val context: BggApplication) {
                         Publishers.PUBLISHER_THUMBNAIL_URL,
                         Publishers.PUBLISHER_HERO_IMAGE_URL,
                         Publishers.UPDATED,
-                        Publishers.WHITMORE_SCORE
-                )
+                        Publishers.WHITMORE_SCORE,
+                        Publishers.PUBLISHER_SORT_NAME,
+                        )
         )?.use {
             if (it.moveToFirst()) {
                 CompanyEntity(
                         id = it.getInt(0),
                         name = it.getStringOrNull(1).orEmpty(),
+                        sortName = it.getStringOrNull(8).orEmpty(),
                         description = it.getStringOrNull(2).orEmpty(),
                         imageUrl = it.getStringOrNull(3).orEmpty(),
                         thumbnailUrl = it.getStringOrNull(4).orEmpty(),
@@ -100,27 +104,7 @@ class PublisherDao(private val context: BggApplication) {
         return collectionDao.loadLinkedCollection(Publishers.buildCollectionUri(id), sortBy)
     }
 
-    fun savePublisher(item: CompanyItem?, updateTime: Long = System.currentTimeMillis()): Int {
-        item?.let {
-            val sortName = if (it.nameType == "primary") it.name.sortName(it.sortindex) else it.name
-            val values = contentValuesOf(
-                    Publishers.PUBLISHER_NAME to it.name,
-                    Publishers.PUBLISHER_SORT_NAME to sortName,
-                    Publishers.PUBLISHER_DESCRIPTION to it.description,
-                    Publishers.PUBLISHER_IMAGE_URL to it.image,
-                    Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnail,
-                    Publishers.UPDATED to updateTime
-            )
-            return upsert(values, it.id.toIntOrNull() ?: BggContract.INVALID_ID)
-        }
-        return 0
-    }
-
-    fun update(publisherId: Int, values: ContentValues): Int {
-        return context.contentResolver.update(Publishers.buildPublisherUri(publisherId), values, null, null)
-    }
-
-    private fun upsert(values: ContentValues, publisherId: Int): Int {
+    fun upsert(publisherId: Int, values: ContentValues): Int {
         val resolver = context.contentResolver
         val uri = Publishers.buildPublisherUri(publisherId)
         return if (resolver.rowExists(uri)) {

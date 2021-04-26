@@ -1,24 +1,17 @@
 package com.boardgamegeek.db
 
 import android.content.ContentValues
-import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.model.Person
-import com.boardgamegeek.io.model.PersonResponse
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Designers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import kotlin.io.use
 
 class DesignerDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -69,21 +62,20 @@ class DesignerDao(private val context: BggApplication) {
         results
     }
 
-    fun loadDesignerAsLiveData(id: Int): LiveData<PersonEntity> {
-        return RegisteredLiveData(context, Designers.buildDesignerUri(id), true) {
-            return@RegisteredLiveData loadDesigner(id)
-        }
-    }
-
-    fun loadDesigner(id: Int): PersonEntity? {
-        return context.contentResolver.load(
+    suspend fun loadDesigner(id: Int): PersonEntity? = withContext(Dispatchers.IO) {
+        context.contentResolver.load(
                 Designers.buildDesignerUri(id),
                 arrayOf(
                         Designers.DESIGNER_ID,
                         Designers.DESIGNER_NAME,
                         Designers.DESIGNER_DESCRIPTION,
                         Designers.UPDATED,
-                        Designers.WHITMORE_SCORE
+                        Designers.WHITMORE_SCORE,
+                        Designers.DESIGNER_THUMBNAIL_URL,
+                        Designers.DESIGNER_IMAGE_URL,
+                        Designers.DESIGNER_HERO_IMAGE_URL,
+                        Designers.DESIGNER_STATS_UPDATED_TIMESTAMP,
+                        Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP,
                 )
         )?.use {
             if (it.moveToFirst()) {
@@ -93,35 +85,11 @@ class DesignerDao(private val context: BggApplication) {
                         description = it.getStringOrNull(2).orEmpty(),
                         updatedTimestamp = it.getLongOrNull(3) ?: 0L,
                         whitmoreScore = it.getIntOrNull(4) ?: 0,
-                )
-            } else null
-        }
-    }
-
-    fun loadDesignerImagesAsLiveData(id: Int): LiveData<PersonImagesEntity> {
-        return RegisteredLiveData(context, Designers.buildDesignerUri(id), true) {
-            return@RegisteredLiveData loadDesignerImages(id)
-        }
-    }
-
-    private fun loadDesignerImages(id: Int): PersonImagesEntity? {
-        return context.contentResolver.load(
-                Designers.buildDesignerUri(id),
-                arrayOf(
-                        Designers.DESIGNER_ID,
-                        Designers.DESIGNER_IMAGE_URL,
-                        Designers.DESIGNER_THUMBNAIL_URL,
-                        Designers.DESIGNER_HERO_IMAGE_URL,
-                        Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP
-                )
-        )?.use {
-            if (it.moveToFirst()) {
-                PersonImagesEntity(
-                        it.getInt(0),
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getStringOrNull(2).orEmpty(),
-                        it.getStringOrNull(3).orEmpty(),
-                        it.getLongOrNull(4) ?: 0L,
+                        thumbnailUrl = it.getStringOrNull(5).orEmpty(),
+                        imageUrl = it.getStringOrNull(6).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(7).orEmpty(),
+                        statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
+                        imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
                 )
             } else null
         }
@@ -131,39 +99,10 @@ class DesignerDao(private val context: BggApplication) {
         return collectionDao.loadLinkedCollection(Designers.buildDesignerCollectionUri(id), sortBy)
     }
 
-    fun saveDesigner(id: Int, designer: Person?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (designer != null && !designer.name.isNullOrBlank()) {
-            val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
-            val values = contentValuesOf(
-                    Designers.DESIGNER_NAME to designer.name,
-                    Designers.DESIGNER_DESCRIPTION to (if (designer.description == missingDesignerMessage) "" else designer.description),
-                    Designers.UPDATED to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
-    }
-
-    fun saveDesignerImage(id: Int, designer: PersonResponse?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (designer != null) {
-            val values = contentValuesOf(
-                    Designers.DESIGNER_IMAGE_URL to designer.items[0].image,
-                    Designers.DESIGNER_THUMBNAIL_URL to designer.items[0].thumbnail,
-                    Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
-    }
-
-    fun update(designerId: Int, values: ContentValues): Int {
-        return context.contentResolver.update(Designers.buildDesignerUri(designerId), values, null, null)
-    }
-
-    private fun upsert(values: ContentValues, designerId: Int): Int {
+    suspend fun upsert(designerId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
         val uri = Designers.buildDesignerUri(designerId)
-        return if (resolver.rowExists(uri)) {
+        if (resolver.rowExists(uri)) {
             val count = resolver.update(uri, values, null, null)
             Timber.d("Updated %,d designer rows at %s", count, uri)
             count

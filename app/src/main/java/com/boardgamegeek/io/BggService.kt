@@ -41,10 +41,10 @@ interface BggService {
     fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): Call<User>
 
     @GET("/xmlapi/{type}/{id}")
-    fun person(@Path("type") type: String?, @Path("id") id: Int): Call<Person>
+    suspend fun person(@Path("type") type: String?, @Path("id") id: Int): Person
 
     @GET("/xmlapi2/person")
-    fun person(@Query("id") id: Int): Call<PersonResponse>
+    suspend fun person(@Query("id") id: Int): PersonResponse
 
     @GET("/xmlapi2/company/{id}")
     suspend fun company(@Query("id") id: Int): CompanyResponse

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
@@ -74,17 +73,6 @@ class PersonActivity : HeroTabActivity() {
                     loadToolbarImage(person.heroImageUrl)
                 } else if (person.thumbnailUrl.isNotBlank()) {
                     loadToolbarImage(person.thumbnailUrl)
-                }
-            }
-        })
-        viewModel.images.observe(this, { resource ->
-            resource?.let { entity ->
-                entity.data?.let {
-                    if (it.heroImageUrl.isBlank()) {
-                        loadToolbarImage(it.thumbnailUrl)
-                    } else {
-                        loadToolbarImage(it.heroImageUrl)
-                    }
                 }
             }
         })

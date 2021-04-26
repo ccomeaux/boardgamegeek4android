@@ -1,6 +1,5 @@
 package com.boardgamegeek.repository
 
-import android.content.ContentValues
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
@@ -37,15 +36,23 @@ class PublisherRepository(val application: BggApplication) {
 
     suspend fun refreshPublisher(publisherId: Int): CompanyEntity? = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().company(publisherId)
-        val dto = response.items.firstOrNull()
-        dao.savePublisher(dto)
-        dto?.mapToEntity()
+        response.items.firstOrNull()?.mapToEntity()?.let {
+            dao.upsert(publisherId, contentValuesOf(
+                    Publishers.PUBLISHER_NAME to it.name,
+                    Publishers.PUBLISHER_SORT_NAME to it.sortName,
+                    Publishers.PUBLISHER_DESCRIPTION to it.description,
+                    Publishers.PUBLISHER_IMAGE_URL to it.imageUrl,
+                    Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnailUrl,
+                    Publishers.UPDATED to System.currentTimeMillis(),
+            ))
+            it
+        }
     }
 
     suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image2(publisher.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.update(publisher.id, contentValuesOf(Publishers.PUBLISHER_HERO_IMAGE_URL to url))
+        dao.upsert(publisher.id, contentValuesOf(Publishers.PUBLISHER_HERO_IMAGE_URL to url))
         publisher.copy(heroImageUrl = url)
     }
 
@@ -74,10 +81,10 @@ class PublisherRepository(val application: BggApplication) {
     private suspend fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
         val realOldScore = if (oldScore == -1) dao.loadPublisher(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
-            dao.update(id, ContentValues().apply {
-                put(Publishers.WHITMORE_SCORE, newScore)
-                put(Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
-            })
+            dao.upsert(id, contentValuesOf(
+                    Publishers.WHITMORE_SCORE to newScore,
+                    Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis()
+            ))
         }
     }
 }
