@@ -2,9 +2,9 @@ package com.boardgamegeek.entities
 
 import android.app.Application
 import androidx.annotation.StringRes
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import retrofit2.HttpException
+import java.net.SocketTimeoutException
 
 enum class Status {
     SUCCESS,
@@ -23,15 +23,17 @@ data class RefreshableResource<out T>(val status: Status, val data: T?, val mess
         }
 
         fun <T> error(t: Throwable?, application: Application, data: T? = null): RefreshableResource<T> {
-            val message = when (t){
-                is HttpException ->{
+            val message = when (t) {
+                is HttpException -> {
                     @StringRes val resId: Int = when {
                         t.code() >= 500 -> R.string.msg_sync_response_500
                         t.code() == 429 -> R.string.msg_sync_response_429
-                        else -> R.string.msg_sync_error_http_code // t.message()
+                        t.code() == 202 -> R.string.msg_sync_response_202
+                        else -> R.string.msg_sync_error_http_code
                     }
                     application.getString(resId, t.code().toString())
                 }
+                is SocketTimeoutException -> application.getString(R.string.msg_sync_error_timeout)
                 else -> t?.localizedMessage ?: application.getString(R.string.msg_sync_error)
             }
             return RefreshableResource(Status.ERROR, data, message)

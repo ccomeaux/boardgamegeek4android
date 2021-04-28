@@ -56,22 +56,23 @@ class ThreadRecyclerViewAdapter(
     }
 
     inner class ArticleViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(article: ArticleEntity?) {
-            if (article == null) return
-            if (article.postTicks > 0L) {
-                itemView.rowHeaderView.visibility = View.VISIBLE
-                itemView.usernameView.text = article.username
-                itemView.usernameView.isVisible = article.username.isNotBlank()
-                itemView.postDateView.timestamp = article.postTicks
-                itemView.editDateView.timestamp = article.editTicks
-                itemView.editDateView.isVisible = article.editTicks != article.postTicks
-                itemView.dateDivider.isVisible = article.editTicks != article.postTicks
-            } else {
-                itemView.rowHeaderView.visibility = View.GONE
-            }
-            itemView.bodyView.setTextMaybeHtml(article.body.trim(), tagHandler = tagHandler)
-            itemView.viewButton.setOnClickListener { v: View ->
-                ArticleActivity.start(v.context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, article)
+        fun bind(entity: ArticleEntity?) {
+            entity?.let { article ->
+                if (article.postTicks > 0L) {
+                    itemView.rowHeaderView.isVisible = true
+                    itemView.usernameView.text = article.username
+                    itemView.usernameView.isVisible = article.username.isNotBlank()
+                    itemView.postDateView.timestamp = article.postTicks
+                    itemView.editDateView.timestamp = article.editTicks
+                    itemView.editDateView.isVisible = article.editTicks != article.postTicks
+                    itemView.dateDivider.isVisible = article.editTicks != article.postTicks
+                } else {
+                    itemView.rowHeaderView.isVisible = false
+                }
+                itemView.bodyView.setTextMaybeHtml(article.body.trim(), tagHandler = tagHandler)
+                itemView.viewButton.setOnClickListener { v: View ->
+                    ArticleActivity.start(v.context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, article)
+                }
             }
         }
     }

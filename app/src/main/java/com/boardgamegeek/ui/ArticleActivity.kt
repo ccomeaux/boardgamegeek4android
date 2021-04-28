@@ -53,11 +53,11 @@ class ArticleActivity : SimpleSinglePaneActivity() {
 
     override fun readIntent(intent: Intent) {
         threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID)
-        threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT) ?: ""
+        threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT).orEmpty()
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
-        objectName = intent.getStringExtra(KEY_OBJECT_NAME) ?: ""
+        objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
         objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
         article = intent.getParcelableExtra(KEY_ARTICLE) ?: ArticleEntity()
     }
@@ -73,11 +73,9 @@ class ArticleActivity : SimpleSinglePaneActivity() {
             android.R.id.home -> {
                 ThreadActivity.startUp(this, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType)
                 finish()
-                return true
             }
             R.id.menu_view -> {
                 link(article.link)
-                return true
             }
             R.id.menu_share -> {
                 val description = if (objectName.isEmpty())
@@ -94,10 +92,10 @@ class ArticleActivity : SimpleSinglePaneActivity() {
                     param(FirebaseAnalytics.Param.ITEM_NAME, if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject")
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, "Article")
                 }
-                return true
             }
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     companion object {

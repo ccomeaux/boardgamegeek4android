@@ -1,17 +1,16 @@
 package com.boardgamegeek.util
 
-import android.content.Context
-import com.boardgamegeek.R
 import java.util.regex.Pattern
 
 /**
  * Converts XML returned from the BGG API into HTML.
  */
-class XmlApi2MarkupConverter(private val context: Context) {
+class XmlApi2MarkupConverter(spoilerTag: String) {
+
     private val replacers = mutableListOf<Replaceable>()
 
     init {
-        replacers.add(SimpleReplacer("\\[o\\]", "<details><summary>${context.getString(R.string.spoiler)}</summary>"))
+        replacers.add(SimpleReplacer("\\[o\\]", "<details><summary>$spoilerTag</summary>"))
         replacers.add(SimpleReplacer("\\[/o\\]", "</details>"))
         createPair("heading", "h3")
         replacers.add(SimpleReplacer("\\[hr\\]", "<hr/>"))

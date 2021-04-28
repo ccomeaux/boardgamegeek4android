@@ -91,7 +91,7 @@ abstract class NetworkLoader<T, U>(val application: BggApplication) {
             response == null -> application.getString(R.string.msg_sync_error_null)
             response.code() >= 500 -> application.getString(R.string.msg_sync_response_500, response.code().toString())
             response.code() == 429 -> application.getString(R.string.msg_sync_response_429)
-            response.code() == 429 -> application.getString(R.string.msg_sync_response_202)
+            response.code() == 202 -> application.getString(R.string.msg_sync_response_202)
             response.message().isNotBlank() -> response.message()
             else -> application.getString(R.string.msg_sync_error_http_code, response.code().toString())
         }

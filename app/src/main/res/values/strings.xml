@@ -693,6 +693,7 @@
 	<string name="msg_sync_response_202">BoardGameGeek is still processing this request.</string>
 	<string name="msg_sync_error_http_code">Problem communicating with BoardGameGeek (HTTP code: %s)</string>
 	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
+	<string name="msg_sync_error_timeout">Timed out trying to communicate with BoardGameGeek</string>
 	<string name="msg_sync_error">Problem communicating with BoardGameGeek</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="game">game</string>

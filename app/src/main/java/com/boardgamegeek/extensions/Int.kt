@@ -12,6 +12,7 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
 import java.math.BigDecimal
 import java.math.MathContext
+import java.text.NumberFormat
 import kotlin.reflect.KProperty
 
 /**
@@ -220,6 +221,10 @@ fun Int.orderOfMagnitude(): String {
     val zeros = (toString().length - 1) % 3
     val number = digit + ("0".repeat(zeros)) + suffix
     return if (this < 10) number else "$number+"
+}
+
+fun Int.toFormattedString(): String {
+    return this.toString().format(NumberFormat.getInstance())
 }
 
 class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {

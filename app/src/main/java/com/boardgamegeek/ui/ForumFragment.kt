@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
@@ -30,13 +29,19 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        readBundle(arguments)
+        arguments?.let {
+            forumId = it.getInt(KEY_FORUM_ID, BggContract.INVALID_ID)
+            forumTitle = it.getString(KEY_FORUM_TITLE).orEmpty()
+            objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
+            objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
+            objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+        }
 
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         recyclerView.adapter = adapter
 
-        viewModel.threads.observe(viewLifecycleOwner, Observer { threads ->
+        viewModel.threads.observe(viewLifecycleOwner, { threads ->
             adapter.submitList(threads)
             if (threads.size == 0) {
                 recyclerView.fadeOut()
@@ -48,16 +53,6 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
             progressView.hide()
         })
         viewModel.setForumId(forumId)
-    }
-
-    private fun readBundle(bundle: Bundle?) {
-        bundle?.let {
-            forumId = it.getInt(KEY_FORUM_ID, BggContract.INVALID_ID)
-            forumTitle = it.getString(KEY_FORUM_TITLE) ?: ""
-            objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
-            objectName = it.getString(KEY_OBJECT_NAME) ?: ""
-            objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
-        }
     }
 
     companion object {

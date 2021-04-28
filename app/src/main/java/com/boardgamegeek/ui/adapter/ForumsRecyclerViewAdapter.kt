@@ -63,9 +63,9 @@ class ForumsRecyclerViewAdapter(
             fun bind(forum: ForumEntity?, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
                 if (forum == null) return
                 itemView.apply {
-                    title.text = forum.title
-                    numberOfThreads.text = numberFormat.format(forum.numberOfThreads.toLong())
-                    lastPostDate.timestamp = forum.lastPostDateTime
+                    titleView.text = forum.title
+                    numberOfThreadsView.text = numberFormat.format(forum.numberOfThreads.toLong())
+                    lastPostDateView.timestamp = forum.lastPostDateTime
                     setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, objectId, objectName, objectType) }
                 }
             }
@@ -73,7 +73,7 @@ class ForumsRecyclerViewAdapter(
 
         class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
             fun bind(forum: ForumEntity?) {
-                itemView.header.text = forum?.title
+                itemView.headerView.text = forum?.title
             }
         }
     }

@@ -32,12 +32,12 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
         arguments?.let {
             forumType = it.getSerializable(KEY_TYPE) as? ForumEntity.ForumType? ?: ForumEntity.ForumType.REGION
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
-            objectName = it.getString(KEY_OBJECT_NAME) ?: ""
+            objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
         }
 
-        recyclerView?.setHasFixedSize(true)
-        recyclerView?.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        recyclerView?.adapter = adapter
+        recyclerView.setHasFixedSize(true)
+        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        recyclerView.adapter = adapter
 
         when (forumType) {
             ForumEntity.ForumType.GAME -> viewModel.setGameId(objectId)
@@ -47,26 +47,26 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
             ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
         viewModel.forums.observe(viewLifecycleOwner, {
-            when (it?.status) {
-                null, Status.REFRESHING -> {
-                    progressView?.show()
-                }
-                Status.ERROR -> {
-                    emptyView?.text = it.message
-                    emptyView?.fadeIn()
-                    recyclerView?.fadeOut()
-                    progressView?.hide()
-                }
-                Status.SUCCESS -> {
-                    adapter.forums = it.data ?: emptyList()
-                    if (adapter.itemCount == 0) {
-                        emptyView?.fadeIn()
-                        recyclerView?.fadeOut()
-                    } else {
-                        recyclerView?.fadeIn()
-                        emptyView?.fadeOut()
+            if (it != null) {
+                when (it.status) {
+                    Status.REFRESHING -> progressView.show()
+                    Status.ERROR -> {
+                        emptyView.text = it.message
+                        emptyView.fadeIn()
+                        recyclerView.fadeOut()
+                        progressView.hide()
                     }
-                    progressView?.hide()
+                    Status.SUCCESS -> {
+                        adapter.forums = it.data.orEmpty()
+                        if (adapter.itemCount == 0) {
+                            emptyView.fadeIn()
+                            recyclerView.fadeOut()
+                        } else {
+                            recyclerView.fadeIn()
+                            emptyView.fadeOut()
+                        }
+                        progressView.hide()
+                    }
                 }
             }
         })
