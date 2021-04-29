@@ -1,9 +1,6 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.ArticleEntity
-import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.entities.ThreadArticlesEntity
-import com.boardgamegeek.entities.ThreadEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.*
 import com.boardgamegeek.util.XmlApi2MarkupConverter
@@ -29,6 +26,11 @@ fun ForumThread.mapToEntity() = ThreadEntity(
 )
 
 fun List<ForumThread>.mapToEntity() = this.map { it.mapToEntity() }
+
+fun ForumResponse.mapToEntity() = ForumThreadsEntity(
+        numberOfThreads = this.numthreads.toIntOrNull() ?: 0,
+        threads = this.threads.orEmpty().mapToEntity(),
+)
 
 fun ArticleElement.mapToEntity(converter: XmlApi2MarkupConverter) = ArticleEntity(
         id = this.id,

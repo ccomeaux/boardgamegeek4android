@@ -2,8 +2,7 @@ package com.boardgamegeek.ui.adapter
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -15,7 +14,7 @@ import com.boardgamegeek.ui.ThreadActivity
 import kotlinx.android.synthetic.main.row_forum_thread.view.*
 
 class ForumPagedListAdapter(private val forumId: Int, private val forumTitle: String, private val objectId: Int, private val objectName: String, private val objectType: ForumEntity.ForumType)
-    : PagedListAdapter<ThreadEntity, ForumPagedListAdapter.ForumViewHolder>(AsyncDifferConfig.Builder(diffCallback).build()) {
+    : PagingDataAdapter<ThreadEntity, ForumPagedListAdapter.ForumViewHolder>(diffCallback) {
 
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<ThreadEntity>() {

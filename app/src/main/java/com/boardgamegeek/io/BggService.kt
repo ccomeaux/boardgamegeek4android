@@ -59,7 +59,7 @@ interface BggService {
     suspend fun forumList(@Query("type") type: String?, @Query("id") id: Int): ForumListResponse
 
     @GET("/xmlapi2/forum")
-    fun forum(@Query("id") id: Int, @Query("page") page: Int): Call<ForumResponse>
+    suspend fun forum(@Query("id") id: Int, @Query("page") page: Int): ForumResponse
 
     @GET("/xmlapi2/thread")
     suspend fun thread(@Query("id") id: Int): ThreadResponse

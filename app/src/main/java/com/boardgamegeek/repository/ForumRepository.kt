@@ -3,6 +3,7 @@ package com.boardgamegeek.repository
 import android.app.Application
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.entities.ForumThreadsEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
@@ -30,6 +31,11 @@ class ForumRepository(application: Application) {
 
     suspend fun loadForRegion(regionId: Int = BggService.FORUM_REGION_BOARDGAME): List<ForumEntity> = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().forumList(BggService.FORUM_TYPE_REGION, regionId)
+        response.mapToEntity()
+    }
+
+    suspend fun loadForum(forumId: Int, page: Int = 1): ForumThreadsEntity = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().forum(forumId, page)
         response.mapToEntity()
     }
 

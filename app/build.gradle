@@ -135,6 +135,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation "androidx.paging:paging-runtime-ktx:2.1.2"
 
+    def paging_version = "3.0.0-rc01"
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation "org.jetbrains.anko:anko-support-v4-commons:$anko_version"

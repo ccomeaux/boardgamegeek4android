@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
@@ -13,6 +15,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
 import kotlinx.android.synthetic.main.fragment_forum.*
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.support.v4.withArguments
 
 class ForumFragment : Fragment(R.layout.fragment_forum) {
@@ -41,16 +44,34 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
         recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         recyclerView.adapter = adapter
 
-        viewModel.threads.observe(viewLifecycleOwner, { threads ->
-            adapter.submitList(threads)
-            if (threads.size == 0) {
-                recyclerView.fadeOut()
-                emptyView.fadeIn(isResumed)
-            } else {
-                emptyView.fadeOut()
-                recyclerView.fadeIn(isResumed)
+        adapter.addLoadStateListener { loadStates ->
+            when (val state = loadStates.refresh) {
+                is LoadState.Loading -> {
+                    progressView.show()
+                }
+                is LoadState.NotLoading -> {
+                    if (adapter.itemCount == 0) {
+                        emptyView.setText(R.string.empty_forum)
+                        emptyView.fadeIn()
+                        recyclerView.fadeOut()
+                    } else {
+                        emptyView.fadeOut()
+                        recyclerView.fadeIn()
+                    }
+                    progressView.hide()
+                }
+                is LoadState.Error -> {
+                    emptyView.text = state.error.localizedMessage
+                    emptyView.fadeIn()
+                    recyclerView.fadeOut()
+                    progressView.hide()
+                }
             }
-            progressView.hide()
+        }
+
+        viewModel.threads.observe(viewLifecycleOwner, { threads ->
+            lifecycleScope.launch { adapter.submitData(threads) }
+            recyclerView.fadeIn()
         })
         viewModel.setForumId(forumId)
     }

@@ -1,50 +1,42 @@
 package com.boardgamegeek.livedata
 
-import androidx.paging.PositionalDataSource
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.boardgamegeek.entities.ThreadEntity
-import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.ForumResponse
-import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.repository.ForumRepository
+import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
 
-class ForumDataSource(private val forumId: Int) : PositionalDataSource<ThreadEntity>() {
-    private val bggService = Adapter.createForXml()
-    private var totalCount: Int = 0
-    private val pageSize = ForumResponse.PAGE_SIZE
-
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<ThreadEntity>) {
-        if (forumId == BggContract.INVALID_ID) return
-        try {
-            val response = bggService.forum(forumId, 1).execute()
-            if (response.isSuccessful) {
-                totalCount = response.body()?.numthreads?.toIntOrNull() ?: 0
-                callback.onResult(response.body()?.threads.orEmpty().mapToEntity(), 0, totalCount)
-            } else {
-                Timber.w("Error code: ${response.code()}\n${response.errorBody()}")
-            }
-        } catch (e: IOException) {
-            Timber.w(e)
-        }
+class ForumDataSource(
+        private val forumId: Int?,
+        private val repository: ForumRepository
+) : PagingSource<Int, ThreadEntity>() {
+    override fun getRefreshKey(state: PagingState<Int, ThreadEntity>): Int? {
+        return null // not sure this is correct, but I hope this will have paging start over from 1
     }
 
-    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<ThreadEntity>) {
-        if (params.loadSize <= 0) return
-        if (params.startPosition >= totalCount) return
-        val page = (params.startPosition + pageSize) / pageSize
-        if (page <= 0) return
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ThreadEntity> {
+        return try {
+            if (forumId == null) return LoadResult.Error(Exception("Null ID"))
+            if (forumId == BggContract.INVALID_ID) return LoadResult.Error(Exception("Invalid Forum ID"))
 
-        try {
-            val response = bggService.forum(forumId, page).execute()
-            if (response.isSuccessful) {
-                val threads = response.body()?.threads.orEmpty()
-                callback.onResult(threads.mapToEntity())
+            val page = params.key ?: 1
+
+            val entity = repository.loadForum(forumId, page)
+
+            val nextPage = if (page * params.loadSize < entity.numberOfThreads) {
+                page + 1
+            } else null
+
+            LoadResult.Page(entity.threads, null, nextPage)
+        } catch (e: Exception) {
+            if (e is HttpException) {
+                Timber.w("Error code: ${e.code()}\n${e.response()?.body()}")
             } else {
-                Timber.w("Error code: ${response.code()}\n${response.errorBody()}")
+                Timber.w(e)
             }
-        } catch (e: IOException) {
-            Timber.w(e)
+            LoadResult.Error(e)
         }
     }
 }
