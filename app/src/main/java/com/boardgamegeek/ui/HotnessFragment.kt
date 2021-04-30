@@ -132,7 +132,6 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
                         }
                     }
                     itemView.setOnLongClickListener { callback?.onItemLongClick(position) ?: false }
-
                 }
             }
         }
