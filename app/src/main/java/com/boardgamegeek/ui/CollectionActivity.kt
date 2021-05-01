@@ -79,10 +79,10 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         findViewById<AppCompatSpinner>(R.id.menu_spinner)?.let {
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    viewModel.selectView(id)
                     firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
                     }
-                    viewModel.selectView(id)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing
