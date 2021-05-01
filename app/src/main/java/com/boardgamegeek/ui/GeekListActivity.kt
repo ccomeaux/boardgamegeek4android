@@ -7,7 +7,6 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -46,7 +45,7 @@ class GeekListActivity : TabActivity() {
         }
 
         viewModel.setId(geekListId)
-        viewModel.geekList.observe(this, Observer { (status, data, _) ->
+        viewModel.geekList.observe(this, { (status, data, _) ->
             if (status == Status.SUCCESS && data != null) {
                 geekListTitle = data.title
                 safelySetTitle(geekListTitle)
@@ -58,10 +57,7 @@ class GeekListActivity : TabActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_view -> {
-                linkToBgg("geeklist", geekListId)
-                return true
-            }
+            R.id.menu_view -> linkToBgg("geeklist", geekListId)
             R.id.menu_share -> {
                 val description = String.format(getString(R.string.share_geeklist_text), geekListTitle)
                 val uri = createBggUri("geeklist", geekListId)
@@ -72,17 +68,17 @@ class GeekListActivity : TabActivity() {
                     param(FirebaseAnalytics.Param.ITEM_ID, geekListId.toString())
                     param(FirebaseAnalytics.Param.ITEM_ID, geekListTitle)
                 }
-                return true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     override fun createAdapter(): FragmentStateAdapter {
         return adapter
     }
 
-    override fun getPageTitle(position: Int): CharSequence? {
+    override fun getPageTitle(position: Int): CharSequence {
         return when (position) {
             0 -> getString(R.string.title_description)
             1 -> getString(R.string.title_items)

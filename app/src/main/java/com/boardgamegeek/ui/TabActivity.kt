@@ -22,7 +22,7 @@ abstract class TabActivity : DrawerActivity() {
         }.attach()
     }
 
-    abstract fun getPageTitle(position: Int): CharSequence?
+    abstract fun getPageTitle(position: Int): CharSequence
 
     protected abstract fun createAdapter(): FragmentStateAdapter
 

@@ -1,9 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
@@ -17,10 +15,6 @@ import org.jetbrains.anko.support.v4.withArguments
 class GeekListItemCommentsFragment : Fragment(R.layout.fragment_geeklist_comments) {
     private val adapter: GeekListCommentsRecyclerViewAdapter by lazy {
         GeekListCommentsRecyclerViewAdapter()
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_geeklist_comments, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

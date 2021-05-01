@@ -1,48 +1,36 @@
 package com.boardgamegeek.livedata
 
-import androidx.paging.PositionalDataSource
-import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.GeekListEntry
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.io.model.GeekListsResponse
+import com.boardgamegeek.repository.GeekListRepository
+import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
 
-class GeekListsDataSource(private val sort: String) : PositionalDataSource<GeekListEntry>() {
-    private val bggService = Adapter.createForJson()
-    private val totalCount: Int = GeekListsResponse.TOTAL_COUNT
-    private val pageSize = GeekListsResponse.PAGE_SIZE
-    private var priorPage: Int = 0
+class GeekListsDataSource(
+        private val sort: String,
+        private val repository: GeekListRepository,
+) : PagingSource<Int, GeekListEntity>() {
 
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<GeekListEntry>) {
-        try {
-            val response = bggService.geekLists(sort, pageSize, 1).execute()
-            if (response.isSuccessful) {
-                priorPage = 1
-                callback.onResult(response.body()?.lists.orEmpty(), 0)
-            } else {
-                Timber.w("Error code: ${response.code()}\n${response.errorBody()}")
-            }
-        } catch (e: IOException) {
-            Timber.w("Error code: ${e.message}")
-        }
+    override fun getRefreshKey(state: PagingState<Int, GeekListEntity>): Int? {
+        return null
     }
 
-    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<GeekListEntry>) {
-        if (params.loadSize <= 0) return
-        if (params.startPosition >= totalCount) return
-        val page = (params.startPosition + pageSize) / pageSize
-        if (page <= priorPage) return
-
-        try {
-            val response = bggService.geekLists(sort, pageSize, page).execute()
-            if (response.isSuccessful) {
-                priorPage = page
-                callback.onResult(response.body()?.lists.orEmpty())
-            } else {
-                Timber.w("Error code: ${response.code()}\n${response.errorBody()}")
-            }
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GeekListEntity> {
+        return try {
+            val page = params.key ?: 1
+            val response = repository.getGeekLists(sort, page)
+            val nextPage = if (response.isEmpty() || page * GeekListsResponse.PAGE_SIZE >= GeekListsResponse.TOTAL_COUNT) null else page + 1
+            LoadResult.Page(response, null, nextPage)
         } catch (e: IOException) {
-            Timber.w("Error code: ${e.message}")
+            if (e is HttpException) {
+                Timber.w("Error code: ${e.code()}\n${e.response()?.body()}")
+            } else {
+                Timber.w(e)
+            }
+            LoadResult.Error(e)
         }
     }
 }

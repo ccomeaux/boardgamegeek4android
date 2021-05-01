@@ -65,10 +65,10 @@ interface BggService {
     suspend fun thread(@Query("id") id: Int): ThreadResponse
 
     @GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&tradelists=0&version=v5")
-    fun geekLists(@Query("sort") sort: String?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): Call<GeekListsResponse>
+    suspend fun geekLists(@Query("sort") sort: String?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
 
     @GET("/xmlapi/geeklist/{id}")
-    fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): Call<GeekListResponse>
+    suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
 
     companion object {
         const val THING_SUBTYPE_BOARDGAME = "boardgame"

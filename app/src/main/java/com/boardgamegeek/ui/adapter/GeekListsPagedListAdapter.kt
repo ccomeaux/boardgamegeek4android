@@ -2,8 +2,7 @@ package com.boardgamegeek.ui.adapter
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -12,8 +11,7 @@ import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GeekListActivity.Companion.start
 import kotlinx.android.synthetic.main.row_geeklist.view.*
 
-class GeekListsPagedListAdapter : PagedListAdapter<GeekListEntity, GeekListsPagedListAdapter.GeekListsViewHolder>(AsyncDifferConfig.Builder(diffCallback).build()) {
-
+class GeekListsPagedListAdapter : PagingDataAdapter<GeekListEntity, GeekListsPagedListAdapter.GeekListsViewHolder>(diffCallback) {
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<GeekListEntity>() {
             override fun areItemsTheSame(oldItem: GeekListEntity, newItem: GeekListEntity): Boolean =

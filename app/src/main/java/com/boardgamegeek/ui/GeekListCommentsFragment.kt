@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -26,8 +25,8 @@ class GeekListCommentsFragment : Fragment(R.layout.fragment_geeklist_comments) {
         recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = adapter
 
-        viewModel.geekList.observe(viewLifecycleOwner, Observer { (status, data, _) ->
-            when (status) {
+        viewModel.geekList.observe(viewLifecycleOwner, { entity ->
+            when (entity.status) {
                 Status.REFRESHING -> progressView.show()
                 Status.ERROR -> {
                     emptyView.fadeIn()
@@ -35,7 +34,7 @@ class GeekListCommentsFragment : Fragment(R.layout.fragment_geeklist_comments) {
                     progressView.hide()
                 }
                 Status.SUCCESS -> {
-                    adapter.comments = data?.comments.orEmpty()
+                    adapter.comments = entity.data?.comments.orEmpty()
                     if (adapter.comments.isEmpty()) {
                         emptyView.fadeIn()
                         recyclerView.fadeOut()

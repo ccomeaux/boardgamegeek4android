@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
@@ -32,18 +31,16 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        viewModel.geekList.observe(viewLifecycleOwner, Observer { (status, body, message) ->
-            when (status) {
+        viewModel.geekList.observe(viewLifecycleOwner, { entity ->
+            when (entity.status) {
                 Status.REFRESHING -> progressView.show()
-                Status.ERROR -> setError(message)
+                Status.ERROR -> setError(entity.message)
                 Status.SUCCESS -> {
-                    val geekListItems = body?.items
+                    val geekListItems = entity.data?.items
                     if (geekListItems == null || geekListItems.isEmpty()) {
                         setError(getString(R.string.empty_geeklist))
                     } else {
-                        body.let {
-                            adapter.geekList = it
-                        }
+                        adapter.geekList = entity.data
                         adapter.geekListItems = geekListItems.orEmpty()
                         recyclerView.fadeIn(isResumed)
                         progressView.hide()
@@ -74,8 +71,7 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
 
         override fun getItemCount(): Int = geekListItems.size
 
-        override fun getItemId(position: Int) =
-                geekListItems.getOrNull(position)?.id ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int) = geekListItems.getOrNull(position)?.id ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeekListItemViewHolder {
             return GeekListItemViewHolder(parent.inflate(R.layout.row_geeklist_item))
@@ -86,16 +82,18 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
         }
 
         inner class GeekListItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bind(item: GeekListItemEntity?, order: Int) {
-                item?.let {
+            fun bind(entity: GeekListItemEntity?, order: Int) {
+                entity?.let { item ->
                     itemView.orderView.text = order.toString()
-                    itemView.thumbnailView.loadThumbnail(it.imageId)
-                    itemView.itemNameView.text = it.objectName
-                    itemView.usernameView.text = it.username
-                    itemView.usernameView.isVisible = it.username != geekList?.username
-                    itemView.setOnClickListener { _ ->
-                        if (geekList != null && it.objectId != BggContract.INVALID_ID) {
-                            GeekListItemActivity.start(itemView.context, geekList!!, it, order)
+                    itemView.thumbnailView.loadThumbnail(item.imageId)
+                    itemView.itemNameView.text = item.objectName
+                    itemView.usernameView.text = item.username
+                    itemView.usernameView.isVisible = item.username != geekList?.username
+                    geekList?.let { list ->
+                        itemView.setOnClickListener {
+                            if (item.objectId != BggContract.INVALID_ID) {
+                                GeekListItemActivity.start(itemView.context, list, item, order)
+                            }
                         }
                     }
                 }
