@@ -19,15 +19,18 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.*
+import org.jetbrains.anko.design.indefiniteSnackbar
 
 class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogFragment.Listener {
     private var viewId: Long = 0
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
     private var hideNavigation = false
+    private var snackbar: Snackbar? = null
 
     private val viewModel by viewModels<CollectionViewViewModel>()
 
@@ -55,13 +58,21 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             }
         }
 
+        viewModel.errorMessage.observe(this, {
+            it.getContentIfNotHandled()?.let { message ->
+                if (message.isBlank()) {
+                    snackbar?.dismiss()
+                } else {
+                    snackbar = rootContainer?.indefiniteSnackbar(message)
+                }
+            }
+        })
         viewModel.selectedViewId.observe(this, { id: Long -> viewId = id })
         if (savedInstanceState == null) {
             if (hideNavigation) {
                 viewModel.selectView(CollectionView.DEFAULT_DEFAULT_ID)
             } else {
-                val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
-                        ?: CollectionView.DEFAULT_DEFAULT_ID
+                val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID] ?: CollectionView.DEFAULT_DEFAULT_ID
                 val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
                 viewModel.selectView(viewId)
             }

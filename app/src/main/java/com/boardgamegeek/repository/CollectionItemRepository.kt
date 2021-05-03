@@ -1,26 +1,20 @@
 package com.boardgamegeek.repository
 
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.model.CollectionResponse
-import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.RateLimiter
-import retrofit2.Call
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class CollectionItemRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
@@ -30,93 +24,75 @@ class CollectionItemRepository(val application: BggApplication) {
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
     private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 
-    fun load(): LiveData<List<CollectionItemEntity>> {
-        return dao.loadAsLiveData()
+    suspend fun load(): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
+        dao.load()
     }
 
-    fun loadCollection(): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
-        return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
-            private val timestamp = System.currentTimeMillis()
-            private val rateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
-            private val subtypes = listOf("", BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
-            private var subtype = ""
+    suspend fun refresh(): List<CollectionItemEntity> = withContext(Dispatchers.IO) { // TODO change dispatcher?
+        if (!prefs.isCollectionSetToSync()) {
+            Timber.i("Collection not set to sync any statuses")
+            return@withContext dao.load()
+        }
 
-            override fun loadFromDatabase(): LiveData<List<CollectionItemEntity>> {
-                return dao.loadAsLiveData()
-            }
+        if (username.isNullOrBlank()) {
+            Timber.i("User name not set")
+            return@withContext dao.load()
+        }
 
-            override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
-                val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
-                val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
-                val isSyncUnderway = syncPrefs.getCurrentCollectionSyncTimestamp() > 0
-                return prefs.isCollectionSetToSync() &&
-                        !username.isNullOrBlank() &&
-                        rateLimiter.shouldProcess(0) &&
-                        (lastStatusSync <= lastPartialSync) &&
-                        !isSyncUnderway
-            }
+        if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
+            Timber.i("Collection sync is already under way")
+            return@withContext dao.load()
+        }
 
-            override val typeDescriptionResId = R.string.title_collection
+        listOf("", BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY).forEach { subtype ->
+            refreshSubtype(subtype)
+        }
+        dao.load()
+    }
 
-            override fun createCall(page: Int): Call<CollectionResponse> {
-                subtype = subtypes.getOrNull(page - 1) ?: ""
-                val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
-                val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
-                val options = mutableMapOf(
-                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                        BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
-                )
-                if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
-                return Adapter.createForXml().collection(username, options)
-            }
+    private suspend fun refreshSubtype(subtype: String, timestamp: Long = System.currentTimeMillis()) {
+        val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
+        val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
+        if (lastStatusSync <= lastPartialSync) {
+            val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
+            val options = mutableMapOf(
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
+            )
+            if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
+            val response = Adapter.createForXml().collectionC(username, options)
 
-            override fun saveCallResult(result: CollectionResponse) {
-                var count = 0
-                result.items?.forEach {
-                    val (item, game) = mapper.map(it)
-                    if (isItemStatusSetToSync(item)) {
-                        val collectionId = dao.saveItem(item, game, timestamp)
-                        if (collectionId != BggContract.INVALID_ID) count++
-                    } else {
-                        Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
-                    }
+            var count = 0
+            response.items?.forEach {
+                val (item, game) = mapper.map(it)
+                if (isItemStatusSetToSync(item)) {
+                    val collectionId = dao.saveItem(item, game, timestamp)
+                    if (collectionId != BggContract.INVALID_ID) count++
+                } else {
+                    Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
                 }
-                syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
-                Timber.i("...saved %,d %s collection items", count, subtype)
             }
+            syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
+            Timber.i("...saved %,d %s collection items", count, subtype)
+        } else {
+            Timber.i("Collection subtype $subtype recently synced")
+        }
+    }
 
-            override fun hasMorePages(result: CollectionResponse, currentPage: Int): Boolean {
-                return currentPage < subtypes.size
-            }
-
-            override fun onRefreshSucceeded() {
-                syncPrefs.setPartialCollectionSyncLastCompletedAt()
-            }
-
-            override fun onRefreshFailed() {
-                rateLimiter.reset(0)
-            }
-
-            override fun onRefreshCancelled() {
-                rateLimiter.reset(0)
-            }
-
-            private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
-                if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
-                if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true
-                if (item.forTrade && COLLECTION_STATUS_FOR_TRADE in statusesToSync) return true
-                if (item.wantInTrade && COLLECTION_STATUS_WANT_IN_TRADE in statusesToSync) return true
-                if (item.wantToPlay && COLLECTION_STATUS_WANT_TO_PLAY in statusesToSync) return true
-                if (item.wantToBuy && COLLECTION_STATUS_WANT_TO_BUY in statusesToSync) return true
-                if (item.wishList && COLLECTION_STATUS_WISHLIST in statusesToSync) return true
-                if (item.preOrdered && COLLECTION_STATUS_PREORDERED in statusesToSync) return true
-                if (item.rating > 0.0 && COLLECTION_STATUS_RATED in statusesToSync) return true
-                if (item.comment.isNotEmpty() && COLLECTION_STATUS_COMMENTED in statusesToSync) return true
-                if (item.hasPartsList.isNotEmpty() && COLLECTION_STATUS_HAS_PARTS in statusesToSync) return true
-                if (item.wantPartsList.isNotEmpty() && COLLECTION_STATUS_WANT_PARTS in statusesToSync) return true
-                return item.numberOfPlays > 0 && COLLECTION_STATUS_PLAYED in statusesToSync
-            }
-        }.asLiveData()
+    private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
+        if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
+        if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true
+        if (item.forTrade && COLLECTION_STATUS_FOR_TRADE in statusesToSync) return true
+        if (item.wantInTrade && COLLECTION_STATUS_WANT_IN_TRADE in statusesToSync) return true
+        if (item.wantToPlay && COLLECTION_STATUS_WANT_TO_PLAY in statusesToSync) return true
+        if (item.wantToBuy && COLLECTION_STATUS_WANT_TO_BUY in statusesToSync) return true
+        if (item.wishList && COLLECTION_STATUS_WISHLIST in statusesToSync) return true
+        if (item.preOrdered && COLLECTION_STATUS_PREORDERED in statusesToSync) return true
+        if (item.rating > 0.0 && COLLECTION_STATUS_RATED in statusesToSync) return true
+        if (item.comment.isNotEmpty() && COLLECTION_STATUS_COMMENTED in statusesToSync) return true
+        if (item.hasPartsList.isNotEmpty() && COLLECTION_STATUS_HAS_PARTS in statusesToSync) return true
+        if (item.wantPartsList.isNotEmpty() && COLLECTION_STATUS_WANT_PARTS in statusesToSync) return true
+        return item.numberOfPlays > 0 && COLLECTION_STATUS_PLAYED in statusesToSync
     }
 }

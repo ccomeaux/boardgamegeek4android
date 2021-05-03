@@ -10,7 +10,6 @@ import com.boardgamegeek.extensions.toMillis
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class CollectionItemMapper {
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
@@ -24,15 +23,15 @@ class CollectionItemMapper {
                 sortName = if (from.originalname.isNullOrBlank()) from.name.sortName(from.sortindex) else from.name,
                 gameYearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
                 collectionYearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
-                imageUrl = from.image ?: "",
-                thumbnailUrl = from.thumbnail ?: "",
+                imageUrl = from.image.orEmpty(),
+                thumbnailUrl = from.thumbnail.orEmpty(),
                 rating = from.stats?.rating?.toDoubleOrNull() ?: 0.0,
                 numberOfPlays = from.numplays,
-                comment = from.comment ?: "",
-                wantPartsList = from.wantpartslist ?: "",
-                conditionText = from.conditiontext ?: "",
-                hasPartsList = from.haspartslist ?: "",
-                wishListComment = from.wishlistcomment ?: "",
+                comment = from.comment.orEmpty(),
+                wantPartsList = from.wantpartslist.orEmpty(),
+                conditionText = from.conditiontext.orEmpty(),
+                hasPartsList = from.haspartslist.orEmpty(),
+                wishListComment = from.wishlistcomment.orEmpty(),
                 own = from.own?.equals("1") ?: false,
                 previouslyOwned = from.prevowned?.equals("1") ?: false,
                 forTrade = from.fortrade?.equals("1") ?: false,
@@ -43,15 +42,15 @@ class CollectionItemMapper {
                 wishListPriority = from.wishlistpriority,
                 preOrdered = from.preordered?.equals("1") ?: false,
                 lastModifiedDate = from.lastmodified.toMillis(dateTimeFormat),
-                pricePaidCurrency = from.pp_currency ?: "",
+                pricePaidCurrency = from.pp_currency.orEmpty(),
                 pricePaid = from.pricepaid?.toDoubleOrNull() ?: 0.0,
-                currentValueCurrency = from.cv_currency ?: "",
+                currentValueCurrency = from.cv_currency.orEmpty(),
                 currentValue = from.currvalue?.toDoubleOrNull() ?: 0.0,
                 quantity = from.quantity?.toIntOrNull() ?: 1,
                 acquisitionDate = from.acquisitiondate.toMillis(dateFormat),
-                acquiredFrom = from.acquiredfrom ?: "",
-                privateComment = from.privatecomment ?: "",
-                inventoryLocation = from.inventorylocation ?: ""
+                acquiredFrom = from.acquiredfrom.orEmpty(),
+                privateComment = from.privatecomment.orEmpty(),
+                inventoryLocation = from.inventorylocation.orEmpty()
         )
 
         val game = CollectionItemGameEntity(
@@ -59,8 +58,8 @@ class CollectionItemMapper {
                 gameName = if (from.originalname.isNullOrBlank()) from.name else from.originalname,
                 sortName = if (from.originalname.isNullOrBlank()) from.name.sortName(from.sortindex) else from.name,
                 yearPublished = from.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
-                imageUrl = from.image ?: "",
-                thumbnailUrl = from.thumbnail ?: "",
+                imageUrl = from.image.orEmpty(),
+                thumbnailUrl = from.thumbnail.orEmpty(),
                 minNumberOfPlayers = from.stats?.minplayers ?: 0,
                 maxNumberOfPlayers = from.stats?.maxplayers ?: 0,
                 minPlayingTime = from.stats?.minplaytime ?: 0,

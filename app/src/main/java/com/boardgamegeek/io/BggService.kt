@@ -13,6 +13,9 @@ interface BggService {
     @GET("/xmlapi2/collection")
     fun collection(@Query("username") username: String?, @QueryMap options: Map<String, String>): Call<CollectionResponse>
 
+    @GET("/xmlapi2/collection")
+    suspend fun collectionC(@Query("username") username: String?, @QueryMap options: Map<String, String>): CollectionResponse
+
     @GET("/xmlapi2/thing")
     fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): Call<ThingResponse>
 

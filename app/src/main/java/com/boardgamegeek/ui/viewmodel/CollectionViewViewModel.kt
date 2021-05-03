@@ -8,6 +8,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
@@ -48,13 +49,24 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val items: LiveData<List<CollectionItemEntity>>
         get() = _items
 
-    private val _allItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = syncTimestamp.switchMap {
-        itemRepository.loadCollection()
+    private val _allItems: LiveData<List<CollectionItemEntity>> = syncTimestamp.switchMap {
+        liveData {
+            try {
+                emit(itemRepository.load())
+                refresh()
+            } catch (e: Exception) {
+                _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
+            }
+        }
     }
 
-    val isRefreshing: LiveData<Boolean> = _allItems.map {
-        it.status == Status.REFRESHING
-    }
+    private val _errorMessage = MediatorLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val _isRefreshing = MediatorLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
 
     private val _selectedViewId = MutableLiveData<Long>()
     val selectedViewId: LiveData<Long>
@@ -112,7 +124,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             filterAndSortItems(sortType = it)
         }
         _items.addSource(_allItems) {
-            filterAndSortItems(itemList = it.data.orEmpty())
+            filterAndSortItems(itemList = it.orEmpty())
         }
     }
 
@@ -202,11 +214,12 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun filterAndSortItems(
-            itemList: List<CollectionItemEntity>? = _allItems.value?.data,
+            itemList: List<CollectionItemEntity>? = _allItems.value,
             filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
             sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
         if (itemList == null) return
+        _isRefreshing.postValue(true)
         viewModelScope.launch(Dispatchers.Default) {
             var list = itemList.asSequence()
             if (_selectedViewId.value == DEFAULT_DEFAULT_ID) {
@@ -232,6 +245,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             }
             val sorter = collectionSorterFactory.create(sortType)
             _items.postValue(sorter?.sort(list.toList()) ?: list.toList())
+            _isRefreshing.postValue(false)
         }
     }
 
