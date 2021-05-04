@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.os.Handler
 import android.util.Pair
 import android.view.*
 import androidx.annotation.PluralsRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -17,9 +15,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
-import com.boardgamegeek.ui.widget.SafeViewTarget
-import com.boardgamegeek.util.HelpUtils
-import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -28,8 +23,7 @@ import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import org.jetbrains.anko.toast
 import java.util.*
 
-class SearchResultsFragment : Fragment(), ActionMode.Callback {
-    private var showcaseView: ShowcaseView? = null
+class SearchResultsFragment : Fragment(R.layout.fragment_search_results), ActionMode.Callback {
     private var actionMode: ActionMode? = null
 
     private val snackbar: Snackbar by lazy {
@@ -74,18 +68,11 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        viewModel.searchResults.observe(this, Observer { resource ->
-            if (resource == null) return@Observer
-
-            when (resource.status) {
+        viewModel.searchResults.observe(this, { resource ->
+            when (resource?.status) {
                 Status.REFRESHING -> progressContainer.fadeIn()
                 Status.ERROR -> {
-                    if (resource.message.isBlank()) {
-                        emptyView.setText(R.string.empty_http_error) // TODO better message?
-                    } else {
-                        emptyView.text = getString(R.string.empty_http_error, resource.message)
-                    }
+                    emptyView.text = getString(R.string.search_error, viewModel.query.value, resource.message)
                     emptyView.fadeIn()
                     recyclerView.fadeOut()
                     progressContainer.fadeOut()
@@ -94,8 +81,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     val data = resource.data
                     val query = viewModel.query.value
                     if (data == null || data.isEmpty()) {
-                        if (query != null && query.second)
-                            viewModel.searchInexact(query.first)
                         if (query == null || query.first.isBlank()) {
                             emptyView.setText(R.string.search_initial_help)
                         } else {
@@ -115,8 +100,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     progressContainer.fadeOut()
                 }
             }
-
-            maybeShowHelp()
         })
     }
 
@@ -141,51 +124,11 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_search_results, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         progressView.isIndeterminate = true
         recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = searchResultsAdapter
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.help, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_help) {
-            showHelp()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun maybeShowHelp() {
-        if (HelpUtils.shouldShowHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
-            Handler().postDelayed({ showHelp() }, 100)
-        }
-    }
-
-    private fun showHelp() {
-        val builder = HelpUtils.getShowcaseBuilder(activity)
-        if (builder != null) {
-            builder.setContentText(R.string.help_searchresults)
-                    .setOnClickListener {
-                        showcaseView?.hide()
-                        HelpUtils.updateHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)
-                    }
-            val viewTarget = SafeViewTarget(HelpUtils.getRecyclerViewVisibleChild(recyclerView))
-            builder.setTarget(viewTarget)
-            showcaseView = builder.build()?.apply {
-                this.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(context))
-                this.show()
-            }
-        }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -197,13 +140,13 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = searchResultsAdapter.selectedItemCount
         if (Authenticator.isSignedIn(context)) {
-            menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
-            menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
-            menu.findItem(R.id.menu_log_play).isVisible = true
+            menu.findItem(R.id.menu_log_play_form)?.isVisible = count == 1
+            menu.findItem(R.id.menu_log_play_wizard)?.isVisible = count == 1
+            menu.findItem(R.id.menu_log_play)?.isVisible = true
         } else {
-            menu.findItem(R.id.menu_log_play).isVisible = false
+            menu.findItem(R.id.menu_log_play)?.isVisible = false
         }
-        menu.findItem(R.id.menu_link).isVisible = count == 1
+        menu.findItem(R.id.menu_link)?.isVisible = count == 1
         return true
     }
 
@@ -265,9 +208,5 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             }
         }
         return false
-    }
-
-    companion object {
-        private const val HELP_VERSION = 2
     }
 }

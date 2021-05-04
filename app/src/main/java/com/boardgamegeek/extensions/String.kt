@@ -5,6 +5,7 @@ package com.boardgamegeek.extensions
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
 import timber.log.Timber
 import java.text.DateFormat
@@ -64,6 +65,20 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
             Timber.w(e, "Unable to parse \"%s\"", this)
             defaultMillis
         }
+    }
+}
+
+fun String?.asYear(): Int {
+    if (this.isNullOrBlank()) return YEAR_UNKNOWN
+    val l = this.toLong()
+    return if (l > Integer.MAX_VALUE) {
+        try {
+            (l - Long.MAX_VALUE).toInt() - 1
+        } catch (e: Exception) {
+            YEAR_UNKNOWN
+        }
+    } else {
+        this.toIntOrNull() ?: YEAR_UNKNOWN
     }
 }
 

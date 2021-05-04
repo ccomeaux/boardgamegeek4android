@@ -53,7 +53,7 @@ interface BggService {
     suspend fun company(@Query("id") id: Int): CompanyResponse
 
     @GET("/xmlapi2/search")
-    fun search(@Query("query") query: String?, @Query("type") type: String?, @Query("exact") exact: Int): Call<SearchResponse>
+    suspend fun search(@Query("query") query: String?, @Query("type") type: String?, @Query("exact") exact: Int): SearchResponse
 
     @GET("/xmlapi2/hot")
     suspend fun getHotness(@Query("type") type: String?): HotnessResponse
