@@ -1,10 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerColorEntity
@@ -44,12 +41,20 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         _user.value?.let { _user.value = it }
     }
 
-    val buddy: LiveData<RefreshableResource<UserEntity>> = Transformations.switchMap(_user) { user ->
-        val name = user.first
-        when {
-            name == null || name.isBlank() -> AbsentLiveData.create()
-            user.second == TYPE_USER -> userRepository.loadUser(name)
-            else -> AbsentLiveData.create()
+    val buddy: LiveData<RefreshableResource<UserEntity>> = _user.switchMap { user ->
+        liveData {
+            try {
+                emit(RefreshableResource.refreshing(null))
+                val name = user.first
+                val d = when {
+                    name == null || name.isBlank() -> null
+                    user.second == TYPE_USER -> userRepository.load(name)
+                    else -> null
+                }
+                emit(RefreshableResource.success(d))
+            } catch (e: Exception) {
+                emit(RefreshableResource.error<UserEntity>(e, application))
+            }
         }
     }
 

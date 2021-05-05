@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
@@ -20,10 +21,13 @@ import com.boardgamegeek.io.model.User
 import com.boardgamegeek.livedata.NetworkLoader
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.provider.BggContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -32,29 +36,14 @@ class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    fun loadUser(username: String): LiveData<RefreshableResource<UserEntity>> {
-        return object : RefreshableResourceLoader<UserEntity, User>(application) {
-            override fun loadFromDatabase(): LiveData<UserEntity> {
-                return userDao.loadUserAsLiveData(username)
-            }
+    suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
+        userDao.loadUser(username)
+    }
 
-            override fun shouldRefresh(data: UserEntity?): Boolean {
-                return data == null ||
-                        data.id == 0 ||
-                        data.id == BggContract.INVALID_ID ||
-                        data.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)
-            }
-
-            override val typeDescriptionResId = R.string.title_buddy
-
-            override fun createCall(page: Int): Call<User> {
-                return Adapter.createForXml().user(username)
-            }
-
-            override fun saveCallResult(result: User) {
-                userDao.saveUser(result)
-            }
-        }.asLiveData()
+    suspend fun refresh(username: String): UserEntity = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().userC(username)
+        val user = response.mapToEntity()
+        userDao.saveUser(user)
     }
 
     fun loadCollection(username: String, status: String): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
@@ -111,8 +100,11 @@ class UserRepository(val application: BggApplication) {
                 userDao.saveUser(result.id, result.name, false)
                 var upsertedCount = 0
                 (result.buddies?.buddies ?: emptyList()).forEach {
-                    upsertedCount += userDao.saveUser(it.id.toIntOrNull()
-                            ?: BggContract.INVALID_ID, it.name, updateTime = timestamp)
+                    userDao.saveUser(
+                            it.id.toIntOrNull() ?: BggContract.INVALID_ID,
+                            it.name,
+                            updateTime = timestamp)
+                    upsertedCount++
                 }
                 Timber.d("Upserted $upsertedCount users")
             }
@@ -130,5 +122,12 @@ class UserRepository(val application: BggApplication) {
         application.appExecutors.diskIO.execute {
             userDao.updateNickName(username, nickName)
         }
+    }
+
+    suspend fun updateSelf(user: UserEntity) = withContext(Dispatchers.IO) {
+        Authenticator.putUserId(application, user.id)
+        AccountUtils.setUsername(application, user.userName)
+        AccountUtils.setFullName(application, user.fullName)
+        AccountUtils.setAvatarUrl(application, user.avatarUrl)
     }
 }

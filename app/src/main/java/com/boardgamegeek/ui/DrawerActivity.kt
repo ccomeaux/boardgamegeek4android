@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
@@ -69,7 +68,7 @@ abstract class DrawerActivity : BaseActivity() {
             true
         }
 
-        viewModel.user.observe(this, Observer {
+        viewModel.user.observe(this, {
             refreshDrawer()
         })
     }

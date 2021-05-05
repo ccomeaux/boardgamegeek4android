@@ -91,10 +91,12 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
     }
 
     private fun persistUser(user: User) {
-        var count = userDao.saveUser(user.id, user.name, false)
+        userDao.saveUser(user.id, user.name, false)
+        var count = 1
 
         (user.buddies?.buddies ?: emptyList()).forEach { buddy ->
-            count += userDao.saveUser(buddy.id.toIntOrNull() ?: BggContract.INVALID_ID, buddy.name)
+            userDao.saveUser(buddy.id.toIntOrNull() ?: BggContract.INVALID_ID, buddy.name)
+            count++
         }
 
         syncResult.stats.numEntries += count.toLong()
