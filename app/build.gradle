@@ -136,12 +136,14 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
+    def anko_version='0.10.8'
     implementation "org.jetbrains.anko:anko-support-v4-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+    def arch_lifecycle_version = '2.3.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$arch_lifecycle_version"
 
     implementation platform('com.google.firebase:firebase-bom:26.8.0')
     implementation 'com.google.firebase:firebase-core'
@@ -154,6 +156,7 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.6'
 
+    def retrofit_version = '2.9.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation("com.squareup.retrofit2:converter-simplexml:$retrofit_version") {
@@ -162,6 +165,7 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
 
+    def okhttp_version = '4.9.1'
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
@@ -169,6 +173,7 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
 
+    def butterknife_version = '10.2.0'
     implementation "com.jakewharton:butterknife:$butterknife_version"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterknife_version"
 
@@ -187,6 +192,7 @@ dependencies {
 
     implementation 'com.appyvet:materialrangebar:1.4.8'
 
+    def stetho_version = '1.6.0'
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
