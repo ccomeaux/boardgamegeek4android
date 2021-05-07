@@ -1,5 +1,7 @@
 package com.boardgamegeek.extensions
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -34,46 +36,49 @@ fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
 }
 
 fun View.fadeIn(animate: Boolean = true) {
-    if (visibility != VISIBLE) {
-        if (animate) {
-            startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
-        } else {
-            clearAnimation()
+    clearAnimation()
+    if (animate) {
+        val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        apply {
+            alpha = 0f
+            visibility = VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(animationDuration.toLong())
+                .setListener(null)
         }
+    } else {
         visibility = VISIBLE
     }
 }
 
 fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
-    if (this.visibility == VISIBLE) {
-        if (animate) {
-            val animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
-            animation.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation) {}
-
-                override fun onAnimationEnd(animation: Animation) {
-                    this@fadeOut.visibility = visibility
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {}
-            })
-            startAnimation(animation)
-        } else {
-            clearAnimation()
-            this.visibility = visibility
+    clearAnimation()
+    if (animate) {
+        val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        apply {
+            animate()
+                .alpha(0f)
+                .setDuration(animationDuration.toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        this@apply.visibility = visibility
+                    }
+                })
         }
+    } else {
+        clearAnimation()
+        this.visibility = visibility
     }
 }
 
 fun View.slideUpIn() {
-    if (this.visibility == VISIBLE) return
     val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_up)
     this.startAnimation(animation)
     this.visibility = VISIBLE
 }
 
 fun View.slideDownOut() {
-    if (this.visibility == GONE) return
     val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_down)
     animation.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationStart(animation: Animation) {}
@@ -102,7 +107,13 @@ fun View.setColorViewValue(color: Int) {
         }
 
         colorChoiceDrawable.setColor(color)
-        colorChoiceDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt(), color.darkenColor())
+        colorChoiceDrawable.setStroke(
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                1f,
+                resources.displayMetrics
+            ).toInt(), color.darkenColor()
+        )
 
         setImageDrawable(colorChoiceDrawable)
     } else if (this is TextView) {
@@ -119,7 +130,11 @@ fun View.applyDarkScrim() {
 }
 
 @SuppressLint("RtlHardcoded")
-private fun makeCubicGradientScrimDrawable(@ColorInt baseColor: Int, numberOfStops: Int = 3, gravity: Int = Gravity.BOTTOM): Drawable {
+private fun makeCubicGradientScrimDrawable(
+    @ColorInt baseColor: Int,
+    numberOfStops: Int = 3,
+    gravity: Int = Gravity.BOTTOM
+): Drawable {
     val numStops = numberOfStops.coerceAtLeast(2)
     val paintDrawable = PaintDrawable().apply {
         shape = RectShape()
@@ -139,13 +154,14 @@ private fun makeCubicGradientScrimDrawable(@ColorInt baseColor: Int, numberOfSto
     paintDrawable.shaderFactory = object : ShapeDrawable.ShaderFactory() {
         override fun resize(width: Int, height: Int): Shader {
             return LinearGradient(
-                    width * x0,
-                    height * y0,
-                    width * x1,
-                    height * y1,
-                    stopColors,
-                    null,
-                    Shader.TileMode.CLAMP)
+                width * x0,
+                height * y0,
+                width * x1,
+                height * y1,
+                stopColors,
+                null,
+                Shader.TileMode.CLAMP
+            )
         }
     }
 
@@ -167,7 +183,10 @@ fun View.setViewBackground(@ColorInt color: Int) {
     }
 
     backgroundDrawable.setColor(color)
-    backgroundDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(), color.darkenColor())
+    backgroundDrawable.setStroke(
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(),
+        color.darkenColor()
+    )
 
     ViewCompat.setBackground(this, backgroundDrawable)
 }

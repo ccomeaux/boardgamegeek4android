@@ -1,6 +1,6 @@
 package com.boardgamegeek.repository
 
-import android.content.SharedPreferences
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -10,31 +10,20 @@ import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
-import com.boardgamegeek.io.model.User
 import com.boardgamegeek.livedata.NetworkLoader
-import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.getBuddiesTimestamp
-import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
         userDao.loadUser(username)
@@ -69,58 +58,29 @@ class UserRepository(val application: BggApplication) {
         }.asLiveData()
     }
 
-    fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): LiveData<RefreshableResource<List<UserEntity>>> {
-        val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
+    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<UserEntity> = withContext(Dispatchers.IO) {
+        userDao.loadBuddies(sortBy)
+    }
 
-        return object : RefreshableResourceLoader<List<UserEntity>, User>(application) {
-            private var timestamp = 0L
-            private var accountName: String? = null
+    suspend fun refreshBuddies(timestamp: Long) = withContext(Dispatchers.IO) {
+        val accountName = Authenticator.getAccount(application)?.name
+        if (accountName.isNullOrBlank()) return@withContext
 
-            override fun loadFromDatabase(): LiveData<List<UserEntity>> {
-                return userDao.loadBuddiesAsLiveData(sortBy)
-            }
-
-            override fun shouldRefresh(data: List<UserEntity>?): Boolean {
-                if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] != true) return false
-                accountName = Authenticator.getAccount(application)?.name
-                if (accountName == null) return false
-                if (data == null) return true
-                val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
-                return lastCompleteSync.isOlderThan(1, TimeUnit.HOURS)
-            }
-
-            override val typeDescriptionResId = R.string.title_buddies
-
-            override fun createCall(page: Int): Call<User> {
-                timestamp = System.currentTimeMillis()
-                return Adapter.createForXml().user(accountName, 1, page)
-            }
-
-            override fun saveCallResult(result: User) {
-                userDao.saveUser(result.id, result.name, false)
-                var upsertedCount = 0
-                (result.buddies?.buddies ?: emptyList()).forEach {
-                    userDao.saveUser(
-                            it.id.toIntOrNull() ?: BggContract.INVALID_ID,
-                            it.name,
-                            updateTime = timestamp)
-                    upsertedCount++
+        val response = Adapter.createForXml().userC(accountName, 1, 1)
+        response.buddies?.buddies.orEmpty()
+                .map { it.mapToEntity(timestamp) }
+                .filter { it.id != BggContract.INVALID_ID && it.userName.isNotBlank() }
+                .forEach {
+                    userDao.saveBuddy(it)
                 }
-                Timber.d("Upserted $upsertedCount users")
-            }
 
-            override fun onRefreshSucceeded() {
-                val deletedCount = userDao.deleteUsersAsOf(timestamp)
-                Timber.d("Deleted $deletedCount users")
-                syncPrefs.setBuddiesTimestamp(timestamp)
-            }
-        }.asLiveData()
+        val deletedCount = userDao.deleteUsersAsOf(timestamp)
+        Timber.d("Deleted $deletedCount users")
     }
 
     fun updateNickName(username: String, nickName: String) {
-        if (username.isBlank()) return
-        application.appExecutors.diskIO.execute {
-            userDao.updateNickName(username, nickName)
+        if (username.isNotBlank()) {
+            userDao.upsert(contentValuesOf(BggContract.Buddies.PLAY_NICKNAME to nickName), username)
         }
     }
 

@@ -5,12 +5,11 @@ import android.net.Uri
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.entities.BriefBuddyEntity
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.io.model.User
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.util.FileUtils
@@ -23,67 +22,62 @@ class UserDao(private val context: BggApplication) {
         FIRST_NAME, LAST_NAME, USERNAME
     }
 
-    fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<UserEntity>> {
-        return RegisteredLiveData(context, Buddies.CONTENT_URI, true) {
-            return@RegisteredLiveData loadBuddies(sortBy)
-        }
-    }
-
-    fun loadUser(username: String): UserEntity? {
-        return context.contentResolver.load(
-                Buddies.buildBuddyUri(username),
-                arrayOf(
-                        Buddies._ID,
-                        Buddies.BUDDY_ID,
-                        Buddies.BUDDY_NAME,
-                        Buddies.BUDDY_FIRSTNAME,
-                        Buddies.BUDDY_LASTNAME,
-                        Buddies.AVATAR_URL,
-                        Buddies.PLAY_NICKNAME,
-                        Buddies.UPDATED
-                )
+    suspend fun loadUser(username: String): UserEntity? = withContext(Dispatchers.IO) {
+        context.contentResolver.load(
+            Buddies.buildBuddyUri(username),
+            arrayOf(
+                Buddies._ID,
+                Buddies.BUDDY_ID,
+                Buddies.BUDDY_NAME,
+                Buddies.BUDDY_FIRSTNAME,
+                Buddies.BUDDY_LASTNAME,
+                Buddies.AVATAR_URL,
+                Buddies.PLAY_NICKNAME,
+                Buddies.UPDATED
+            )
         )?.use {
             if (it.moveToFirst()) {
                 UserEntity(
-                        internalId = it.getLong(0),
-                        id = it.getInt(1),
-                        userName = it.getStringOrNull(2).orEmpty(),
-                        firstName = it.getStringOrNull(3).orEmpty(),
-                        lastName = it.getStringOrNull(4).orEmpty(),
-                        avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
-                        playNickname = it.getStringOrNull(6).orEmpty(),
-                        updatedTimestamp = it.getLongOrNull(7) ?: 0L
+                    internalId = it.getLong(0),
+                    id = it.getInt(1),
+                    userName = it.getStringOrNull(2).orEmpty(),
+                    firstName = it.getStringOrNull(3).orEmpty(),
+                    lastName = it.getStringOrNull(4).orEmpty(),
+                    avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
+                    playNickname = it.getStringOrNull(6).orEmpty(),
+                    updatedTimestamp = it.getLongOrNull(7) ?: 0L
                 )
             } else null
         }
     }
 
-    private fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<UserEntity> {
-        val results = arrayListOf<UserEntity>()
-        val sortOrder = when (sortBy) {
-            UsersSortBy.USERNAME -> Buddies.BUDDY_NAME
-            UsersSortBy.FIRST_NAME -> Buddies.BUDDY_FIRSTNAME
-            UsersSortBy.LAST_NAME -> Buddies.BUDDY_LASTNAME
-        }.plus(" $COLLATE_NOCASE ASC")
-        context.contentResolver.load(
+    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<UserEntity> =
+        withContext(Dispatchers.IO) {
+            val results = arrayListOf<UserEntity>()
+            val sortOrder = when (sortBy) {
+                UsersSortBy.USERNAME -> Buddies.BUDDY_NAME
+                UsersSortBy.FIRST_NAME -> Buddies.BUDDY_FIRSTNAME
+                UsersSortBy.LAST_NAME -> Buddies.BUDDY_LASTNAME
+            }.plus(" $COLLATE_NOCASE ASC")
+            context.contentResolver.load(
                 Buddies.CONTENT_URI,
                 arrayOf(
-                        Buddies._ID,
-                        Buddies.BUDDY_ID,
-                        Buddies.BUDDY_NAME,
-                        Buddies.BUDDY_FIRSTNAME,
-                        Buddies.BUDDY_LASTNAME,
-                        Buddies.AVATAR_URL,
-                        Buddies.PLAY_NICKNAME,
-                        Buddies.UPDATED
+                    Buddies._ID,
+                    Buddies.BUDDY_ID,
+                    Buddies.BUDDY_NAME,
+                    Buddies.BUDDY_FIRSTNAME,
+                    Buddies.BUDDY_LASTNAME,
+                    Buddies.AVATAR_URL,
+                    Buddies.PLAY_NICKNAME,
+                    Buddies.UPDATED
                 ),
                 "${Buddies.BUDDY_ID}!=? AND ${Buddies.BUDDY_FLAG}=1",
                 arrayOf(Authenticator.getUserId(context)),
                 sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += UserEntity(
+            )?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        results += UserEntity(
                             internalId = it.getLong(0),
                             id = it.getInt(1),
                             userName = it.getStringOrNull(2).orEmpty(),
@@ -92,41 +86,44 @@ class UserDao(private val context: BggApplication) {
                             avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
                             playNickname = it.getStringOrNull(6).orEmpty(),
                             updatedTimestamp = it.getLongOrNull(7) ?: 0L
-                    )
-                } while (it.moveToNext())
+                        )
+                    } while (it.moveToNext())
+                }
             }
+            results
         }
-        return results
-    }
 
-    suspend fun saveUser(user: UserEntity, updateTime: Long = System.currentTimeMillis()): UserEntity = withContext(Dispatchers.IO) {
-        if (user.userName.isNotBlank()) {
-            val values = contentValuesOf(
+    suspend fun saveUser(user: UserEntity, updateTime: Long = System.currentTimeMillis()): UserEntity =
+        withContext(Dispatchers.IO) {
+            if (user.userName.isNotBlank()) {
+                val values = contentValuesOf(
                     Buddies.UPDATED to updateTime,
                     Buddies.UPDATED_LIST to updateTime
-            )
-            val oldSyncHashCode = context.contentResolver.queryInt(Buddies.buildBuddyUri(user.userName), Buddies.SYNC_HASH_CODE)
-            val newSyncHashCode = user.generateSyncHashCode()
-            if (oldSyncHashCode != newSyncHashCode) {
-                values.put(Buddies.BUDDY_ID, user.id)
-                values.put(Buddies.BUDDY_NAME, user.userName)
-                values.put(Buddies.BUDDY_FIRSTNAME, user.firstName)
-                values.put(Buddies.BUDDY_LASTNAME, user.lastName)
-                values.put(Buddies.AVATAR_URL, user.avatarUrl)
-                values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode)
-            }
-            val internalId = upsert(values, user.userName, user.id)
-            user.copy(internalId = internalId, updatedTimestamp = updateTime)
-        } else user
-    }
+                )
+                val oldSyncHashCode =
+                    context.contentResolver.queryInt(Buddies.buildBuddyUri(user.userName), Buddies.SYNC_HASH_CODE)
+                val newSyncHashCode = user.generateSyncHashCode()
+                if (oldSyncHashCode != newSyncHashCode) {
+                    values.put(Buddies.BUDDY_ID, user.id)
+                    values.put(Buddies.BUDDY_NAME, user.userName)
+                    values.put(Buddies.BUDDY_FIRSTNAME, user.firstName)
+                    values.put(Buddies.BUDDY_LASTNAME, user.lastName)
+                    values.put(Buddies.AVATAR_URL, user.avatarUrl)
+                    values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode)
+                }
+                val internalId = upsert(values, user.userName, user.id)
+                user.copy(internalId = internalId, updatedTimestamp = updateTime)
+            } else user
+        }
 
     fun saveUser(user: User?, updateTime: Long = System.currentTimeMillis()) {
         if (user != null && !user.name.isNullOrBlank()) {
             val values = contentValuesOf(
-                    Buddies.UPDATED to updateTime,
-                    Buddies.UPDATED_LIST to updateTime
+                Buddies.UPDATED to updateTime,
+                Buddies.UPDATED_LIST to updateTime
             )
-            val oldSyncHashCode = context.contentResolver.queryInt(Buddies.buildBuddyUri(user.name), Buddies.SYNC_HASH_CODE)
+            val oldSyncHashCode =
+                context.contentResolver.queryInt(Buddies.buildBuddyUri(user.name), Buddies.SYNC_HASH_CODE)
             val newSyncHashCode = generateSyncHashCode(user)
             if (oldSyncHashCode != newSyncHashCode) {
                 values.put(Buddies.BUDDY_ID, user.id)
@@ -140,13 +137,30 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
-    fun saveUser(userId: Int, username: String, isBuddy: Boolean = true, updateTime: Long = System.currentTimeMillis()) {
+    suspend fun saveBuddy(buddy: BriefBuddyEntity) = withContext(Dispatchers.IO) {
+        if (buddy.id != INVALID_ID && buddy.userName.isNotBlank()) {
+            val values = contentValuesOf(
+                Buddies.BUDDY_ID to buddy.id,
+                Buddies.BUDDY_NAME to buddy.userName,
+                Buddies.BUDDY_FLAG to true,
+                Buddies.UPDATED_LIST to buddy.updatedTimestamp
+            )
+            upsert(values, buddy.userName, buddy.id)
+        }
+    }
+
+    fun saveUser(
+        userId: Int,
+        username: String,
+        isBuddy: Boolean = true,
+        updateTime: Long = System.currentTimeMillis()
+    ) {
         if (userId != INVALID_ID && username.isNotBlank()) {
             val values = contentValuesOf(
-                    Buddies.BUDDY_ID to userId,
-                    Buddies.BUDDY_NAME to username,
-                    Buddies.BUDDY_FLAG to if (isBuddy) 1 else 0,
-                    Buddies.UPDATED_LIST to updateTime
+                Buddies.BUDDY_ID to userId,
+                Buddies.BUDDY_NAME to username,
+                Buddies.BUDDY_FLAG to if (isBuddy) 1 else 0,
+                Buddies.UPDATED_LIST to updateTime
             )
             upsert(values, username, userId)
         } else {
@@ -154,7 +168,7 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
-    private fun upsert(values: ContentValues, username: String, userId: Int): Long {
+    fun upsert(values: ContentValues, username: String, userId: Int? = null): Long {
         val resolver = context.contentResolver
         val uri = Buddies.buildBuddyUri(username)
         val internalId = resolver.queryLong(uri, Buddies._ID)
@@ -166,7 +180,7 @@ class UserDao(private val context: BggApplication) {
             internalId
         } else {
             values.put(Buddies.BUDDY_NAME, username)
-            values.put(Buddies.BUDDY_ID, userId)
+            userId?.let { values.put(Buddies.BUDDY_ID, it) }
             val insertedUri = resolver.insert(Buddies.CONTENT_URI, values)
             Timber.d("Inserted buddy at %s", insertedUri)
             insertedUri?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
@@ -196,19 +210,12 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
+    // TODO - convert to suspend function
     fun deleteUsersAsOf(updateTimestamp: Long): Int {
         return context.contentResolver.delete(
-                Buddies.CONTENT_URI,
-                "${Buddies.UPDATED_LIST}<?",
-                arrayOf(updateTimestamp.toString()))
-    }
-
-    fun updateNickName(username: String, nickName: String) {
-        context.contentResolver.update(
-                Buddies.buildBuddyUri(username),
-                contentValuesOf(Buddies.PLAY_NICKNAME to nickName),
-                null,
-                null
+            Buddies.CONTENT_URI,
+            "${Buddies.UPDATED_LIST}<?",
+            arrayOf(updateTimestamp.toString())
         )
     }
 }

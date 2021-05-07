@@ -46,6 +46,9 @@ interface BggService {
     @GET("/xmlapi2/user")
     fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): Call<User>
 
+    @GET("/xmlapi2/user")
+    suspend fun userC(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): User
+
     @GET("/xmlapi/{type}/{id}")
     suspend fun person(@Path("type") type: String?, @Path("id") id: Int): Person
 

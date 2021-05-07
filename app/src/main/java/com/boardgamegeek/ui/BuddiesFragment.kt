@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -24,15 +22,11 @@ import org.jetbrains.anko.design.indefiniteSnackbar
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import kotlin.properties.Delegates
 
-class BuddiesFragment : Fragment() {
+class BuddiesFragment : Fragment(R.layout.fragment_buddies) {
     private val viewModel by activityViewModels<BuddiesViewModel>()
 
     private val adapter: BuddiesAdapter by lazy {
         BuddiesAdapter(viewModel)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_buddies, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,31 +38,30 @@ class BuddiesFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
-                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter)
+            resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
+            adapter
+        )
         recyclerView.addItemDecoration(sectionItemDecoration)
 
-        viewModel.buddies.observe(viewLifecycleOwner, Observer {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+        viewModel.buddies.observe(viewLifecycleOwner, {
+            swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
 
             when (it.status) {
                 Status.ERROR -> showError(it.message)
-                else -> showData(it?.data ?: emptyList())
+                else -> it.data?.let { data -> showData(data) }
             }
-            progressBar.hide()
+
+            if (it?.status == Status.SUCCESS) progressBar.hide()
         })
     }
 
-    private fun showError(message: String? = null) {
-        // TODO default error message
-        if (message != null && !message.isNullOrBlank()) {
-            coordinatorLayout.indefiniteSnackbar(message)
-        }
+    private fun showError(message: String?) {
+        coordinatorLayout.indefiniteSnackbar(message ?: getString(R.string.msg_error_buddies))
     }
 
     private fun showData(buddies: List<UserEntity>) {
         adapter.buddies = buddies
-        if (adapter.itemCount == 0) {
+        if (buddies.isEmpty()) {
             recyclerView.fadeOut()
             showEmpty()
         } else {
@@ -97,7 +90,8 @@ class BuddiesFragment : Fragment() {
         swipeRefresh.isRefreshing = viewModel.refresh()
     }
 
-    class BuddiesAdapter(private val viewModel: BuddiesViewModel) : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+    class BuddiesAdapter(private val viewModel: BuddiesViewModel) :
+        RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
         var buddies: List<UserEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
@@ -110,8 +104,7 @@ class BuddiesFragment : Fragment() {
 
         override fun getItemCount() = buddies.size
 
-        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong()
-                ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
             return BuddyViewHolder(parent.inflate(R.layout.row_buddy))
@@ -131,11 +124,7 @@ class BuddiesFragment : Fragment() {
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
-            return when {
-                position == RecyclerView.NO_POSITION -> "-"
-                buddies.isEmpty() -> "-"
-                else -> viewModel.getSectionHeader(buddies.getOrNull(position))
-            }
+            return viewModel.getSectionHeader(buddies.getOrNull(position)) ?: "-"
         }
 
         inner class BuddyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
