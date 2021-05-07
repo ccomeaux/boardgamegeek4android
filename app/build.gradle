@@ -132,9 +132,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation "androidx.paging:paging-runtime-ktx:2.1.2"
 
-    def paging_version = "3.0.0-rc01"
+    def paging_version = "3.0.0"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
