@@ -28,7 +28,7 @@ data class Play @JvmOverloads constructor(
         @JvmField
         var comments: String? = "",
 
-        private var _players: MutableList<Player> = ArrayList(),
+        private val _players: MutableList<Player> = ArrayList(),
 
         @JvmField
         var playId: Int = INVALID_ID,
@@ -54,6 +54,11 @@ data class Play @JvmOverloads constructor(
 
     val isSynced
         get() = playId > 0
+
+    // TEMP
+    fun deepCopy(): Play {
+        return this.copy(_players = mutableListOf<Player>().apply { addAll(players.map { it.copy() }) })
+    }
 
     // DATE
     val dateForDatabase: String
@@ -103,12 +108,25 @@ data class Play @JvmOverloads constructor(
     /**
      * Replaces a player at the position with a new player. If the position doesn't exists, the player is added instead.
      */
-    fun replaceOrAddPlayer(player: Player, position: Int) {
+    fun replaceOrAddPlayer(player: Player, position: Int?, resort: Boolean = false) {
         if (position in _players.indices) {
-            _players[position] = player
+            position?.let { _players[it] = player }
         } else {
             _players.add(player)
         }
+        if (resort) sortPlayers()
+    }
+
+    fun addPlayer(player: Player, resort: Boolean = false) {
+        if (resort) {
+            if (player.seat == Player.SEAT_UNKNOWN) {
+                player.seat = _players.size + 1
+            } else {
+                _players.filter { it.seat >= player.seat }.forEach { it.seat = it.seat + 1 }
+            }
+        }
+        _players.add(player)
+        if (resort) sortPlayers()
     }
 
     fun getPlayerAtSeat(seat: Int): Player? {

@@ -5,7 +5,6 @@ import android.content.*
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Bundle
-import android.os.Handler
 import android.text.format.DateUtils
 import android.view.*
 import android.widget.*
@@ -19,6 +18,7 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.palette.graphics.Palette
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -246,8 +246,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 addNewPlayer()
             }
         } else {
-            viewModel.addPlayer()
-            recyclerView.smoothScrollToPosition(playAdapter.itemCount)
+            viewModel.addPlayer(resort = !arePlayersCustomSorted)
+            //recyclerView.smoothScrollToPosition(playAdapter.itemCount) // TODO do this when the player adapter updates
         }
     }
 
@@ -376,11 +376,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         recyclerView.adapter = playAdapter
 
         swipePaint.color = ContextCompat.getColor(this, R.color.medium_blue)
+        val deleteColor = ContextCompat.getColor(this@LogPlayActivity, R.color.delete)
+        val editColor = ContextCompat.getColor(this@LogPlayActivity, R.color.edit)
         itemTouchHelper = ItemTouchHelper(
                 object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                     override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-                        if (viewHolder !is PlayAdapter.PlayerViewHolder) return
-                        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                        if (viewHolder is PlayAdapter.PlayerViewHolder && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                             val itemView = viewHolder.itemView
 
                             // fade and slide item
@@ -400,7 +401,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             val iconSrc: Rect
                             val iconDst: RectF
                             if (dX > 0) {
-                                swipePaint.color = ContextCompat.getColor(this@LogPlayActivity, R.color.delete)
+                                swipePaint.color = deleteColor
                                 background = RectF(itemView.left.toFloat(), itemView.top.toFloat(), dX, itemView.bottom.toFloat())
                                 iconSrc = Rect(
                                         0,
@@ -413,7 +414,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                         (itemView.left + horizontalPadding + icon.width).coerceAtMost(dX),
                                         itemView.bottom.toFloat() - verticalPadding)
                             } else {
-                                swipePaint.color = ContextCompat.getColor(this@LogPlayActivity, R.color.edit)
+                                swipePaint.color = editColor
                                 background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
                                 iconSrc = Rect(
                                         (icon.width + horizontalPadding.toInt() + dX.toInt()).coerceAtLeast(0),
@@ -439,13 +440,16 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                 coordinatorLayout.indefiniteSnackbar(
                                         getString(R.string.msg_player_deleted, player.description.ifEmpty { getString(R.string.title_player) }),
                                         getString(R.string.undo)) {
-                                    lastRemovedPlayer?.let { viewModel.addPlayer(player) }
+                                    lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = !arePlayersCustomSorted) }
                                 }
-                                viewModel.removePlayer(player)
+                                viewModel.removePlayer(player, !arePlayersCustomSorted)
                             }
                         } else {
                             editPlayer(viewHolder.adapterPosition)
+                            // (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemClear() // This should be called in `override fun clearView`
+                            //playAdapter.notifyDataSetChanged() // Need to clear the swiped player
                         }
+                        clearView(recyclerView, viewHolder)
                     }
 
                     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -457,16 +461,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                     }
 
                     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                        (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemClear()
                         super.clearView(recyclerView, viewHolder)
-                        viewHolder.itemView.setBackgroundColor(0)
-                        playAdapter.notifyPlayersChanged()
                     }
 
                     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                        // We only want the active item to change
-                        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-                            viewHolder?.itemView?.setBackgroundColor(ContextCompat.getColor(this@LogPlayActivity, R.color.light_blue_transparent))
-                        }
+                        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemDragging()
                         super.onSelectedChanged(viewHolder, actionState)
                     }
 
@@ -551,7 +551,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             bindNoWinStats(it)
             bindComments(it)
             bindPlayerHeader(it.getPlayerCount())
-            playAdapter.players = it.players
+            playAdapter.submit(it.players)
             if (isRequestingToEndPlay) {
                 // TODO every time?
                 cancelNotification()
@@ -634,22 +634,19 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 val position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION)
                 when (requestCode) {
                     REQUEST_ADD_PLAYER -> {
-                        viewModel.addPlayer(player)
+                        viewModel.addPlayer(player, resort = !arePlayersCustomSorted)
                         addNewPlayer()
                     }
                     REQUEST_EDIT_PLAYER -> if (position == LogPlayerActivity.INVALID_POSITION) {
                         Timber.w("Invalid player position after edit")
                     } else {
-                        viewModel.addPlayer(player, position) // TODO instead of assign the seat when creating the Player, just make sure all players are auto-sorted
-                        recyclerView.smoothScrollToPosition(position)
+                        viewModel.editPlayer(player, position, resort = !arePlayersCustomSorted)
                     }
                     else -> Timber.w("Received invalid request code: %d", requestCode)
                 }
             }
-        } else if (resultCode == RESULT_CANCELED) {
-            playAdapter.notifyPlayersChanged()
-            recyclerView.smoothScrollToPosition(playAdapter.itemCount)
         }
+        // TODO scroll to the position of the last edited or added player, even when cancelling
     }
 
     private fun cancel() {
@@ -781,7 +778,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             if (!arePlayersCustomSorted) {
                 viewModel.pickStartPlayer(0)
             }
-            playAdapter.notifyPlayersChanged()
             if (which == DialogInterface.BUTTON_NEUTRAL) {
                 addNewPlayer()
             }
@@ -791,7 +787,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private fun autoSortPlayers() {
         arePlayersCustomSorted = false
         viewModel.pickStartPlayer(0)
-        //playAdapter.notifyPlayersChanged()
     }
 
     private fun addNewPlayer() {
@@ -813,7 +808,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             putExtra(LogPlayerActivity.KEY_POSITION, position)
         }
         editPlayer(intent, REQUEST_EDIT_PLAYER)
-        playAdapter.notifyPlayerChanged(position)
     }
 
     private fun editPlayer(intent: Intent, requestCode: Int) {
@@ -837,21 +831,62 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         cancel(TAG_PLAY_TIMER, internalId)
     }
 
+    private class Diff(private val oldList: List<Player>, private val newList: List<Player>) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val o = oldList[oldItemPosition]
+            val n = newList[newItemPosition]
+            return o == n
+        }
+    }
+
+    private class DraggingDiff(private val oldList: List<Player>, private val newList: List<Player>) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val o = oldList[oldItemPosition]
+            val n = newList[newItemPosition]
+            return o.id == n.id
+        }
+    }
+
     inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {
-        var players: List<Player> = mutableListOf()
-            set(value) {
-                field = value
-                notifyDataSetChanged()
-                //notifyPlayersChanged()
-                // TODO use the automagic thing
-            }
+        var isDragging = false
+
+        private var players: List<Player> = emptyList()
+
+        fun submit(players: List<Player>) {
+            val oldPlayers = this.players
+            this.players = mutableListOf<Player>().apply { addAll(players) }.toList()
+            val diffCallback = if (isDragging) DraggingDiff(oldPlayers, this.players) else Diff(oldPlayers, this.players)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            diffResult.dispatchUpdatesTo(this)
+        }
 
         init {
-            setHasStableIds(false)
+            // TODO re-enable to make drag and drop work
+            // setHasStableIds(true)
         }
 
         override fun getItemCount(): Int {
             return players.size
+        }
+
+        override fun getItemId(position: Int): Long {
+            return players.getOrNull(position)?.id?.hashCode()?.toLong() ?: RecyclerView.NO_ID
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
@@ -866,22 +901,21 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             return players.getOrNull(position)
         }
 
-        fun notifyPlayersChanged() {
-            Handler().post {
-                bindPlayerHeader(players.size)
-                notifyItemRangeChanged(0, players.size)
-            }
-        }
-
-        fun notifyPlayerChanged(playerPosition: Int) {
-            Handler().post { notifyItemChanged(playerPosition) }
-        }
-
         inner class PlayerViewHolder(context: Context) : RecyclerView.ViewHolder(PlayerRow(context)) {
             private val row: PlayerRow = itemView as PlayerRow
 
             init {
                 row.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+
+            fun onItemDragging() {
+                isDragging = true
+                itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.light_blue_transparent))
+            }
+
+            fun onItemClear() {
+                isDragging = false
+                itemView.setBackgroundColor(Color.TRANSPARENT)
             }
 
             @SuppressLint("ClickableViewAccessibility")

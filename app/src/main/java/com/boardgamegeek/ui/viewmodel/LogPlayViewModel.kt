@@ -91,8 +91,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             }
             _internalId.value = internalId
         }
-        if (originalPlay == null && p != null) originalPlay = p?.copy()
-        _play.postValue(p)
+        p?.let {
+            if (originalPlay == null) originalPlay = it.copy()
+            _play.postValue(it)
+        }
     }
 
     fun updateDate(year: Int, month: Int, day: Int) {
@@ -177,17 +179,25 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         _play.value = play.value?.copy()
     }
 
-    fun addPlayer(player: Player = Player(), position: Int = _play.value?.getPlayerCount() ?: 0) {
-        //if (!arePlayersCustomSorted) {
-        player.seat = (play.value?.getPlayerCount() ?: 0) + 1
-        //}
-        _play.value?.replaceOrAddPlayer(player, position)
-        _play.value = play.value?.copy()
+    fun editPlayer(player: Player = Player(), position: Int? = null, resort: Boolean) {
+        play.value?.copy()?.let {
+            it.replaceOrAddPlayer(player, position, resort)
+            _play.value = it
+        }
     }
 
-    fun removePlayer(player: Player) {
-        _play.value?.removePlayer(player, true) //, !arePlayersCustomSorted)
-        _play.value = play.value?.copy()
+    fun addPlayer(player: Player = Player(), resort: Boolean) {
+        play.value?.deepCopy()?.let {
+            it.addPlayer(player, resort)
+            _play.value = it
+        }
+    }
+
+    fun removePlayer(player: Player, resort: Boolean) {
+        play.value?.deepCopy()?.let {
+            it.removePlayer(player, resort)
+            _play.value = it
+        }
     }
 
     fun isDirty(): Boolean {
@@ -195,35 +205,35 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun clearPositions() {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.clearPlayerPositions()
             _play.value = it
         }
     }
 
     fun pickStartPlayer(index: Int) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.pickStartPlayer(index)
             _play.value = it
         }
     }
 
     fun pickRandomStartPlayer() {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.pickStartPlayer((0 until it.getPlayerCount()).random())
             _play.value = it
         }
     }
 
     fun randomizePlayerOrder() {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.randomizePlayerOrder()
             _play.value = it
         }
     }
 
     fun reorderPlayers(fromSeat: Int, toSeat: Int) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.reorderPlayers(fromSeat, toSeat)
             _play.value = it
         }
@@ -253,7 +263,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun addScoreToPlayer(playerIndex: Int, score: Double) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.players[playerIndex].score = scoreFormat.format(score)
             for (p in it.players) {
                 p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == it.highScore
@@ -263,21 +273,21 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun addRatingToPlayer(playerIndex: Int, rating: Double) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.players[playerIndex].rating = rating
             _play.value = it
         }
     }
 
     fun win(isWin: Boolean, playerIndex: Int) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.players[playerIndex].isWin = isWin
             _play.value = it
         }
     }
 
     fun new(isNew: Boolean, playerIndex: Int) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.players[playerIndex].isNew = isNew
             _play.value = it
         }
