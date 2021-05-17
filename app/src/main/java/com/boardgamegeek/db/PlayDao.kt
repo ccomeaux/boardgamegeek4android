@@ -4,17 +4,36 @@ import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.net.Uri
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getDoubleOrNull
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.applyBatch
+import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.ascending
+import com.boardgamegeek.extensions.collateNoCase
+import com.boardgamegeek.extensions.descending
+import com.boardgamegeek.extensions.getBoolean
+import com.boardgamegeek.extensions.joinTo
+import com.boardgamegeek.extensions.load
+import com.boardgamegeek.extensions.queryCount
+import com.boardgamegeek.extensions.queryLongs
+import com.boardgamegeek.extensions.queryString
+import com.boardgamegeek.extensions.queryStrings
+import com.boardgamegeek.extensions.rowExists
+import com.boardgamegeek.extensions.whereEqualsOrNull
+import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import kotlin.io.use
 
 class PlayDao(private val context: BggApplication) {
     enum class PlaysSortBy {
@@ -49,35 +68,35 @@ class PlayDao(private val context: BggApplication) {
                         Plays.UPDATE_TIMESTAMP,
                         Plays.DELETE_TIMESTAMP,
                         Plays.START_TIME,
-                        Games.THUMBNAIL_URL,
                         Games.IMAGE_URL,
+                        Games.THUMBNAIL_URL,
                         Games.HERO_IMAGE_URL,
                         Games.UPDATED_PLAYS,
                 ),
         )?.use {
             if (it.moveToFirst()) {
                 val play = PlayEntity(
-                        internalId = it.getLong(Plays._ID),
-                        playId = it.getInt(Plays.PLAY_ID),
-                        rawDate = it.getString(Plays.DATE),
-                        gameId = it.getInt(Plays.OBJECT_ID),
-                        gameName = it.getString(Plays.ITEM_NAME),
-                        quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,
-                        length = it.getIntOrNull(Plays.LENGTH) ?: 0,
-                        location = it.getStringOrEmpty(Plays.LOCATION),
-                        incomplete = it.getInt(Plays.INCOMPLETE) == 1,
-                        noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
-                        comments = it.getStringOrEmpty(Plays.COMMENTS),
-                        syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
-                        initialPlayerCount = it.getInt(Plays.PLAYER_COUNT),
-                        dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
-                        updateTimestamp = it.getLong(Plays.UPDATE_TIMESTAMP),
-                        deleteTimestamp = it.getLong(Plays.DELETE_TIMESTAMP),
-                        startTime = it.getLong(Plays.START_TIME),
-                        imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
-                        thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
-                        heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL),
-                        updatedPlaysTimestamp = it.getLongOrZero(Games.UPDATED_PLAYS),
+                        internalId = it.getLong(0),
+                        playId = it.getInt(1),
+                        rawDate = it.getString(2),
+                        gameId = it.getInt(3),
+                        gameName = it.getString(4),
+                        quantity = it.getIntOrNull(5) ?: 1,
+                        length = it.getIntOrNull(6) ?: 0,
+                        location = it.getStringOrNull(7).orEmpty(),
+                        incomplete = it.getInt(8) == 1,
+                        noWinStats = it.getInt(9) == 1,
+                        comments = it.getStringOrNull(10).orEmpty(),
+                        syncTimestamp = it.getLong(11),
+                        initialPlayerCount = it.getInt(12),
+                        dirtyTimestamp = it.getLong(13),
+                        updateTimestamp = it.getLong(14),
+                        deleteTimestamp = it.getLong(15),
+                        startTime = it.getLong(16),
+                        imageUrl = it.getStringOrNull(17).orEmpty(),
+                        thumbnailUrl = it.getStringOrNull(18).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(19).orEmpty(),
+                        updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
                 )
                 loadPlayers(id).forEach { player ->
                     play.addPlayer(player)
@@ -109,18 +128,17 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     players += PlayPlayerEntity(
-                            name = it.getStringOrEmpty(PlayPlayers.NAME),
-                            username = it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            startingPosition = it.getStringOrEmpty(PlayPlayers.START_POSITION),
-                            color = it.getStringOrEmpty(PlayPlayers.COLOR),
-                            score = it.getStringOrEmpty(PlayPlayers.SCORE),
-                            rating = it.getDoubleOrZero(PlayPlayers.RATING),
-                            userId = it.getStringOrEmpty(PlayPlayers.USER_ID),
-                            isNew = it.getBoolean(PlayPlayers.NEW),
-                            isWin = it.getBoolean(PlayPlayers.WIN),
-                            playId = it.getIntOrNull(PlayPlayers.PLAY_ID) ?: INVALID_ID,
-
-                            )
+                            name = it.getStringOrNull(1).orEmpty(),
+                            username = it.getStringOrNull(2).orEmpty(),
+                            startingPosition = it.getStringOrNull(3).orEmpty(),
+                            color = it.getStringOrNull(4).orEmpty(),
+                            score = it.getStringOrNull(5).orEmpty(),
+                            rating = it.getDoubleOrNull(6) ?: 0.0,
+                            userId = it.getStringOrNull(7).orEmpty(),
+                            isNew = it.getBoolean(8),
+                            isWin = it.getBoolean(9),
+                            playId = it.getIntOrNull(10) ?: INVALID_ID,
+                    )
                 } while (it.moveToNext())
             }
         }
@@ -213,8 +231,8 @@ class PlayDao(private val context: BggApplication) {
                         Plays.UPDATE_TIMESTAMP,
                         Plays.DELETE_TIMESTAMP,
                         Plays.START_TIME,
-                        Games.THUMBNAIL_URL,
                         Games.IMAGE_URL,
+                        Games.THUMBNAIL_URL,
                         Games.HERO_IMAGE_URL,
                         Games.UPDATED_PLAYS,
                 ),
@@ -225,27 +243,27 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     list.add(PlayEntity(
-                            internalId = it.getLong(Plays._ID),
-                            playId = it.getInt(Plays.PLAY_ID),
-                            rawDate = it.getString(Plays.DATE),
-                            gameId = it.getInt(Plays.OBJECT_ID),
-                            gameName = it.getString(Plays.ITEM_NAME),
-                            quantity = it.getIntOrNull(Plays.QUANTITY) ?: 1,
-                            length = it.getIntOrNull(Plays.LENGTH) ?: 0,
-                            location = it.getStringOrEmpty(Plays.LOCATION),
-                            incomplete = it.getInt(Plays.INCOMPLETE) == 1,
-                            noWinStats = it.getInt(Plays.NO_WIN_STATS) == 1,
-                            comments = it.getStringOrEmpty(Plays.COMMENTS),
-                            syncTimestamp = it.getLong(Plays.SYNC_TIMESTAMP),
-                            initialPlayerCount = it.getInt(Plays.PLAYER_COUNT),
-                            dirtyTimestamp = it.getLong(Plays.DIRTY_TIMESTAMP),
-                            updateTimestamp = it.getLong(Plays.UPDATE_TIMESTAMP),
-                            deleteTimestamp = it.getLong(Plays.DELETE_TIMESTAMP),
-                            startTime = it.getLong(Plays.START_TIME),
-                            imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
-                            thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
-                            heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL),
-                            updatedPlaysTimestamp = it.getLongOrZero(Games.UPDATED_PLAYS)
+                            internalId = it.getLong(0),
+                            playId = it.getInt(1),
+                            rawDate = it.getString(2),
+                            gameId = it.getInt(3),
+                            gameName = it.getString(4),
+                            quantity = it.getIntOrNull(5) ?: 1,
+                            length = it.getIntOrNull(6) ?: 0,
+                            location = it.getStringOrNull(7).orEmpty(),
+                            incomplete = it.getInt(8) == 1,
+                            noWinStats = it.getInt(9) == 1,
+                            comments = it.getStringOrNull(10).orEmpty(),
+                            syncTimestamp = it.getLong(11),
+                            initialPlayerCount = it.getInt(12),
+                            dirtyTimestamp = it.getLong(13),
+                            updateTimestamp = it.getLong(14),
+                            deleteTimestamp = it.getLong(15),
+                            startTime = it.getLong(16),
+                            imageUrl = it.getStringOrNull(17).orEmpty(),
+                            thumbnailUrl = it.getStringOrNull(18).orEmpty(),
+                            heroImageUrl = it.getStringOrNull(19).orEmpty(),
+                            updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
                     ))
                 } while (it.moveToNext())
             }
@@ -338,10 +356,10 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             return if (it.moveToFirst()) {
                 PlayerEntity(
-                        it.getStringOrEmpty(PlayPlayers.NAME),
-                        it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                        it.getIntOrZero(PlayPlayers.SUM_QUANTITY),
-                        it.getIntOrZero(PlayPlayers.SUM_WINS)
+                        name = it.getStringOrNull(0).orEmpty(),
+                        username = it.getStringOrNull(1).orEmpty(),
+                        playCount = it.getIntOrNull(2) ?: 0,
+                        winCount = it.getIntOrNull(3) ?: 0,
                 )
             } else null
         }
@@ -385,8 +403,8 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerColorEntity(
-                            it.getStringOrEmpty(PlayerColors.PLAYER_COLOR),
-                            it.getIntOrNull(PlayerColors.PLAYER_COLOR_SORT_ORDER) ?: 0
+                            description = it.getStringOrNull(1).orEmpty(),
+                            sortOrder = it.getIntOrNull(2) ?: 0,
                     )
                 } while (it.moveToNext())
             }
@@ -424,10 +442,10 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     list.add(PlayerDetailEntity(
-                            it.getLongOrNull(PlayPlayers._ID) ?: INVALID_ID.toLong(),
-                            it.getStringOrEmpty(PlayPlayers.NAME),
-                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            it.getStringOrEmpty(PlayPlayers.COLOR)
+                            id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                            name = it.getStringOrNull(1).orEmpty(),
+                            username = it.getStringOrNull(2).orEmpty(),
+                            color = it.getStringOrNull(3).orEmpty(),
                     ))
                 } while (it.moveToNext())
             } else list
@@ -463,8 +481,8 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += LocationEntity(
-                            it.getStringOrEmpty(Plays.LOCATION),
-                            it.getIntOrNull(Plays.SUM_QUANTITY) ?: 0
+                            name = it.getStringOrNull(1).orEmpty(),
+                            playCount = it.getIntOrNull(2) ?: 0,
                     )
                 } while (it.moveToNext())
             }
@@ -492,12 +510,12 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    val count = it.getIntOrZero(3)
+                    val count = it.getIntOrNull(3) ?: 0
                     Timber.i(count.toString())
                     results += PlayerEntity(
-                        name = it.getStringOrNull(0).orEmpty(),
-                        username = it.getStringOrNull(1).orEmpty(),
-                        rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
+                            name = it.getStringOrNull(0).orEmpty(),
+                            username = it.getStringOrNull(1).orEmpty(),
+                            rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
                     )
                 } while (it.moveToNext())
             }
@@ -542,10 +560,10 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayerEntity(
-                            it.getStringOrEmpty(PlayPlayers.NAME),
-                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            it.getIntOrNull(PlayPlayers.SUM_QUANTITY) ?: 0,
-                            it.getIntOrNull(PlayPlayers.SUM_WINS) ?: 0
+                            name = it.getStringOrNull(0).orEmpty(),
+                            username = it.getStringOrNull(1).orEmpty(),
+                            playCount = it.getIntOrNull(2) ?: 0,
+                            winCount = it.getIntOrNull(3) ?: 0,
                     )
                 } while (it.moveToNext())
             }
@@ -855,16 +873,16 @@ class PlayDao(private val context: BggApplication) {
             if (it.moveToFirst()) {
                 do {
                     results += PlayPlayerEntity(
-                            it.getStringOrEmpty(PlayPlayers.NAME),
-                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            it.getStringOrEmpty(PlayPlayers.START_POSITION),
-                            it.getStringOrEmpty(PlayPlayers.COLOR),
-                            it.getStringOrEmpty(PlayPlayers.SCORE),
-                            it.getDoubleOrZero(PlayPlayers.RATING),
-                            it.getStringOrEmpty(PlayPlayers.USER_ID),
-                            it.getBoolean(PlayPlayers.NEW),
-                            it.getBoolean(PlayPlayers.WIN),
-                            it.getIntOrNull(PlayPlayers.PLAY_ID) ?: INVALID_ID
+                            name = it.getStringOrNull(0).orEmpty(),
+                            username = it.getStringOrNull(1).orEmpty(),
+                            startingPosition = it.getStringOrNull(2).orEmpty(),
+                            color = it.getStringOrNull(3).orEmpty(),
+                            score = it.getStringOrNull(4).orEmpty(),
+                            rating = it.getDoubleOrNull(5) ?: 0.0,
+                            userId = it.getStringOrNull(6),
+                            isNew = it.getBoolean(7),
+                            isWin = it.getBoolean(8),
+                            playId = it.getIntOrNull(9) ?: INVALID_ID,
                     )
                 } while (it.moveToNext())
             }
@@ -1074,11 +1092,11 @@ class PlayDao(private val context: BggApplication) {
                 return cursor?.use {
                     if (it.moveToFirst()) {
                         PlaySyncCandidate(
-                                it.getLong(Plays._ID, INVALID_ID.toLong()),
-                                it.getIntOrZero(Plays.SYNC_HASH_CODE),
-                                it.getLongOrZero(Plays.DELETE_TIMESTAMP),
-                                it.getLongOrZero(Plays.UPDATE_TIMESTAMP),
-                                it.getLongOrZero(Plays.DIRTY_TIMESTAMP),
+                                internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                                syncHashCode = it.getIntOrNull(1) ?: 0,
+                                deleteTimestamp = it.getLongOrNull(2) ?: 0L,
+                                updateTimestamp = it.getLongOrNull(3) ?: 0L,
+                                dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
                         )
                     } else {
                         PlaySyncCandidate()
