@@ -1,13 +1,17 @@
 package com.boardgamegeek.model.builder
 
 import android.database.Cursor
-import com.boardgamegeek.extensions.*
+import androidx.core.database.getDoubleOrNull
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
+import com.boardgamegeek.extensions.getBoolean
+import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.PlayPlayers
 import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.util.CursorUtils
 
 object PlayBuilder {
     val PLAY_PROJECTION = arrayOf(
@@ -30,8 +34,8 @@ object PlayBuilder {
 
     val PLAYER_PROJECTION = arrayOf(
             PlayPlayers.USER_ID,
-            PlayPlayers.USER_NAME,
             PlayPlayers.NAME,
+            PlayPlayers.USER_NAME,
             PlayPlayers.START_POSITION,
             PlayPlayers.COLOR,
             PlayPlayers.SCORE,
@@ -42,35 +46,35 @@ object PlayBuilder {
 
     fun fromCursor(cursor: Cursor): Play {
         return Play(
-                gameId = cursor.getIntOrNull(Plays.OBJECT_ID) ?: BggContract.INVALID_ID,
-                gameName = cursor.getStringOrEmpty(Plays.ITEM_NAME),
-                dateInMillis = cursor.getStringOrEmpty(Plays.DATE).toMillis(Play.FORMAT_DATABASE),
-                quantity = cursor.getIntOrNull(Plays.QUANTITY) ?: Play.QUANTITY_DEFAULT,
-                length = cursor.getIntOrNull(Plays.LENGTH) ?: Play.LENGTH_DEFAULT,
-                location = cursor.getStringOrEmpty(Plays.LOCATION),
-                comments = cursor.getStringOrEmpty(Plays.COMMENTS),
-                playId = cursor.getIntOrNull(Plays.PLAY_ID) ?: BggContract.INVALID_ID,
-                incomplete = cursor.getBoolean(Plays.INCOMPLETE),
-                noWinStats = cursor.getBoolean(Plays.NO_WIN_STATS),
-                startTime = cursor.getLongOrZero(Plays.START_TIME),
-                syncTimestamp = cursor.getLongOrZero(Plays.SYNC_TIMESTAMP),
-                deleteTimestamp = cursor.getLongOrZero(Plays.DELETE_TIMESTAMP),
-                updateTimestamp = cursor.getLongOrZero(Plays.UPDATE_TIMESTAMP),
-                dirtyTimestamp = cursor.getLongOrZero(Plays.DIRTY_TIMESTAMP),
+                gameId = cursor.getIntOrNull(2) ?: BggContract.INVALID_ID,
+                gameName = cursor.getStringOrNull(1).orEmpty(),
+                dateInMillis = cursor.getStringOrNull(3).toMillis(Play.FORMAT_DATABASE),
+                quantity = cursor.getIntOrNull(6) ?: Play.QUANTITY_DEFAULT,
+                length = cursor.getIntOrNull(5) ?: Play.LENGTH_DEFAULT,
+                location = cursor.getStringOrNull(4),
+                comments = cursor.getStringOrNull(9),
+                playId = cursor.getIntOrNull(0) ?: BggContract.INVALID_ID,
+                incomplete = cursor.getBoolean(7),
+                noWinStats = cursor.getBoolean(8),
+                startTime = cursor.getLongOrNull(11) ?: 0L,
+                syncTimestamp = cursor.getLongOrNull(10) ?: 0L,
+                deleteTimestamp = cursor.getLongOrNull(12) ?: 0L,
+                updateTimestamp = cursor.getLongOrNull(13) ?: 0L,
+                dirtyTimestamp = cursor.getLongOrNull(14) ?: 0L,
         )
     }
 
     private fun playerFromCursor(cursor: Cursor): Player {
         return Player(
-                name = CursorUtils.getString(cursor, PlayPlayers.NAME),
-                username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME),
-                color = CursorUtils.getString(cursor, PlayPlayers.COLOR),
-                startingPosition = CursorUtils.getString(cursor, PlayPlayers.START_POSITION),
-                score = CursorUtils.getString(cursor, PlayPlayers.SCORE),
-                userId = CursorUtils.getInt(cursor, PlayPlayers.USER_ID),
-                rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING, Player.DEFAULT_RATING),
-                isNew = CursorUtils.getBoolean(cursor, PlayPlayers.NEW),
-                isWin = CursorUtils.getBoolean(cursor, PlayPlayers.WIN),
+                userId = cursor.getIntOrNull(0) ?: BggContract.INVALID_ID,
+                name = cursor.getStringOrNull(1).orEmpty(),
+                username = cursor.getStringOrNull(2).orEmpty(),
+                startingPosition = cursor.getStringOrNull(3).orEmpty(),
+                color = cursor.getStringOrNull(4).orEmpty(),
+                score = cursor.getStringOrNull(5).orEmpty(),
+                rating = cursor.getDoubleOrNull(6) ?: Player.DEFAULT_RATING,
+                isNew = cursor.getBoolean(7),
+                isWin = cursor.getBoolean(8),
         )
     }
 
