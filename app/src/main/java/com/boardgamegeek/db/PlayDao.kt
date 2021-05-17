@@ -12,6 +12,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class PlayDao(private val context: BggApplication) {
@@ -470,13 +472,7 @@ class PlayDao(private val context: BggApplication) {
         return results
     }
 
-    fun loadPlayersByLocationAsLiveData(location: String = ""): LiveData<List<PlayerEntity>> {
-        return RegisteredLiveData(context, Plays.buildPlayersByUniqueNameUri(), false) {
-            return@RegisteredLiveData loadPlayersByLocation(location)
-        }
-    }
-
-    private fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> {
+    suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
         val results = mutableListOf<PlayerEntity>()
         val selection = if (location.isNotBlank()) "${Plays.LOCATION}=?" else null
         val selectionArgs = if (location.isNotBlank()) arrayOf(location) else null
@@ -496,17 +492,17 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    val count = it.getIntOrZero(PlayPlayers.SUM_QUANTITY)
+                    val count = it.getIntOrZero(3)
                     Timber.i(count.toString())
                     results += PlayerEntity(
-                            it.getStringOrEmpty(PlayPlayers.NAME),
-                            it.getStringOrEmpty(PlayPlayers.USER_NAME),
-                            rawAvatarUrl = it.getStringOrEmpty(Buddies.AVATAR_URL)
+                        name = it.getStringOrNull(0).orEmpty(),
+                        username = it.getStringOrNull(1).orEmpty(),
+                        rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
                     )
                 } while (it.moveToNext())
             }
         }
-        return results
+        results
     }
 
     enum class PlayerSortBy {

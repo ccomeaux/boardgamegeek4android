@@ -28,6 +28,8 @@ import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RateLimiter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
 import java.util.*
@@ -266,8 +268,8 @@ class PlayRepository(val application: BggApplication) {
         }
     }
 
-    fun loadPlayersByLocation(location: String = ""): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersByLocationAsLiveData(location)
+    suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
+        playDao.loadPlayersByLocation(location)
     }
 
     fun updatePlaysWithNickName(username: String, nickName: String): Int {

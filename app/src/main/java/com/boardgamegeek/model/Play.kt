@@ -76,8 +76,9 @@ data class Play @JvmOverloads constructor(
         return _players.size
     }
 
-    fun setPlayers(players: List<Player>) {
+    fun addPlayers(players: List<Player>, resort: Boolean) {
         _players.addAll(players)
+        if (resort) pickStartPlayer(0)
     }
 
     fun clearPlayers() {

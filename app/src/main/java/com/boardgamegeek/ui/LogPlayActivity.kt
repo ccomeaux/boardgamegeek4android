@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.Player
@@ -52,7 +53,6 @@ import org.jetbrains.anko.toast
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.io.use
 import kotlin.math.abs
 
 class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
@@ -75,6 +75,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var play: Play? = null
     private var lastRemovedPlayer: Player? = null
     private val gameColors = ArrayList<String>()
+    private val availablePlayers = mutableListOf<PlayerEntity>()
 
     @ColorInt
     private var fabColor = Color.TRANSPARENT
@@ -522,6 +523,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             gameColors.clear()
             gameColors.addAll(it)
         }
+        viewModel.playersByLocation.observe(this) {
+            availablePlayers.clear()
+            availablePlayers.addAll(it)
+        }
         viewModel.internalId.observe(this) { internalId = it }
         viewModel.play.observe(this) {
             this.play = it
@@ -732,56 +737,28 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     }
 
     private fun showPlayersToAddDialog(): Boolean {
-        val playersToAdd = mutableListOf<Player>()
-        val userNames = mutableListOf<String>()
-        val names = mutableListOf<String>()
-        val descriptions = mutableListOf<String>()
-        val selection = play?.location?.let {
-            if (it.isBlank()) null else "${Plays.LOCATION}=?" to arrayOf(it)
-        }
-        contentResolver.query(Plays.buildPlayersByUniqueNameUri(),
-                arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION, PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME),
-                selection?.first,
-                selection?.second,
-                PlayPlayers.SORT_BY_COUNT
-        )?.use { cursor ->
-            while (cursor.moveToNext()) {
-                val username = cursor.getString(1)
-                val name = cursor.getString(2)
-                val createId = Player.createId(username, name)
-                if (play?.players?.find { it.id == createId } == null) {
-                    userNames.add(username)
-                    names.add(name)
-                    descriptions.add(cursor.getString(3))
+        val playersToAdd = mutableListOf<PlayerEntity>()
+        AlertDialog.Builder(this)
+                .setTitle(R.string.title_add_players)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    viewModel.addPlayers(playersToAdd, !arePlayersCustomSorted)
                 }
-            }
-        }
-        if (descriptions.isEmpty()) return false
-        AlertDialog.Builder(this).setTitle(R.string.title_add_players)
-                .setPositiveButton(android.R.string.ok, addPlayersButtonClickListener(playersToAdd))
-                .setNeutralButton(R.string.more, addPlayersButtonClickListener(playersToAdd))
+                .setNeutralButton(R.string.more) { _, _ ->
+                    viewModel.addPlayers(playersToAdd, !arePlayersCustomSorted)
+                    addNewPlayer()
+                }
                 .setNegativeButton(android.R.string.cancel, null)
-                .setMultiChoiceItems(descriptions.toTypedArray<CharSequence>(), null) { _, which, isChecked ->
-                    val player = Player(name = names[which], username = userNames[which])
+                .setMultiChoiceItems(availablePlayers.map { it.description }.toTypedArray<CharSequence>(), null) { _, which, isChecked ->
+                    val player = availablePlayers[which]
                     if (isChecked) {
                         playersToAdd.add(player)
                     } else {
                         playersToAdd.remove(player)
                     }
-                }.create().show()
+                }
+                .create()
+                .show()
         return true
-    }
-
-    private fun addPlayersButtonClickListener(playersToAdd: MutableList<Player>): DialogInterface.OnClickListener {
-        return DialogInterface.OnClickListener { _: DialogInterface?, which: Int ->
-            viewModel.setPlayers(playersToAdd)
-            if (!arePlayersCustomSorted) {
-                viewModel.pickStartPlayer(0)
-            }
-            if (which == DialogInterface.BUTTON_NEUTRAL) {
-                addNewPlayer()
-            }
-        }
     }
 
     private fun autoSortPlayers() {
@@ -857,9 +834,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val o = oldList[oldItemPosition]
-            val n = newList[newItemPosition]
-            return o.id == n.id
+            return areItemsTheSame(oldItemPosition, newItemPosition)
         }
     }
 

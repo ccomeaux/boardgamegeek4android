@@ -53,9 +53,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     // Players
     val availablePlayers = MediatorLiveData<List<PlayerEntity>>()
-    private val allPlayers = playRepository.loadPlayersByLocation()
-    private val playersByLocation: LiveData<List<PlayerEntity>> = Transformations.switchMap(location) {
-        playRepository.loadPlayersByLocation(it)
+    private val allPlayers = liveData { emit(playRepository.loadPlayersByLocation()) }
+    private val playersByLocation: LiveData<List<PlayerEntity>> = location.switchMap {
+        liveData {
+            emit(playRepository.loadPlayersByLocation(it))
+        }
     }
     private var playerFilter = ""
     private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()

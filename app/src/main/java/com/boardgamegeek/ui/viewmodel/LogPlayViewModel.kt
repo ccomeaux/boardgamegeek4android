@@ -3,11 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import android.text.format.DateUtils
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.Player
@@ -20,6 +18,8 @@ import com.boardgamegeek.repository.PlayerColorAssigner
 import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.io.use
@@ -36,23 +36,12 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     private val _internalId = MutableLiveData<Long>()
     val internalId: LiveData<Long>
         get() = _internalId
-//
-//    fun setInternalId(internalId: Long) {
-//        if (_internalId.value != internalId) _internalId.value = internalId
-//    }
 
-//    val play: LiveData<Play> = Transformations.map(_internalId) { id ->
-//        PlayBuilder.
-//    }
-//    val play: LiveData<RefreshableResource<PlayEntity>> = Transformations.switchMap(_internalId) { id ->
-//        when (id) {
-//            null -> AbsentLiveData.create()
-//            else -> repository.getPlay(id)
-//        }
-//    }
+    private val _play: MutableLiveData<Play> = MutableLiveData<Play>()
+    val play: LiveData<Play>
+        get() = _play
 
     private val _gameId = MutableLiveData<Int>()
-
     fun setGame(id: Int) {
         if (_gameId.value != id) _gameId.value = id
     }
@@ -61,9 +50,33 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         gameRepository.getPlayColors(it)
     }
 
-    private val _play: MutableLiveData<Play> = MutableLiveData<Play>()
-    val play: LiveData<Play>
-        get() = _play
+    private val _location = MutableLiveData<String>()
+
+    private val _playersByLocation = MediatorLiveData<List<PlayerEntity>>()
+    val playersByLocation: LiveData<List<PlayerEntity>>
+        get() = _playersByLocation
+
+    init {
+        _playersByLocation.addSource(_location) { result ->
+            result?.let { filterPlayersByLocation(location = it) }
+        }
+        _playersByLocation.addSource(_play) { result ->
+            result?.let { filterPlayersByLocation(currentPlayers = result.players) }
+        }
+    }
+
+    private fun filterPlayersByLocation(
+            location: String = _location.value.orEmpty(),
+            currentPlayers: List<Player> = play.value?.players.orEmpty(),
+    ) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val allPlayers = playRepository.loadPlayersByLocation(location)
+            val filteredPlayers = allPlayers.filter {
+                currentPlayers.find { p -> p.id == it.id } == null
+            }
+            _playersByLocation.postValue(filteredPlayers)
+        }
+    }
 
     fun loadPlay(internalId: Long, gameId: Int, gameName: String, isRequestingToEndPlay: Boolean = false) {
         var p: Play? = null
@@ -72,14 +85,13 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             val lastPlay = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
             if (lastPlay.howManyHoursOld() < 12) {
                 p.location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
-                p.setPlayers(prefs.getLastPlayPlayers())
-                // TODO - only choose if game is auto-sortable
-                p.pickStartPlayer(0)
+                p.addPlayers(prefs.getLastPlayPlayers(), true) // TODO - only choose if game is auto-sortable
             }
         } else {
             val cursor = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null)
             cursor?.use {
                 it.moveToFirst()
+                // TODO don't user PlayBuilder
                 p = PlayBuilder.fromCursor(it)
                 if (isRequestingToEndPlay) {
                     p?.end()
@@ -92,7 +104,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             _internalId.value = internalId
         }
         p?.let {
-            if (originalPlay == null) originalPlay = it.copy()
+            if (originalPlay == null) originalPlay = it.copy() // TODO make sure the compares players correctly
+            _location.postValue(it.location.orEmpty())
             _play.postValue(it)
         }
     }
@@ -109,6 +122,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun updateLocation(location: String) {
         if (play.value?.location != location) {
+            _location.postValue(location)
             _play.value = play.value?.copy(location = location)
         }
     }
@@ -174,9 +188,11 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun setPlayers(players: List<Player>) {
-        _play.value?.setPlayers(players)
-        _play.value = play.value?.copy()
+    fun addPlayers(players: List<PlayerEntity>, resort: Boolean) {
+        play.value?.deepCopy()?.let { play ->
+            play.addPlayers(players.map { Player(name = it.name, username = it.username) }, resort)
+            _play.value = play
+        }
     }
 
     fun editPlayer(player: Player = Player(), position: Int? = null, resort: Boolean) {
