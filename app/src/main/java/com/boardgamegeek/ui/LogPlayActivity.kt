@@ -583,7 +583,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             shouldDeletePlayOnActivityCancel = true
             arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
         }
-        viewModel.setGame(gameId)
         viewModel.loadPlay(internalId, gameId, gameName)
 
 //        if (isRequestingRematch) {

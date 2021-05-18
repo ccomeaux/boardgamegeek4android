@@ -42,9 +42,6 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         get() = _play
 
     private val _gameId = MutableLiveData<Int>()
-    fun setGame(id: Int) {
-        if (_gameId.value != id) _gameId.value = id
-    }
 
     val colors: LiveData<List<String>> = Transformations.switchMap(_gameId) {
         gameRepository.getPlayColors(it)
@@ -79,6 +76,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun loadPlay(internalId: Long, gameId: Int, gameName: String, isRequestingToEndPlay: Boolean = false) {
+        _gameId.postValue(gameId)
         var p: Play? = null
         if (internalId == BggContract.INVALID_ID.toLong()) {
             p = Play(gameId, gameName)
