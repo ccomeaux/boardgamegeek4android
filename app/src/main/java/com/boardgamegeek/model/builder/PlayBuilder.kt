@@ -79,12 +79,12 @@ object PlayBuilder {
     }
 
     fun addPlayers(cursor: Cursor, play: Play) {
-        play.clearPlayers()
+        play.players.clear()
         while (cursor.moveToNext()) {
             play.addPlayer(playerFromCursor(cursor))
         }
         if (play.getPlayerCount() > 9 && !play.arePlayersCustomSorted()) {
-            play.sortPlayers()
+            play.players.sortBy { player -> player.seat }
         }
     }
 

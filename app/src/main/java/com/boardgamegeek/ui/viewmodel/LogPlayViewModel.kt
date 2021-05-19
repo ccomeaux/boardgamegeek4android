@@ -83,16 +83,24 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             val lastPlay = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
             if (lastPlay.howManyHoursOld() < 12) {
                 p.location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
-                p.addPlayers(prefs.getLastPlayPlayers(), true) // TODO - only choose if game is auto-sortable
+                p.players.addAll(prefs.getLastPlayPlayers())
+                pickStartPlayer(0)// TODO - only choose if game is auto-sortable
             }
         } else {
             val cursor = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null)
-            cursor?.use {
-                it.moveToFirst()
+            cursor?.use { cursor ->
+                cursor.moveToFirst()
                 // TODO don't user PlayBuilder
-                p = PlayBuilder.fromCursor(it)
+                p = PlayBuilder.fromCursor(cursor)
                 if (isRequestingToEndPlay) {
-                    p?.end()
+                    p?.let {
+                        it.length = if (it.startTime > 0) {
+                            it.startTime.howManyMinutesOld()
+                        } else {
+                            0
+                        }
+                        it.startTime = 0
+                    }
                 }
                 val cursor2 = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null)
                 cursor2?.use { c2 ->
@@ -134,7 +142,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     fun startTimer() {
         logTimer("Start")
         _play.value?.let {
-            it.start()
+            it.length = 0
+            it.startTime = System.currentTimeMillis()
             _play.value = it.copy()
         }
     }
@@ -142,7 +151,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     fun resumeTimer() {
         logTimer("Resume")
         _play.value?.let {
-            it.resume()
+            it.startTime = System.currentTimeMillis() - it.length * DateUtils.MINUTE_IN_MILLIS
+            it.length = 0
             _play.value = it.copy()
         }
     }
@@ -150,7 +160,12 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     fun endTimer() {
         logTimer("Off")
         _play.value?.let {
-            it.end()
+            it.length = if (it.startTime > 0) {
+                it.startTime.howManyMinutesOld()
+            } else {
+                0
+            }
+            it.startTime = 0
             _play.value = it.copy()
         }
     }
@@ -188,29 +203,56 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun addPlayers(players: List<PlayerEntity>, resort: Boolean) {
         play.value?.deepCopy()?.let { play ->
-            play.addPlayers(players.map { Player(name = it.name, username = it.username) }, resort)
+            play.players.addAll(players.map { Player(name = it.name, username = it.username) })
+            if (resort) {
+                val playerCount = play.players.size
+                for (i in 0 until playerCount) {
+                    play.players[i].seat = (i + playerCount) % playerCount + 1
+                }
+                play.players.sortBy { player -> player.seat }
+            }
             _play.value = play
         }
     }
 
     fun editPlayer(player: Player = Player(), position: Int? = null, resort: Boolean) {
         play.value?.copy()?.let {
-            it.replaceOrAddPlayer(player, position, resort)
+            if (position in it.players.indices) {
+                position?.let { p -> it.players[p] = player }
+            } else {
+                it.players.add(player)
+            }
+            if (resort) it.players.sortBy { player -> player.seat }
             _play.value = it
         }
     }
 
     fun addPlayer(player: Player = Player(), resort: Boolean) {
         play.value?.deepCopy()?.let {
-            it.addPlayer(player, resort)
+            if (resort) {
+                if (player.seat == Player.SEAT_UNKNOWN) {
+                    player.seat = it.players.size + 1
+                } else {
+                    it.players.filter { p -> p.seat >= player.seat }.forEach { p -> p.seat = p.seat + 1 }
+                }
+            }
+            it.players.add(player)
+            if (resort) it.players.sortBy { player -> player.seat }
             _play.value = it
         }
     }
 
     fun removePlayer(player: Player, resort: Boolean) {
         play.value?.deepCopy()?.let {
-            it.removePlayer(player, resort)
-            _play.value = it
+            if (it.players.size > 0) {
+                if (resort && !it.arePlayersCustomSorted()) {
+                    for (i in player.seat until it.players.size) {
+                        it.getPlayerAtSeat(i + 1)?.seat = i
+                    }
+                }
+                it.players.remove(player)
+                _play.value = it
+            }
         }
     }
 
@@ -220,36 +262,65 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearPositions() {
         play.value?.deepCopy()?.let {
-            it.clearPlayerPositions()
+            it.players.forEach { player -> player.startingPosition = "" }
             _play.value = it
         }
     }
 
     fun pickStartPlayer(index: Int) {
         play.value?.deepCopy()?.let {
-            it.pickStartPlayer(index)
+            val playerCount = it.players.size
+            for (i in 0 until playerCount) {
+                it.players[i].seat = (i - index + playerCount) % playerCount + 1
+            }
+            it.players.sortBy { player -> player.seat }
             _play.value = it
         }
     }
 
     fun pickRandomStartPlayer() {
         play.value?.deepCopy()?.let {
-            it.pickStartPlayer((0 until it.getPlayerCount()).random())
+            val startPlayerIndex = (0 until it.getPlayerCount()).random()
+            val playerCount = it.players.size
+            for (i in 0 until playerCount) {
+                it.players[i].seat = (i - startPlayerIndex + playerCount) % playerCount + 1
+            }
+            it.players.sortBy { player -> player.seat }
             _play.value = it
         }
     }
 
     fun randomizePlayerOrder() {
         play.value?.deepCopy()?.let {
-            it.randomizePlayerOrder()
-            _play.value = it
+            if (it.players.size > 0) {
+                it.players.shuffle()
+                for (i in 0 until it.players.size) {
+                    it.players[i].seat = i + 1
+                }
+                _play.value = it
+            }
         }
     }
 
     fun reorderPlayers(fromSeat: Int, toSeat: Int) {
         play.value?.deepCopy()?.let {
-            it.reorderPlayers(fromSeat, toSeat)
-            _play.value = it
+            if (it.players.size > 0 && !it.arePlayersCustomSorted()) {
+                it.getPlayerAtSeat(fromSeat)?.let { player ->
+                    player.seat = Player.SEAT_UNKNOWN
+                    if (fromSeat > toSeat) {
+                        for (i in fromSeat - 1 downTo toSeat) {
+                            it.getPlayerAtSeat(i)?.seat = i + 1
+                        }
+                    } else {
+                        for (i in fromSeat + 1..toSeat) {
+                            it.getPlayerAtSeat(i)?.seat = i - 1
+                        }
+                    }
+                    player.seat = toSeat
+                    it.players.sortBy { player -> player.seat }
+                    _play.value = it
+                }
+            }
         }
     }
 
@@ -279,8 +350,11 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     fun addScoreToPlayer(playerIndex: Int, score: Double) {
         play.value?.deepCopy()?.let {
             it.players[playerIndex].score = scoreFormat.format(score)
+            val highScore = it.players.maxOf { player ->
+                player.score.toDoubleOrNull() ?: -Double.MAX_VALUE
+            }
             for (p in it.players) {
-                p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == it.highScore
+                p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == highScore
             }
             _play.value = it
         }

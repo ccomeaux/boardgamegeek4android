@@ -533,8 +533,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             dateInMillis = it.dateInMillis
             length = it.length
             startTime = it.startTime
-            playersHaveColors = it.hasColors()
-            playersHaveStartingPositions = it.hasStartingPositions()
+            playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
+            playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
             playersAreCustomSorted = it.arePlayersCustomSorted()
             playerCount = it.getPlayerCount()
             playerDescriptions = it.players.mapIndexed { i, p ->
