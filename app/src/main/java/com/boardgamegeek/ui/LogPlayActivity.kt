@@ -71,7 +71,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var imageUrl: String = ""
     private var heroImageUrl: String = ""
 
-    private var internalIdToDelete = INVALID_ID.toLong()
     private var play: Play? = null
     private var lastRemovedPlayer: Player? = null
     private val gameColors = ArrayList<String>()
@@ -360,7 +359,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                         viewModel.saveDraft()
                     } else {
                         toast(R.string.msg_logging_play)
-                        viewModel.logPlay(internalIdToDelete)
+                        viewModel.logPlay()
                         cancelNotification()
                     }
                     setResult(RESULT_OK)
@@ -491,10 +490,9 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
 
-        val action = if (internalId == INVALID_ID.toLong()) "Action" else "Edit"
         FirebaseAnalytics.getInstance(this).logEvent("DataManipulation") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
-            param("Action", action)
+            param("Action", if (internalId == INVALID_ID.toLong()) "Action" else "Edit")
             param("GameName", gameName)
         }
 
@@ -515,6 +513,18 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             isUserShowingPlayers = it.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
             shouldDeletePlayOnActivityCancel = it.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL)
             arePlayersCustomSorted = it.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED)
+        }
+
+        if (internalId != INVALID_ID.toLong()) {
+            // Editing or copying an existing play
+            shouldDeletePlayOnActivityCancel = false
+            if (isRequestingRematch || isChangingGame) {
+                shouldDeletePlayOnActivityCancel = true
+            }
+        } else {
+            // Starting a new play
+            shouldDeletePlayOnActivityCancel = true
+            arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
         }
 
         wireUi()
@@ -572,27 +582,11 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             }
             progressView.hide()
         }
-        if (internalId != INVALID_ID.toLong()) {
-            // Editing or copying an existing play
-            shouldDeletePlayOnActivityCancel = false
-            if (isRequestingRematch || isChangingGame) {
-                shouldDeletePlayOnActivityCancel = true
-            }
-        } else {
-            // Starting a new play
-            shouldDeletePlayOnActivityCancel = true
-            arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
-        }
-        viewModel.loadPlay(internalId, gameId, gameName)
-
-//        if (isRequestingRematch) {
-//            play = rematch(play!!)
-//            internalId = INVALID_ID.toLong()
-//        } else if (isChangingGame) {
-//            play = play?.copy(playId = INVALID_ID)
-//            internalIdToDelete = internalId
-//            internalId = INVALID_ID.toLong()
-//        }
+        viewModel.loadPlay(internalId, gameId, gameName,
+                isRequestingToEndPlay,
+                isRequestingRematch,
+                isChangingGame,
+        )
 
         fab.postDelayed({ fab.show() }, 2000)
     }

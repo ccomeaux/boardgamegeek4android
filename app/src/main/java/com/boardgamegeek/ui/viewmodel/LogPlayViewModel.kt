@@ -12,6 +12,7 @@ import com.boardgamegeek.model.Player
 import com.boardgamegeek.model.builder.PlayBuilder
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.PlayerColorAssigner
@@ -32,6 +33,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private var originalPlay: Play? = null
     private val scoreFormat = DecimalFormat("0.#########")
+    private var internalIdToDelete: Long = INVALID_ID.toLong()
 
     private val _internalId = MutableLiveData<Long>()
     val internalId: LiveData<Long>
@@ -43,7 +45,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private val _gameId = MutableLiveData<Int>()
 
-    val colors: LiveData<List<String>> = Transformations.switchMap(_gameId) {
+    val colors: LiveData<List<String>> = _gameId.switchMap {
         gameRepository.getPlayColors(it)
     }
 
@@ -75,45 +77,78 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun loadPlay(internalId: Long, gameId: Int, gameName: String, isRequestingToEndPlay: Boolean = false) {
+    fun loadPlay(internalId: Long, gameId: Int, gameName: String, isRequestingToEndPlay: Boolean, isRequestingRematch: Boolean, isChangingGame: Boolean) {
         _gameId.postValue(gameId)
-        var p: Play? = null
-        if (internalId == BggContract.INVALID_ID.toLong()) {
-            p = Play(gameId, gameName)
-            val lastPlay = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
-            if (lastPlay.howManyHoursOld() < 12) {
-                p.location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
-                p.players.addAll(prefs.getLastPlayPlayers())
-                pickStartPlayer(0)// TODO - only choose if game is auto-sortable
+        val p: Play? = if (internalId == INVALID_ID.toLong()) {
+            Play(gameId, gameName).apply {
+                val lastPlay = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
+                if (lastPlay.howManyHoursOld() < 12) {
+                    this.location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
+                    this.players.addAll(prefs.getLastPlayPlayers())
+                    pickStartPlayer(0)// TODO - only choose if game is auto-sortable
+                }
             }
         } else {
-            val cursor = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null)
-            cursor?.use { cursor ->
-                cursor.moveToFirst()
-                // TODO don't user PlayBuilder
-                p = PlayBuilder.fromCursor(cursor)
-                if (isRequestingToEndPlay) {
-                    p?.let {
-                        it.length = if (it.startTime > 0) {
-                            it.startTime.howManyMinutesOld()
-                        } else {
-                            0
-                        }
-                        it.startTime = 0
-                    }
-                }
-                val cursor2 = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null)
-                cursor2?.use { c2 ->
-                    PlayBuilder.addPlayers(c2, p!!)
-                }
-            }
-            _internalId.value = internalId
+            loadPlay(internalId)
         }
         p?.let {
             if (originalPlay == null) originalPlay = it.copy() // TODO make sure the compares players correctly
             _location.postValue(it.location.orEmpty())
-            _play.postValue(it)
+            if (isRequestingToEndPlay) {
+                it.length = if (it.startTime > 0) {
+                    it.startTime.howManyMinutesOld()
+                } else {
+                    0
+                }
+                it.startTime = 0
+            }
+
+            when {
+                isRequestingRematch -> {
+                    val rematch = Play(
+                            gameId = it.gameId,
+                            gameName = it.gameName,
+                            location = it.location,
+                            noWinStats = it.noWinStats,
+                    )
+                    for (player in it.players) {
+                        val rematchPlayer = player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
+                        if (it.arePlayersCustomSorted()) {
+                            rematchPlayer.startingPosition = ""
+                        }
+                        rematch.addPlayer(rematchPlayer)
+                    }
+                    internalIdToDelete = INVALID_ID.toLong()
+                    _internalId.value = INVALID_ID.toLong()
+                    _play.postValue(rematch)
+                }
+                isChangingGame -> {
+                    internalIdToDelete = internalId
+                    _internalId.value = INVALID_ID.toLong()
+                    _play.postValue(it.copy(playId = INVALID_ID, gameId = gameId, gameName = gameName))
+                }
+                else -> {
+                    internalIdToDelete = INVALID_ID.toLong()
+                    _internalId.value = internalId
+                    _play.postValue(it)
+                }
+            }
         }
+    }
+
+    private fun loadPlay(internalId: Long): Play? {
+        var p: Play? = null
+        val cursor = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null)
+        cursor?.use { cursor ->
+            cursor.moveToFirst()
+            // TODO don't user PlayBuilder
+            p = PlayBuilder.fromCursor(cursor)
+            val cursor2 = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null)
+            cursor2?.use { c2 ->
+                PlayBuilder.addPlayers(c2, p!!)
+            }
+        }
+        return p
     }
 
     fun updateDate(year: Int, month: Int, day: Int) {
@@ -381,7 +416,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun logPlay(internalIdToDelete: Long = BggContract.INVALID_ID.toLong()) {
+    fun logPlay() {
         play.value?.let {
             val now = System.currentTimeMillis()
 
@@ -396,7 +431,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             it.deleteTimestamp = 0
             it.dirtyTimestamp = now
             save(it)
-            if (internalIdToDelete != BggContract.INVALID_ID.toLong()) {
+            if (internalIdToDelete != INVALID_ID.toLong()) {
                 playRepository.markAsDeleted(internalIdToDelete, null)
             }
             triggerUpload()
@@ -426,7 +461,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     private fun save(play: Play) {
         _internalId.value = playPersister.save(
                 play,
-                _internalId.value ?: BggContract.INVALID_ID.toLong(),
+                _internalId.value ?: INVALID_ID.toLong(),
                 true)
     }
 

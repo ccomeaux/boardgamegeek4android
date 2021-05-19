@@ -87,21 +87,4 @@ object PlayBuilder {
             play.players.sortBy { player -> player.seat }
         }
     }
-
-    fun rematch(play: Play): Play {
-        val rematch = Play(
-                gameId = play.gameId,
-                gameName = play.gameName,
-                location = play.location,
-                noWinStats = play.noWinStats,
-        )
-        for (player in play.players) {
-            val p = player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
-            if (play.arePlayersCustomSorted()) {
-                p.startingPosition = ""
-            }
-            rematch.addPlayer(p)
-        }
-        return rematch
-    }
 }
