@@ -52,7 +52,7 @@ class PlayMapper {
                 color = from.color,
                 score = from.score,
                 rating = from.rating,
-                userId = from.userid.toString(),
+                userId = from.userid,
                 isNew = from.new_ == 1,
                 isWin = from.win == 1,
         )

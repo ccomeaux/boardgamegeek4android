@@ -23,6 +23,13 @@ fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.u
     return asScore(context, defaultResId)
 }
 
+fun Double.asBoundedRating(context: Context): String {
+    return when (this) {
+        in 1.0..10.0 -> return asScore(context, 0, DecimalFormat("0.#"))
+        else -> ""
+    }
+}
+
 fun Double?.asScore(context: Context? = null, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#,##0.#")): String {
     return when {
         this != null -> format.format(this)

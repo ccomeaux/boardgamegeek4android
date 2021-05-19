@@ -40,15 +40,9 @@ data class Player @JvmOverloads constructor(
             startingPosition = value.toString()
         }
 
-    val ratingDescription: String
-        get() = if (rating in 1.0..10.0) {
-            rating.asScore(format = DecimalFormat("0.#")) // TODO better extension method
-        } else ""
+    val description: String = if (username.isBlank()) name else "$name ($username)"
 
-    val scoreDescription: String
-        get() = score.toDoubleOrNull()?.asScore() ?: score
-
-    val description: String
+    val fullDescription: String
         get() {
             var description = ""
             if (name.isEmpty()) {

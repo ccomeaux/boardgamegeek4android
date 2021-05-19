@@ -438,7 +438,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             lastRemovedPlayer = playAdapter.getPlayer(viewHolder.adapterPosition)
                             lastRemovedPlayer?.let { player ->
                                 coordinatorLayout.indefiniteSnackbar(
-                                        getString(R.string.msg_player_deleted, player.description.ifEmpty { getString(R.string.title_player) }),
+                                        getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
                                         getString(R.string.undo)) {
                                     lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = !arePlayersCustomSorted) }
                                 }
@@ -925,7 +925,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                         val usedColors = players.filter { it != player }.map { it.color } as ArrayList<String>
                         LogPlayPlayerColorPickerDialogFragment.launch(
                                 this@LogPlayActivity,
-                                player.description,
+                                player.fullDescription,
                                 gameColors,
                                 player.color,
                                 usedColors,
@@ -936,9 +936,9 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                     players.getOrNull(position)?.let { player ->
                         val fragment = LogPlayPlayerRatingNumberPadDialogFragment.newInstance(
                                 position,
-                                player.ratingDescription,
+                                player.rating.asBoundedRating(this@LogPlayActivity), // TODO does this work for other locales?
                                 player.color,
-                                player.description
+                                player.fullDescription
                         )
                         DialogUtils.showFragment(this@LogPlayActivity, fragment, "rating_dialog")
                     }
@@ -949,7 +949,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                 position,
                                 player.score,
                                 player.color,
-                                player.description)
+                                player.fullDescription)
                         DialogUtils.showFragment(this@LogPlayActivity, fragment, "score_dialog")
                     }
                 }

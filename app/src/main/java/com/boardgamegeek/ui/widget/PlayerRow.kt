@@ -115,8 +115,9 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 setText(usernameView, player.username, usernameTypeface, player.isNew, player.isWin)
             }
 
-            setText(scoreView, player.scoreDescription, scoreTypeface, false, player.isWin)
-            scoreButton.visibility = if (player.score.isEmpty()) View.GONE else View.VISIBLE
+            val scoreDescription = player.score?.toDoubleOrNull()?.asScore() ?: player.score.orEmpty()
+            setText(scoreView, scoreDescription, scoreTypeface, false, player.isWin)
+            scoreButton.visibility = if (player.score.isNullOrBlank()) View.GONE else View.VISIBLE
 
             if (player.rating == 0.0) {
                 ratingView.isVisible = false
