@@ -1,15 +1,12 @@
 package com.boardgamegeek.ui
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.AsyncQueryHandler
-import android.content.ContentResolver
 import android.content.Intent
-import android.database.Cursor
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -19,32 +16,28 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.GameColors
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter
 import com.boardgamegeek.ui.adapter.GameColorAdapter
 import com.boardgamegeek.ui.adapter.PlayerNameAdapter
 import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
-import com.boardgamegeek.util.HelpUtils
+import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
-import com.boardgamegeek.util.ShowcaseViewWizard
-import com.github.amlcurran.showcaseview.targets.Target
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_logplayer.*
 import org.jetbrains.anko.defaultSharedPreferences
-import java.util.*
+import kotlin.collections.ArrayList
 
 class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private val viewModel by viewModels<LogPlayerViewModel>()
 
     private var gameName = ""
     private var position = 0
     private var player = Player()
     private var originalPlayer: Player? = null
 
-    private var showcaseWizard: ShowcaseViewWizard? = null
     private var userHasShownTeamColor = false
     private var userHasShownPosition = false
     private var userHasShownScore = false
@@ -54,28 +47,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     private var autoPosition = Player.SEAT_UNKNOWN
     private var isNewPlayer = false
     private var usedColors: ArrayList<String>? = null
-    private var colors = arrayListOf<String>()
-
-    @SuppressLint("HandlerLeak")
-    private inner class QueryHandler(cr: ContentResolver?) : AsyncQueryHandler(cr) {
-        override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor?) {
-            if (cursor == null) {
-                return
-            }
-            if (isFinishing) {
-                cursor.close()
-                return
-            }
-            cursor.use { c ->
-                if (c.moveToFirst()) {
-                    colors = ArrayList()
-                    do {
-                        colors.add(cursor.getString(0))
-                    } while (c.moveToNext())
-                }
-            }
-        }
-    }
+    private val colors = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +90,11 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
 
+        viewModel.colors.observe(this, {
+            colors.clear()
+            colors.addAll(it)
+        })
+
         if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
             userHasShownScore = true
             scoreView.requestFocus()
@@ -141,17 +118,15 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
             userHasShownWin = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_WIN)
         }
 
-        this.usedColors = if (usedColors == null) ArrayList() else ArrayList(listOf(*usedColors))
+        this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
         thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
         bindUi()
-        QueryHandler(contentResolver).startQuery(0, null, Games.buildColorsUri(gameId), arrayOf(GameColors.COLOR), null, null, null)
         nameView.setAdapter(PlayerNameAdapter(this))
         usernameView.setAdapter(BuddyNameAdapter(this))
         teamColorView.setAdapter(GameColorAdapter(this, gameId))
-        setUpShowcaseViewWizard()
-        showcaseWizard?.maybeShowHelp()
+        viewModel.setGameId(gameId)
     }
 
     override fun onResume() {
@@ -191,11 +166,6 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
             til.setEndIconDrawable(R.drawable.ic_keyboard)
         }
         editText.focusWithKeyboard()
-    }
-
-    private fun setUpShowcaseViewWizard() {
-        showcaseWizard = ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION)
-        showcaseWizard?.addTarget(R.string.help_logplayer, Target.NONE)
     }
 
     private fun bindUi() {
@@ -345,6 +315,5 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         const val KEY_USER_HAS_SHOWN_RATING = "USER_HAS_SHOWN_RATING"
         const val KEY_USER_HAS_SHOWN_NEW = "USER_HAS_SHOWN_NEW"
         const val KEY_USER_HAS_SHOWN_WIN = "USER_HAS_SHOWN_WIN"
-        private const val HELP_VERSION = 2
     }
 }

@@ -175,6 +175,10 @@ class GameRepository(val application: BggApplication) {
         return dao.loadPlayColors(gameId)
     }
 
+    suspend fun getColors(gameId: Int): List<String> {
+        return dao.loadColors(gameId)
+    }
+
     fun addPlayColor(gameId: Int, color: String) {
         if (gameId == BggContract.INVALID_ID) return
         if (color.isBlank()) return

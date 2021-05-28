@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
@@ -19,6 +20,8 @@ import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class GameDao(private val context: BggApplication) {
@@ -346,6 +349,7 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
+    // TODO start using loadPlayColors
     fun loadPlayColors(gameId: Int): LiveData<List<String>> {
         if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildColorsUri(gameId)
@@ -360,6 +364,21 @@ class GameDao(private val context: BggApplication) {
             }
             return@RegisteredLiveData results
         }
+    }
+
+    suspend fun loadColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
+        val colors = mutableListOf<String>()
+        context.contentResolver.load(
+                Games.buildColorsUri(gameId),
+                arrayOf(GameColors.COLOR)
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    colors += it.getStringOrNull(0).orEmpty()
+                } while (it.moveToNext())
+            }
+        }
+        colors
     }
 
     fun loadPlayInfo(includeIncompletePlays: Boolean, includeExpansions: Boolean, includeAccessories: Boolean): List<GameForPlayStatEntity> {
