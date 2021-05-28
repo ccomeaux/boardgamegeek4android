@@ -352,7 +352,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                         }
                     }
                     player.seat = toSeat
-                    it.players.sortBy { player -> player.seat }
+                    it.players.sortBy { p -> p.seat }
                     _play.value = it
                 }
             }
@@ -360,8 +360,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun assignColors(clearExisting: Boolean = false) {
-        _play.value?.copy()?.let {
-            getApplication<BggApplication>().appExecutors.diskIO.execute {
+        _play.value?.deepCopy()?.let {
+            viewModelScope.launch(Dispatchers.Default) {
                 if (clearExisting) it.players.forEach { p -> p.color = "" }
                 val results = PlayerColorAssigner(getApplication(), it).execute()
                 for (pr in results) {
@@ -370,13 +370,13 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                         PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }?.color = pr.color
                     }
                 }
+                _play.postValue(it)
             }
-            _play.value = it
         }
     }
 
     fun addColorToPlayer(playerIndex: Int, color: String) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             it.players[playerIndex].color = color
             _play.value = it
         }
