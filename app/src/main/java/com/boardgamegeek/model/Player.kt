@@ -1,13 +1,12 @@
 package com.boardgamegeek.model
 
 import android.os.Parcelable
-import com.boardgamegeek.extensions.asScore
 import kotlinx.android.parcel.Parcelize
-import java.text.DecimalFormat
 import java.util.*
 
 @Parcelize
 data class Player @JvmOverloads constructor(
+        val uiId: Long = UUID.randomUUID().toString().hashCode().toLong(),
         @JvmField
         var name: String = "",
         @JvmField
