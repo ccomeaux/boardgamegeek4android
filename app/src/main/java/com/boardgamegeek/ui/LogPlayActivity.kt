@@ -140,7 +140,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         timerOffButton.setOnClickListener {
             isRequestingToEndPlay = true
             viewModel.endTimer()
-            cancelNotification()
+            cancelPlayingNotification()
             lengthView.apply {
                 this.selectAll()
                 this.focusWithKeyboard()
@@ -360,7 +360,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                     } else {
                         toast(R.string.msg_logging_play)
                         viewModel.logPlay()
-                        cancelNotification()
+                        cancelPlayingNotification()
                     }
                     setResult(RESULT_OK)
                     finish()
@@ -570,7 +570,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             playAdapter.submit(it.players)
             if (isRequestingToEndPlay) {
                 // TODO every time?
-                cancelNotification()
+                cancelPlayingNotification()
             } else {
                 if (it.hasStarted() && internalId != INVALID_ID.toLong()) {
                     this.launchPlayingNotification(
@@ -657,13 +657,17 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
             if (shouldDeletePlayOnActivityCancel) {
-                DialogUtils.createDiscardDialog(this, R.string.play, true, true) { viewModel.deletePlay() }.show()
+                DialogUtils.createDiscardDialog(this, R.string.play, true, true) {
+                    viewModel.deletePlay()
+                    cancelPlayingNotification()
+                }.show()
             } else {
                 DialogUtils.createDiscardDialog(this, R.string.play, false).show()
             }
         } else {
             if (shouldDeletePlayOnActivityCancel) {
                 viewModel.deletePlay()
+                cancelPlayingNotification()
             }
             setResult(RESULT_CANCELED)
             finish()
@@ -815,7 +819,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         startActivityForResult(intent, requestCode)
     }
 
-    private fun cancelNotification() {
+    private fun cancelPlayingNotification() {
         cancel(TAG_PLAY_TIMER, internalId)
     }
 

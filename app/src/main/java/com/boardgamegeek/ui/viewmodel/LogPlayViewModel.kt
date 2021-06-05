@@ -65,8 +65,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun filterPlayersByLocation(
-            location: String = _location.value.orEmpty(),
-            currentPlayers: List<Player> = play.value?.players.orEmpty(),
+        location: String = _location.value.orEmpty(),
+        currentPlayers: List<Player> = play.value?.players.orEmpty(),
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             val allPlayers = playRepository.loadPlayersByLocation(location)
@@ -77,7 +77,14 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun loadPlay(internalId: Long, gameId: Int, gameName: String, isRequestingToEndPlay: Boolean, isRequestingRematch: Boolean, isChangingGame: Boolean) {
+    fun loadPlay(
+        internalId: Long,
+        gameId: Int,
+        gameName: String,
+        isRequestingToEndPlay: Boolean,
+        isRequestingRematch: Boolean,
+        isChangingGame: Boolean
+    ) {
         _gameId.postValue(gameId)
         val p: Play? = if (internalId == INVALID_ID.toLong()) {
             Play(gameId, gameName).apply {
@@ -106,10 +113,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             when {
                 isRequestingRematch -> {
                     val rematch = Play(
-                            gameId = it.gameId,
-                            gameName = it.gameName,
-                            location = it.location,
-                            noWinStats = it.noWinStats,
+                        gameId = it.gameId,
+                        gameName = it.gameName,
+                        location = it.location,
+                        noWinStats = it.noWinStats,
                     )
                     for (player in it.players) {
                         val rematchPlayer = player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
@@ -421,7 +428,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             val now = System.currentTimeMillis()
 
             if (!it.isSynced &&
-                    (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())) {
+                (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())
+            ) {
                 prefs[KEY_LAST_PLAY_TIME] = now
                 prefs[KEY_LAST_PLAY_LOCATION] = it.location
                 prefs.putLastPlayPlayers(it.players)
@@ -454,15 +462,15 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             it.dirtyTimestamp = 0
             save(it)
             triggerUpload()
-//            cancelNotification()
         }
     }
 
     private fun save(play: Play) {
         _internalId.value = playPersister.save(
-                play,
-                _internalId.value ?: INVALID_ID.toLong(),
-                true)
+            play,
+            _internalId.value ?: INVALID_ID.toLong(),
+            true
+        )
     }
 
     private fun triggerUpload() {
