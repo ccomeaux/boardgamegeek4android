@@ -144,18 +144,29 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun loadPlay(internalId: Long): Play? {
-        var p: Play? = null
-        val cursor = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayUri(internalId), PlayBuilder.PLAY_PROJECTION, null, null, null)
-        cursor?.use { cursor ->
-            cursor.moveToFirst()
-            // TODO don't user PlayBuilder
-            p = PlayBuilder.fromCursor(cursor)
-            val cursor2 = getApplication<BggApplication>().contentResolver.query(BggContract.Plays.buildPlayerUri(internalId), PlayBuilder.PLAYER_PROJECTION, null, null, null)
-            cursor2?.use { c2 ->
-                PlayBuilder.addPlayers(c2, p!!)
+        // TODO don't user PlayBuilder, use repository/dao
+        getApplication<BggApplication>().contentResolver.query(
+            BggContract.Plays.buildPlayUri(internalId),
+            PlayBuilder.PLAY_PROJECTION,
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val play = PlayBuilder.fromCursor(cursor)
+                getApplication<BggApplication>().contentResolver.query(
+                    BggContract.Plays.buildPlayerUri(internalId),
+                    PlayBuilder.PLAYER_PROJECTION,
+                    null,
+                    null,
+                    null
+                )?.use { innerCursor ->
+                    PlayBuilder.addPlayers(innerCursor, play)
+                }
+                return play
             }
         }
-        return p
+        return null
     }
 
     fun updateDate(year: Int, month: Int, day: Int) {
@@ -371,11 +382,11 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             viewModelScope.launch(Dispatchers.Default) {
                 if (clearExisting) it.players.forEach { p -> p.color = "" }
                 val results = PlayerColorAssigner(getApplication(), it).execute()
-                for (pr in results) {
+                results.forEach { pr ->
                     when (pr.type) {
-                        PlayerColorAssigner.PlayerType.USER -> it.players.find { player -> player.username == pr.name }?.color = pr.color
-                        PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }?.color = pr.color
-                    }
+                        PlayerColorAssigner.PlayerType.USER -> it.players.find { player -> player.username == pr.name }
+                        PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }
+                    }?.color = pr.color
                 }
                 _play.postValue(it)
             }
