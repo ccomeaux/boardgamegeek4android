@@ -402,11 +402,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                         itemView.translationX = dX
 
                         // show background with an icon
-                        val icon = if (dX > 0) {
-                            deleteIcon
-                        } else {
-                            editIcon
-                        }
+                        val icon = if (dX > 0) deleteIcon else editIcon
                         val verticalPadding = (itemView.height - icon.height) / 2f
                         val background: RectF
                         val iconSrc: Rect
@@ -533,20 +529,11 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             isUserShowingNoWinStats = it.getBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS)
             isUserShowingComments = it.getBoolean(KEY_IS_USER_SHOWING_COMMENTS)
             isUserShowingPlayers = it.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
-            shouldDeletePlayOnActivityCancel = it.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL)
             shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
         }
 
-        if (internalId != INVALID_ID.toLong()) {
-            // Editing or copying an existing play
-            shouldDeletePlayOnActivityCancel = false
-            if (isRequestingRematch || isChangingGame) {
-                shouldDeletePlayOnActivityCancel = true
-            }
-        } else {
-            // Starting a new play
-            shouldDeletePlayOnActivityCancel = true
-        }
+        // TODO this is just overwriting the value restored from the bundle
+        shouldDeletePlayOnActivityCancel = if (internalId == INVALID_ID.toLong()) true else (isRequestingRematch || isChangingGame)
 
         wireUi()
 
@@ -629,7 +616,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         outState.putBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS, isUserShowingNoWinStats)
         outState.putBoolean(KEY_IS_USER_SHOWING_COMMENTS, isUserShowingComments)
         outState.putBoolean(KEY_IS_USER_SHOWING_PLAYERS, isUserShowingPlayers)
-        outState.putBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL, shouldDeletePlayOnActivityCancel)
         outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, shouldCustomSortPlayers)
     }
 
@@ -1008,7 +994,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         private const val KEY_IS_USER_SHOWING_NO_WIN_STATS = "IS_USER_SHOWING_NO_WIN_STATS"
         private const val KEY_IS_USER_SHOWING_COMMENTS = "IS_USER_SHOWING_COMMENTS"
         private const val KEY_IS_USER_SHOWING_PLAYERS = "IS_USER_SHOWING_PLAYERS"
-        private const val KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL = "SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL"
         private const val REQUEST_ADD_PLAYER = 1
         private const val REQUEST_EDIT_PLAYER = 2
 
