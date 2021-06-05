@@ -70,6 +70,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var thumbnailUrl: String = ""
     private var imageUrl: String = ""
     private var heroImageUrl: String = ""
+    private var shouldCustomSortPlayers = false
 
     private var play: Play? = null
     private var lastRemovedPlayer: Player? = null
@@ -91,7 +92,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var isUserShowingComments = false
     private var isUserShowingPlayers = false
     private var shouldDeletePlayOnActivityCancel = false
-    private var arePlayersCustomSorted = false
     private var isLaunchingActivity = false
     private var shouldSaveOnPause = true
 
@@ -172,11 +172,11 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         }
         playerSortButton.setOnClickListener {
             val popup = PopupMenu(this@LogPlayActivity, it)
-            popup.inflate(if (!arePlayersCustomSorted && playerCount > 1) R.menu.log_play_player_sort else R.menu.log_play_player_sort_short)
+            popup.inflate(if (!shouldCustomSortPlayers && playerCount > 1) R.menu.log_play_player_sort else R.menu.log_play_player_sort_short)
             popup.setOnMenuItemClickListener { item: MenuItem ->
                 when (item.itemId) {
                     R.id.menu_custom_player_order -> {
-                        if (arePlayersCustomSorted) {
+                        if (shouldCustomSortPlayers) {
                             logPlayerOrder("NotCustom")
                             if (playersHaveStartingPositions && playersAreCustomSorted) {
                                 DialogUtils.createConfirmationDialog(
@@ -184,8 +184,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                     R.string.are_you_sure_player_sort_custom_off,
                                     { _: DialogInterface?, _: Int -> autoSortPlayers() },
                                     R.string.sort
-                                )
-                                    .show()
+                                ).show()
                             } else {
                                 autoSortPlayers()
                             }
@@ -195,10 +194,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                 val builder = AlertDialog.Builder(this@LogPlayActivity)
                                     .setMessage(R.string.message_custom_player_order)
                                     .setPositiveButton(R.string.keep) { _: DialogInterface?, _: Int ->
-                                        arePlayersCustomSorted = true
+                                        shouldCustomSortPlayers = true
                                     }
                                     .setNegativeButton(R.string.clear) { _: DialogInterface?, _: Int ->
-                                        arePlayersCustomSorted = true
+                                        shouldCustomSortPlayers = true
                                         viewModel.clearPositions()
                                     }
                                     .setCancelable(true)
@@ -248,8 +247,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 addNewPlayer()
             }
         } else {
-            viewModel.addPlayer(resort = !arePlayersCustomSorted)
-            //recyclerView.smoothScrollToPosition(playAdapter.itemCount) // TODO do this when the player adapter updates
+            viewModel.addPlayer(resort = shouldAutoSort())
         }
     }
 
@@ -458,15 +456,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                 getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
                                 getString(R.string.undo)
                             ) {
-                                lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = !arePlayersCustomSorted) }
+                                lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = shouldAutoSort()) }
                             }
-                            viewModel.removePlayer(player, !arePlayersCustomSorted)
+                            viewModel.removePlayer(player, shouldAutoSort())
                         }
                     } else {
                         editPlayer(viewHolder.adapterPosition)
-                        // TODO
-                        // (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemClear() // This should be called in `override fun clearView`
-                        //playAdapter.notifyDataSetChanged() // Need to clear the swiped player
                     }
                     clearView(recyclerView, viewHolder)
                 }
@@ -494,7 +489,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 }
 
                 override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-                    return if (arePlayersCustomSorted) makeMovementFlags(
+                    return if (!shouldAutoSort()) makeMovementFlags(
                         0,
                         getSwipeDirs(recyclerView, viewHolder)
                     ) else super.getMovementFlags(recyclerView, viewHolder)
@@ -515,6 +510,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
+        shouldCustomSortPlayers = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
 
         FirebaseAnalytics.getInstance(this).logEvent("DataManipulation") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
@@ -538,7 +534,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             isUserShowingComments = it.getBoolean(KEY_IS_USER_SHOWING_COMMENTS)
             isUserShowingPlayers = it.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
             shouldDeletePlayOnActivityCancel = it.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL)
-            arePlayersCustomSorted = it.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED)
+            shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
         }
 
         if (internalId != INVALID_ID.toLong()) {
@@ -550,7 +546,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         } else {
             // Starting a new play
             shouldDeletePlayOnActivityCancel = true
-            arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
         }
 
         wireUi()
@@ -577,11 +572,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
             }
             usedColors = it.players.map { p -> p.color }
-            arePlayersCustomSorted = if (it.getPlayerCount() > 0) {
-                it.arePlayersCustomSorted()
-            } else {
-                intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
-            }
 
             bindHeader()
             bindDate(it)
@@ -640,7 +630,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         outState.putBoolean(KEY_IS_USER_SHOWING_COMMENTS, isUserShowingComments)
         outState.putBoolean(KEY_IS_USER_SHOWING_PLAYERS, isUserShowingPlayers)
         outState.putBoolean(KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL, shouldDeletePlayOnActivityCancel)
-        outState.putBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED, arePlayersCustomSorted)
+        outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, shouldCustomSortPlayers)
     }
 
     override fun onPause() {
@@ -665,19 +655,18 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 val position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION)
                 when (requestCode) {
                     REQUEST_ADD_PLAYER -> {
-                        viewModel.addPlayer(player, resort = !arePlayersCustomSorted)
+                        viewModel.addPlayer(player, resort = shouldAutoSort())
                         addNewPlayer()
                     }
                     REQUEST_EDIT_PLAYER -> if (position == LogPlayerActivity.INVALID_POSITION) {
                         Timber.w("Invalid player position after edit")
                     } else {
-                        viewModel.editPlayer(player, position, resort = !arePlayersCustomSorted)
+                        viewModel.editPlayer(player, position, resort = shouldAutoSort())
                     }
                     else -> Timber.w("Received invalid request code: %d", requestCode)
                 }
             }
         }
-        // TODO scroll to the position of the last edited or added player, even when cancelling
     }
 
     private fun cancel() {
@@ -774,10 +763,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         AlertDialog.Builder(this)
             .setTitle(R.string.title_add_players)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.addPlayers(playersToAdd, !arePlayersCustomSorted)
+                viewModel.addPlayers(playersToAdd, shouldAutoSort())
             }
             .setNeutralButton(R.string.more) { _, _ ->
-                viewModel.addPlayers(playersToAdd, !arePlayersCustomSorted)
+                viewModel.addPlayers(playersToAdd, shouldAutoSort())
                 addNewPlayer()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -797,14 +786,16 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         return true
     }
 
+    private fun shouldAutoSort() = !shouldCustomSortPlayers && !playersAreCustomSorted
+
     private fun autoSortPlayers() {
-        arePlayersCustomSorted = false
+        shouldCustomSortPlayers = false
         viewModel.pickStartPlayer(0)
     }
 
     private fun addNewPlayer() {
         val intent = Intent()
-        if (!arePlayersCustomSorted) {
+        if (shouldAutoSort()) {
             intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, playerCount + 1)
         }
         editPlayer(intent, REQUEST_ADD_PLAYER)
@@ -815,7 +806,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         val intent = Intent().apply {
             putExtra(LogPlayerActivity.KEY_PLAYER, player)
             putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
-            if (!arePlayersCustomSorted && player != null) {
+            if (shouldAutoSort() && player != null) {
                 putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.seat)
             }
             putExtra(LogPlayerActivity.KEY_POSITION, position)
@@ -874,6 +865,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             val diffCallback = Diff(oldPlayers, this.players)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             diffResult.dispatchUpdatesTo(this)
+            // TODO: smooth scroll to the "newest" player
         }
 
         init {
@@ -920,7 +912,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
             @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
-                row.setAutoSort(!arePlayersCustomSorted)
+                row.setAutoSort(shouldAutoSort())
                 row.setPlayer(getPlayer(position))
                 row.setNameListener { editPlayer(position) }
                 row.setOnMoreListener {
@@ -1017,7 +1009,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         private const val KEY_IS_USER_SHOWING_COMMENTS = "IS_USER_SHOWING_COMMENTS"
         private const val KEY_IS_USER_SHOWING_PLAYERS = "IS_USER_SHOWING_PLAYERS"
         private const val KEY_SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL = "SHOULD_DELETE_PLAY_ON_ACTIVITY_CANCEL"
-        private const val KEY_ARE_PLAYERS_CUSTOM_SORTED = "ARE_PLAYERS_CUSTOM_SORTED"
         private const val REQUEST_ADD_PLAYER = 1
         private const val REQUEST_EDIT_PLAYER = 2
 
