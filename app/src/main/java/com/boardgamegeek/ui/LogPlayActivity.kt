@@ -446,7 +446,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
                     if (swipeDir == ItemTouchHelper.RIGHT) {
-                        lastRemovedPlayer = playAdapter.getPlayer(viewHolder.adapterPosition)
+                        lastRemovedPlayer = playAdapter.getPlayer(viewHolder.bindingAdapterPosition)
                         lastRemovedPlayer?.let { player ->
                             coordinatorLayout.indefiniteSnackbar(
                                 getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
@@ -457,7 +457,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             viewModel.removePlayer(player, shouldAutoSort())
                         }
                     } else {
-                        editPlayer(viewHolder.adapterPosition)
+                        editPlayer(viewHolder.bindingAdapterPosition)
                     }
                     clearView(recyclerView, viewHolder)
                 }
@@ -468,9 +468,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                     target: RecyclerView.ViewHolder
                 ): Boolean {
                     if (target !is PlayAdapter.PlayerViewHolder) return false
-                    val fromPosition = viewHolder.adapterPosition
-                    val toPosition = target.adapterPosition
-                    viewModel.reorderPlayers(fromPosition + 1, toPosition + 1)
+                    viewModel.reorderPlayers(viewHolder.bindingAdapterPosition + 1, target.bindingAdapterPosition + 1)
                     return true
                 }
 
@@ -939,7 +937,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             gameColors,
                             player.color,
                             usedColors,
-                            adapterPosition
+                            bindingAdapterPosition
                         )
                     }
                 }
