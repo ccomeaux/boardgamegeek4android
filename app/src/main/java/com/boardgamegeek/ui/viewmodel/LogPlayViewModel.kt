@@ -92,14 +92,14 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                 if (lastPlay.howManyHoursOld() < 12) {
                     this.location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
                     this.players.addAll(prefs.getLastPlayPlayers())
-                    pickStartPlayer(0)// TODO - only choose if game is auto-sortable
+                    pickStartPlayer(0) // TODO - only choose if game is auto-sortable
                 }
             }
         } else {
             loadPlay(internalId)
         }
         p?.let {
-            if (originalPlay == null) originalPlay = it.copy() // TODO make sure the compares players correctly
+            if (originalPlay == null) originalPlay = it.deepCopy()
             _location.postValue(it.location.orEmpty())
             if (isRequestingToEndPlay) {
                 it.length = if (it.startTime > 0) {
