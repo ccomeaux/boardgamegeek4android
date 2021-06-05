@@ -462,7 +462,6 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             it.dirtyTimestamp = System.currentTimeMillis()
             it.deleteTimestamp = 0
             save(it)
-//            maybeShowNotification()
         }
     }
 

@@ -94,6 +94,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var shouldDeletePlayOnActivityCancel = false
     private var isLaunchingActivity = false
     private var shouldSaveOnPause = true
+    private var showNotification = false
 
     private var dateInMillis: Long? = null
     private var startTime: Long = 0L
@@ -128,11 +129,18 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         timerButton.setOnClickListener {
             if (length == 0) {
                 viewModel.startTimer()
+                showNotification = true
             } else {
                 DialogUtils.createThemedBuilder(this@LogPlayActivity)
                     .setMessage(R.string.are_you_sure_timer_reset)
-                    .setPositiveButton(R.string.continue_) { _, _ -> viewModel.resumeTimer() }
-                    .setNegativeButton(R.string.reset) { _, _ -> viewModel.startTimer() }
+                    .setPositiveButton(R.string.continue_) { _, _ ->
+                        viewModel.resumeTimer()
+                        showNotification = true
+                    }
+                    .setNegativeButton(R.string.reset) { _, _ ->
+                        viewModel.startTimer()
+                        showNotification = true
+                    }
                     .setCancelable(true)
                     .show()
             }
@@ -308,8 +316,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             }
             length > 0 -> {
                 lengthView.setTextKeepState(if (length == Play.LENGTH_DEFAULT) "" else length.toString())
-                timerButton.isEnabled = (dateInMillis
-                    ?: 0 + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
                 lengthGroup.isVisible = true
                 timerGroup.isVisible = false
             }
@@ -318,6 +324,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 timerGroup.isVisible = false
             }
         }
+        timerButton.isEnabled = (dateInMillis ?: 0 + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
     }
 
     private fun bindQuantity(play: Play) {
@@ -530,10 +537,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
         }
 
-        // TODO this is just overwriting the value restored from the bundle
         shouldDeletePlayOnActivityCancel = if (internalId == INVALID_ID.toLong()) true else (isRequestingRematch || isChangingGame)
 
         wireUi()
+        if (isRequestingToEndPlay) {
+            cancelPlayingNotification()
+        }
 
         viewModel.colors.observe(this) {
             gameColors.clear()
@@ -568,24 +577,21 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             bindComments(it)
             bindPlayerHeader(it.getPlayerCount())
             playAdapter.submit(it.players)
-            if (isRequestingToEndPlay) {
-                // TODO every time?
-                cancelPlayingNotification()
-            } else {
-                if (it.hasStarted() && internalId != INVALID_ID.toLong()) {
-                    this.launchPlayingNotification(
-                        internalId,
-                        it.gameName,
-                        it.location.orEmpty(),
-                        it.getPlayerCount(),
-                        it.startTime,
-                        thumbnailUrl,
-                        imageUrl,
-                        heroImageUrl
-                    )
-                }
-            }
             progressView.hide()
+
+            if (showNotification && internalId != INVALID_ID.toLong()) {
+                showNotification = false
+                this.launchPlayingNotification(
+                    internalId,
+                    it.gameName,
+                    it.location.orEmpty(),
+                    it.getPlayerCount(),
+                    it.startTime,
+                    thumbnailUrl,
+                    imageUrl,
+                    heroImageUrl
+                )
+            }
         }
         viewModel.loadPlay(
             internalId,
