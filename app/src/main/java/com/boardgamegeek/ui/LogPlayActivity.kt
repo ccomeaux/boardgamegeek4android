@@ -636,7 +636,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 when (requestCode) {
                     REQUEST_ADD_PLAYER -> {
                         viewModel.addPlayer(player, resort = shouldAutoSort())
-                        addNewPlayer()
+                        addNewPlayer(playerCount + 2) // this offset the zero-index and accounts for the player just added, but not in the playercount yet
                     }
                     REQUEST_EDIT_PLAYER -> if (position == LogPlayerActivity.INVALID_POSITION) {
                         Timber.w("Invalid player position after edit")
@@ -743,6 +743,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     }
 
     private fun showPlayersToAddDialog(): Boolean {
+        if (availablePlayers.isEmpty()) return false
         val playersToAdd = mutableListOf<PlayerEntity>()
         AlertDialog.Builder(this)
             .setTitle(R.string.title_add_players)
@@ -777,10 +778,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         viewModel.pickStartPlayer(0)
     }
 
-    private fun addNewPlayer() {
+    private fun addNewPlayer(autoPosition:Int = playerCount + 1) {
         val intent = Intent()
         if (shouldAutoSort()) {
-            intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, playerCount + 1)
+            intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, autoPosition)
         }
         editPlayer(intent, REQUEST_ADD_PLAYER)
     }
