@@ -1,16 +1,16 @@
 package com.boardgamegeek.service
 
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.service.model.CollectionItem
-
 import okhttp3.OkHttpClient
 
 class CollectionWantPartsUploadTask(client: OkHttpClient) : CollectionTextUploadTask(client) {
-    override fun getTimestampColumn() = Collection.WANT_PARTS_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.WANT_PARTS_DIRTY_TIMESTAMP
 
-    override fun getFieldName() = "wantpartslist"
+    @Suppress("SpellCheckingInspection")
+    override val fieldName = "wantpartslist"
 
-    override fun getValue(collectionItem: CollectionItem) = collectionItem.wantParts.orEmpty()
+    override fun getValue() = collectionItem.wantParts.orEmpty()
 
-    override fun isDirty() = collectionItem.wantPartsDirtyTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.wantPartsDirtyTimestamp > 0
 }

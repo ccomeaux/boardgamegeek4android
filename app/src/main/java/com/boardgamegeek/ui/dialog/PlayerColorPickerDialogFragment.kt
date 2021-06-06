@@ -30,12 +30,7 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
                 arguments = createBundle(
                         R.string.title_add_color,
                         ColorUtils.colorList,
-                        null,
-                        null,
-                        null,
-                        4,
-                        0,
-                        hiddenColors)
+                        hiddenColors = hiddenColors)
 
             }
             activity.showAndSurvive(dialogFragment)

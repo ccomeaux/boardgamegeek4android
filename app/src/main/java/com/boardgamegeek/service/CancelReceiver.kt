@@ -38,6 +38,6 @@ class CancelReceiver : BroadcastReceiver() {
 
     private fun cancelSync(context: Context, message: String) {
         notifyCause(context, message)
-        SyncService.cancelSync(context)
+        context.cancelSync()
     }
 }

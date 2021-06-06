@@ -131,27 +131,11 @@ fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String?> {
 
 // region PLAY LOGGING
 
-private const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
-private const val LOG_EDIT_PLAYER = "logEditPlayer"
+const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
+const val LOG_EDIT_PLAYER = "logEditPlayer"
 const val LOG_PLAY_TYPE_FORM = "form"
 const val LOG_PLAY_TYPE_QUICK = "quick"
 const val LOG_PLAY_TYPE_WIZARD = "wizard"
-
-fun SharedPreferences.getEditPlayerPrompted(): Boolean {
-    return this[LOG_EDIT_PLAYER_PROMPTED, false] ?: false
-}
-
-fun SharedPreferences.putEditPlayerPrompted() {
-    this[LOG_EDIT_PLAYER_PROMPTED] = true
-}
-
-fun SharedPreferences.getEditPlayer(): Boolean {
-    return this[LOG_EDIT_PLAYER, false] ?: false
-}
-
-fun SharedPreferences.putEditPlayer(value: Boolean) {
-    this[LOG_EDIT_PLAYER] = value
-}
 
 fun SharedPreferences.logPlayPreference(): String {
     return this.getString("logPlayType", null)
@@ -243,15 +227,11 @@ const val KEY_ADVANCED_DATES = "advancedForumDates"
 
 //region LAST PLAY
 
-private const val KEY_LAST_PLAY_TIME = "last_play_time"
-private const val KEY_LAST_PLAY_LOCATION = "last_play_location"
-private const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
+const val KEY_LAST_PLAY_TIME = "last_play_time"
+const val KEY_LAST_PLAY_LOCATION = "last_play_location"
+const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
 private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
 private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
-
-fun SharedPreferences.getLastPlayTime(): Long {
-    return this[KEY_LAST_PLAY_TIME, 0L] ?: 0L
-}
 
 fun SharedPreferences.putLastPlayTime(millis: Long) {
     this[KEY_LAST_PLAY_TIME] = millis
@@ -265,7 +245,7 @@ fun SharedPreferences.putLastPlayLocation(location: String?) {
     this[KEY_LAST_PLAY_LOCATION] = location
 }
 
-fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
+fun SharedPreferences.getLastPlayPlayers(): List<Player> {
     val players: MutableList<Player> = ArrayList()
     val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
     val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
@@ -286,7 +266,7 @@ fun SharedPreferences.getLastPlayPlayers(): List<Player>? {
 }
 
 // TODO
-fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity>? {
+fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
     val players: MutableList<PlayerEntity> = ArrayList()
     val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
     val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
@@ -326,7 +306,7 @@ fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>)
 
 private const val KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp"
 
-fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long? {
+fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long {
     return this[KEY_PRIVACY_CHECK_TIMESTAMP, 0L] ?: 0L
 }
 

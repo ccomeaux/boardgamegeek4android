@@ -1,16 +1,16 @@
 package com.boardgamegeek.service
 
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.service.model.CollectionItem
-
 import okhttp3.OkHttpClient
 
 class CollectionTradeConditionUploadTask(client: OkHttpClient) : CollectionTextUploadTask(client) {
-    override fun getTimestampColumn() = Collection.TRADE_CONDITION_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.TRADE_CONDITION_DIRTY_TIMESTAMP
 
-    override fun getFieldName() = "conditiontext"
+    @Suppress("SpellCheckingInspection")
+    override val fieldName = "conditiontext"
 
-    override fun getValue(collectionItem: CollectionItem) = collectionItem.tradeCondition.orEmpty()
+    override fun getValue() = collectionItem.tradeCondition.orEmpty()
 
-    override fun isDirty() = collectionItem.tradeConditionDirtyTimestamp > 0
+    override val isDirty: Boolean
+        get() = collectionItem.tradeConditionDirtyTimestamp > 0
 }

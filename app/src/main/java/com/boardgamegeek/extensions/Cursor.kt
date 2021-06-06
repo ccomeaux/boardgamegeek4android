@@ -29,12 +29,6 @@ fun Cursor.getString(columnName: String, defaultValue: String = ""): String {
     } else value
 }
 
-inline fun String.whereZeroOrNull() = "($this=0 OR $this IS NULL)"
-
-inline fun String.whereEqualsOrNull() = "($this=? OR $this IS NULL)"
-
-inline fun String.whereNotEqualsOrNull() = "($this!=? OR $this IS NULL)"
-
 /**
  * Fix for Cursor not implementing Closeable until API level 16.
  */
@@ -76,6 +70,8 @@ inline fun Cursor.getStringOrEmpty(columnName: String) =
         getColumnIndexOrThrow(columnName).let { if (isNull(it)) "" else getString(it) ?: "" }
 
 // Below is copied from KTX. Replace with library once it's released
+
+inline fun Cursor.getDouble(columnName: String): Double = getDouble(getColumnIndexOrThrow(columnName))
 
 inline fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
 

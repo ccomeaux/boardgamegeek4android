@@ -2,6 +2,7 @@
 
 package com.boardgamegeek.extensions
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -11,10 +12,12 @@ import android.text.TextUtils
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.preference.PreferenceManager
+import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.util.NotificationUtils
 
 fun Context.preferences(name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
     PreferenceManager.getDefaultSharedPreferences(this)
@@ -56,10 +59,16 @@ fun Context.versionName(): String {
 }
 
 fun Context?.logQuickPlay(gameId: Int, gameName: String) {
-    val play = Play(gameId, gameName).apply {
-        setCurrentDate()
+    val play = Play(gameId = gameId, gameName = gameName).apply {
         updateTimestamp = System.currentTimeMillis()
     }
     PlayPersister(this).save(play, BggContract.INVALID_ID.toLong(), false)
     SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+}
+
+fun Context?.cancelSync() {
+    NotificationUtils.cancel(this, NotificationUtils.TAG_SYNC_PROGRESS)
+    Authenticator.getAccount(this)?.let { account ->
+        ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY)
+    }
 }

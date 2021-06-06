@@ -512,7 +512,6 @@
 	<string name="help_collection_random">- Wybrać losowej gry spośród widocznych po przefiltorwaniu</string>
 	<string name="help_collection_long_click">- Możesz również dotknąć i przytrzymać grę, aby uzyskać więcej opcji</string>
 	<string name="help_searchresults">Dotknij i przytrzymaj grę, aby uzyskać więcej opcji.</string>
-	<string name="help_logplay">Pozycje startowe graczy są określane automatycznie, pozwalając Ci na zmiany za pomocą przeciągania palcem. Możesz to wyłączyć wybierając w menu własną kolejność graczy.\n\nZa dużo pól? Sprawdź w ustawienich jak skofigurować ten formularz.</string>
 	<string name="help_logplayer">Podczas dodawania gracza zostanie automatycznie dodany kolejny gracz dopóki nie wyjdziesz z tego ekranu.\n\nZa dużo pól? Sprawdź w ustawienich jak skofigurować ten formularz.</string>
 	<string name="help_thread">Brakuje obrazów? Kliknij ikonę w nagłówku artykułu, aby zobaczyć cały artykuł.</string>
 	<string name="last_modified_prefix">Ostatnia modyfikacja %s</string>

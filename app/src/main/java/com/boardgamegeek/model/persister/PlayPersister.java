@@ -5,7 +5,6 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -17,7 +16,6 @@ import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -35,50 +33,6 @@ public class PlayPersister {
 		this.context = context;
 		resolver = context.getContentResolver();
 		batch = new ArrayList<>();
-	}
-
-	/*
-	 * Delete the play from the content provider.
-	 */
-	public boolean delete(long internalId) {
-		return resolver.delete(Plays.buildPlayUri(internalId), null, null) > 0;
-	}
-
-	public void save(List<Play> plays, long startTime) {
-		int updateCount = 0;
-		int insertCount = 0;
-		int unchangedCount = 0;
-		int dirtyCount = 0;
-		int errorCount = 0;
-		if (plays != null) {
-			for (Play play : plays) {
-				if (play.playId <= 0) {
-					Timber.i("Can't sync a play without a play ID.");
-					errorCount++;
-				} else {
-					play.syncTimestamp = startTime;
-					PlaySyncCandidate candidate = PlaySyncCandidate.find(resolver, play.playId);
-					if (candidate.getInternalId() == BggContract.INVALID_ID) {
-						save(play, BggContract.INVALID_ID, true);
-						insertCount++;
-					} else {
-						if (candidate.isDirty()) {
-							Timber.i("Not saving during the sync; local play is modified.");
-							dirtyCount++;
-						} else if (candidate.getSyncHashCode() == generateSyncHashCode(play)) {
-							updateSyncTimestamp(candidate.getInternalId(), startTime);
-							unchangedCount++;
-						} else {
-							save(play, candidate.getInternalId(), true);
-							updateCount++;
-						}
-					}
-				}
-			}
-		}
-
-		Timber.i("Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
-			updateCount, insertCount, unchangedCount, dirtyCount, errorCount);
 	}
 
 	public long save(Play play, long internalId, boolean includePlayers) {
@@ -128,12 +82,6 @@ public class PlayPersister {
 		return insertedId;
 	}
 
-	private void updateSyncTimestamp(long internalId, long startTime) {
-		ContentValues values = new ContentValues(1);
-		values.put(Plays.SYNC_TIMESTAMP, startTime);
-		resolver.update(Plays.buildPlayUri(internalId), values, null, null);
-	}
-
 	private boolean isBoardgameSubtype(Play play) {
 		if (play.subtypes == null || play.subtypes.isEmpty()) {
 			return true;
@@ -159,7 +107,7 @@ public class PlayPersister {
 			sb.append(player.username).append("\n");
 			sb.append(player.userId).append("\n");
 			sb.append(player.name).append("\n");
-			sb.append(player.getStartingPosition()).append("\n");
+			sb.append(player.startingPosition).append("\n");
 			sb.append(player.color).append("\n");
 			sb.append(player.score).append("\n");
 			sb.append(player.isNew).append("\n");
@@ -239,7 +187,7 @@ public class PlayPersister {
 			values.put(PlayPlayers.USER_ID, player.userId);
 			values.put(PlayPlayers.USER_NAME, userName);
 			values.put(PlayPlayers.NAME, player.name);
-			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
+			values.put(PlayPlayers.START_POSITION, player.startingPosition);
 			values.put(PlayPlayers.COLOR, player.color);
 			values.put(PlayPlayers.SCORE, player.score);
 			values.put(PlayPlayers.NEW, player.isNew);
@@ -339,78 +287,6 @@ public class PlayPersister {
 					.withValue(Buddies.PLAY_NICKNAME, player.name)
 					.build());
 			}
-		}
-	}
-
-	static class PlaySyncCandidate {
-		public static final PlaySyncCandidate NULL = new PlaySyncCandidate() {
-			@Override
-			public long getInternalId() {
-				return BggContract.INVALID_ID;
-			}
-
-			@Override
-			public int getSyncHashCode() {
-				return 0;
-			}
-
-			@Override
-			public boolean isDirty() {
-				return false;
-			}
-		};
-
-		public static final String[] PROJECTION = {
-			Plays._ID,
-			Plays.SYNC_HASH_CODE,
-			Plays.DELETE_TIMESTAMP,
-			Plays.UPDATE_TIMESTAMP,
-			Plays.DIRTY_TIMESTAMP
-		};
-
-		private long internalId;
-		private int syncHashCode;
-		private long deleteTimestamp;
-		private long updateTimestamp;
-		private long dirtyTimestamp;
-
-		public static PlaySyncCandidate find(ContentResolver resolver, int playId) {
-			Cursor cursor = resolver.query(Plays.CONTENT_URI,
-				PROJECTION,
-				Plays.PLAY_ID + "=?",
-				new String[] { String.valueOf(playId) },
-				null);
-			try {
-				if (cursor != null && cursor.moveToFirst()) {
-					return fromCursor(cursor);
-				}
-				return NULL;
-			} finally {
-				if (cursor != null) cursor.close();
-			}
-
-		}
-
-		public static PlaySyncCandidate fromCursor(Cursor cursor) {
-			PlaySyncCandidate psc = new PlaySyncCandidate();
-			psc.internalId = CursorUtils.getLong(cursor, Plays._ID, BggContract.INVALID_ID);
-			psc.syncHashCode = CursorUtils.getInt(cursor, Plays.SYNC_HASH_CODE);
-			psc.deleteTimestamp = CursorUtils.getLong(cursor, Plays.DELETE_TIMESTAMP);
-			psc.updateTimestamp = CursorUtils.getLong(cursor, Plays.UPDATE_TIMESTAMP);
-			psc.dirtyTimestamp = CursorUtils.getLong(cursor, Plays.DIRTY_TIMESTAMP);
-			return psc;
-		}
-
-		public long getInternalId() {
-			return internalId;
-		}
-
-		public int getSyncHashCode() {
-			return syncHashCode;
-		}
-
-		public boolean isDirty() {
-			return dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0;
 		}
 	}
 }

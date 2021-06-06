@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
@@ -19,6 +20,8 @@ import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
 import com.boardgamegeek.util.NotificationUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class GameDao(private val context: BggApplication) {
@@ -346,6 +349,7 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
+    // TODO start using loadPlayColors
     fun loadPlayColors(gameId: Int): LiveData<List<String>> {
         if (gameId == INVALID_ID) return AbsentLiveData.create()
         val uri = Games.buildColorsUri(gameId)
@@ -360,6 +364,21 @@ class GameDao(private val context: BggApplication) {
             }
             return@RegisteredLiveData results
         }
+    }
+
+    suspend fun loadColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
+        val colors = mutableListOf<String>()
+        context.contentResolver.load(
+                Games.buildColorsUri(gameId),
+                arrayOf(GameColors.COLOR)
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    colors += it.getStringOrNull(0).orEmpty()
+                } while (it.moveToNext())
+            }
+        }
+        colors
     }
 
     fun loadPlayInfo(includeIncompletePlays: Boolean, includeExpansions: Boolean, includeAccessories: Boolean): List<GameForPlayStatEntity> {
@@ -566,7 +585,7 @@ class GameDao(private val context: BggApplication) {
 
     private fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> {
         val batch = arrayListOf<ContentProviderOperation>()
-        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.POLL_NAME).toMutableList()
+        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.POLL_NAME).filterNotNull().toMutableList()
         for (poll in game.polls) {
             val values = ContentValues()
             values.put(GamePolls.POLL_TITLE, poll.title)
@@ -575,7 +594,7 @@ class GameDao(private val context: BggApplication) {
             var existingResultKeys = mutableListOf<String>()
             if (existingPollNames.remove(poll.name)) {
                 batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name)).withValues(values).build())
-                existingResultKeys = resolver.queryStrings(Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS).toMutableList()
+                existingResultKeys = resolver.queryStrings(Games.buildPollResultsUri(game.id, poll.name), GamePollResults.POLL_RESULTS_PLAYERS).filterNotNull().toMutableList()
             } else {
                 values.put(GamePolls.POLL_NAME, poll.name)
                 batch.add(ContentProviderOperation.newInsert(Games.buildPollsUri(game.id)).withValues(values).build())
@@ -592,7 +611,9 @@ class GameDao(private val context: BggApplication) {
                             .withValues(values).build())
                     existingValues = resolver.queryStrings(
                             Games.buildPollResultsResultUri(game.id, poll.name, results.key),
-                            GamePollResultsResult.POLL_RESULTS_RESULT_KEY).toMutableList()
+                            GamePollResultsResult.POLL_RESULTS_RESULT_KEY)
+                            .filterNotNull()
+                            .toMutableList()
                 } else {
                     values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.key)
                     batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name)).withValues(values).build())
@@ -637,7 +658,7 @@ class GameDao(private val context: BggApplication) {
     private fun createPlayerPollBatch(gameId: Int, poll: GamePlayerPollEntity?): ArrayList<ContentProviderOperation> {
         if (poll == null) return ArrayList()
         val batch = arrayListOf<ContentProviderOperation>()
-        val existingResults = resolver.queryStrings(Games.buildSuggestedPlayerCountPollResultsUri(gameId), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT).toMutableList()
+        val existingResults = resolver.queryStrings(Games.buildSuggestedPlayerCountPollResultsUri(gameId), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT).filterNotNull().toMutableList()
         for ((sortIndex, results) in poll.results.withIndex()) {
             val values = contentValuesOf(
                     GameSuggestedPlayerCountPollPollResults.SORT_INDEX to sortIndex + 1,

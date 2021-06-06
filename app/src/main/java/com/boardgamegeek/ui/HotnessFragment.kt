@@ -194,7 +194,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
             R.id.menu_log_play_form -> {
                 mode.finish()
                 selectedGames.firstOrNull()?.let { game ->
-                    LogPlayActivity.logPlay(context, game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, "", false)
+                    LogPlayActivity.logPlay(requireContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl)
                 }
                 return true
             }

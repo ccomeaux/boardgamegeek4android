@@ -220,7 +220,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         when (item.itemId) {
             R.id.menu_log_play_form -> {
                 game?.let {
-                    LogPlayActivity.logPlay(context, it.id, it.name, null, null, null, false)
+                    LogPlayActivity.logPlay(requireContext(), it.id, it.name)
                 }
                 mode.finish()
                 return true

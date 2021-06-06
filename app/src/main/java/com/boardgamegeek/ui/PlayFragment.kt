@@ -22,7 +22,6 @@ import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
-import com.boardgamegeek.util.UIUtils
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -58,7 +57,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
         timerEndButton.setOnClickListener {
             play?.let { play ->
-                LogPlayActivity.endPlay(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                LogPlayActivity.endPlay(requireContext(), play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
             }
         }
         playersView.adapter = adapter
@@ -126,7 +125,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                 lengthView.text = ""
                 lengthView.isVisible = true
                 timerView.isVisible = true
-                UIUtils.startTimerWithSystemTime(timerView, play.startTime)
+                timerView.startTimerWithSystemTime(play.startTime)
                 timerEndButton.isVisible = true
             }
             else -> {
@@ -159,7 +158,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
 
         if (play.dirtyTimestamp > 0) {
-            dirtyTimestampView.format = getString(if (play.playId > 0) R.string.editing_prefix else R.string.draft_prefix)
+            dirtyTimestampView.format = getString(if (play.isSynced) R.string.editing_prefix else R.string.draft_prefix)
             dirtyTimestampView.timestamp = play.dirtyTimestamp
             dirtyTimestampView.isVisible = true
         } else {
@@ -212,7 +211,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             R.id.menu_edit -> {
                 play?.let {
                     logDataManipulationAction("Edit")
-                    LogPlayActivity.editPlay(activity, it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl)
+                    LogPlayActivity.editPlay(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl)
                     return true
                 }
             }
@@ -240,7 +239,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             R.id.menu_rematch -> {
                 play?.let {
                     logDataManipulationAction("Rematch")
-                    LogPlayActivity.rematch(context, it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted())
+                    LogPlayActivity.rematch(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted())
                     requireActivity().finish() // don't want to show the "old" play upon return
                     return true
                 }

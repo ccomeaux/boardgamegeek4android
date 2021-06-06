@@ -13,12 +13,14 @@ import com.boardgamegeek.extensions.set
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_BUDDIES
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_PARTIAL
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_CURRENT
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 
 class SyncPrefs {
     companion object {
         const val NAME = "com.boardgamegeek.sync"
+        const val TIMESTAMP_CURRENT = "TIMESTAMP_CURRENT"
         const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
         const val TIMESTAMP_COLLECTION_PARTIAL = "TIMESTAMP_COLLECTION_PARTIAL"
         const val TIMESTAMP_BUDDIES = "TIMESTAMP_BUDDIES"
@@ -49,6 +51,13 @@ class SyncPrefs {
             }
         }
     }
+}
+
+fun SharedPreferences.getCurrentTimestamp() = this[TIMESTAMP_CURRENT, 0L] ?: 0L
+
+@JvmOverloads
+fun SharedPreferences.setCurrentTimestamp(timestamp: Long = System.currentTimeMillis()) {
+    this[TIMESTAMP_CURRENT] = timestamp
 }
 
 // COLLECTION
