@@ -81,7 +81,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var fabColor = Color.TRANSPARENT
     private val swipePaint = Paint()
     private val deleteIcon: Bitmap by lazy { BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white) }
-    private val editIcon: Bitmap by lazy { BitmapFactory.decodeResource(resources, R.drawable.ic_edit_white) }
     private var horizontalPadding = 0f
     private var itemTouchHelper: ItemTouchHelper? = null
     private var isUserShowingLocation = false
@@ -382,9 +381,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         recyclerView.setHasFixedSize(false)
         recyclerView.adapter = playAdapter
 
-        swipePaint.color = ContextCompat.getColor(this, R.color.medium_blue)
-        val deleteColor = ContextCompat.getColor(this@LogPlayActivity, R.color.delete)
-        val editColor = ContextCompat.getColor(this@LogPlayActivity, R.color.edit)
+        swipePaint.color = ContextCompat.getColor(this@LogPlayActivity, R.color.delete)
         itemTouchHelper = ItemTouchHelper(
             object : ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP or ItemTouchHelper.DOWN,
@@ -409,64 +406,57 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                         itemView.translationX = dX
 
                         // show background with an icon
-                        val icon = if (dX > 0) deleteIcon else editIcon
-                        val verticalPadding = (itemView.height - icon.height) / 2f
+                        val verticalPadding = (itemView.height - deleteIcon.height) / 2f
                         val background: RectF
                         val iconSrc: Rect
                         val iconDst: RectF
                         if (dX > 0) {
-                            swipePaint.color = deleteColor
                             background = RectF(itemView.left.toFloat(), itemView.top.toFloat(), dX, itemView.bottom.toFloat())
                             iconSrc = Rect(
                                 0,
                                 0,
-                                (dX - itemView.left - horizontalPadding).toInt().coerceAtMost(icon.width),
-                                icon.height
+                                (dX - itemView.left - horizontalPadding).toInt().coerceAtMost(deleteIcon.width),
+                                deleteIcon.height
                             )
                             iconDst = RectF(
                                 itemView.left.toFloat() + horizontalPadding,
                                 itemView.top.toFloat() + verticalPadding,
-                                (itemView.left + horizontalPadding + icon.width).coerceAtMost(dX),
+                                (itemView.left + horizontalPadding + deleteIcon.width).coerceAtMost(dX),
                                 itemView.bottom.toFloat() - verticalPadding
                             )
                         } else {
-                            swipePaint.color = editColor
                             background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
                             iconSrc = Rect(
-                                (icon.width + horizontalPadding.toInt() + dX.toInt()).coerceAtLeast(0),
+                                (deleteIcon.width + horizontalPadding.toInt() + dX.toInt()).coerceAtLeast(0),
                                 0,
-                                icon.width,
-                                icon.height
+                                deleteIcon.width,
+                                deleteIcon.height
                             )
                             iconDst = RectF(
-                                (itemView.right.toFloat() + dX).coerceAtLeast(itemView.right.toFloat() - horizontalPadding - icon.width),
+                                (itemView.right.toFloat() + dX).coerceAtLeast(itemView.right.toFloat() - horizontalPadding - deleteIcon.width),
                                 itemView.top.toFloat() + verticalPadding,
                                 itemView.right.toFloat() - horizontalPadding,
                                 itemView.bottom.toFloat() - verticalPadding
                             )
                         }
+
                         c.drawRect(background, swipePaint)
-                        c.drawBitmap(icon, iconSrc, iconDst, swipePaint)
+                        c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint)
                     }
                     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                    if (swipeDir == ItemTouchHelper.RIGHT) {
-                        lastRemovedPlayer = playAdapter.getPlayer(viewHolder.bindingAdapterPosition)
-                        lastRemovedPlayer?.let { player ->
-                            coordinatorLayout.indefiniteSnackbar(
-                                getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
-                                getString(R.string.undo)
-                            ) {
-                                lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = shouldAutoSort()) }
-                            }
-                            viewModel.removePlayer(player, shouldAutoSort())
+                    lastRemovedPlayer = playAdapter.getPlayer(viewHolder.bindingAdapterPosition)
+                    lastRemovedPlayer?.let { player ->
+                        coordinatorLayout.indefiniteSnackbar(
+                            getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
+                            getString(R.string.undo)
+                        ) {
+                            lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = shouldAutoSort()) }
                         }
-                    } else {
-                        editPlayer(viewHolder.bindingAdapterPosition)
+                        viewModel.removePlayer(player, shouldAutoSort())
                     }
-                    clearView(recyclerView, viewHolder)
                 }
 
                 override fun onMove(
@@ -855,9 +845,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
         fun submit(players: List<Player>) {
             val oldPlayers = this.players
-            this.players = mutableListOf<Player>().apply { addAll(players) }.toList()
-            val diffCallback = Diff(oldPlayers, this.players)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            this.players = players // mutableListOf<Player>().apply { addAll(players) }.toList()
+            val diffResult = DiffUtil.calculateDiff(Diff(oldPlayers, this.players))
             diffResult.dispatchUpdatesTo(this)
             // TODO: smooth scroll to the "newest" player
         }
@@ -901,7 +890,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             fun onItemClear() {
                 isDragging = false
                 itemView.setBackgroundColor(Color.TRANSPARENT)
-                notifyDataSetChanged()
             }
 
             @SuppressLint("ClickableViewAccessibility")
