@@ -269,7 +269,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun editPlayer(player: Player = Player(), position: Int? = null, resort: Boolean) {
-        play.value?.copy()?.let {
+        play.value?.deepCopy()?.let {
             if (position in it.players.indices) {
                 position?.let { p -> it.players[p] = player }
             } else {
