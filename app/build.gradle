@@ -192,8 +192,6 @@ dependencies {
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
-    implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
-
     implementation 'org.jsoup:jsoup:1.13.1'
 
     implementation 'io.reactivex:rxandroid:1.2.1'

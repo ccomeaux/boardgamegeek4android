@@ -14,10 +14,4 @@
 		android:title="@string/menu_scroll_to_bottom"
 		app:showAsAction="ifRoom"/>
 
-	<item
-		android:id="@+id/menu_help"
-		android:orderInCategory="99"
-		android:title="@string/help_title"
-		app:showAsAction="never"/>
-
 </menu>

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.os.Handler
 import android.util.Pair
 import android.view.*
 import androidx.annotation.PluralsRes
@@ -17,9 +16,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
-import com.boardgamegeek.ui.widget.SafeViewTarget
-import com.boardgamegeek.util.HelpUtils
-import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -29,7 +25,6 @@ import org.jetbrains.anko.toast
 import java.util.*
 
 class SearchResultsFragment : Fragment(), ActionMode.Callback {
-    private var showcaseView: ShowcaseView? = null
     private var actionMode: ActionMode? = null
 
     private val snackbar: Snackbar by lazy {
@@ -44,37 +39,36 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {
         SearchResultsAdapter(
-                object : Callback {
-                    override fun onItemClick(position: Int): Boolean {
-                        if (actionMode == null) return false
-                        toggleSelection(position)
-                        return true
-                    }
+            object : Callback {
+                override fun onItemClick(position: Int): Boolean {
+                    if (actionMode == null) return false
+                    toggleSelection(position)
+                    return true
+                }
 
-                    override fun onItemLongClick(position: Int): Boolean {
-                        if (actionMode != null) return false
-                        actionMode = requireActivity().startActionMode(this@SearchResultsFragment)
-                        if (actionMode == null) return false
-                        toggleSelection(position)
-                        return true
-                    }
+                override fun onItemLongClick(position: Int): Boolean {
+                    if (actionMode != null) return false
+                    actionMode = requireActivity().startActionMode(this@SearchResultsFragment)
+                    if (actionMode == null) return false
+                    toggleSelection(position)
+                    return true
+                }
 
-                    private fun toggleSelection(position: Int) {
-                        searchResultsAdapter.toggleSelection(position)
-                        val count = searchResultsAdapter.selectedItemCount
-                        if (count == 0) {
-                            actionMode?.finish()
-                        } else {
-                            actionMode?.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
-                            actionMode?.invalidate()
-                        }
+                private fun toggleSelection(position: Int) {
+                    searchResultsAdapter.toggleSelection(position)
+                    val count = searchResultsAdapter.selectedItemCount
+                    if (count == 0) {
+                        actionMode?.finish()
+                    } else {
+                        actionMode?.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
+                        actionMode?.invalidate()
                     }
-                })
+                }
+            })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         viewModel.searchResults.observe(this, Observer { resource ->
             if (resource == null) return@Observer
 
@@ -115,8 +109,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     progressContainer.fadeOut()
                 }
             }
-
-            maybeShowHelp()
         })
     }
 
@@ -150,42 +142,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         progressView.isIndeterminate = true
         recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = searchResultsAdapter
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.help, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_help) {
-            showHelp()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun maybeShowHelp() {
-        if (HelpUtils.shouldShowHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)) {
-            Handler().postDelayed({ showHelp() }, 100)
-        }
-    }
-
-    private fun showHelp() {
-        val builder = HelpUtils.getShowcaseBuilder(activity)
-        if (builder != null) {
-            builder.setContentText(R.string.help_searchresults)
-                    .setOnClickListener {
-                        showcaseView?.hide()
-                        HelpUtils.updateHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)
-                    }
-            val viewTarget = SafeViewTarget(HelpUtils.getRecyclerViewVisibleChild(recyclerView))
-            builder.setTarget(viewTarget)
-            showcaseView = builder.build()?.apply {
-                this.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(context))
-                this.show()
-            }
-        }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -226,7 +182,12 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 return true
             }
             R.id.menu_log_play_quick -> {
-                context?.toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
+                context?.toast(
+                    resources.getQuantityString(
+                        R.plurals.msg_logging_plays,
+                        searchResultsAdapter.selectedItemCount
+                    )
+                )
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
                         context.logQuickPlay(it.id, it.name)
@@ -265,9 +226,5 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             }
         }
         return false
-    }
-
-    companion object {
-        private const val HELP_VERSION = 2
     }
 }
