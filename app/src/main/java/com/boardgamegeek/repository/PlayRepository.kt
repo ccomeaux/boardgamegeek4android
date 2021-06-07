@@ -22,14 +22,14 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.PlayMapper
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RateLimiter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
 import java.util.*
@@ -45,7 +45,6 @@ class PlayRepository(val application: BggApplication) {
 
     fun getPlay(id: Long): LiveData<RefreshableResource<PlayEntity>> {
         return object : RefreshableResourceLoader<PlayEntity, PlaysResponse>(application) {
-            val persister = PlayPersister(application)
             val playMapper = PlayMapper()
             var timestamp = 0L
             var gameId = BggContract.INVALID_ID
@@ -71,9 +70,8 @@ class PlayRepository(val application: BggApplication) {
             }
 
             override fun saveCallResult(result: PlaysResponse) {
-                // TODO replace persister with DAO
                 val plays = playMapper.map(result.plays)
-                persister.save(plays, timestamp)
+                playDao.save(plays, timestamp)
                 Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
             }
 
@@ -110,7 +108,6 @@ class PlayRepository(val application: BggApplication) {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
                 return playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE)
             }
-
         }.asLiveData()
     }
 
@@ -119,7 +116,6 @@ class PlayRepository(val application: BggApplication) {
             override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
                 return playDao.loadPlaysByLocation(location)
             }
-
         }.asLiveData()
     }
 
@@ -251,6 +247,8 @@ class PlayRepository(val application: BggApplication) {
     fun markAsUpdated(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
         val values = contentValuesOf(
                 BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.DELETE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
         )
         application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
@@ -270,8 +268,8 @@ class PlayRepository(val application: BggApplication) {
         }
     }
 
-    fun loadPlayersByLocation(location: String = ""): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersByLocationAsLiveData(location)
+    suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
+        playDao.loadPlayersByLocation(location)
     }
 
     fun updatePlaysWithNickName(username: String, nickName: String): Int {
@@ -296,7 +294,9 @@ class PlayRepository(val application: BggApplication) {
         }
     }
 
-    fun renameLocation(oldLocationName: String, newLocationName: String, count: MutableLiveData<Int>? = null) {
+    data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
+
+    fun renameLocation(oldLocationName: String, newLocationName: String, resultLiveData: MutableLiveData<RenameLocationResults>? = null) {
         val batch = ArrayList<ContentProviderOperation>()
 
         val values = contentValuesOf(BggContract.Plays.LOCATION to newLocationName)
@@ -314,7 +314,8 @@ class PlayRepository(val application: BggApplication) {
         batch.add(cpo.build())
         application.appExecutors.diskIO.execute {
             val results = application.contentResolver.applyBatch(batch)
-            count?.postValue(results.sumBy { it.count ?:0 })
+            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count ?:0 })
+            resultLiveData?.postValue(result)
         }
     }
 
@@ -334,12 +335,11 @@ class PlayRepository(val application: BggApplication) {
         application.appExecutors.diskIO.execute {
             val id = playDao.save(play)
 
-            // is the play for today and about to be synced, remember some thing
-            val isUnsynced = play.playId <= 0
+            // if the play is "current" (for today and about to be synced), remember some things, like the location and players to be used in the next play
             val isUpdating = play.updateTimestamp > 0
             val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
             val isToday = play.dateInMillis.isToday() || endTime.isToday()
-            if (isUnsynced && isUpdating && isToday) {
+            if (!play.isSynced && isUpdating && isToday) {
                 prefs.putLastPlayTime(System.currentTimeMillis())
                 prefs.putLastPlayLocation(play.location)
                 prefs.putLastPlayPlayerEntities(play.players)
@@ -385,7 +385,6 @@ class PlayRepository(val application: BggApplication) {
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
         private val prefs: SharedPreferences by lazy { application.preferences() }
 
-        private val persister = PlayPersister(application)
         private var syncInitiatedTimestamp = 0L
         private val newestTimestamp = syncPrefs.getPlaysNewestTimestamp()
         private val oldestTimestamp = syncPrefs.getPlaysOldestTimestamp()
@@ -423,7 +422,7 @@ class PlayRepository(val application: BggApplication) {
 
         override fun saveCallResult(result: PlaysResponse) {
             val plays = mapper.map(result.plays)
-            persister.save(plays, syncInitiatedTimestamp)
+            playDao.save(plays, syncInitiatedTimestamp)
             updateTimestamps(plays)
             Timber.i("Synced page %,d of plays", 1)
         }
@@ -457,12 +456,12 @@ class PlayRepository(val application: BggApplication) {
             playsRateLimiter.reset(0)
         }
 
-        private fun updateTimestamps(plays: List<Play>?) {
-            val newestDate = plays?.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
+        private fun updateTimestamps(plays: List<PlayEntity>) {
+            val newestDate = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
             if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
                 syncPrefs.setPlaysNewestTimestamp(newestDate)
             }
-            val oldestDate = plays?.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+            val oldestDate = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
             if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
                 syncPrefs.setPlaysOldestTimestamp(oldestDate)
             }

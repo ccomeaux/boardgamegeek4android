@@ -10,19 +10,18 @@ import android.widget.DatePicker
 import androidx.activity.viewModels
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
-import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import org.jetbrains.anko.design.longSnackbar
 import java.util.*
 
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
-    val viewModel by viewModels<PlaysViewModel>()
+    private val viewModel by viewModels<PlaysViewModel>()
+    private var snackbar: Snackbar? = null
 
     override val optionsMenuId: Int
         get() = R.menu.plays
@@ -35,11 +34,21 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
             }
         }
 
-        viewModel.plays.observe(this, Observer {
+        viewModel.errorMessage.observe(this, {
+            it.getContentIfNotHandled()?.let { message ->
+                if (message.isBlank()) {
+                    snackbar?.dismiss()
+                } else {
+                    snackbar = rootContainer?.longSnackbar(message)
+                }
+            }
+        })
+
+        viewModel.plays.observe(this, {
             invalidateOptionsMenu()
         })
 
-        viewModel.filterType.observe(this, Observer { type ->
+        viewModel.filterType.observe(this, { type ->
             supportActionBar?.subtitle = when (type) {
                 PlaysViewModel.FilterType.PENDING -> getString(R.string.menu_plays_filter_pending)
                 PlaysViewModel.FilterType.DIRTY -> getString(R.string.menu_plays_filter_in_progress)
@@ -48,7 +57,7 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
             invalidateOptionsMenu()
         })
 
-        viewModel.sortType.observe(this, Observer {
+        viewModel.sortType.observe(this, {
             invalidateOptionsMenu()
         })
 
@@ -162,7 +171,6 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        (fragment as PlaysFragment?)?.isSyncing(true)
-        SyncPlaysByDateTask(application as BggApplication, year, month, day).executeAsyncTask()
+        viewModel.syncPlaysByDate(GregorianCalendar(year, month, day).timeInMillis)
     }
 }

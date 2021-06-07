@@ -54,7 +54,6 @@ fun String.asRankDescription(context: Context, type: String = BggService.RANK_TY
     }
 }
 
-@JvmOverloads
 fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     return if (isNullOrBlank()) {
         defaultMillis
@@ -121,32 +120,4 @@ fun String.truncate(length: Int): String {
         length > TRUNCATED_TEXT_SUFFIX.length -> this.take(length - TRUNCATED_TEXT_SUFFIX.length) + TRUNCATED_TEXT_SUFFIX
         else -> this.take(length)
     }
-}
-
-fun String.ascending(): String {
-    return this.plus(" ASC")
-}
-
-fun String.descending(): String {
-    return this.plus(" DESC")
-}
-
-fun String.collateNoCase(): String {
-    return this.plus(" COLLATE NOCASE")
-}
-
-fun String.isTrue(): String {
-    return this.plus("=1")
-}
-
-fun String.greaterThanZero(): String {
-    return this.plus(">0")
-}
-
-fun String.blank(): String {
-    return "$this='' OR $this IS NULL"
-}
-
-fun String.notBlank(): String {
-    return "$this<>''"
 }

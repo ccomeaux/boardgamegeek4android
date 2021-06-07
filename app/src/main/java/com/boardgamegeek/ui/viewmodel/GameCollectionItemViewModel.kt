@@ -10,10 +10,11 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.getHeaderSwatch
 import com.boardgamegeek.livedata.AbsentLiveData
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.util.PaletteUtils
 
 class GameCollectionItemViewModel(application: Application) : AndroidViewModel(application) {
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
@@ -21,6 +22,9 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
     private val _collectionId = MutableLiveData<Int>()
     val collectionId: LiveData<Int>
         get() = _collectionId
+
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<Event<String>> = Transformations.map(_errorMessage) { Event(it) }
 
     val isEdited = MutableLiveData<Boolean>()
 
@@ -49,9 +53,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
     }
 
     fun updateGameColors(palette: Palette?) {
-        if (palette != null) {
-            _swatch.value = PaletteUtils.getHeaderSwatch(palette)
-        }
+        palette?.let { _swatch.value = it.getHeaderSwatch() }
     }
 
     fun updatePrivateInfo(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: Long?, acquiredFrom: String?, inventoryLocation: String?) {
@@ -130,7 +132,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         setEdited(false)
         val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
         val gameId = item.value?.data?.gameId ?: BggContract.INVALID_ID
-        gameCollectionRepository.resetTimestamps(internalId, gameId)
+        gameCollectionRepository.resetTimestamps(internalId, gameId, _errorMessage)
     }
 
     private fun setEdited(edited: Boolean) {

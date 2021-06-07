@@ -15,12 +15,16 @@ import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.FileUtils
-import com.boardgamegeek.util.SelectionBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.List
+import kotlin.collections.arrayListOf
+import kotlin.collections.forEach
+import kotlin.collections.plusAssign
+import kotlin.collections.toMutableList
 
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
@@ -552,7 +556,7 @@ class CollectionDao(private val context: BggApplication) {
                 }
                 resolver.query(Collection.CONTENT_URI,
                         PROJECTION,
-                        "collection.${Collection.GAME_ID}=? AND ${SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID)}",
+                        "collection.${Collection.GAME_ID}=? AND ${Collection.COLLECTION_ID.whereNullOrBlank()}",
                         arrayOf(gameId.toString()),
                         null)?.use {
                     if (it.moveToFirst()) return fromCursor(it)

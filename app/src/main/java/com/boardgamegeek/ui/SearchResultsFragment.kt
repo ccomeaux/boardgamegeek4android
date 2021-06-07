@@ -38,32 +38,32 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {
         SearchResultsAdapter(
-                object : Callback {
-                    override fun onItemClick(position: Int): Boolean {
-                        if (actionMode == null) return false
-                        toggleSelection(position)
-                        return true
-                    }
+            object : Callback {
+                override fun onItemClick(position: Int): Boolean {
+                    if (actionMode == null) return false
+                    toggleSelection(position)
+                    return true
+                }
 
-                    override fun onItemLongClick(position: Int): Boolean {
-                        if (actionMode != null) return false
-                        actionMode = requireActivity().startActionMode(this@SearchResultsFragment)
-                        if (actionMode == null) return false
-                        toggleSelection(position)
-                        return true
-                    }
+                override fun onItemLongClick(position: Int): Boolean {
+                    if (actionMode != null) return false
+                    actionMode = requireActivity().startActionMode(this@SearchResultsFragment)
+                    if (actionMode == null) return false
+                    toggleSelection(position)
+                    return true
+                }
 
-                    private fun toggleSelection(position: Int) {
-                        searchResultsAdapter.toggleSelection(position)
-                        val count = searchResultsAdapter.selectedItemCount
-                        if (count == 0) {
-                            actionMode?.finish()
-                        } else {
-                            actionMode?.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
-                            actionMode?.invalidate()
-                        }
+                private fun toggleSelection(position: Int) {
+                    searchResultsAdapter.toggleSelection(position)
+                    val count = searchResultsAdapter.selectedItemCount
+                    if (count == 0) {
+                        actionMode?.finish()
+                    } else {
+                        actionMode?.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
+                        actionMode?.invalidate()
                     }
-                })
+                }
+            })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,13 +163,18 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
         when (item.itemId) {
             R.id.menu_log_play_form -> {
                 game?.let {
-                    LogPlayActivity.logPlay(context, it.id, it.name, null, null, null, false)
+                    LogPlayActivity.logPlay(requireContext(), it.id, it.name)
                 }
                 mode.finish()
                 return true
             }
             R.id.menu_log_play_quick -> {
-                context?.toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
+                context?.toast(
+                    resources.getQuantityString(
+                        R.plurals.msg_logging_plays,
+                        searchResultsAdapter.selectedItemCount
+                    )
+                )
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
                         context.logQuickPlay(it.id, it.name)

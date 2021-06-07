@@ -117,11 +117,6 @@
 	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
-	<string name="msg_color_error_no_players">There are no players that need colors.</string>
-	<string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
-	<string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
-	<string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
-	<string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
 	<string name="msg_fragment_error">You shouldn\'t be seeing this message. But if you are, please send a screenshot of this to bgg4android@gmail.com. Thanks!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
@@ -572,7 +567,6 @@
 	<string name="help_collection_save">- Save the applied sort and filter settings as a view</string>
 	<string name="help_collection_random">- Choose a random game from the currently-applied filter</string>
 	<string name="help_collection_long_click">- You can also long-click on a game for more options</string>
-	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="last_modified_prefix">Last modified %s</string>

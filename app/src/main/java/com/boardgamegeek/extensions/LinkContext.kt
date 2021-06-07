@@ -1,8 +1,8 @@
 package com.boardgamegeek.extensions
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.HttpUtils
@@ -57,23 +57,19 @@ fun Context?.link(url: String) {
 
 private fun Context?.link(link: Uri) {
     if (this == null) return
-    val intent = Intent(Intent.ACTION_VIEW, link)
-    if (isIntentAvailable(intent)) {
-        startActivity(intent)
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, link))
         FirebaseAnalytics.getInstance(this).logEvent("link") {
             param("Uri", link.toString())
         }
-    } else {
+    } catch (e: ActivityNotFoundException) {
         val message = "Can't figure out how to launch $link"
         Timber.w(message)
         toast(message)
     }
 }
 
-fun Context.isIntentAvailable(intent: Intent): Boolean {
-    return packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).isNotEmpty()
-}
-
 fun createBggUri(path: String): Uri = BGG_URI.buildUpon().appendEncodedPath(path).build()
 
-fun createBggUri(path: String, id: Int): Uri = BGG_URI.buildUpon().appendEncodedPath(path).appendPath(id.toString()).build()
+fun createBggUri(path: String, id: Int): Uri =
+    BGG_URI.buildUpon().appendEncodedPath(path).appendPath(id.toString()).build()

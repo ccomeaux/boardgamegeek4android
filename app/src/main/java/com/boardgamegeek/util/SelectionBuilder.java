@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import timber.log.Timber;
 
@@ -288,14 +287,5 @@ public class SelectionBuilder {
 		int count = db.delete(tableName, selection, getSelectionArgs());
 		Timber.v("deleted %,d rows", count);
 		return count;
-	}
-
-	public static String whereNullOrEmpty(String columnName) {
-		return String.format("(%1$S IS NULL OR %1$S='')", columnName);
-	}
-
-	@NonNull
-	public static String whereZeroOrNull(String columnName) {
-		return String.format("(%1$s=0 OR %1$s IS NULL)", columnName);
 	}
 }

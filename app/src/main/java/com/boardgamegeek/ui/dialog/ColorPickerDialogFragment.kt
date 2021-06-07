@@ -154,15 +154,17 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
          */
         fun createBundle(@StringRes titleResId: Int,
                          colors: List<Pair<String, Int>>,
-                         featuredColors: ArrayList<String>?,
-                         selectedColor: String?,
-                         disabledColors: ArrayList<String>?,
+                         featuredColors: ArrayList<String>? = null,
+                         selectedColor: String? = null,
+                         disabledColors: ArrayList<String>? = null,
                          columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
                          requestCode: Int = 0,
-                         hiddenColors: ArrayList<String>? = null): Bundle {
+                         hiddenColors: ArrayList<String>? = null,
+                         showAddButton: Boolean = false
+        ): Bundle {
             return Bundle().apply {
                 putInt(KEY_TITLE_ID, titleResId)
-                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode)
+                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode, showAddButton)
             }
         }
 
@@ -185,10 +187,12 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
                          disabledColors: ArrayList<String>?,
                          columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
                          requestCode: Int = 0,
-                         hiddenColors: ArrayList<String>? = null): Bundle {
+                         hiddenColors: ArrayList<String>? = null,
+                         showAddButton: Boolean = false
+        ): Bundle {
             return Bundle().apply {
                 putString(KEY_TITLE, title)
-                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode, true)
+                buildBundle(colors, featuredColors, selectedColor, disabledColors, hiddenColors, columns, requestCode, showAddButton)
             }
         }
 

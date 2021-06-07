@@ -31,12 +31,13 @@ class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
         fun launch(activity: FragmentActivity, playerDescription: String, featuredColors: List<String>, selectedColor: String?, disabledColors: List<String>, playerIndex: Int) {
             val df = NewPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
-                        playerDescription,
+                        title = playerDescription,
                         ColorUtils.colorList,
                         ArrayList(featuredColors),
                         selectedColor,
                         ArrayList(disabledColors),
-                        requestCode = playerIndex)
+                        requestCode = playerIndex,
+                        showAddButton = true)
             }
             activity.showAndSurvive(df)
         }

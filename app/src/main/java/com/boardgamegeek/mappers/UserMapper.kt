@@ -3,7 +3,7 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.entities.BriefBuddyEntity
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.io.model.User
-import com.boardgamegeek.model.Buddy
+import com.boardgamegeek.io.model.Buddy
 import com.boardgamegeek.provider.BggContract
 
 fun User.mapToEntity() = UserEntity(
