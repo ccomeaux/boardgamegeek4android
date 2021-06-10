@@ -535,8 +535,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         }
 
         viewModel.colors.observe(this) {
-            gameColors.clear()
-            gameColors.addAll(it)
+            it?.let {
+                gameColors.clear()
+                gameColors.addAll(it)
+            }
         }
         viewModel.playersByLocation.observe(this) {
             availablePlayers.clear()
@@ -636,7 +638,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 when (requestCode) {
                     REQUEST_ADD_PLAYER -> {
                         viewModel.addPlayer(player, resort = shouldAutoSort())
-                        addNewPlayer(playerCount + 2) // this offset the zero-index and accounts for the player just added, but not in the playercount yet
+                        addNewPlayer(playerCount + 2) // this offset the zero-index and accounts for the player just added, but not in the playerCount yet
                     }
                     REQUEST_EDIT_PLAYER -> if (position == LogPlayerActivity.INVALID_POSITION) {
                         Timber.w("Invalid player position after edit")

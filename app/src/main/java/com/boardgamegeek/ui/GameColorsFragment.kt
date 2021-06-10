@@ -57,13 +57,13 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
         }
 
         viewModel.colors.observe(viewLifecycleOwner, {
-            adapter.colors = it
-
-            emptyView.fade(it.isEmpty())
-            recyclerView.fade(it.isNotEmpty(), isResumed)
-            fab.show()
-            progressView.fadeOut()
-
+            it?.let {
+                adapter.colors = it
+                emptyView.fade(it.isEmpty())
+                recyclerView.fade(it.isNotEmpty(), isResumed)
+                fab.show()
+                progressView.fadeOut()
+            }
         })
     }
 

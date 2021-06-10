@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.inflate
@@ -60,10 +59,10 @@ class TeamPickerDialogFragment : DialogFragment() {
             dismiss()
         }
 
-        viewModel.gameColors.observe(this, Observer {
-            adapter.teams = it
+        viewModel.gameColors.observe(this, {
+            it?.let { adapter.teams = it }
         })
-        viewModel.selectedColors.observe(this, Observer {
+        viewModel.selectedColors.observe(this, {
             adapter.selectedColors = it
         })
     }

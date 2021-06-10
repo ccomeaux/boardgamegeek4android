@@ -79,35 +79,27 @@ class GameRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    fun getLanguagePoll(gameId: Int): LiveData<GamePollEntity> {
-        return dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
-    }
+    suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)
 
-    fun getAgePoll(gameId: Int): LiveData<GamePollEntity> {
-        return dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
-    }
+    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
 
-    fun getRanks(gameId: Int): LiveData<List<GameRankEntity>> {
-        return dao.loadRanks(gameId)
-    }
+    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
 
-    fun getPlayerPoll(gameId: Int): LiveData<GamePlayerPollEntity> {
-        return dao.loadPlayerPoll(gameId)
-    }
+    suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId)
 
-    fun getDesigners(gameId: Int) = dao.loadDesigners(gameId)
+    suspend fun getDesigners(gameId: Int) = dao.loadDesigners(gameId)
 
-    fun getArtists(gameId: Int) = dao.loadArtists(gameId)
+    suspend fun getArtists(gameId: Int) = dao.loadArtists(gameId)
 
-    fun getPublishers(gameId: Int) = dao.loadPublishers(gameId)
+    suspend fun getPublishers(gameId: Int) = dao.loadPublishers(gameId)
 
-    fun getCategories(gameId: Int) = dao.loadCategories(gameId)
+    suspend fun getCategories(gameId: Int) = dao.loadCategories(gameId)
 
-    fun getMechanics(gameId: Int) = dao.loadMechanics(gameId)
+    suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId)
 
-    fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
+    suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
 
-    fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
+    suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
     fun getPlays(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
@@ -171,13 +163,9 @@ class GameRepository(val application: BggApplication) {
         }.asLiveData()
     }
 
-    fun getPlayColors(gameId: Int): LiveData<List<String>> {
-        return dao.loadPlayColors(gameId)
-    }
+    suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
 
-    suspend fun getColors(gameId: Int): List<String> {
-        return dao.loadColors(gameId)
-    }
+    suspend fun getColors(gameId: Int) = dao.loadColors(gameId)
 
     fun addPlayColor(gameId: Int, color: String) {
         if (gameId == BggContract.INVALID_ID) return
@@ -210,7 +198,14 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateGameColors(gameId: Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int) {
+    fun updateGameColors(
+        gameId: Int,
+        iconColor: Int,
+        darkColor: Int,
+        winsColor: Int,
+        winnablePlaysColor: Int,
+        allPlaysColor: Int
+    ) {
         if (gameId == BggContract.INVALID_ID) return
         application.appExecutors.diskIO.execute {
             val values = ContentValues(5)

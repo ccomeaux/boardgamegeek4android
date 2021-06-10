@@ -72,8 +72,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val playerWinMap = MutableLiveData<MutableMap<String, Boolean>>()
     private val playerScoresMap = MutableLiveData<MutableMap<String, String>>()
 
-    val gameColors: LiveData<List<String>> = Transformations.switchMap(gameId) {
-        gameRepository.getPlayColors(it)
+    val gameColors = gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
+        }
     }
 
     init {
@@ -200,7 +202,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                     gameId.value ?: BggContract.INVALID_ID,
                     player.isUser()
             )
-            playerMightBeNewMap[player.id] = plays.sumBy { it.quantity } == 0
+            playerMightBeNewMap[player.id] = plays.sumOf { it.quantity } == 0
             assembleMightBeNewPlayers()
 
             _addedPlayers.value = newList

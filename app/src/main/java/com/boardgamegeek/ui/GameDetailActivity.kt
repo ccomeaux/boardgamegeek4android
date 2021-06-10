@@ -15,7 +15,7 @@ import org.jetbrains.anko.startActivity
 
 class GameDetailActivity : SimpleSinglePaneActivity() {
     private var title: String = ""
-    private var gameId: Int = 0
+    private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var type: ProducerType = ProducerType.UNKNOWN
 

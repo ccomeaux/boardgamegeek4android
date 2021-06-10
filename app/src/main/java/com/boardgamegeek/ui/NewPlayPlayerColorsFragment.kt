@@ -42,7 +42,9 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
             adapter.players = it
         })
         viewModel.gameColors.observe(viewLifecycleOwner, { colors ->
-            adapter.useColorPicker = colors.all { color -> color.isKnownColor() }
+            colors?.let {
+                adapter.useColorPicker = it.all { color -> color.isKnownColor() }
+            }
         })
 
         nextButton.setOnClickListener {
@@ -75,7 +77,7 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
 
         init {
             viewModel.gameColors.observe(activity, {
-                featuredColors = it
+                it?.let { featuredColors = it }
             })
             viewModel.selectedColors.observe(activity, {
                 selectedColors = it

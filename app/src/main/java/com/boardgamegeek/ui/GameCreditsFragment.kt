@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.entities.GameEntity
@@ -44,11 +43,11 @@ class GameCreditsFragment : Fragment() {
 
         lastModifiedView?.timestamp = 0
 
-        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
+        viewModel.gameId.observe(viewLifecycleOwner, { gameId ->
             gameIdView?.text = gameId.toString()
         })
 
-        viewModel.game.observe(viewLifecycleOwner, Observer {
+        viewModel.game.observe(viewLifecycleOwner, {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -58,15 +57,15 @@ class GameCreditsFragment : Fragment() {
             }
             progress.hide()
 
-            viewModel.designers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
+            viewModel.designers.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
 
-            viewModel.artists.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
+            viewModel.artists.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
 
-            viewModel.publishers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
+            viewModel.publishers.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
 
-            viewModel.categories.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
+            viewModel.categories.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
 
-            viewModel.mechanics.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
+            viewModel.mechanics.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
         })
     }
 

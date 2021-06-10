@@ -45,8 +45,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private val _gameId = MutableLiveData<Int>()
 
-    val colors: LiveData<List<String>> = _gameId.switchMap {
-        gameRepository.getPlayColors(it)
+    val colors = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == INVALID_ID) null else gameRepository.getPlayColors(gameId))
+        }
     }
 
     private val _location = MutableLiveData<String>()

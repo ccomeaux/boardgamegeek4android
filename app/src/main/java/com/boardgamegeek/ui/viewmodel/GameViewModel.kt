@@ -1,10 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
@@ -42,11 +39,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
 
-    fun setId(gameId: Int?) {
+    fun setId(gameId: Int) {
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
-    fun setProducerType(type: ProducerType?) {
+    fun setProducerType(type: ProducerType) {
         if (_producerType.value != type) _producerType.value = type
     }
 
@@ -57,92 +54,77 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val languagePoll: LiveData<GamePollEntity> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getLanguagePoll(gameId)
+    val ranks = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getRanks(gameId))
         }
     }
 
-    val agePoll: LiveData<GamePollEntity> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getAgePoll(gameId)
+    val languagePoll = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getLanguagePoll(gameId))
         }
     }
 
-    val ranks: LiveData<List<GameRankEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getRanks(gameId)
+    val agePoll = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getAgePoll(gameId))
         }
     }
 
-    val playerPoll: LiveData<GamePlayerPollEntity> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getPlayerPoll(gameId)
+    val playerPoll = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayerPoll(gameId))
         }
     }
 
-    val designers: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getDesigners(gameId)
+    val designers = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getDesigners(gameId))
         }
     }
 
-    val artists: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getArtists(gameId)
+    val artists = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getArtists(gameId))
         }
     }
 
-    val publishers: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getPublishers(gameId)
+    val publishers = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPublishers(gameId))
         }
     }
 
-    val categories: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getCategories(gameId)
+    val categories = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getCategories(gameId))
         }
     }
 
-    val mechanics: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getMechanics(gameId)
+    val mechanics = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getMechanics(gameId))
         }
     }
 
-    val expansions: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> Transformations.map(gameRepository.getExpansions(gameId)) { items ->
-                val list = arrayListOf<GameDetailEntity>()
-                items.forEach {
-                    list += GameDetailEntity(it.id, it.name, describeStatuses(it, application))
+    val expansions = _gameId.switchMap { gameId ->
+        liveData {
+            emit(
+                if (gameId == BggContract.INVALID_ID) null else gameRepository.getExpansions(gameId).map {
+                    GameDetailEntity(it.id, it.name, describeStatuses(it, application))
                 }
-                return@map list.toList()
-            }
+            )
         }
     }
 
-    val baseGames: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> Transformations.map(gameRepository.getBaseGames(gameId)) { items ->
-                val list = arrayListOf<GameDetailEntity>()
-                items.forEach {
-                    list += GameDetailEntity(it.id, it.name, describeStatuses(it, application))
+    val baseGames = _gameId.switchMap { gameId ->
+        liveData {
+            emit(
+                if (gameId == BggContract.INVALID_ID) null else gameRepository.getBaseGames(gameId).map {
+                    GameDetailEntity(it.id, it.name, describeStatuses(it, application))
                 }
-                return@map list.toList()
-            }
+            )
         }
     }
 
@@ -163,7 +145,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return statuses.formatList()
     }
 
-    val producers: LiveData<List<GameDetailEntity>> = Transformations.switchMap(_producerType) { type ->
+    val producers = _producerType.switchMap { type ->
         when (type) {
             ProducerType.DESIGNER -> designers
             ProducerType.ARTIST -> artists
@@ -172,11 +154,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ProducerType.MECHANICS -> mechanics
             ProducerType.EXPANSIONS -> expansions
             ProducerType.BASE_GAMES -> baseGames
-            else -> AbsentLiveData.create()
+            else -> AbsentLiveData.create() // TODO
         }
     }
 
-    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(game) { game ->
+    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = game.switchMap { game ->
         when (val gameId = game.data?.id ?: BggContract.INVALID_ID) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> gameCollectionRepository.getCollectionItems(gameId, game.data?.subtype ?: "")
@@ -190,10 +172,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val playColors: LiveData<List<String>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getPlayColors(gameId)
+    val playColors = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
         }
     }
 
@@ -210,12 +191,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val iconColor = palette.getIconSwatch().rgb
             val darkColor = palette.getDarkSwatch().rgb
             val (wins, winnablePlays, allPlays) = palette.getPlayCountColors(getApplication())
-            gameRepository.updateGameColors(gameId.value ?: BggContract.INVALID_ID,
-                    iconColor,
-                    darkColor,
-                    wins,
-                    winnablePlays,
-                    allPlays)
+            gameRepository.updateGameColors(
+                gameId.value ?: BggContract.INVALID_ID,
+                iconColor,
+                darkColor,
+                wins,
+                winnablePlays,
+                allPlays
+            )
         }
     }
 

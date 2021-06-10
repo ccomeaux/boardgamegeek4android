@@ -8,8 +8,7 @@ import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import com.boardgamegeek.R
+\import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -51,12 +50,12 @@ class GameFragment : Fragment() {
 
         lastModifiedView?.timestamp = 0
 
-        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
+        viewModel.gameId.observe(viewLifecycleOwner, { gameId ->
             this.gameId = gameId
             gameIdView?.text = gameId.toString()
         })
 
-        viewModel.game.observe(viewLifecycleOwner, Observer {
+        viewModel.game.observe(viewLifecycleOwner, {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -66,17 +65,17 @@ class GameFragment : Fragment() {
             }
             progress.hide()
 
-            viewModel.ranks.observe(viewLifecycleOwner, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
+            viewModel.ranks.observe(viewLifecycleOwner, { gameRanks -> onRankQueryComplete(gameRanks) })
 
-            viewModel.languagePoll.observe(viewLifecycleOwner, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
+            viewModel.languagePoll.observe(viewLifecycleOwner, { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
 
-            viewModel.agePoll.observe(viewLifecycleOwner, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
+            viewModel.agePoll.observe(viewLifecycleOwner, { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
 
-            viewModel.playerPoll.observe(viewLifecycleOwner, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
+            viewModel.playerPoll.observe(viewLifecycleOwner, { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
 
-            viewModel.expansions.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
+            viewModel.expansions.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_expansions) })
 
-            viewModel.baseGames.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
+            viewModel.baseGames.observe(viewLifecycleOwner, { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
     }
 
@@ -146,8 +145,7 @@ class GameFragment : Fragment() {
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>?) {
-        val descriptions = gameRanks?.filter { it.isFamilyType }?.map { it.value.asRank(requireContext(), it.name, it.type) }
-                ?: emptyList()
+        val descriptions = gameRanks?.filter { it.isFamilyType }?.map { it.value.asRank(requireContext(), it.name, it.type) }.orEmpty()
         subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 
