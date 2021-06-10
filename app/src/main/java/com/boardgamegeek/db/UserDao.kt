@@ -171,7 +171,7 @@ class UserDao(private val context: BggApplication) {
     fun upsert(values: ContentValues, username: String, userId: Int? = null): Long {
         val resolver = context.contentResolver
         val uri = Buddies.buildBuddyUri(username)
-        val internalId = resolver.queryLong(uri, Buddies._ID)
+        val internalId = resolver.queryLong(uri, Buddies._ID, INVALID_ID.toLong())
         return if (internalId != INVALID_ID.toLong()) {
             values.remove(Buddies.BUDDY_NAME)
             val count = resolver.update(uri, values, null, null)
