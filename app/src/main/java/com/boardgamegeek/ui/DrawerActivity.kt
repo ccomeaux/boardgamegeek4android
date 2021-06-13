@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
@@ -15,8 +14,8 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.extensions.*
@@ -69,7 +68,9 @@ abstract class DrawerActivity : BaseActivity() {
         }
 
         viewModel.user.observe(this, {
-            refreshDrawer()
+            navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
+            it?.data?.let { user -> refreshHeader(user) }
+            navigationView.setCheckedItem(navigationItemId)
         })
 
         syncViewModel.currentSyncTimestamp.observe(this, {
@@ -88,7 +89,7 @@ abstract class DrawerActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        refreshDrawer()
+        Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
     }
 
     override fun onStop() {
@@ -114,12 +115,6 @@ abstract class DrawerActivity : BaseActivity() {
         }
     }
 
-    private fun refreshDrawer() {
-        navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
-        refreshHeader()
-        navigationView.setCheckedItem(navigationItemId)
-    }
-
     private fun selectItem(menuItemId: Int) {
         if (menuItemId != navigationItemId) {
             when (menuItemId) {
@@ -139,7 +134,7 @@ abstract class DrawerActivity : BaseActivity() {
         drawerLayout.closeDrawer(navigationView)
     }
 
-    private fun refreshHeader() {
+    private fun refreshHeader(user: UserEntity) {
         val view = navigationView.getHeaderView(0)
         val primaryView = view.findViewById<TextView>(R.id.account_info_primary)
         val secondaryView = view.findViewById<TextView>(R.id.account_info_secondary)
@@ -148,32 +143,24 @@ abstract class DrawerActivity : BaseActivity() {
         val signInButton = view.findViewById<Button>(R.id.singInButton)
 
         if (Authenticator.isSignedIn(this)) {
-            val fullName = AccountUtils.getFullName(this)
-            val username = AccountUtils.getUsername(this)
-            if (fullName.isNullOrBlank()) {
-                if (username.isNullOrBlank()) {
-                    val account = Authenticator.getAccount(this)
-                    if (account != null) viewModel.setUsername(account.name)
-                    return
-                } else {
-                    primaryView.text = username
-                    secondaryView.text = ""
-                    viewModel.setUsername(username)
-                }
+            if (user.fullName.isNotBlank() && user.userName.isNotBlank()) {
+                primaryView.text = user.fullName
+                secondaryView.text = user.userName
+                primaryView.setOnClickListener { }
+                secondaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
+            } else if (user.userName.isNotBlank()) {
+                primaryView.text = user.userName
+                secondaryView.text = ""
+                primaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
+                secondaryView.setOnClickListener { }
             } else {
-                primaryView.text = fullName
-                secondaryView.text = username
-                viewModel.setUsername(username)
+                Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
             }
-            secondaryView.setOnClickListener {
-                linkToBgg("user/$username")
-            }
-            val avatarUrl = AccountUtils.getAvatarUrl(this)
-            if (avatarUrl.isNullOrBlank()) {
-                imageView.visibility = View.GONE
+            if (user.avatarUrl.isBlank()) {
+                imageView.isVisible = false
             } else {
-                imageView.visibility = View.VISIBLE
-                imageView.loadThumbnail(avatarUrl, R.drawable.person_image_empty)
+                imageView.isVisible = true
+                imageView.loadThumbnail(user.avatarUrl, R.drawable.person_image_empty)
             }
             signedInGroup.isVisible = true
             signInButton.isVisible = false

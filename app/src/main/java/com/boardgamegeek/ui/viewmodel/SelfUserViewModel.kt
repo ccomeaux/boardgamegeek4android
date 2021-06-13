@@ -31,7 +31,7 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
                     try {
                         emit(RefreshableResource.refreshing(null))
                         val entity = userRepository.load(username)
-                        if (entity != null && entity.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+                        if (entity == null || entity.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
                             val refreshedUser = userRepository.refresh(username)
                             emit(RefreshableResource.success(refreshedUser))
                             if (username == Authenticator.getAccount(application)?.name) {
