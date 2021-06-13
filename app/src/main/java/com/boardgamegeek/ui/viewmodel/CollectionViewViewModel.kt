@@ -25,7 +25,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val defaultViewId
         get() = prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID, DEFAULT_DEFAULT_ID]
-                ?: DEFAULT_DEFAULT_ID
+            ?: DEFAULT_DEFAULT_ID
 
     private val collectionFiltererFactory: CollectionFiltererFactory by lazy { CollectionFiltererFactory(application) }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
@@ -99,21 +99,24 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         }
 
         _effectiveFilters.addSource(selectedView) {
-            createEffectiveFilters(it,
-                    _addedFilters.value.orEmpty(),
-                    _removedFilterTypes.value.orEmpty()
+            createEffectiveFilters(
+                it,
+                _addedFilters.value.orEmpty(),
+                _removedFilterTypes.value.orEmpty()
             )
         }
         _effectiveFilters.addSource(_addedFilters) {
-            createEffectiveFilters(selectedView.value,
-                    it,
-                    _removedFilterTypes.value.orEmpty()
+            createEffectiveFilters(
+                selectedView.value,
+                it,
+                _removedFilterTypes.value.orEmpty()
             )
         }
         _effectiveFilters.addSource(_removedFilterTypes) {
-            createEffectiveFilters(selectedView.value,
-                    _addedFilters.value.orEmpty(),
-                    it
+            createEffectiveFilters(
+                selectedView.value,
+                _addedFilters.value.orEmpty(),
+                it
             )
         }
 
@@ -166,7 +169,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             val filters = _addedFilters.value?.toMutableList() ?: mutableListOf()
             filters.find { it.type == type }?.let {
                 if (filters.remove(it)) {
-                    _addedFilters.value = filters
+                    _addedFilters.postValue(filters)
                 }
             }
 
@@ -179,7 +182,11 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    private fun createEffectiveFilters(loadedView: CollectionViewEntity?, addedFilters: List<CollectionFilterer>, removedFilterTypes: List<Int>) {
+    private fun createEffectiveFilters(
+        loadedView: CollectionViewEntity?,
+        addedFilters: List<CollectionFilterer>,
+        removedFilterTypes: List<Int>
+    ) {
         viewModelScope.launch(Dispatchers.Default) {
             // inflate filters
             val loadedFilters = mutableListOf<CollectionFilterer>()
@@ -214,15 +221,15 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun filterAndSortItems(
-            itemList: List<CollectionItemEntity>? = _allItems.value,
-            filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
-            sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+        itemList: List<CollectionItemEntity>? = _allItems.value,
+        filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
+        sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
         if (itemList == null) return
         _isRefreshing.postValue(true)
         viewModelScope.launch(Dispatchers.Default) {
             var list = itemList.asSequence()
-            if (_selectedViewId.value == DEFAULT_DEFAULT_ID) {
+            if (_selectedViewId.value == DEFAULT_DEFAULT_ID && filters.none { it.type == CollectionFiltererFactory.TYPE_STATUS }) {
                 list = list.filter {
                     (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
@@ -238,10 +245,9 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
                 }.asSequence()
-            } else {
-                filters.forEach { f ->
-                    list = list.filter { f.filter(it) }.asSequence()
-                }
+            }
+            filters.forEach { f ->
+                list = list.filter { f.filter(it) }.asSequence()
             }
             val sorter = collectionSorterFactory.create(sortType)
             _items.postValue(sorter?.sort(list.toList()) ?: list.toList())
@@ -259,10 +265,10 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     fun insert(name: String, isDefault: Boolean) {
         viewModelScope.launch {
             val view = CollectionViewEntity(
-                    id = 0L, //ignored
-                    name = name,
-                    sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                    filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
+                id = 0L, //ignored
+                name = name,
+                sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
             )
             val viewId = viewRepository.insertView(view)
             setOrRemoveDefault(viewId, isDefault)
@@ -273,10 +279,10 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     fun update(isDefault: Boolean) {
         viewModelScope.launch {
             val view = CollectionViewEntity(
-                    id = _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
-                    name = selectedViewName.value.orEmpty(),
-                    sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                    filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
+                id = _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
+                name = selectedViewName.value.orEmpty(),
+                sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
             )
             viewRepository.updateView(view)
             setOrRemoveDefault(view.id, isDefault)
