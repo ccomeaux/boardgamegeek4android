@@ -520,6 +520,10 @@ class GameDao(private val context: BggApplication) {
         return resolver.update(Games.buildGameUri(gameId), values, null, null)
     }
 
+    suspend fun updateC(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
+        resolver.update(Games.buildGameUri(gameId), values, null, null)
+    }
+
     fun save(game: GameEntity, updateTime: Long) {
         // TODO return the internal ID
         if (game.name.isBlank()) {

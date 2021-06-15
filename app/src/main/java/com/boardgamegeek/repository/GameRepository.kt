@@ -21,6 +21,8 @@ import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -190,15 +192,14 @@ class GameRepository(val application: BggApplication) {
         }
     }
 
-    fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
-        if (gameId == BggContract.INVALID_ID) return
-        application.appExecutors.diskIO.execute {
-            val values = contentValuesOf(BggContract.Games.LAST_VIEWED to lastViewed)
-            dao.update(gameId, values)
+    suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) =
+        withContext(Dispatchers.IO) {
+            if (gameId != BggContract.INVALID_ID) {
+                dao.updateC(gameId, contentValuesOf(BggContract.Games.LAST_VIEWED to lastViewed))
+            }
         }
-    }
 
-    fun updateGameColors(
+    suspend fun updateGameColors(
         gameId: Int,
         iconColor: Int,
         darkColor: Int,
@@ -206,25 +207,22 @@ class GameRepository(val application: BggApplication) {
         winnablePlaysColor: Int,
         allPlaysColor: Int
     ) {
-        if (gameId == BggContract.INVALID_ID) return
-        application.appExecutors.diskIO.execute {
-            val values = ContentValues(5)
-            values.put(BggContract.Games.ICON_COLOR, iconColor)
-            values.put(BggContract.Games.DARK_COLOR, darkColor)
-            values.put(BggContract.Games.WINS_COLOR, winsColor)
-            values.put(BggContract.Games.WINNABLE_PLAYS_COLOR, winnablePlaysColor)
-            values.put(BggContract.Games.ALL_PLAYS_COLOR, allPlaysColor)
-            val numberOfRowsModified = dao.update(gameId, values)
+        if (gameId != BggContract.INVALID_ID) {
+            val values = contentValuesOf(
+                BggContract.Games.ICON_COLOR to iconColor,
+                BggContract.Games.DARK_COLOR to darkColor,
+                BggContract.Games.WINS_COLOR to winsColor,
+                BggContract.Games.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
+                BggContract.Games.ALL_PLAYS_COLOR to allPlaysColor,
+            )
+            val numberOfRowsModified = dao.updateC(gameId, values)
             Timber.d(numberOfRowsModified.toString())
         }
     }
 
-    fun updateFavorite(gameId: Int, isFavorite: Boolean) {
-        if (gameId == BggContract.INVALID_ID) return
-        application.appExecutors.diskIO.execute {
-            val values = ContentValues()
-            values.put(BggContract.Games.STARRED, if (isFavorite) 1 else 0)
-            dao.update(gameId, values)
+    suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
+        if (gameId != BggContract.INVALID_ID) {
+            dao.updateC(gameId, contentValuesOf(BggContract.Games.STARRED to if (isFavorite) 1 else 0))
         }
     }
 }

@@ -10,6 +10,7 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
+import kotlinx.coroutines.launch
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _gameId = MutableLiveData<Int>()
@@ -183,27 +184,36 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
-        gameRepository.updateLastViewed(gameId.value ?: BggContract.INVALID_ID, lastViewed)
+        viewModelScope.launch {
+            gameRepository.updateLastViewed(gameId.value ?: BggContract.INVALID_ID, lastViewed)
+            refresh()
+        }
     }
 
     fun updateGameColors(palette: Palette?) {
-        if (palette != null) {
-            val iconColor = palette.getIconSwatch().rgb
-            val darkColor = palette.getDarkSwatch().rgb
-            val (wins, winnablePlays, allPlays) = palette.getPlayCountColors(getApplication())
-            gameRepository.updateGameColors(
-                gameId.value ?: BggContract.INVALID_ID,
-                iconColor,
-                darkColor,
-                wins,
-                winnablePlays,
-                allPlays
-            )
+        palette?.let { p ->
+            viewModelScope.launch {
+                val iconColor = p.getIconSwatch().rgb
+                val darkColor = p.getDarkSwatch().rgb
+                val (wins, winnablePlays, allPlays) = p.getPlayCountColors(getApplication())
+                gameRepository.updateGameColors(
+                    gameId.value ?: BggContract.INVALID_ID,
+                    iconColor,
+                    darkColor,
+                    wins,
+                    winnablePlays,
+                    allPlays,
+                )
+                refresh()
+            }
         }
     }
 
     fun updateFavorite(isFavorite: Boolean) {
-        gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
+        viewModelScope.launch {
+            gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
+            refresh()
+        }
     }
 
     fun addCollectionItem(statuses: List<String>, wishListPriority: Int?) {
