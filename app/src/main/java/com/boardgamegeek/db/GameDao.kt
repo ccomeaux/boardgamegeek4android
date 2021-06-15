@@ -320,6 +320,7 @@ class GameDao(private val context: BggApplication) {
         withContext(Dispatchers.IO) {
             val results = arrayListOf<GameExpansionsEntity>()
             if (gameId != INVALID_ID) {
+                val briefResults = arrayListOf<GameExpansionsEntity>()
                 context.contentResolver.load(
                     Games.buildExpansionsUri(gameId),
                     arrayOf(
@@ -331,14 +332,14 @@ class GameDao(private val context: BggApplication) {
                 )?.use {
                     if (it.moveToFirst()) {
                         do {
-                            results += GameExpansionsEntity(
+                            briefResults += GameExpansionsEntity(
                                 it.getInt(0),
                                 it.getString(1),
                             )
                         } while (it.moveToNext())
                     }
                 }
-                for (result in results) {
+                for (result in briefResults) {
                     context.contentResolver.load(
                         Collection.CONTENT_URI,
                         projection = arrayOf(
@@ -360,22 +361,23 @@ class GameDao(private val context: BggApplication) {
                     )?.use {
                         if (it.moveToFirst()) {
                             do {
-                                result.apply {
-                                    own = it.getBoolean(0)
-                                    previouslyOwned = it.getBoolean(1)
-                                    preOrdered = it.getBoolean(2)
-                                    forTrade = it.getBoolean(3)
-                                    wantInTrade = it.getBoolean(4)
-                                    wantToPlay = it.getBoolean(5)
-                                    wantToBuy = it.getBoolean(6)
-                                    wishList = it.getBoolean(7)
-                                    wishListPriority = it.getIntOrNull(8) ?: WISHLIST_PRIORITY_UNKNOWN
-                                    numberOfPlays = it.getIntOrNull(9) ?: 0
-                                    rating = it.getDoubleOrNull(10) ?: 0.0
-                                    comment = it.getStringOrNull(11).orEmpty()
-                                }
-
+                                results += result.copy(
+                                    own = it.getBoolean(0),
+                                    previouslyOwned = it.getBoolean(1),
+                                    preOrdered = it.getBoolean(2),
+                                    forTrade = it.getBoolean(3),
+                                    wantInTrade = it.getBoolean(4),
+                                    wantToPlay = it.getBoolean(5),
+                                    wantToBuy = it.getBoolean(6),
+                                    wishList = it.getBoolean(7),
+                                    wishListPriority = it.getIntOrNull(8) ?: WISHLIST_PRIORITY_UNKNOWN,
+                                    numberOfPlays = it.getIntOrNull(9) ?: 0,
+                                    rating = it.getDoubleOrNull(10) ?: 0.0,
+                                    comment = it.getStringOrNull(11).orEmpty(),
+                                )
                             } while (it.moveToNext())
+                        } else {
+                            results+= result
                         }
                     }
                 }

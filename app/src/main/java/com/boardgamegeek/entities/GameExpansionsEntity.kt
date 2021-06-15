@@ -1,18 +1,18 @@
 package com.boardgamegeek.entities
 
 data class GameExpansionsEntity(
-        val id: Int,
-        val name: String,
-        var own: Boolean = false,
-        var previouslyOwned: Boolean = false,
-        var preOrdered: Boolean = false,
-        var forTrade: Boolean = false,
-        var wantInTrade: Boolean = false,
-        var wantToPlay: Boolean = false,
-        var wantToBuy: Boolean = false,
-        var wishList: Boolean = false,
-        var wishListPriority: Int = 3,
-        var numberOfPlays: Int = 0,
-        var rating: Double = 0.0,
-        var comment: String = ""
+    val id: Int,
+    val name: String,
+    val own: Boolean = false,
+    val previouslyOwned: Boolean = false,
+    val preOrdered: Boolean = false,
+    val forTrade: Boolean = false,
+    val wantInTrade: Boolean = false,
+    val wantToPlay: Boolean = false,
+    val wantToBuy: Boolean = false,
+    val wishList: Boolean = false,
+    val wishListPriority: Int = 3,
+    val numberOfPlays: Int = 0,
+    val rating: Double = 0.0,
+    val comment: String = ""
 )
