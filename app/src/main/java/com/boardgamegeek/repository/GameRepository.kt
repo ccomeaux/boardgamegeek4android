@@ -3,7 +3,6 @@ package com.boardgamegeek.repository
 import android.content.ContentValues
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -14,71 +13,45 @@ import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
-import com.boardgamegeek.io.model.ThingResponse
 import com.boardgamegeek.livedata.RefreshableResourceLoader
-import com.boardgamegeek.mappers.GameMapper
 import com.boardgamegeek.mappers.PlayMapper
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
+import com.boardgamegeek.util.ImageUtils.getImageId
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 
 class GameRepository(val application: BggApplication) {
     private val dao = GameDao(application)
     private val playDao = PlayDao(application)
-    private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val refreshPlaysPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
     private val refreshPlaysFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
     }
 
-    /**
-     * Get a game from the database and potentially refresh it from BGG.
-     */
-    fun getGame(gameId: Int): LiveData<RefreshableResource<GameEntity>> {
-        val started = AtomicBoolean()
-        val mediatorLiveData = MediatorLiveData<RefreshableResource<GameEntity>>()
-        val liveData = object : RefreshableResourceLoader<GameEntity, ThingResponse>(application) {
-            private var timestamp = 0L
+    suspend fun loadGame(gameId: Int): GameEntity? = withContext(Dispatchers.IO) { dao.load(gameId) }
 
-            override val typeDescriptionResId = R.string.title_game
-
-            override fun loadFromDatabase() = dao.load(gameId)
-
-            override fun shouldRefresh(data: GameEntity?): Boolean {
-                if (gameId == BggContract.INVALID_ID) return false
-                return data == null || data.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)
-            }
-
-            override fun createCall(page: Int): Call<ThingResponse> {
-                timestamp = System.currentTimeMillis()
-                return Adapter.createForXml().thing(gameId, 1)
-            }
-
-            override fun saveCallResult(result: ThingResponse) {
-                for (game in result.games) {
-                    dao.save(GameMapper().map(game), timestamp)
-                    Timber.i("Synced game '$gameId'")
-                }
-            }
-        }.asLiveData()
-        mediatorLiveData.addSource(liveData) {
-            it?.data?.maybeRefreshHeroImageUrl("game", started) { url ->
-                application.appExecutors.diskIO.execute {
-                    dao.update(gameId, ContentValues().apply {
-                        put(BggContract.Games.HERO_IMAGE_URL, url)
-                    })
-                }
-            }
-            mediatorLiveData.value = it
+    suspend fun refreshGame(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
+        val response = Adapter.createForXml().thing2(gameId, 1)
+        for (game in response.games) {
+            dao.save(game.mapToEntity(), timestamp)
+            Timber.i("Synced game '$gameId'")
         }
-        return mediatorLiveData
+        response.games.firstOrNull()?.mapToEntity()
+    }
+
+    suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
+        val response = Adapter.createGeekdoApi().image2(game.thumbnailUrl.getImageId())
+        val url = response.images.medium.url
+        dao.upsert(game.id, contentValuesOf(BggContract.Games.HERO_IMAGE_URL to url))
+        game.copy(heroImageUrl = url)
     }
 
     suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)

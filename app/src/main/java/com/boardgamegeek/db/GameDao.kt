@@ -9,13 +9,13 @@ import android.net.Uri
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -29,97 +29,91 @@ import timber.log.Timber
 class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
 
-    fun load(gameId: Int): LiveData<GameEntity> {
-        if (gameId == INVALID_ID) return AbsentLiveData.create()
-        val uri = Games.buildGameUri(gameId)
-        return RegisteredLiveData(context, uri) {
+    suspend fun load(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
             val projection = arrayOf(
                 Games.GAME_ID,
-                Games.STATS_AVERAGE,
+                Games.GAME_NAME,
+                Games.DESCRIPTION,
+                Games.SUBTYPE,
+                Games.THUMBNAIL_URL,
+                Games.IMAGE_URL, // 5
                 Games.YEAR_PUBLISHED,
                 Games.MIN_PLAYERS,
                 Games.MAX_PLAYERS,
                 Games.PLAYING_TIME,
+                Games.MIN_PLAYING_TIME, // 10
+                Games.MAX_PLAYING_TIME,
                 Games.MINIMUM_AGE,
-                Games.DESCRIPTION,
-                Games.STATS_USERS_RATED,
+                Games.HERO_IMAGE_URL,
+                Games.STATS_AVERAGE,
+                Games.STATS_USERS_RATED, // 15
+                Games.STATS_NUMBER_COMMENTS,
                 Games.UPDATED,
                 Games.UPDATED_PLAYS,
                 Games.GAME_RANK,
-                Games.GAME_NAME,
-                Games.THUMBNAIL_URL,
+                Games.STATS_STANDARD_DEVIATION, // 20
                 Games.STATS_BAYES_AVERAGE,
-                Games.STATS_MEDIAN,
-                Games.STATS_STANDARD_DEVIATION,
-                Games.STATS_NUMBER_WEIGHTS,
                 Games.STATS_AVERAGE_WEIGHT,
+                Games.STATS_NUMBER_WEIGHTS,
                 Games.STATS_NUMBER_OWNED,
-                Games.STATS_NUMBER_TRADING,
+                Games.STATS_NUMBER_TRADING, // 25
                 Games.STATS_NUMBER_WANTING,
                 Games.STATS_NUMBER_WISHING,
-                Games.IMAGE_URL,
-                Games.SUBTYPE,
                 Games.CUSTOM_PLAYER_SORT,
-                Games.STATS_NUMBER_COMMENTS,
-                Games.MIN_PLAYING_TIME,
-                Games.MAX_PLAYING_TIME,
                 Games.STARRED,
-                Games.POLLS_COUNT,
+                Games.POLLS_COUNT, // 30
                 Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                Games.HERO_IMAGE_URL,
                 Games.ICON_COLOR,
                 Games.DARK_COLOR,
                 Games.WINS_COLOR,
-                Games.WINNABLE_PLAYS_COLOR,
-                Games.ALL_PLAYS_COLOR
+                Games.WINNABLE_PLAYS_COLOR, // 35
+                Games.ALL_PLAYS_COLOR,
             )
-            context.contentResolver.load(uri, projection)?.use {
+            context.contentResolver.load(Games.buildGameUri(gameId), projection)?.use {
                 if (it.moveToFirst()) {
-                    return@RegisteredLiveData GameEntity(
-                        id = it.getInt(Games.GAME_ID),
-                        name = it.getStringOrEmpty(Games.GAME_NAME),
-                        description = it.getStringOrEmpty(Games.DESCRIPTION),
-                        subtype = it.getStringOrEmpty(Games.SUBTYPE),
-                        thumbnailUrl = it.getStringOrEmpty(Games.THUMBNAIL_URL),
-                        imageUrl = it.getStringOrEmpty(Games.IMAGE_URL),
-                        yearPublished = it.getIntOrNull(Games.YEAR_PUBLISHED) ?: YEAR_UNKNOWN,
-                        minPlayers = it.getIntOrZero(Games.MIN_PLAYERS),
-                        maxPlayers = it.getIntOrZero(Games.MAX_PLAYERS),
-                        playingTime = it.getIntOrZero(Games.PLAYING_TIME),
-                        minPlayingTime = it.getIntOrZero(Games.MIN_PLAYING_TIME),
-                        maxPlayingTime = it.getIntOrZero(Games.MAX_PLAYING_TIME),
-                        minimumAge = it.getIntOrZero(Games.MINIMUM_AGE)
-                    ).apply {
-                        heroImageUrl = it.getStringOrEmpty(Games.HERO_IMAGE_URL)
-                        rating = it.getDoubleOrZero(Games.STATS_AVERAGE)
-                        numberOfRatings = it.getIntOrZero(Games.STATS_USERS_RATED)
-                        numberOfComments = it.getIntOrZero(Games.STATS_NUMBER_COMMENTS)
-                        updated = it.getLongOrZero(Games.UPDATED)
-                        updatedPlays = it.getLongOrZero(Games.UPDATED_PLAYS)
-                        overallRank = it.getIntOrNull(Games.GAME_RANK) ?: RANK_UNKNOWN
-                        standardDeviation = it.getDoubleOrZero(Games.STATS_STANDARD_DEVIATION)
-                        bayesAverage = it.getDoubleOrZero(Games.STATS_BAYES_AVERAGE)
-                        averageWeight = it.getDoubleOrZero(Games.STATS_AVERAGE_WEIGHT)
-                        numberOfUsersWeighting = it.getIntOrZero(Games.STATS_NUMBER_WEIGHTS)
-                        numberOfUsersOwned = it.getIntOrZero(Games.STATS_NUMBER_OWNED)
-                        numberOfUsersTrading = it.getIntOrZero(Games.STATS_NUMBER_TRADING)
-                        numberOfUsersWanting = it.getIntOrZero(Games.STATS_NUMBER_WANTING)
-                        numberOfUsersWishListing = it.getIntOrZero(Games.STATS_NUMBER_WISHING)
-                        customPlayerSort = it.getBoolean(Games.CUSTOM_PLAYER_SORT)
-                        isFavorite = it.getBoolean(Games.STARRED)
-                        pollVoteTotal = it.getIntOrZero(Games.POLLS_COUNT)
-                        suggestedPlayerCountPollVoteTotal =
-                            it.getIntOrZero(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL)
-                        iconColor = it.getIntOrNull(Games.ICON_COLOR) ?: Color.TRANSPARENT
-                        darkColor = it.getIntOrNull(Games.DARK_COLOR) ?: Color.TRANSPARENT
-                        winsColor = it.getIntOrNull(Games.WINS_COLOR) ?: Color.TRANSPARENT
-                        winnablePlaysColor = it.getIntOrNull(Games.WINNABLE_PLAYS_COLOR) ?: Color.TRANSPARENT
-                        allPlaysColor = it.getIntOrNull(Games.ALL_PLAYS_COLOR) ?: Color.TRANSPARENT
-                    }
-                }
-                return@RegisteredLiveData null
+                    GameEntity(
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        subtype = it.getStringOrNull(3).orEmpty(),
+                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                        imageUrl = it.getStringOrNull(5).orEmpty(),
+                        yearPublished = it.getIntOrNull(6) ?: YEAR_UNKNOWN,
+                        minPlayers = it.getIntOrNull(7) ?: 0,
+                        maxPlayers = it.getIntOrNull(8) ?: 0,
+                        playingTime = it.getIntOrNull(9) ?: 0,
+                        minPlayingTime = it.getIntOrNull(10) ?: 0,
+                        maxPlayingTime = it.getIntOrNull(11) ?: 0,
+                        minimumAge = it.getIntOrNull(12) ?: 0,
+                        heroImageUrl = it.getStringOrNull(13).orEmpty(),
+                        rating = it.getDoubleOrNull(14) ?: 0.0,
+                        numberOfRatings = it.getIntOrNull(15) ?: 0,
+                        numberOfComments = it.getIntOrNull(16) ?: 0,
+                        overallRank = it.getIntOrNull(19) ?: RANK_UNKNOWN,
+                        standardDeviation = it.getDoubleOrNull(20) ?: 0.0,
+                        bayesAverage = it.getDoubleOrNull(21) ?: 0.0,
+                        averageWeight = it.getDoubleOrNull(22) ?: 0.0,
+                        numberOfUsersWeighting = it.getIntOrNull(23) ?: 0,
+                        numberOfUsersOwned = it.getIntOrNull(24) ?: 0,
+                        numberOfUsersTrading = it.getIntOrNull(25) ?: 0,
+                        numberOfUsersWanting = it.getIntOrNull(26) ?: 0,
+                        numberOfUsersWishListing = it.getIntOrNull(27) ?: 0,
+                        updated = it.getLongOrNull(17) ?: 0L,
+                        updatedPlays = it.getLongOrNull(18) ?: 0L,
+                        customPlayerSort = it.getBoolean(28),
+                        isFavorite = it.getBoolean(29),
+                        pollVoteTotal = it.getIntOrNull(30) ?: 0,
+                        suggestedPlayerCountPollVoteTotal = it.getIntOrNull(31) ?: 0,
+                        iconColor = it.getIntOrNull(32) ?: Color.TRANSPARENT,
+                        darkColor = it.getIntOrNull(33) ?: Color.TRANSPARENT,
+                        winsColor = it.getIntOrNull(34) ?: Color.TRANSPARENT,
+                        winnablePlaysColor = it.getIntOrNull(35) ?: Color.TRANSPARENT,
+                        allPlaysColor = it.getIntOrNull(36) ?: Color.TRANSPARENT,
+                    )
+                } else null
             }
-        }
+        } else null
     }
 
     suspend fun loadRanks(gameId: Int): List<GameRankEntity> = withContext(Dispatchers.IO) {
@@ -377,7 +371,7 @@ class GameDao(private val context: BggApplication) {
                                 )
                             } while (it.moveToNext())
                         } else {
-                            results+= result
+                            results += result
                         }
                     }
                 }
@@ -570,6 +564,21 @@ class GameDao(private val context: BggApplication) {
             Timber.i("Saved game ID '%s'", game.id)
         } catch (e: Exception) {
             NotificationUtils.showPersistErrorNotification(context, e)
+        }
+    }
+
+    suspend fun upsert(gameId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
+        val resolver = context.contentResolver
+        val uri = Games.buildGameUri(gameId)
+        if (resolver.rowExists(uri)) {
+            val count = resolver.update(uri, values, null, null)
+            Timber.d("Updated %,d game rows at %s", count, uri)
+            count
+        } else {
+            values.put(Games.GAME_ID, gameId)
+            val insertedUri = resolver.insert(Artists.CONTENT_URI, values)
+            Timber.d("Inserted game at %s", insertedUri)
+            1
         }
     }
 

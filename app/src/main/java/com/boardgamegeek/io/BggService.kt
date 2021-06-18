@@ -20,6 +20,9 @@ interface BggService {
     fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): Call<ThingResponse>
 
     @GET("/xmlapi2/thing")
+    suspend fun thing2(@Query("id") gameId: Int, @Query("stats") stats: Int): ThingResponse
+
+    @GET("/xmlapi2/thing")
     fun thing(@Query("id") gameIds: String?, @Query("stats") stats: Int): Call<ThingResponse>
 
     @GET("/xmlapi2/thing?comments=1")

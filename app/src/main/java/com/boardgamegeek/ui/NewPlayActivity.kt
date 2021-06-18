@@ -59,7 +59,7 @@ class NewPlayActivity : AppCompatActivity() {
         })
 
         viewModel.game.observe(this, {
-            it.data?.let { entity ->
+            it?.let { entity ->
                 gameName = entity.name
                 thumbnailUrl = entity.thumbnailUrl
                 imageUrl = entity.imageUrl

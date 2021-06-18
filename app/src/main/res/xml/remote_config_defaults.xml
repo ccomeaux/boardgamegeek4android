@@ -63,7 +63,7 @@
 
 	<entry>
 		<key>refresh_game_minutes</key>
-		<value>1</value>
+		<value>5</value>
 	</entry>
 	<entry>
 		<key>refresh_game_collection_minutes</key>

@@ -7,7 +7,6 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -87,13 +86,20 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         }
 
         availablePlayers.addSource(allPlayers) { result ->
-            result?.let { availablePlayers.value = filterPlayers(result, playersByLocation.value, _addedPlayers.value, playerFilter) }
+            result?.let {
+                availablePlayers.value =
+                    filterPlayers(result, playersByLocation.value, _addedPlayers.value, playerFilter)
+            }
         }
         availablePlayers.addSource(playersByLocation) { result ->
-            result?.let { availablePlayers.value = filterPlayers(allPlayers.value, result, _addedPlayers.value, playerFilter) }
+            result?.let {
+                availablePlayers.value = filterPlayers(allPlayers.value, result, _addedPlayers.value, playerFilter)
+            }
         }
         availablePlayers.addSource(_addedPlayers) { result ->
-            result?.let { availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, result, playerFilter) }
+            result?.let {
+                availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, result, playerFilter)
+            }
         }
 
         addedPlayers.addSource(_addedPlayers) { list ->
@@ -152,10 +158,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         gameName.value = name
     }
 
-    val game: LiveData<RefreshableResource<GameEntity>> = Transformations.switchMap(gameId) {
-        when (it) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getGame(it)
+    val game: LiveData<GameEntity?> = gameId.switchMap {
+        liveData {
+            emit(
+                when (it) {
+                    BggContract.INVALID_ID -> null
+                    else -> gameRepository.loadGame(it)
+                }
+            )
         }
     }
 
@@ -198,9 +208,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
             // TODO make this LiveData
             val plays = playRepository.loadPlaysByPlayer(
-                    player.playerName,
-                    gameId.value ?: BggContract.INVALID_ID,
-                    player.isUser()
+                player.playerName,
+                gameId.value ?: BggContract.INVALID_ID,
+                player.isUser()
             )
             playerMightBeNewMap[player.id] = plays.sumOf { it.quantity } == 0
             assembleMightBeNewPlayers()
@@ -369,7 +379,12 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, _addedPlayers.value, filter)
     }.also { playerFilter = filter }
 
-    private fun filterPlayers(allPlayers: List<PlayerEntity>?, locationPlayers: List<PlayerEntity>?, addedPlayers: List<PlayerEntity>?, filter: String): List<PlayerEntity> {
+    private fun filterPlayers(
+        allPlayers: List<PlayerEntity>?,
+        locationPlayers: List<PlayerEntity>?,
+        addedPlayers: List<PlayerEntity>?,
+        filter: String
+    ): List<PlayerEntity> {
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
         // 1. me
@@ -402,14 +417,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun assemblePlayers(
-            addedPlayers: List<PlayerEntity> = _addedPlayers.value ?: emptyList(),
-            playerColors: Map<String, String> = playerColorMap.value ?: emptyMap(),
-            favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
-            playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
-            playerIsNew: Map<String, Boolean> = playerIsNewMap.value ?: emptyMap(),
-            playerWin: Map<String, Boolean> = playerWinMap.value ?: emptyMap(),
-            playerScores: Map<String, String> = playerScoresMap.value ?: emptyMap(),
-            gameColorList: List<String> = gameColors.value ?: emptyList(),
+        addedPlayers: List<PlayerEntity> = _addedPlayers.value ?: emptyList(),
+        playerColors: Map<String, String> = playerColorMap.value ?: emptyMap(),
+        favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
+        playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
+        playerIsNew: Map<String, Boolean> = playerIsNewMap.value ?: emptyMap(),
+        playerWin: Map<String, Boolean> = playerWinMap.value ?: emptyMap(),
+        playerScores: Map<String, String> = playerScoresMap.value ?: emptyMap(),
+        gameColorList: List<String> = gameColors.value ?: emptyList(),
     ) {
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
@@ -417,12 +432,12 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 color = playerColors[id] ?: ""
                 val favoriteForPlayer = favoriteColorsMap[id]?.map { it.description } ?: emptyList()
                 val rankedChoices = favoriteForPlayer
-                        .filter { gameColorList.contains(it) }
-                        .filterNot { playerColors.containsValue(it) }
-                        .toMutableList()
+                    .filter { gameColorList.contains(it) }
+                    .filterNot { playerColors.containsValue(it) }
+                    .toMutableList()
                 rankedChoices += gameColorList
-                        .filterNot { favoriteForPlayer.contains(it) }
-                        .filterNot { playerColors.containsValue(it) }
+                    .filterNot { favoriteForPlayer.contains(it) }
+                    .filterNot { playerColors.containsValue(it) }
                 favoriteColors = rankedChoices
                 sortOrder = playerSort[id] ?: ""
                 isNew = playerIsNew[id] ?: false
@@ -435,8 +450,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun assembleMightBeNewPlayers(
-            players: List<NewPlayPlayerEntity> = mightBeNewPlayers.value ?: emptyList(),
-            newMap: MutableMap<String, Boolean> = playerMightBeNewMap) {
+        players: List<NewPlayPlayerEntity> = mightBeNewPlayers.value ?: emptyList(),
+        newMap: MutableMap<String, Boolean> = playerMightBeNewMap
+    ) {
         mightBeNewPlayers.value = players.filter { newMap[it.id] ?: false }
     }
 
@@ -456,7 +472,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             _lengthInMillis.value = 0
         } else {
             _lengthInMillis.value =
-                    System.currentTimeMillis() - (startTime.value ?: 0L) + lengthInMillis
+                System.currentTimeMillis() - (startTime.value ?: 0L) + lengthInMillis
             _startTime.value = 0L
         }
     }
@@ -464,33 +480,33 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     fun save() {
         val startTime = startTime.value ?: 0L
         val play = PlayEntity(
-                BggContract.INVALID_ID.toLong(),
-                BggContract.INVALID_ID,
-                PlayEntity.currentDate(),
-                gameId.value ?: BggContract.INVALID_ID,
-                gameName.value ?: "",
-                quantity = 1,
-                length = if (startTime == 0L) length.value ?: 0 else 0,
-                location = location.value ?: "",
-                incomplete = false,
-                noWinStats = false,
-                comments = _comments,
-                syncTimestamp = 0,
-                initialPlayerCount = _addedPlayers.value?.size ?: 0,
-                startTime = startTime,
-                updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
-                dirtyTimestamp = System.currentTimeMillis()
+            BggContract.INVALID_ID.toLong(),
+            BggContract.INVALID_ID,
+            PlayEntity.currentDate(),
+            gameId.value ?: BggContract.INVALID_ID,
+            gameName.value ?: "",
+            quantity = 1,
+            length = if (startTime == 0L) length.value ?: 0 else 0,
+            location = location.value ?: "",
+            incomplete = false,
+            noWinStats = false,
+            comments = _comments,
+            syncTimestamp = 0,
+            initialPlayerCount = _addedPlayers.value?.size ?: 0,
+            startTime = startTime,
+            updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
+            dirtyTimestamp = System.currentTimeMillis()
         )
 
         for (player in _addedPlayers.value ?: mutableListOf()) {
             val p = PlayPlayerEntity(
-                    player.name,
-                    player.username,
-                    (playerSortMap.value ?: emptyMap())[player.id],
-                    color = (playerColorMap.value ?: emptyMap())[player.id],
-                    isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
-                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
-                    score = (playerScoresMap.value ?: emptyMap())[player.id] ?: "",
+                player.name,
+                player.username,
+                (playerSortMap.value ?: emptyMap())[player.id],
+                color = (playerColorMap.value ?: emptyMap())[player.id],
+                isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
+                isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
+                score = (playerScoresMap.value ?: emptyMap())[player.id] ?: "",
             )
             play.addPlayer(p)
         }

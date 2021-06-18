@@ -3,65 +3,58 @@ package com.boardgamegeek.entities
 import android.graphics.Color
 import com.boardgamegeek.provider.BggContract
 
-class GameEntity(
-        val id: Int = BggContract.INVALID_ID,
-        val name: String = "",
-        val sortName: String = "",
-        val subtype: String = "",
-        override val thumbnailUrl: String = "",
-        override val imageUrl: String = "",
-        val description: String = "",
-        val yearPublished: Int = YEAR_UNKNOWN,
-        val minPlayers: Int = 0,
-        val maxPlayers: Int = 0,
-        val playingTime: Int = 0,
-        val minPlayingTime: Int = 0,
-        val maxPlayingTime: Int = 0,
-        val minimumAge: Int = 0
-) : ImagesEntity {
-    var hasStatistics = false
-    var numberOfRatings = 0
-    var rating = 0.0
-    var bayesAverage = 0.0
-    var standardDeviation = 0.0
-    var median = 0.0
-    var numberOfUsersOwned = 0
-    var numberOfUsersTrading = 0
-    var numberOfUsersWanting: Int = 0
-    var numberOfUsersWishListing: Int = 0
-    var numberOfComments: Int = 0
-    var numberOfUsersWeighting: Int = 0
-    var averageWeight: Double = 0.0
-    var overallRank: Int = RANK_UNKNOWN
-    var ranks = arrayListOf<GameRankEntity>()
-
-    override var heroImageUrl = ""
-    override val imagesEntityDescription: String
-        get() = "$name ($id)"
-
-    var updated: Long = 0
-    var updatedPlays: Long = 0
-    var customPlayerSort: Boolean = false
-    var isFavorite: Boolean = false
-    var pollVoteTotal: Int = 0
-    var suggestedPlayerCountPollVoteTotal: Int = 0
-    var iconColor: Int = Color.TRANSPARENT
-    var darkColor: Int = Color.TRANSPARENT
-    var winsColor: Int = Color.TRANSPARENT
-    var winnablePlaysColor: Int = Color.TRANSPARENT
-    var allPlaysColor: Int = Color.TRANSPARENT
-
-    val designers = arrayListOf<Pair<Int, String>>()
-    val artists = arrayListOf<Pair<Int, String>>()
-    val publishers = arrayListOf<Pair<Int, String>>()
-    val categories = arrayListOf<Pair<Int, String>>()
-    val mechanics = arrayListOf<Pair<Int, String>>()
-    val expansions = arrayListOf<Triple<Int, String, Boolean>>()
-    val families = arrayListOf<Pair<Int, String>>()
-
-    var polls = arrayListOf<Poll>()
-    var playerPoll: GamePlayerPollEntity? = null
-
+data class GameEntity(
+    val id: Int = BggContract.INVALID_ID,
+    val name: String = "",
+    val sortName: String = "",
+    val subtype: String = "",
+    val thumbnailUrl: String = "",
+    val imageUrl: String = "",
+    val heroImageUrl: String = "",
+    val description: String = "",
+    val yearPublished: Int = YEAR_UNKNOWN,
+    val minPlayers: Int = 0,
+    val maxPlayers: Int = 0,
+    val playingTime: Int = 0,
+    val minPlayingTime: Int = 0,
+    val maxPlayingTime: Int = 0,
+    val minimumAge: Int = 0,
+    val hasStatistics: Boolean = false,
+    val numberOfRatings: Int = 0,
+    val rating: Double = 0.0,
+    val bayesAverage: Double = 0.0,
+    val standardDeviation: Double = 0.0,
+    val median: Double = 0.0,
+    val numberOfUsersOwned: Int = 0,
+    val numberOfUsersTrading: Int = 0,
+    val numberOfUsersWanting: Int = 0,
+    val numberOfUsersWishListing: Int = 0,
+    val numberOfComments: Int = 0,
+    val numberOfUsersWeighting: Int = 0,
+    val averageWeight: Double = 0.0,
+    val overallRank: Int = RANK_UNKNOWN,
+    val ranks: List<GameRankEntity> = emptyList(),
+    val updated: Long = 0,
+    val updatedPlays: Long = 0,
+    val customPlayerSort: Boolean = false,
+    val isFavorite: Boolean = false,
+    val pollVoteTotal: Int = 0,
+    val suggestedPlayerCountPollVoteTotal: Int = 0,
+    val iconColor: Int = Color.TRANSPARENT,
+    val darkColor: Int = Color.TRANSPARENT,
+    val winsColor: Int = Color.TRANSPARENT,
+    val winnablePlaysColor: Int = Color.TRANSPARENT,
+    val allPlaysColor: Int = Color.TRANSPARENT,
+    val polls: List<Poll> = emptyList(),
+    val playerPoll: GamePlayerPollEntity? = null,
+    val designers: List<Pair<Int, String>> = emptyList(),
+    val artists: List<Pair<Int, String>> = emptyList(),
+    val publishers: List<Pair<Int, String>> = emptyList(),
+    val categories: List<Pair<Int, String>> = emptyList(),
+    val mechanics: List<Pair<Int, String>> = emptyList(),
+    val expansions: List<Triple<Int, String, Boolean>> = emptyList(),
+    val families: List<Pair<Int, String>> = emptyList(),
+) {
     class Poll {
         var name: String = ""
         var title: String = ""
@@ -77,13 +70,14 @@ class GameEntity(
 
     val maxUsers: Int
         get() {
-            return listOf(numberOfRatings,
-                    numberOfComments,
-                    numberOfUsersOwned,
-                    numberOfUsersTrading,
-                    numberOfUsersWanting,
-                    numberOfUsersWeighting,
-                    numberOfUsersWishListing
+            return listOf(
+                numberOfRatings,
+                numberOfComments,
+                numberOfUsersOwned,
+                numberOfUsersTrading,
+                numberOfUsersWanting,
+                numberOfUsersWeighting,
+                numberOfUsersWishListing
             ).maxOrNull() ?: 0
         }
 

@@ -10,9 +10,15 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
+import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
+    private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val isGameRefreshing = AtomicBoolean()
+
     private val _gameId = MutableLiveData<Int>()
     val gameId: LiveData<Int>
         get() = _gameId
@@ -48,10 +54,30 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (_producerType.value != type) _producerType.value = type
     }
 
-    val game: LiveData<RefreshableResource<GameEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getGame(gameId)
+    val game: LiveData<RefreshableResource<GameEntity>> = _gameId.switchMap { gameId ->
+        liveData {
+            try {
+                val game = gameRepository.loadGame(gameId)
+                emit(RefreshableResource.success(game))
+                val refreshedGame =
+                    if ((game == null || game.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)) &&
+                        isGameRefreshing.compareAndSet(false, true)
+                    ) {
+                        emit(RefreshableResource.refreshing(game))
+                        gameRepository.refreshGame(gameId).also {
+                            isGameRefreshing.set(false)
+                        }
+                    } else game
+                val gameWithHeroImage = refreshedGame?.let {
+                    if (it.heroImageUrl.isBlank()) {
+                        emit(RefreshableResource.refreshing(it))
+                        gameRepository.refreshHeroImage(it)
+                    } else refreshedGame
+                }
+                emit(RefreshableResource.success(gameWithHeroImage))
+            } catch (e: Exception) {
+                emit(RefreshableResource.error<GameEntity>(e, application))
+            }
         }
     }
 

@@ -6,7 +6,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.GameMapper
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
@@ -14,7 +14,6 @@ import java.io.IOException
 
 abstract class SyncGames(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val dao = GameDao(application)
-    private val gameMapper = GameMapper()
 
     protected open val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX)
 
@@ -55,7 +54,7 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                             val games = response.body()?.games.orEmpty()
                             if (games.isNotEmpty()) {
                                 for (game in games) {
-                                    val entity = gameMapper.map(game)
+                                    val entity = game.mapToEntity()
                                     if (entity.name.isBlank()) {
                                         dao.delete(entity.id)
                                     } else {
@@ -118,7 +117,7 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                 val games =  response.body()?.games.orEmpty()
                 detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
                 for (game in games) {
-                    val entity = gameMapper.map(game)
+                    val entity = game.mapToEntity()
                     if (entity.name.isBlank()) {
                         dao.delete(entity.id)
                     } else {
