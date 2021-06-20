@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
+import kotlinx.coroutines.launch
 
 class GameColorsViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
@@ -13,6 +14,10 @@ class GameColorsViewModel(application: Application) : AndroidViewModel(applicati
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
+    fun refresh(){
+        _gameId.value?.let { _gameId.value = it }
+    }
+
     val colors = _gameId.switchMap { gameId ->
         liveData {
             emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
@@ -20,16 +25,23 @@ class GameColorsViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun addColor(color: String?) {
-        if (color.isNullOrBlank()) return
-        gameRepository.addPlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+        viewModelScope.launch {
+            gameRepository.addPlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+            refresh()
+        }
     }
 
-    fun removeColor(color: String): Int {
-        if (color.isBlank()) return 0
-        return gameRepository.deletePlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+    fun removeColor(color: String) {
+        viewModelScope.launch {
+            gameRepository.deletePlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+            refresh()
+        }
     }
 
     fun computeColors() {
-        gameRepository.computePlayColors(_gameId.value ?: BggContract.INVALID_ID)
+        viewModelScope.launch {
+            gameRepository.computePlayColors(_gameId.value ?: BggContract.INVALID_ID)
+            refresh()
+        }
     }
 }

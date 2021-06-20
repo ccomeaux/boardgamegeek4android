@@ -476,13 +476,12 @@ class GameDao(private val context: BggApplication) {
         return resolver.delete(Games.buildGameUri(gameId), null, null)
     }
 
-    fun insertColors(gameId: Int, color: String) {
-        val values = contentValuesOf(GameColors.COLOR to color)
-        resolver.insert(Games.buildColorsUri(gameId), values)
+    suspend fun insertColor(gameId: Int, color: String) = withContext(Dispatchers.IO) {
+        resolver.insert(Games.buildColorsUri(gameId), contentValuesOf(GameColors.COLOR to color))
     }
 
-    fun deleteColor(gameId: Int, color: String): Int {
-        return resolver.delete(Games.buildColorsUri(gameId, color), null, null)
+    suspend fun deleteColor(gameId: Int, color: String): Int = withContext(Dispatchers.IO) {
+        resolver.delete(Games.buildColorsUri(gameId, color), null, null)
     }
 
     fun computeColors(gameId: Int): Int {
@@ -499,7 +498,7 @@ class GameDao(private val context: BggApplication) {
                 do {
                     val color = c.getString(0).orEmpty()
                     if (color.isNotBlank()) {
-                        values.add(contentValuesOf(GameColors.COLOR to color))
+                        values += contentValuesOf(GameColors.COLOR to color)
                     }
                 } while (c.moveToNext())
             }

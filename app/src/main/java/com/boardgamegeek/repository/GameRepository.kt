@@ -142,27 +142,20 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getColors(gameId: Int) = dao.loadColors(gameId)
 
-    fun addPlayColor(gameId: Int, color: String) {
-        if (gameId == BggContract.INVALID_ID) return
-        if (color.isBlank()) return
-        application.appExecutors.diskIO.execute {
-            dao.insertColors(gameId, color)
+    suspend fun addPlayColor(gameId: Int, color: String?) {
+        if (gameId != BggContract.INVALID_ID && !color.isNullOrBlank()) {
+            dao.insertColor(gameId, color)
         }
     }
 
-    fun deletePlayColor(gameId: Int, color: String): Int {
-        if (gameId == BggContract.INVALID_ID) return 0
-        if (color.isBlank()) return 0
-        application.appExecutors.diskIO.execute {
+    suspend fun deletePlayColor(gameId: Int, color: String): Int {
+        return if (gameId != BggContract.INVALID_ID && color.isNotBlank()) {
             dao.deleteColor(gameId, color)
-        }
-        return 1
+        } else 0
     }
 
-    fun computePlayColors(gameId: Int) {
-        application.appExecutors.diskIO.execute {
-            dao.computeColors(gameId)
-        }
+    suspend fun computePlayColors(gameId: Int) = withContext(Dispatchers.IO) {
+        dao.computeColors(gameId)
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) =
