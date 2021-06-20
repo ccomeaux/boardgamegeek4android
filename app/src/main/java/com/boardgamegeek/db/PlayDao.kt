@@ -174,6 +174,12 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
+    suspend fun loadPlaysByGameC(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): List<PlayEntity> =
+        withContext(Dispatchers.IO) {
+            if (gameId == INVALID_ID) emptyList() else
+                loadPlaysC(Plays.CONTENT_URI, createGamePlaySelectionAndArgs(gameId), sortBy)
+        }
+
     fun loadPlaysByLocation(locationName: String): LiveData<List<PlayEntity>> {
         if (locationName.isBlank()) return AbsentLiveData.create()
         val uri = Plays.CONTENT_URI
@@ -269,6 +275,73 @@ class PlayDao(private val context: BggApplication) {
             }
         }
         return list
+    }
+
+    private suspend fun loadPlaysC(uri: Uri, selection: Pair<String?, Array<String>?>, sortBy: PlaysSortBy = PlaysSortBy.DATE): List<PlayEntity> = withContext(Dispatchers.IO) {
+        val list = mutableListOf<PlayEntity>()
+        val sortOrder = when (sortBy) {
+            PlaysSortBy.DATE -> ""
+            PlaysSortBy.LOCATION -> Plays.LOCATION.ascending()
+            PlaysSortBy.GAME -> Plays.ITEM_NAME.ascending()
+            PlaysSortBy.LENGTH -> Plays.LENGTH.descending()
+        }
+        context.contentResolver.load(uri,
+            arrayOf(
+                Plays._ID,
+                Plays.PLAY_ID,
+                Plays.DATE,
+                Plays.OBJECT_ID,
+                Plays.ITEM_NAME,
+                Plays.QUANTITY,
+                Plays.LENGTH,
+                Plays.LOCATION,
+                Plays.INCOMPLETE,
+                Plays.NO_WIN_STATS,
+                Plays.COMMENTS,
+                Plays.SYNC_TIMESTAMP,
+                Plays.PLAYER_COUNT,
+                Plays.DIRTY_TIMESTAMP,
+                Plays.UPDATE_TIMESTAMP,
+                Plays.DELETE_TIMESTAMP,
+                Plays.START_TIME,
+                Games.IMAGE_URL,
+                Games.THUMBNAIL_URL,
+                Games.HERO_IMAGE_URL,
+                Games.UPDATED_PLAYS,
+            ),
+            selection.first,
+            selection.second,
+            sortOrder
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list += PlayEntity(
+                        internalId = it.getLong(0),
+                        playId = it.getInt(1),
+                        rawDate = it.getString(2),
+                        gameId = it.getInt(3),
+                        gameName = it.getString(4),
+                        quantity = it.getIntOrNull(5) ?: 1,
+                        length = it.getIntOrNull(6) ?: 0,
+                        location = it.getStringOrNull(7).orEmpty(),
+                        incomplete = it.getInt(8) == 1,
+                        noWinStats = it.getInt(9) == 1,
+                        comments = it.getStringOrNull(10).orEmpty(),
+                        syncTimestamp = it.getLong(11),
+                        initialPlayerCount = it.getInt(12),
+                        dirtyTimestamp = it.getLong(13),
+                        updateTimestamp = it.getLong(14),
+                        deleteTimestamp = it.getLong(15),
+                        startTime = it.getLong(16),
+                        imageUrl = it.getStringOrNull(17).orEmpty(),
+                        thumbnailUrl = it.getStringOrNull(18).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(19).orEmpty(),
+                        updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        list
     }
 
     private fun createPlaySelectionAndArgs() =

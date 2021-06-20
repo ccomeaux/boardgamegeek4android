@@ -16,8 +16,11 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-    private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val isGameRefreshing = AtomicBoolean()
+    private val arePlaysRefreshing = AtomicBoolean()
+    private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val refreshPlaysPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
+    private val refreshPlaysFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
 
     private val _gameId = MutableLiveData<Int>()
     val gameId: LiveData<Int>
@@ -58,7 +61,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         liveData {
             try {
                 val game = gameRepository.loadGame(gameId)
-                emit(RefreshableResource.success(game))
                 val refreshedGame =
                     if ((game == null || game.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)) &&
                         isGameRefreshing.compareAndSet(false, true)
@@ -192,10 +194,26 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getPlays(gameId)
+    val plays = game.switchMap { game ->
+        liveData {
+            val gameId = game.data?.id ?: BggContract.INVALID_ID
+            val plays = if (gameId == BggContract.INVALID_ID) emptyList() else gameRepository.getPlaysC(gameId)
+            val refreshedPlays =
+                if (arePlaysRefreshing.compareAndSet(false, true)) {
+                    val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
+                    when {
+                        lastUpdated.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS) -> {
+                            emit(RefreshableResource.refreshing(plays))
+                            gameRepository.refreshPlays(gameId)
+                        }
+                        lastUpdated.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES) -> {
+                            emit(RefreshableResource.refreshing(plays))
+                            gameRepository.refreshPartialPlays(gameId)
+                        }
+                        else -> plays
+                    }.also { arePlaysRefreshing.set(false) }
+                } else plays
+            emit(RefreshableResource.success(refreshedPlays))
         }
     }
 

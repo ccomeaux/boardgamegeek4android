@@ -47,7 +47,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
         }
 
         viewModel.plays.observe(viewLifecycleOwner) {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+            swipeRefresh.post { swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             onPlaysQueryComplete(it?.data)
             progressView.hide()
         }
@@ -102,7 +102,8 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                 if (inProgressPlays.isNotEmpty()) {
                     inProgressPlaysList.removeAllViews()
                     inProgressPlays.take(3).forEach { play ->
-                        val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary_updating, inProgressPlaysList, false)
+                        val row = LayoutInflater.from(context)
+                            .inflate(R.layout.row_play_summary_updating, inProgressPlaysList, false)
                         row.findViewById<InProgressPlay>(R.id.line1)?.let {
                             it.play = play
                             it.timeHintUpdateInterval = 1_000L
@@ -121,7 +122,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                 inProgressPlaysContainer.fadeOut()
             }
 
-            val playCount = plays.sumBy { it.quantity }
+            val playCount = plays.sumOf { it.quantity }
             val description = playCount.asPlayCount(requireContext())
             playCountIcon.text = description.first.toString()
             playCountView.text = requireContext().getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
@@ -129,14 +130,24 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
             playCountBackground.setColorViewValue(description.third)
             playCountContainer.setOnClickListener {
                 if (gameId != BggContract.INVALID_ID)
-                    GamePlaysActivity.start(requireContext(), gameId, gameName, imageUrl, thumbnailUrl, heroImageUrl, arePlayersCustomSorted, iconColor)
+                    GamePlaysActivity.start(
+                        requireContext(),
+                        gameId,
+                        gameName,
+                        imageUrl,
+                        thumbnailUrl,
+                        heroImageUrl,
+                        arePlayersCustomSorted,
+                        iconColor
+                    )
             }
             playCountContainer.fadeIn()
 
             if (plays.isNotEmpty()) {
                 val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
                 if (lastPlay != null) {
-                    lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
+                    lastPlayDateView.text =
+                        requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
                     lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
                     lastPlayContainer.setOnClickListener {
                         PlayActivity.start(requireContext(), lastPlay.internalId)
@@ -164,22 +175,32 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
 
     private fun colorize() {
         if (isAdded) {
-            arrayOf(inProgressPlaysIcon, playsIcon, playStatsIcon, colorsIcon).forEach { it.setOrClearColorFilter(iconColor) }
+            arrayOf(inProgressPlaysIcon, playsIcon, playStatsIcon, colorsIcon).forEach {
+                it.setOrClearColorFilter(
+                    iconColor
+                )
+            }
         }
     }
 
     class InProgressPlay @JvmOverloads constructor(
-            context: Context,
-            attrs: AttributeSet? = null,
-            defStyleAttr: Int = android.R.attr.textViewStyle
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = android.R.attr.textViewStyle
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
         var play: PlayEntity? = null
 
         override fun updateText() {
             play?.let {
                 text = when {
-                    it.startTime > 0 -> context.getText(R.string.playing_for_prefix, DateUtils.formatElapsedTime((System.currentTimeMillis() - it.startTime) / 1000))
-                    DateUtils.isToday(it.dateInMillis) -> context.getText(R.string.playing_prefix, it.dateForDisplay(context))
+                    it.startTime > 0 -> context.getText(
+                        R.string.playing_for_prefix,
+                        DateUtils.formatElapsedTime((System.currentTimeMillis() - it.startTime) / 1000)
+                    )
+                    DateUtils.isToday(it.dateInMillis) -> context.getText(
+                        R.string.playing_prefix,
+                        it.dateForDisplay(context)
+                    )
                     else -> context.getText(R.string.playing_since_prefix, it.dateForDisplay(context))
                 }
             }
