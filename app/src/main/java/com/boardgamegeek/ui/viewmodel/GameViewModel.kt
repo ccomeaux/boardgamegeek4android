@@ -18,9 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val isGameRefreshing = AtomicBoolean()
     private val arePlaysRefreshing = AtomicBoolean()
+    private val areItemsRefreshing = AtomicBoolean()
     private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val refreshPlaysPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
     private val refreshPlaysFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
+    private val refreshItemsMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 
     private val _gameId = MutableLiveData<Int>()
     val gameId: LiveData<Int>
@@ -188,9 +190,23 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = game.switchMap { game ->
-        when (val gameId = game.data?.id ?: BggContract.INVALID_ID) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameCollectionRepository.getCollectionItems(gameId, game.data?.subtype ?: "")
+        liveData {
+            val gameId = game.data?.id ?: BggContract.INVALID_ID
+            val items =
+                if (gameId == BggContract.INVALID_ID) emptyList()
+                else gameCollectionRepository.loadCollectionItems(gameId)
+            val refreshedItems =
+                if (areItemsRefreshing.compareAndSet(false, true)) {
+                    val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
+                    when {
+                        lastUpdated.isOlderThan(refreshItemsMinutes, TimeUnit.MINUTES) -> {
+                            emit(RefreshableResource.refreshing(items))
+                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
+                        }
+                        else -> items
+                    }.also { areItemsRefreshing.set(false) }
+                } else items
+            emit(RefreshableResource.success(refreshedItems))
         }
     }
 

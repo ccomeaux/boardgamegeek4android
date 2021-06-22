@@ -36,7 +36,7 @@ class GameRepository(val application: BggApplication) {
         AccountUtils.getUsername(application)
     }
 
-    suspend fun loadGame(gameId: Int): GameEntity? = withContext(Dispatchers.IO) { dao.load(gameId) }
+    suspend fun loadGame(gameId: Int) = dao.load(gameId)
 
     suspend fun refreshGame(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()

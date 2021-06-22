@@ -23,6 +23,8 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -36,7 +38,10 @@ class GameCollectionRepository(val application: BggApplication) {
         AccountUtils.getUsername(application)
     }
 
-    fun getCollectionItem(collectionId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): LiveData<RefreshableResource<CollectionItemEntity>> {
+    fun getCollectionItem(
+        collectionId: Int,
+        subType: String = BggService.THING_SUBTYPE_BOARDGAME
+    ): LiveData<RefreshableResource<CollectionItemEntity>> {
         val started = AtomicBoolean()
         val mediatorLiveData = MediatorLiveData<RefreshableResource<CollectionItemEntity>>()
         val liveData = object : RefreshableResourceLoader<CollectionItemEntity, CollectionResponse>(application) {
@@ -59,10 +64,10 @@ class GameCollectionRepository(val application: BggApplication) {
             override fun createCall(page: Int): Call<CollectionResponse> {
                 timestamp = System.currentTimeMillis()
                 val options = mutableMapOf(
-                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                        BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                        BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+                    BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
                 )
                 return Adapter.createForXmlWithAuth(application).collection(username, options)
             }
@@ -76,8 +81,9 @@ class GameCollectionRepository(val application: BggApplication) {
                     val id = dao.saveItem(pair.first, pair.second, timestamp)
                     collectionIds.add(id)
                 }
-                Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size
-                        ?: 0, gameId)
+                Timber.i(
+                    "Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId
+                )
 
                 val deleteCount = dao.delete(gameId, collectionIds)
                 Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
@@ -96,51 +102,36 @@ class GameCollectionRepository(val application: BggApplication) {
         return mediatorLiveData
     }
 
-    /**
-     * Get a game from the database and potentially refresh it from BGG.
-     */
-    fun getCollectionItems(gameId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): LiveData<RefreshableResource<List<CollectionItemEntity>>> {
-        return object : RefreshableResourceLoader<List<CollectionItemEntity>, CollectionResponse>(application) {
-            private var timestamp = 0L
+    suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)
 
-            override val typeDescriptionResId = R.string.title_collection
+    suspend fun refreshCollectionItems(
+        gameId: Int,
+        subType: String = BggService.THING_SUBTYPE_BOARDGAME
+    ): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
+        val list = mutableListOf<CollectionItemEntity>()
+        val mapper = CollectionItemMapper()
+        val collectionIds = arrayListOf<Int>()
+        val timestamp = System.currentTimeMillis()
+        val options = mutableMapOf(
+            BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+            BggService.COLLECTION_QUERY_KEY_STATS to "1",
+            BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+            BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
+        )
+        // TODO This doesn't sync only played games (the played flag needs to be set explicitly)
+        val result = Adapter.createForXmlWithAuth(application).collectionC(username, options)
+        result.items?.forEach { item ->
+            val pair = mapper.map(item)
+            list += pair.first
+            val collectionId = dao.saveItem(pair.first, pair.second, timestamp)
+            collectionIds += collectionId
+        }
+        Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size ?: 0, gameId)
 
-            override fun loadFromDatabase() = dao.loadByGame(gameId)
+        val deleteCount = dao.delete(gameId, collectionIds)
+        Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
 
-            override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
-                if (gameId == BggContract.INVALID_ID || username == null) return false
-                val syncTimestamp = data?.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                return syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
-            }
-
-            override fun createCall(page: Int): Call<CollectionResponse> {
-                timestamp = System.currentTimeMillis()
-                val options = mutableMapOf(
-                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                        BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                        BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
-                )
-                return Adapter.createForXmlWithAuth(application).collection(username, options)
-            }
-
-            override fun saveCallResult(result: CollectionResponse) {
-                val mapper = CollectionItemMapper()
-                val collectionIds = arrayListOf<Int>()
-
-                // TODO This doesn't sync only played games (the played flag needs to be set explicitly)
-                result.items?.forEach { item ->
-                    val pair = mapper.map(item)
-                    val collectionId = dao.saveItem(pair.first, pair.second, timestamp)
-                    collectionIds.add(collectionId)
-                }
-                Timber.i("Synced %,d collection item(s) for game '%s'", result.items?.size
-                        ?: 0, gameId)
-
-                val deleteCount = dao.delete(gameId, collectionIds)
-                Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-            }
-        }.asLiveData()
+        list
     }
 
     fun addCollectionItem(gameId: Int, statuses: List<String>, wishListPriority: Int?) {
@@ -159,13 +150,16 @@ class GameCollectionRepository(val application: BggApplication) {
             putWishList(statuses, wishListPriority, values)
             values.put(BggContract.Collection.STATUS_DIRTY_TIMESTAMP, System.currentTimeMillis())
 
-            application.contentResolver.load(BggContract.Games.buildGameUri(gameId),
-                    arrayOf(BggContract.Games.GAME_NAME,
-                            BggContract.Games.GAME_SORT_NAME,
-                            BggContract.Games.YEAR_PUBLISHED,
-                            BggContract.Games.IMAGE_URL,
-                            BggContract.Games.THUMBNAIL_URL,
-                            BggContract.Games.HERO_IMAGE_URL)
+            application.contentResolver.load(
+                BggContract.Games.buildGameUri(gameId),
+                arrayOf(
+                    BggContract.Games.GAME_NAME,
+                    BggContract.Games.GAME_SORT_NAME,
+                    BggContract.Games.YEAR_PUBLISHED,
+                    BggContract.Games.IMAGE_URL,
+                    BggContract.Games.THUMBNAIL_URL,
+                    BggContract.Games.HERO_IMAGE_URL
+                )
             )?.use {
                 if (it.moveToFirst()) {
                     values.put(BggContract.Collection.COLLECTION_NAME, it.getString(0))
@@ -181,7 +175,7 @@ class GameCollectionRepository(val application: BggApplication) {
             val gameName = values.getAsString(BggContract.Collection.COLLECTION_NAME)
             val response = application.contentResolver.insert(BggContract.Collection.CONTENT_URI, values)
             val internalId = response?.lastPathSegment?.toLongOrNull()
-                    ?: BggContract.INVALID_ID.toLong()
+                ?: BggContract.INVALID_ID.toLong()
             if (internalId == BggContract.INVALID_ID.toLong()) {
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {
@@ -198,8 +192,9 @@ class GameCollectionRepository(val application: BggApplication) {
     private fun putWishList(statuses: List<String>, wishListPriority: Int?, values: ContentValues) {
         if (statuses.contains(BggContract.Collection.STATUS_WISHLIST)) {
             values.put(BggContract.Collection.STATUS_WISHLIST, 1)
-            values.put(BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishListPriority
-                    ?: 3) // like to have
+            values.put(
+                BggContract.Collection.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3 // like to have
+            )
             return
         } else {
             values.put(BggContract.Collection.STATUS_WISHLIST, 0)
@@ -217,15 +212,15 @@ class GameCollectionRepository(val application: BggApplication) {
         if (internalId == BggContract.INVALID_ID.toLong()) return
         application.appExecutors.diskIO.execute {
             val values = contentValuesOf(
-                    BggContract.Collection.COLLECTION_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.STATUS_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.COMMENT_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.RATING_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.WANT_PARTS_DIRTY_TIMESTAMP to 0,
-                    BggContract.Collection.HAS_PARTS_DIRTY_TIMESTAMP to 0
+                BggContract.Collection.COLLECTION_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.STATUS_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.COMMENT_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.RATING_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.WANT_PARTS_DIRTY_TIMESTAMP to 0,
+                BggContract.Collection.HAS_PARTS_DIRTY_TIMESTAMP to 0
             )
 
             val success = dao.update(internalId, values) > 0
