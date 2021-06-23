@@ -4,19 +4,24 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getStringOrNull
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import java.util.*
 
-class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
+class PlayerNameAdapter(context: Context) :
+    ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
     private val resultList = ArrayList<Result>()
 
-    class Result(val title: String,
-                 val subtitle: String,
-                 val username: String,
-                 var playCount: Int = 0,
-                 avatarUrl: String = "") {
+    class Result(
+        val title: String,
+        val subtitle: String,
+        val username: String,
+        var playCount: Int = 0,
+        avatarUrl: String = ""
+    ) {
         val avatarUrl: String = avatarUrl
             get() = if (field == INVALID_URL) "" else field
 
@@ -33,7 +38,8 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
 
         view.findViewById<TextView>(R.id.player_title)?.setTextOrHide(result.title)
         view.findViewById<TextView>(R.id.player_subtitle)?.setTextOrHide(result.subtitle)
-        view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnailInList(result.avatarUrl, R.drawable.person_image_empty)
+        view.findViewById<ImageView>(R.id.player_avatar)
+            ?.loadThumbnailInList(result.avatarUrl, R.drawable.person_image_empty)
         view.tag = result.username
         return view
     }
@@ -80,11 +86,13 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
 
         private fun queryPlayerHistory(input: String): List<Result> {
             val results = arrayListOf<Result>()
-            val cursor = context.contentResolver.query(Plays.buildPlayersByUniquePlayerUri(),
-                    arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.COUNT),
-                    if (input.isBlank()) null else "${PlayPlayers.NAME} LIKE ?",
-                    if (input.isBlank()) null else arrayOf("$input%"),
-                    "${PlayPlayers.COUNT} DESC, ${PlayPlayers.NAME}")
+            val cursor = context.contentResolver.query(
+                Plays.buildPlayersByUniquePlayerUri(),
+                arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.COUNT),
+                if (input.isBlank()) null else "${PlayPlayers.NAME} LIKE ?",
+                if (input.isBlank()) null else arrayOf("$input%"),
+                "${PlayPlayers.COUNT} DESC, ${PlayPlayers.NAME}"
+            )
             cursor?.use {
                 if (it.moveToFirst()) {
                     do {
@@ -101,11 +109,20 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
         private fun queryBuddies(input: String): Pair<List<Result>, Set<String>> {
             val results = arrayListOf<Result>()
             val userNames = hashSetOf<String>()
-            val cursor = context.contentResolver.query(Buddies.CONTENT_URI,
-                    arrayOf(Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, Buddies.PLAY_NICKNAME, Buddies.AVATAR_URL),
-                    if (input.isBlank()) null else "${Buddies.BUDDY_NAME} LIKE ? OR ${Buddies.BUDDY_FIRSTNAME} LIKE ? OR ${Buddies.BUDDY_LASTNAME} LIKE ? OR ${Buddies.PLAY_NICKNAME} LIKE ?",
-                    if (input.isBlank()) null else arrayOf("$input%", "$input%", "$input%", "$input%"),
-                    Buddies.NAME_SORT)
+            val cursor = context.contentResolver.query(
+                Buddies.CONTENT_URI,
+                arrayOf(
+                    Buddies._ID,
+                    Buddies.BUDDY_NAME,
+                    Buddies.BUDDY_FIRSTNAME,
+                    Buddies.BUDDY_LASTNAME,
+                    Buddies.PLAY_NICKNAME,
+                    Buddies.AVATAR_URL
+                ),
+                if (input.isBlank()) null else "${Buddies.BUDDY_NAME} LIKE ? OR ${Buddies.BUDDY_FIRSTNAME} LIKE ? OR ${Buddies.BUDDY_LASTNAME} LIKE ? OR ${Buddies.PLAY_NICKNAME} LIKE ?",
+                if (input.isBlank()) null else arrayOf("$input%", "$input%", "$input%", "$input%"),
+                Buddies.NAME_SORT
+            )
             cursor?.use {
                 if (it.moveToFirst()) {
                     do {
@@ -117,10 +134,11 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                         val fullName = "${firstName.trim()} ${lastName.trim()}".trim()
 
                         results += Result(
-                                if (nickname.isBlank()) fullName else nickname,
-                                if (nickname.isBlank()) userName else "$fullName ($userName)",
-                                userName,
-                                avatarUrl = avatarUrl)
+                            if (nickname.isBlank()) fullName else nickname,
+                            if (nickname.isBlank()) userName else "$fullName ($userName)",
+                            userName,
+                            avatarUrl = avatarUrl
+                        )
                         userNames.add(userName)
                     } while (it.moveToNext())
                 }

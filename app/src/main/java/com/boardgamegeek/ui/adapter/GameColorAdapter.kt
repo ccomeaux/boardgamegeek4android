@@ -6,9 +6,9 @@ import android.provider.BaseColumns
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.database.getStringOrNull
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asColorRgb
-import com.boardgamegeek.extensions.getStringOrNull
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setColorViewValue
 import com.boardgamegeek.provider.BggContract.GameColors

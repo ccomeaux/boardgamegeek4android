@@ -6,6 +6,7 @@ import android.content.SyncResult
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat.Action
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getLongOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -93,7 +94,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 try {
-                    val internalId = it.getLongOrNull(Plays._ID) ?: INVALID_ID.toLong()
+                    val internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong()
                     val play = dao.loadPlay(internalId) ?: break
                     val response = postPlayUpdate(play)
                     if (response.hasAuthError()) {
@@ -149,7 +150,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete_increment, totalNumberOfPlays, ++currentNumberOfPlays, totalNumberOfPlays)
 
                 try {
-                    val internalId = it.getLongOrNull(Plays._ID) ?: INVALID_ID.toLong()
+                    val internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong()
                     val play = dao.loadPlay(internalId) ?: break
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                     if (play.isSynced) {

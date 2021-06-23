@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
+import androidx.core.database.getIntOrNull
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,7 +16,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.export.Constants
 import com.boardgamegeek.export.model.*
 import com.boardgamegeek.extensions.applyBatch
-import com.boardgamegeek.extensions.getIntOrNull
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.extensions.rowExists
 import com.boardgamegeek.livedata.Event

@@ -608,16 +608,16 @@ class CollectionDao(private val context: BggApplication) {
 
             fun fromCursor(cursor: Cursor): SyncCandidate {
                 return SyncCandidate(
-                    cursor.getLongOrNull(Collection._ID) ?: INVALID_ID.toLong(),
-                    cursor.getLongOrNull(Collection.COLLECTION_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.STATUS_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.RATING_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.COMMENT_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.WANT_PARTS_DIRTY_TIMESTAMP) ?: 0L,
-                    cursor.getLongOrNull(Collection.HAS_PARTS_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                    cursor.getLongOrNull(1) ?: 0L,
+                    cursor.getLongOrNull(2) ?: 0L,
+                    cursor.getLongOrNull(3) ?: 0L,
+                    cursor.getLongOrNull(4) ?: 0L,
+                    cursor.getLongOrNull(5) ?: 0L,
+                    cursor.getLongOrNull(6) ?: 0L,
+                    cursor.getLongOrNull(7) ?: 0L,
+                    cursor.getLongOrNull(8) ?: 0L,
+                    cursor.getLongOrNull(9) ?: 0L,
                 )
             }
         }

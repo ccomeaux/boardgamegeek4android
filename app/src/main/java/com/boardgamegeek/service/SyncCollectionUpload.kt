@@ -6,6 +6,8 @@ import android.content.SyncResult
 import android.database.Cursor
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -26,7 +28,8 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
+class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) :
+    SyncUploadTask(application, service, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0
@@ -44,7 +47,13 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     override val notificationIntent: Intent?
         get() = if (currentGameId != INVALID_ID) {
-            GameActivity.createIntent(context, currentGameId, currentGameName, currentGameThumbnailUrl, currentGameHeroImageUrl)
+            GameActivity.createIntent(
+                context,
+                currentGameId,
+                currentGameName,
+                currentGameThumbnailUrl,
+                currentGameHeroImageUrl
+            )
         } else super.notificationIntent
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_COLLECTION
@@ -102,54 +111,58 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     private fun fromCursor(cursor: Cursor): CollectionItemForUploadEntity {
         return CollectionItemForUploadEntity(
-                cursor.getLong(Collection._ID),
-                cursor.getIntOrNull(Collection.COLLECTION_ID) ?: INVALID_ID,
-                cursor.getInt(Collection.GAME_ID),
-                cursor.getString(Collection.COLLECTION_NAME),
-                cursor.getStringOrEmpty(Collection.COLLECTION_IMAGE_URL).ifEmpty { cursor.getStringOrEmpty(Collection.IMAGE_URL) },
-                cursor.getStringOrEmpty(Collection.COLLECTION_THUMBNAIL_URL).ifEmpty { cursor.getStringOrEmpty(Collection.THUMBNAIL_URL) },
-                cursor.getStringOrEmpty(Collection.COLLECTION_HERO_IMAGE_URL).ifEmpty { cursor.getStringOrEmpty(Collection.HERO_IMAGE_URL) },
-                cursor.getDouble(Collection.RATING),
-                cursor.getLong(Collection.RATING_DIRTY_TIMESTAMP),
-                cursor.getString(Collection.COMMENT),
-                cursor.getLong(Collection.COMMENT_DIRTY_TIMESTAMP),
-                cursor.getString(Collection.PRIVATE_INFO_ACQUIRED_FROM),
-                cursor.getString(Collection.PRIVATE_INFO_ACQUISITION_DATE),
-                cursor.getString(Collection.PRIVATE_INFO_COMMENT),
-                cursor.getDouble(Collection.PRIVATE_INFO_CURRENT_VALUE),
-                cursor.getString(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY),
-                cursor.getDouble(Collection.PRIVATE_INFO_PRICE_PAID),
-                cursor.getString(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY),
-                cursor.getInt(Collection.PRIVATE_INFO_QUANTITY),
-                cursor.getString(Collection.PRIVATE_INFO_INVENTORY_LOCATION),
-                cursor.getLong(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP),
-                cursor.getInt(Collection.STATUS_OWN) == 1,
-                cursor.getInt(Collection.STATUS_PREVIOUSLY_OWNED) == 1,
-                cursor.getInt(Collection.STATUS_FOR_TRADE) == 1,
-                cursor.getInt(Collection.STATUS_WANT) == 1,
-                cursor.getInt(Collection.STATUS_WANT_TO_BUY) == 1,
-                cursor.getInt(Collection.STATUS_WANT_TO_PLAY) == 1,
-                cursor.getInt(Collection.STATUS_PREORDERED) == 1,
-                cursor.getInt(Collection.STATUS_WISHLIST) == 1,
-                cursor.getInt(Collection.STATUS_WISHLIST_PRIORITY),
-                cursor.getLong(Collection.STATUS_DIRTY_TIMESTAMP),
-                cursor.getString(Collection.WISHLIST_COMMENT),
-                cursor.getLong(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP),
-                cursor.getString(Collection.CONDITION),
-                cursor.getLong(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP),
-                cursor.getString(Collection.WANTPARTS_LIST),
-                cursor.getLong(Collection.WANT_PARTS_DIRTY_TIMESTAMP),
-                cursor.getString(Collection.HASPARTS_LIST),
-                cursor.getLong(Collection.HAS_PARTS_DIRTY_TIMESTAMP),
+            cursor.getLong(0),
+            cursor.getIntOrNull(1) ?: INVALID_ID,
+            cursor.getIntOrNull(2) ?: INVALID_ID,
+            cursor.getString(3),
+            cursor.getStringOrNull(4).orEmpty().ifEmpty { cursor.getStringOrNull(7) }.orEmpty(),
+            cursor.getStringOrNull(5).orEmpty().ifEmpty { cursor.getStringOrNull(8) }.orEmpty(),
+            cursor.getStringOrNull(6).orEmpty().ifEmpty { cursor.getStringOrNull(9) }.orEmpty(),
+            cursor.getDouble(10),
+            cursor.getLong(11),
+            cursor.getString(12),
+            cursor.getLong(13),
+            cursor.getString(14),
+            cursor.getString(15),
+            cursor.getString(16),
+            cursor.getDouble(17),
+            cursor.getString(18),
+            cursor.getDouble(19),
+            cursor.getString(20),
+            cursor.getInt(21),
+            cursor.getString(22),
+            cursor.getLong(23),
+            cursor.getBoolean(24),
+            cursor.getBoolean(25),
+            cursor.getBoolean(26),
+            cursor.getBoolean(27),
+            cursor.getBoolean(28),
+            cursor.getBoolean(29),
+            cursor.getBoolean(30),
+            cursor.getBoolean(31),
+            cursor.getInt(32),
+            cursor.getLong(33),
+            cursor.getString(34),
+            cursor.getLong(35),
+            cursor.getString(36),
+            cursor.getLong(37),
+            cursor.getString(38),
+            cursor.getLong(39),
+            cursor.getString(40),
+            cursor.getLong(41),
         )
     }
 
     private fun fetchDeletedCollectionItems(): Cursor? {
-        return getCollectionItems(isGreaterThanZero(Collection.COLLECTION_DELETE_TIMESTAMP), R.plurals.sync_notification_collection_deleting)
+        return getCollectionItems(
+            isGreaterThanZero(Collection.COLLECTION_DELETE_TIMESTAMP),
+            R.plurals.sync_notification_collection_deleting
+        )
     }
 
     private fun fetchNewCollectionItems(): Cursor? {
-        val selection = "(${getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP))}) AND ${Collection.COLLECTION_ID.whereNullOrBlank()}"
+        val selection =
+            "(${getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP))}) AND ${Collection.COLLECTION_ID.whereNullOrBlank()}"
         return getCollectionItems(selection, R.plurals.sync_notification_collection_adding)
     }
 
@@ -172,9 +185,11 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
     }
 
     private fun getCollectionItems(selection: String, @PluralsRes messageResId: Int): Cursor? {
-        val cursor = context.contentResolver.query(Collection.CONTENT_URI,
-                PROJECTION,
-                selection, null, null)
+        val cursor = context.contentResolver.query(
+            Collection.CONTENT_URI,
+            PROJECTION,
+            selection, null, null
+        )
         val count = cursor?.count ?: 0
         val detail = context.resources.getQuantityString(messageResId, count, count)
         Timber.i(detail)
@@ -220,7 +235,11 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         }
     }
 
-    private fun processUploadTask(task: CollectionUploadTask, collectionItem: CollectionItemForUploadEntity, contentValues: ContentValues): Boolean {
+    private fun processUploadTask(
+        task: CollectionUploadTask,
+        collectionItem: CollectionItemForUploadEntity,
+        contentValues: ContentValues
+    ): Boolean {
         task.addCollectionItem(collectionItem)
         if (task.isDirty) {
             task.post()
@@ -238,7 +257,14 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         currentGameName = item.collectionName
         currentGameHeroImageUrl = item.heroImageUrl
         currentGameThumbnailUrl = item.thumbnailUrl
-        notifyUser(item.collectionName, context.getString(messageResId), id, item.imageUrl, item.thumbnailUrl, item.heroImageUrl)
+        notifyUser(
+            item.collectionName,
+            context.getString(messageResId),
+            id,
+            item.imageUrl,
+            item.thumbnailUrl,
+            item.heroImageUrl
+        )
     }
 
     private fun processResponseForError(response: CollectionTask): Boolean {
@@ -260,48 +286,48 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     companion object {
         val PROJECTION = arrayOf(
-                Collection._ID,
-                Collection.GAME_ID,
-                Collection.COLLECTION_ID,
-                Collection.COLLECTION_NAME,
-                Collection.RATING,
-                Collection.RATING_DIRTY_TIMESTAMP,
-                Collection.COMMENT,
-                Collection.COMMENT_DIRTY_TIMESTAMP,
-                Collection.PRIVATE_INFO_ACQUIRED_FROM,
-                Collection.PRIVATE_INFO_ACQUISITION_DATE,
-                Collection.PRIVATE_INFO_COMMENT,
-                Collection.PRIVATE_INFO_CURRENT_VALUE,
-                Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-                Collection.PRIVATE_INFO_PRICE_PAID,
-                Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-                Collection.PRIVATE_INFO_QUANTITY,
-                Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
-                Collection.STATUS_OWN,
-                Collection.STATUS_PREVIOUSLY_OWNED,
-                Collection.STATUS_FOR_TRADE,
-                Collection.STATUS_WANT,
-                Collection.STATUS_WANT_TO_PLAY,
-                Collection.STATUS_WANT_TO_BUY,
-                Collection.STATUS_WISHLIST,
-                Collection.STATUS_WISHLIST_PRIORITY,
-                Collection.STATUS_PREORDERED,
-                Collection.STATUS_DIRTY_TIMESTAMP,
-                Collection.WISHLIST_COMMENT,
-                Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
-                Collection.CONDITION,
-                Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
-                Collection.WANTPARTS_LIST,
-                Collection.WANT_PARTS_DIRTY_TIMESTAMP,
-                Collection.HASPARTS_LIST,
-                Collection.HAS_PARTS_DIRTY_TIMESTAMP,
-                Collection.IMAGE_URL,
-                Collection.THUMBNAIL_URL,
-                Collection.HERO_IMAGE_URL,
-                Collection.COLLECTION_IMAGE_URL,
-                Collection.COLLECTION_THUMBNAIL_URL,
-                Collection.COLLECTION_HERO_IMAGE_URL,
-                Collection.PRIVATE_INFO_INVENTORY_LOCATION,
+            Collection._ID,
+            Collection.COLLECTION_ID,
+            Collection.GAME_ID,
+            Collection.COLLECTION_NAME,
+            Collection.COLLECTION_IMAGE_URL,
+            Collection.COLLECTION_THUMBNAIL_URL, // 5
+            Collection.COLLECTION_HERO_IMAGE_URL,
+            Collection.IMAGE_URL,
+            Collection.THUMBNAIL_URL,
+            Collection.HERO_IMAGE_URL,
+            Collection.RATING, // 10
+            Collection.RATING_DIRTY_TIMESTAMP,
+            Collection.COMMENT,
+            Collection.COMMENT_DIRTY_TIMESTAMP,
+            Collection.PRIVATE_INFO_ACQUIRED_FROM,
+            Collection.PRIVATE_INFO_ACQUISITION_DATE, // 15
+            Collection.PRIVATE_INFO_COMMENT,
+            Collection.PRIVATE_INFO_CURRENT_VALUE,
+            Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+            Collection.PRIVATE_INFO_PRICE_PAID,
+            Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, // 20
+            Collection.PRIVATE_INFO_QUANTITY,
+            Collection.PRIVATE_INFO_INVENTORY_LOCATION,
+            Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
+            Collection.STATUS_OWN,
+            Collection.STATUS_PREVIOUSLY_OWNED, // 25
+            Collection.STATUS_FOR_TRADE,
+            Collection.STATUS_WANT,
+            Collection.STATUS_WANT_TO_BUY,
+            Collection.STATUS_WANT_TO_PLAY,
+            Collection.STATUS_PREORDERED, // 30
+            Collection.STATUS_WISHLIST,
+            Collection.STATUS_WISHLIST_PRIORITY,
+            Collection.STATUS_DIRTY_TIMESTAMP,
+            Collection.WISHLIST_COMMENT,
+            Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, // 35
+            Collection.CONDITION,
+            Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
+            Collection.WANTPARTS_LIST,
+            Collection.WANT_PARTS_DIRTY_TIMESTAMP,
+            Collection.HASPARTS_LIST, // 40
+            Collection.HAS_PARTS_DIRTY_TIMESTAMP,
         )
     }
 }

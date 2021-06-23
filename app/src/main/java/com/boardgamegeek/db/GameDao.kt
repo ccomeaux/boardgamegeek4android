@@ -120,16 +120,26 @@ class GameDao(private val context: BggApplication) {
         val ranks = arrayListOf<GameRankEntity>()
         if (gameId != INVALID_ID) {
             val uri = Games.buildRanksUri(gameId)
-            context.contentResolver.load(uri)?.use {
+            context.contentResolver.load(
+                uri,
+                arrayOf(
+                    GameRanks.GAME_RANK_ID,
+                    GameRanks.GAME_RANK_TYPE,
+                    GameRanks.GAME_RANK_NAME,
+                    GameRanks.GAME_RANK_FRIENDLY_NAME,
+                    GameRanks.GAME_RANK_VALUE,
+                    GameRanks.GAME_RANK_BAYES_AVERAGE,
+                )
+            )?.use {
                 if (it.moveToFirst()) {
                     do {
                         ranks += GameRankEntity(
-                            id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: INVALID_ID,
-                            type = it.getStringOrEmpty(GameRanks.GAME_RANK_TYPE),
-                            name = it.getStringOrEmpty(GameRanks.GAME_RANK_NAME),
-                            friendlyName = it.getStringOrEmpty(GameRanks.GAME_RANK_FRIENDLY_NAME),
-                            value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: RANK_UNKNOWN,
-                            bayesAverage = it.getDoubleOrZero(GameRanks.GAME_RANK_BAYES_AVERAGE),
+                            id = it.getIntOrNull(0) ?: INVALID_ID,
+                            type = it.getStringOrNull(1).orEmpty(),
+                            name = it.getStringOrNull(2).orEmpty(),
+                            friendlyName = it.getStringOrNull(3).orEmpty(),
+                            value = it.getIntOrNull(4) ?: RANK_UNKNOWN,
+                            bayesAverage = it.getDoubleOrNull(5) ?: 0.0,
                         )
                     } while (it.moveToNext())
                 }
