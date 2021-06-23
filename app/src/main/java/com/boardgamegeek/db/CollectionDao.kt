@@ -7,13 +7,12 @@ import android.database.Cursor
 import android.graphics.Color
 import android.net.Uri
 import androidx.core.database.getDoubleOrNull
+import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.FileUtils
@@ -33,16 +32,9 @@ class CollectionDao(private val context: BggApplication) {
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    fun loadAsLiveData(collectionId: Int): LiveData<CollectionItemEntity> {
-        return RegisteredLiveData(context, Collection.CONTENT_URI, true) {
-            return@RegisteredLiveData load(collectionId)
-        }
-    }
-
-    fun load(collectionId: Int): CollectionItemEntity? {
-        val uri = Collection.CONTENT_URI
-        return resolver.load(
-            uri,
+    suspend fun load(collectionId: Int): CollectionItemEntity? = withContext(Dispatchers.IO) {
+        resolver.load(
+            Collection.CONTENT_URI,
             projection(),
             "collection.${Collection.COLLECTION_ID}=?",
             arrayOf(collectionId.toString())
@@ -61,7 +53,7 @@ class CollectionDao(private val context: BggApplication) {
                 do {
                     val item = entityFromCursor(it)
                     if (includeDeletedItems || item.deleteTimestamp == 0L)
-                        list.add(item)
+                        list += item
                 } while (it.moveToNext())
             }
         }
@@ -82,13 +74,13 @@ class CollectionDao(private val context: BggApplication) {
             thumbnailUrl = cursor.getStringOrNull(COLUMN_COLLECTION_THUMBNAIL_URL).orEmpty(),
             heroImageUrl = cursor.getStringOrNull(COLUMN_COLLECTION_HERO_IMAGE_URL).orEmpty(),
             comment = cursor.getStringOrNull(COLUMN_COMMENT).orEmpty(),
-            numberOfPlays = cursor.getIntOrZero(COLUMN_NUM_PLAYS),
-            averageRating = cursor.getDoubleOrZero(COLUMN_STATS_AVERAGE),
-            rating = cursor.getDoubleOrZero(COLUMN_RATING),
-            syncTimestamp = cursor.getLongOrZero(COLUMN_UPDATED),
-            lastModifiedDate = cursor.getLongOrZero(COLUMN_LAST_MODIFIED),
-            lastViewedDate = cursor.getLongOrZero(COLUMN_LAST_VIEWED),
-            deleteTimestamp = cursor.getLongOrZero(COLUMN_COLLECTION_DELETE_TIMESTAMP),
+            numberOfPlays = cursor.getIntOrNull(COLUMN_NUM_PLAYS) ?: 0,
+            averageRating = cursor.getDoubleOrNull(COLUMN_STATS_AVERAGE) ?: 0.0,
+            rating = cursor.getDoubleOrNull(COLUMN_RATING) ?: 0.0,
+            syncTimestamp = cursor.getLongOrNull(COLUMN_UPDATED) ?: 0L,
+            lastModifiedDate = cursor.getLongOrNull(COLUMN_LAST_MODIFIED) ?: 0L,
+            lastViewedDate = cursor.getLongOrNull(COLUMN_LAST_VIEWED) ?: 0L,
+            deleteTimestamp = cursor.getLongOrNull(COLUMN_COLLECTION_DELETE_TIMESTAMP) ?: 0L,
             own = cursor.getBoolean(COLUMN_STATUS_OWN),
             previouslyOwned = cursor.getBoolean(COLUMN_STATUS_PREVIOUSLY_OWNED),
             preOrdered = cursor.getBoolean(COLUMN_STATUS_PRE_ORDERED),
@@ -98,19 +90,19 @@ class CollectionDao(private val context: BggApplication) {
             wantToBuy = cursor.getBoolean(COLUMN_STATUS_WANT_TO_BUY),
             wishList = cursor.getBoolean(COLUMN_STATUS_WISHLIST),
             wishListPriority = cursor.getIntOrNull(COLUMN_STATUS_WISHLIST_PRIORITY) ?: WISHLIST_PRIORITY_UNKNOWN,
-            dirtyTimestamp = cursor.getLongOrZero(COLUMN_COLLECTION_DIRTY_TIMESTAMP),
-            statusDirtyTimestamp = cursor.getLongOrZero(COLUMN_STATUS_DIRTY_TIMESTAMP),
-            ratingDirtyTimestamp = cursor.getLongOrZero(COLUMN_RATING_DIRTY_TIMESTAMP),
-            commentDirtyTimestamp = cursor.getLongOrZero(COLUMN_COMMENT_DIRTY_TIMESTAMP),
-            privateInfoDirtyTimestamp = cursor.getLongOrZero(COLUMN_PRIVATE_INFO_DIRTY_TIMESTAMP),
-            wishListDirtyTimestamp = cursor.getLongOrZero(COLUMN_WISHLIST_COMMENT_DIRTY_TIMESTAMP),
-            tradeConditionDirtyTimestamp = cursor.getLongOrZero(COLUMN_TRADE_CONDITION_DIRTY_TIMESTAMP),
-            hasPartsDirtyTimestamp = cursor.getLongOrZero(COLUMN_HAS_PARTS_DIRTY_TIMESTAMP),
-            wantPartsDirtyTimestamp = cursor.getLongOrZero(COLUMN_WANT_PARTS_DIRTY_TIMESTAMP),
-            quantity = cursor.getIntOrZero(COLUMN_PRIVATE_INFO_QUANTITY),
-            pricePaid = cursor.getDoubleOrZero(COLUMN_PRIVATE_INFO_PRICE_PAID),
+            dirtyTimestamp = cursor.getLongOrNull(COLUMN_COLLECTION_DIRTY_TIMESTAMP) ?: 0L,
+            statusDirtyTimestamp = cursor.getLongOrNull(COLUMN_STATUS_DIRTY_TIMESTAMP) ?: 0L,
+            ratingDirtyTimestamp = cursor.getLongOrNull(COLUMN_RATING_DIRTY_TIMESTAMP) ?: 0L,
+            commentDirtyTimestamp = cursor.getLongOrNull(COLUMN_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+            privateInfoDirtyTimestamp = cursor.getLongOrNull(COLUMN_PRIVATE_INFO_DIRTY_TIMESTAMP) ?: 0L,
+            wishListDirtyTimestamp = cursor.getLongOrNull(COLUMN_WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+            tradeConditionDirtyTimestamp = cursor.getLongOrNull(COLUMN_TRADE_CONDITION_DIRTY_TIMESTAMP) ?: 0L,
+            hasPartsDirtyTimestamp = cursor.getLongOrNull(COLUMN_HAS_PARTS_DIRTY_TIMESTAMP) ?: 0L,
+            wantPartsDirtyTimestamp = cursor.getLongOrNull(COLUMN_WANT_PARTS_DIRTY_TIMESTAMP) ?: 0L,
+            quantity = cursor.getIntOrNull(COLUMN_PRIVATE_INFO_QUANTITY) ?: 0,
+            pricePaid = cursor.getDoubleOrNull(COLUMN_PRIVATE_INFO_PRICE_PAID) ?: 0.0,
             pricePaidCurrency = cursor.getString(COLUMN_PRIVATE_INFO_PRICE_PAID_CURRENCY).orEmpty(),
-            currentValue = cursor.getDoubleOrZero(COLUMN_PRIVATE_INFO_CURRENT_VALUE),
+            currentValue = cursor.getDoubleOrNull(COLUMN_PRIVATE_INFO_CURRENT_VALUE) ?: 0.0,
             currentValueCurrency = cursor.getString(COLUMN_PRIVATE_INFO_CURRENT_VALUE_CURRENCY).orEmpty(),
             acquisitionDate = cursor.getString(COLUMN_PRIVATE_INFO_ACQUISITION_DATE).orEmpty().toMillis(playDateFormat),
             acquiredFrom = cursor.getString(COLUMN_PRIVATE_INFO_ACQUIRED_FROM).orEmpty(),
@@ -120,15 +112,15 @@ class CollectionDao(private val context: BggApplication) {
             wantPartsList = cursor.getString(COLUMN_WANT_PARTS_LIST).orEmpty(),
             hasPartsList = cursor.getString(COLUMN_HAS_PARTS_LIST).orEmpty(),
             conditionText = cursor.getString(COLUMN_CONDITION).orEmpty(),
-            playingTime = cursor.getIntOrZero(COLUMN_PLAYING_TIME),
-            minimumAge = cursor.getIntOrZero(COLUMN_MINIMUM_AGE),
+            playingTime = cursor.getIntOrNull(COLUMN_PLAYING_TIME) ?: 0,
+            minimumAge = cursor.getIntOrNull(COLUMN_MINIMUM_AGE) ?: 0,
             rank = cursor.getIntOrNull(COLUMN_GAME_RANK) ?: RANK_UNKNOWN,
-            geekRating = cursor.getDoubleOrZero(COLUMN_STATS_BAYES_AVERAGE),
-            averageWeight = cursor.getDoubleOrZero(COLUMN_STATS_AVERAGE_WEIGHT),
+            geekRating = cursor.getDoubleOrNull(COLUMN_STATS_BAYES_AVERAGE) ?: 0.0,
+            averageWeight = cursor.getDoubleOrNull(COLUMN_STATS_AVERAGE_WEIGHT) ?: 0.0,
             isFavorite = cursor.getBoolean(COLUMN_STARRED),
             lastPlayDate = cursor.getString(COLUMN_MAX_DATE).orEmpty().toMillis(playDateFormat),
-            minPlayerCount = cursor.getIntOrZero(COLUMN_MIN_PLAYERS),
-            maxPlayerCount = cursor.getIntOrZero(COLUMN_MAX_PLAYERS),
+            minPlayerCount = cursor.getIntOrNull(COLUMN_MIN_PLAYERS) ?: 0,
+            maxPlayerCount = cursor.getIntOrNull(COLUMN_MAX_PLAYERS) ?: 0,
             subType = cursor.getString(COLUMN_SUBTYPE).orEmpty(),
             bestPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_BEST).orEmpty(),
             recommendedPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_RECOMMENDED).orEmpty(),
@@ -380,13 +372,14 @@ class CollectionDao(private val context: BggApplication) {
         includeStats: Boolean = true,
         includePrivateInfo: Boolean = true,
         isBrief: Boolean = false
-    ): Int {
+    ): Pair<Int, Long> {
+        var internalId = INVALID_ID.toLong()
         val candidate = SyncCandidate.find(resolver, item.collectionId, item.gameId)
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
             Timber.i("Local copy of the collection item is dirty, skipping sync.")
         } else {
             upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, timestamp), isBrief)
-            upsertItem(
+            internalId = upsertItem(
                 candidate,
                 toCollectionValues(item, includeStats, includePrivateInfo, isBrief, timestamp),
                 isBrief
@@ -398,7 +391,7 @@ class CollectionDao(private val context: BggApplication) {
                 item.collectionId
             )
         }
-        return item.collectionId
+        return item.collectionId to internalId
     }
 
     private fun toGameValues(
@@ -502,14 +495,16 @@ class CollectionDao(private val context: BggApplication) {
         return values
     }
 
-    private fun upsertItem(candidate: SyncCandidate, values: ContentValues, isBrief: Boolean) {
-        if (candidate.internalId != INVALID_ID.toLong()) {
+    private fun upsertItem(candidate: SyncCandidate, values: ContentValues, isBrief: Boolean): Long {
+        return if (candidate.internalId != INVALID_ID.toLong()) {
             removeDirtyValues(values, candidate)
             val uri = Collection.buildUri(candidate.internalId)
             if (!isBrief) maybeDeleteThumbnail(values, uri)
             resolver.update(uri, values, null, null)
+            candidate.internalId
         } else {
-            resolver.insert(Collection.CONTENT_URI, values)
+            val url = resolver.insert(Collection.CONTENT_URI, values)
+            url?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
         }
     }
 
@@ -574,7 +569,7 @@ class CollectionDao(private val context: BggApplication) {
         val hasPartsDirtyTimestamp: Long = 0
     ) {
         companion object {
-            val PROJECTION = arrayOf(
+            private val projection = arrayOf(
                 Collection._ID,
                 Collection.COLLECTION_DIRTY_TIMESTAMP,
                 Collection.STATUS_DIRTY_TIMESTAMP,
@@ -591,7 +586,7 @@ class CollectionDao(private val context: BggApplication) {
                 if (collectionId != INVALID_ID) {
                     resolver.query(
                         Collection.CONTENT_URI,
-                        PROJECTION,
+                        projection,
                         Collection.COLLECTION_ID + "=?",
                         arrayOf(collectionId.toString()),
                         null
@@ -601,7 +596,7 @@ class CollectionDao(private val context: BggApplication) {
                 }
                 resolver.query(
                     Collection.CONTENT_URI,
-                    PROJECTION,
+                    projection,
                     "collection.${Collection.GAME_ID}=? AND ${Collection.COLLECTION_ID.whereNullOrBlank()}",
                     arrayOf(gameId.toString()),
                     null
@@ -614,15 +609,15 @@ class CollectionDao(private val context: BggApplication) {
             fun fromCursor(cursor: Cursor): SyncCandidate {
                 return SyncCandidate(
                     cursor.getLongOrNull(Collection._ID) ?: INVALID_ID.toLong(),
-                    cursor.getLongOrZero(Collection.COLLECTION_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.STATUS_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.RATING_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.COMMENT_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.WANT_PARTS_DIRTY_TIMESTAMP),
-                    cursor.getLongOrZero(Collection.HAS_PARTS_DIRTY_TIMESTAMP)
+                    cursor.getLongOrNull(Collection.COLLECTION_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.STATUS_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.RATING_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.WANT_PARTS_DIRTY_TIMESTAMP) ?: 0L,
+                    cursor.getLongOrNull(Collection.HAS_PARTS_DIRTY_TIMESTAMP) ?: 0L,
                 )
             }
         }

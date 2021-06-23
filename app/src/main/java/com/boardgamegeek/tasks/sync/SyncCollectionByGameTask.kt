@@ -46,7 +46,7 @@ class SyncCollectionByGameTask(application: BggApplication, private val gameId: 
             for (item in body.items.filterNotNull()) {
                 val (first, second) = mapper.map(item)
                 val collectionId = dao.saveItem(first, second, timestamp, includeStats = true, includePrivateInfo = true, isBrief = false)
-                results.add(collectionId)
+                results.add(collectionId.first)
             }
             Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size, gameId)
         } else {

@@ -185,11 +185,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ProducerType.MECHANICS -> mechanics
             ProducerType.EXPANSIONS -> expansions
             ProducerType.BASE_GAMES -> baseGames
-            else -> AbsentLiveData.create() // TODO
+            else -> AbsentLiveData.create()
         }
     }
 
-    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = game.switchMap { game ->
+    val collectionItems = game.switchMap { game ->
         liveData {
             val gameId = game.data?.id ?: BggContract.INVALID_ID
             val items =

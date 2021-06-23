@@ -68,7 +68,7 @@ class CollectionItemRepository(val application: BggApplication) {
                 val (item, game) = mapper.map(it)
                 if (isItemStatusSetToSync(item)) {
                     val collectionId = dao.saveItem(item, game, timestamp)
-                    if (collectionId != BggContract.INVALID_ID) count++
+                    if (collectionId.first != BggContract.INVALID_ID) count++
                 } else {
                     Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
                 }

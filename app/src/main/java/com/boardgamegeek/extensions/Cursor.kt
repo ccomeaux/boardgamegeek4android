@@ -32,15 +32,6 @@ fun Cursor.getString(columnName: String, defaultValue: String = ""): String {
 inline fun Cursor.getDoubleOrZero(columnName: String) =
         getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0.0 else getDouble(it) }
 
-inline fun Cursor.getIntOrZero(columnName: String) =
-        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0 else getInt(it) }
-
-inline fun Cursor.getLongOrZero(columnName: String) =
-        getColumnIndexOrThrow(columnName).let { if (isNull(it)) 0L else getLong(it) }
-
-inline fun Cursor.getBoolean(columnName: String) =
-        getColumnIndexOrThrow(columnName).let { if (isNull(it)) false else getInt(it) == 1 }
-
 inline fun Cursor.getStringOrEmpty(columnName: String) =
         getColumnIndexOrThrow(columnName).let { if (isNull(it)) "" else getString(it) ?: "" }
 
@@ -54,13 +45,7 @@ inline fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrTh
 
 inline fun Cursor.getString(columnName: String): String = getString(getColumnIndexOrThrow(columnName))
 
-inline fun Cursor.getDoubleOrZero(index: Int) = if (isNull(index)) 0.0 else getDouble(index)
-
 inline fun Cursor.getIntOrNull(index: Int) = if (isNull(index)) null else getInt(index)
-
-inline fun Cursor.getIntOrZero(index: Int) = if (isNull(index)) 0 else getInt(index)
-
-inline fun Cursor.getLongOrZero(index: Int) = if (isNull(index)) 0L else getLong(index)
 
 inline fun Cursor.getStringOrNull(index: Int) = if (isNull(index)) null else getString(index)
 
