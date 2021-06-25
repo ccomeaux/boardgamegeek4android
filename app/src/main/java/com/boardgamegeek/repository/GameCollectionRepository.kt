@@ -5,9 +5,9 @@ import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.load
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
@@ -21,6 +21,7 @@ import timber.log.Timber
 
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
+    private val gameDao = GameDao(application)
 
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
@@ -103,7 +104,7 @@ class GameCollectionRepository(val application: BggApplication) {
         } else null
     }
 
-    fun addCollectionItem(
+    suspend fun addCollectionItem(
         gameId: Int,
         statuses: List<String>,
         wishListPriority: Int?,
@@ -124,32 +125,18 @@ class GameCollectionRepository(val application: BggApplication) {
             putValue(statuses, values, Collection.STATUS_PREVIOUSLY_OWNED)
             putWishList(statuses, wishListPriority, values)
 
-            // TODO move into DAO
-            application.contentResolver.load(
-                Games.buildGameUri(gameId),
-                arrayOf(
-                    Games.GAME_NAME,
-                    Games.GAME_SORT_NAME,
-                    Games.YEAR_PUBLISHED,
-                    Games.IMAGE_URL,
-                    Games.THUMBNAIL_URL,
-                    Games.HERO_IMAGE_URL
-                )
-            )?.use {
-                if (it.moveToFirst()) {
-                    values.put(Collection.COLLECTION_NAME, it.getString(0))
-                    values.put(Collection.COLLECTION_SORT_NAME, it.getString(1))
-                    values.put(Collection.COLLECTION_YEAR_PUBLISHED, it.getInt(2))
-                    values.put(Collection.COLLECTION_IMAGE_URL, it.getString(3))
-                    values.put(Collection.COLLECTION_THUMBNAIL_URL, it.getString(4))
-                    values.put(Collection.COLLECTION_HERO_IMAGE_URL, it.getString(5))
-                    values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis())
-                }
+            val gameName = gameDao.load(gameId)?.let { game ->
+                values.put(Collection.COLLECTION_NAME, game.name)
+                values.put(Collection.COLLECTION_SORT_NAME, game.sortName)
+                values.put(Collection.COLLECTION_YEAR_PUBLISHED, game.yearPublished)
+                values.put(Collection.COLLECTION_IMAGE_URL, game.imageUrl)
+                values.put(Collection.COLLECTION_THUMBNAIL_URL, game.thumbnailUrl)
+                values.put(Collection.COLLECTION_HERO_IMAGE_URL, game.heroImageUrl)
+                values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis())
+                game.name
             }
 
-            val gameName = values.getAsString(Collection.COLLECTION_NAME)
-            val response = application.contentResolver.insert(Collection.CONTENT_URI, values)
-            val internalId = response?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
+            val internalId = dao.upsertItem(values)
             if (internalId == INVALID_ID.toLong()) {
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {

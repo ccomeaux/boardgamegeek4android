@@ -16,6 +16,7 @@ import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -133,7 +134,9 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
                     for (item in items) {
                         val (collectionItem, game) = item.mapToEntities()
-                        dao.saveItem(collectionItem, game, timestamp)
+                        runBlocking {
+                            dao.saveItem(collectionItem, game, timestamp)
+                        }
                     }
                     syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()

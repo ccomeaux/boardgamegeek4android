@@ -11,6 +11,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import timber.log.Timber
 
@@ -48,8 +49,10 @@ class SyncCollectionByGameTask(
         if (body?.items != null) {
             for (collectionItem in body.items.filterNotNull()) {
                 val (item, game) = collectionItem.mapToEntities()
-                val (collectionId, _) = dao.saveItem(item, game, timestamp)
-                results.add(collectionId)
+                runBlocking {
+                    val (collectionId, _) = dao.saveItem(item, game, timestamp)
+                    results.add(collectionId)
+                }
             }
             Timber.i("Synced %,d collection item(s) for game '%s'", body.items.size, gameId)
         } else {

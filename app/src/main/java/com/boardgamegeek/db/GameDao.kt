@@ -69,6 +69,7 @@ class GameDao(private val context: BggApplication) {
                 Games.WINS_COLOR,
                 Games.WINNABLE_PLAYS_COLOR, // 35
                 Games.ALL_PLAYS_COLOR,
+                Games.GAME_SORT_NAME,
             )
             context.contentResolver.load(Games.buildGameUri(gameId), projection)?.use {
                 if (it.moveToFirst()) {
@@ -110,6 +111,7 @@ class GameDao(private val context: BggApplication) {
                         winsColor = it.getIntOrNull(34) ?: Color.TRANSPARENT,
                         winnablePlaysColor = it.getIntOrNull(35) ?: Color.TRANSPARENT,
                         allPlaysColor = it.getIntOrNull(36) ?: Color.TRANSPARENT,
+                        sortName = it.getStringOrNull(37).orEmpty(),
                     )
                 } else null
             }

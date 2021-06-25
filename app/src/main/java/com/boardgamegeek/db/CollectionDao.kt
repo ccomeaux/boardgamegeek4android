@@ -367,14 +367,14 @@ class CollectionDao(private val context: BggApplication) {
         return collectionIdsToDelete.size
     }
 
-    fun saveItem(
+    suspend fun saveItem(
         item: CollectionItemEntity,
         game: CollectionItemGameEntity,
         timestamp: Long,
         includeStats: Boolean = true,
         includePrivateInfo: Boolean = true,
         isBrief: Boolean = false
-    ): Pair<Int, Long> {
+    ): Pair<Int, Long> = withContext(Dispatchers.IO) {
         var internalId = INVALID_ID.toLong()
         val candidate = SyncCandidate.find(resolver, item.collectionId, item.gameId)
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
@@ -382,9 +382,9 @@ class CollectionDao(private val context: BggApplication) {
         } else {
             upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, timestamp), isBrief)
             internalId = upsertItem(
-                candidate,
                 toCollectionValues(item, includeStats, includePrivateInfo, isBrief, timestamp),
-                isBrief
+                isBrief,
+                candidate
             )
             Timber.i(
                 "Saved collection item '%s' [ID=%s, collection ID=%s]",
@@ -393,7 +393,7 @@ class CollectionDao(private val context: BggApplication) {
                 item.collectionId
             )
         }
-        return item.collectionId to internalId
+        item.collectionId to internalId
     }
 
     private fun toGameValues(
@@ -497,18 +497,23 @@ class CollectionDao(private val context: BggApplication) {
         return values
     }
 
-    private fun upsertItem(candidate: SyncCandidate, values: ContentValues, isBrief: Boolean): Long {
-        return if (candidate.internalId != INVALID_ID.toLong()) {
-            removeDirtyValues(values, candidate)
-            val uri = Collection.buildUri(candidate.internalId)
-            if (!isBrief) maybeDeleteThumbnail(values, uri)
-            resolver.update(uri, values, null, null)
-            candidate.internalId
-        } else {
-            val url = resolver.insert(Collection.CONTENT_URI, values)
-            url?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
+    suspend fun upsertItem(
+        values: ContentValues,
+        isBrief: Boolean = false,
+        candidate: SyncCandidate = SyncCandidate()
+    ): Long =
+        withContext(Dispatchers.IO) {
+            if (candidate.internalId != INVALID_ID.toLong()) {
+                removeDirtyValues(values, candidate)
+                val uri = Collection.buildUri(candidate.internalId)
+                if (!isBrief) maybeDeleteThumbnail(values, uri)
+                resolver.update(uri, values, null, null)
+                candidate.internalId
+            } else {
+                val url = resolver.insert(Collection.CONTENT_URI, values)
+                url?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
+            }
         }
-    }
 
     private fun removeDirtyValues(values: ContentValues, candidate: SyncCandidate) {
         removeValuesIfDirty(
@@ -558,7 +563,7 @@ class CollectionDao(private val context: BggApplication) {
         }
     }
 
-    internal class SyncCandidate(
+    class SyncCandidate(
         val internalId: Long = INVALID_ID.toLong(),
         val dirtyTimestamp: Long = 0,
         val statusDirtyTimestamp: Long = 0,

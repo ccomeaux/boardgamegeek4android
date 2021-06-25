@@ -15,6 +15,7 @@ import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
@@ -105,8 +106,10 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                     for (item in items) {
                         val (collectionItem, game) = item.mapToEntities()
                         if (isItemStatusSetToSync(collectionItem)) {
-                            val collectionId = dao.saveItem(collectionItem, game, timestamp)
-                            if (collectionId.first != BggContract.INVALID_ID) count++
+                            runBlocking {
+                                val (collectionId, _) = dao.saveItem(collectionItem, game, timestamp)
+                                if (collectionId != BggContract.INVALID_ID) count++
+                            }
                         } else {
                             Timber.i("Skipped collection item '${collectionItem.gameName}' [ID=${collectionItem.gameId}, collection ID=${collectionItem.collectionId}] - collection status not synced")
                         }
