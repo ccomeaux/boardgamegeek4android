@@ -12,7 +12,7 @@ import com.boardgamegeek.extensions.getSyncStatusesOrDefault
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
@@ -131,10 +131,9 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 val items = response.body()?.items
                 if (items != null && items.size > 0) {
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
-                    val mapper = CollectionItemMapper()
                     for (item in items) {
-                        val pair = mapper.map(item)
-                        dao.saveItem(pair.first, pair.second, timestamp)
+                        val (collectionItem, game) = item.mapToEntities()
+                        dao.saveItem(collectionItem, game, timestamp)
                     }
                     syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()

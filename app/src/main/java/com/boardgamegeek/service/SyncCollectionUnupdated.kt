@@ -8,7 +8,7 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
 import timber.log.Timber
@@ -122,10 +122,9 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
             if (response.isSuccessful) {
                 val items = response.body()?.items
                 return if (items != null && items.size > 0) {
-                    val mapper = CollectionItemMapper()
                     for (item in items) {
-                        val pair = mapper.map(item)
-                        dao.saveItem(pair.first, pair.second, timestamp)
+                        val (collectionItem, game) = item.mapToEntities()
+                        dao.saveItem(collectionItem, game, timestamp)
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection items", items.size)

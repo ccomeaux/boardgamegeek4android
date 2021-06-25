@@ -14,7 +14,7 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
 import com.boardgamegeek.livedata.NetworkLoader
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
@@ -47,9 +47,8 @@ class UserRepository(val application: BggApplication) {
 
             override fun parseResult(result: CollectionResponse): List<CollectionItemEntity> {
                 val items = mutableListOf<CollectionItemEntity>()
-                val mapper = CollectionItemMapper()
                 result.items.forEach {
-                    items += mapper.map(it).first
+                    items += it.mapToEntities().first
                 }
                 return items
             }

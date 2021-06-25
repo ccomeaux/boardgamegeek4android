@@ -8,7 +8,7 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,6 @@ import java.util.*
 
 class CollectionItemRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
-    private val mapper = CollectionItemMapper()
     private val username: String? by lazy { AccountUtils.getUsername(application) }
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
@@ -65,7 +64,7 @@ class CollectionItemRepository(val application: BggApplication) {
 
             var count = 0
             response.items?.forEach {
-                val (item, game) = mapper.map(it)
+                val (item, game) = it.mapToEntities()
                 if (isItemStatusSetToSync(item)) {
                     val (collectionId, _) = dao.saveItem(item, game, timestamp)
                     if (collectionId != BggContract.INVALID_ID) count++

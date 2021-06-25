@@ -10,7 +10,7 @@ import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.SyncService
@@ -21,7 +21,6 @@ import timber.log.Timber
 
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
-    private val mapper = CollectionItemMapper()
 
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
@@ -45,7 +44,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
                 response.items?.forEach { collectionItem ->
-                    val (item, game) = mapper.map(collectionItem)
+                    val (item, game) = collectionItem.mapToEntities()
                     val (id, internalId) = dao.saveItem(item, game, timestamp)
                     collectionIds.add(id)
                     if (item.collectionId == collectionId) {
@@ -90,7 +89,7 @@ class GameCollectionRepository(val application: BggApplication) {
             )
             val collectionIds = arrayListOf<Int>()
             response.items?.forEach { collectionItem ->
-                val (item, game) = mapper.map(collectionItem)
+                val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
                 list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                 collectionIds += collectionId

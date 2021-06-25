@@ -11,7 +11,7 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.getSyncStatusesOrDefault
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.RemoteConfig
@@ -101,15 +101,14 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
                 val items = response.body()?.items
                 if (items != null && items.size > 0) {
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_since_saving, items.size, subtypeDescription, formattedDateTime))
-                    val mapper = CollectionItemMapper()
                     var count = 0
                     for (item in items) {
-                        val pair = mapper.map(item)
-                        if (isItemStatusSetToSync(pair.first)) {
-                            val collectionId = dao.saveItem(pair.first, pair.second, timestamp)
+                        val (collectionItem, game) = item.mapToEntities()
+                        if (isItemStatusSetToSync(collectionItem)) {
+                            val collectionId = dao.saveItem(collectionItem, game, timestamp)
                             if (collectionId.first != BggContract.INVALID_ID) count++
                         } else {
-                            Timber.i("Skipped collection item '${pair.first.gameName}' [ID=${pair.first.gameId}, collection ID=${pair.first.collectionId}] - collection status not synced")
+                            Timber.i("Skipped collection item '${collectionItem.gameName}' [ID=${collectionItem.gameId}, collection ID=${collectionItem.collectionId}] - collection status not synced")
                         }
                     }
                     syncResult.stats.numUpdates += count.toLong()

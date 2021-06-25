@@ -9,13 +9,17 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.CollectionResponse
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract
 import retrofit2.Call
 import timber.log.Timber
 
-class SyncCollectionByGameTask(application: BggApplication, private val gameId: Int, errorMessageLiveData: MutableLiveData<String>? = null) :
-        SyncTask<CollectionResponse>(application.applicationContext, errorMessageLiveData) {
+class SyncCollectionByGameTask(
+    application: BggApplication,
+    private val gameId: Int,
+    errorMessageLiveData: MutableLiveData<String>? = null
+) :
+    SyncTask<CollectionResponse>(application.applicationContext, errorMessageLiveData) {
     private val username = AccountUtils.getUsername(context)
     private val dao = CollectionDao(application)
     private val results = mutableListOf<Int>()
@@ -29,9 +33,9 @@ class SyncCollectionByGameTask(application: BggApplication, private val gameId: 
 
     override fun createCall(): Call<CollectionResponse>? {
         val options = mapOf(
-                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+            BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+            BggService.COLLECTION_QUERY_KEY_STATS to "1",
+            BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
         )
         return bggService?.collection(username, options)
     }
@@ -42,9 +46,8 @@ class SyncCollectionByGameTask(application: BggApplication, private val gameId: 
     override fun persistResponse(body: CollectionResponse?) {
         results.clear()
         if (body?.items != null) {
-            val mapper = CollectionItemMapper()
             for (collectionItem in body.items.filterNotNull()) {
-                val (item, game) = mapper.map(collectionItem)
+                val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, _) = dao.saveItem(item, game, timestamp)
                 results.add(collectionId)
             }
