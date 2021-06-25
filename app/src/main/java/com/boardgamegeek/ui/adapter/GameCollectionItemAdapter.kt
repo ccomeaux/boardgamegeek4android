@@ -65,12 +65,12 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             } else ""
             itemView.description.setTextOrHide(description)
 
-            if (item.rating == 0.0) {
-                itemView.rating.isVisible = false
-            } else {
+            if (item.rating in 1.0..10.0) {
                 itemView.rating.text = item.rating.asPersonalRating(itemView.context)
                 itemView.rating.setTextViewBackground(item.rating.toColor(ratingColors))
                 itemView.rating.isVisible = true
+            } else {
+                itemView.rating.isVisible = false
             }
 
             if (item.hasPrivateInfo()) {

@@ -18,11 +18,9 @@ import com.boardgamegeek.extensions.ensureShown
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_hero.*
-import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.startActivity
 
@@ -39,7 +37,6 @@ class GameCollectionItemActivity : HeroActivity() {
     private var isInEditMode = false
     private var isItemUpdated = false
     private var imageUrl: String? = null
-    private var snackbar: Snackbar? = null
 
     private val viewModel by viewModels<GameCollectionItemViewModel>()
 
@@ -84,15 +81,6 @@ class GameCollectionItemActivity : HeroActivity() {
             }
         })
         viewModel.isEdited.observe(this, { isItemUpdated = it })
-        viewModel.errorMessage.observe(this, {
-            it.getContentIfNotHandled()?.let { message ->
-                if (message.isBlank()) {
-                    snackbar?.dismiss()
-                } else {
-                    snackbar = rootContainer?.longSnackbar(message)
-                }
-            }
-        })
     }
 
     override fun readIntent(intent: Intent) {

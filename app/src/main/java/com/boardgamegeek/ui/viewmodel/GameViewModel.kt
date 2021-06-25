@@ -191,22 +191,27 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     val collectionItems = game.switchMap { game ->
         liveData {
-            val gameId = game.data?.id ?: BggContract.INVALID_ID
-            val items =
-                if (gameId == BggContract.INVALID_ID) emptyList()
-                else gameCollectionRepository.loadCollectionItems(gameId)
-            val refreshedItems =
-                if (areItemsRefreshing.compareAndSet(false, true)) {
-                    val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                    when {
-                        lastUpdated.isOlderThan(refreshItemsMinutes, TimeUnit.MINUTES) -> {
-                            emit(RefreshableResource.refreshing(items))
-                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
-                        }
-                        else -> items
-                    }.also { areItemsRefreshing.set(false) }
-                } else items
-            emit(RefreshableResource.success(refreshedItems))
+            try {
+                val gameId = game.data?.id ?: BggContract.INVALID_ID
+                val items =
+                    if (gameId == BggContract.INVALID_ID) emptyList()
+                    else gameCollectionRepository.loadCollectionItems(gameId)
+                val refreshedItems =
+                    if (areItemsRefreshing.compareAndSet(false, true)) {
+                        val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
+                        when {
+                            lastUpdated.isOlderThan(refreshItemsMinutes, TimeUnit.MINUTES) -> {
+                                emit(RefreshableResource.refreshing(items))
+                                gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
+                                    ?: items
+                            }
+                            else -> items
+                        }.also { areItemsRefreshing.set(false) }
+                    } else items
+                emit(RefreshableResource.success(refreshedItems))
+            } catch (e: Exception) {
+                emit(RefreshableResource.error<List<CollectionItemEntity>>(e, application))
+            }
         }
     }
 

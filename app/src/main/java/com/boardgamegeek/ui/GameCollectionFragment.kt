@@ -57,6 +57,11 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.refresh()
+    }
+
     private fun showData(items: List<CollectionItemEntity>) {
         if (!isAdded) return
         if (items.isNotEmpty()) {

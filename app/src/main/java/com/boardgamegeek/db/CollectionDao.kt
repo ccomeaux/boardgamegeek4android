@@ -330,8 +330,10 @@ class CollectionDao(private val context: BggApplication) {
             list
         }
 
-    fun update(internalId: Long, values: ContentValues): Int {
-        return resolver.update(Collection.buildUri(internalId), values, null, null)
+    suspend fun update(internalId: Long, values: ContentValues): Int = withContext(Dispatchers.IO) {
+        if (internalId != INVALID_ID.toLong()) {
+            resolver.update(Collection.buildUri(internalId), values, null, null)
+        } else 0
     }
 
     /**
