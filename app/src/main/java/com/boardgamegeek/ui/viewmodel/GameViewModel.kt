@@ -210,6 +210,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     } else items
                 emit(RefreshableResource.success(refreshedItems))
             } catch (e: Exception) {
+                areItemsRefreshing.set(false)
                 emit(RefreshableResource.error<List<CollectionItemEntity>>(e, application))
             }
         }
@@ -217,6 +218,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     val plays = game.switchMap { game ->
         liveData {
+            try {
             val gameId = game.data?.id ?: BggContract.INVALID_ID
             val plays = if (gameId == BggContract.INVALID_ID) emptyList() else gameRepository.getPlaysC(gameId)
             val refreshedPlays =
@@ -235,6 +237,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     }.also { arePlaysRefreshing.set(false) }
                 } else plays
             emit(RefreshableResource.success(refreshedPlays))
+            } catch (e: Exception) {
+                arePlaysRefreshing.set(false)
+                emit(RefreshableResource.error<List<PlayEntity>>(e, application))
+            }
         }
     }
 
