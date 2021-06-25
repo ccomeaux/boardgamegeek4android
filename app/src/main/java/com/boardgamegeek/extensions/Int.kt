@@ -146,7 +146,6 @@ fun Int.hoursAgo(): Long {
  * E.g. [1,3,4,5] would return "1, 3 - 5"
  * Assumes list is already sorted
  */
-// TODO Collection
 fun Collection<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = Int.MAX_VALUE): String {
     when {
         this == null -> return ""

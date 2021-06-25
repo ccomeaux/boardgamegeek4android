@@ -3,7 +3,6 @@ package com.boardgamegeek.db
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
@@ -28,20 +27,20 @@ class MechanicDao(private val context: BggApplication) {
             SortType.ITEM_COUNT -> Mechanics.ITEM_COUNT.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                Mechanics.CONTENT_URI,
-                arrayOf(
-                        Mechanics.MECHANIC_ID,
-                        Mechanics.MECHANIC_NAME,
-                        Mechanics.ITEM_COUNT
-                ),
-                sortOrder = sortOrder
+            Mechanics.CONTENT_URI,
+            arrayOf(
+                Mechanics.MECHANIC_ID,
+                Mechanics.MECHANIC_NAME,
+                Mechanics.ITEM_COUNT
+            ),
+            sortOrder = sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += MechanicEntity(
-                            it.getInt(0),
-                            it.getStringOrNull(1).orEmpty(),
-                            it.getIntOrNull(2) ?: 0
+                        it.getInt(0),
+                        it.getStringOrNull(1).orEmpty(),
+                        it.getIntOrNull(2) ?: 0
                     )
                 } while (it.moveToNext())
             }
@@ -49,7 +48,6 @@ class MechanicDao(private val context: BggApplication) {
         results
     }
 
-    suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return collectionDao.loadLinkedCollection(Mechanics.buildCollectionUri(mechanicId), sortBy)
-    }
+    suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType) =
+        collectionDao.loadLinkedCollection(Mechanics.buildCollectionUri(mechanicId), sortBy)
 }

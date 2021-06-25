@@ -1,16 +1,12 @@
 package com.boardgamegeek.db
 
 import android.content.ContentValues
-import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.model.CompanyItem
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,36 +28,36 @@ class PublisherDao(private val context: BggApplication) {
             SortType.WHITMORE_SCORE -> Publishers.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                Publishers.CONTENT_URI,
-                arrayOf(
-                        Publishers.PUBLISHER_ID,
-                        Publishers.PUBLISHER_NAME,
-                        Publishers.PUBLISHER_DESCRIPTION,
-                        Publishers.PUBLISHER_IMAGE_URL,
-                        Publishers.PUBLISHER_THUMBNAIL_URL,
-                        Publishers.PUBLISHER_HERO_IMAGE_URL,
-                        Publishers.UPDATED,
-                        Publishers.ITEM_COUNT,
-                        Publishers.WHITMORE_SCORE,
-                        Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP,
-                        Publishers.PUBLISHER_SORT_NAME,
-                ),
-                sortOrder = sortOrder
+            Publishers.CONTENT_URI,
+            arrayOf(
+                Publishers.PUBLISHER_ID,
+                Publishers.PUBLISHER_NAME,
+                Publishers.PUBLISHER_DESCRIPTION,
+                Publishers.PUBLISHER_IMAGE_URL,
+                Publishers.PUBLISHER_THUMBNAIL_URL,
+                Publishers.PUBLISHER_HERO_IMAGE_URL,
+                Publishers.UPDATED,
+                Publishers.ITEM_COUNT,
+                Publishers.WHITMORE_SCORE,
+                Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP,
+                Publishers.PUBLISHER_SORT_NAME,
+            ),
+            sortOrder = sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += CompanyEntity(
-                            id = it.getInt(0),
-                            name = it.getStringOrNull(1).orEmpty(),
-                            sortName = it.getStringOrNull(10).orEmpty(),
-                            description = it.getStringOrNull(2).orEmpty(),
-                            imageUrl = it.getStringOrNull(3).orEmpty(),
-                            thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                            heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                            updatedTimestamp = it.getLongOrNull(6) ?: 0L,
-                            itemCount = it.getIntOrNull(7) ?: 0,
-                            whitmoreScore = it.getIntOrNull(8) ?: 0,
-                            statsUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        sortName = it.getStringOrNull(10).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        imageUrl = it.getStringOrNull(3).orEmpty(),
+                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                        updatedTimestamp = it.getLongOrNull(6) ?: 0L,
+                        itemCount = it.getIntOrNull(7) ?: 0,
+                        whitmoreScore = it.getIntOrNull(8) ?: 0,
+                        statsUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -71,43 +67,42 @@ class PublisherDao(private val context: BggApplication) {
 
     suspend fun loadPublisher(id: Int): CompanyEntity? = withContext(Dispatchers.IO) {
         context.contentResolver.load(
-                Publishers.buildPublisherUri(id),
-                arrayOf(
-                        Publishers.PUBLISHER_ID,
-                        Publishers.PUBLISHER_NAME,
-                        Publishers.PUBLISHER_DESCRIPTION,
-                        Publishers.PUBLISHER_IMAGE_URL,
-                        Publishers.PUBLISHER_THUMBNAIL_URL,
-                        Publishers.PUBLISHER_HERO_IMAGE_URL,
-                        Publishers.UPDATED,
-                        Publishers.WHITMORE_SCORE,
-                        Publishers.PUBLISHER_SORT_NAME,
-                        )
+            Publishers.buildPublisherUri(id),
+            arrayOf(
+                Publishers.PUBLISHER_ID,
+                Publishers.PUBLISHER_NAME,
+                Publishers.PUBLISHER_DESCRIPTION,
+                Publishers.PUBLISHER_IMAGE_URL,
+                Publishers.PUBLISHER_THUMBNAIL_URL,
+                Publishers.PUBLISHER_HERO_IMAGE_URL,
+                Publishers.UPDATED,
+                Publishers.WHITMORE_SCORE,
+                Publishers.PUBLISHER_SORT_NAME,
+            )
         )?.use {
             if (it.moveToFirst()) {
                 CompanyEntity(
-                        id = it.getInt(0),
-                        name = it.getStringOrNull(1).orEmpty(),
-                        sortName = it.getStringOrNull(8).orEmpty(),
-                        description = it.getStringOrNull(2).orEmpty(),
-                        imageUrl = it.getStringOrNull(3).orEmpty(),
-                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                        heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                        updatedTimestamp = it.getLongOrNull(6) ?: 0L,
-                        whitmoreScore = it.getIntOrNull(7) ?: 0,
+                    id = it.getInt(0),
+                    name = it.getStringOrNull(1).orEmpty(),
+                    sortName = it.getStringOrNull(8).orEmpty(),
+                    description = it.getStringOrNull(2).orEmpty(),
+                    imageUrl = it.getStringOrNull(3).orEmpty(),
+                    thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                    heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                    updatedTimestamp = it.getLongOrNull(6) ?: 0L,
+                    whitmoreScore = it.getIntOrNull(7) ?: 0,
                 )
             } else null
         }
     }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): List<BriefGameEntity> {
-        return collectionDao.loadLinkedCollection(Publishers.buildCollectionUri(id), sortBy)
-    }
+    suspend fun loadCollection(publisherId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
+        collectionDao.loadLinkedCollection(Publishers.buildCollectionUri(publisherId), sortBy)
 
-    fun upsert(publisherId: Int, values: ContentValues): Int {
+    suspend fun upsert(publisherId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
         val uri = Publishers.buildPublisherUri(publisherId)
-        return if (resolver.rowExists(uri)) {
+        if (resolver.rowExists(uri)) {
             val count = resolver.update(uri, values, null, null)
             Timber.d("Updated %,d publisher rows at %s", count, uri)
             count

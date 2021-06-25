@@ -5,7 +5,6 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Artists
@@ -29,32 +28,32 @@ class ArtistDao(private val context: BggApplication) {
             SortType.WHITMORE_SCORE -> Artists.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                Artists.CONTENT_URI,
-                arrayOf(
-                        Artists.ARTIST_ID,
-                        Artists.ARTIST_NAME,
-                        Artists.ARTIST_DESCRIPTION,
-                        Artists.UPDATED,
-                        Artists.ARTIST_THUMBNAIL_URL,
-                        Artists.ARTIST_HERO_IMAGE_URL,
-                        Artists.ITEM_COUNT,
-                        Artists.WHITMORE_SCORE,
-                        Artists.ARTIST_STATS_UPDATED_TIMESTAMP
-                ),
-                sortOrder = sortOrder
+            Artists.CONTENT_URI,
+            arrayOf(
+                Artists.ARTIST_ID,
+                Artists.ARTIST_NAME,
+                Artists.ARTIST_DESCRIPTION,
+                Artists.UPDATED,
+                Artists.ARTIST_THUMBNAIL_URL,
+                Artists.ARTIST_HERO_IMAGE_URL,
+                Artists.ITEM_COUNT,
+                Artists.WHITMORE_SCORE,
+                Artists.ARTIST_STATS_UPDATED_TIMESTAMP
+            ),
+            sortOrder = sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            id = it.getInt(0),
-                            name = it.getStringOrNull(1).orEmpty(),
-                            description = it.getStringOrNull(2).orEmpty(),
-                            updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                            thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                            heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                            itemCount = it.getIntOrNull(6) ?: 0,
-                            whitmoreScore = it.getIntOrNull(7) ?: 0,
-                            statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                        itemCount = it.getIntOrNull(6) ?: 0,
+                        whitmoreScore = it.getIntOrNull(7) ?: 0,
+                        statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
@@ -64,40 +63,39 @@ class ArtistDao(private val context: BggApplication) {
 
     suspend fun loadArtist(id: Int): PersonEntity? = withContext(Dispatchers.IO) {
         context.contentResolver.load(
-                Artists.buildArtistUri(id),
-                arrayOf(
-                        Artists.ARTIST_ID,
-                        Artists.ARTIST_NAME,
-                        Artists.ARTIST_DESCRIPTION,
-                        Artists.UPDATED,
-                        Artists.WHITMORE_SCORE,
-                        Artists.ARTIST_THUMBNAIL_URL,
-                        Artists.ARTIST_IMAGE_URL,
-                        Artists.ARTIST_HERO_IMAGE_URL,
-                        Artists.ARTIST_STATS_UPDATED_TIMESTAMP,
-                        Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP,
-                )
+            Artists.buildArtistUri(id),
+            arrayOf(
+                Artists.ARTIST_ID,
+                Artists.ARTIST_NAME,
+                Artists.ARTIST_DESCRIPTION,
+                Artists.UPDATED,
+                Artists.WHITMORE_SCORE,
+                Artists.ARTIST_THUMBNAIL_URL,
+                Artists.ARTIST_IMAGE_URL,
+                Artists.ARTIST_HERO_IMAGE_URL,
+                Artists.ARTIST_STATS_UPDATED_TIMESTAMP,
+                Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP,
+            )
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        id = it.getInt(0),
-                        name = it.getStringOrNull(1).orEmpty(),
-                        description = it.getStringOrNull(2).orEmpty(),
-                        updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                        whitmoreScore = it.getIntOrNull(4) ?: 0,
-                        thumbnailUrl = it.getStringOrNull(5).orEmpty(),
-                        imageUrl = it.getStringOrNull(6).orEmpty(),
-                        heroImageUrl = it.getStringOrNull(7).orEmpty(),
-                        statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-                        imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
+                    id = it.getInt(0),
+                    name = it.getStringOrNull(1).orEmpty(),
+                    description = it.getStringOrNull(2).orEmpty(),
+                    updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                    whitmoreScore = it.getIntOrNull(4) ?: 0,
+                    thumbnailUrl = it.getStringOrNull(5).orEmpty(),
+                    imageUrl = it.getStringOrNull(6).orEmpty(),
+                    heroImageUrl = it.getStringOrNull(7).orEmpty(),
+                    statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
+                    imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
                 )
             } else null
         }
     }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): List<BriefGameEntity> {
-        return collectionDao.loadLinkedCollection(Artists.buildArtistCollectionUri(id), sortBy)
-    }
+    suspend fun loadCollection(artistId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
+        collectionDao.loadLinkedCollection(Artists.buildArtistCollectionUri(artistId), sortBy)
 
     suspend fun upsert(artistId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
