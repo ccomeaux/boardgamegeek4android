@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
@@ -32,13 +31,13 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
         defaultTextColor = nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
-        viewModel.buddy.observe(viewLifecycleOwner, Observer {
+        viewModel.buddy.observe(viewLifecycleOwner, {
             swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
 
             if (it?.data == null) {
-                buddyInfoView.fadeOut()
-                collectionCard.fadeOut()
-                updatedView.fadeOut()
+                buddyInfoView.isVisible = false
+                collectionCard.isVisible = false
+                updatedView.isVisible = false
 
                 swipeRefresh.isEnabled = false
             } else {
@@ -53,28 +52,28 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
                 }
                 nicknameView.text = playerName
                 nicknameView.setOnClickListener {
-                    requireActivity().showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(playerName!!))
+                    requireActivity().showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(playerName))
                 }
-                buddyInfoView.fadeIn()
+                buddyInfoView.isVisible = true
 
                 collectionRoot.setOnClickListener {
                     BuddyCollectionActivity.start(requireContext(), buddyName)
                 }
-                collectionCard.fadeIn()
+                collectionCard.isVisible = true
 
                 updatedView.timestamp = it.data.updatedTimestamp
-                updatedView.fadeIn()
+                updatedView.isVisible = true
 
                 swipeRefresh.isEnabled = true
             }
         })
 
-        viewModel.player.observe(viewLifecycleOwner, Observer { player ->
+        viewModel.player.observe(viewLifecycleOwner, { player ->
             if (playerName == null) {
                 playerName = player.name
                 nicknameView.text = playerName
                 nicknameView.setOnClickListener {
-                    requireActivity().showAndSurvive(RenamePlayerDialogFragment.newInstance(playerName!!))
+                    requireActivity().showAndSurvive(RenamePlayerDialogFragment.newInstance(playerName))
                 }
             }
 
@@ -97,7 +96,7 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
             }
         })
 
-        viewModel.colors.observe(viewLifecycleOwner, Observer { colors ->
+        viewModel.colors.observe(viewLifecycleOwner, { colors ->
             colorContainer.removeAllViews()
             colorContainer.isVisible = (colors?.size ?: 0) > 0
             colors?.take(3)?.forEach { color ->

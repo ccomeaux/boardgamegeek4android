@@ -51,7 +51,7 @@ class BuddiesFragment : Fragment(R.layout.fragment_buddies) {
                 else -> it.data?.let { data -> showData(data) }
             }
 
-            if (it?.status == Status.SUCCESS) progressBar.hide()
+            progressBar.hide()
         })
     }
 

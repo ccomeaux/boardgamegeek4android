@@ -15,6 +15,7 @@ import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import kotlinx.coroutines.launch
 
 class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
@@ -79,54 +80,91 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateNickName(nickName: String, updatePlays: Boolean) {
-        if (user.value?.second != TYPE_USER) return
-        val username = user.value?.first
-        if (username == null || username.isBlank()) return
+        viewModelScope.launch {
+            if (user.value?.second == TYPE_USER) {
+                val username = user.value?.first
+                if (username != null && username.isNotBlank()) {
+                    userRepository.updateNickName(username, nickName)
+                    refresh()
 
-        userRepository.updateNickName(username, nickName)
-
-        if (updatePlays) {
-            if (nickName.isBlank()) {
-                // TODO default to user full name instead
-                setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_missing_nickname))
-            } else {
-                val count = playRepository.updatePlaysWithNickName(username, nickName)
-                setUpdateMessage(getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, count, count, username, nickName))
-                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                    if (updatePlays) {
+                        if (nickName.isBlank()) {
+                            // TODO default to user full name instead
+                            setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_missing_nickname))
+                        } else {
+                            val count = playRepository.updatePlaysWithNickName(username, nickName)
+                            setUpdateMessage(
+                                getApplication<BggApplication>().resources.getQuantityString(
+                                    R.plurals.msg_updated_plays_buddy_nickname,
+                                    count,
+                                    count,
+                                    username,
+                                    nickName
+                                )
+                            )
+                            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                        }
+                    } else {
+                        setUpdateMessage(
+                            getApplication<BggApplication>().getString(
+                                R.string.msg_updated_nickname,
+                                nickName
+                            )
+                        )
+                    }
+                    firebaseAnalytics.logEvent("DataManipulation") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
+                        param("Action", "Edit")
+                    }
+                }
             }
-        } else {
-            setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName))
-        }
-        firebaseAnalytics.logEvent("DataManipulation") {
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
-            param("Action", "Edit")
         }
     }
 
     fun renamePlayer(newName: String) {
-        if (newName.isBlank()) return
-        if (user.value?.second != TYPE_PLAYER) return
-        val oldName = user.value?.first
-        if (oldName == null || oldName.isBlank()) return
-        playRepository.renamePlayer(oldName, newName)
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
-        setPlayerName(newName)
+        viewModelScope.launch {
+            val oldName = user.value?.first
+            if (user.value?.second == TYPE_PLAYER &&
+                newName.isNotBlank() &&
+                oldName != null && oldName.isNotBlank()
+            ) {
+                playRepository.renamePlayer(oldName, newName)
+                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                setUpdateMessage(
+                    getApplication<BggApplication>().getString(
+                        R.string.msg_play_player_change,
+                        oldName,
+                        newName
+                    )
+                )
+                setPlayerName(newName)
+            }
+        }
     }
 
     fun addUsernameToPlayer(username: String) {
-        if (username.isBlank()) return
-        if (user.value?.second != TYPE_PLAYER) return
-        val playerName = user.value?.first
-        if (playerName == null || playerName.isBlank()) return
-        playRepository.addUsernameToPlayer(playerName, username)
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
-        setUsername(username)
+        viewModelScope.launch {
+            val playerName = user.value?.first
+            if (user.value?.second == TYPE_PLAYER &&
+                username.isNotBlank() &&
+                playerName != null && playerName.isNotBlank()
+            ) {
+                playRepository.addUsernameToPlayer(playerName, username)
+                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                setUpdateMessage(
+                    getApplication<BggApplication>().getString(
+                        R.string.msg_player_add_username,
+                        username,
+                        playerName
+                    )
+                )
+                setUsername(username)
+            }
+        }
     }
 
     private fun setUpdateMessage(message: String) {
-        _updateMessage.value = Event(message)
+        _updateMessage.postValue(Event(message))
     }
 
     companion object {

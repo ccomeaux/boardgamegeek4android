@@ -52,7 +52,7 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_NICKNAME = "NICKNAME"
 
-        fun newInstance(nickname: String): UpdateBuddyNicknameDialogFragment {
+        fun newInstance(nickname: String?): UpdateBuddyNicknameDialogFragment {
             return UpdateBuddyNicknameDialogFragment().withArguments(
                     KEY_NICKNAME to nickname
             )

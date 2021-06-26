@@ -145,16 +145,23 @@ class PlayRepository(val application: BggApplication) {
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
         // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
 
-        return Transformations.map(gameDao.loadPlayInfoAsLiveData(
+        return Transformations.map(
+            gameDao.loadPlayInfoAsLiveData(
                 includeIncomplete,
                 includeExpansions,
-                includeAccessories))
+                includeAccessories
+            )
+        )
         {
             return@map filterGamesOwned(it)
         }
     }
 
-    fun loadForStats(includeIncompletePlays: Boolean, includeExpansions: Boolean, includeAccessories: Boolean): List<GameForPlayStatEntity> {
+    fun loadForStats(
+        includeIncompletePlays: Boolean,
+        includeExpansions: Boolean,
+        includeAccessories: Boolean
+    ): List<GameForPlayStatEntity> {
         val playInfo = gameDao.loadPlayInfo(includeIncompletePlays, includeExpansions, includeAccessories)
         return filterGamesOwned(playInfo)
     }
@@ -234,9 +241,9 @@ class PlayRepository(val application: BggApplication) {
 
     fun markAsDiscarded(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
         val values = contentValuesOf(
-                BggContract.Plays.DELETE_TIMESTAMP to 0,
-                BggContract.Plays.UPDATE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+            BggContract.Plays.DELETE_TIMESTAMP to 0,
+            BggContract.Plays.UPDATE_TIMESTAMP to 0,
+            BggContract.Plays.DIRTY_TIMESTAMP to 0,
         )
         application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
@@ -246,9 +253,9 @@ class PlayRepository(val application: BggApplication) {
 
     fun markAsUpdated(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
         val values = contentValuesOf(
-                BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
-                BggContract.Plays.DELETE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+            BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+            BggContract.Plays.DELETE_TIMESTAMP to 0,
+            BggContract.Plays.DIRTY_TIMESTAMP to 0,
         )
         application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
@@ -258,9 +265,9 @@ class PlayRepository(val application: BggApplication) {
 
     fun markAsDeleted(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
         val values = contentValuesOf(
-                BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
-                BggContract.Plays.UPDATE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+            BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
+            BggContract.Plays.UPDATE_TIMESTAMP to 0,
+            BggContract.Plays.DIRTY_TIMESTAMP to 0,
         )
         application.appExecutors.diskIO.execute {
             application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
@@ -272,63 +279,67 @@ class PlayRepository(val application: BggApplication) {
         playDao.loadPlayersByLocation(location)
     }
 
-    fun updatePlaysWithNickName(username: String, nickName: String): Int {
+    suspend fun updatePlaysWithNickName(username: String, nickName: String): Int = withContext(Dispatchers.IO) {
         val count = playDao.countNickNameUpdatePlays(username, nickName)
         val batch = arrayListOf<ContentProviderOperation>()
         batch += playDao.createDirtyPlaysForUserAndNickNameOperations(username, nickName)
         batch += playDao.createNickNameUpdateOperation(username, nickName)
-        application.appExecutors.diskIO.execute {
-            application.contentResolver.applyBatch(batch)
-        }
-        return count
+        application.contentResolver.applyBatch(batch) // is this better for DAO?
+        count
     }
 
-    fun renamePlayer(oldName: String, newName: String) {
+    suspend fun renamePlayer(oldName: String, newName: String) = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
         batch += playDao.createDirtyPlaysForNonUserPlayerOperations(oldName)
         batch += playDao.createRenameUpdateOperation(oldName, newName)
         batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
         batch += playDao.createDeletePlayerColorsOperation(oldName)
-        application.appExecutors.diskIO.execute {
-            application.contentResolver.applyBatch(batch)
-        }
+        application.contentResolver.applyBatch(batch)// is this better for DAO?
     }
 
     data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
 
-    fun renameLocation(oldLocationName: String, newLocationName: String, resultLiveData: MutableLiveData<RenameLocationResults>? = null) {
+    fun renameLocation(
+        oldLocationName: String,
+        newLocationName: String,
+        resultLiveData: MutableLiveData<RenameLocationResults>? = null
+    ) {
         val batch = ArrayList<ContentProviderOperation>()
 
         val values = contentValuesOf(BggContract.Plays.LOCATION to newLocationName)
         var cpo = ContentProviderOperation
-                .newUpdate(BggContract.Plays.CONTENT_URI)
-                .withValues(values)
-                .withSelection("${BggContract.Plays.LOCATION}=? AND (${BggContract.Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${BggContract.Plays.DIRTY_TIMESTAMP.greaterThanZero()})", arrayOf(oldLocationName))
+            .newUpdate(BggContract.Plays.CONTENT_URI)
+            .withValues(values)
+            .withSelection(
+                "${BggContract.Plays.LOCATION}=? AND (${BggContract.Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${BggContract.Plays.DIRTY_TIMESTAMP.greaterThanZero()})",
+                arrayOf(oldLocationName)
+            )
         batch.add(cpo.build())
 
         values.put(BggContract.Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
         cpo = ContentProviderOperation
-                .newUpdate(BggContract.Plays.CONTENT_URI)
-                .withValues(values)
-                .withSelection("${BggContract.Plays.LOCATION}=? AND ${BggContract.Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}", arrayOf(oldLocationName))
+            .newUpdate(BggContract.Plays.CONTENT_URI)
+            .withValues(values)
+            .withSelection(
+                "${BggContract.Plays.LOCATION}=? AND ${BggContract.Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
+                arrayOf(oldLocationName)
+            )
         batch.add(cpo.build())
         application.appExecutors.diskIO.execute {
             val results = application.contentResolver.applyBatch(batch)
-            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count ?:0 })
+            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count ?: 0 })
             resultLiveData?.postValue(result)
         }
     }
 
-    fun addUsernameToPlayer(playerName: String, username: String) {
+    suspend fun addUsernameToPlayer(playerName: String, username: String) = withContext(Dispatchers.IO) {
         // TODO verify username is good
         val batch = arrayListOf<ContentProviderOperation>()
         batch += playDao.createDirtyPlaysForNonUserPlayerOperations(playerName)
         batch += playDao.createAddUsernameOperation(playerName, username)
         batch += playDao.createCopyPlayerColorsToUserOperations(playerName, username)
         batch += playDao.createDeletePlayerColorsOperation(playerName)
-        application.appExecutors.diskIO.execute {
-            application.contentResolver.applyBatch(batch)
-        }
+        application.contentResolver.applyBatch(batch)
     }
 
     fun save(play: PlayEntity, insertedId: MutableLiveData<Long>) {
@@ -350,24 +361,57 @@ class PlayRepository(val application: BggApplication) {
     }
 
     fun updateGameHIndex(hIndex: HIndexEntity) {
-        updateHIndex(application, hIndex, PlayStats.KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
+        updateHIndex(
+            application,
+            hIndex,
+            PlayStats.KEY_GAME_H_INDEX,
+            R.string.game,
+            NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX
+        )
     }
 
     fun updatePlayerHIndex(hIndex: HIndexEntity) {
-        updateHIndex(application, hIndex, PlayStats.KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
+        updateHIndex(
+            application,
+            hIndex,
+            PlayStats.KEY_PLAYER_H_INDEX,
+            R.string.player,
+            NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX
+        )
     }
 
-    private fun updateHIndex(context: Context, hIndex: HIndexEntity, key: String, @StringRes typeResId: Int, notificationId: Int) {
+    private fun updateHIndex(
+        context: Context,
+        hIndex: HIndexEntity,
+        key: String,
+        @StringRes typeResId: Int,
+        notificationId: Int
+    ) {
         if (hIndex.h != HIndexEntity.INVALID_H_INDEX) {
             val old = HIndexEntity(prefs[key, 0] ?: 0, prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
             if (old != hIndex) {
                 prefs[key] = hIndex.h
                 prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX] = hIndex.n
-                @StringRes val messageId = if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
-                NotificationUtils.notify(context, NotificationUtils.TAG_PLAY_STATS, notificationId,
-                        NotificationUtils.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStatsActivity::class.java)
-                                .setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description))
-                                .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, PlayStatsActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT)))
+                @StringRes val messageId =
+                    if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
+                NotificationUtils.notify(
+                    context, NotificationUtils.TAG_PLAY_STATS, notificationId,
+                    NotificationUtils.createNotificationBuilder(
+                        context,
+                        R.string.title_play_stats,
+                        NotificationUtils.CHANNEL_ID_STATS,
+                        PlayStatsActivity::class.java
+                    )
+                        .setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description))
+                        .setContentIntent(
+                            PendingIntent.getActivity(
+                                context,
+                                0,
+                                Intent(context, PlayStatsActivity::class.java),
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                            )
+                        )
+                )
             }
         }
     }
@@ -378,7 +422,8 @@ class PlayRepository(val application: BggApplication) {
 
     }
 
-    abstract class PlayRefreshableResourceLoader(application: BggApplication) : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
+    abstract class PlayRefreshableResourceLoader(application: BggApplication) :
+        RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
         private val username: String? by lazy {
             AccountUtils.getUsername(application)
         }
@@ -408,15 +453,19 @@ class PlayRepository(val application: BggApplication) {
             }
             if (refreshingNewest) lastNewPage = page
             return if (refreshingNewest) {
-                Adapter.createForXml().plays(username,
-                        newestTimestamp?.asDateForApi(),
-                        null,
-                        page)
+                Adapter.createForXml().plays(
+                    username,
+                    newestTimestamp?.asDateForApi(),
+                    null,
+                    page
+                )
             } else {
-                Adapter.createForXml().plays(username,
-                        null,
-                        oldestTimestamp.asDateForApi(),
-                        page - lastNewPage)
+                Adapter.createForXml().plays(
+                    username,
+                    null,
+                    oldestTimestamp.asDateForApi(),
+                    page - lastNewPage
+                )
             }
         }
 

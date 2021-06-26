@@ -1,39 +1,41 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.repository.UserRepository
 
 class BuddyCollectionViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
 
-    private val _id = MutableLiveData<Pair<String, String>>()
+    private val usernameAndStatus = MutableLiveData<Pair<String, String>>()
 
     fun setUsername(username: String) {
-        if (_id.value?.first != username)
-            _id.value = username to (_id.value?.second ?: DEFAULT_STATUS)
+        if (usernameAndStatus.value?.first != username)
+            usernameAndStatus.value = username to (usernameAndStatus.value?.second ?: DEFAULT_STATUS)
     }
 
     fun setStatus(status: String) {
-        if (_id.value?.second != status) _id.value = (_id.value?.first ?: "") to status
+        if (usernameAndStatus.value?.second != status) usernameAndStatus.value =
+            (usernameAndStatus.value?.first.orEmpty()) to status
     }
 
-    val status: LiveData<String> = Transformations.map(_id) {
+    val status: LiveData<String> = usernameAndStatus.map {
         it.second
     }
 
-    val collection: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(_id) {
-        when (it) {
-            null -> AbsentLiveData.create()
-            else -> userRepository.loadCollection(it.first, it.second)
+    val collection: LiveData<RefreshableResource<List<CollectionItemEntity>>> =
+        usernameAndStatus.switchMap {
+            liveData {
+                emit(RefreshableResource.refreshing(null))
+                try {
+                    emit(RefreshableResource.success(userRepository.refreshCollection(it.first, it.second)))
+                } catch (e: Exception) {
+                    emit(RefreshableResource.error<List<CollectionItemEntity>>(e, application))
+                }
+            }
         }
-    }
 
     companion object {
         const val DEFAULT_STATUS = "own"

@@ -17,6 +17,7 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
 import java.lang.Exception
+import java.util.concurrent.atomic.AtomicBoolean
 
 class BuddiesViewModel(application: Application) : AndroidViewModel(application) {
     enum class SortType {
@@ -26,7 +27,7 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
     private val userRepository = UserRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
-    private var isRefreshing = false
+    private var isRefreshing = AtomicBoolean()
 
     private val _sort = MutableLiveData<BuddiesSort>()
     val sort: LiveData<BuddiesSort>
@@ -39,26 +40,23 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
     val buddies: LiveData<RefreshableResource<List<UserEntity>>> = sort.switchMap {
         liveData {
             try {
-                emit(RefreshableResource.refreshing(null))
                 val buddies = userRepository.loadBuddies(it.sortBy)
-                if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
-                    val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
-                    if (lastCompleteSync.isOlderThan(1, TimeUnit.DAYS) && !isRefreshing) {
-                        isRefreshing = true
-                        emit(RefreshableResource.refreshing(buddies))
-                        val timestamp = System.currentTimeMillis()
-                        userRepository.refreshBuddies(timestamp)
-                        syncPrefs.setBuddiesTimestamp(timestamp)
-                        val refreshedBuddies = userRepository.loadBuddies(it.sortBy)
-                        emit(RefreshableResource.success(refreshedBuddies))
-                        isRefreshing = false
-                    } else {
-                        emit(RefreshableResource.success(buddies))
-                    }
-                } else {
-                    emit(RefreshableResource.success(buddies))
-                }
+                val refreshedBuddies = if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
+                    when {
+                        syncPrefs.getBuddiesTimestamp().isOlderThan(1, TimeUnit.DAYS) &&
+                                isRefreshing.compareAndSet(false, true) -> {
+                            emit(RefreshableResource.refreshing(buddies))
+                            val timestamp = System.currentTimeMillis()
+                            userRepository.refreshBuddies(timestamp)
+                            syncPrefs.setBuddiesTimestamp(timestamp)
+                            userRepository.loadBuddies(it.sortBy)
+                        }
+                        else -> buddies
+                    }.also { isRefreshing.set(false) }
+                } else buddies
+                emit(RefreshableResource.success(refreshedBuddies))
             } catch (e: Exception) {
+                isRefreshing.set(false)
                 emit(RefreshableResource.error<List<UserEntity>>(e, application))
             }
         }
@@ -78,7 +76,7 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
 
     fun refresh(): Boolean {
         _sort.value = sort.value
-        return !isRefreshing
+        return !isRefreshing.get()
     }
 
     sealed class BuddiesSort {
