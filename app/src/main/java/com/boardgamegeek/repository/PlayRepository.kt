@@ -235,8 +235,8 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadNonUserPlayerDetail(playerName)
     }
 
-    fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): LiveData<List<LocationEntity>> {
-        return playDao.loadLocationsAsLiveData(sortBy)
+    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): List<LocationEntity> {
+        return playDao.loadLocations(sortBy)
     }
 
     fun markAsDiscarded(internalId: Long, updatedId: MutableLiveData<Long>? = null) {

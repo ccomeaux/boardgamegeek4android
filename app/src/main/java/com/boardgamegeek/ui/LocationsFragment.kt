@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.LocationEntity
@@ -21,29 +19,28 @@ import kotlinx.android.synthetic.main.fragment_locations.*
 import kotlinx.android.synthetic.main.row_location.view.*
 import kotlin.properties.Delegates
 
-class LocationsFragment : Fragment() {
+class LocationsFragment : Fragment(R.layout.fragment_locations) {
     private val viewModel by activityViewModels<LocationsViewModel>()
 
     private val adapter: LocationsAdapter by lazy {
         LocationsAdapter(viewModel)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_locations, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        val sectionItemDecoration = RecyclerSectionItemDecoration(
+        recyclerView.addItemDecoration(
+            RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter)
-        recyclerView.addItemDecoration(sectionItemDecoration)
+                adapter
+            )
+        )
 
-        viewModel.locations.observe(viewLifecycleOwner, Observer {
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+
+        viewModel.locations.observe(viewLifecycleOwner, {
             adapter.locations = it
-            progressBar?.hide()
             if (adapter.itemCount == 0) {
                 recyclerView.fadeOut()
                 emptyContainer.fadeIn()
@@ -51,10 +48,13 @@ class LocationsFragment : Fragment() {
                 emptyContainer.fadeOut()
                 recyclerView.fadeIn(recyclerView.windowToken != null)
             }
+            progressBar?.hide()
+            swipeRefresh.isRefreshing = false
         })
     }
 
-    private class LocationsAdapter(val viewModel: LocationsViewModel) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
+    private class LocationsAdapter(val viewModel: LocationsViewModel) :
+        RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
         var locations: List<LocationEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name
@@ -96,7 +96,8 @@ class LocationsFragment : Fragment() {
                     } else {
                         itemView.nameView.text = l.name
                     }
-                    itemView.quantityView.text = itemView.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)
+                    itemView.quantityView.text =
+                        itemView.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)
                     itemView.setOnClickListener {
                         LocationActivity.start(itemView.context, l.name)
                     }

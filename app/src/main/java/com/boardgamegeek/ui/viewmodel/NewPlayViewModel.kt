@@ -48,7 +48,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     // Locations
     val locations = MediatorLiveData<List<LocationEntity>>()
     private var locationFilter = ""
-    private val rawLocations = playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT)
+    private val rawLocations: LiveData<List<LocationEntity>> = liveData {
+        emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
+    }
 
     // Players
     val availablePlayers = MediatorLiveData<List<PlayerEntity>>()

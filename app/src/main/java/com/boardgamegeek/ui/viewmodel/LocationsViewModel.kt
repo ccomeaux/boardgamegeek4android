@@ -1,10 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.extensions.firstChar
@@ -26,40 +23,42 @@ class LocationsViewModel(application: Application) : AndroidViewModel(applicatio
         sort(SortType.NAME)
     }
 
-    val locations: LiveData<List<LocationEntity>> = Transformations.switchMap(sort) {
-        playRepository.loadLocations(it.sortBy)
+    val locations: LiveData<List<LocationEntity>> = sort.switchMap {
+        liveData {
+            emit(playRepository.loadLocations(it.sortBy))
+        }
+    }
+
+    fun refresh() {
+        _sort.value?.let { _sort.value = it }
     }
 
     fun sort(sortType: SortType) {
         _sort.value = when (sortType) {
-            SortType.NAME -> LocationsSortByName()
-            SortType.PLAY_COUNT -> LocationsSortByPlayCount()
+            SortType.NAME -> LocationsSort.ByName()
+            SortType.PLAY_COUNT -> LocationsSort.ByPlayCount()
         }
     }
 
     fun getSectionHeader(location: LocationEntity?): String {
         return sort.value?.getSectionHeader(location) ?: ""
     }
-}
 
-sealed class LocationsSort {
-    abstract val sortType: LocationsViewModel.SortType
-    abstract val sortBy: PlayDao.LocationSortBy
-    abstract fun getSectionHeader(location: LocationEntity?): String
-}
+    sealed class LocationsSort {
+        abstract val sortType: SortType
+        abstract val sortBy: PlayDao.LocationSortBy
+        abstract fun getSectionHeader(location: LocationEntity?): String
 
-class LocationsSortByName : LocationsSort() {
-    override val sortType = LocationsViewModel.SortType.NAME
-    override val sortBy = PlayDao.LocationSortBy.NAME
-    override fun getSectionHeader(location: LocationEntity?): String {
-        return location?.name.firstChar()
-    }
-}
+        class ByName : LocationsSort() {
+            override val sortType = SortType.NAME
+            override val sortBy = PlayDao.LocationSortBy.NAME
+            override fun getSectionHeader(location: LocationEntity?) = location?.name.firstChar()
+        }
 
-class LocationsSortByPlayCount : LocationsSort() {
-    override val sortType = LocationsViewModel.SortType.PLAY_COUNT
-    override val sortBy = PlayDao.LocationSortBy.PLAY_COUNT
-    override fun getSectionHeader(location: LocationEntity?): String {
-        return (location?.playCount ?: 0).orderOfMagnitude()
+        class ByPlayCount : LocationsSort() {
+            override val sortType = SortType.PLAY_COUNT
+            override val sortBy = PlayDao.LocationSortBy.PLAY_COUNT
+            override fun getSectionHeader(location: LocationEntity?) = (location?.playCount ?: 0).orderOfMagnitude()
+        }
     }
 }

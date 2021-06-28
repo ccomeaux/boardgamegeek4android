@@ -6,7 +6,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
@@ -30,11 +29,11 @@ class LocationsActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.locations.observe(this, Observer {
+        viewModel.locations.observe(this, {
             locationCount = it?.size ?: 0
             invalidateOptionsMenu()
         })
-        viewModel.sort.observe(this, Observer {
+        viewModel.sort.observe(this, {
             sortType = it?.sortType ?: LocationsViewModel.SortType.NAME
             invalidateOptionsMenu()
         })
@@ -46,27 +45,23 @@ class LocationsActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        when (sortType) {
-            LocationsViewModel.SortType.NAME -> menu.findItem(R.id.menu_sort_name)
-            LocationsViewModel.SortType.PLAY_COUNT -> menu.findItem(R.id.menu_sort_quantity)
-        }.apply {
-            isChecked = true
-            menu.setActionBarCount(R.id.menu_list_count, locationCount, title.toString())
-        }
+        menu.findItem(
+            when (sortType) {
+                LocationsViewModel.SortType.NAME -> R.id.menu_sort_name
+                LocationsViewModel.SortType.PLAY_COUNT -> R.id.menu_sort_quantity
+            }
+        )?.apply { isChecked = true }
+        menu.setActionBarCount(R.id.menu_list_count, locationCount, title.toString())
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_name -> {
-                viewModel.sort(LocationsViewModel.SortType.NAME)
-                return true
-            }
-            R.id.menu_sort_quantity -> {
-                viewModel.sort(LocationsViewModel.SortType.PLAY_COUNT)
-                return true
-            }
+            R.id.menu_sort_name -> viewModel.sort(LocationsViewModel.SortType.NAME)
+            R.id.menu_sort_quantity -> viewModel.sort(LocationsViewModel.SortType.PLAY_COUNT)
+            R.id.menu_refresh -> viewModel.refresh()
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 }
