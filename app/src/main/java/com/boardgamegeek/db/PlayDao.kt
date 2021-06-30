@@ -2,6 +2,7 @@ package com.boardgamegeek.db
 
 import android.content.ContentProviderOperation
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.net.Uri
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getDoubleOrNull
@@ -40,16 +41,9 @@ class PlayDao(private val context: BggApplication) {
         DATE, LOCATION, GAME, LENGTH
     }
 
-    fun loadPlayAsLiveData(id: Long): LiveData<PlayEntity> {
-        return RegisteredLiveData(context, Plays.buildPlayWithGameUri(id), true) {
-            return@RegisteredLiveData loadPlay(id)
-        }
-    }
-
-    fun loadPlay(id: Long): PlayEntity? {
-        val uri = Plays.buildPlayWithGameUri(id)
-        return context.contentResolver.load(
-            uri,
+    suspend fun loadPlay(id: Long): PlayEntity? = withContext(Dispatchers.IO) {
+        context.contentResolver.load(
+            Plays.buildPlayWithGameUri(id),
             arrayOf(
                 Plays._ID,
                 Plays.PLAY_ID,
@@ -106,11 +100,10 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    private fun loadPlayers(internalId: Long): List<PlayPlayerEntity> {
+    private suspend fun loadPlayers(internalId: Long): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
         val players = mutableListOf<PlayPlayerEntity>()
-        val uri = Plays.buildPlayerUri(internalId)
         context.contentResolver.load(
-            uri,
+            Plays.buildPlayerUri(internalId),
             arrayOf(
                 PlayPlayers._ID,
                 PlayPlayers.NAME,
@@ -142,7 +135,7 @@ class PlayDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return players
+        players
     }
 
     fun loadPlays(sortBy: PlaysSortBy): LiveData<List<PlayEntity>> {
@@ -1202,6 +1195,10 @@ class PlayDao(private val context: BggApplication) {
             .withValue(PlayPlayers.USER_NAME, username)
             .withSelection(selection.first, selection.second)
             .build()
+    }
+
+    suspend fun upsert(internalId: Long, values: ContentValues) = withContext(Dispatchers.IO) {
+        context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
     }
 
     /**

@@ -23,7 +23,7 @@ import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.SelectionBuilder
+import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
 import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
@@ -95,7 +95,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 try {
                     val internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong()
-                    val play = dao.loadPlay(internalId) ?: break
+                    val play = runBlocking { dao.loadPlay(internalId) } ?: break
                     val response = postPlayUpdate(play)
                     if (response.hasAuthError()) {
                         syncResult.stats.numAuthExceptions++
@@ -151,7 +151,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
                 try {
                     val internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong()
-                    val play = dao.loadPlay(internalId) ?: break
+                    val play = runBlocking { dao.loadPlay(internalId) } ?: break
                     currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
                     if (play.isSynced) {
                         val response = postPlayDelete(play.playId)

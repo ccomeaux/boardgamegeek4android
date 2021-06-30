@@ -437,25 +437,27 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun logPlay() {
-        play.value?.let {
-            val now = System.currentTimeMillis()
+        viewModelScope.launch {
+            play.value?.let {
+                val now = System.currentTimeMillis()
 
-            if (!it.isSynced &&
-                (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())
-            ) {
-                prefs[KEY_LAST_PLAY_TIME] = now
-                prefs[KEY_LAST_PLAY_LOCATION] = it.location
-                prefs.putLastPlayPlayers(it.players)
-            }
+                if (!it.isSynced &&
+                    (it.dateInMillis.isToday() || (now - it.length * DateUtils.MINUTE_IN_MILLIS).isToday())
+                ) {
+                    prefs[KEY_LAST_PLAY_TIME] = now
+                    prefs[KEY_LAST_PLAY_LOCATION] = it.location
+                    prefs.putLastPlayPlayers(it.players)
+                }
 
-            it.updateTimestamp = now
-            it.deleteTimestamp = 0
-            it.dirtyTimestamp = now
-            save(it)
-            if (internalIdToDelete != INVALID_ID.toLong()) {
-                playRepository.markAsDeleted(internalIdToDelete, null)
+                it.updateTimestamp = now
+                it.deleteTimestamp = 0
+                it.dirtyTimestamp = now
+                save(it)
+                if (internalIdToDelete != INVALID_ID.toLong()) {
+                    playRepository.markAsDeleted(internalIdToDelete)
+                }
+                triggerUpload()
             }
-            triggerUpload()
         }
     }
 

@@ -40,44 +40,38 @@ class PlayRepository(val application: BggApplication) {
     private val playDao = PlayDao(application)
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
+    private val playMapper = PlayMapper()
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val username: String? by lazy { AccountUtils.getUsername(application) }
 
-    fun getPlay(id: Long): LiveData<RefreshableResource<PlayEntity>> {
-        return object : RefreshableResourceLoader<PlayEntity, PlaysResponse>(application) {
-            val playMapper = PlayMapper()
-            var timestamp = 0L
-            var gameId = BggContract.INVALID_ID
+    suspend fun loadPlay(internalId: Long): PlayEntity? = playDao.loadPlay(internalId)
 
-            override fun loadFromDatabase(): LiveData<PlayEntity> {
-                return playDao.loadPlayAsLiveData(id)
+    suspend fun refreshPlay(
+        internalId: Long,
+        playId: Int,
+        gameId: Int,
+        timestamp: Long = System.currentTimeMillis()
+    ): PlayEntity? =
+        withContext(Dispatchers.IO) {
+            var page = 1
+            if (username.isNullOrBlank() ||
+                internalId == BggContract.INVALID_ID.toLong() ||
+                playId == BggContract.INVALID_ID ||
+                gameId == BggContract.INVALID_ID
+            ) {
+                null
+            } else {
+                var returnedPlay: PlayEntity? = null
+                do {
+                    val result = Adapter.createForXml().playsByGameC(username, gameId, page++)
+                    val plays = playMapper.map(result.plays)
+                    playDao.save(plays, timestamp)
+                    Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
+                    if (returnedPlay == null) returnedPlay = plays.find { it.playId == playId }
+                } while (result.hasMorePages() && returnedPlay == null)
+                returnedPlay
             }
-
-            override fun shouldRefresh(data: PlayEntity?): Boolean {
-                if (data == null) return false
-                gameId = data.gameId
-                return gameId != BggContract.INVALID_ID &&
-                        !username.isNullOrBlank() &&
-                        data.playId > 0 &&
-                        (data.syncTimestamp == 0L || data.syncTimestamp.isOlderThan(2, TimeUnit.HOURS))
-            }
-
-            override val typeDescriptionResId = R.string.title_plays
-
-            override fun createCall(page: Int): Call<PlaysResponse> {
-                if (page == 1) timestamp = System.currentTimeMillis()
-                return Adapter.createForXml().playsByGame(username, gameId, page)
-            }
-
-            override fun saveCallResult(result: PlaysResponse) {
-                val plays = playMapper.map(result.plays)
-                playDao.save(plays, timestamp)
-                Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
-            }
-
-            override fun hasMorePages(result: PlaysResponse, currentPage: Int) = result.hasMorePages()
-        }.asLiveData()
-    }
+        }
 
     fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE): LiveData<RefreshableResource<List<PlayEntity>>> {
         return object : PlayRefreshableResourceLoader(application) {
@@ -239,40 +233,40 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadLocations(sortBy)
     }
 
-    fun markAsDiscarded(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
-        val values = contentValuesOf(
-            BggContract.Plays.DELETE_TIMESTAMP to 0,
-            BggContract.Plays.UPDATE_TIMESTAMP to 0,
-            BggContract.Plays.DIRTY_TIMESTAMP to 0,
+    suspend fun markAsDiscarded(internalId: Long): Long = withContext(Dispatchers.IO) {
+        playDao.upsert(
+            internalId,
+            contentValuesOf(
+                BggContract.Plays.DELETE_TIMESTAMP to 0,
+                BggContract.Plays.UPDATE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+            )
         )
-        application.appExecutors.diskIO.execute {
-            application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
-            updatedId?.postValue(internalId)
-        }
+        internalId
     }
 
-    fun markAsUpdated(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
-        val values = contentValuesOf(
-            BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
-            BggContract.Plays.DELETE_TIMESTAMP to 0,
-            BggContract.Plays.DIRTY_TIMESTAMP to 0,
+    suspend fun markAsUpdated(internalId: Long): Long = withContext(Dispatchers.IO) {
+        playDao.upsert(
+            internalId,
+            contentValuesOf(
+                BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.DELETE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+            )
         )
-        application.appExecutors.diskIO.execute {
-            application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
-            updatedId?.postValue(internalId)
-        }
+        internalId
     }
 
-    fun markAsDeleted(internalId: Long, updatedId: MutableLiveData<Long>? = null) {
-        val values = contentValuesOf(
-            BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
-            BggContract.Plays.UPDATE_TIMESTAMP to 0,
-            BggContract.Plays.DIRTY_TIMESTAMP to 0,
+    suspend fun markAsDeleted(internalId: Long): Long = withContext(Dispatchers.IO) {
+        playDao.upsert(
+            internalId,
+            contentValuesOf(
+                BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                BggContract.Plays.UPDATE_TIMESTAMP to 0,
+                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+            )
         )
-        application.appExecutors.diskIO.execute {
-            application.contentResolver.update(BggContract.Plays.buildPlayUri(internalId), values, null, null)
-            updatedId?.postValue(internalId)
-        }
+        internalId
     }
 
     suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {

@@ -88,8 +88,8 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
 
     private fun showError(message: String) {
         emptyView.text = message
-        emptyView.fadeIn()
-        listContainer.fadeOut()
+        emptyView.isVisible = true
+        listContainer.isVisible = false
         progressBar.hide()
     }
 
@@ -173,8 +173,8 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         playersLabel.isVisible = play.players.isNotEmpty()
         adapter.players = play.players
 
-        emptyView.fadeOut()
-        listContainer.fadeIn()
+        emptyView.isVisible = false
+        listContainer.isVisible = true
         progressBar.hide()
     }
 
