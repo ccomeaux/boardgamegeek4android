@@ -79,7 +79,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
                 }
             }
         })
-        viewModel.getPlayers().observe(viewLifecycleOwner, Observer { entity ->
+        viewModel.players.observe(viewLifecycleOwner, Observer { entity ->
             if (entity == null) return@Observer
             bindPlayerUi(entity)
             playerHIndexInfoView.setOnClickListener {
@@ -103,19 +103,21 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
         if (!includeIncompletePlays) {
-            messages.add(getString(R.string.incomplete_plays).toLowerCase(Locale.getDefault()))
+            messages.add(getString(R.string.incomplete_plays).lowercase(Locale.getDefault()))
         }
         if (!includeExpansions) {
-            messages.add(getString(R.string.expansions).toLowerCase(Locale.getDefault()))
+            messages.add(getString(R.string.expansions).lowercase(Locale.getDefault()))
         }
         if (!includeAccessories) {
-            messages.add(getString(R.string.accessories).toLowerCase(Locale.getDefault()))
+            messages.add(getString(R.string.accessories).lowercase(Locale.getDefault()))
         }
         if (messages.isEmpty()) {
             accuracyContainer.visibility = View.GONE
         } else {
             accuracyContainer.visibility = View.VISIBLE
-            accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).toLowerCase(Locale.getDefault())))
+            accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).lowercase(
+                Locale.getDefault()
+            )))
         }
     }
 

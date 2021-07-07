@@ -378,7 +378,7 @@ class PlayDao(private val context: BggApplication) {
     private fun addGamePlaySelectionAndArgs(existing: Pair<String, Array<String>>, gameId: Int) =
         "${existing.first} AND ${Plays.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
 
-    fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
+    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
         val selection = arrayListOf<String>().apply {
             add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
             if (!AccountUtils.getUsername(context).isNullOrBlank()) {
@@ -395,12 +395,6 @@ class PlayDao(private val context: BggApplication) {
             }
         }
         return loadPlayers(Plays.buildPlayersByUniquePlayerUri(), selection to selectionArgs, PlayerSortBy.PLAY_COUNT)
-    }
-
-    fun loadPlayersForStatsAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
-        return RegisteredLiveData(context, Plays.buildPlayersByUniquePlayerUri(), true) {
-            return@RegisteredLiveData loadPlayersForStats(includeIncompletePlays)
-        }
     }
 
     fun loadUserPlayerAsLiveData(username: String): LiveData<PlayerEntity> {
@@ -595,19 +589,12 @@ class PlayDao(private val context: BggApplication) {
         NAME, PLAY_COUNT, WIN_COUNT
     }
 
-    fun loadPlayersAsLiveData(sortBy: PlayerSortBy = PlayerSortBy.NAME): LiveData<List<PlayerEntity>> {
-        val uri = Plays.buildPlayersByUniquePlayerUri()
-        return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlayers(uri, sortBy = sortBy)
-        }
-    }
-
-    private fun loadPlayers(
+    suspend fun loadPlayers(
         uri: Uri,
         selection: Pair<String?, Array<String>?>? = null,
         sortBy: PlayerSortBy = PlayerSortBy.NAME
-    ): List<PlayerEntity> {
-        val results = arrayListOf<PlayerEntity>()
+    ): List<PlayerEntity> = withContext(Dispatchers.IO) {
+        val results = mutableListOf<PlayerEntity>()
         val sortOrder = when (sortBy) {
             PlayerSortBy.NAME -> PlayPlayers.NAME.collateNoCase()
             PlayerSortBy.PLAY_COUNT -> Plays.SUM_QUANTITY.descending()
@@ -636,7 +623,7 @@ class PlayDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return results
+        results
     }
 
     fun delete(internalId: Long): Boolean {

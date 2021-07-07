@@ -40,21 +40,21 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
         list?.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY)
     }
 
-    val players: LiveData<List<PlayerEntity>> =
-        Transformations.map(Transformations.switchMap(plays) {
-            playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)
-        }) { p ->
-            p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(ITEMS_TO_DISPLAY)
+    val players: LiveData<List<PlayerEntity>> = plays.switchMap {
+        liveData {
+            emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT))
         }
+    }.map { p ->
+        p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(ITEMS_TO_DISPLAY)
+    }
 
-    val locations: LiveData<List<LocationEntity>> =
-        Transformations.map(Transformations.switchMap(plays) {
-            liveData {
-                emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
-            }
-        }) { p ->
-            p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
+    val locations: LiveData<List<LocationEntity>> = plays.switchMap {
+        liveData {
+            emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
         }
+    }.map { p ->
+        p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
+    }
 
     val colors: LiveData<List<PlayerColorEntity>> = liveData {
         val username = AccountUtils.getUsername(getApplication())

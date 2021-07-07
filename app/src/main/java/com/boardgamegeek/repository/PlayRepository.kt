@@ -169,20 +169,16 @@ class PlayRepository(val application: BggApplication) {
         return games.toList()
     }
 
-    fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersAsLiveData(sortBy)
+    suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME): List<PlayerEntity> {
+        return playDao.loadPlayers(BggContract.Plays.buildPlayersByUniquePlayerUri(), sortBy = sortBy)
     }
 
     fun loadPlayersByGame(gameId: Int): LiveData<List<PlayPlayerEntity>> {
         return playDao.loadPlayersByGame(gameId)
     }
 
-    fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
+    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
         return playDao.loadPlayersForStats(includeIncompletePlays)
-    }
-
-    fun loadPlayersForStatsAsLiveData(includeIncompletePlays: Boolean): LiveData<List<PlayerEntity>> {
-        return playDao.loadPlayersForStatsAsLiveData(includeIncompletePlays)
     }
 
     fun loadUserPlayer(username: String): LiveData<PlayerEntity> {

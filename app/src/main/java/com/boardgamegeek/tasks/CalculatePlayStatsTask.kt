@@ -15,6 +15,7 @@ import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.isPlaysSyncUpToDate
 import com.boardgamegeek.repository.PlayRepository
+import kotlinx.coroutines.runBlocking
 
 class CalculatePlayStatsTask(private val application: BggApplication) : AsyncTask<Void, Void, Void?>() {
     private val playRepository: PlayRepository = PlayRepository(application)
@@ -30,9 +31,11 @@ class CalculatePlayStatsTask(private val application: BggApplication) : AsyncTas
             val playStatsEntity = PlayStatsEntity(playStats, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
             playRepository.updateGameHIndex(playStatsEntity.hIndex)
 
-            val playerStats = playRepository.loadPlayersForStats(includeIncompletePlays)
-            val playerStatsEntity = PlayerStatsEntity(playerStats)
-            playRepository.updatePlayerHIndex(playerStatsEntity.hIndex)
+            runBlocking {
+                val playerStats = playRepository.loadPlayersForStats(includeIncompletePlays)
+                val playerStatsEntity = PlayerStatsEntity(playerStats)
+                playRepository.updatePlayerHIndex(playerStatsEntity.hIndex)
+            }
         }
         return null
     }

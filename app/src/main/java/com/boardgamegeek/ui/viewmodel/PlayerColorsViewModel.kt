@@ -18,8 +18,8 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
     val user: LiveData<Pair<String?, Int>>
         get() = _user
 
-    private val _colors = MutableLiveData<List<PlayerColorEntity>>()
-    val colors: LiveData<List<PlayerColorEntity>>
+    private val _colors = MutableLiveData<List<PlayerColorEntity>?>()
+    val colors: LiveData<List<PlayerColorEntity>?>
         get() = _colors
 
     init {

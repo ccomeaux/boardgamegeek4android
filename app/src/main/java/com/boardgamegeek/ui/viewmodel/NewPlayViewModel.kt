@@ -10,6 +10,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.collections.forEachWithIndex
 import java.text.DecimalFormat
 import java.util.*
@@ -194,30 +195,27 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     fun addPlayer(player: PlayerEntity) {
         val newList = _addedPlayers.value ?: mutableListOf()
         if (!newList.contains(player)) {
-            newList.add(player)
-            val colors = if (player.isUser()) {
-                playRepository.loadUserColorsAsLiveData(player.username)
-            } else {
-                playRepository.loadPlayerColorsAsLiveData(player.name)
-            }
-            addedPlayers.addSource(colors) { result ->
-                result?.let {
-                    // TODO make this LiveData
-                    playerFavoriteColorMap[player.id] = it
-                    assemblePlayers()
+            viewModelScope.launch {
+                newList.add(player)
+
+                playerFavoriteColorMap[player.id] = if (player.isUser()) {
+                    playRepository.loadUserColors(player.username)
+                } else {
+                    playRepository.loadPlayerColors(player.name)
                 }
+                assemblePlayers()
+
+                // TODO make this LiveData
+                val plays = playRepository.loadPlaysByPlayer(
+                    player.playerName,
+                    gameId.value ?: BggContract.INVALID_ID,
+                    player.isUser()
+                )
+                playerMightBeNewMap[player.id] = plays.sumOf { it.quantity } == 0
+                assembleMightBeNewPlayers()
+
+                _addedPlayers.value = newList
             }
-
-            // TODO make this LiveData
-            val plays = playRepository.loadPlaysByPlayer(
-                player.playerName,
-                gameId.value ?: BggContract.INVALID_ID,
-                player.isUser()
-            )
-            playerMightBeNewMap[player.id] = plays.sumOf { it.quantity } == 0
-            assembleMightBeNewPlayers()
-
-            _addedPlayers.value = newList
         }
     }
 
