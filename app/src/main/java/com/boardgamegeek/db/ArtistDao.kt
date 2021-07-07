@@ -20,7 +20,7 @@ class ArtistDao(private val context: BggApplication) {
     }
 
     suspend fun loadArtists(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<PersonEntity>()
+        val results = mutableListOf<PersonEntity>()
         val sortByName = Artists.ARTIST_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName

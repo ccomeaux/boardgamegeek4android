@@ -92,9 +92,9 @@ class GameRepository(val application: BggApplication) {
         } while (response.hasMorePages())
 
         playDao.deleteUnupdatedPlays(gameId, timestamp)
-        dao.update(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
+        dao.updateC(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
 
-        CalculatePlayStatsTask(application).executeAsyncTask()
+        CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
 
         plays
     }

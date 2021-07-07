@@ -35,15 +35,14 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
     val collection = _category.switchMap { c ->
         liveData {
-            emit(
-                    when (c.first) {
-                        BggContract.INVALID_ID -> emptyList()
-                        else -> when (c.second) {
-                            CollectionSort.NAME -> repository.loadCollection(c.first, CollectionDao.SortType.NAME)
-                            CollectionSort.RATING -> repository.loadCollection(c.first, CollectionDao.SortType.RATING)
-                        }
-                    }
-            )
+            val collection = when (c.first) {
+                BggContract.INVALID_ID -> emptyList()
+                else -> when (c.second) {
+                    CollectionSort.NAME -> repository.loadCollection(c.first, CollectionDao.SortType.NAME)
+                    CollectionSort.RATING -> repository.loadCollection(c.first, CollectionDao.SortType.RATING)
+                }
+            }
+            emit(collection)
         }
     }
 }
