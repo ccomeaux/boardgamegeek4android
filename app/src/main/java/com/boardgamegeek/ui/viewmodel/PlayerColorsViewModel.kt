@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.ColorUtils
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class PlayerColorsViewModel(application: Application) : AndroidViewModel(application) {
@@ -25,13 +27,15 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun load() {
-        user.value?.let {
-            val name = it.first
-            _colors.value = when {
-                name == null || name.isBlank() -> null
-                it.second == TYPE_USER -> playRepository.loadUserColors(name)
-                it.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
-                else -> null
+        viewModelScope.launch {
+            user.value?.let {
+                val name = it.first
+                _colors.value = when {
+                    name == null || name.isBlank() -> null
+                    it.second == TYPE_USER -> playRepository.loadUserColors(name)
+                    it.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
+                    else -> null
+                }
             }
         }
     }
@@ -64,12 +68,12 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
         if (playerDetail != null) {
             val colorNames = availableColors.map { it.first }
             val playedColors = playerDetail.asSequence()
-                    .filter { colorNames.contains(it.color) } // only include known colors
-                    .groupBy { it.color }
-                    .map { it.key to it.value.size }
-                    .sortedByDescending { it.second }
-                    .map { it.first }
-                    .toMutableList()
+                .filter { colorNames.contains(it.color) } // only include known colors
+                .groupBy { it.color }
+                .map { it.key to it.value.size }
+                .sortedByDescending { it.second }
+                .map { it.first }
+                .toMutableList()
             while (playedColors.isNotEmpty()) {
                 val description = playedColors.removeAt(0)
                 val color = PlayerColorEntity(description, order++)

@@ -193,19 +193,11 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadNonUserPlayerAsLiveData(playerName)
     }
 
-    fun loadUserColorsAsLiveData(username: String): LiveData<List<PlayerColorEntity>> {
-        return playDao.loadUserColorsAsLiveData(username)
-    }
-
-    fun loadUserColors(username: String): List<PlayerColorEntity> {
+    suspend fun loadUserColors(username: String): List<PlayerColorEntity> {
         return playDao.loadUserColors(username)
     }
 
-    fun loadPlayerColorsAsLiveData(playerName: String): LiveData<List<PlayerColorEntity>> {
-        return playDao.loadPlayerColorsAsLiveData(playerName)
-    }
-
-    fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
+    suspend fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
         return playDao.loadPlayerColors(playerName)
     }
 

@@ -69,13 +69,17 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val colors: LiveData<List<PlayerColorEntity>> = Transformations.switchMap(_user) { user ->
-        val name = user.first
-        when {
-            name == null || name.isBlank() -> AbsentLiveData.create()
-            user.second == TYPE_USER -> playRepository.loadUserColorsAsLiveData(name)
-            user.second == TYPE_PLAYER -> playRepository.loadPlayerColorsAsLiveData(name)
-            else -> AbsentLiveData.create()
+    val colors = _user.switchMap { user ->
+        liveData {
+            val name = user.first
+            emit(
+                when {
+                    name == null || name.isBlank() -> emptyList()
+                    user.second == TYPE_USER -> playRepository.loadUserColors(name)
+                    user.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
+                    else -> emptyList()
+                }
+            )
         }
     }
 

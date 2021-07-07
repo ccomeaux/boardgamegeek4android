@@ -9,7 +9,6 @@ import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP
 import com.boardgamegeek.extensions.PlayStats
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
@@ -57,13 +56,13 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
             p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
         }
 
-    val colors: LiveData<List<PlayerColorEntity>>
-        get() {
-            return when (val username = AccountUtils.getUsername(getApplication())) {
-                null -> AbsentLiveData.create()
-                else -> playRepository.loadUserColorsAsLiveData(username)
-            }
-        }
+    val colors: LiveData<List<PlayerColorEntity>> = liveData {
+        val username = AccountUtils.getUsername(getApplication())
+        emit(
+            if (username.isNullOrBlank()) emptyList()
+            else playRepository.loadUserColors(username)
+        )
+    }
 
     private val h: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PlayStats.KEY_GAME_H_INDEX)
     private val n: LiveSharedPreference<Int> =

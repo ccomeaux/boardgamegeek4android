@@ -6,6 +6,8 @@ import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.provider.BggContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class PlayerColorAssigner(private val application: BggApplication, private val play: Play) {
@@ -15,7 +17,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val p
     private var round = 0
     private val dao = PlayDao(application)
 
-    fun execute(): List<PlayerResult> {
+    suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
         colorsAvailable.clear()
         val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(play.gameId), BggContract.GameColors.COLOR)?.filterNotNull()
@@ -56,7 +58,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val p
             val username = playersNeedingColor.random()
             assignColorToPlayer(color, username, "random")
         }
-        return results
+        results
     }
 
     /**

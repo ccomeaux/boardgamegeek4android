@@ -449,31 +449,15 @@ class PlayDao(private val context: BggApplication) {
         return null
     }
 
-    fun loadPlayerColorsAsLiveData(playerName: String): LiveData<List<PlayerColorEntity>> {
-        val uri = PlayerColors.buildPlayerUri(playerName)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadColors(uri)
-        }
+    suspend fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
+        return loadColors(PlayerColors.buildPlayerUri(playerName))
     }
 
-    fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
-        val uri = PlayerColors.buildPlayerUri(playerName)
-        return loadColors(uri)
+    suspend fun loadUserColors(playerName: String): List<PlayerColorEntity> {
+        return loadColors(PlayerColors.buildUserUri(playerName))
     }
 
-    fun loadUserColorsAsLiveData(username: String): LiveData<List<PlayerColorEntity>> {
-        val uri = PlayerColors.buildUserUri(username)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadColors(uri)
-        }
-    }
-
-    fun loadUserColors(playerName: String): List<PlayerColorEntity> {
-        val uri = PlayerColors.buildUserUri(playerName)
-        return loadColors(uri)
-    }
-
-    private fun loadColors(uri: Uri): List<PlayerColorEntity> {
+    private suspend fun loadColors(uri: Uri): List<PlayerColorEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<PlayerColorEntity>()
         context.contentResolver.load(
             uri,
@@ -492,7 +476,7 @@ class PlayDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return results
+        results
     }
 
     fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
@@ -1088,35 +1072,34 @@ class PlayDao(private val context: BggApplication) {
         return selection to selectionArgs
     }
 
-    fun createCopyPlayerColorsOperations(oldName: String, newName: String): ArrayList<ContentProviderOperation> {
+    suspend fun createCopyPlayerColorsOperations(
+        oldName: String,
+        newName: String
+    ): ArrayList<ContentProviderOperation> {
         val colors = loadColors(PlayerColors.buildPlayerUri(oldName))
         val batch = arrayListOf<ContentProviderOperation>()
         colors.forEach {
-            batch.add(
-                ContentProviderOperation
-                    .newInsert(PlayerColors.buildPlayerUri(newName))
-                    .withValue(PlayerColors.PLAYER_COLOR, it.description)
-                    .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                    .build()
-            )
+            batch += ContentProviderOperation
+                .newInsert(PlayerColors.buildPlayerUri(newName))
+                .withValue(PlayerColors.PLAYER_COLOR, it.description)
+                .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                .build()
         }
         return batch
     }
 
-    fun createCopyPlayerColorsToUserOperations(
+    suspend fun createCopyPlayerColorsToUserOperations(
         playerName: String,
         username: String
     ): ArrayList<ContentProviderOperation> {
         val colors = loadColors(PlayerColors.buildPlayerUri(playerName))
         val batch = arrayListOf<ContentProviderOperation>()
         colors.forEach {
-            batch.add(
-                ContentProviderOperation
-                    .newInsert(PlayerColors.buildUserUri(username))
-                    .withValue(PlayerColors.PLAYER_COLOR, it.description)
-                    .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                    .build()
-            )
+            batch += ContentProviderOperation
+                .newInsert(PlayerColors.buildUserUri(username))
+                .withValue(PlayerColors.PLAYER_COLOR, it.description)
+                .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                .build()
         }
         return batch
     }
