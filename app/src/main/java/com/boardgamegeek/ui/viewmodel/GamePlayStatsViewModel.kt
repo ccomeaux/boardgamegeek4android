@@ -53,10 +53,13 @@ class GamePlayStatsViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    val players: LiveData<List<PlayPlayerEntity>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> playRepository.loadPlayersByGame(gameId)
+    val players: LiveData<List<PlayPlayerEntity>> = _gameId.switchMap { gameId ->
+        liveData {
+            val list = when (gameId) {
+                BggContract.INVALID_ID -> emptyList()
+                else -> playRepository.loadPlayersByGame(gameId)
+            }
+            emit(list)
         }
     }
 }

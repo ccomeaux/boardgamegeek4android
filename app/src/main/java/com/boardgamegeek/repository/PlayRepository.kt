@@ -166,8 +166,8 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadPlayers(BggContract.Plays.buildPlayersByUniquePlayerUri(), sortBy = sortBy)
     }
 
-    fun loadPlayersByGame(gameId: Int): LiveData<List<PlayPlayerEntity>> {
-        return playDao.loadPlayersByGame(gameId)
+    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> {
+         return playDao.loadPlayersByGame(gameId)
     }
 
     suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {

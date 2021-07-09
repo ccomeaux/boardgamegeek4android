@@ -828,21 +828,18 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    fun loadPlayersByGame(gameId: Int): LiveData<List<PlayPlayerEntity>> {
-        // be sure to exclude deleted plays!
-        if (gameId == INVALID_ID) return AbsentLiveData.create()
-        val uri = Plays.buildPlayersUri()
-        return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlayPlayers(uri, createGamePlaySelectionAndArgs(gameId))
-        }
+    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
+        // TODO be sure to exclude deleted plays!
+        if (gameId == INVALID_ID) emptyList()
+        else loadPlayPlayers(Plays.buildPlayersUri(), createGamePlaySelectionAndArgs(gameId))
     }
 
-    private fun loadPlayPlayers(
+    private suspend fun loadPlayPlayers(
         uri: Uri,
         selection: Pair<String?, Array<String>?>? = null,
         sortBy: PlayerSortBy = PlayerSortBy.NAME
-    ): List<PlayPlayerEntity> {
-        val results = arrayListOf<PlayPlayerEntity>()
+    ): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
+        val results = mutableListOf<PlayPlayerEntity>()
         val defaultSortOrder = "${PlayPlayers.START_POSITION.ascending()}, ${PlayPlayers.NAME.collateNoCase()}"
         val sortOrder = when (sortBy) {
             PlayerSortBy.NAME -> defaultSortOrder
@@ -884,7 +881,7 @@ class PlayDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return results
+        results
     }
 
     fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
