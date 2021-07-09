@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -142,40 +141,25 @@ class PlayRepository(val application: BggApplication) {
         CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
-    fun loadForStatsAsLiveData(includeIncomplete: Boolean, includeExpansions: Boolean, includeAccessories: Boolean):
-            LiveData<List<GameForPlayStatEntity>> {
-        // TODO use PlayDao if either of these is false
-        // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
-        // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
-
-        return Transformations.map(
-            gameDao.loadPlayInfoAsLiveData(
-                includeIncomplete,
-                includeExpansions,
-                includeAccessories
-            )
-        )
-        {
-            return@map filterGamesOwned(it)
-        }
-    }
-
-    fun loadForStats(
+    suspend fun loadForStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
     ): List<GameForPlayStatEntity> {
+        // TODO use PlayDao if either of these is false
+        // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
+        // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
         val playInfo = gameDao.loadPlayInfo(includeIncompletePlays, includeExpansions, includeAccessories)
         return filterGamesOwned(playInfo)
     }
 
-    private fun filterGamesOwned(playInfo: List<GameForPlayStatEntity>): List<GameForPlayStatEntity> {
+    private suspend fun filterGamesOwned(playInfo: List<GameForPlayStatEntity>): List<GameForPlayStatEntity> = withContext(Dispatchers.Default) {
         val items = collectionDao.load()
         val games = mutableListOf<GameForPlayStatEntity>()
         playInfo.forEach { game ->
             games += game.copy(isOwned = items.any { item -> item.gameId == game.id && item.own })
         }
-        return games.toList()
+        games.toList()
     }
 
     suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME): List<PlayerEntity> {

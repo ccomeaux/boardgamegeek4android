@@ -52,20 +52,20 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             showAndSurvive(PlayStatsIncludeSettingsDialogFragment())
         }
 
-        viewModel.includeIncomplete.observe(viewLifecycleOwner, Observer {
+        viewModel.includeIncomplete.observe(viewLifecycleOwner, {
             includeIncompletePlays = it ?: false
             bindAccuracyMessage()
         })
-        viewModel.includeExpansions.observe(viewLifecycleOwner, Observer {
+        viewModel.includeExpansions.observe(viewLifecycleOwner, {
             includeExpansions = it ?: false
             bindAccuracyMessage()
         })
-        viewModel.includeAccessories.observe(viewLifecycleOwner, Observer {
+        viewModel.includeAccessories.observe(viewLifecycleOwner, {
             includeAccessories = it ?: false
             bindAccuracyMessage()
         })
 
-        viewModel.getPlays().observe(viewLifecycleOwner, Observer { entity ->
+        viewModel.plays.observe(viewLifecycleOwner, { entity ->
             if (entity == null) {
                 showEmpty()
             } else {

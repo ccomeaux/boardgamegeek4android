@@ -11,12 +11,10 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggDatabase.*
@@ -423,12 +421,12 @@ class GameDao(private val context: BggApplication) {
         colors
     }
 
-    fun loadPlayInfo(
+    suspend fun loadPlayInfo(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
-    ): List<GameForPlayStatEntity> {
-        val results = arrayListOf<GameForPlayStatEntity>()
+    ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
+        val results = mutableListOf<GameForPlayStatEntity>()
         context.contentResolver.load(
             Games.CONTENT_PLAYS_URI,
             arrayOf(
@@ -470,17 +468,7 @@ class GameDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             }
         }
-        return results
-    }
-
-    fun loadPlayInfoAsLiveData(
-        includeIncompletePlays: Boolean,
-        includeExpansions: Boolean,
-        includeAccessories: Boolean
-    ): LiveData<List<GameForPlayStatEntity>> {
-        return RegisteredLiveData(context, Games.CONTENT_PLAYS_URI) {
-            return@RegisteredLiveData loadPlayInfo(includeIncompletePlays, includeExpansions, includeAccessories)
-        }
+        results
     }
 
     fun delete(gameId: Int): Int {

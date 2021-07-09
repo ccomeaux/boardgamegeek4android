@@ -27,7 +27,7 @@ class CalculatePlayStatsTask(private val application: BggApplication) : AsyncTas
             val includeExpansions = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
             val includeAccessories = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
 
-            val playStats = playRepository.loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
+            val playStats = runBlocking { playRepository.loadForStats(includeIncompletePlays, includeExpansions, includeAccessories) }
             val playStatsEntity = PlayStatsEntity(playStats, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
             playRepository.updateGameHIndex(playStatsEntity.hIndex)
 

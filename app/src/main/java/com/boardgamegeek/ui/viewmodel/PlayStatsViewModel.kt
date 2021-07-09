@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
@@ -20,23 +19,21 @@ import com.boardgamegeek.repository.PlayRepository
 class PlayStatsViewModel(application: Application) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    val includeIncomplete: LiveSharedPreference<Boolean> = LiveSharedPreference(application, LOG_PLAY_STATS_INCOMPLETE)
-    val includeExpansions: LiveSharedPreference<Boolean> = LiveSharedPreference(application, LOG_PLAY_STATS_EXPANSIONS)
-    val includeAccessories: LiveSharedPreference<Boolean> =
-        LiveSharedPreference(application, LOG_PLAY_STATS_ACCESSORIES)
+    val includeIncomplete = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_INCOMPLETE)
+    val includeExpansions = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_EXPANSIONS)
+    val includeAccessories = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_ACCESSORIES)
 
-    fun getPlays(): LiveData<PlayStatsEntity> {
-        val ld = playRepository.loadForStatsAsLiveData(
-            includeIncomplete.value ?: false,
-            includeExpansions.value ?: false,
-            includeAccessories.value ?: false
-        )
-        return Transformations.map(ld) {
-            val entity = PlayStatsEntity(it, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
+    val plays: LiveData<PlayStatsEntity> =
+        liveData {
+            val data = playRepository.loadForStats(
+                includeIncomplete.value ?: false,
+                includeExpansions.value ?: false,
+                includeAccessories.value ?: false
+            )
+            val entity = PlayStatsEntity(data, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
             playRepository.updateGameHIndex(entity.hIndex)
-            return@map entity
+            emit(entity)
         }
-    }
 
     val players: LiveData<PlayerStatsEntity> =
         liveData {
