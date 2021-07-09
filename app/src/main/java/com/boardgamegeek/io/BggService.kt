@@ -41,7 +41,7 @@ interface BggService {
     suspend fun playsByGameC(@Query("username") username: String?, @Query("id") gameId: Int, @Query("page") page: Int): PlaysResponse
 
     @GET("/xmlapi2/plays")
-    fun plays(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): Call<PlaysResponse>
+    suspend fun plays(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): PlaysResponse
 
     @GET("/xmlapi2/user")
     fun user(@Query("name") name: String?): Call<User>

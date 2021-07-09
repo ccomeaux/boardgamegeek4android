@@ -19,7 +19,7 @@ class GamePlayStatsViewModel(application: Application) : AndroidViewModel(applic
     private val refreshItemsMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 
     private val _gameId = MutableLiveData<Int>()
-    fun setGameId(gameId: Int?) {
+    fun setGameId(gameId: Int) {
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
@@ -43,10 +43,13 @@ class GamePlayStatsViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> playRepository.loadPlaysByGame(gameId) // TODO sort by  ASC
+    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = _gameId.switchMap { gameId ->
+        liveData {
+            val list = when (gameId) {
+                BggContract.INVALID_ID -> null
+                else -> playRepository.loadPlaysByGame(gameId) // TODO sort by  ASC
+            }
+            emit(RefreshableResource.success(list))
         }
     }
 

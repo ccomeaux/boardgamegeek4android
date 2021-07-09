@@ -1,35 +1,40 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
+import com.boardgamegeek.util.RateLimiter
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     private val syncTimestamp = MutableLiveData<Long>()
+    private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
+    private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
+    private val playRepository = PlayRepository(getApplication())
+    private val gameRepository = GameRepository(getApplication())
 
-    data class PlayInfo(
-            val mode: Mode,
-            val name: String = "",
-            val id: Int = BggContract.INVALID_ID,
-            val filter: FilterType = FilterType.ALL,
-            val sort: SortType = SortType.DATE
+    private data class PlayInfo(
+        val mode: Mode,
+        val name: String = "",
+        val id: Int = BggContract.INVALID_ID,
+        val filter: FilterType = FilterType.ALL,
+        val sort: SortType = SortType.DATE
     )
 
     enum class Mode {
@@ -44,9 +49,6 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
         DATE, LOCATION, GAME, LENGTH
     }
 
-    private val playRepository = PlayRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
-
     private val playInfo = MutableLiveData<PlayInfo>()
 
     private val locationRenameCount = MutableLiveData<PlayRepository.RenameLocationResults>()
@@ -54,7 +56,15 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
         result?.let {
             setLocation(it.newLocationName)
             SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-            Event(getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_play_location_change, it.count, it.count, it.oldLocationName, it.newLocationName))
+            Event(
+                getApplication<BggApplication>().resources.getQuantityString(
+                    R.plurals.msg_play_location_change,
+                    it.count,
+                    it.count,
+                    it.oldLocationName,
+                    it.newLocationName
+                )
+            )
         }
     }
 
@@ -68,37 +78,55 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     private var syncPlaysByDateTask: SyncPlaysByDateTask? = null
     private var syncPlaysByGameTask: SyncPlaysByGameTask? = null
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(playInfo) {
-        when (it.mode) {
-            Mode.ALL -> {
-                val sortType = when (it.sort) {
-                    SortType.DATE -> PlayDao.PlaysSortBy.DATE
-                    SortType.LOCATION -> PlayDao.PlaysSortBy.LOCATION
-                    SortType.GAME -> PlayDao.PlaysSortBy.GAME
-                    SortType.LENGTH -> PlayDao.PlaysSortBy.LENGTH
-                }
-                when (it.filter) {
-                    FilterType.ALL -> playRepository.getPlays(sortType)
-                    FilterType.DIRTY -> playRepository.getDraftPlays()
-                    FilterType.PENDING -> playRepository.getPendingPlays()
-                }
+    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = playInfo.switchMap {
+        liveData {
+            try {
+                val list = loadPlays(it)
+                val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(it.id)) {
+                    emit(RefreshableResource.refreshing(list))
+                    when (it.mode) {
+                        Mode.GAME -> gameRepository.refreshPlays(it.id) // TODO - full or partial?
+                        else -> playRepository.refreshPlays()
+                    }
+                    loadPlays(it)
+                } else list
+                emit(RefreshableResource.success(refreshedList))
+            } catch (e: Exception) {
+                playsRateLimiter.reset(0)
+                emit(RefreshableResource.error<List<PlayEntity>>(e, getApplication()))
             }
-            Mode.GAME -> gameRepository.getPlays(it.id)
-            Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
-            Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
-            Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)
         }
     }
 
-    val filterType: LiveData<FilterType> = Transformations.map(playInfo) {
+    private suspend fun loadPlays(it: PlayInfo) = when (it.mode) {
+        Mode.ALL -> {
+            val sortType = when (it.sort) {
+                SortType.DATE -> PlayDao.PlaysSortBy.DATE
+                SortType.LOCATION -> PlayDao.PlaysSortBy.LOCATION
+                SortType.GAME -> PlayDao.PlaysSortBy.GAME
+                SortType.LENGTH -> PlayDao.PlaysSortBy.LENGTH
+            }
+            when (it.filter) {
+                FilterType.ALL -> playRepository.getPlays(sortType)
+                FilterType.DIRTY -> playRepository.getDraftPlays()
+                FilterType.PENDING -> playRepository.getPendingPlays()
+            }
+        }
+        Mode.GAME -> gameRepository.getPlays(it.id)
+        Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
+        Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
+        Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)
+    }
+
+    val filterType: LiveData<FilterType> = playInfo.map {
         it.filter
     }
 
-    val sortType: LiveData<SortType> = Transformations.map(playInfo) {
+    val sortType: LiveData<SortType> = playInfo.map {
         it.sort
     }
 
-    val location: LiveData<String> = Transformations.map(playInfo) {
+    val location: LiveData<String> = playInfo.map {
         if (it.mode == Mode.LOCATION) it.name else ""
     }
 

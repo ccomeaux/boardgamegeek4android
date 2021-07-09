@@ -19,12 +19,15 @@ import com.boardgamegeek.pref.setPlaysNewestTimestamp
 import com.boardgamegeek.pref.setPlaysOldestTimestamp
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.RemoteConfig
-import retrofit2.Response
+import kotlinx.coroutines.runBlocking
+import retrofit2.HttpException
 import timber.log.Timber
 
-class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
+class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
+    SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
     private val playDao: PlayDao = PlayDao(application)
+    private val mapper = PlayMapper()
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
@@ -77,7 +80,6 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
      * @return true if the sync operation should cancel
      */
     private fun executeCall(username: String, minDate: String?, maxDate: String?): Boolean {
-        var response: PlaysResponse?
         var page = 1
         do {
             if (isCancelled) {
@@ -89,28 +91,25 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
             val message = formatNotificationMessage(minDate, maxDate, page)
             updateProgressNotification(message)
-            val call = service.plays(username, minDate, maxDate, page)
-            val r: Response<PlaysResponse>
+
+            var response: PlaysResponse?
+
             try {
-                r = call.execute()
-                if (!r.isSuccessful) {
-                    showError(message, r.code())
-                    syncResult.stats.numIoExceptions++
-                    return true
-                }
+                response = runBlocking { service.plays(username, minDate, maxDate, page) }
+                val plays = mapper.map(response.plays, startTime)
+                persist(plays)
+                updateTimestamps(plays)
             } catch (e: Exception) {
-                showError(message, e)
+                if (e is HttpException) {
+                    showError(message, e.code())
+                } else {
+                    showError(message, e)
+                }
                 syncResult.stats.numIoExceptions++
                 return true
             }
-
-            response = r.body()
-            val mapper = PlayMapper()
-            val plays = mapper.map(response?.plays, startTime)
-            persist(plays)
-            updateTimestamps(plays)
             page++
-        } while (response != null && response.hasMorePages())
+        } while (response?.hasMorePages() == true)
         return false
     }
 

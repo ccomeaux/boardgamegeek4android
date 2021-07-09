@@ -5,39 +5,60 @@ import androidx.lifecycle.*
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP
-import com.boardgamegeek.extensions.PlayStats
-import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.util.RateLimiter
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
+    private val playRepository = PlayRepository(getApplication())
+    private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
     private val syncTimestamp = MutableLiveData<Long>()
+    private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)
+    private val n = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
 
     init {
         refresh()
     }
 
-    private val playRepository = PlayRepository(getApplication())
+    val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
+    val syncPlaysTimestamp = LiveSharedPreference<Long>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
+    val oldestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
+    val newestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(syncTimestamp) {
-        playRepository.getPlays()
+    val plays = syncTimestamp.switchMap {
+        liveData {
+            try {
+                val list = playRepository.getPlays()
+                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
+                    emit(RefreshableResource.refreshing(list))
+                    playRepository.refreshPlays()
+                    playRepository.getPlays()
+
+                } else list
+                emit(RefreshableResource.success(refreshedList))
+            } catch (e: Exception) {
+                playsRateLimiter.reset(0)
+                emit(RefreshableResource.error<List<PlayEntity>>(e, getApplication()))
+            }
+        }
     }
 
-    val playCount: LiveData<Int> = Transformations.map(plays) { list ->
-        list?.data?.sumOf { it.quantity } ?: 0
+    val playCount: LiveData<Int> = plays.map { list ->
+        list.data?.sumOf { it.quantity } ?: 0
     }
 
-    val playsInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
-        list?.data?.filter { it.dirtyTimestamp > 0L }
+    val playsInProgress: LiveData<List<PlayEntity>> = plays.map { list ->
+        list.data?.filter { it.dirtyTimestamp > 0L }.orEmpty()
     }
 
-    val playsNotInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
-        list?.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY)
+    val playsNotInProgress: LiveData<List<PlayEntity>> = plays.map { list ->
+        list.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY).orEmpty()
     }
 
     val players: LiveData<List<PlayerEntity>> = plays.switchMap {
@@ -64,9 +85,6 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
         )
     }
 
-    private val h: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), PlayStats.KEY_GAME_H_INDEX)
-    private val n: LiveSharedPreference<Int> =
-        LiveSharedPreference(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
     val hIndex = MediatorLiveData<HIndexEntity>().apply {
         addSource(h) {
             value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
@@ -76,17 +94,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    val oldestSyncDate: LiveSharedPreference<Long> =
-        LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
-    val newestSyncDate: LiveSharedPreference<Long> =
-        LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
-
-    val syncPlays: LiveSharedPreference<Boolean> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    val syncPlaysTimestamp: LiveSharedPreference<Long> =
-        LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
-
     fun refresh(): Boolean {
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         val value = syncTimestamp.value
         return if (value == null || value.isOlderThan(1, TimeUnit.SECONDS)) {
             syncTimestamp.postValue(System.currentTimeMillis())

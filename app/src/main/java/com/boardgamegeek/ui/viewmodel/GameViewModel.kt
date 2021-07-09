@@ -220,7 +220,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         liveData {
             try {
                 val gameId = game.data?.id ?: BggContract.INVALID_ID
-                val plays = if (gameId == BggContract.INVALID_ID) emptyList() else gameRepository.getPlaysC(gameId)
+                val plays = if (gameId == BggContract.INVALID_ID) emptyList() else gameRepository.getPlays(gameId)
                 val refreshedPlays =
                     if (arePlaysRefreshing.compareAndSet(false, true)) {
                         val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
@@ -232,6 +232,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                             lastUpdated.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES) -> {
                                 emit(RefreshableResource.refreshing(plays))
                                 gameRepository.refreshPartialPlays(gameId)
+                                gameRepository.getPlays(gameId)
                             }
                             else -> plays
                         }.also { arePlaysRefreshing.set(false) }

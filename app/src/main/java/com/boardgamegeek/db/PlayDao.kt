@@ -138,146 +138,41 @@ class PlayDao(private val context: BggApplication) {
         players
     }
 
-    fun loadPlays(sortBy: PlaysSortBy): LiveData<List<PlayEntity>> {
-        val uri = Plays.CONTENT_URI
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlays(uri, createPlaySelectionAndArgs(), sortBy)
+    suspend fun loadPlays(sortBy: PlaysSortBy) = loadPlays(Plays.CONTENT_URI, createPlaySelectionAndArgs(), sortBy)
+
+    suspend fun loadPendingPlays() = loadPlays(Plays.CONTENT_URI, createPendingPlaySelectionAndArgs())
+
+    suspend fun loadDraftPlays() = loadPlays(Plays.CONTENT_URI, createDraftPlaySelectionAndArgs())
+
+    suspend fun loadPlaysByGame(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): List<PlayEntity> {
+        return if (gameId == INVALID_ID) emptyList()
+        else loadPlays(Plays.CONTENT_URI, createGamePlaySelectionAndArgs(gameId), sortBy)
+    }
+
+    suspend fun loadPlaysByLocation(locationName: String): List<PlayEntity> {
+        return if (locationName.isBlank()) emptyList()
+        else loadPlays(Plays.CONTENT_URI, createLocationPlaySelectionAndArgs(locationName))
+    }
+
+    suspend fun loadPlaysByUsername(username: String): List<PlayEntity> {
+        return if (username.isBlank()) emptyList()
+        else loadPlays(Plays.buildPlayersByPlayUri(), createUsernamePlaySelectionAndArgs(username))
+    }
+
+    suspend fun loadPlaysByPlayerName(playerName: String): List<PlayEntity> {
+        return if (playerName.isBlank()) emptyList()
+        else loadPlays(Plays.buildPlayersByPlayUri(), createPlayerNamePlaySelectionAndArgs(playerName))
+    }
+
+    suspend fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
+        return if (name.isBlank() || gameId == INVALID_ID) emptyList() else {
+            val uri = Plays.buildPlayersByPlayUri()
+            val selection = createNamePlaySelectionAndArgs(name, isUser)
+            loadPlays(uri, addGamePlaySelectionAndArgs(selection, gameId))
         }
     }
 
-    fun loadPendingPlays(): LiveData<List<PlayEntity>> {
-        val uri = Plays.CONTENT_URI
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlays(uri, createPendingPlaySelectionAndArgs())
-        }
-    }
-
-    fun loadDraftPlays(): LiveData<List<PlayEntity>> {
-        val uri = Plays.CONTENT_URI
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlays(uri, createDraftPlaySelectionAndArgs())
-        }
-    }
-
-    fun loadPlaysByGame(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): LiveData<List<PlayEntity>> {
-        if (gameId == INVALID_ID) return AbsentLiveData.create()
-        val uri = Plays.CONTENT_URI
-        return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlays(uri, createGamePlaySelectionAndArgs(gameId), sortBy)
-        }
-    }
-
-    suspend fun loadPlaysByGameC(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): List<PlayEntity> =
-        withContext(Dispatchers.IO) {
-            if (gameId == INVALID_ID) emptyList() else
-                loadPlaysC(Plays.CONTENT_URI, createGamePlaySelectionAndArgs(gameId), sortBy)
-        }
-
-    fun loadPlaysByLocation(locationName: String): LiveData<List<PlayEntity>> {
-        if (locationName.isBlank()) return AbsentLiveData.create()
-        val uri = Plays.CONTENT_URI
-        return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlays(uri, createLocationPlaySelectionAndArgs(locationName))
-        }
-    }
-
-    fun loadPlaysByUsername(username: String): LiveData<List<PlayEntity>> {
-        if (username.isBlank()) return AbsentLiveData.create()
-        val uri = Plays.buildPlayersByPlayUri()
-        return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlays(uri, createUsernamePlaySelectionAndArgs(username))
-        }
-    }
-
-    fun loadPlaysByPlayerName(playerName: String): LiveData<List<PlayEntity>> {
-        if (playerName.isBlank()) return AbsentLiveData.create()
-        val uri = Plays.buildPlayersByPlayUri()
-        return RegisteredLiveData(context, uri, false) {
-            return@RegisteredLiveData loadPlays(uri, createPlayerNamePlaySelectionAndArgs(playerName))
-        }
-    }
-
-    fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
-        val uri = Plays.buildPlayersByPlayUri()
-        val selection = createNamePlaySelectionAndArgs(name, isUser)
-        return loadPlays(uri, addGamePlaySelectionAndArgs(selection, gameId))
-    }
-
-    private fun loadPlays(
-        uri: Uri,
-        selection: Pair<String?, Array<String>?>,
-        sortBy: PlaysSortBy = PlaysSortBy.DATE
-    ): ArrayList<PlayEntity> {
-        val list = arrayListOf<PlayEntity>()
-        val sortOrder = when (sortBy) {
-            PlaysSortBy.DATE -> ""
-            PlaysSortBy.LOCATION -> Plays.LOCATION.ascending()
-            PlaysSortBy.GAME -> Plays.ITEM_NAME.ascending()
-            PlaysSortBy.LENGTH -> Plays.LENGTH.descending()
-        }
-        context.contentResolver.load(
-            uri,
-            arrayOf(
-                Plays._ID,
-                Plays.PLAY_ID,
-                Plays.DATE,
-                Plays.OBJECT_ID,
-                Plays.ITEM_NAME,
-                Plays.QUANTITY,
-                Plays.LENGTH,
-                Plays.LOCATION,
-                Plays.INCOMPLETE,
-                Plays.NO_WIN_STATS,
-                Plays.COMMENTS,
-                Plays.SYNC_TIMESTAMP,
-                Plays.PLAYER_COUNT,
-                Plays.DIRTY_TIMESTAMP,
-                Plays.UPDATE_TIMESTAMP,
-                Plays.DELETE_TIMESTAMP,
-                Plays.START_TIME,
-                Games.IMAGE_URL,
-                Games.THUMBNAIL_URL,
-                Games.HERO_IMAGE_URL,
-                Games.UPDATED_PLAYS,
-            ),
-            selection.first,
-            selection.second,
-            sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    list.add(
-                        PlayEntity(
-                            internalId = it.getLong(0),
-                            playId = it.getInt(1),
-                            rawDate = it.getString(2),
-                            gameId = it.getInt(3),
-                            gameName = it.getString(4),
-                            quantity = it.getIntOrNull(5) ?: 1,
-                            length = it.getIntOrNull(6) ?: 0,
-                            location = it.getStringOrNull(7).orEmpty(),
-                            incomplete = it.getInt(8) == 1,
-                            noWinStats = it.getInt(9) == 1,
-                            comments = it.getStringOrNull(10).orEmpty(),
-                            syncTimestamp = it.getLong(11),
-                            initialPlayerCount = it.getInt(12),
-                            dirtyTimestamp = it.getLong(13),
-                            updateTimestamp = it.getLong(14),
-                            deleteTimestamp = it.getLong(15),
-                            startTime = it.getLong(16),
-                            imageUrl = it.getStringOrNull(17).orEmpty(),
-                            thumbnailUrl = it.getStringOrNull(18).orEmpty(),
-                            heroImageUrl = it.getStringOrNull(19).orEmpty(),
-                            updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
-                        )
-                    )
-                } while (it.moveToNext())
-            }
-        }
-        return list
-    }
-
-    private suspend fun loadPlaysC(
+    private suspend fun loadPlays(
         uri: Uri,
         selection: Pair<String?, Array<String>?>,
         sortBy: PlaysSortBy = PlaysSortBy.DATE

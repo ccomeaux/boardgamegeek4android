@@ -1,37 +1,28 @@
 package com.boardgamegeek.repository
 
-import android.content.ContentValues
 import androidx.core.content.contentValuesOf
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.PlaysResponse
-import com.boardgamegeek.livedata.RefreshableResourceLoader
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.ImageUtils.getImageId
-import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Call
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class GameRepository(val application: BggApplication) {
     private val dao = GameDao(application)
     private val playDao = PlayDao(application)
     private val bggService = Adapter.createForXml()
-    private val refreshPlaysPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
-    private val refreshPlaysFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
+    private val mapper = PlayMapper()
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
     }
@@ -77,11 +68,8 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
-    suspend fun getPlaysC(gameId: Int) = playDao.loadPlaysByGameC(gameId)
-
     suspend fun refreshPlays(gameId: Int): List<PlayEntity> = withContext(Dispatchers.IO) {
         val plays = mutableListOf<PlayEntity>()
-        val mapper = PlayMapper()
         val timestamp = System.currentTimeMillis()
         var page = 1
         do {
@@ -99,77 +87,15 @@ class GameRepository(val application: BggApplication) {
         plays
     }
 
-    suspend fun refreshPartialPlays(gameId: Int): List<PlayEntity> = withContext(Dispatchers.IO) {
-        val mapper = PlayMapper()
+    suspend fun refreshPartialPlays(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = bggService.playsByGameC(username, gameId, 1)
         val plays = mapper.map(response.plays, timestamp)
         playDao.save(plays, timestamp)
         CalculatePlayStatsTask(application).executeAsyncTask()
-        plays
     }
 
-    fun getPlays(gameId: Int): LiveData<RefreshableResource<List<PlayEntity>>> {
-        return object : RefreshableResourceLoader<List<PlayEntity>, PlaysResponse>(application) {
-            var timestamp = 0L
-            var isFullRefresh = false
-
-            override val typeDescriptionResId: Int
-                get() = R.string.title_plays
-
-            override fun loadFromDatabase(): LiveData<List<PlayEntity>> {
-                return playDao.loadPlaysByGame(gameId)
-            }
-
-            override fun shouldRefresh(data: List<PlayEntity>?): Boolean {
-                if (isFullRefresh) return false
-                if (gameId == BggContract.INVALID_ID || username.isNullOrBlank()) return false
-                if (data == null) return true
-                val syncTimestamp = data.firstOrNull()?.updatedPlaysTimestamp ?: 0L
-                return if (syncTimestamp.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS)) {
-                    isFullRefresh = true
-                    true
-                } else {
-                    isFullRefresh = false
-                    syncTimestamp.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES)
-                }
-            }
-
-            override fun createCall(page: Int): Call<PlaysResponse> {
-                if (page == 1) timestamp = System.currentTimeMillis()
-                return bggService.playsByGame(username, gameId, page)
-            }
-
-            override fun saveCallResult(result: PlaysResponse) {
-                val mapper = PlayMapper()
-                val plays = mapper.map(result.plays, timestamp)
-                playDao.save(plays, timestamp)
-                Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
-            }
-
-            override fun hasMorePages(result: PlaysResponse, currentPage: Int) = isFullRefresh && result.hasMorePages()
-
-            override fun onRefreshSucceeded() {
-                if (isFullRefresh) {
-                    playDao.deleteUnupdatedPlays(gameId, timestamp)
-
-                    val values = ContentValues(1)
-                    values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
-                    dao.update(gameId, values)
-                }
-                CalculatePlayStatsTask(application).executeAsyncTask()
-                isFullRefresh = false
-            }
-
-            override fun onRefreshFailed() {
-                isFullRefresh = false
-            }
-
-            override fun onRefreshCancelled() {
-                isFullRefresh = false
-            }
-        }.asLiveData()
-    }
+    suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)
 
     suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
 
