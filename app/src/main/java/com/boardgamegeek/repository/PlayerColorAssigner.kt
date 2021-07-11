@@ -1,7 +1,6 @@
 package com.boardgamegeek.repository
 
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.model.Play
@@ -15,7 +14,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val p
     private val playersNeedingColor = mutableListOf<PlayerColorChoices>()
     private val results = mutableListOf<PlayerResult>()
     private var round = 0
-    private val dao = PlayDao(application)
+    private val repository = PlayRepository(application)
 
     suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
@@ -35,8 +34,8 @@ class PlayerColorAssigner(private val application: BggApplication, private val p
 
         playersNeedingColor.forEach { player ->
             val colors = when (player.type) {
-                PlayerType.USER -> dao.loadUserColors(player.name)
-                PlayerType.NON_USER -> dao.loadPlayerColors(player.name)
+                PlayerType.USER -> repository.loadUserColors(player.name)
+                PlayerType.NON_USER -> repository.loadPlayerColors(player.name)
             }
             player.setColors(colors.filter { colorsAvailable.contains(it.description) })
         }

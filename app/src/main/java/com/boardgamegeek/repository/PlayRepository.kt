@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
@@ -167,47 +166,51 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> {
-         return playDao.loadPlayersByGame(gameId)
+        return playDao.loadPlayersByGame(gameId)
     }
 
     suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
         return playDao.loadPlayersForStats(includeIncompletePlays)
     }
 
-    fun loadUserPlayer(username: String): LiveData<PlayerEntity> {
-        return playDao.loadUserPlayerAsLiveData(username)
+    suspend fun loadUserPlayer(username: String): PlayerEntity? {
+        return playDao.loadUserPlayer(username)
     }
 
-    fun loadNonUserPlayer(playerName: String): LiveData<PlayerEntity> {
-        return playDao.loadNonUserPlayerAsLiveData(playerName)
+    suspend fun loadNonUserPlayer(playerName: String): PlayerEntity? {
+        return playDao.loadNonUserPlayer(playerName)
     }
 
     suspend fun loadUserColors(username: String): List<PlayerColorEntity> {
-        return playDao.loadUserColors(username)
+        return playDao.loadColors(BggContract.PlayerColors.buildUserUri(username))
     }
 
     suspend fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
-        return playDao.loadPlayerColors(playerName)
+        return playDao.loadColors(BggContract.PlayerColors.buildPlayerUri(playerName))
     }
 
-    fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
-        application.appExecutors.diskIO.execute {
-            playDao.savePlayerColors(playerName, colors)
-        }
+    suspend fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
+        playDao.saveColors(BggContract.PlayerColors.buildPlayerUri(playerName), colors)
     }
 
-    fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
-        application.appExecutors.diskIO.execute {
-            playDao.saveUserColors(username, colors)
-        }
+    suspend fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
+        playDao.saveColors(BggContract.PlayerColors.buildUserUri(username), colors)
     }
 
-    fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
-        return playDao.loadUserPlayerDetail(username)
+    suspend fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
+        return playDao.loadPlayerDetail(
+            BggContract.Plays.buildPlayerUri(),
+            "${BggContract.PlayPlayers.USER_NAME}=?",
+            arrayOf(username)
+        )
     }
 
-    fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
-        return playDao.loadNonUserPlayerDetail(playerName)
+    suspend fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
+        return playDao.loadPlayerDetail(
+            BggContract.Plays.buildPlayerUri(),
+            "${BggContract.PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${BggContract.PlayPlayers.NAME}=?",
+            arrayOf("", playerName)
+        )
     }
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): List<LocationEntity> {
@@ -321,7 +324,7 @@ class PlayRepository(val application: BggApplication) {
         application.appExecutors.diskIO.execute {
             val id = playDao.save(play)
 
-            // if the play is "current" (for today and about to be synced), remember some things, like the location and players to be used in the next play
+            // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
             val isUpdating = play.updateTimestamp > 0
             val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
             val isToday = play.dateInMillis.isToday() || endTime.isToday()

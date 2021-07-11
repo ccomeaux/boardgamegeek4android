@@ -9,7 +9,6 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.LiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
@@ -28,8 +27,6 @@ import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.extensions.rowExists
 import com.boardgamegeek.extensions.whereEqualsOrNull
 import com.boardgamegeek.extensions.whereZeroOrNull
-import com.boardgamegeek.livedata.AbsentLiveData
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -292,29 +289,23 @@ class PlayDao(private val context: BggApplication) {
         return loadPlayers(Plays.buildPlayersByUniquePlayerUri(), selection to selectionArgs, PlayerSortBy.PLAY_COUNT)
     }
 
-    fun loadUserPlayerAsLiveData(username: String): LiveData<PlayerEntity> {
-        val uri = Plays.buildPlayersByUniqueUserUri()
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlayer(
-                uri,
-                "${PlayPlayers.USER_NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
-                arrayOf(username)
-            )
-        }
+    suspend fun loadUserPlayer(username: String): PlayerEntity? = withContext(Dispatchers.IO) {
+        loadPlayer(
+            Plays.buildPlayersByUniqueUserUri(),
+            "${PlayPlayers.USER_NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
+            arrayOf(username)
+        )
     }
 
-    fun loadNonUserPlayerAsLiveData(playerName: String): LiveData<PlayerEntity> {
-        val uri = Plays.buildPlayersByUniquePlayerUri()
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData loadPlayer(
-                uri,
-                "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
-                arrayOf("", playerName)
-            )
-        }
+    suspend fun loadNonUserPlayer(playerName: String): PlayerEntity? = withContext(Dispatchers.IO) {
+        loadPlayer(
+            Plays.buildPlayersByUniquePlayerUri(),
+            "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=? AND ${Plays.NO_WIN_STATS.whereZeroOrNull()}",
+            arrayOf("", playerName)
+        )
     }
 
-    private fun loadPlayer(uri: Uri, selection: String, selectionArgs: Array<String>): PlayerEntity? {
+    private suspend fun loadPlayer(uri: Uri, selection: String, selectionArgs: Array<String>): PlayerEntity? = withContext(Dispatchers.IO) {
         context.contentResolver.load(
             uri,
             arrayOf(
@@ -326,7 +317,7 @@ class PlayDao(private val context: BggApplication) {
             selection,
             selectionArgs
         )?.use {
-            return if (it.moveToFirst()) {
+            if (it.moveToFirst()) {
                 PlayerEntity(
                     name = it.getStringOrNull(0).orEmpty(),
                     username = it.getStringOrNull(1).orEmpty(),
@@ -335,18 +326,13 @@ class PlayDao(private val context: BggApplication) {
                 )
             } else null
         }
-        return null
-    }
-
-    suspend fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
-        return loadColors(PlayerColors.buildPlayerUri(playerName))
     }
 
     suspend fun loadUserColors(playerName: String): List<PlayerColorEntity> {
         return loadColors(PlayerColors.buildUserUri(playerName))
     }
 
-    private suspend fun loadColors(uri: Uri): List<PlayerColorEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadColors(uri: Uri): List<PlayerColorEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<PlayerColorEntity>()
         context.contentResolver.load(
             uri,
@@ -368,25 +354,7 @@ class PlayDao(private val context: BggApplication) {
         results
     }
 
-    fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
-        val uri = Plays.buildPlayerUri()
-        return loadPlayerDetail(
-            uri,
-            "${PlayPlayers.USER_NAME}=?",
-            arrayOf(username)
-        )
-    }
-
-    fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
-        val uri = Plays.buildPlayerUri()
-        return loadPlayerDetail(
-            uri,
-            "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=?",
-            arrayOf("", playerName)
-        )
-    }
-
-    private fun loadPlayerDetail(uri: Uri, selection: String, selectionArgs: Array<String>): List<PlayerDetailEntity> {
+    suspend fun loadPlayerDetail(uri: Uri, selection: String, selectionArgs: Array<String>): List<PlayerDetailEntity> = withContext(Dispatchers.IO) {
         val list = mutableListOf<PlayerDetailEntity>()
         context.contentResolver.load(
             uri,
@@ -412,7 +380,7 @@ class PlayDao(private val context: BggApplication) {
                 } while (it.moveToNext())
             } else list
         }
-        return list
+        list
     }
 
     enum class LocationSortBy {
@@ -884,27 +852,18 @@ class PlayDao(private val context: BggApplication) {
         results
     }
 
-    fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
-        saveColors(PlayerColors.buildPlayerUri(playerName), colors)
-    }
-
-    fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
-        saveColors(PlayerColors.buildUserUri(username), colors)
-    }
-
-    private fun saveColors(uri: Uri, colors: List<PlayerColorEntity>?) {
+    suspend fun saveColors(uri: Uri, colors: List<PlayerColorEntity>?) = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
         resolver.delete(uri, null, null) // TODO change to batch
         if (colors != null && colors.isNotEmpty()) {
-            val batch = ArrayList<ContentProviderOperation>()
+            val batch = arrayListOf<ContentProviderOperation>()
             colors.forEach {
                 if (it.description.isNotBlank()) {
                     val sortUri = PlayerColors.addSortUri(uri, it.sortOrder)
                     val builder = if (context.contentResolver.rowExists(sortUri)) {
                         ContentProviderOperation.newUpdate(sortUri)
                     } else {
-                        ContentProviderOperation.newInsert(uri)
-                            .withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                        ContentProviderOperation.newInsert(uri).withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
                     }
                     batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, it.description).build())
                 }

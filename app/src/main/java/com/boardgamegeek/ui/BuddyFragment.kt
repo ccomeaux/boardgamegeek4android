@@ -70,7 +70,7 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
 
         viewModel.player.observe(viewLifecycleOwner, { player ->
             if (playerName == null) {
-                playerName = player.name
+                playerName = player?.name
                 nicknameView.text = playerName
                 nicknameView.setOnClickListener {
                     requireActivity().showAndSurvive(RenamePlayerDialogFragment.newInstance(playerName))

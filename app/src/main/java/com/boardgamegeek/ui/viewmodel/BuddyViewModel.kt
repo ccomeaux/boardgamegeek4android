@@ -7,7 +7,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
@@ -58,13 +57,16 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val player: LiveData<PlayerEntity> = Transformations.switchMap(_user) { user ->
-        val name = user.first
-        when {
-            name == null || name.isBlank() -> AbsentLiveData.create()
-            user.second == TYPE_USER -> playRepository.loadUserPlayer(name)
-            user.second == TYPE_PLAYER -> playRepository.loadNonUserPlayer(name)
-            else -> AbsentLiveData.create()
+    val player: LiveData<PlayerEntity?> = _user.switchMap { user ->
+        liveData {
+            val name = user.first
+            val p = when {
+                name == null || name.isBlank() -> null
+                user.second == TYPE_USER -> playRepository.loadUserPlayer(name)
+                user.second == TYPE_PLAYER -> playRepository.loadNonUserPlayer(name)
+                else -> null
+            }
+            emit(p)
         }
     }
 

@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.ColorUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class PlayerColorsViewModel(application: Application) : AndroidViewModel(application) {
@@ -30,12 +32,14 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             user.value?.let {
                 val name = it.first
-                _colors.value = when {
-                    name == null || name.isBlank() -> null
-                    it.second == TYPE_USER -> playRepository.loadUserColors(name)
-                    it.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
-                    else -> null
-                }
+                _colors.postValue(
+                    when {
+                        name == null || name.isBlank() -> null
+                        it.second == TYPE_USER -> playRepository.loadUserColors(name)
+                        it.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
+                        else -> null
+                    }
+                )
             }
         }
     }
@@ -51,45 +55,50 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun generate() {
-        var order = 1
-        val newColors = mutableListOf<PlayerColorEntity>()
+        viewModelScope.launch {
+            val newColors = mutableListOf<PlayerColorEntity>()
 
-        val availableColors = ColorUtils.limitedColorList
+            var order = 1
 
-        val playerDetail = user.value?.let {
-            val name = it.first
-            when {
-                name == null || name.isBlank() -> null
-                it.second == TYPE_USER -> playRepository.loadUserPlayerDetail(name)
-                it.second == TYPE_PLAYER -> playRepository.loadNonUserPlayerDetail(name)
-                else -> null
+            val availableColors = ColorUtils.limitedColorList
+
+            val playerDetail = user.value?.let {
+                val name = it.first
+                when {
+                    name == null || name.isBlank() -> null
+                    it.second == TYPE_USER -> playRepository.loadUserPlayerDetail(name)
+                    it.second == TYPE_PLAYER -> playRepository.loadNonUserPlayerDetail(name)
+                    else -> null
+                }
+            }
+            withContext(Dispatchers.Default) {
+                if (playerDetail != null) {
+                    val colorNames = availableColors.map { it.first }
+                    val playedColors = playerDetail.asSequence()
+                        .filter { colorNames.contains(it.color) } // only include known colors
+                        .groupBy { it.color }
+                        .map { it.key to it.value.size }
+                        .sortedByDescending { it.second }
+                        .map { it.first }
+                        .toMutableList()
+                    while (playedColors.isNotEmpty()) {
+                        val description = playedColors.removeAt(0)
+                        val color = PlayerColorEntity(description, order++)
+                        availableColors.remove(availableColors.find { it.first == description })
+                        newColors.add(color)
+                    }
+                }
+
+                if (availableColors.isNotEmpty()) {
+                    availableColors.shuffle()
+                    for (color in availableColors) {
+                        newColors.add(PlayerColorEntity(color.first, order++))
+                    }
+                }
+
+                _colors.postValue(newColors)
             }
         }
-        if (playerDetail != null) {
-            val colorNames = availableColors.map { it.first }
-            val playedColors = playerDetail.asSequence()
-                .filter { colorNames.contains(it.color) } // only include known colors
-                .groupBy { it.color }
-                .map { it.key to it.value.size }
-                .sortedByDescending { it.second }
-                .map { it.first }
-                .toMutableList()
-            while (playedColors.isNotEmpty()) {
-                val description = playedColors.removeAt(0)
-                val color = PlayerColorEntity(description, order++)
-                availableColors.remove(availableColors.find { it.first == description })
-                newColors.add(color)
-            }
-        }
-
-        if (availableColors.isNotEmpty()) {
-            availableColors.shuffle()
-            for (color in availableColors) {
-                newColors.add(PlayerColorEntity(color.first, order++))
-            }
-        }
-
-        _colors.value = newColors
     }
 
     fun clear() {
@@ -176,12 +185,14 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
 
     fun save() {
         _user.value?.let {
-            val name = it.first
-            when {
-                name == null || name.isBlank() -> null
-                it.second == TYPE_USER -> playRepository.saveUserColors(name, colors.value)
-                it.second == TYPE_PLAYER -> playRepository.savePlayerColors(name, colors.value)
-                else -> null
+            viewModelScope.launch {
+                val name = it.first.orEmpty()
+                if (name.isNotBlank()) {
+                    when (it.second) {
+                        TYPE_USER -> playRepository.saveUserColors(name, colors.value)
+                        TYPE_PLAYER -> playRepository.savePlayerColors(name, colors.value)
+                    }
+                }
             }
         }
     }
