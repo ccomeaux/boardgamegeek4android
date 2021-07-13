@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
-import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -20,13 +19,15 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Plays
+import com.boardgamegeek.provider.BggContract.PlayerColors
+import com.boardgamegeek.provider.BggContract.PlayPlayers
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.*
 import kotlin.math.min
 
 class PlayRepository(val application: BggApplication) {
@@ -161,7 +162,7 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME): List<PlayerEntity> {
-        return playDao.loadPlayers(BggContract.Plays.buildPlayersByUniquePlayerUri(), sortBy = sortBy)
+        return playDao.loadPlayers(Plays.buildPlayersByUniquePlayerUri(), sortBy = sortBy)
     }
 
     suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> {
@@ -181,33 +182,33 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun loadUserColors(username: String): List<PlayerColorEntity> {
-        return playDao.loadColors(BggContract.PlayerColors.buildUserUri(username))
+        return playDao.loadColors(PlayerColors.buildUserUri(username))
     }
 
     suspend fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
-        return playDao.loadColors(BggContract.PlayerColors.buildPlayerUri(playerName))
+        return playDao.loadColors(PlayerColors.buildPlayerUri(playerName))
     }
 
     suspend fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
-        playDao.saveColors(BggContract.PlayerColors.buildPlayerUri(playerName), colors)
+        playDao.saveColors(PlayerColors.buildPlayerUri(playerName), colors)
     }
 
     suspend fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
-        playDao.saveColors(BggContract.PlayerColors.buildUserUri(username), colors)
+        playDao.saveColors(PlayerColors.buildUserUri(username), colors)
     }
 
     suspend fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
         return playDao.loadPlayerDetail(
-            BggContract.Plays.buildPlayerUri(),
-            "${BggContract.PlayPlayers.USER_NAME}=?",
+            Plays.buildPlayerUri(),
+            "${PlayPlayers.USER_NAME}=?",
             arrayOf(username)
         )
     }
 
     suspend fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
         return playDao.loadPlayerDetail(
-            BggContract.Plays.buildPlayerUri(),
-            "${BggContract.PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${BggContract.PlayPlayers.NAME}=?",
+            Plays.buildPlayerUri(),
+            "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=?",
             arrayOf("", playerName)
         )
     }
@@ -220,9 +221,9 @@ class PlayRepository(val application: BggApplication) {
         playDao.upsert(
             internalId,
             contentValuesOf(
-                BggContract.Plays.DELETE_TIMESTAMP to 0,
-                BggContract.Plays.UPDATE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+                Plays.DELETE_TIMESTAMP to 0,
+                Plays.UPDATE_TIMESTAMP to 0,
+                Plays.DIRTY_TIMESTAMP to 0,
             )
         )
         internalId
@@ -232,9 +233,9 @@ class PlayRepository(val application: BggApplication) {
         playDao.upsert(
             internalId,
             contentValuesOf(
-                BggContract.Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
-                BggContract.Plays.DELETE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+                Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+                Plays.DELETE_TIMESTAMP to 0,
+                Plays.DIRTY_TIMESTAMP to 0,
             )
         )
         internalId
@@ -244,9 +245,9 @@ class PlayRepository(val application: BggApplication) {
         playDao.upsert(
             internalId,
             contentValuesOf(
-                BggContract.Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
-                BggContract.Plays.UPDATE_TIMESTAMP to 0,
-                BggContract.Plays.DIRTY_TIMESTAMP to 0,
+                Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                Plays.UPDATE_TIMESTAMP to 0,
+                Plays.DIRTY_TIMESTAMP to 0,
             )
         )
         internalId
@@ -276,37 +277,36 @@ class PlayRepository(val application: BggApplication) {
 
     data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
 
-    fun renameLocation(
+    suspend fun renameLocation(
         oldLocationName: String,
         newLocationName: String,
-        resultLiveData: MutableLiveData<RenameLocationResults>? = null
-    ) {
-        val batch = ArrayList<ContentProviderOperation>()
+    ): RenameLocationResults = withContext(Dispatchers.IO) {
+        val batch = arrayListOf<ContentProviderOperation>()
 
-        val values = contentValuesOf(BggContract.Plays.LOCATION to newLocationName)
-        var cpo = ContentProviderOperation
-            .newUpdate(BggContract.Plays.CONTENT_URI)
-            .withValues(values)
-            .withSelection(
-                "${BggContract.Plays.LOCATION}=? AND (${BggContract.Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${BggContract.Plays.DIRTY_TIMESTAMP.greaterThanZero()})",
-                arrayOf(oldLocationName)
-            )
-        batch.add(cpo.build())
+        val values = contentValuesOf(Plays.LOCATION to newLocationName)
+        batch.add(
+            ContentProviderOperation
+                .newUpdate(Plays.CONTENT_URI)
+                .withValues(values)
+                .withSelection(
+                    "${Plays.LOCATION}=? AND (${Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${Plays.DIRTY_TIMESTAMP.greaterThanZero()})",
+                    arrayOf(oldLocationName)
+                ).build()
+        )
 
-        values.put(BggContract.Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
-        cpo = ContentProviderOperation
-            .newUpdate(BggContract.Plays.CONTENT_URI)
-            .withValues(values)
-            .withSelection(
-                "${BggContract.Plays.LOCATION}=? AND ${BggContract.Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${BggContract.Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
-                arrayOf(oldLocationName)
-            )
-        batch.add(cpo.build())
-        application.appExecutors.diskIO.execute {
-            val results = application.contentResolver.applyBatch(batch)
-            val result = RenameLocationResults(oldLocationName, newLocationName, results.sumBy { it.count ?: 0 })
-            resultLiveData?.postValue(result)
-        }
+        values.put(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
+        batch.add(
+            ContentProviderOperation
+                .newUpdate(Plays.CONTENT_URI)
+                .withValues(values)
+                .withSelection(
+                    "${Plays.LOCATION}=? AND ${Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
+                    arrayOf(oldLocationName)
+                ).build()
+        )
+
+        val results = application.contentResolver.applyBatch(batch)
+        RenameLocationResults(oldLocationName, newLocationName, results.sumOf { it.count ?: 0 })
     }
 
     suspend fun addUsernameToPlayer(playerName: String, username: String) = withContext(Dispatchers.IO) {
@@ -394,6 +394,5 @@ class PlayRepository(val application: BggApplication) {
     companion object {
         private const val NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0
         private const val NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX = 1
-
     }
 }

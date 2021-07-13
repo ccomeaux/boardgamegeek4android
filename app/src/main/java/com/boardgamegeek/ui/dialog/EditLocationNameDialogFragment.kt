@@ -25,7 +25,7 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
                 param("Action", "Edit")
             }
-            viewModel.renameLocation(originalText ?: "", text)
+            viewModel.renameLocation(originalText.orEmpty(), text)
         }
     }
 

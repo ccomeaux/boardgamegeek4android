@@ -19,6 +19,7 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
 import com.boardgamegeek.util.RateLimiter
+import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
@@ -52,24 +53,22 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     private val playInfo = MutableLiveData<PlayInfo>()
 
     private val locationRenameCount = MutableLiveData<PlayRepository.RenameLocationResults>()
-    val updateMessage: LiveData<Event<String>> = Transformations.map(locationRenameCount) { result ->
-        result?.let {
-            setLocation(it.newLocationName)
-            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-            Event(
-                getApplication<BggApplication>().resources.getQuantityString(
-                    R.plurals.msg_play_location_change,
-                    it.count,
-                    it.count,
-                    it.oldLocationName,
-                    it.newLocationName
-                )
+    val updateMessage: LiveData<Event<String>> = locationRenameCount.map { result ->
+        setLocation(result.newLocationName)
+        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        Event(
+            getApplication<BggApplication>().resources.getQuantityString(
+                R.plurals.msg_play_location_change,
+                result.count,
+                result.count,
+                result.oldLocationName,
+                result.newLocationName
             )
-        }
+        )
     }
 
     private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<Event<String>> = Transformations.map(_errorMessage) { Event(it) }
+    val errorMessage: LiveData<Event<String>> = _errorMessage.map { Event(it) }
 
     private val _syncingStatus = MutableLiveData<Boolean>()
     val syncingStatus: LiveData<Boolean>
@@ -175,7 +174,10 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun renameLocation(oldLocationName: String, newLocationName: String) {
-        playRepository.renameLocation(oldLocationName, newLocationName, locationRenameCount)
+        viewModelScope.launch {
+            val results = playRepository.renameLocation(oldLocationName, newLocationName)
+            locationRenameCount.postValue(results)
+        }
     }
 
     fun syncPlaysByDate(timeInMillis: Long) {
