@@ -320,22 +320,20 @@ class PlayRepository(val application: BggApplication) {
         application.contentResolver.applyBatch(batch)
     }
 
-    fun save(play: PlayEntity, insertedId: MutableLiveData<Long>) {
-        application.appExecutors.diskIO.execute {
-            val id = playDao.save(play)
+    suspend fun save(play: PlayEntity): Long {
+        val id = playDao.save(play)
 
-            // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
-            val isUpdating = play.updateTimestamp > 0
-            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
-            val isToday = play.dateInMillis.isToday() || endTime.isToday()
-            if (!play.isSynced && isUpdating && isToday) {
-                prefs.putLastPlayTime(System.currentTimeMillis())
-                prefs.putLastPlayLocation(play.location)
-                prefs.putLastPlayPlayerEntities(play.players)
-            }
-
-            insertedId.postValue(id)
+        // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
+        val isUpdating = play.updateTimestamp > 0
+        val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
+        val isToday = play.dateInMillis.isToday() || endTime.isToday()
+        if (!play.isSynced && isUpdating && isToday) {
+            prefs.putLastPlayTime(System.currentTimeMillis())
+            prefs.putLastPlayLocation(play.location)
+            prefs.putLastPlayPlayerEntities(play.players)
         }
+
+        return id
     }
 
     fun updateGameHIndex(hIndex: HIndexEntity) {

@@ -478,40 +478,42 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun save() {
-        val startTime = startTime.value ?: 0L
-        val play = PlayEntity(
-            BggContract.INVALID_ID.toLong(),
-            BggContract.INVALID_ID,
-            PlayEntity.currentDate(),
-            gameId.value ?: BggContract.INVALID_ID,
-            gameName.value ?: "",
-            quantity = 1,
-            length = if (startTime == 0L) length.value ?: 0 else 0,
-            location = location.value ?: "",
-            incomplete = false,
-            noWinStats = false,
-            comments = _comments,
-            syncTimestamp = 0,
-            initialPlayerCount = _addedPlayers.value?.size ?: 0,
-            startTime = startTime,
-            updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
-            dirtyTimestamp = System.currentTimeMillis()
-        )
-
-        for (player in _addedPlayers.value ?: mutableListOf()) {
-            val p = PlayPlayerEntity(
-                player.name,
-                player.username,
-                (playerSortMap.value ?: emptyMap())[player.id],
-                color = (playerColorMap.value ?: emptyMap())[player.id],
-                isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
-                isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
-                score = (playerScoresMap.value ?: emptyMap())[player.id] ?: "",
+        viewModelScope.launch {
+            val startTime = startTime.value ?: 0L
+            val play = PlayEntity(
+                BggContract.INVALID_ID.toLong(),
+                BggContract.INVALID_ID,
+                PlayEntity.currentDate(),
+                gameId.value ?: BggContract.INVALID_ID,
+                gameName.value ?: "",
+                quantity = 1,
+                length = if (startTime == 0L) length.value ?: 0 else 0,
+                location = location.value ?: "",
+                incomplete = false,
+                noWinStats = false,
+                comments = _comments,
+                syncTimestamp = 0,
+                initialPlayerCount = _addedPlayers.value?.size ?: 0,
+                startTime = startTime,
+                updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
+                dirtyTimestamp = System.currentTimeMillis()
             )
-            play.addPlayer(p)
-        }
 
-        playRepository.save(play, _insertedId)
+            for (player in _addedPlayers.value ?: mutableListOf()) {
+                val p = PlayPlayerEntity(
+                    player.name,
+                    player.username,
+                    (playerSortMap.value ?: emptyMap())[player.id],
+                    color = (playerColorMap.value ?: emptyMap())[player.id],
+                    isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
+                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
+                    score = (playerScoresMap.value ?: emptyMap())[player.id] ?: "",
+                )
+                play.addPlayer(p)
+            }
+
+            _insertedId.value = playRepository.save(play)
+        }
     }
 
     enum class Step {

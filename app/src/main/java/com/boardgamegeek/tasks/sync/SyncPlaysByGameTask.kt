@@ -16,6 +16,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import timber.log.Timber
 
@@ -43,7 +44,9 @@ class SyncPlaysByGameTask(
     override fun persistResponse(body: PlaysResponse?) {
         body?.plays?.let {
             val plays = mapper.map(it, startTime)
-            dao.save(plays, startTime)
+            runBlocking {
+                dao.save(plays, startTime)
+            }
         }
         Timber.i("Synced plays for game ID %s (page %,d)", gameId, currentPage)
     }

@@ -11,15 +11,17 @@ import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import timber.log.Timber
 
 class SyncPlaysByDateTask(
-        private val application: BggApplication,
-        private val timeInMillis: Long,
-        errorMessageLiveData: MutableLiveData<String>,
-        syncingLiveData: MutableLiveData<Boolean>) :
-        SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData, syncingLiveData) {
+    private val application: BggApplication,
+    private val timeInMillis: Long,
+    errorMessageLiveData: MutableLiveData<String>,
+    syncingLiveData: MutableLiveData<Boolean>
+) :
+    SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData, syncingLiveData) {
     private val username = AccountUtils.getUsername(context)
     private val dao = PlayDao(application)
     private val mapper = PlayMapper()
@@ -39,7 +41,9 @@ class SyncPlaysByDateTask(
     override fun persistResponse(body: PlaysResponse?) {
         body?.plays?.let {
             val plays = mapper.map(it, startTime)
-            dao.save(plays, startTime)
+            runBlocking {
+                dao.save(plays, startTime)
+            }
         }
         Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), currentPage)
     }

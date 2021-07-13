@@ -511,7 +511,7 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    fun save(plays: List<PlayEntity>, startTime: Long) {
+    suspend fun save(plays: List<PlayEntity>, startTime: Long) {
         var updateCount = 0
         var insertCount = 0
         var unchangedCount = 0
@@ -559,7 +559,7 @@ class PlayDao(private val context: BggApplication) {
         )
     }
 
-    fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
+    suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
 
         val values = contentValuesOf(
@@ -582,48 +582,38 @@ class PlayDao(private val context: BggApplication) {
             Plays.DIRTY_TIMESTAMP to play.dirtyTimestamp
         )
 
-        when {
-            internalId != INVALID_ID.toLong() -> {
-                batch.add(
-                    ContentProviderOperation
-                        .newUpdate(Plays.buildPlayUri(internalId))
-                        .withValues(values)
-                        .build()
-                )
+        batch.add(
+            if (internalId != INVALID_ID.toLong()) {
+                ContentProviderOperation.newUpdate(Plays.buildPlayUri(internalId)).withValues(values).build()
+            } else {
+                ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build()
             }
-            play.deleteTimestamp > 0 -> {
-                Timber.i("Skipping inserting a deleted play")
-                return INVALID_ID.toLong()
+        )
+
+        if (play.deleteTimestamp == 0L) {
+            deletePlayerWithEmptyUserNameInBatch(internalId, batch)
+            val existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId, batch).toMutableList()
+            addPlayersToBatch(play, existingPlayerIds, internalId, batch)
+            removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
+
+            if (play.isSynced || play.updateTimestamp > 0) {
+                // Do these when a new play is ready to be synced
+                saveGamePlayerSortOrderToBatch(play, batch)
+                updateColorsInBatch(play, batch)
+                saveBuddyNicknamesToBatch(play, batch)
             }
-            else -> {
-                batch.add(
-                    ContentProviderOperation
-                        .newInsert(Plays.CONTENT_URI)
-                        .withValues(values)
-                        .build()
-                )
+
+            val results = context.contentResolver.applyBatch(batch)
+            var insertedId = internalId
+            if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
+                insertedId = results.getOrNull(0)?.uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
             }
+            Timber.i("Saved play _ID=$insertedId")
+            insertedId
+        } else {
+            Timber.i("Skipping inserting a deleted play")
+            INVALID_ID.toLong()
         }
-
-        deletePlayerWithEmptyUserNameInBatch(internalId, batch)
-        val existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId, batch).toMutableList()
-        addPlayersToBatch(play, existingPlayerIds, internalId, batch)
-        removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
-
-        if (play.isSynced || play.updateTimestamp > 0) {
-            // Do these when a new play is ready to be synced
-            saveGamePlayerSortOrderToBatch(play, batch)
-            updateColorsInBatch(play, batch)
-            saveBuddyNicknamesToBatch(play, batch)
-        }
-
-        val results = context.contentResolver.applyBatch(batch)
-        var insertedId = internalId
-        if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
-            insertedId = results.getOrNull(0)?.uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
-        }
-        Timber.i("Saved play _ID=$insertedId")
-        return insertedId
     }
 
     private fun deletePlayerWithEmptyUserNameInBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>) {

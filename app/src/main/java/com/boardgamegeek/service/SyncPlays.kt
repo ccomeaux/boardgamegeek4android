@@ -128,7 +128,9 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
     private fun persist(plays: List<PlayEntity>) {
         if (plays.isNotEmpty()) {
-            playDao.save(plays, startTime)
+            runBlocking {
+                playDao.save(plays, startTime)
+            }
             syncResult.stats.numEntries += plays.size.toLong()
             Timber.i("...saved ${plays.size} plays")
         } else {
