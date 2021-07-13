@@ -9,7 +9,6 @@ import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
@@ -22,7 +21,6 @@ class GameRepository(val application: BggApplication) {
     private val dao = GameDao(application)
     private val playDao = PlayDao(application)
     private val bggService = Adapter.createForXml()
-    private val mapper = PlayMapper()
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
     }
@@ -74,7 +72,7 @@ class GameRepository(val application: BggApplication) {
         var page = 1
         do {
             val response = bggService.playsByGameC(username, gameId, page++)
-            val playsPage = mapper.map(response.plays, timestamp)
+            val playsPage = response.plays.mapToEntity(timestamp)
             playDao.save(playsPage, timestamp)
             plays += playsPage
         } while (response.hasMorePages())
@@ -90,7 +88,7 @@ class GameRepository(val application: BggApplication) {
     suspend fun refreshPartialPlays(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = bggService.playsByGameC(username, gameId, 1)
-        val plays = mapper.map(response.plays, timestamp)
+        val plays = response.plays.mapToEntity(timestamp)
         playDao.save(plays, timestamp)
         CalculatePlayStatsTask(application).executeAsyncTask()
     }

@@ -9,7 +9,7 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.model.PlaysResponse
-import com.boardgamegeek.mappers.PlayMapper
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import kotlinx.coroutines.runBlocking
 import retrofit2.Call
@@ -24,7 +24,6 @@ class SyncPlaysByDateTask(
     SyncTask<PlaysResponse>(application.applicationContext, errorMessageLiveData, syncingLiveData) {
     private val username = AccountUtils.getUsername(context)
     private val dao = PlayDao(application)
-    private val mapper = PlayMapper()
 
     @get:StringRes
     override val typeDescriptionResId: Int
@@ -40,7 +39,7 @@ class SyncPlaysByDateTask(
 
     override fun persistResponse(body: PlaysResponse?) {
         body?.plays?.let {
-            val plays = mapper.map(it, startTime)
+            val plays = it.mapToEntity(startTime)
             runBlocking {
                 dao.save(plays, startTime)
             }

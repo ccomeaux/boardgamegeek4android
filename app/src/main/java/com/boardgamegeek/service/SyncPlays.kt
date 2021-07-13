@@ -12,7 +12,6 @@ import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
-import com.boardgamegeek.mappers.PlayMapper
 import com.boardgamegeek.pref.getPlaysNewestTimestamp
 import com.boardgamegeek.pref.getPlaysOldestTimestamp
 import com.boardgamegeek.pref.setPlaysNewestTimestamp
@@ -22,12 +21,12 @@ import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
+import com.boardgamegeek.mappers.mapToEntity
 
 class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
     SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
     private val playDao: PlayDao = PlayDao(application)
-    private val mapper = PlayMapper()
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
@@ -96,7 +95,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
             try {
                 response = runBlocking { service.plays(username, minDate, maxDate, page) }
-                val plays = mapper.map(response.plays, startTime)
+                val plays = response.plays.mapToEntity(startTime)
                 persist(plays)
                 updateTimestamps(plays)
             } catch (e: Exception) {

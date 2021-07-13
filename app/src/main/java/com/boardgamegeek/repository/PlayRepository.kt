@@ -17,7 +17,7 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.mappers.PlayMapper
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
@@ -33,7 +33,6 @@ class PlayRepository(val application: BggApplication) {
     private val playDao = PlayDao(application)
     private val gameDao = GameDao(application)
     private val collectionDao = CollectionDao(application)
-    private val playMapper = PlayMapper()
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
     private val username: String? by lazy { AccountUtils.getUsername(application) }
@@ -59,7 +58,7 @@ class PlayRepository(val application: BggApplication) {
                 var returnedPlay: PlayEntity? = null
                 do {
                     val result = bggService.playsByGameC(username, gameId, page++)
-                    val plays = playMapper.map(result.plays)
+                    val plays = result.plays.mapToEntity(timestamp)
                     playDao.save(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
                     if (returnedPlay == null) returnedPlay = plays.find { it.playId == playId }
@@ -97,7 +96,7 @@ class PlayRepository(val application: BggApplication) {
                 null,
                 page++
             )
-            val plays = playMapper.map(response.plays)
+            val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
             playDao.save(plays, syncInitiatedTimestamp)
 
             val newestDate = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
@@ -117,7 +116,7 @@ class PlayRepository(val application: BggApplication) {
                     oldestTimestamp.asDateForApi(),
                     page++
                 )
-                val plays = playMapper.map(response.plays)
+                val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
                 playDao.save(plays, syncInitiatedTimestamp)
 
                 val oldestDate = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
