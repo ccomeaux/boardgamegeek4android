@@ -49,7 +49,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 cancel()
                 return
             }
-            val deletedCount = playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L)
+            val deletedCount = runBlocking { playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L) }
             syncResult.stats.numDeletes += deletedCount.toLong()
             Timber.i("...deleted $deletedCount unupdated plays")
 
@@ -60,7 +60,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                     cancel()
                     return
                 }
-                val count = playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L)
+                val count = runBlocking { playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L) }
                 syncResult.stats.numDeletes += count.toLong()
                 Timber.i("...deleted $count unupdated plays")
                 syncPrefs.setPlaysOldestTimestamp(0L)

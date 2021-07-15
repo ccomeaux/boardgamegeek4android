@@ -489,14 +489,14 @@ class PlayDao(private val context: BggApplication) {
         results
     }
 
-    fun delete(internalId: Long): Boolean {
-        return context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
+    suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
     }
 
     /**
      * Set the play indicated by internalId as synced. Play ID is necessary when syncing for the first time.
      */
-    fun setAsSynced(internalId: Long, playId: Int) {
+    suspend fun markAsSynced(internalId: Long, playId: Int) = withContext(Dispatchers.IO) {
         val contentValues = contentValuesOf(
             Plays.PLAY_ID to playId,
             Plays.DIRTY_TIMESTAMP to 0,
@@ -724,39 +724,16 @@ class PlayDao(private val context: BggApplication) {
     /**
      * Determine if the players are custom sorted or not, and save it to the game.
      */
-    private fun saveGamePlayerSortOrderToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) {
+    private suspend fun saveGamePlayerSortOrderToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
         // We can't determine the sort order without players
-        if (play.playerCount == 0) return
-
-        // We can't save the sort order if we aren't storing the game
-        val gameUri = Games.buildGameUri(play.gameId)
-        if (!context.contentResolver.rowExists(gameUri)) return
-
-        batch.add(
-            ContentProviderOperation
-                .newUpdate(gameUri)
-                .withValue(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
-                .build()
-        )
-    }
-
-    /**
-     * Add the current players' team/colors to the permanent list for the game.
-     */
-    private fun updateColorsInBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) {
-        // There are no players, so there are no colors to save
-        if (play.playerCount == 0) return
-
-        // We can't save the colors if we aren't storing the game
-        if (!context.contentResolver.rowExists(Games.buildGameUri(play.gameId))) return
-
-        val insertUri = Games.buildColorsUri(play.gameId)
-        play.players.filter { !it.color.isNullOrBlank() }.distinctBy { it.color }.forEach {
-            if (!context.contentResolver.rowExists(Games.buildColorsUri(play.gameId, it.color))) {
+        if (play.playerCount > 0) {
+            // We can't save the sort order if we aren't storing the game
+            val gameUri = Games.buildGameUri(play.gameId)
+            if (context.contentResolver.rowExists(gameUri)) {
                 batch.add(
                     ContentProviderOperation
-                        .newInsert(insertUri)
-                        .withValue(GameColors.COLOR, it.color)
+                        .newUpdate(gameUri)
+                        .withValue(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
                         .build()
                 )
             }
@@ -764,22 +741,41 @@ class PlayDao(private val context: BggApplication) {
     }
 
     /**
+     * Add the current players' team/colors to the permanent list for the game.
+     */
+    private suspend fun updateColorsInBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
+        // There are no players, so there are no colors to save
+        if (play.playerCount > 0) {
+            // We can't save the colors if we aren't storing the game
+            if (context.contentResolver.rowExists(Games.buildGameUri(play.gameId))) {
+                val insertUri = Games.buildColorsUri(play.gameId)
+                play.players.filter { !it.color.isNullOrBlank() }.distinctBy { it.color }.forEach {
+                    if (!context.contentResolver.rowExists(Games.buildColorsUri(play.gameId, it.color))) {
+                        batch += ContentProviderOperation
+                            .newInsert(insertUri)
+                            .withValue(GameColors.COLOR, it.color)
+                            .build()
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Update GeekBuddies' nicknames with the names used here.
      */
-    private fun saveBuddyNicknamesToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) {
+    private suspend fun saveBuddyNicknamesToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
         play.players.forEach { player ->
             if (player.username.isNotBlank() && player.name.isNotBlank()) {
                 val uri = Buddies.buildBuddyUri(player.username)
                 if (context.contentResolver.rowExists(uri)) {
                     val nickname = context.contentResolver.queryString(uri, Buddies.PLAY_NICKNAME)
                     if (nickname.isNullOrBlank()) {
-                        batch.add(
-                            ContentProviderOperation
-                                .newUpdate(Buddies.CONTENT_URI)
-                                .withSelection("${Buddies.BUDDY_NAME}=?", arrayOf(player.username))
-                                .withValue(Buddies.PLAY_NICKNAME, player.name)
-                                .build()
-                        )
+                        batch += ContentProviderOperation
+                            .newUpdate(Buddies.CONTENT_URI)
+                            .withSelection("${Buddies.BUDDY_NAME}=?", arrayOf(player.username))
+                            .withValue(Buddies.PLAY_NICKNAME, player.name)
+                            .build()
                     }
                 }
             }
@@ -862,28 +858,28 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
+    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
         return deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
     }
 
-    fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long): Int {
+    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long): Int {
         return deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
     }
 
-    private fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int {
+    private suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
         val selection = createDeleteSelectionAndArgs(syncTimestamp)
-        return context.contentResolver.delete(
+        context.contentResolver.delete(
             Plays.CONTENT_URI,
-            selection.first + " AND ${Plays.DATE}$dateComparator?",
+            "${selection.first} AND ${Plays.DATE}$dateComparator?",
             selection.second + playDate.asDateForApi()
         )
     }
 
-    fun deleteUnupdatedPlays(gameId: Int, syncTimestamp: Long) {
+    suspend fun deleteUnupdatedPlays(gameId: Int, syncTimestamp: Long) = withContext(Dispatchers.IO) {
         val selection = createDeleteSelectionAndArgs(syncTimestamp)
         val count = context.contentResolver.delete(
             Plays.CONTENT_URI,
-            selection.first + " AND ${Plays.OBJECT_ID}=?",
+            "${selection.first} AND ${Plays.OBJECT_ID}=?",
             selection.second + gameId.toString()
         )
         Timber.d("Deleted %,d unupdated play(s) of game ID=%s", count, gameId)
@@ -978,9 +974,9 @@ class PlayDao(private val context: BggApplication) {
             .build()
     }
 
-    fun countNickNameUpdatePlays(username: String, nickName: String): Int {
+    suspend fun countNickNameUpdatePlays(username: String, nickName: String): Int = withContext(Dispatchers.IO) {
         val selection = createNickNameSelectionAndArgs(username, nickName)
-        return context.contentResolver.queryCount(
+        context.contentResolver.queryCount(
             Plays.buildPlayersByPlayUri(),
             selection.first,
             selection.second
