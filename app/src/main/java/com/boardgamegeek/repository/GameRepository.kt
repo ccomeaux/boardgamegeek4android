@@ -67,27 +67,31 @@ class GameRepository(val application: BggApplication) {
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
     suspend fun refreshPlays(gameId: Int): List<PlayEntity> = withContext(Dispatchers.IO) {
-        val plays = mutableListOf<PlayEntity>()
-        val timestamp = System.currentTimeMillis()
-        var page = 1
-        do {
-            val response = bggService.playsByGameC(username, gameId, page++)
-            val playsPage = response.plays.mapToEntity(timestamp)
-            playDao.save(playsPage, timestamp)
-            plays += playsPage
-        } while (response.hasMorePages())
+        if (gameId == BggContract.INVALID_ID && !username.isNullOrBlank()) {
+            emptyList()
+        } else {
+            val plays = mutableListOf<PlayEntity>()
+            val timestamp = System.currentTimeMillis()
+            var page = 1
+            do {
+                val response = bggService.playsByGame(username, gameId, page++)
+                val playsPage = response.plays.mapToEntity(timestamp)
+                playDao.save(playsPage, timestamp)
+                plays += playsPage
+            } while (response.hasMorePages())
 
-        playDao.deleteUnupdatedPlays(gameId, timestamp)
-        dao.updateC(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
+            playDao.deleteUnupdatedPlays(gameId, timestamp)
+            dao.updateC(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
 
-        CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
+            CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
 
-        plays
+            plays
+        }
     }
 
     suspend fun refreshPartialPlays(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val response = bggService.playsByGameC(username, gameId, 1)
+        val response = bggService.playsByGame(username, gameId, 1)
         val plays = response.plays.mapToEntity(timestamp)
         playDao.save(plays, timestamp)
         CalculatePlayStatsTask(application).executeAsyncTask()

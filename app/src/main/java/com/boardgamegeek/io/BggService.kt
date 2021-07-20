@@ -32,13 +32,10 @@ interface BggService {
     fun thingWithRatings(@Query("id") gameId: Int, @Query("page") page: Int): Call<ThingResponse>
 
     @GET("/xmlapi2/plays")
-    fun playsByDate(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): Call<PlaysResponse>
+    suspend fun playsByDate(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): PlaysResponse
 
     @GET("/xmlapi2/plays")
-    fun playsByGame(@Query("username") username: String?, @Query("id") gameId: Int, @Query("page") page: Int): Call<PlaysResponse>
-
-    @GET("/xmlapi2/plays")
-    suspend fun playsByGameC(@Query("username") username: String?, @Query("id") gameId: Int, @Query("page") page: Int): PlaysResponse
+    suspend fun playsByGame(@Query("username") username: String?, @Query("id") gameId: Int, @Query("page") page: Int): PlaysResponse
 
     @GET("/xmlapi2/plays")
     suspend fun plays(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): PlaysResponse

@@ -58,7 +58,7 @@ class PlayRepository(val application: BggApplication) {
             } else {
                 var returnedPlay: PlayEntity? = null
                 do {
-                    val result = bggService.playsByGameC(username, gameId, page++)
+                    val result = bggService.playsByGame(username, gameId, page++)
                     val plays = result.plays.mapToEntity(timestamp)
                     playDao.save(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
@@ -138,6 +138,28 @@ class PlayRepository(val application: BggApplication) {
             syncPrefs.setPlaysOldestTimestamp(0L)
         }
         CalculatePlayStatsTask(application).executeAsyncTask()
+    }
+
+    suspend fun refreshPlays(timeInMillis: Long) = withContext(Dispatchers.IO) {
+        if (timeInMillis <= 0L && !username.isNullOrBlank()) {
+            emptyList()
+        } else {
+            val plays = mutableListOf<PlayEntity>()
+            val timestamp = System.currentTimeMillis()
+            val date = timeInMillis.asDateForApi()
+            var page = 1
+            do {
+                val response = bggService.playsByDate(username, date, date, page++)
+                val playsPage = response.plays.mapToEntity(timestamp)
+                playDao.save(playsPage, timestamp)
+                plays += playsPage
+                Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
+            } while (response.hasMorePages())
+
+            CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
+
+            plays
+        }
     }
 
     suspend fun loadForStats(

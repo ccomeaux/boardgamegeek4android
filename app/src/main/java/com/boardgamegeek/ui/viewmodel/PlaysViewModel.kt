@@ -8,23 +8,18 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
 import com.boardgamegeek.util.RateLimiter
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class PlaysViewModel(application: Application) : AndroidViewModel(application) {
-    private val syncTimestamp = MutableLiveData<Long>()
     private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
     private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
     private val playRepository = PlayRepository(getApplication())
@@ -74,15 +69,13 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     val syncingStatus: LiveData<Boolean>
         get() = _syncingStatus
 
-    private var syncPlaysByDateTask: SyncPlaysByDateTask? = null
-    private var syncPlaysByGameTask: SyncPlaysByGameTask? = null
-
     val plays: LiveData<RefreshableResource<List<PlayEntity>>> = playInfo.switchMap {
         liveData {
             try {
                 val list = loadPlays(it)
                 val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(it.id)) {
                     emit(RefreshableResource.refreshing(list))
+                    SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
                     when (it.mode) {
                         Mode.GAME -> gameRepository.refreshPlays(it.id) // TODO - full or partial?
                         else -> playRepository.refreshPlays()
@@ -95,6 +88,10 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
                 emit(RefreshableResource.error<List<PlayEntity>>(e, getApplication()))
             }
         }
+    }
+
+    fun refresh() {
+        playInfo.value.let { playInfo.value = it }
     }
 
     private suspend fun loadPlays(it: PlayInfo) = when (it.mode) {
@@ -157,22 +154,6 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun refresh(): Boolean {
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-        return if ((syncTimestamp.value ?: 0).isOlderThan(1, TimeUnit.MINUTES)) {
-            syncTimestamp.postValue(System.currentTimeMillis())
-            playInfo.value?.let {
-                if (it.mode == Mode.GAME) {
-                    syncPlaysByGameTask = SyncPlaysByGameTask(getApplication(), it.id, _errorMessage, _syncingStatus)
-                    syncPlaysByGameTask?.executeAsyncTask()
-                } else {
-                    SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS)
-                }
-            }
-            true
-        } else false
-    }
-
     fun renameLocation(oldLocationName: String, newLocationName: String) {
         viewModelScope.launch {
             val results = playRepository.renameLocation(oldLocationName, newLocationName)
@@ -181,13 +162,16 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun syncPlaysByDate(timeInMillis: Long) {
-        syncPlaysByDateTask = SyncPlaysByDateTask(getApplication(), timeInMillis, _errorMessage, _syncingStatus)
-        syncPlaysByDateTask?.executeAsyncTask()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        syncPlaysByDateTask?.cancel(true)
-        syncPlaysByGameTask?.cancel(true)
+        viewModelScope.launch {
+            try {
+                _syncingStatus.postValue(true)
+                playRepository.refreshPlays(timeInMillis)
+                refresh()
+            } catch (e: Exception) {
+                _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
+            } finally {
+                _syncingStatus.postValue(false)
+            }
+        }
     }
 }
