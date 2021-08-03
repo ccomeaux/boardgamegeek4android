@@ -13,6 +13,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /**
@@ -39,7 +40,7 @@ class SyncGamesRemove(application: BggApplication, service: BggService, syncResu
                 // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
                 for (gameId in gameIds) {
                     Timber.i("Deleting game ID=$gameId")
-                    count += dao.delete(gameId)
+                    count += runBlocking { dao.delete(gameId) }
                 }
                 syncResult.stats.numDeletes += count.toLong()
                 Timber.i("Deleted $count games")

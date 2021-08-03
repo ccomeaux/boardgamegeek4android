@@ -19,7 +19,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val isGameRefreshing = AtomicBoolean()
     private val arePlaysRefreshing = AtomicBoolean()
     private val areItemsRefreshing = AtomicBoolean()
-    private val refreshGameMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val refreshGameMinutes = 0 // RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val refreshPlaysPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
     private val refreshPlaysFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
     private val refreshItemsMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
@@ -68,7 +68,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         isGameRefreshing.compareAndSet(false, true)
                     ) {
                         emit(RefreshableResource.refreshing(game))
-                        gameRepository.refreshGame(gameId).also {
+                        gameRepository.refreshGame(gameId)
+                        gameRepository.loadGame(gameId).also {
                             isGameRefreshing.set(false)
                         }
                     } else game
@@ -80,6 +81,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 emit(RefreshableResource.success(gameWithHeroImage))
             } catch (e: Exception) {
+                isGameRefreshing.set(false)
                 emit(RefreshableResource.error<GameEntity>(e, application))
             }
         }

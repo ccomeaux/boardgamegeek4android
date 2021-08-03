@@ -28,5 +28,9 @@ data class GamePlayerPollEntity(val results: List<GamePlayerPollResultsEntity>) 
 
     companion object {
         const val maxPlayerCount = 100
+        const val separator = "|"
     }
 }
+
+fun Set<Int>.forDatabase() =
+    this.joinToString(GamePlayerPollEntity.separator, prefix = GamePlayerPollEntity.separator, postfix = GamePlayerPollEntity.separator)

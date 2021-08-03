@@ -34,7 +34,7 @@ class GameRepository(val application: BggApplication) {
             dao.save(game.mapToEntity(), timestamp)
             Timber.i("Synced game '$gameId'")
         }
-        response.games.firstOrNull()?.mapToEntity()
+        response.games.firstOrNull()?.mapToEntity()?.copy(updated = timestamp)
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
@@ -81,7 +81,7 @@ class GameRepository(val application: BggApplication) {
             } while (response.hasMorePages())
 
             playDao.deleteUnupdatedPlays(gameId, timestamp)
-            dao.updateC(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
+            dao.update(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
 
             CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
 
@@ -115,16 +115,15 @@ class GameRepository(val application: BggApplication) {
         } else 0
     }
 
-    suspend fun computePlayColors(gameId: Int) = withContext(Dispatchers.IO) {
+    suspend fun computePlayColors(gameId: Int) {
         dao.computeColors(gameId)
     }
 
-    suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) =
-        withContext(Dispatchers.IO) {
-            if (gameId != BggContract.INVALID_ID) {
-                dao.updateC(gameId, contentValuesOf(BggContract.Games.LAST_VIEWED to lastViewed))
-            }
+    suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
+        if (gameId != BggContract.INVALID_ID) {
+            dao.update(gameId, contentValuesOf(BggContract.Games.LAST_VIEWED to lastViewed))
         }
+    }
 
     suspend fun updateGameColors(
         gameId: Int,
@@ -142,14 +141,14 @@ class GameRepository(val application: BggApplication) {
                 BggContract.Games.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
                 BggContract.Games.ALL_PLAYS_COLOR to allPlaysColor,
             )
-            val numberOfRowsModified = dao.updateC(gameId, values)
+            val numberOfRowsModified = dao.update(gameId, values)
             Timber.d(numberOfRowsModified.toString())
         }
     }
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
         if (gameId != BggContract.INVALID_ID) {
-            dao.updateC(gameId, contentValuesOf(BggContract.Games.STARRED to if (isFavorite) 1 else 0))
+            dao.update(gameId, contentValuesOf(BggContract.Games.STARRED to if (isFavorite) 1 else 0))
         }
     }
 }

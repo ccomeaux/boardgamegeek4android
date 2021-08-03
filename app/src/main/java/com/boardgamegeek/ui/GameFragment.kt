@@ -91,10 +91,10 @@ class GameFragment : Fragment() {
         if (!isAdded) return
 
         listOf(ranksIcon, ratingIcon, yearIcon, playTimeIcon, playerCountIcon, playerAgeIcon, weightIcon, languageIcon)
-                .forEach { it?.setOrClearColorFilter(iconColor) }
+            .forEach { it?.setOrClearColorFilter(iconColor) }
 
         listOf(game_info_expansions, game_info_base_games)
-                .forEach { it?.colorize(iconColor) }
+            .forEach { it?.colorize(iconColor) }
     }
 
     private fun onGameContentChanged(game: GameEntity) {
@@ -107,10 +107,8 @@ class GameFragment : Fragment() {
 
         ratingView?.text = game.rating.asRating(context)
         ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
-        val numberOfRatings = context?.getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
-                ?: ""
-        val numberOfComments = context?.getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
-                ?: ""
+        val numberOfRatings = context?.getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings) ?: ""
+        val numberOfComments = context?.getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments) ?: ""
         ratingVotesView?.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
         ratingContainer?.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
             CommentsActivity.startRating(requireContext(), gameId, gameName)
@@ -118,11 +116,11 @@ class GameFragment : Fragment() {
 
         yearView?.text = game.yearPublished.asYear(context)
 
-        playTimeView?.text = context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
-                ?: ""
+        playTimeView?.text =
+            context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange()) ?: ""
 
-        playerCountView?.text = context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
-                ?: ""
+        playerCountView?.text =
+            context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange()) ?: ""
 
         playerAgeView?.text = game.minimumAge.asAge(context)
 
@@ -135,7 +133,13 @@ class GameFragment : Fragment() {
         val textColor = weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
         weightView.setTextColor(textColor)
         weightScoreView.setTextColor(textColor)
-        weightVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
+        weightVotesView.setTextOrHide(
+            requireContext().getQuantityText(
+                R.plurals.votes_suffix,
+                game.numberOfUsersWeighting,
+                game.numberOfUsersWeighting
+            )
+        )
 
         gameIdView.text = game.id.toString()
         lastModifiedView.timestamp = game.updated
@@ -172,7 +176,7 @@ class GameFragment : Fragment() {
 
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
         val message = if (entity?.modalValue.isNullOrBlank()) ""
-        else context?.getText(R.string.age_community, entity?.modalValue ?: "") ?: ""
+        else context?.getText(R.string.age_community, entity?.modalValue.orEmpty()) ?: ""
         playerAgePollView?.setTextOrHide(message)
         playerAgeContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             PollFragment.launchSuggestedPlayerAge(this)
@@ -199,8 +203,9 @@ class GameFragment : Fragment() {
 
     private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
         view?.bindData(
-                viewModel.gameId.value ?: BggContract.INVALID_ID,
-                viewModel.game.value?.data?.name ?: "",
-                list)
+            viewModel.gameId.value ?: BggContract.INVALID_ID,
+            viewModel.game.value?.data?.name.orEmpty(),
+            list
+        )
     }
 }
