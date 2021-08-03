@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
+import android.text.format.DateUtils
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
@@ -19,10 +20,10 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
-import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import kotlin.collections.ArrayList
 
 class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
@@ -523,7 +524,8 @@ class GameDao(private val context: BggApplication) {
 
             val cpoBuilder: Builder
             val values = toValues(game, updateTime)
-            cpoBuilder = if (resolver.rowExists(Games.buildGameUri(game.id))) {
+            val internalId = resolver.queryLong(Games.buildGameUri(game.id), Games._ID, INVALID_ID.toLong())
+            cpoBuilder = if (internalId != INVALID_ID.toLong()) {
                 values.remove(Games.GAME_ID)
                 if (shouldClearHeroImageUrl(game)) {
                     values.put(Games.HERO_IMAGE_URL, "")
@@ -533,11 +535,11 @@ class GameDao(private val context: BggApplication) {
                 ContentProviderOperation.newInsert(Games.CONTENT_URI)
             }
 
-            batch.add(cpoBuilder.withValues(values).withYieldAllowed(true).build())
-            batch.addAll(createRanksBatch(game))
-            batch.addAll(createPollsBatch(game))
-            batch.addAll(createPlayerPollBatch(game.id, game.playerPoll))
-            batch.addAll(createExpansionsBatch(game.id, game.expansions))
+            batch += cpoBuilder.withValues(values).withYieldAllowed(true).build()
+            batch += createRanksBatch(game)
+            batch += createPollsBatch(game)
+            batch += createPlayerPollBatch(game.id, game.playerPoll)
+            batch += createExpansionsBatch(game.id, game.expansions)
 
             saveReference(game.designers, Designers.CONTENT_URI, Designers.DESIGNER_ID, Designers.DESIGNER_NAME)
             saveReference(game.artists, Artists.CONTENT_URI, Artists.ARTIST_ID, Artists.ARTIST_NAME)
@@ -545,19 +547,26 @@ class GameDao(private val context: BggApplication) {
             saveReference(game.categories, Categories.CONTENT_URI, Categories.CATEGORY_ID, Categories.CATEGORY_NAME)
             saveReference(game.mechanics, Mechanics.CONTENT_URI, Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME)
 
-            batch.addAll(createAssociationBatch(game.id, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID))
-            batch.addAll(createAssociationBatch(game.id, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID))
-            batch.addAll(createAssociationBatch(game.id, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID))
-            batch.addAll(createAssociationBatch(game.id, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID))
-            batch.addAll(createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID))
+            batch += createAssociationBatch(game.id, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
+            batch += createAssociationBatch(game.id, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
+            batch += createAssociationBatch(game.id, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
+            batch += createAssociationBatch(game.id, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
+            batch += createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
-            try {
-                val x = resolver.applyBatch(batch, "Game ${game.id}")
-                // TODO return the internal ID
-                Timber.w("Is this the internal ID - %s", x.firstOrNull()?.uri)
-                Timber.i("Saved game ID '%s'", game.id)
-            } catch (e: Exception) {
-                NotificationUtils.showPersistErrorNotification(context, e)
+            resolver.applyBatch(batch, "Game ${game.id}")
+            if (internalId == INVALID_ID.toLong()) {
+                Timber.i(
+                    "Inserted game ID '%s' at %s",
+                    game.id,
+                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+                )
+            } else {
+                Timber.i(
+                    "Updated game ID '%s' (%s) at %s",
+                    game.id,
+                    internalId,
+                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+                )
             }
         }
     }
@@ -785,31 +794,30 @@ class GameDao(private val context: BggApplication) {
     /**
      * Upsert each ID/name pair.
      */
-    private suspend fun saveReference(newLinks: List<Pair<Int, String>>, baseUri: Uri, idColumn: String, nameColumn: String) =
-        withContext(Dispatchers.IO) {
-            val batch = arrayListOf<ContentProviderOperation>()
-            for ((id, name) in newLinks) {
-                val uri = baseUri.buildUpon().appendPath(id.toString()).build()
-                batch += if (resolver.rowExists(uri)) {
-                    ContentProviderOperation.newUpdate(uri).withValue(nameColumn, name).build()
-                } else {
-                    ContentProviderOperation.newInsert(baseUri).withValues(
-                        contentValuesOf(
-                            idColumn to id,
-                            nameColumn to name,
-                        )
-                    ).build()
-                }
+    private fun saveReference(newLinks: List<Pair<Int, String>>, baseUri: Uri, idColumn: String, nameColumn: String) {
+        val batch = arrayListOf<ContentProviderOperation>()
+        for ((id, name) in newLinks) {
+            val uri = baseUri.buildUpon().appendPath(id.toString()).build()
+            batch += if (resolver.rowExists(uri)) {
+                ContentProviderOperation.newUpdate(uri).withValue(nameColumn, name).build()
+            } else {
+                ContentProviderOperation.newInsert(baseUri).withValues(
+                    contentValuesOf(
+                        idColumn to id,
+                        nameColumn to name,
+                    )
+                ).build()
             }
-            resolver.applyBatch(batch, "Saving ${baseUri.lastPathSegment}")
         }
+        resolver.applyBatch(batch, "Saving ${baseUri.lastPathSegment}")
+    }
 
-    private suspend fun createAssociationBatch(
+    private fun createAssociationBatch(
         gameId: Int,
         newLinks: List<Pair<Int, String>>,
         uriPath: String,
         idColumn: String
-    ): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
+    ): ArrayList<ContentProviderOperation> {
         val batch = arrayListOf<ContentProviderOperation>()
         val associationUri = Games.buildPathUri(gameId, uriPath)
         val existingIds = resolver.queryInts(associationUri, idColumn).toMutableList()
@@ -820,6 +828,6 @@ class GameDao(private val context: BggApplication) {
             }
         }
         // remove unused associations
-        existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
+        return existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
     }
 }

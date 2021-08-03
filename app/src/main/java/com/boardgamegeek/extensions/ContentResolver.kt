@@ -3,7 +3,6 @@ package com.boardgamegeek.extensions
 import android.content.*
 import android.database.Cursor
 import android.net.Uri
-import android.os.RemoteException
 import android.provider.BaseColumns
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.provider.BggContract
@@ -19,11 +18,7 @@ fun ContentResolver.applyBatch(batch: ArrayList<ContentProviderOperation>?, debu
     if (batch != null && batch.size > 0) {
         try {
             return applyBatch(BggContract.CONTENT_AUTHORITY, batch)
-        } catch (e: OperationApplicationException) {
-            val m = "Applying batch: $debugMessage"
-            Timber.e(e, m)
-            throw RuntimeException(m, e)
-        } catch (e: RemoteException) {
+        } catch (e: Exception) {
             val m = "Applying batch: $debugMessage"
             Timber.e(e, m)
             throw RuntimeException(m, e)
