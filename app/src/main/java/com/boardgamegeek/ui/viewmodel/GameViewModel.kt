@@ -230,6 +230,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                             lastUpdated.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS) -> {
                                 emit(RefreshableResource.refreshing(plays))
                                 gameRepository.refreshPlays(gameId)
+                                gameRepository.getPlays(gameId)
                             }
                             lastUpdated.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES) -> {
                                 emit(RefreshableResource.refreshing(plays))

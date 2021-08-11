@@ -6,7 +6,6 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
@@ -66,26 +65,20 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
-    suspend fun refreshPlays(gameId: Int): List<PlayEntity> = withContext(Dispatchers.IO) {
-        if (gameId == BggContract.INVALID_ID && !username.isNullOrBlank()) {
-            emptyList()
-        } else {
-            val plays = mutableListOf<PlayEntity>()
+    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.IO) {
+        if (gameId != BggContract.INVALID_ID || username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             var page = 1
             do {
                 val response = bggService.playsByGame(username, gameId, page++)
                 val playsPage = response.plays.mapToEntity(timestamp)
                 playDao.save(playsPage, timestamp)
-                plays += playsPage
             } while (response.hasMorePages())
 
             playDao.deleteUnupdatedPlays(gameId, timestamp)
             dao.update(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
 
             CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
-
-            plays
         }
     }
 
