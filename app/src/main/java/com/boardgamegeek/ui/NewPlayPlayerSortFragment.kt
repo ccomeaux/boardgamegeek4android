@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
@@ -214,6 +215,7 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
                 itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.light_blue_transparent))
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             fun onItemClear() {
                 isDragging = false
                 itemView.setBackgroundColor(Color.TRANSPARENT)

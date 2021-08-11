@@ -782,7 +782,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         viewModel.pickStartPlayer(0)
     }
 
-    private fun addNewPlayer(autoPosition:Int = playerCount + 1) {
+    private fun addNewPlayer(autoPosition: Int = playerCount + 1) {
         val intent = Intent()
         if (shouldAutoSort()) {
             intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, autoPosition)
@@ -892,9 +892,11 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.light_blue_transparent))
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             fun onItemClear() {
                 isDragging = false
                 itemView.setBackgroundColor(Color.TRANSPARENT)
+                notifyDataSetChanged() // force UI to update the seat numbers
             }
 
             @SuppressLint("ClickableViewAccessibility")
