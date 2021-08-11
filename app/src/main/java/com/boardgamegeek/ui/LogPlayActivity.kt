@@ -162,8 +162,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
         noWinStatsView.setOnCheckedChangeListener { _, isChecked -> viewModel.updateNoWinStats(isChecked) }
 
-        commentsView.doAfterTextChanged { viewModel.updateComments(it.toString()) }
-
         assignColorsButton.setOnClickListener {
             if (playersHaveColors) {
                 val builder = AlertDialog.Builder(this@LogPlayActivity)
@@ -360,6 +358,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         setDoneCancelActionBarView { v: View ->
             when (v.id) {
                 R.id.menu_done -> {
+                    viewModel.updateComments(commentsView.text.toString())
                     if (startTime > 0L) {
                         toast(R.string.msg_saving_draft)
                         viewModel.saveDraft()
@@ -425,7 +424,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                 itemView.bottom.toFloat() - verticalPadding
                             )
                         } else {
-                            background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
+                            background =
+                                RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
                             iconSrc = Rect(
                                 (deleteIcon.width + horizontalPadding.toInt() + dX.toInt()).coerceAtLeast(0),
                                 0,
@@ -619,11 +619,13 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         super.onPause()
         locationAdapter.changeCursor(null)
         if (shouldSaveOnPause && !isLaunchingActivity) {
+            viewModel.updateComments(commentsView.text.toString())
             viewModel.saveDraft() // TODO already called when back is pressed
         }
     }
 
     override fun onBackPressed() {
+        viewModel.updateComments(commentsView.text.toString())
         viewModel.saveDraft()
         toast(R.string.msg_saving_draft)
         setResult(RESULT_OK)
