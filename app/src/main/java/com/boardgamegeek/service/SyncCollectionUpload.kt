@@ -13,17 +13,17 @@ import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.INVALID_ID
-import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
+import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
@@ -38,6 +38,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
     private var currentGameName: String = ""
     private var currentGameHeroImageUrl: String = ""
     private var currentGameThumbnailUrl: String = ""
+    private val repository = GameCollectionRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
 
@@ -218,7 +219,9 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         val contentValues = ContentValues()
         addTask.appendContentValues(contentValues)
         context.contentResolver.update(Collection.buildUri(item.internalId), contentValues, null, null)
-        SyncCollectionByGameTask(application, item.gameId).executeAsyncTask()
+        runBlocking {
+            repository.refreshCollectionItems(item.gameId)
+        }
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }
 
