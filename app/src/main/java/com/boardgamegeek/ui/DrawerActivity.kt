@@ -67,6 +67,9 @@ abstract class DrawerActivity : BaseActivity() {
             true
         }
 
+        val signInButton = navigationView.getHeaderView(0).findViewById<Button>(R.id.singInButton)
+        signInButton.setOnClickListener { startActivity<LoginActivity>() }
+
         viewModel.user.observe(this, {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
             it?.data?.let { user -> refreshHeader(user) }
@@ -167,7 +170,6 @@ abstract class DrawerActivity : BaseActivity() {
         } else {
             signedInGroup.isVisible = false
             signInButton.isVisible = true
-            signInButton.setOnClickListener { startActivity<LoginActivity>() }
         }
     }
 }
