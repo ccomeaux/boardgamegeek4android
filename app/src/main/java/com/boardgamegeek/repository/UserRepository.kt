@@ -72,10 +72,10 @@ class UserRepository(val application: BggApplication) {
         }
     }
 
-    suspend fun updateSelf(user: UserEntity) = withContext(Dispatchers.IO) {
-        Authenticator.putUserId(application, user.id)
-        AccountUtils.setUsername(application, user.userName)
-        AccountUtils.setFullName(application, user.fullName)
-        AccountUtils.setAvatarUrl(application, user.avatarUrl)
+    suspend fun updateSelf(user: UserEntity?) = withContext(Dispatchers.IO) {
+        Authenticator.putUserId(application, user?.id?: BggContract.INVALID_ID)
+        AccountUtils.setUsername(application, user?.userName.orEmpty())
+        AccountUtils.setFullName(application, user?.fullName.orEmpty())
+        AccountUtils.setAvatarUrl(application, user?.avatarUrl.orEmpty())
     }
 }

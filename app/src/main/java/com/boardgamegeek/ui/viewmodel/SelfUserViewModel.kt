@@ -15,7 +15,9 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
     private val username = MutableLiveData<String>()
 
     init {
-        username.value = Authenticator.getAccount(application)?.name.orEmpty()
+        username.value = if (Authenticator.isSignedIn(getApplication())) {
+            Authenticator.getAccount(application)?.name.orEmpty()
+        } else ""
     }
 
     fun setUsername(newUsername: String?) {
@@ -25,9 +27,9 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
     }
 
     val user: LiveData<RefreshableResource<UserEntity>> = username.switchMap { username ->
-        when {
-            username.isNotBlank() -> {
-                liveData {
+        liveData {
+            when {
+                username.isNotBlank() -> {
                     try {
                         emit(RefreshableResource.refreshing(null))
                         val entity = userRepository.load(username)
@@ -44,8 +46,11 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
                         emit(RefreshableResource.error<UserEntity>(e, application))
                     }
                 }
+                else -> {
+                    userRepository.updateSelf(null)
+                    emit(RefreshableResource.success(null))
+                }
             }
-            else -> AbsentLiveData.create()
         }
     }
 }
