@@ -1,16 +1,15 @@
 package com.boardgamegeek.ui
 
 import android.accounts.Account
-import android.accounts.AccountAuthenticatorActivity
 import android.accounts.AccountAuthenticatorResponse
 import android.accounts.AccountManager
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -27,7 +26,9 @@ import timber.log.Timber
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
-class LoginActivity : AccountAuthenticatorActivity() {
+class LoginActivity : AppCompatActivity() {
+    private var accountAuthenticatorResponse: AccountAuthenticatorResponse? = null
+
     private var username: String? = null
     private var password: String? = null
 
@@ -37,6 +38,10 @@ class LoginActivity : AccountAuthenticatorActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        accountAuthenticatorResponse = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
+        accountAuthenticatorResponse?.onRequestContinued()
+
         setContentView(R.layout.activity_login)
 
         accountManager = AccountManager.get(this)
@@ -45,7 +50,9 @@ class LoginActivity : AccountAuthenticatorActivity() {
 
         usernameView.setText(username)
         usernameView.isEnabled = isRequestingNewAccount
-        if (!isRequestingNewAccount) {
+        if (isRequestingNewAccount) {
+            usernameView.requestFocus()
+        } else {
             passwordView.requestFocus()
         }
         passwordView.setOnEditorActionListener { _, actionId, _ ->
@@ -122,8 +129,9 @@ class LoginActivity : AccountAuthenticatorActivity() {
      */
     inner class UserLoginTask : AsyncTask<Void?, Void?, BggCookieJar?>() {
         override fun doInBackground(vararg params: Void?): BggCookieJar? {
-            return NetworkAuthenticator.authenticate(username ?: "", password
-                    ?: "", "Dialog", applicationContext)
+            return NetworkAuthenticator.authenticate(
+                username.orEmpty(), password .orEmpty(), "Dialog", applicationContext
+            )
         }
 
         override fun onPostExecute(bggCookieJar: BggCookieJar?) {
@@ -150,9 +158,9 @@ class LoginActivity : AccountAuthenticatorActivity() {
             accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, bggCookieJar.authToken)
         } catch (e: SecurityException) {
             AlertDialog.Builder(this)
-                    .setTitle(R.string.title_error)
-                    .setMessage(R.string.error_account_set_auth_token_security_exception)
-                    .show()
+                .setTitle(R.string.title_error)
+                .setMessage(R.string.error_account_set_auth_token_security_exception)
+                .show()
             return
         }
         val userData = bundleOf(Authenticator.KEY_AUTH_TOKEN_EXPIRY to bggCookieJar.authTokenExpiry.toString())
@@ -204,11 +212,15 @@ class LoginActivity : AccountAuthenticatorActivity() {
         EventBus.getDefault().post(SignInEvent(username!!))
 
         val extras = bundleOf(
-                AccountManager.KEY_ACCOUNT_NAME to username,
-                AccountManager.KEY_ACCOUNT_TYPE to Authenticator.ACCOUNT_TYPE
+            AccountManager.KEY_ACCOUNT_NAME to username,
+            AccountManager.KEY_ACCOUNT_TYPE to Authenticator.ACCOUNT_TYPE
         )
-        setAccountAuthenticatorResult(extras)
-        setResult(Activity.RESULT_OK, Intent().putExtras(extras))
+        setResult(RESULT_OK, Intent().putExtras(extras))
+        accountAuthenticatorResponse?.let {
+            // send the result bundle back if set, otherwise send an error.
+            it.onResult(extras)
+            accountAuthenticatorResponse = null
+        }
         finish()
     }
 
@@ -218,8 +230,8 @@ class LoginActivity : AccountAuthenticatorActivity() {
         @JvmStatic
         fun createIntentBundle(context: Context, response: AccountAuthenticatorResponse?, accountName: String?): Bundle {
             val intent = context.intentFor<LoginActivity>(
-                    KEY_USERNAME to accountName,
-                    AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE to response
+                KEY_USERNAME to accountName,
+                AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE to response
             )
             return bundleOf(AccountManager.KEY_INTENT to intent)
         }
