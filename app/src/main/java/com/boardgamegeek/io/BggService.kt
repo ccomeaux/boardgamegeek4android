@@ -41,16 +41,10 @@ interface BggService {
     suspend fun plays(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): PlaysResponse
 
     @GET("/xmlapi2/user")
-    fun user(@Query("name") name: String?): Call<User>
+    suspend fun user(@Query("name") name: String?): User
 
     @GET("/xmlapi2/user")
-    suspend fun userC(@Query("name") name: String?): User
-
-    @GET("/xmlapi2/user")
-    fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): Call<User>
-
-    @GET("/xmlapi2/user")
-    suspend fun userC(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): User
+    suspend fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): User
 
     @GET("/xmlapi/{type}/{id}")
     suspend fun person(@Path("type") type: String?, @Path("id") id: Int): Person

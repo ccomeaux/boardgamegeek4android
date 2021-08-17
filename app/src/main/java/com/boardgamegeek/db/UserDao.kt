@@ -10,7 +10,6 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.BriefBuddyEntity
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.model.User
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.util.FileUtils
 import kotlinx.coroutines.Dispatchers
@@ -100,8 +99,7 @@ class UserDao(private val context: BggApplication) {
                     Buddies.UPDATED to updateTime,
                     Buddies.UPDATED_LIST to updateTime
                 )
-                val oldSyncHashCode =
-                    context.contentResolver.queryInt(Buddies.buildBuddyUri(user.userName), Buddies.SYNC_HASH_CODE)
+                val oldSyncHashCode = context.contentResolver.queryInt(Buddies.buildBuddyUri(user.userName), Buddies.SYNC_HASH_CODE)
                 val newSyncHashCode = user.generateSyncHashCode()
                 if (oldSyncHashCode != newSyncHashCode) {
                     values.put(Buddies.BUDDY_ID, user.id)
@@ -116,27 +114,6 @@ class UserDao(private val context: BggApplication) {
             } else user
         }
 
-    fun saveUser(user: User?, updateTime: Long = System.currentTimeMillis()) {
-        if (user != null && !user.name.isNullOrBlank()) {
-            val values = contentValuesOf(
-                Buddies.UPDATED to updateTime,
-                Buddies.UPDATED_LIST to updateTime
-            )
-            val oldSyncHashCode =
-                context.contentResolver.queryInt(Buddies.buildBuddyUri(user.name), Buddies.SYNC_HASH_CODE)
-            val newSyncHashCode = generateSyncHashCode(user)
-            if (oldSyncHashCode != newSyncHashCode) {
-                values.put(Buddies.BUDDY_ID, user.id)
-                values.put(Buddies.BUDDY_NAME, user.name)
-                values.put(Buddies.BUDDY_FIRSTNAME, user.firstName)
-                values.put(Buddies.BUDDY_LASTNAME, user.lastName)
-                values.put(Buddies.AVATAR_URL, user.avatarUrl)
-                values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode)
-            }
-            upsert(values, user.name, user.id)
-        }
-    }
-
     suspend fun saveBuddy(buddy: BriefBuddyEntity) = withContext(Dispatchers.IO) {
         if (buddy.id != INVALID_ID && buddy.userName.isNotBlank()) {
             val values = contentValuesOf(
@@ -146,33 +123,16 @@ class UserDao(private val context: BggApplication) {
                 Buddies.UPDATED_LIST to buddy.updatedTimestamp
             )
             upsert(values, buddy.userName, buddy.id)
-        }
-    }
-
-    fun saveUser(
-        userId: Int,
-        username: String,
-        isBuddy: Boolean = true,
-        updateTime: Long = System.currentTimeMillis()
-    ) {
-        if (userId != INVALID_ID && username.isNotBlank()) {
-            val values = contentValuesOf(
-                Buddies.BUDDY_ID to userId,
-                Buddies.BUDDY_NAME to username,
-                Buddies.BUDDY_FLAG to if (isBuddy) 1 else 0,
-                Buddies.UPDATED_LIST to updateTime
-            )
-            upsert(values, username, userId)
         } else {
-            Timber.i("Un-savable buddy %s (%d)", username, userId)
+            Timber.i("Un-savable buddy %s (%d)", buddy.userName, buddy.id)
         }
     }
 
-    fun upsert(values: ContentValues, username: String, userId: Int? = null): Long {
+    suspend fun upsert(values: ContentValues, username: String, userId: Int? = null): Long = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
         val uri = Buddies.buildBuddyUri(username)
         val internalId = resolver.queryLong(uri, Buddies._ID, INVALID_ID.toLong())
-        return if (internalId != INVALID_ID.toLong()) {
+        if (internalId != INVALID_ID.toLong()) {
             values.remove(Buddies.BUDDY_NAME)
             val count = resolver.update(uri, values, null, null)
             Timber.d("Updated %,d buddy rows at %s", count, uri)
@@ -187,32 +147,22 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
-    private fun generateSyncHashCode(buddy: User): Int {
-        return ("${buddy.firstName}\n${buddy.lastName}\n${buddy.avatarUrl}\n").hashCode()
+    private suspend fun maybeDeleteAvatar(values: ContentValues, uri: Uri) = withContext(Dispatchers.IO) {
+        if (values.containsKey(Buddies.AVATAR_URL)) {
+            val newAvatarUrl: String = values.getAsString(Buddies.AVATAR_URL).orEmpty()
+            val oldAvatarUrl = context.contentResolver.queryString(uri, Buddies.AVATAR_URL)
+            if (newAvatarUrl != oldAvatarUrl) {
+                val avatarFileName = FileUtils.getFileNameFromUrl(oldAvatarUrl)
+                if (!avatarFileName.isNullOrBlank()) {
+                    context.contentResolver.delete(Avatars.buildUri(avatarFileName), null, null)
+                }
+            }
+        }
+
     }
 
-    private fun maybeDeleteAvatar(values: ContentValues, uri: Uri) {
-        if (!values.containsKey(Buddies.AVATAR_URL)) {
-            // nothing to do - no avatar
-            return
-        }
-
-        val newAvatarUrl: String = values.getAsString(Buddies.AVATAR_URL) ?: ""
-        val oldAvatarUrl = context.contentResolver.queryString(uri, Buddies.AVATAR_URL)
-        if (newAvatarUrl == oldAvatarUrl) {
-            // nothing to do - avatar hasn't changed
-            return
-        }
-
-        val avatarFileName = FileUtils.getFileNameFromUrl(oldAvatarUrl)
-        if (!avatarFileName.isNullOrBlank()) {
-            context.contentResolver.delete(Avatars.buildUri(avatarFileName), null, null)
-        }
-    }
-
-    // TODO - convert to suspend function
-    fun deleteUsersAsOf(updateTimestamp: Long): Int {
-        return context.contentResolver.delete(
+    suspend fun deleteUsersAsOf(updateTimestamp: Long): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(
             Buddies.CONTENT_URI,
             "${Buddies.UPDATED_LIST}<?",
             arrayOf(updateTimestamp.toString())

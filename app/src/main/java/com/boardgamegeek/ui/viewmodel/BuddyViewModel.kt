@@ -7,6 +7,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
@@ -14,50 +15,67 @@ import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
     private val playRepository = PlayRepository(getApplication())
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
+    private val isRefreshing = AtomicBoolean()
 
-    private val _user = MutableLiveData<Pair<String?, Int>>()
+    private val _userTypeAndName = MutableLiveData<Pair<String?, Int>>()
     val user: LiveData<Pair<String?, Int>>
-        get() = _user
+        get() = _userTypeAndName
 
     private val _updateMessage = MutableLiveData<Event<String>>()
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
     fun setUsername(name: String?) {
-        if (_user.value?.first != name) _user.value = (name to TYPE_USER)
+        if (_userTypeAndName.value?.first != name) _userTypeAndName.value = (name to TYPE_USER)
     }
 
     fun setPlayerName(name: String?) {
-        if (_user.value?.first != name) _user.value = (name to TYPE_PLAYER)
+        if (_userTypeAndName.value?.first != name) _userTypeAndName.value = (name to TYPE_PLAYER)
     }
 
     fun refresh() {
-        _user.value?.let { _user.value = it }
+        _userTypeAndName.value?.let { _userTypeAndName.value = it }
     }
 
-    val buddy: LiveData<RefreshableResource<UserEntity>> = _user.switchMap { user ->
+    val buddy: LiveData<RefreshableResource<UserEntity>> = _userTypeAndName.switchMap { userTypeAndName ->
         liveData {
             try {
-                emit(RefreshableResource.refreshing(null))
-                val name = user.first
-                val d = when {
-                    name == null || name.isBlank() -> null
-                    user.second == TYPE_USER -> userRepository.load(name)
-                    else -> null
+                when (userTypeAndName.second) {
+                    TYPE_USER -> {
+                        userTypeAndName.first?.let {
+                            val loadedUser = when {
+                                it.isBlank() -> null
+                                else -> userRepository.load(it)
+                            }
+                            val refreshedUser =
+                                if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0, TimeUnit.DAYS)) &&
+                                    isRefreshing.compareAndSet(false, true)
+                                ) {
+                                    emit(RefreshableResource.refreshing(loadedUser))
+                                    userRepository.refresh(it).also {
+                                        isRefreshing.set(false)
+                                    }
+                                } else loadedUser
+                            emit(RefreshableResource.success(refreshedUser))
+                        } ?: emit(RefreshableResource.success(null))
+                    }
+                    TYPE_PLAYER -> emit(RefreshableResource.success(null))
                 }
-                emit(RefreshableResource.success(d))
             } catch (e: Exception) {
+                isRefreshing.set(false)
                 emit(RefreshableResource.error<UserEntity>(e, application))
             }
         }
     }
 
-    val player: LiveData<PlayerEntity?> = _user.switchMap { user ->
+    val player: LiveData<PlayerEntity?> = _userTypeAndName.switchMap { user ->
         liveData {
             val name = user.first
             val p = when {
@@ -70,7 +88,7 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val colors = _user.switchMap { user ->
+    val colors = _userTypeAndName.switchMap { user ->
         liveData {
             val name = user.first
             emit(

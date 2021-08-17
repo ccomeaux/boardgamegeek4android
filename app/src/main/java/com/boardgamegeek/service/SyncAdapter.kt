@@ -222,7 +222,7 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
             tasks.add(SyncPlays(application, service, syncResult, account))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-            tasks.add(SyncBuddiesList(application, service, syncResult, account))
+            tasks.add(SyncBuddiesList(application, service, syncResult))
             tasks.add(SyncBuddiesDetailOldest(application, service, syncResult))
             tasks.add(SyncBuddiesDetailUnupdated(application, service, syncResult))
         }

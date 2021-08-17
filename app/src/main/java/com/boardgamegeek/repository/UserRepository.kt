@@ -24,7 +24,7 @@ class UserRepository(val application: BggApplication) {
     }
 
     suspend fun refresh(username: String): UserEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().userC(username)
+        val response = Adapter.createForXml().user(username)
         val user = response.mapToEntity()
         userDao.saveUser(user)
     }
@@ -49,11 +49,12 @@ class UserRepository(val application: BggApplication) {
             userDao.loadBuddies(sortBy)
         }
 
-    suspend fun refreshBuddies(timestamp: Long) = withContext(Dispatchers.IO) {
+    suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
         val accountName = Authenticator.getAccount(application)?.name
-        if (accountName.isNullOrBlank()) return@withContext
+        if (accountName.isNullOrBlank()) return@withContext 0 to 0
 
-        val response = Adapter.createForXml().userC(accountName, 1, 1)
+        val response = Adapter.createForXml().user(accountName, 1, 1)
+        val upsertedCount = response.buddies?.buddies?.size ?: 0
         response.buddies?.buddies.orEmpty()
             .map { it.mapToEntity(timestamp) }
             .filter { it.id != BggContract.INVALID_ID && it.userName.isNotBlank() }
@@ -63,6 +64,8 @@ class UserRepository(val application: BggApplication) {
 
         val deletedCount = userDao.deleteUsersAsOf(timestamp)
         Timber.d("Deleted $deletedCount users")
+
+        upsertedCount to deletedCount
     }
 
     suspend fun updateNickName(username: String, nickName: String) = withContext(Dispatchers.IO) {
