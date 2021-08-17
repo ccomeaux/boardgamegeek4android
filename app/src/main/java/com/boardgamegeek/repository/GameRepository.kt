@@ -6,9 +6,11 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.ImageUtils.getImageId
@@ -41,6 +43,16 @@ class GameRepository(val application: BggApplication) {
         val url = response.images.medium.url
         dao.upsert(game.id, contentValuesOf(BggContract.Games.HERO_IMAGE_URL to url))
         game.copy(heroImageUrl = url)
+    }
+
+    suspend fun loadComments(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().thingWithComments(gameId, page)
+        response.games.firstOrNull()?.mapToRatingEntities()
+    }
+
+    suspend fun loadRatings(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().thingWithRatings(gameId, page)
+        response.games.firstOrNull()?.mapToRatingEntities()
     }
 
     suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)

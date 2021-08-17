@@ -13,16 +13,19 @@ import com.boardgamegeek.extensions.toFormattedString
 import com.boardgamegeek.ui.ThreadActivity
 import kotlinx.android.synthetic.main.row_forum_thread.view.*
 
-class ForumPagedListAdapter(private val forumId: Int, private val forumTitle: String, private val objectId: Int, private val objectName: String, private val objectType: ForumEntity.ForumType)
-    : PagingDataAdapter<ThreadEntity, ForumPagedListAdapter.ForumViewHolder>(diffCallback) {
+class ForumPagedListAdapter(
+    private val forumId: Int,
+    private val forumTitle: String,
+    private val objectId: Int,
+    private val objectName: String,
+    private val objectType: ForumEntity.ForumType
+) : PagingDataAdapter<ThreadEntity, ForumPagedListAdapter.ForumViewHolder>(diffCallback) {
 
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<ThreadEntity>() {
-            override fun areItemsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity): Boolean =
-                    oldItem.threadId == newItem.threadId
+            override fun areItemsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity) = oldItem.threadId == newItem.threadId
 
-            override fun areContentsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity): Boolean =
-                    oldItem == newItem
+            override fun areContentsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity) = oldItem == newItem
         }
     }
 

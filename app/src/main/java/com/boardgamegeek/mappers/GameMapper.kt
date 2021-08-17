@@ -113,3 +113,14 @@ private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
     }
     return null
 }
+
+fun Game.mapToRatingEntities(): GameCommentsEntity {
+    val list = comments.comments.map {
+        GameCommentEntity(
+            username = it.username,
+            rating = it.rating.toDoubleOrNull() ?: 0.0,
+            comment = it.value,
+        )
+    }
+    return GameCommentsEntity(this.comments.totalitems, list)
+}
