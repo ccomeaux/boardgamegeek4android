@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -47,6 +48,7 @@ import kotlinx.android.synthetic.main.activity_logplay.noWinStatsView
 import kotlinx.android.synthetic.main.activity_logplay.playersLabel
 import kotlinx.android.synthetic.main.activity_logplay.quantityView
 import kotlinx.android.synthetic.main.activity_logplay.thumbnailView
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.design.indefiniteSnackbar
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.toast
@@ -276,23 +278,26 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
     private fun bindHeader() {
         headerView.text = gameName
-        thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
-            override fun onSuccessfulImageLoad(palette: Palette?) {
-                headerView.setBackgroundResource(R.color.black_overlay_light)
-                updateColors(palette.getIconSwatch().rgb)
-            }
+        lifecycleScope.launch {
+            thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
+                override fun onSuccessfulImageLoad(palette: Palette?) {
+                    // no image for Andor?
+                    headerView.setBackgroundResource(R.color.black_overlay_light)
+                    updateColors(palette.getIconSwatch().rgb)
+                }
 
-            override fun onFailedImageLoad() {
-                updateColors(ContextCompat.getColor(this@LogPlayActivity, R.color.accent))
-            }
+                override fun onFailedImageLoad() {
+                    updateColors(ContextCompat.getColor(this@LogPlayActivity, R.color.accent))
+                }
 
-            private fun updateColors(color: Int) {
-                fabColor = color
-                fab.colorize(color)
-                fab.post { fab.show() }
-                ViewCompat.setBackgroundTintList(addPlayerButton, ColorStateList.valueOf(color))
-            }
-        })
+                private fun updateColors(color: Int) {
+                    fabColor = color
+                    fab.colorize(color)
+                    fab.post { fab.show() }
+                    ViewCompat.setBackgroundTintList(addPlayerButton, ColorStateList.valueOf(color))
+                }
+            })
+        }
     }
 
     private fun bindDate(play: Play) {

@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Player
@@ -26,6 +27,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_logplayer.*
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.defaultSharedPreferences
 import kotlin.collections.ArrayList
 
@@ -121,7 +123,10 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
-        thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
+        lifecycleScope.launch {
+            thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
+        }
+        lifecycleScope.launchWhenCreated {  }
         bindUi()
         nameView.setAdapter(PlayerNameAdapter(this))
         usernameView.setAdapter(BuddyNameAdapter(this))

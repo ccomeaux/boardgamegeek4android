@@ -50,7 +50,7 @@ class PublisherRepository(val application: BggApplication) {
     }
 
     suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image2(publisher.thumbnailUrl.getImageId())
+        val response = Adapter.createGeekdoApi().image(publisher.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(publisher.id, contentValuesOf(Publishers.PUBLISHER_HERO_IMAGE_URL to url))
         publisher.copy(heroImageUrl = url)

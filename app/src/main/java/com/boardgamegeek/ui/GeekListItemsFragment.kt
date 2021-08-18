@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
@@ -19,12 +21,13 @@ import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_geeklist_items.*
 import kotlinx.android.synthetic.main.row_geeklist_item.view.*
+import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
     private val viewModel by activityViewModels<GeekListViewModel>()
     private val adapter: GeekListRecyclerViewAdapter by lazy {
-        GeekListRecyclerViewAdapter()
+        GeekListRecyclerViewAdapter(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -56,7 +59,7 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
         progressView.hide()
     }
 
-    class GeekListRecyclerViewAdapter : RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
+    class GeekListRecyclerViewAdapter(val lifecycleScope: LifecycleCoroutineScope) : RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
         var geekListItems: List<GeekListItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.objectId == new.objectId
@@ -85,7 +88,9 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_items) {
             fun bind(entity: GeekListItemEntity?, order: Int) {
                 entity?.let { item ->
                     itemView.orderView.text = order.toString()
-                    itemView.thumbnailView.loadThumbnail(item.imageId)
+                    lifecycleScope.launch {
+                        itemView.thumbnailView.loadThumbnail(item.imageId)
+                    }
                     itemView.itemNameView.text = item.objectName
                     itemView.usernameView.text = item.username
                     itemView.usernameView.isVisible = item.username != geekList?.username

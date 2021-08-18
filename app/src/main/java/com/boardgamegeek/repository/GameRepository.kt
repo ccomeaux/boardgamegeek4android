@@ -39,7 +39,7 @@ class GameRepository(val application: BggApplication) {
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image2(game.thumbnailUrl.getImageId())
+        val response = Adapter.createGeekdoApi().image(game.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(game.id, contentValuesOf(BggContract.Games.HERO_IMAGE_URL to url))
         game.copy(heroImageUrl = url)

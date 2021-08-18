@@ -59,7 +59,7 @@ class DesignerRepository(val application: BggApplication) {
     }
 
     suspend fun refreshHeroImage(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image2(designer.thumbnailUrl.getImageId())
+        val response = Adapter.createGeekdoApi().image(designer.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(designer.id, contentValuesOf(Designers.DESIGNER_HERO_IMAGE_URL to url))
         designer.copy(heroImageUrl = url)

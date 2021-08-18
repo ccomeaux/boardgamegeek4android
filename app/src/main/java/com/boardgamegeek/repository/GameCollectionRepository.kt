@@ -64,7 +64,7 @@ class GameCollectionRepository(val application: BggApplication) {
         }
 
     suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image2(item.thumbnailUrl.getImageId())
+        val response = Adapter.createGeekdoApi().image(item.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.update(item.internalId, contentValuesOf(Collection.COLLECTION_HERO_IMAGE_URL to url))
         item.copy(heroImageUrl = url)

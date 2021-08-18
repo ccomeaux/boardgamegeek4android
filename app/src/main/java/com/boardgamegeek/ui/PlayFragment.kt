@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -9,6 +8,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
@@ -28,6 +28,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_play.*
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.support.v4.longToast
 
 class PlayFragment : Fragment(R.layout.fragment_play) {
@@ -57,7 +58,15 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         }
         timerEndButton.setOnClickListener {
             play?.let { play ->
-                LogPlayActivity.endPlay(requireContext(), play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                LogPlayActivity.endPlay(
+                    requireContext(),
+                    play.internalId,
+                    play.gameId,
+                    play.gameName,
+                    play.thumbnailUrl,
+                    play.imageUrl,
+                    play.heroImageUrl
+                )
             }
         }
         playersView.adapter = adapter
@@ -79,7 +88,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             }
         }
         viewModel.updatedId.observe(viewLifecycleOwner) {
-            Handler().postDelayed({
+            view.postDelayed({
                 SyncService.sync(requireContext(), SyncService.FLAG_SYNC_PLAYS)
                 viewModel.refresh()
             }, 200)
@@ -94,13 +103,15 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     }
 
     private fun showData(play: PlayEntity) {
-        thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageUtils.Callback {
-            override fun onSuccessfulImageLoad(palette: Palette?) {
-                if (isAdded) gameNameView?.setBackgroundResource(R.color.black_overlay_light)
-            }
+        lifecycleScope.launch {
+            thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageUtils.Callback {
+                override fun onSuccessfulImageLoad(palette: Palette?) {
+                    if (isAdded) gameNameView?.setBackgroundResource(R.color.black_overlay_light)
+                }
 
-            override fun onFailedImageLoad() {}
-        })
+                override fun onFailedImageLoad() {}
+            })
+        }
 
         gameNameView.text = play.gameName
         dateView.text = play.dateForDisplay(requireContext())
@@ -190,7 +201,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.menu_discard)?.isVisible =
-                (play?.playId ?: INVALID_ID) != INVALID_ID && (play?.dirtyTimestamp ?: 0L) > 0
+            (play?.playId ?: INVALID_ID) != INVALID_ID && (play?.dirtyTimestamp ?: 0L) > 0
         menu.findItem(R.id.menu_edit)?.isVisible = play != null
         menu.findItem(R.id.menu_send)?.isVisible = (play?.dirtyTimestamp ?: 0L) > 0
         menu.findItem(R.id.menu_delete)?.isVisible = play != null
@@ -211,6 +222,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             R.id.menu_edit -> {
                 play?.let {
                     logDataManipulationAction("Edit")
+                    // URL is empty!
                     LogPlayActivity.editPlay(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl)
                     return true
                 }
@@ -222,24 +234,33 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             }
             R.id.menu_delete -> {
                 requireContext().createThemedBuilder()
-                        .setMessage(R.string.are_you_sure_delete_play)
-                        .setPositiveButton(R.string.delete) { _, _ ->
-                            play?.let {
-                                if (it.hasStarted()) requireContext().cancel(TAG_PLAY_TIMER, it.internalId)
-                                logDataManipulationAction("Delete")
-                                viewModel.delete()
-                                requireActivity().finish() // don't want to show an empty screen upon return
-                            }
+                    .setMessage(R.string.are_you_sure_delete_play)
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        play?.let {
+                            if (it.hasStarted()) requireContext().cancel(TAG_PLAY_TIMER, it.internalId)
+                            logDataManipulationAction("Delete")
+                            viewModel.delete()
+                            requireActivity().finish() // don't want to show an empty screen upon return
                         }
-                        .setNegativeButton(R.string.cancel, null)
-                        .setCancelable(true)
-                        .show()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .setCancelable(true)
+                    .show()
                 return true
             }
             R.id.menu_rematch -> {
                 play?.let {
                     logDataManipulationAction("Rematch")
-                    LogPlayActivity.rematch(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted())
+                    LogPlayActivity.rematch(
+                        requireContext(),
+                        it.internalId,
+                        it.gameId,
+                        it.gameName,
+                        it.thumbnailUrl,
+                        it.imageUrl,
+                        it.heroImageUrl,
+                        it.arePlayersCustomSorted()
+                    )
                     requireActivity().finish() // don't want to show the "old" play upon return
                     return true
                 }
@@ -254,10 +275,18 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
             }
             R.id.menu_share -> {
                 play?.let {
-                    val subject = getString(R.string.play_description_game_segment, it.gameName) + getString(R.string.play_description_date_segment, it.dateInMillis.asDate(requireContext()))
+                    val subject = getString(R.string.play_description_game_segment, it.gameName) + getString(
+                        R.string.play_description_date_segment,
+                        it.dateInMillis.asDate(requireContext())
+                    )
                     val sb = StringBuilder()
                     sb.append(getString(R.string.play_description_game_segment, it.gameName))
-                    if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(getString(R.string.play_description_date_segment, it.dateInMillis.asDate(requireContext(), includeWeekDay = true)))
+                    if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
+                        getString(
+                            R.string.play_description_date_segment,
+                            it.dateInMillis.asDate(requireContext(), includeWeekDay = true)
+                        )
+                    )
                     if (it.quantity > 1) sb.append(resources.getQuantityString(R.plurals.play_description_quantity_segment, it.quantity, it.quantity))
                     if (it.location.isNotBlank()) sb.append(getString(R.string.play_description_location_segment, it.location))
                     if (it.length > 0) sb.append(getString(R.string.play_description_length_segment, it.length.asTime()))
@@ -321,14 +350,14 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         play?.let {
             if (it.hasStarted() && !hasBeenNotified) {
                 requireContext().launchPlayingNotification(
-                        it.internalId,
-                        it.gameName,
-                        it.location,
-                        it.playerCount,
-                        it.startTime,
-                        it.thumbnailUrl,
-                        it.imageUrl,
-                        it.heroImageUrl,
+                    it.internalId,
+                    it.gameName,
+                    it.location,
+                    it.playerCount,
+                    it.startTime,
+                    it.thumbnailUrl,
+                    it.imageUrl,
+                    it.heroImageUrl,
                 )
                 hasBeenNotified = true
             }

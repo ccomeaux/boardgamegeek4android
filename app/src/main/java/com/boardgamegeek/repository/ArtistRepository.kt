@@ -64,7 +64,7 @@ class ArtistRepository(val application: BggApplication) {
     }
 
     suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image2(artist.thumbnailUrl.getImageId())
+        val response = Adapter.createGeekdoApi().image(artist.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(artist.id, contentValuesOf(BggContract.Designers.DESIGNER_HERO_IMAGE_URL to url))
         artist.copy(heroImageUrl = url)

@@ -7,11 +7,9 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.Image
 import com.squareup.picasso.Picasso
-import retrofit2.Call
-import retrofit2.Response
 import timber.log.Timber
+import java.lang.Exception
 import java.util.*
 
 /**
@@ -33,28 +31,19 @@ object ImageUtils {
      * Loads an image into the [android.widget.ImageView] by attempting various sizes and image formats. Applies
      * fit/center crop and will load a [androidx.palette.graphics.Palette].
      */
-    fun ImageView.safelyLoadImage(imageId: Int, callback: Callback? = null) {
+    suspend fun ImageView.safelyLoadImage(imageId: Int, callback: Callback? = null) {
         RemoteConfig.fetch()
         if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-            val call = Adapter.createGeekdoApi().image(imageId)
-            call.enqueue(object : retrofit2.Callback<Image> {
-                override fun onResponse(call: Call<Image>, response: Response<Image>) {
-                    val body = response.body()
-                    if (response.code() == 200 && body != null) {
-                        val queue = LinkedList<String>()
-                        queue.add(body.images.medium.url)
-                        queue.add(body.images.small.url)
-                        addDefaultImagesToQueue(imageId, queue)
-                        safelyLoadImage(queue, callback)
-                    } else {
-                        safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
-                    }
-                }
-
-                override fun onFailure(call: Call<Image>, t: Throwable) {
-                    safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
-                }
-            })
+            try {
+                val response = Adapter.createGeekdoApi().image(imageId)
+                val queue = LinkedList<String>()
+                queue.add(response.images.medium.url)
+                queue.add(response.images.small.url)
+                addDefaultImagesToQueue(imageId, queue)
+                safelyLoadImage(queue, callback)
+            } catch (e: Exception) {
+                safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
+            }
         } else {
             safelyLoadImage(addDefaultImagesToQueue(imageId), callback)
         }
@@ -64,7 +53,7 @@ object ImageUtils {
      * Loads an image into the [android.widget.ImageView] by attempting various sizes. Applies fit/center crop and
      * will load a [androidx.palette.graphics.Palette].
      */
-    fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String, heroImageUrl: String? = "", callback: Callback? = null) {
+    suspend fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String, heroImageUrl: String? = "", callback: Callback? = null) {
         RemoteConfig.fetch()
         if (heroImageUrl?.isNotEmpty() == true) {
             val queue = LinkedList<String>()
@@ -73,24 +62,17 @@ object ImageUtils {
         } else if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             val imageId = imageUrl.getImageId()
             if (imageId > 0) {
-                val call = Adapter.createGeekdoApi().image(imageId)
-                call.enqueue(object : retrofit2.Callback<Image> {
-                    override fun onResponse(call: Call<Image>, response: Response<Image>) {
-                        val body = response.body()
-                        if (response.code() == 200 && body != null) {
-                            val queue = LinkedList<String>()
-                            queue.add(body.images.medium.url)
-                            queue.add(body.images.small.url)
-                            loadImages(thumbnailUrl, imageUrl, callback, queue)
-                        } else {
-                            loadImages(thumbnailUrl, imageUrl, callback)
-                        }
+                try {
+                    val response = Adapter.createGeekdoApi().image(imageId)
+                    val queue = LinkedList<String>().apply {
+                        add(response.images.medium.url)
+                        add(response.images.small.url)
                     }
+                    loadImages(thumbnailUrl, imageUrl, callback, queue)
+                } catch (e: Exception) {
+                    loadImages(thumbnailUrl, imageUrl, callback)
 
-                    override fun onFailure(call: Call<Image>, t: Throwable) {
-                        loadImages(thumbnailUrl, imageUrl, callback)
-                    }
-                })
+                }
             } else {
                 loadImages(thumbnailUrl, imageUrl, callback)
             }
@@ -136,31 +118,21 @@ object ImageUtils {
         }
     }
 
-    fun ImageView.loadThumbnail(imageId: Int) {
-        if (imageId == 0) {
-            Timber.i(" Not attempting to fetch invalid image ID of 0.")
+    suspend fun ImageView.loadThumbnail(imageId: Int) {
+        if (imageId <= 0) {
+            Timber.i("Not attempting to fetch invalid image ID of 0 or negative [%s].", imageId)
             return
         }
         RemoteConfig.fetch()
         if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-            val call = Adapter.createGeekdoApi().image(imageId)
-            call.enqueue(object : retrofit2.Callback<Image> {
-                override fun onResponse(call: Call<Image>, response: Response<Image>) {
-                    val body = response.body()
-                    if (response.code() == 200 && body != null) {
-                        val queue = LinkedList<String>()
-                        queue.add(body.images.small.url)
-                        addDefaultImagesToQueue(imageId, queue)
-                        safelyLoadThumbnail(queue)
-                    } else {
-                        safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
-                    }
-                }
-
-                override fun onFailure(call: Call<Image>, t: Throwable) {
-                    safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
-                }
-            })
+            try {
+                val response = Adapter.createGeekdoApi().image(imageId)
+                val queue = LinkedList<String>().apply { add(response.images.small.url) }
+                addDefaultImagesToQueue(imageId, queue)
+                safelyLoadThumbnail(queue)
+            } catch (e: Exception) {
+                safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
+            }
         } else {
             safelyLoadThumbnail(addDefaultImagesToQueue(imageId))
         }
@@ -186,19 +158,19 @@ object ImageUtils {
         }
         val imageUrl = url
         Picasso.with(context)
-                .load(imageUrl.ensureHttpsScheme())
-                .placeholder(errorResId)
-                .error(errorResId)
-                .fit()
-                .centerCrop()
-                .into(this, object : com.squareup.picasso.Callback {
-                    override fun onSuccess() {
-                    }
+            .load(imageUrl.ensureHttpsScheme())
+            .placeholder(errorResId)
+            .error(errorResId)
+            .fit()
+            .centerCrop()
+            .into(this, object : com.squareup.picasso.Callback {
+                override fun onSuccess() {
+                }
 
-                    override fun onError() {
-                        safelyLoadThumbnail(imageUrls, errorResId)
-                    }
-                })
+                override fun onError() {
+                    safelyLoadThumbnail(imageUrls, errorResId)
+                }
+            })
     }
 
     /**
@@ -224,21 +196,21 @@ object ImageUtils {
         }
         val imageUrl = url
         Picasso.with(context)
-                .load(imageUrl.ensureHttpsScheme())
-                .transform(PaletteTransformation.instance())
-                .into(this, object : com.squareup.picasso.Callback {
-                    override fun onSuccess() {
-                        setTag(R.id.url, imageUrl)
-                        if (callback != null) {
-                            val bitmap = (drawable as BitmapDrawable).bitmap
-                            val palette = PaletteTransformation.getPalette(bitmap)
-                            callback.onSuccessfulImageLoad(palette)
-                        }
+            .load(imageUrl.ensureHttpsScheme())
+            .transform(PaletteTransformation.instance())
+            .into(this, object : com.squareup.picasso.Callback {
+                override fun onSuccess() {
+                    setTag(R.id.url, imageUrl)
+                    if (callback != null) {
+                        val bitmap = (drawable as BitmapDrawable).bitmap
+                        val palette = PaletteTransformation.getPalette(bitmap)
+                        callback.onSuccessfulImageLoad(palette)
                     }
+                }
 
-                    override fun onError() {
-                        safelyLoadImage(imageUrls, callback)
-                    }
-                })
+                override fun onError() {
+                    safelyLoadImage(imageUrls, callback)
+                }
+            })
     }
 }

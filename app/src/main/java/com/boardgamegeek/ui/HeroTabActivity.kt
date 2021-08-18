@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -11,6 +12,7 @@ import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_hero_tab.*
+import kotlinx.coroutines.launch
 
 /**
  * A navigation drawer activity that displays a hero image over a view pager.
@@ -57,16 +59,18 @@ abstract class HeroTabActivity : DrawerActivity() {
     }
 
     protected fun loadToolbarImage(imageId: Int) {
-        toolbarImage.safelyLoadImage(imageId, object : ImageUtils.Callback {
-            override fun onSuccessfulImageLoad(palette: Palette?) {
-                onPaletteLoaded(palette)
-                scrimView.applyDarkScrim()
-            }
+        lifecycleScope.launch {
+            toolbarImage.safelyLoadImage(imageId, object : ImageUtils.Callback {
+                override fun onSuccessfulImageLoad(palette: Palette?) {
+                    onPaletteLoaded(palette)
+                    scrimView.applyDarkScrim()
+                }
 
-            override fun onFailedImageLoad() {
+                override fun onFailedImageLoad() {
 
-            }
-        })
+                }
+            })
+        }
     }
 
     protected open fun onPaletteLoaded(palette: Palette?) {
