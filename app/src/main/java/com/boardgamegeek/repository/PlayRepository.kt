@@ -22,7 +22,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.provider.BggContract.PlayerColors
 import com.boardgamegeek.provider.BggContract.PlayPlayers
-import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.Dispatchers
@@ -137,7 +136,7 @@ class PlayRepository(val application: BggApplication) {
         } else {
             syncPrefs.setPlaysOldestTimestamp(0L)
         }
-        CalculatePlayStatsTask(application).executeAsyncTask()
+        calculatePlayStats()
     }
 
     suspend fun refreshPlays(timeInMillis: Long) = withContext(Dispatchers.IO) {
@@ -156,7 +155,7 @@ class PlayRepository(val application: BggApplication) {
                 Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
             } while (response.hasMorePages())
 
-            CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
+            calculatePlayStats()
 
             plays
         }
@@ -357,6 +356,22 @@ class PlayRepository(val application: BggApplication) {
         return id
     }
 
+    suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {
+        if (SyncPrefs.getPrefs(application).isPlaysSyncUpToDate()) {
+            val includeIncompletePlays = prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+            val includeExpansions = prefs[PlayStats.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+            val includeAccessories = prefs[PlayStats.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+
+            val playStats = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
+            val playStatsEntity = PlayStatsEntity(playStats, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
+            updateGameHIndex(playStatsEntity.hIndex)
+
+            val playerStats = loadPlayersForStats(includeIncompletePlays)
+            val playerStatsEntity = PlayerStatsEntity(playerStats)
+            updatePlayerHIndex(playerStatsEntity.hIndex)
+        }
+    }
+
     fun updateGameHIndex(hIndex: HIndexEntity) {
         updateHIndex(
             application,
@@ -405,7 +420,7 @@ class PlayRepository(val application: BggApplication) {
                                 context,
                                 0,
                                 Intent(context, PlayStatsActivity::class.java),
-                                PendingIntent.FLAG_UPDATE_CURRENT
+                                PendingIntent.FLAG_UPDATE_CURRENT,
                             )
                         )
                 )

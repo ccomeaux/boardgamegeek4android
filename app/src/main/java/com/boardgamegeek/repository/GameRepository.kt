@@ -7,12 +7,10 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.GameCommentsEntity
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,6 +20,7 @@ class GameRepository(val application: BggApplication) {
     private val dao = GameDao(application)
     private val playDao = PlayDao(application)
     private val bggService = Adapter.createForXml()
+    private val playRepository = PlayRepository(application)
     private val username: String? by lazy {
         AccountUtils.getUsername(application)
     }
@@ -90,7 +89,7 @@ class GameRepository(val application: BggApplication) {
             playDao.deleteUnupdatedPlays(gameId, timestamp)
             dao.update(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
 
-            CalculatePlayStatsTask(application).executeAsyncTask() // TODO replace with coroutine
+            playRepository.calculatePlayStats()
         }
     }
 
@@ -99,7 +98,7 @@ class GameRepository(val application: BggApplication) {
         val response = bggService.playsByGame(username, gameId, 1)
         val plays = response.plays.mapToEntity(timestamp)
         playDao.save(plays, timestamp)
-        CalculatePlayStatsTask(application).executeAsyncTask()
+        playRepository.calculatePlayStats()
     }
 
     suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)

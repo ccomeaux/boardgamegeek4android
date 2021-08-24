@@ -263,27 +263,26 @@ class PlayDao(private val context: BggApplication) {
         "${PlayPlayers.USER_NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(username)
 
     private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
-        "${PlayPlayers.USER_NAME}='' AND play_players.${PlayPlayers.NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(
-            playerName
-        )
+        "${PlayPlayers.USER_NAME}='' AND play_players.${PlayPlayers.NAME}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
 
     private fun addGamePlaySelectionAndArgs(existing: Pair<String, Array<String>>, gameId: Int) =
         "${existing.first} AND ${Plays.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
 
     suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
+        val username = AccountUtils.getUsername(context)
         val selection = arrayListOf<String>().apply {
             add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
-            if (!AccountUtils.getUsername(context).isNullOrBlank()) {
+            if (!username.isNullOrBlank()) {
                 add(PlayPlayers.USER_NAME + "!=?")
             }
             if (!includeIncompletePlays) {
                 add(Plays.INCOMPLETE.whereZeroOrNull())
             }
         }.joinTo(" AND ").toString()
-        val selectionArgs = AccountUtils.getUsername(context)?.let { username ->
+        val selectionArgs = username?.let {
             when {
-                username.isBlank() -> null
-                else -> arrayOf(username)
+                it.isBlank() -> null
+                else -> arrayOf(it)
             }
         }
         return loadPlayers(Plays.buildPlayersByUniquePlayerUri(), selection to selectionArgs, PlayerSortBy.PLAY_COUNT)
@@ -328,10 +327,6 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    suspend fun loadUserColors(playerName: String): List<PlayerColorEntity> {
-        return loadColors(PlayerColors.buildUserUri(playerName))
-    }
-
     suspend fun loadColors(uri: Uri): List<PlayerColorEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<PlayerColorEntity>()
         context.contentResolver.load(
@@ -369,13 +364,11 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    list.add(
-                        PlayerDetailEntity(
-                            id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                            name = it.getStringOrNull(1).orEmpty(),
-                            username = it.getStringOrNull(2).orEmpty(),
-                            color = it.getStringOrNull(3).orEmpty(),
-                        )
+                    list += PlayerDetailEntity(
+                        id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        username = it.getStringOrNull(2).orEmpty(),
+                        color = it.getStringOrNull(3).orEmpty(),
                     )
                 } while (it.moveToNext())
             } else list
@@ -518,14 +511,13 @@ class PlayDao(private val context: BggApplication) {
         var dirtyCount = 0
         var errorCount = 0
         for (play: PlayEntity in plays) {
-            //val play = p.copy(syncTimestamp = startTime)
             val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
             when {
                 !play.isSynced -> {
                     Timber.i("Can't sync a play without a play ID.")
                     errorCount++
                 }
-                candidate.internalId == INVALID_ID.toLong() -> {
+                candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
                     save(play, INVALID_ID.toLong())
                     insertCount++
                 }
@@ -1033,18 +1025,18 @@ class PlayDao(private val context: BggApplication) {
     data class PlaySyncCandidate(
         val internalId: Long = INVALID_ID.toLong(),
         val syncHashCode: Int = 0,
-        val deleteTimestamp: Long = 0L,
-        val updateTimestamp: Long = 0L,
-        val dirtyTimestamp: Long = 0L,
+        private val deleteTimestamp: Long = 0L,
+        private val updateTimestamp: Long = 0L,
+        private val dirtyTimestamp: Long = 0L,
     ) {
         val isDirty: Boolean
             get() = dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0
 
         companion object {
-            fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate {
+            fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate? {
                 if (playId <= 0) {
                     Timber.i("Can't sync a play without a play ID.")
-                    return PlaySyncCandidate()
+                    return null
                 }
                 val cursor = resolver.query(
                     Plays.CONTENT_URI,
@@ -1069,9 +1061,9 @@ class PlayDao(private val context: BggApplication) {
                             dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
                         )
                     } else {
-                        PlaySyncCandidate()
+                        null
                     }
-                } ?: PlaySyncCandidate()
+                }
             }
         }
     }
