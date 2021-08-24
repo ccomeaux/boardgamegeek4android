@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
@@ -97,10 +96,10 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun loadPlays(it: PlayInfo) = when (it.mode) {
         Mode.ALL -> {
             val sortType = when (it.sort) {
-                SortType.DATE -> PlayDao.PlaysSortBy.DATE
-                SortType.LOCATION -> PlayDao.PlaysSortBy.LOCATION
-                SortType.GAME -> PlayDao.PlaysSortBy.GAME
-                SortType.LENGTH -> PlayDao.PlaysSortBy.LENGTH
+                SortType.DATE -> PlayRepository.SortBy.DATE
+                SortType.LOCATION -> PlayRepository.SortBy.LOCATION
+                SortType.GAME -> PlayRepository.SortBy.GAME
+                SortType.LENGTH -> PlayRepository.SortBy.LENGTH
             }
             when (it.filter) {
                 FilterType.ALL -> playRepository.getPlays(sortType)

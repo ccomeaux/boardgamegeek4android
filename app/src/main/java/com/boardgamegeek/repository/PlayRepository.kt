@@ -38,6 +38,13 @@ class PlayRepository(val application: BggApplication) {
     private val username: String? by lazy { AccountUtils.getUsername(application) }
     private val bggService = Adapter.createForXml()
 
+    enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
+        DATE(PlayDao.PlaysSortBy.DATE),
+        LOCATION(PlayDao.PlaysSortBy.LOCATION),
+        GAME(PlayDao.PlaysSortBy.GAME),
+        LENGTH(PlayDao.PlaysSortBy.LENGTH),
+    }
+
     suspend fun loadPlay(internalId: Long): PlayEntity? = playDao.loadPlay(internalId)
 
     suspend fun refreshPlay(
@@ -67,7 +74,7 @@ class PlayRepository(val application: BggApplication) {
             }
         }
 
-    suspend fun getPlays(sortBy: PlayDao.PlaysSortBy = PlayDao.PlaysSortBy.DATE) = playDao.loadPlays(sortBy)
+    suspend fun getPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy)
 
     suspend fun getPendingPlays() = playDao.loadPendingPlays()
 
