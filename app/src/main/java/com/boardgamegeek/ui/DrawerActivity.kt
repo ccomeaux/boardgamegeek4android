@@ -73,7 +73,6 @@ abstract class DrawerActivity : BaseActivity() {
         viewModel.user.observe(this, {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
             it?.data?.let { user -> refreshHeader(user) }
-            navigationView.setCheckedItem(navigationItemId)
         })
 
         syncViewModel.currentSyncTimestamp.observe(this, {
@@ -93,6 +92,7 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
+        navigationView.setCheckedItem(navigationItemId)
     }
 
     override fun onStop() {
