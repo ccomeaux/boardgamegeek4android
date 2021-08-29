@@ -5,18 +5,14 @@ import android.content.Intent
 import android.content.SyncResult
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat.Action
-import androidx.core.content.contentValuesOf
-import androidx.core.database.getLongOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.tasks.CalculatePlayStatsTask
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
@@ -31,8 +27,9 @@ import java.util.concurrent.TimeUnit
 
 class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
-    private val dao = PlayDao(application)
+    private val repository = PlayRepository(application)
     private var currentPlay = PlayForNotification()
+    private val gameIds = mutableSetOf<Int>()
 
     inner class PlayForNotification(
         var internalId: Long = INVALID_ID.toLong(),
@@ -75,51 +72,49 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
-        CalculatePlayStatsTask(application).executeAsyncTask()
+        runBlocking {
+            gameIds.forEach { repository.updateGamePlayCount(it) }
+            repository.calculatePlayStats()
+        }
     }
 
     private fun updatePendingPlays() {
-        val cursor = context.contentResolver.query(
-            Plays.CONTENT_SIMPLE_URI,
-            arrayOf(Plays._ID),
-            Plays.UPDATE_TIMESTAMP + ">0",
-            null,
-            Plays.UPDATE_TIMESTAMP
-        )
-        cursor?.use {
-            var currentNumberOfPlays = 0
-            val totalNumberOfPlays = it.count
-            updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update, totalNumberOfPlays, totalNumberOfPlays)
+        val pendingPlays = runBlocking { repository.getUpdatingPlays() }
+        var currentNumberOfPlays = 0
+        val totalNumberOfPlays = pendingPlays.size
+        updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update, totalNumberOfPlays, totalNumberOfPlays)
+        pendingPlays.forEach { play ->
+            if (isCancelled) return
+            if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) return
 
-            while (it.moveToNext()) {
-                if (isCancelled) break
-                if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) break
+            updateProgressNotificationAsPlural(
+                R.plurals.sync_notification_plays_update_increment,
+                totalNumberOfPlays,
+                ++currentNumberOfPlays,
+                totalNumberOfPlays,
+            )
 
-                updateProgressNotificationAsPlural(
-                    R.plurals.sync_notification_plays_update_increment,
-                    totalNumberOfPlays,
-                    ++currentNumberOfPlays,
-                    totalNumberOfPlays
-                )
-
-                try {
-                    val internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong()
-                    val play = runBlocking { dao.loadPlay(internalId) } ?: break
-                    val response = postPlayUpdate(play)
-                    if (response.hasAuthError()) {
+            try {
+                val response = postPlayUpdate(play)
+                when {
+                    response.hasAuthError() -> {
                         syncResult.stats.numAuthExceptions++
                         Authenticator.clearPassword(context)
-                        break
-                    } else if (response.hasInvalidIdError()) {
+                        // TODO break
+                    }
+                    response.hasInvalidIdError() -> {
                         syncResult.stats.numConflictDetectedExceptions++
                         notifyUploadError(context.getText(R.string.msg_play_update_bad_id, play.playId))
-                    } else if (response.hasError()) {
+                    }
+                    response.hasError() -> {
                         syncResult.stats.numIoExceptions++
                         notifyUploadError(response.errorMessage)
-                    } else if (response.playCount < 0) {
+                    }
+                    response.playCount < 0 -> {
                         syncResult.stats.numIoExceptions++
                         notifyUploadError(context.getString(R.string.msg_play_update_null_response))
-                    } else {
+                    }
+                    else -> {
                         syncResult.stats.numUpdates++
                         val message = when {
                             play.isSynced -> context.getText(R.string.msg_play_updated)
@@ -130,95 +125,72 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                             else -> context.getText(R.string.msg_play_added)
                         }
 
-                        currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
+                        currentPlay = PlayForNotification(play.internalId, play.gameId, play.gameName)
                         notifyUser(play, message)
 
-                        runBlocking {
-                            dao.markAsSynced(internalId, response.playId)
-                        }
-                        updateGamePlayCount(play.gameId)
+                        runBlocking { repository.markAsSynced(play.internalId, response.playId) }
+                        gameIds += play.gameId
                     }
-                } catch (e: Exception) {
-                    syncResult.stats.numParseExceptions++
-                    notifyUploadError(e.localizedMessage.orEmpty())
                 }
+            } catch (e: Exception) {
+                syncResult.stats.numParseExceptions++
+                notifyUploadError(e.localizedMessage.orEmpty())
             }
         }
     }
 
     private fun deletePendingPlays() {
-        val cursor = context.contentResolver.query(
-            Plays.CONTENT_SIMPLE_URI,
-            arrayOf(Plays._ID),
-            Plays.DELETE_TIMESTAMP + ">0",
-            null,
-            Plays.DELETE_TIMESTAMP
-        )
-        cursor?.use {
-            var currentNumberOfPlays = 0
-            val totalNumberOfPlays = it.count
-            updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete, totalNumberOfPlays, totalNumberOfPlays)
+        val deletedPlays = runBlocking { repository.getDeletingPlays() }
+        var currentNumberOfPlays = 0
+        val totalNumberOfPlays = deletedPlays.size
+        updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_delete, totalNumberOfPlays, totalNumberOfPlays)
 
-            while (it.moveToNext()) {
-                if (isCancelled) break
-                if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) break
+        deletedPlays.forEach { play ->
+            if (isCancelled) return
+            if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) return
 
-                updateProgressNotificationAsPlural(
-                    R.plurals.sync_notification_plays_delete_increment,
-                    totalNumberOfPlays,
-                    ++currentNumberOfPlays,
-                    totalNumberOfPlays
-                )
+            updateProgressNotificationAsPlural(
+                R.plurals.sync_notification_plays_delete_increment,
+                totalNumberOfPlays,
+                ++currentNumberOfPlays,
+                totalNumberOfPlays
+            )
 
-                try {
-                    val internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong()
-                    val play = runBlocking { dao.loadPlay(internalId) } ?: break
-                    currentPlay = PlayForNotification(internalId, play.gameId, play.gameName)
-                    if (play.isSynced) {
-                        val response = postPlayDelete(play.playId)
-                        if (response.isSuccessful) {
+            try {
+                currentPlay = PlayForNotification(play.internalId, play.gameId, play.gameName)
+                if (play.isSynced) {
+                    val response = postPlayDelete(play.playId)
+                    when {
+                        response.isSuccessful -> {
                             syncResult.stats.numDeletes++
-                            runBlocking { dao.delete(internalId) }
-                            updateGamePlayCount(play.gameId)
+                            runBlocking { repository.delete(play.internalId) }
+                            gameIds += play.gameId
                             notifyUserOfDelete(R.string.msg_play_deleted, play)
-                        } else if (response.hasInvalidIdError()) {
+                        }
+                        response.hasInvalidIdError() -> {
                             syncResult.stats.numConflictDetectedExceptions++
-                            runBlocking { dao.delete(internalId) }
+                            runBlocking { repository.delete(play.internalId) }
                             notifyUserOfDelete(R.string.msg_play_deleted, play)
-                        } else if (response.hasAuthError()) {
+                        }
+                        response.hasAuthError() -> {
                             syncResult.stats.numAuthExceptions++
                             Authenticator.clearPassword(context)
-                            break
-                        } else {
+                            // break TODO
+                        }
+                        else -> {
                             syncResult.stats.numIoExceptions++
                             notifyUploadError(response.errorMessage)
                         }
-                    } else {
-                        syncResult.stats.numDeletes++
-                        runBlocking { dao.delete(internalId) }
-                        notifyUserOfDelete(R.string.msg_play_deleted_draft, play)
                     }
-                } catch (e: Exception) {
-                    syncResult.stats.numParseExceptions++
-                    notifyUploadError(e.localizedMessage.orEmpty())
+                } else {
+                    syncResult.stats.numDeletes++
+                    runBlocking { repository.delete(play.internalId) }
+                    gameIds += play.gameId
+                    notifyUserOfDelete(R.string.msg_play_deleted_draft, play)
                 }
-            }
-        }
-    }
-
-    private fun updateGamePlayCount(gameId: Int) {
-        val resolver = context.contentResolver
-        val cursor = resolver.query(
-            Plays.CONTENT_SIMPLE_URI,
-            arrayOf(Plays.SUM_QUANTITY),
-            "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}",
-            arrayOf(gameId.toString()),
-            null
-        )
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val values = contentValuesOf(Collection.NUM_PLAYS to it.getInt(0))
-                resolver.update(Games.buildGameUri(gameId), values, null, null)
+            } catch (e: Exception) {
+                syncResult.stats.numParseExceptions++
+                notifyUploadError(e.localizedMessage.orEmpty())
             }
         }
     }

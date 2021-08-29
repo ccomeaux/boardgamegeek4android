@@ -35,7 +35,7 @@ import kotlin.io.use
 
 class PlayDao(private val context: BggApplication) {
     enum class PlaysSortBy {
-        DATE, LOCATION, GAME, LENGTH
+        DATE, LOCATION, GAME, LENGTH, UPDATED_DATE, DELETED_DATE
     }
 
     suspend fun loadPlay(id: Long): PlayEntity? = withContext(Dispatchers.IO) {
@@ -169,10 +169,11 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    private suspend fun loadPlays(
-        uri: Uri,
-        selection: Pair<String?, Array<String>?>,
-        sortBy: PlaysSortBy = PlaysSortBy.DATE
+    suspend fun loadPlays(
+        uri: Uri = Plays.CONTENT_URI,
+        selection: Pair<String?, Array<String>?> = null to null,
+        sortBy: PlaysSortBy = PlaysSortBy.DATE,
+        includePlayers: Boolean = false,
     ): List<PlayEntity> = withContext(Dispatchers.IO) {
         val list = mutableListOf<PlayEntity>()
         val sortOrder = when (sortBy) {
@@ -180,6 +181,8 @@ class PlayDao(private val context: BggApplication) {
             PlaysSortBy.LOCATION -> Plays.LOCATION.ascending()
             PlaysSortBy.GAME -> Plays.ITEM_NAME.ascending()
             PlaysSortBy.LENGTH -> Plays.LENGTH.descending()
+            PlaysSortBy.UPDATED_DATE -> Plays.UPDATE_TIMESTAMP.descending()
+            PlaysSortBy.DELETED_DATE -> Plays.DELETE_TIMESTAMP.descending()
         }
         context.contentResolver.load(
             uri,
@@ -212,7 +215,7 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    list += PlayEntity(
+                    val play = PlayEntity(
                         internalId = it.getLong(0),
                         playId = it.getInt(1),
                         rawDate = it.getString(2),
@@ -235,6 +238,12 @@ class PlayDao(private val context: BggApplication) {
                         heroImageUrl = it.getStringOrNull(19).orEmpty(),
                         updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
                     )
+                    if (includePlayers) {
+                        loadPlayers(play.internalId).forEach { player ->
+                            play.addPlayer(player)
+                        }
+                    }
+                    list += play
                 } while (it.moveToNext())
             }
         }
@@ -247,8 +256,11 @@ class PlayDao(private val context: BggApplication) {
     private fun createPendingPlaySelectionAndArgs() =
         "${Plays.DELETE_TIMESTAMP}>0 OR ${Plays.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
 
-    private fun createDraftPlaySelectionAndArgs() =
-        "${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
+    private fun createDraftPlaySelectionAndArgs() ="${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
+
+    fun createPendingUpdatePlaySelectionAndArgs() = "${Plays.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
+
+    fun createPendingDeletePlaySelectionAndArgs() = "${Plays.DELETE_TIMESTAMP}>0" to emptyArray<String>()
 
     private fun createGamePlaySelectionAndArgs(gameId: Int) =
         "${Plays.OBJECT_ID}=? AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())
@@ -484,24 +496,6 @@ class PlayDao(private val context: BggApplication) {
 
     suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
-    }
-
-    /**
-     * Set the play indicated by internalId as synced. Play ID is necessary when syncing for the first time.
-     */
-    suspend fun markAsSynced(internalId: Long, playId: Int) = withContext(Dispatchers.IO) {
-        val contentValues = contentValuesOf(
-            Plays.PLAY_ID to playId,
-            Plays.DIRTY_TIMESTAMP to 0,
-            Plays.UPDATE_TIMESTAMP to 0,
-            Plays.DELETE_TIMESTAMP to 0,
-        )
-        val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), contentValues, null, null)
-        if (rowsUpdated == 1) {
-            Timber.i("Updated play _ID=$internalId, PLAY_ID=$playId as synced")
-        } else {
-            Timber.w("Updated $rowsUpdated plays when trying to set _ID=$internalId as synced")
-        }
     }
 
     suspend fun save(plays: List<PlayEntity>, startTime: Long) {
@@ -996,8 +990,13 @@ class PlayDao(private val context: BggApplication) {
             .build()
     }
 
-    suspend fun upsert(internalId: Long, values: ContentValues) = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
+    suspend fun update(internalId: Long, values: ContentValues) = withContext(Dispatchers.IO) {
+        val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
+        if (rowsUpdated == 1) {
+            Timber.i("Updated play _ID=$internalId")
+        } else {
+            Timber.w("Upserted $rowsUpdated plays when trying to set _ID=$internalId")
+        }
     }
 
     /**

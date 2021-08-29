@@ -80,6 +80,10 @@ class PlayRepository(val application: BggApplication) {
 
     suspend fun getDraftPlays() = playDao.loadDraftPlays()
 
+    suspend fun getUpdatingPlays() = playDao.loadPlays(selection = playDao.createPendingUpdatePlaySelectionAndArgs(), includePlayers = true)
+
+    suspend fun getDeletingPlays() = playDao.loadPlays(selection = playDao.createPendingDeletePlaySelectionAndArgs(), includePlayers = true)
+
     suspend fun loadPlaysByGame(gameId: Int) = playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE)
 
     suspend fun loadPlaysByLocation(location: String) = playDao.loadPlaysByLocation(location)
@@ -245,8 +249,24 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadLocations(sortBy)
     }
 
-    suspend fun markAsDiscarded(internalId: Long): Long = withContext(Dispatchers.IO) {
-        playDao.upsert(
+    suspend fun delete(internalId: Long): Boolean {
+        return playDao.delete(internalId)
+    }
+
+    suspend fun markAsSynced(internalId: Long, playId: Int) {
+        playDao.update(
+            internalId,
+            contentValuesOf(
+                Plays.PLAY_ID to playId,
+                Plays.DIRTY_TIMESTAMP to 0,
+                Plays.UPDATE_TIMESTAMP to 0,
+                Plays.DELETE_TIMESTAMP to 0,
+            )
+        )
+    }
+
+    suspend fun markAsDiscarded(internalId: Long) {
+        playDao.update(
             internalId,
             contentValuesOf(
                 Plays.DELETE_TIMESTAMP to 0,
@@ -254,11 +274,10 @@ class PlayRepository(val application: BggApplication) {
                 Plays.DIRTY_TIMESTAMP to 0,
             )
         )
-        internalId
     }
 
-    suspend fun markAsUpdated(internalId: Long): Long = withContext(Dispatchers.IO) {
-        playDao.upsert(
+    suspend fun markAsUpdated(internalId: Long) {
+        playDao.update(
             internalId,
             contentValuesOf(
                 Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
@@ -266,11 +285,10 @@ class PlayRepository(val application: BggApplication) {
                 Plays.DIRTY_TIMESTAMP to 0,
             )
         )
-        internalId
     }
 
-    suspend fun markAsDeleted(internalId: Long): Long = withContext(Dispatchers.IO) {
-        playDao.upsert(
+    suspend fun markAsDeleted(internalId: Long) {
+        playDao.update(
             internalId,
             contentValuesOf(
                 Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
@@ -278,7 +296,14 @@ class PlayRepository(val application: BggApplication) {
                 Plays.DIRTY_TIMESTAMP to 0,
             )
         )
-        internalId
+    }
+
+    suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
+        val allPlays = playDao.loadPlaysByGame(gameId)
+        val playCount = allPlays
+            .filter { it.deleteTimestamp == 0L }
+            .sumOf { it.quantity }
+        gameDao.update(gameId, contentValuesOf(BggContract.Collection.NUM_PLAYS to playCount))
     }
 
     suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
