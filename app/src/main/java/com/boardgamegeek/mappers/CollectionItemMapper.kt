@@ -58,7 +58,7 @@ fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGam
         sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
         yearPublished = yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
         imageUrl = image.orEmpty(),
-        thumbnailUrl = thumbnail.orEmpty(), // TODO hero image
+        thumbnailUrl = thumbnail.orEmpty(),
         minNumberOfPlayers = stats?.minplayers ?: 0,
         maxNumberOfPlayers = stats?.maxplayers ?: 0,
         minPlayingTime = stats?.minplaytime ?: 0,

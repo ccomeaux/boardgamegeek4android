@@ -106,9 +106,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
             player = intent.getParcelableExtra(KEY_PLAYER) ?: Player()
-            if (hasAutoPosition()) {
-                player.seat = autoPosition // TODO
-            }
+            if (hasAutoPosition()) player.seat = autoPosition
             originalPlayer = player.copy()
         } else {
             player = savedInstanceState.getParcelable(KEY_PLAYER) ?: Player()
