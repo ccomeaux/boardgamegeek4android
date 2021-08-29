@@ -54,10 +54,6 @@ android {
         checkReleaseBuilds false
     }
 
-    dexOptions {
-        jumboMode true
-    }
-
     defaultConfig {
         applicationId "com.boardgamegeek"
 
