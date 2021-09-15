@@ -1,8 +1,6 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
@@ -95,10 +93,6 @@ public class FileUtils {
 
 	public static String getExportFileName(String type) {
 		return "bgg4a-" + type + ".json";
-	}
-
-	public static boolean shouldUseDefaultFolders() {
-		return VERSION.SDK_INT < VERSION_CODES.KITKAT;
 	}
 
 	public static void closePfd(ParcelFileDescriptor pfd) {

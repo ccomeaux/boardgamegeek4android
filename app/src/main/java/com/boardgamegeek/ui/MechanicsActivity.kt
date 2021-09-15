@@ -29,7 +29,7 @@ class MechanicsActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = MechanicsFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = MechanicsFragment()
 
     override val optionsMenuId = R.menu.mechanics
 

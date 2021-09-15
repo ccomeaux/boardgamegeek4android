@@ -2,7 +2,7 @@ package com.boardgamegeek.entities
 
 data class HIndexEntity(val h: Int, val n: Int) {
     private val rational: Double
-        get() = h + 1 - n.toDouble() / (2 * h + 1)
+        get() = if (h == INVALID_H_INDEX) 0.0 else h + 1 - n.toDouble() / (2 * h + 1)
 
     val description: String
         get() = if (h == INVALID_H_INDEX) "?" else String.format("%.2f", rational)

@@ -1,16 +1,14 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
-import com.boardgamegeek.extensions.firstChar
-import com.boardgamegeek.extensions.isStatusSetToSync
-import com.boardgamegeek.extensions.orderOfMagnitude
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
 
 class DesignsViewModel(application: Application) : AndroidViewModel(application) {
@@ -19,13 +17,14 @@ class DesignsViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private val designerRepository = DesignerRepository(getApplication())
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private val _sort = MutableLiveData<DesignersSort>()
     val sort: LiveData<DesignersSort>
         get() = _sort
 
     init {
-        val initialSort = if (application.isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
             SortType.ITEM_COUNT

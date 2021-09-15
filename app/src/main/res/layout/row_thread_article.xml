@@ -14,7 +14,7 @@
 		android:orientation="vertical">
 
 		<RelativeLayout
-			android:id="@+id/row_header"
+			android:id="@+id/rowHeaderView"
 			style="@style/RowContainer"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
 			android:paddingTop="@dimen/padding_standard">
 
 			<TextView
-				android:id="@+id/username"
+				android:id="@+id/usernameView"
 				style="@style/TextWithImage"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -37,8 +37,8 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/username"
-				android:layout_toLeftOf="@+id/view_button">
+				android:layout_below="@+id/usernameView"
+				android:layout_toLeftOf="@+id/viewButton">
 
 				<LinearLayout
 					android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
 					android:orientation="horizontal">
 
 					<com.boardgamegeek.ui.widget.TimestampView
-						android:id="@+id/post_date"
+						android:id="@+id/postDateView"
 						style="@style/TextWithImage.Secondary"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
 						tools:text="2 days ago"/>
 
 					<View
-						android:id="@+id/date_divider"
+						android:id="@+id/dateDivider"
 						android:layout_width="1dp"
 						android:layout_height="match_parent"
 						android:layout_marginLeft="@dimen/padding_standard"
@@ -63,7 +63,7 @@
 						android:background="@color/list_divider"/>
 
 					<com.boardgamegeek.ui.widget.TimestampView
-						android:id="@+id/edit_date"
+						android:id="@+id/editDateView"
 						style="@style/TextWithImage.Secondary"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
 			</HorizontalScrollView>
 
 			<ImageView
-				android:id="@+id/view_button"
+				android:id="@+id/viewButton"
 				android:layout_width="@dimen/icon_width"
 				android:layout_height="@dimen/icon_width"
 				android:layout_alignParentEnd="true"
@@ -90,7 +90,7 @@
 		</RelativeLayout>
 
 		<TextView
-			android:id="@+id/body"
+			android:id="@+id/bodyView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingBottom="@dimen/padding_standard"

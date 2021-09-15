@@ -10,10 +10,8 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingLeft="@dimen/padding_extra"
-		android:paddingRight="@dimen/padding_extra"
-		android:paddingTop="@dimen/padding_standard"
+		android:paddingVertical="@dimen/padding_standard"
+		android:paddingHorizontal="@dimen/padding_extra"
 		tools:background="#0f0">
 
 		<TextView
@@ -143,6 +141,7 @@
 				android:text="0"/>
 
 			<TextView
+				android:id="@+id/decimalSeparator"
 				style="@style/NumPad"
 				android:text="."/>
 

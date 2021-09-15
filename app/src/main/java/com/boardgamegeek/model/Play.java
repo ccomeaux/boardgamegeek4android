@@ -1,11 +1,9 @@
 package com.boardgamegeek.model;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
-import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -383,59 +381,5 @@ public class Play {
 		long t = Double.doubleToLongBits(startTime);
 		result = prime * result + (int) (t ^ (t >>> 32));
 		return result;
-	}
-
-	public String toShortDescription(Context context) {
-		Resources r = context.getResources();
-		return r.getString(R.string.play_description_game_segment, gameName) +
-			r.getString(R.string.play_description_date_segment, getDateForDisplay(context));
-	}
-
-	public String toLongDescription(Context context) {
-		Resources resources = context.getResources();
-		StringBuilder sb = new StringBuilder();
-		toLongDescriptionPrefix(context, sb);
-		if (players.size() > 0) {
-			sb.append(" ").append(resources.getString(R.string.with));
-			if (arePlayersCustomSorted()) {
-				for (Player player : players) {
-					if (player != null) {
-						sb.append("\n").append(player.toLongDescription(context));
-					}
-				}
-			} else {
-				for (int i = 0; i < players.size(); i++) {
-					Player player = getPlayerAtSeat(i + 1);
-					if (player != null) {
-						sb.append("\n").append(player.toLongDescription(context));
-					}
-				}
-			}
-		}
-		if (!TextUtils.isEmpty(comments)) {
-			sb.append("\n").append(comments);
-		}
-		if (playId > 0) {
-			sb.append("\n").append(resources.getString(R.string.play_description_play_url_segment, String.valueOf(playId)).trim());
-		} else {
-			sb.append("\n").append(resources.getString(R.string.play_description_game_url_segment, String.valueOf(gameId)).trim());
-		}
-
-		return sb.toString();
-	}
-
-	private void toLongDescriptionPrefix(Context context, StringBuilder sb) {
-		Resources resources = context.getResources();
-		sb.append(resources.getString(R.string.play_description_game_segment, gameName));
-		if (quantity > 1) {
-			sb.append(resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity));
-		}
-		if (length > 0) {
-			sb.append(resources.getString(R.string.play_description_length_segment, DateTimeUtils.describeMinutes(context, length)));
-		}
-		sb.append(resources.getString(R.string.play_description_date_segment, getDateForDisplay(context)));
-		if (!TextUtils.isEmpty(location)) {
-			sb.append(resources.getString(R.string.play_description_location_segment, location));
-		}
 	}
 }

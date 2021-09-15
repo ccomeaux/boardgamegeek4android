@@ -10,8 +10,8 @@ import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class LocationsActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<LocationsViewModel>()
@@ -25,7 +25,9 @@ class LocationsActivity : SimpleSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Locations"))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Locations")
+            }
         }
 
         viewModel.locations.observe(this, Observer {

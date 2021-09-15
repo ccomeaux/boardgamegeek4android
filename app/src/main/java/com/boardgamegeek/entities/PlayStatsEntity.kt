@@ -42,7 +42,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
     }
 
     val top100Count: Int by lazy {
-        games.filter { it.bggRank in 1..100 }.size
+        games.filter { it.playCount > 0 }.filter { it.bggRank in 1..100 }.size
     }
 
     val hIndex: HIndexEntity by lazy {

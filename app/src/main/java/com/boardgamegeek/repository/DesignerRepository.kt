@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -11,9 +12,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.getStatsCalculatedTimestampDesigners
-import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.extensions.setStatsCalculatedTimestampDesigners
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Person
@@ -30,6 +29,7 @@ class DesignerRepository(val application: BggApplication) {
     private val dao = DesignerDao(application)
     private var loader = getLoader(DesignerDao.SortType.NAME)
     private val sort = MutableLiveData<DesignerDao.SortType>()
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     fun loadDesigners(sortBy: DesignerDao.SortType): LiveData<List<PersonEntity>> {
         loader = getLoader(sortBy)
@@ -46,7 +46,9 @@ class DesignerRepository(val application: BggApplication) {
             override fun loadFromDatabase() = dao.loadDesignersAsLiveData(sortBy)
 
             override fun shouldCalculate(data: List<PersonEntity>?): Boolean {
-                return data != null && application.getStatsCalculatedTimestampDesigners().isOlderThan(1, TimeUnit.HOURS)
+                val lastCalculated = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L]
+                        ?: 0L
+                return data != null && lastCalculated.isOlderThan(1, TimeUnit.HOURS)
             }
 
             override fun sortList(data: List<PersonEntity>?) = data?.sortedBy { it.statsUpdatedTimestamp }
@@ -59,7 +61,7 @@ class DesignerRepository(val application: BggApplication) {
             }
 
             override fun finishCalculating() {
-                application.setStatsCalculatedTimestampDesigners()
+                prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS] = System.currentTimeMillis()
             }
         }
     }
@@ -145,7 +147,9 @@ class DesignerRepository(val application: BggApplication) {
 
     @WorkerThread
     private fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int) {
-        val realOldScore = if (oldScore == -1) dao.loadDesigner(id)?.whitmoreScore ?: 0 else oldScore
+        val realOldScore = if (oldScore == -1)
+            dao.loadDesigner(id)?.whitmoreScore ?: 0
+        else oldScore
         if (newScore != realOldScore) {
             dao.update(id, ContentValues().apply {
                 put(Designers.WHITMORE_SCORE, newScore)

@@ -14,7 +14,7 @@ class GamesIdSuggestedPlayerCountPollResultProvider : BaseProvider() {
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
-        val playerCount = Games.getPollName(uri)
+        val playerCount = Games.getPollPlayerCount(uri)
         return SelectionBuilder()
                 .table(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
                 .whereEquals(GAME_ID, gameId)

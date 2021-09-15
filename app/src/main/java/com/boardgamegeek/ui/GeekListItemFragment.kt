@@ -7,14 +7,13 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.extensions.setWebViewText
-import com.boardgamegeek.util.XmlConverter
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_item.*
 import org.jetbrains.anko.support.v4.withArguments
 
 class GeekListItemFragment : Fragment(R.layout.fragment_geeklist_item) {
     private var order = 0
     private var geekListTitle = ""
-    private var xmlConverter = XmlConverter()
     private var glItem = GeekListItemEntity()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,12 +27,13 @@ class GeekListItemFragment : Fragment(R.layout.fragment_geeklist_item) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val markupConverter = XmlApiMarkupConverter(requireContext())
         orderView.text = order.toString()
         geekListTitleView.text = geekListTitle
         typeView.text = glItem.objectTypeDescription(requireContext())
         usernameView.text = glItem.username
         thumbsView.text = glItem.numberOfThumbs.toString()
-        bodyView.setWebViewText(xmlConverter.toHtml(glItem.body))
+        bodyView.setWebViewText(markupConverter.toHtml(glItem.body))
         postedDateView.timestamp = glItem.postDateTime
         editedDateView.timestamp = glItem.editDateTime
         datetimeDividerView.isVisible = glItem.editDateTime != glItem.postDateTime

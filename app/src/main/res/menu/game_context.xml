@@ -1,26 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_log_play"
 		android:icon="@drawable/menu_log_play"
 		android:title="@string/menu_log_play"
-		app:showAsAction="ifRoom"/>
-	<item
-		android:id="@+id/menu_log_play_quick"
-		android:icon="@drawable/menu_log_play_quick"
-		android:title="@string/menu_log_play_quick"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom">
+		<menu>
+			<group>
+				<item
+					android:id="@+id/menu_log_play_quick"
+					android:title="@string/menu_log_play_quick_short"
+					app:showAsAction="never" />
+				<item
+					android:id="@+id/menu_log_play_form"
+					android:title="@string/menu_log_play_short"
+					app:showAsAction="never" />
+				<item
+					android:id="@+id/menu_log_play_wizard"
+					android:title="@string/menu_log_play_wizard_short"
+					app:showAsAction="never" />
+			</group>
+		</menu>
+	</item>
 	<item
 		android:id="@+id/menu_share"
 		android:icon="@drawable/menu_share"
 		android:title="@string/menu_share"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/menu_link"
 		android:icon="@drawable/menu_view"
 		android:title="@string/link_bgg"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 
 </menu>

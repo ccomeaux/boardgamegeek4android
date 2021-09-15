@@ -11,13 +11,13 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.startActivity
 
 class PlaysSummaryFragment : Fragment() {
@@ -41,44 +41,44 @@ class PlaysSummaryFragment : Fragment() {
         }
 
         syncButton.setOnClickListener {
-            requireContext().setSyncPlays()
-            requireContext().setSyncPlaysTimestamp()
+            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS] = true
+            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
             viewModel.refresh()
         }
 
         syncCancelButton.setOnClickListener {
-            requireContext().setSyncPlaysTimestamp()
+            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
         }
 
-        viewModel.plays.observe(viewLifecycleOwner, Observer { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) })
-        viewModel.playsInProgress.observe(viewLifecycleOwner, Observer { playEntities -> bindInProgressPlays(playEntities) })
-        viewModel.playsNotInProgress.observe(viewLifecycleOwner, Observer { playEntities -> bindRecentPlays(playEntities) })
-        viewModel.playCount.observe(viewLifecycleOwner, Observer { playCount -> bindPlayCount(playCount ?: 0) })
-        viewModel.players.observe(viewLifecycleOwner, Observer { playerEntities -> bindPlayers(playerEntities) })
-        viewModel.locations.observe(viewLifecycleOwner, Observer { locationEntities -> bindLocations(locationEntities) })
-        viewModel.colors.observe(viewLifecycleOwner, Observer { playerColorEntities -> bindColors(playerColorEntities) })
-        viewModel.hIndex().observe(viewLifecycleOwner, Observer {
+        viewModel.plays.observe(viewLifecycleOwner) { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
+        viewModel.playsInProgress.observe(viewLifecycleOwner) { playEntities -> bindInProgressPlays(playEntities) }
+        viewModel.playsNotInProgress.observe(viewLifecycleOwner) { playEntities -> bindRecentPlays(playEntities) }
+        viewModel.playCount.observe(viewLifecycleOwner) { playCount -> bindPlayCount(playCount ?: 0) }
+        viewModel.players.observe(viewLifecycleOwner) { playerEntities -> bindPlayers(playerEntities) }
+        viewModel.locations.observe(viewLifecycleOwner) { locationEntities -> bindLocations(locationEntities) }
+        viewModel.colors.observe(viewLifecycleOwner) { playerColorEntities -> bindColors(playerColorEntities) }
+        viewModel.hIndex.observe(viewLifecycleOwner) {
             hIndexView.text = context?.getText(R.string.game_h_index_prefix, it.description)
             morePlayStatsButton.setOnClickListener {
                 startActivity<PlayStatsActivity>()
             }
-        })
-        viewModel.syncPlays.observe(viewLifecycleOwner, Observer {
+        }
+        viewModel.syncPlays.observe(viewLifecycleOwner) {
             syncPlays = it ?: false
             bindSyncCard()
-        })
-        viewModel.syncPlaysTimestamp.observe(viewLifecycleOwner, Observer {
+        }
+        viewModel.syncPlaysTimestamp.observe(viewLifecycleOwner) {
             syncPlaysTimestamp = it ?: 0L
             bindSyncCard()
-        })
-        viewModel.oldestSyncDate.observe(viewLifecycleOwner, Observer {
+        }
+        viewModel.oldestSyncDate.observe(viewLifecycleOwner) {
             oldestSyncDate = it ?: Long.MAX_VALUE
             bindStatusMessage()
-        })
-        viewModel.newestSyncDate.observe(viewLifecycleOwner, Observer {
+        }
+        viewModel.newestSyncDate.observe(viewLifecycleOwner) {
             newestSyncDate = it ?: 0L
             bindStatusMessage()
-        })
+        }
     }
 
     private fun bindStatusMessage() {
@@ -124,13 +124,7 @@ class PlaysSummaryFragment : Fragment() {
     private fun addPlayToContainer(play: PlayEntity, container: LinearLayout) {
         val view = createRow(container, play.gameName, play.describe(requireContext(), true))
         view.setOnClickListener {
-            PlayActivity.start(context,
-                    play.internalId,
-                    play.gameId,
-                    play.gameName,
-                    play.thumbnailUrl,
-                    play.imageUrl,
-                    play.heroImageUrl)
+            PlayActivity.start(requireContext(), play.internalId)
         }
     }
 

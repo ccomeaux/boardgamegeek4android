@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.inflate
+import kotlin.math.max
+import kotlin.math.min
 
 class RecyclerSectionItemDecoration(private val headerOffset: Int, private val sectionCallback: SectionCallback, private val sticky: Boolean = true) : RecyclerView.ItemDecoration() {
     private var headerView: View? = null
@@ -54,7 +56,7 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
         if (headerView == null) return
         c.save()
         if (sticky) {
-            c.translate(0f, Math.max(if (nextChild == null) 0 else Math.min(0, nextChild.top - headerView.height * 2), child.top - headerView.height).toFloat())
+            c.translate(0f, max(if (nextChild == null) 0 else min(0, nextChild.top - headerView.height * 2), child.top - headerView.height).toFloat())
         } else {
             c.translate(0f, (child.top - headerView.height).toFloat())
         }

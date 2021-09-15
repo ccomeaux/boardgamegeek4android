@@ -27,6 +27,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_poll.*
+import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.*
@@ -137,12 +138,9 @@ class PollFragment : DialogFragment() {
         }
 
         private fun launch(host: Fragment, type: Int) {
-            val arguments = Bundle(1)
-            arguments.putInt(KEY_TYPE, type)
-            val dialog = PollFragment()
-            dialog.arguments = arguments
-            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
-            host.showAndSurvive(dialog)
+            host.showAndSurvive(PollFragment().withArguments(KEY_TYPE to type).apply {
+                setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            })
         }
     }
 }

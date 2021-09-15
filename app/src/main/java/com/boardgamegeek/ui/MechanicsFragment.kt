@@ -53,12 +53,6 @@ class MechanicsFragment : Fragment() {
         }
     }
 
-    companion object {
-        fun newInstance(): MechanicsFragment {
-            return MechanicsFragment()
-        }
-    }
-
     class MechanicsAdapter : RecyclerView.Adapter<MechanicsAdapter.MechanicViewHolder>(), AutoUpdatableAdapter {
         var mechanics: List<MechanicEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->

@@ -11,12 +11,9 @@ import kotlinx.android.synthetic.main.row_forum.view.*
 import kotlinx.android.synthetic.main.row_forum_header.view.*
 import java.text.NumberFormat
 
-private const val ITEM_VIEW_TYPE_FORUM = 0
-private const val ITEM_VIEW_TYPE_HEADER = 1
-
 class ForumsRecyclerViewAdapter(
         private val objectId: Int,
-        private val objectName: String?,
+        private val objectName: String,
         private val objectType: ForumEntity.ForumType
 ) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
     init {
@@ -55,13 +52,15 @@ class ForumsRecyclerViewAdapter(
     override fun getItemId(position: Int) = position.toLong()
 
     companion object {
-        val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
+        private const val ITEM_VIEW_TYPE_FORUM = 0
+        private const val ITEM_VIEW_TYPE_HEADER = 1
+        private val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
     }
 
     sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
 
-            fun bind(forum: ForumEntity?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType) {
+            fun bind(forum: ForumEntity?, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
                 if (forum == null) return
                 itemView.apply {
                     title.text = forum.title

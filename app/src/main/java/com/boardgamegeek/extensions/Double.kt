@@ -13,6 +13,7 @@ import java.text.NumberFormat
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
+import kotlin.reflect.KProperty
 
 fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
     return asScore(context, defaultResId, DecimalFormat("#0.#"))
@@ -30,7 +31,6 @@ fun Double?.asScore(context: Context?, @StringRes defaultResId: Int = 0, format:
     }
 }
 
-@JvmOverloads
 fun Double.asPercentage(format: DecimalFormat = DecimalFormat("0.0")): String {
     return format.format(this * 100) + "%"
 }
@@ -61,7 +61,6 @@ fun Double.invcdf(lambda: Double): Double {
     return -ln(1.0 - this) / lambda
 }
 
-@JvmOverloads
 fun Double.asMoney(currency: String, format: DecimalFormat = MONEY_FORMAT): String {
     return if (currency.isBlank() && this == 0.0) "" else currency.asCurrency() + format.format(this)
 }
@@ -75,4 +74,14 @@ private fun setUpMoneyFormatter(): DecimalFormat {
     symbols.currencySymbol = ""
     format.decimalFormatSymbols = symbols
     return format
+}
+
+class DoubleIntervalDelegate(var value: Double, private val minValue: Double, private val maxValue: Double) {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): Double {
+        return value
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Double) {
+        this.value = value.coerceIn(minValue, maxValue)
+    }
 }

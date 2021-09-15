@@ -126,11 +126,11 @@ class GameDao(private val context: BggApplication) {
                     do {
                         ranks.add(GameRankEntity(
                                 id = it.getIntOrNull(GameRanks.GAME_RANK_ID) ?: INVALID_ID,
-                                type = it.getStringOrNull(GameRanks.GAME_RANK_TYPE) ?: "",
-                                name = it.getStringOrNull(GameRanks.GAME_RANK_NAME) ?: "",
-                                friendlyName = it.getStringOrNull(GameRanks.GAME_RANK_FRIENDLY_NAME) ?: "",
+                                type = it.getStringOrEmpty(GameRanks.GAME_RANK_TYPE),
+                                name = it.getStringOrEmpty(GameRanks.GAME_RANK_NAME),
+                                friendlyName = it.getStringOrEmpty(GameRanks.GAME_RANK_FRIENDLY_NAME),
                                 value = it.getIntOrNull(GameRanks.GAME_RANK_VALUE) ?: RANK_UNKNOWN,
-                                bayesAverage = it.getDoubleOrNull(GameRanks.GAME_RANK_BAYES_AVERAGE) ?: 0.0
+                                bayesAverage = it.getDoubleOrZero(GameRanks.GAME_RANK_BAYES_AVERAGE),
                         ))
                     } while (it.moveToNext())
                 }
@@ -149,9 +149,10 @@ class GameDao(private val context: BggApplication) {
                 if (it.moveToFirst()) {
                     do {
                         results.add(GamePollResultEntity(
-                                level = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL) ?: 0,
+                                level = it.getIntOrZero(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL),
                                 value = it.getString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE),
-                                numberOfVotes = it.getIntOrNull(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES) ?: 0))
+                                numberOfVotes = it.getIntOrZero(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES),
+                        ))
                     } while (it.moveToNext())
                 }
             }
@@ -180,8 +181,7 @@ class GameDao(private val context: BggApplication) {
                                 bestVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT),
                                 recommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT),
                                 notRecommendedVoteCount = it.getIntOrZero(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT),
-                                recommendation = it.getIntOrNull(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION)
-                                        ?: GamePlayerPollResultsEntity.UNKNOWN))
+                        ))
                     } while (it.moveToNext())
                 }
             }
@@ -540,8 +540,13 @@ class GameDao(private val context: BggApplication) {
             values.put(Games.STATS_AVERAGE_WEIGHT, game.averageWeight)
         }
         values.put(Games.GAME_RANK, game.overallRank)
-        if (game.playerPoll != null)
-            values.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, game.playerPoll!!.totalVotes)
+        game.playerPoll?.let {
+            values.put(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, it.totalVotes)
+            val separator = "|"
+            values.put(Games.PLAYER_COUNTS_BEST, it.bestCounts.joinToString(separator, prefix = separator, postfix = separator))
+            values.put(Games.PLAYER_COUNTS_RECOMMENDED, it.recommendedAndBestCounts.joinToString(separator, prefix = separator, postfix = separator))
+            values.put(Games.PLAYER_COUNTS_NOT_RECOMMENDED, it.notRecommendedCounts.joinToString(separator, prefix = separator, postfix = separator))
+        }
         return values
     }
 
@@ -549,8 +554,8 @@ class GameDao(private val context: BggApplication) {
         val cursor = resolver.query(Games.buildGameUri(game.id), arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL), null, null, null)
         cursor?.use { c ->
             if (c.moveToFirst()) {
-                val imageUrl = c.getString(0) ?: ""
-                val thumbnailUrl = c.getString(1) ?: ""
+                val imageUrl = c.getStringOrNull(0) ?: ""
+                val thumbnailUrl = c.getStringOrNull(1) ?: ""
                 if (imageUrl != game.imageUrl || thumbnailUrl != game.thumbnailUrl) {
                     return true
                 }
@@ -634,12 +639,13 @@ class GameDao(private val context: BggApplication) {
         val batch = arrayListOf<ContentProviderOperation>()
         val existingResults = resolver.queryStrings(Games.buildSuggestedPlayerCountPollResultsUri(gameId), GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT).toMutableList()
         for ((sortIndex, results) in poll.results.withIndex()) {
-            val values = ContentValues(6)
-            values.put(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, sortIndex + 1)
-            values.put(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, results.bestVoteCount)
-            values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, results.recommendedVoteCount)
-            values.put(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, results.notRecommendedVoteCount)
-            values.put(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, results.calculateRecommendation())
+            val values = contentValuesOf(
+                    GameSuggestedPlayerCountPollPollResults.SORT_INDEX to sortIndex + 1,
+                    GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT to results.bestVoteCount,
+                    GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT to results.recommendedVoteCount,
+                    GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT to results.notRecommendedVoteCount,
+                    GameSuggestedPlayerCountPollPollResults.RECOMMENDATION to results.calculatedRecommendation,
+            )
             if (existingResults.remove(results.playerCount)) {
                 val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId, results.playerCount)
                 batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build())

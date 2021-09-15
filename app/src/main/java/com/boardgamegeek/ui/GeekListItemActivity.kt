@@ -9,11 +9,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.extensions.link
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
-import com.boardgamegeek.util.ActivityUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class GeekListItemActivity : HeroTabActivity() {
@@ -37,10 +37,11 @@ class GeekListItemActivity : HeroTabActivity() {
 
         safelySetTitle(glItem.objectName)
         if (savedInstanceState == null && glItem.objectId != BggContract.INVALID_ID) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GeekListItem")
-                    .putContentId(glItem.objectId.toString())
-                    .putContentName(glItem.objectName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekListItem")
+                param(FirebaseAnalytics.Param.ITEM_ID, glItem.objectId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, glItem.objectName)
+            }
         }
         loadToolbarImage(glItem.imageId)
     }
@@ -73,7 +74,7 @@ class GeekListItemActivity : HeroTabActivity() {
                         if (glItem.objectUrl.isBlank()) {
                             false
                         } else {
-                            ActivityUtils.link(this, glItem.objectUrl)
+                            link(glItem.objectUrl)
                             true
                         }
                     }
@@ -99,7 +100,7 @@ class GeekListItemActivity : HeroTabActivity() {
             return when (position) {
                 0 -> GeekListItemFragment.newInstance(order, geekListTitle, glItem)
                 1 -> GeekListItemCommentsFragment.newInstance(glItem.comments)
-                else -> ErrorFragment.newInstance()
+                else -> ErrorFragment()
             }
         }
 
@@ -112,7 +113,6 @@ class GeekListItemActivity : HeroTabActivity() {
         private const val KEY_TITLE = "GEEK_LIST_TITLE"
         private const val KEY_ITEM = "GEEK_LIST_ITEM"
 
-        @JvmStatic
         fun start(context: Context, geekList: GeekListEntity, item: GeekListItemEntity, order: Int) {
             context.startActivity<GeekListItemActivity>(
                     KEY_ID to geekList.id,

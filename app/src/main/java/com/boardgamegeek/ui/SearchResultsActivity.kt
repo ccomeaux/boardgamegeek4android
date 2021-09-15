@@ -11,8 +11,8 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.SearchEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.longToast
 
 class SearchResultsActivity : SimpleSinglePaneActivity() {
@@ -70,7 +70,10 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null && query.length > 1) {
-                    Answers.getInstance().logSearch(SearchEvent().putQuery(query).putCustomAttribute("exact", "true"))
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
+                        param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+                        param("exact", true.toString())
+                    }
                     viewModel.search(query)
                 }
                 // close the auto-complete list; don't pass to a different activity
@@ -85,7 +88,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = SearchResultsFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = SearchResultsFragment()
 
     override fun readIntent(intent: Intent) {
         when (intent.action) {
@@ -104,7 +107,10 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
             ACTION_VOICE_SEARCH -> {
                 // searches invoked by the device
                 val query = intent.getStringExtra(SearchManager.QUERY) ?: ""
-                Answers.getInstance().logSearch(SearchEvent().putQuery(query).putCustomAttribute("exact", "true"))
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
+                    param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+                    param("exact", true.toString())
+                }
                 if (searchView == null) {
                     // sometimes this is invoked before the menu is created
                     viewModel.search(query)

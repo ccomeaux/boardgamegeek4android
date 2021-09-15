@@ -101,10 +101,4 @@ class GameCreditsFragment : Fragment() {
                 viewModel.game.value?.data?.name ?: "",
                 list)
     }
-
-    companion object {
-        fun newInstance(): GameCreditsFragment {
-            return GameCreditsFragment()
-        }
-    }
 }

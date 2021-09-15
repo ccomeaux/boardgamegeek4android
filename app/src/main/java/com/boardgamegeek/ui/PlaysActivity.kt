@@ -17,10 +17,8 @@ import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.boardgamegeek.util.fabric.FilterEvent
-import com.boardgamegeek.util.fabric.SortEvent
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import java.util.*
 
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
@@ -32,7 +30,9 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Plays"))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Plays")
+            }
         }
 
         viewModel.plays.observe(this, Observer {
@@ -129,12 +129,18 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     }
 
     fun setSort(type: PlaysViewModel.SortType) {
-        SortEvent.log("Plays", type.toString())
+        firebaseAnalytics.logEvent("Sort") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Plays")
+            param("SortBy", type.toString())
+        }
         viewModel.setSort(type)
     }
 
     fun filter(type: PlaysViewModel.FilterType) {
-        FilterEvent.log("Plays", type.toString())
+        firebaseAnalytics.logEvent("Filter") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Plays")
+            bundle.putString("FilterBy", type.toString())
+        }
         viewModel.setFilter(type)
     }
 

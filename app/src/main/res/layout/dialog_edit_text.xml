@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:importantForAutofill="noExcludeDescendants"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal"
-			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/material_margin_vertical">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:importantForAutofill="noExcludeDescendants"
+	android:orientation="vertical">
 
-	<EditText
-		android:id="@+id/editText"
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/editTextContainer"
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:imeOptions="actionDone"
-		android:inputType="text"
-		tools:ignore="LabelFor"/>
+		android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+		android:layout_marginVertical="@dimen/material_margin_vertical"
+		tools:hint="Label name">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/editText"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:imeOptions="actionDone"
+			android:inputType="text" />
+	</com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

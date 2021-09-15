@@ -14,9 +14,20 @@ fun EditText.getInt(defaultValue: Int = 0): Int {
     val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     return if (text.isNullOrBlank()) defaultValue else {
         try {
-            numberFormat.parse(text.trim().toString()).toInt()
+            numberFormat.parse(text.trim().toString())?.toInt() ?: defaultValue
         } catch (e: ParseException) {
             defaultValue
+        }
+    }
+}
+
+fun EditText.getIntOrNull(): Int? {
+    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
+    return if (text.isNullOrBlank()) null else {
+        try {
+            numberFormat.parse(text.trim().toString())?.toInt()
+        } catch (e: ParseException) {
+            null
         }
     }
 }
@@ -25,9 +36,20 @@ fun EditText.getDouble(defaultValue: Double = 0.0): Double {
     val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     return if (text.isNullOrBlank()) defaultValue else {
         try {
-            numberFormat.parse(text.trim().toString()).toDouble()
+            numberFormat.parse(text.trim().toString())?.toDouble() ?: defaultValue
         } catch (e: ParseException) {
             defaultValue
+        }
+    }
+}
+
+fun EditText.getDoubleOrNull(): Double? {
+    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
+    return if (text.isNullOrBlank()) null else {
+        try {
+            numberFormat.parse(text.trim().toString())?.toDouble()
+        } catch (e: ParseException) {
+            null
         }
     }
 }

@@ -2,9 +2,11 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.getSyncBuddies
-import com.boardgamegeek.extensions.getSyncPlays
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
+import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.isCollectionSetToSync
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.intentFor
 
 class HomeActivity : TopLevelActivity() {
@@ -17,9 +19,9 @@ class HomeActivity : TopLevelActivity() {
                     Authenticator.signOut(this)
                     intentFor<HotnessActivity>()
                 }
-                isCollectionSetToSync() -> intentFor<CollectionActivity>()
-                getSyncPlays() -> intentFor<PlaysSummaryActivity>()
-                getSyncBuddies() -> intentFor<BuddiesActivity>()
+                defaultSharedPreferences.isCollectionSetToSync() -> intentFor<CollectionActivity>()
+                defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS, false] == true -> intentFor<PlaysSummaryActivity>()
+                defaultSharedPreferences[PREFERENCES_KEY_SYNC_BUDDIES, false] == true -> intentFor<BuddiesActivity>()
                 else -> intentFor<HotnessActivity>()
             }
         } else {

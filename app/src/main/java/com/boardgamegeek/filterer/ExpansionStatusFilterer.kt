@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
     var selectedSubtype = ALL
@@ -17,12 +17,10 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun toShortDescription() = getFromArray(R.array.expansion_status_filter)
 
-    override fun getSelection(): String {
+    override fun filter(item: CollectionItemEntity): Boolean {
         val value = getFromArray(R.array.expansion_status_filter_values)
-        return if (value.isNotEmpty()) "${Games.SUBTYPE}=?" else ""
+        return if (value.isNotEmpty()) item.subType == value else true
     }
-
-    override fun getSelectionArgs() = arrayOf(getFromArray(R.array.expansion_status_filter_values))
 
     private fun getFromArray(resId: Int): String {
         return context.resources.getStringArray(resId).getOrNull(selectedSubtype) ?: ""

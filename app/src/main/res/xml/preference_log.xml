@@ -1,83 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<androidx.preference.CheckBoxPreference
-		android:defaultValue="true"
-		android:key="logPlay"
-		android:title="@string/pref_log_play"/>
-	<androidx.preference.CheckBoxPreference
-		android:defaultValue="true"
-		android:key="quickLogPlay"
-		android:title="@string/pref_log_play_quick"/>
+	<androidx.preference.DropDownPreference
+		android:entries="@array/pref_play_log_type"
+		android:entryValues="@array/pref_play_log_type_values"
+		android:key="logPlayType"
+		android:title="@string/pref_log_play_type"
+		app:useSimpleSummaryProvider="true" />
 	<androidx.preference.CheckBoxPreference
 		android:key="logEditPlayer"
 		android:summaryOff="@string/pref_edit_player_off"
 		android:summaryOn="@string/pref_edit_player_on"
-		android:title="@string/pref_edit_player"/>
+		android:title="@string/pref_edit_player" />
 
 	<androidx.preference.PreferenceCategory android:title="@string/pref_general">
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayLocation"
-			android:title="@string/pref_log_play_location"/>
+			android:title="@string/pref_log_play_location" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayLength"
-			android:title="@string/pref_log_play_length"/>
+			android:title="@string/pref_log_play_length" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayQuantity"
-			android:title="@string/pref_log_play_quantity"/>
+			android:title="@string/pref_log_play_quantity" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayIncomplete"
-			android:title="@string/pref_log_play_incomplete"/>
+			android:title="@string/pref_log_play_incomplete" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayNoWinStats"
-			android:title="@string/pref_log_play_no_win_stats"/>
+			android:title="@string/pref_log_play_no_win_stats" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayComments"
-			android:title="@string/pref_log_play_comments"/>
+			android:title="@string/pref_log_play_comments" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="true"
 			android:key="logPlayPlayerList"
-			android:title="@string/pref_log_play_players"/>
+			android:title="@string/pref_log_play_players" />
 	</androidx.preference.PreferenceCategory>
 	<androidx.preference.PreferenceCategory android:title="@string/pref_player_settings">
 		<androidx.preference.CheckBoxPreference
 			android:key="logPlayerTeamColor"
-			android:title="@string/pref_log_player_team_color"/>
+			android:title="@string/pref_log_player_team_color" />
 		<androidx.preference.CheckBoxPreference
 			android:key="logPlayerPosition"
-			android:title="@string/pref_log_player_position"/>
+			android:title="@string/pref_log_player_position" />
 		<androidx.preference.CheckBoxPreference
 			android:key="logPlayerScore"
-			android:title="@string/pref_log_player_score"/>
+			android:title="@string/pref_log_player_score" />
 		<androidx.preference.CheckBoxPreference
 			android:key="logPlayerRating"
-			android:title="@string/pref_log_player_rating"/>
+			android:title="@string/pref_log_player_rating" />
 		<androidx.preference.CheckBoxPreference
 			android:key="logPlayerNew"
-			android:title="@string/pref_log_player_new"/>
+			android:title="@string/pref_log_player_new" />
 		<androidx.preference.CheckBoxPreference
 			android:key="logPlayerWin"
-			android:title="@string/pref_log_player_win"/>
+			android:title="@string/pref_log_player_win" />
 	</androidx.preference.PreferenceCategory>
 	<androidx.preference.PreferenceCategory android:title="@string/pref_stats">
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayStatsIncomplete"
-			android:title="@string/pref_log_stats_incomplete"/>
+			android:title="@string/pref_log_stats_incomplete" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayStatsExpansions"
-			android:title="@string/pref_log_stats_expansions"/>
+			android:title="@string/pref_log_stats_expansions" />
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayStatsAccessories"
-			android:title="@string/pref_log_stats_accessories"/>
+			android:title="@string/pref_log_stats_accessories" />
 	</androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

@@ -21,7 +21,7 @@ public class PlaySaveResponse extends PlayPostResponse {
 
 	public int getPlayCount() {
 		if (hasError() || playSave == null) {
-			return 0;
+			return -1;
 		} else {
 			return playSave.getNumberOfPlays();
 		}

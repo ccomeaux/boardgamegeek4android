@@ -14,7 +14,10 @@ class PlaysIdProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val internalId = Plays.getInternalId(uri)
         return SelectionBuilder()
-                .table(Tables.PLAYS)
-                .whereEquals(Plays._ID, internalId.toString())
+                .table(if (BggContract.FRAGMENT_SIMPLE == uri.fragment) Tables.PLAYS else Tables.PLAYS_JOIN_GAMES)
+                .mapToTable(Plays._ID, Tables.PLAYS)
+                .mapToTable(Plays.PLAY_ID, Tables.PLAYS)
+                .mapToTable(Plays.SYNC_TIMESTAMP, Tables.PLAYS)
+                .whereEquals("${Tables.PLAYS}.${Plays._ID}", internalId.toString())
     }
 }

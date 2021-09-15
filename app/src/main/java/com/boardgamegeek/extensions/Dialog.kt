@@ -19,48 +19,31 @@ import androidx.fragment.app.FragmentManager
 import com.boardgamegeek.R
 import java.util.*
 
-fun FragmentActivity.showAndSurvive(dialog: DialogFragment) {
-    val fragmentManager = supportFragmentManager
-    showAndSurvive(dialog, fragmentManager)
+fun FragmentActivity.showAndSurvive(dialog: DialogFragment, tag: String = "dialog") {
+    showAndSurvive(dialog, supportFragmentManager, tag)
 }
 
-fun Fragment.showAndSurvive(dialog: DialogFragment) {
-    val fragmentManager = parentFragmentManager
-    showAndSurvive(dialog, fragmentManager)
+fun Fragment.showAndSurvive(dialog: DialogFragment, tag: String = "dialog") {
+    showAndSurvive(dialog, parentFragmentManager, tag)
 }
 
-private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentManager?) {
-    if (fragmentManager == null) return
-    val tag = "dialog"
-
-    val ft = fragmentManager.beginTransaction()
-    val prev = fragmentManager.findFragmentByTag(tag)
-    if (prev != null) ft.remove(prev)
-    ft.addToBackStack(null)
-
-    dialog.show(ft, tag)
+private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentManager, tag: String = "dialog") {
+    fragmentManager.beginTransaction().apply {
+        fragmentManager.findFragmentByTag(tag)?.let {
+            remove(it)
+        }
+        addToBackStack(null)
+        dialog.show(this, tag)
+    }
 }
 
-// TODO - use showAndSurvive instead
-fun FragmentActivity.showFragment(fragment: DialogFragment, tag: String) {
-    val ft = supportFragmentManager.beginTransaction()
-    val prev = supportFragmentManager.findFragmentByTag(tag)
-    if (prev != null) ft.remove(prev)
-    ft.addToBackStack(null)
-    fragment.show(ft, tag)
-}
-
-interface OnDiscardListener {
-    fun onDiscard()
-}
-
-@JvmOverloads
 fun createDiscardDialog(
         activity: Activity,
         @StringRes objectResId: Int,
-        isNew: Boolean, finishActivity: Boolean = true,
         @StringRes positiveButtonResId: Int = R.string.keep_editing,
-        discardListener: OnDiscardListener? = null): Dialog {
+        isNew: Boolean,
+        finishActivity: Boolean = true,
+        discardListener: () -> Unit = {}): Dialog {
     val messageFormat = activity.getString(if (isNew)
         R.string.discard_new_message
     else
@@ -69,7 +52,7 @@ fun createDiscardDialog(
             .setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase(Locale.getDefault())))
             .setPositiveButton(positiveButtonResId, null)
             .setNegativeButton(R.string.discard) { _, _ ->
-                discardListener?.onDiscard()
+                discardListener()
                 if (finishActivity) {
                     activity.setResult(Activity.RESULT_CANCELED)
                     activity.finish()

@@ -13,7 +13,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.dialog.GameRanksFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
@@ -149,7 +148,7 @@ class GameFragment : Fragment() {
                 ?: ""
         ratingVotesView?.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
         ratingContainer?.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
-            CommentsActivity.startRating(context, Games.buildGameUri(gameId), gameName)
+            CommentsActivity.startRating(requireContext(), gameId, gameName)
         }
 
         yearView?.text = game.yearPublished.asYear(context)
@@ -217,11 +216,11 @@ class GameFragment : Fragment() {
     }
 
     private fun onPlayerCountQueryComplete(entity: GamePlayerPollEntity?) {
-        val bestCounts = entity?.bestCounts ?: emptyList()
-        val goodCounts = entity?.recommendedCounts ?: emptyList()
+        val bestCounts = entity?.bestCounts ?: emptySet()
+        val goodCounts = entity?.recommendedAndBestCounts ?: emptySet()
 
-        val best = context?.getText(R.string.best_prefix, bestCounts.asRange(max = maxPlayerCount)) ?: ""
-        val good = context?.getText(R.string.recommended_prefix, goodCounts.asRange(max = maxPlayerCount)) ?: ""
+        val best = context?.getText(R.string.best_prefix, bestCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount)) ?: ""
+        val good = context?.getText(R.string.recommended_prefix, goodCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount)) ?: ""
         val communityText = when {
             bestCounts.isNotEmpty() && goodCounts.isNotEmpty() && bestCounts != goodCounts -> TextUtils.concat(best, " & ", good)
             bestCounts.isNotEmpty() -> best
@@ -243,9 +242,5 @@ class GameFragment : Fragment() {
 
     companion object {
         private const val HELP_VERSION = 2
-
-        fun newInstance(): GameFragment {
-            return GameFragment()
-        }
     }
 }

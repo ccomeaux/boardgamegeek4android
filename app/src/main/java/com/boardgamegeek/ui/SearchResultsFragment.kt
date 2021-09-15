@@ -14,16 +14,15 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.ui.adapter.Callback
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
+import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
-import com.boardgamegeek.util.PreferencesUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.fragment_search_results.*
 import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import org.jetbrains.anko.toast
@@ -41,6 +40,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     }
 
     private val viewModel by activityViewModels<SearchViewModel>()
+    private val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(requireContext()) }
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {
         SearchResultsAdapter(
@@ -128,7 +128,10 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             snackbar.setText(resources.getQuantityString(messageId, count, count, queryText))
             if (isExactMatch) {
                 snackbar.setAction(R.string.more) {
-                    Answers.getInstance().logSearch(SearchEvent().putQuery(queryText).putCustomAttribute("exact", "false"))
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
+                        param(FirebaseAnalytics.Param.SEARCH_TERM, queryText)
+                        param("exact", false.toString())
+                    }
                     viewModel.searchInexact(queryText)
                 }
             } else {
@@ -193,8 +196,13 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = searchResultsAdapter.selectedItemCount
-        menu.findItem(R.id.menu_log_play).isVisible = Authenticator.isSignedIn(context) && count == 1 && PreferencesUtils.showLogPlay(context)
-        menu.findItem(R.id.menu_log_play_quick).isVisible = Authenticator.isSignedIn(context) && PreferencesUtils.showQuickLogPlay(context)
+        if (Authenticator.isSignedIn(context)) {
+            menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
+            menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
+            menu.findItem(R.id.menu_log_play).isVisible = true
+        } else {
+            menu.findItem(R.id.menu_log_play).isVisible = false
+        }
         menu.findItem(R.id.menu_link).isVisible = count == 1
         return true
     }
@@ -210,7 +218,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         }
         val game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems()[0])
         when (item.itemId) {
-            R.id.menu_log_play -> {
+            R.id.menu_log_play_form -> {
                 game?.let {
                     LogPlayActivity.logPlay(context, it.id, it.name, null, null, null, false)
                 }
@@ -221,8 +229,15 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 context?.toast(resources.getQuantityString(R.plurals.msg_logging_plays, searchResultsAdapter.selectedItemCount))
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
-                        requireActivity().logQuickPlay(it.id, it.name)
+                        context.logQuickPlay(it.id, it.name)
                     }
+                }
+                mode.finish()
+                return true
+            }
+            R.id.menu_log_play_wizard -> {
+                game?.let { it ->
+                    NewPlayActivity.start(requireContext(), it.id, it.name)
                 }
                 mode.finish()
                 return true
@@ -230,7 +245,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             R.id.menu_share -> {
                 val shareMethod = "Search"
                 if (searchResultsAdapter.selectedItemCount == 1) {
-                    game?.let { requireActivity().shareGame(it.id, it.name, shareMethod) }
+                    game?.let { requireActivity().shareGame(it.id, it.name, shareMethod, firebaseAnalytics) }
                 } else {
                     val games = ArrayList<Pair<Int, String>>(searchResultsAdapter.selectedItemCount)
                     for (position in searchResultsAdapter.getSelectedItems()) {
@@ -238,7 +253,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                             games.add(Pair.create(it.id, it.name))
                         }
                     }
-                    requireActivity().shareGames(games, shareMethod)
+                    requireActivity().shareGames(games, shareMethod, firebaseAnalytics)
                 }
                 mode.finish()
                 return true
@@ -254,9 +269,5 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     companion object {
         private const val HELP_VERSION = 2
-
-        fun newInstance(): SearchResultsFragment {
-            return SearchResultsFragment()
-        }
     }
 }

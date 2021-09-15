@@ -1,43 +1,29 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asMoney
-import com.boardgamegeek.extensions.getDouble
-import com.boardgamegeek.extensions.getDoubleOrZero
-import com.boardgamegeek.extensions.getString
+import java.text.DecimalFormat
 import kotlin.math.ceil
 
 abstract class MoneySorter(context: Context) : CollectionSorter(context) {
+    protected abstract fun amount(item: CollectionItemEntity): Double
+    protected abstract fun currency(item: CollectionItemEntity): String
 
-    override val sortColumn: String
-        get() = "$currencyColumnName DESC, $amountColumnName"
-
-    override val isSortDescending = true
-
-    protected abstract val amountColumnName: String
-
-    protected abstract val currencyColumnName: String
-
-    override val columns: Array<String>
-        get() = arrayOf(currencyColumnName, amountColumnName)
-
-    override fun getDisplayInfo(cursor: Cursor): String {
-        return getInfoOrMissingInfo(cursor.getDoubleOrZero(amountColumnName).asMoney(cursor.getString(currencyColumnName)))
-    }
-
-    public override fun getHeaderText(cursor: Cursor): String {
-        return getInfoOrMissingInfo(round(cursor.getDoubleOrZero(amountColumnName)).asMoney(cursor.getString(currencyColumnName)))
-    }
-
-    private fun getInfoOrMissingInfo(info: String): String {
-        return if (info.isEmpty()) {
-            MISSING_DATA
-        } else info
+    override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
+        return items.sortedWith(compareBy<CollectionItemEntity> { currency(it) }.thenByDescending { amount(it) })
     }
 
     private fun round(value: Double): Double {
-        return ((ceil(value + 9) / 10).toInt() * 10).toDouble()
+        return (ceil(value / 10).toInt() * 10).toDouble()
+    }
+
+    override fun getHeaderText(item: CollectionItemEntity): String {
+        return round(amount(item)).asMoney(currency(item), DecimalFormat("0")).ifEmpty { MISSING_DATA }
+    }
+
+    override fun getDisplayInfo(item: CollectionItemEntity): String {
+        return amount(item).asMoney(currency(item)).ifEmpty { MISSING_DATA }
     }
 
     companion object {

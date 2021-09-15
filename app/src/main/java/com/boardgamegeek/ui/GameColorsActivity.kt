@@ -9,14 +9,12 @@ import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import hugo.weaving.DebugLog
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
-class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.EditTextDialogListener {
+class GameColorsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
 
@@ -25,7 +23,6 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
 
     private val viewModel by viewModels<GameColorsViewModel>()
 
-    @DebugLog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,10 +31,11 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
         }
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameColors")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameColors")
+                param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
+            }
         }
 
         viewModel.setGameId(gameId)
@@ -49,12 +47,10 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
         iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT)
     }
 
-    @DebugLog
     override fun onCreatePane(intent: Intent): Fragment {
         return GameColorsFragment.newInstance(iconColor)
     }
 
-    @DebugLog
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -64,10 +60,6 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onFinishEditDialog(text: String, originalText: String?) {
-        viewModel.addColor(text)
     }
 
     companion object {

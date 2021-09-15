@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
-	android:id="@+id/card_score"
+	android:id="@+id/scoresCard"
 	style="@style/Card"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -19,14 +19,14 @@
 			android:orientation="horizontal">
 
 			<TextView
-				android:id="@+id/header_scores"
+				android:id="@+id/scoreHeaderView"
 				style="@style/Text.Header.Card"
 				android:layout_width="0dp"
 				android:layout_weight="1"
 				android:text="@string/title_scores"/>
 
 			<ImageView
-				android:id="@+id/score_help"
+				android:id="@+id/scoreHelpView"
 				android:layout_width="@dimen/icon_width"
 				android:layout_height="@dimen/icon_width"
 				android:layout_gravity="right"
@@ -44,7 +44,7 @@
 			android:paddingTop="@dimen/padding_extra">
 
 			<TextView
-				android:id="@+id/low_score"
+				android:id="@+id/lowScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
@@ -60,7 +60,7 @@
 				android:layout_weight="1"/>
 
 			<TextView
-				android:id="@+id/average_score"
+				android:id="@+id/averageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:drawableLeft="@drawable/ic_score_average"
@@ -75,7 +75,7 @@
 				android:layout_weight="1"/>
 
 			<TextView
-				android:id="@+id/average_win_score"
+				android:id="@+id/averageWinScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:drawableLeft="@drawable/ic_score_average_win"
@@ -90,7 +90,7 @@
 				android:layout_weight="1"/>
 
 			<TextView
-				android:id="@+id/high_score"
+				android:id="@+id/highScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
@@ -102,7 +102,7 @@
 		</LinearLayout>
 
 		<com.boardgamegeek.ui.widget.ScoreGraphView
-			android:id="@+id/score_graph"
+			android:id="@+id/scoreGraphView"
 			android:layout_width="match_parent"
 			android:layout_height="40dp"
 			android:visibility="gone"

@@ -1,43 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/FormRow"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:importantForAutofill="noExcludeDescendants">
+	android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+	android:minHeight="@dimen/form_row_height"
+	android:paddingVertical="@dimen/padding_half">
+
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/log_play_length_root"
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:hint="@string/length_hint"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/timer_toggle"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:startIconDrawable="@drawable/ic_time">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/log_play_length"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:imeOptions="actionNext"
+			android:inputType="number" />
+	</com.google.android.material.textfield.TextInputLayout>
+
+	<Chronometer
+		android:id="@+id/timer"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:layout_marginVertical="4dp"
+		android:background="@color/light_blue_transparent"
+		android:focusable="false"
+		android:gravity="center"
+		android:maxLines="1"
+		android:textAppearance="@style/Text.Big"
+		app:layout_constraintBottom_toBottomOf="@id/log_play_length_root"
+		app:layout_constraintEnd_toStartOf="@+id/timer_toggle"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@id/log_play_length_root" />
 
 	<ImageView
 		android:id="@+id/timer_toggle"
-		style="@style/Icon"
+		style="@style/FormButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:contentDescription="@string/timer"
-		android:src="@drawable/ic_timer"/>
-
-	<FrameLayout
-		android:id="@+id/log_play_length_container_inner"
-		android:layout_width="0dp"
-		android:layout_height="match_parent"
-		android:layout_weight="1"
-		android:focusable="false">
-
-		<EditText
-			android:id="@+id/log_play_length"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:focusable="true"
-			android:gravity="center_vertical"
-			android:hint="@string/length_hint"
-			android:inputType="number"
-			android:textAppearance="@style/Text.Big"/>
-
-		<Chronometer
-			android:id="@+id/timer"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="@color/light_blue_transparent"
-			android:focusable="false"
-			android:gravity="center"
-			android:maxLines="1"
-			android:textAppearance="@style/Text.Big"/>
-	</FrameLayout>
-</LinearLayout>
+		android:src="@drawable/ic_timer"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,6 +12,7 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.io.BggService
 import java.math.BigDecimal
 import java.math.MathContext
+import kotlin.reflect.KProperty
 
 /**
  * Gets the ordinal (1st) for the given cardinal (1)
@@ -144,18 +145,19 @@ fun Int.hoursAgo(): Long {
  * E.g. [1,3,4,5] would return "1, 3 - 5"
  * Assumes list is already sorted
  */
-fun List<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = Int.MAX_VALUE): String {
+// TODO Collection
+fun Collection<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = Int.MAX_VALUE): String {
     when {
         this == null -> return ""
         isEmpty() -> return ""
-        size == 1 -> return this[0].toString()
+        size == 1 -> return this.first().toString()
         else -> {
             val invalid = -1
             var first = invalid
             var last = invalid
             val sb = StringBuilder()
             for (i in indices) {
-                val current = this[i]
+                val current = this.elementAt(i)
                 when {
                     current == max -> {
                         if (sb.isNotEmpty()) sb.append(comma)
@@ -164,7 +166,7 @@ fun List<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = In
                         last = invalid
                     }
                     first == invalid -> first = current
-                    current - 1 == this[i - 1] -> last = current
+                    current - 1 == this.elementAt(i - 1) -> last = current
                     last != invalid -> {
                         if (sb.isNotEmpty()) sb.append(comma)
                         sb.append(first).append(dash).append(last)
@@ -218,4 +220,14 @@ fun Int.orderOfMagnitude(): String {
     val zeros = (toString().length - 1) % 3
     val number = digit + ("0".repeat(zeros)) + suffix
     return if (this < 10) number else "$number+"
+}
+
+class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): Int {
+        return value
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
+        this.value = value.coerceIn(minValue, maxValue)
+    }
 }

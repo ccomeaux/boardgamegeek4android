@@ -8,15 +8,14 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.getSyncStatusesOrDefault
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
-import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
-import hugo.weaving.DebugLog
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -35,7 +34,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     private val syncableStatuses: List<String>
         get() {
-            val statuses = context.getSyncStatuses()?.toMutableList() ?: mutableListOf()
+            val statuses = prefs.getSyncStatusesOrDefault().toMutableList()
             // Played games should be synced first - they don't respect the "exclude" flag
             if (statuses.remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
                 statuses.add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED)
@@ -45,7 +44,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     override val notificationSummaryMessageId = R.string.sync_notification_collection_full
 
-    @DebugLog
     override fun execute() {
         Timber.i("Syncing complete collection")
         try {
@@ -54,18 +52,18 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 return
             }
 
-            if (!context.isCollectionSetToSync()) {
+            if (!prefs.isCollectionSetToSync()) {
                 Timber.i("Collection sync not set in preferences")
                 return
             }
 
-            if (SyncPrefs.getCurrentCollectionSyncTimestamp(context) == 0L) {
-                val lastCompleteSync = SyncPrefs.getLastCompleteCollectionTimestamp(context)
+            if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
+                val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
                 if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
                     Timber.i("Not currently syncing and it's been less than $fetchIntervalInDays days since we synced completely")
                     return
                 }
-                SyncPrefs.setCurrentCollectionSyncTimestamp(context)
+                syncPrefs.setCurrentCollectionSyncTimestamp()
             }
 
             val statuses = syncableStatuses
@@ -108,7 +106,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
             return
         }
 
-        if (SyncPrefs.getCompleteCollectionSyncTimestamp(context, subtype, status) > SyncPrefs.getCurrentCollectionSyncTimestamp(context)) {
+        if (syncPrefs.getCompleteCollectionSyncTimestamp(subtype, status) > syncPrefs.getCurrentCollectionSyncTimestamp()) {
             Timber.i("Skipping $statusDescription collection $subtypeDescription that have already been synced in the current sync request.")
             return
         }
@@ -138,7 +136,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                         val pair = mapper.map(item)
                         dao.saveItem(pair.first, pair.second, timestamp)
                     }
-                    SyncPrefs.setCompleteCollectionSyncTimestamp(context, subtype, status, timestamp)
+                    syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("Saved ${items.size} $statusDescription collection $subtypeDescription")
                 } else {
@@ -156,7 +154,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         }
     }
 
-    @DebugLog
     private fun getStatusDescription(status: String): String {
         for (i in statusEntries.indices) {
             if (statusValues[i].equals(status, ignoreCase = true)) {
@@ -166,7 +163,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         return status
     }
 
-    @DebugLog
     private fun getSubtypeDescription(subtype: String): String {
         return context.getString(when (subtype) {
             BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
@@ -176,9 +172,8 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         })
     }
 
-    @DebugLog
     private fun deleteUnusedItems() {
-        val timestamp = SyncPrefs.getCurrentCollectionSyncTimestamp(context)
+        val timestamp = syncPrefs.getCurrentCollectionSyncTimestamp()
         val formattedDateTime = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
@@ -189,10 +184,9 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }
 
-    @DebugLog
     private fun updateTimestamps() {
-        SyncPrefs.setLastCompleteCollectionTimestamp(context, SyncPrefs.getCurrentCollectionSyncTimestamp(context))
-        SyncPrefs.setLastPartialCollectionTimestamp(context, SyncPrefs.getCurrentCollectionSyncTimestamp(context))
-        SyncPrefs.setCurrentCollectionSyncTimestamp(context, 0L)
+        syncPrefs.setLastCompleteCollectionTimestamp(syncPrefs.getCurrentCollectionSyncTimestamp())
+        syncPrefs.setPartialCollectionSyncLastCompletedAt(syncPrefs.getCurrentCollectionSyncTimestamp())
+        syncPrefs.setCurrentCollectionSyncTimestamp(0L)
     }
 }

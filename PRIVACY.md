@@ -22,14 +22,12 @@ The password is stored so that the user doens't have to provide their password e
 The password is kept in memory only as long as necessary.
 The password is never logged to any file, database, etc., other than the [AccountManager](https://developer.android.com/reference/android/accounts/AccountManager.html).
 
-### [Fabric](https://fabric.io)
+### [Firebase](https://https://firebase.google.com/)
 
-The application uses the Crashlytics and Answers kits for Fabric.
-These libraries collect and transmit information about your device, log information, and user activity.
-This data is anonymized; we don't collect or transmit any personally identifiable information.
-
-* [Crashlytics Privacy Policy](http://try.crashlytics.com/terms/)
-* [Answers Privacy Policy](https://answers.io/img/privacy.pdf)
+The application uses Firebase's Crashlytics and Google Analytics to help analyze bugs, crashes, as well
+as frequently or rarely used features. That means the app collects and transmits information about your device,
+log information, and user activity. This data is anonymized; we don't collect or transmit any personally
+identifiable information.
 
 ## Application Permissions
 
