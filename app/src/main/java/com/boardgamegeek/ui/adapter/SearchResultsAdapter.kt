@@ -16,12 +16,6 @@ import kotlinx.android.synthetic.main.row_search.view.*
 import java.util.*
 import kotlin.properties.Delegates
 
-interface Callback {
-    fun onItemClick(position: Int): Boolean
-
-    fun onItemLongClick(position: Int): Boolean
-}
-
 class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapter<SearchResultViewHolder>(), AutoUpdatableAdapter {
     init {
         setHasStableIds(true)
@@ -105,5 +99,10 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
         }
         return items
     }
-}
 
+    interface Callback {
+        fun onItemClick(position: Int): Boolean
+
+        fun onItemLongClick(position: Int): Boolean
+    }
+}

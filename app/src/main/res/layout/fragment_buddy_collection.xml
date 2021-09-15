@@ -1,40 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-		android:id="@+id/progress"
+		android:id="@+id/progressView"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:gravity="center"/>
+		android:gravity="center" />
 
 	<androidx.recyclerview.widget.RecyclerView
-		android:id="@android:id/list"
+		android:id="@+id/recyclerView"
 		style="@style/RecyclerViewVerticalList.StickyHeader"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
+		android:layout_height="match_parent"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-	<LinearLayout
-		android:id="@+id/empty_container"
+	<TextView
+		android:id="@+id/emptyView"
+		style="@style/EmptyMessage"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:gravity="center"
-		android:orientation="vertical"
-		android:paddingBottom="@dimen/material_margin_vertical"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/material_margin_vertical">
-
-		<TextView
-			android:id="@android:id/empty"
-			style="@style/Text.Empty"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			android:text="@string/empty_buddy_collection"/>
-	</LinearLayout>
+		android:text="@string/empty_buddy_collection"
+		android:visibility="gone" />
 </FrameLayout>

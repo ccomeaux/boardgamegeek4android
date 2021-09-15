@@ -33,19 +33,21 @@ class CollectionSorterFactory(context: Context) {
             add(PricePaidSorter(context))
             add(CurrentValueSorter(context))
             add(InventoryLocationSorter(context))
+            add(LastModifiedDateSorter(context))
         }
     }
 
     fun create(type: Int): CollectionSorter? {
-        sorters
+        return sorters
                 .filter { it.type == type }
-                .forEach { return it }
-        if (type != TYPE_DEFAULT) {
-            Timber.i("Sort type $type not found; attempting to use default")
-            return create(TYPE_DEFAULT)
-        }
-        Timber.w("Sort type not found.")
-        return null
+                .firstOrNull { return it }
+                ?: if (type == TYPE_DEFAULT) {
+                    Timber.w("Default sort type not found.")
+                    null
+                } else {
+                    Timber.i("Sort type $type not found; attempting to use default")
+                    create(TYPE_DEFAULT)
+                }
     }
 
     companion object {

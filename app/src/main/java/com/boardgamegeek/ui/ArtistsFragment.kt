@@ -65,12 +65,6 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
         }
     }
 
-    companion object {
-        fun newInstance(): ArtistsFragment {
-            return ArtistsFragment()
-        }
-    }
-
     class ArtistsAdapter(private val viewModel: ArtistsViewModel) : RecyclerView.Adapter<ArtistsAdapter.ArtistViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
         var artists: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->

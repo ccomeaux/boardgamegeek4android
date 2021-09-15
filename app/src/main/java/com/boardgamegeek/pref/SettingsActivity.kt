@@ -4,26 +4,22 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.collection.ArrayMap
+import androidx.collection.arrayMapOf
 import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
-import com.boardgamegeek.extensions.getSyncStatuses
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
-import com.boardgamegeek.util.PreferencesUtils
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
-import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.toast
 
 class SettingsActivity : DrawerActivity() {
@@ -74,6 +70,7 @@ class SettingsActivity : DrawerActivity() {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
         private var syncType = SyncService.FLAG_SYNC_NONE
+        private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
@@ -88,8 +85,8 @@ class SettingsActivity : DrawerActivity() {
 
             when (fragmentKey) {
                 ACTION_SYNC -> {
-                    entryValues = resources.getStringArray(R.array.pref_sync_status_values) ?: emptyArray()
-                    entries = resources.getStringArray(R.array.pref_sync_status_entries) ?: emptyArray()
+                    entryValues = resources.getStringArray(R.array.pref_sync_status_values)
+                    entries = resources.getStringArray(R.array.pref_sync_status_entries)
 
                     updateSyncStatusSummary(PREFERENCES_KEY_SYNC_STATUSES)
                 }
@@ -99,9 +96,7 @@ class SettingsActivity : DrawerActivity() {
                                 .withFields(R.string::class.java.fields)
                                 .withLibraries(
                                         "AndroidIcons",
-                                        "Hugo",
-                                        "MaterialRangeBar",
-                                        "NestedScrollWebView"
+                                        "MaterialRangeBar"
                                 )
                                 .withAutoDetect(true)
                                 .withLicenseShown(true)
@@ -118,7 +113,6 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        @DebugLog
         override fun onStart() {
             super.onStart()
             EventBus.getDefault().register(this)
@@ -134,7 +128,6 @@ class SettingsActivity : DrawerActivity() {
             preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         }
 
-        @DebugLog
         override fun onStop() {
             super.onStop()
             EventBus.getDefault().unregister(this)
@@ -148,19 +141,15 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    SyncPrefs.requestPartialSync(requireContext())
-                    syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
-                }
-                PreferencesUtils.KEY_SYNC_STATUSES_OLD -> {
-                    SyncPrefs.requestPartialSync(requireContext())
+                    syncPrefs.requestPartialSync()
                     syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
-                    SyncPrefs.clearPlaysTimestamps(requireContext())
+                    syncPrefs.clearPlaysTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_PLAYS
                 }
                 PREFERENCES_KEY_SYNC_BUDDIES -> {
-                    SyncPrefs.clearBuddyListTimestamps(requireContext())
+                    syncPrefs.clearBuddyListTimestamps()
                     syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
                 }
             }
@@ -168,8 +157,8 @@ class SettingsActivity : DrawerActivity() {
 
         private fun updateSyncStatusSummary(key: String) {
             val pref = findPreference<Preference>(key) ?: return
-            val statuses = activity.getSyncStatuses()
-            pref.summary = if (statuses == null || statuses.isEmpty()) {
+            val statuses = defaultSharedPreferences.getSyncStatusesOrDefault()
+            pref.summary = if (statuses.isEmpty()) {
                 getString(R.string.pref_list_empty)
             } else {
                 entryValues.indices
@@ -225,8 +214,8 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateAccountPrefs(username: String) {
-            findPreference<LoginPreference>(PreferencesUtils.KEY_LOGIN)?.update(username)
-            findPreference<SignOutPreference>(PreferencesUtils.KEY_LOGOUT)?.update()
+            findPreference<LoginPreference>(KEY_LOGIN)?.update(username)
+            findPreference<SignOutPreference>(KEY_LOGOUT)?.update()
         }
     }
 
@@ -242,18 +231,15 @@ class SettingsActivity : DrawerActivity() {
         private const val ACTION_ADVANCED = ACTION_PREFIX + "ADVANCED"
         private const val ACTION_ABOUT = ACTION_PREFIX + "ABOUT"
         private const val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
-        private val FRAGMENT_MAP = buildFragmentMap()
 
-        private fun buildFragmentMap(): ArrayMap<String, Int> {
-            val map = ArrayMap<String, Int>()
-            map[ACTION_ACCOUNT] = R.xml.preference_account
-            map[ACTION_SYNC] = R.xml.preference_sync
-            map[ACTION_DATA] = R.xml.preference_data
-            map[ACTION_LOG] = R.xml.preference_log
-            map[ACTION_ADVANCED] = R.xml.preference_advanced
-            map[ACTION_ABOUT] = R.xml.preference_about
-            map[ACTION_AUTHORS] = R.xml.preference_authors
-            return map
-        }
+        private val FRAGMENT_MAP = arrayMapOf(
+                ACTION_ACCOUNT to R.xml.preference_account,
+                ACTION_SYNC to R.xml.preference_sync,
+                ACTION_DATA to R.xml.preference_data,
+                ACTION_LOG to R.xml.preference_log,
+                ACTION_ADVANCED to R.xml.preference_advanced,
+                ACTION_ABOUT to R.xml.preference_about,
+                ACTION_AUTHORS to R.xml.preference_authors
+        )
     }
 }

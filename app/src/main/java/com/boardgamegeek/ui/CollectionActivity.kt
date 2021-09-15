@@ -11,25 +11,23 @@ import android.widget.AdapterView.OnItemSelectedListener
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.extensions.getViewDefaultId
+import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import com.crashlytics.android.answers.CustomEvent
-import org.jetbrains.anko.clearTask
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.newTask
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
+import org.jetbrains.anko.*
 
 class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogFragment.Listener {
     private var viewId: Long = 0
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
+    private var hideNavigation = false
 
     private val viewModel by viewModels<CollectionViewViewModel>()
 
@@ -41,7 +39,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         super.onCreate(savedInstanceState)
 
         supportActionBar?.let {
-            if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
+            if (hideNavigation) {
                 it.setHomeButtonEnabled(false)
                 it.setDisplayHomeAsUpEnabled(false)
                 it.setTitle(R.string.app_name)
@@ -52,19 +50,28 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             }
         }
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Collection"))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+            }
         }
 
-        viewModel.selectedViewId.observe(this, Observer { id: Long -> viewId = id })
+        viewModel.selectedViewId.observe(this, { id: Long -> viewId = id })
         if (savedInstanceState == null) {
-            val viewId = intent.getLongExtra(KEY_VIEW_ID, this.getViewDefaultId())
-            viewModel.selectView(viewId)
+            if (hideNavigation) {
+                viewModel.selectView(CollectionView.DEFAULT_DEFAULT_ID)
+            } else {
+                val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                        ?: CollectionView.DEFAULT_DEFAULT_ID
+                val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
+                viewModel.selectView(viewId)
+            }
         }
     }
 
     override fun readIntent(intent: Intent) {
         isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == getIntent().action
         changingGamePlayId = getIntent().getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
+        hideNavigation = isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -72,18 +79,17 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         findViewById<AppCompatSpinner>(R.id.menu_spinner)?.let {
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    Answers.getInstance().logCustom(CustomEvent("CollectionViewSelected"))
-                    when {
-                        id <= 0 -> viewModel.clearView()
-                        else -> viewModel.selectView(id)
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
                     }
+                    viewModel.selectView(id)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing
                 }
             }
             it.adapter = adapter
-            viewModel.views.observe(this, Observer<List<CollectionViewEntity?>> { collectionViews: List<CollectionViewEntity?> ->
+            viewModel.views.observe(this, { collectionViews: List<CollectionViewEntity?> ->
                 if (collectionViews.isNotEmpty()) {
                     adapter.clear()
                     adapter.addAll(collectionViews)
@@ -96,10 +102,14 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
     override val navigationItemId: Int = R.id.collection
 
-    override val optionsMenuId: Int = if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-        super.optionsMenuId
-    } else {
-        R.menu.search
+    override val optionsMenuId: Int = R.menu.search
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
+        if (hideNavigation) {
+            menu.findItem(R.id.menu_search)?.isVisible = false
+        }
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -127,18 +137,17 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         private const val KEY_VIEW_ID = "VIEW_ID"
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
-        @JvmStatic
         fun createIntentAsShortcut(context: Context, viewId: Long): Intent {
-            val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
+            return context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
                     .clearTask()
                     .newTask()
-            intent.action = Intent.ACTION_VIEW
-            return intent
+                    .apply {
+                        action = Intent.ACTION_VIEW
+                    }
         }
 
-        @JvmStatic
-        fun createIntentForGameChange(context: Context, playId: Long): Intent {
-            return context.intentFor<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
+        fun startForGameChange(context: Context, playId: Long) {
+            context.startActivity<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
         }
     }
 }

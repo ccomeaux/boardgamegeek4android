@@ -1,13 +1,13 @@
 package com.boardgamegeek.ui.dialog
 
-import android.util.Pair
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.boardgamegeek.util.ColorUtils
-import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import java.util.*
 
 class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
@@ -15,7 +15,11 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {
         item?.let {
-            PlayerColorsManipulationEvent.log("Add", it.first)
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                param("Action", "Add")
+                param("Color", it.first)
+            }
             viewModel.add(it.first)
         }
     }
@@ -25,7 +29,7 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
             val dialogFragment = PlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
                         R.string.title_add_color,
-                        ColorUtils.getColorList(),
+                        ColorUtils.colorList,
                         null,
                         null,
                         null,

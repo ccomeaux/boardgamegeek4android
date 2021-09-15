@@ -16,6 +16,16 @@
 		<item>Has Parts</item>
 		<item>Want Parts</item>
 	</string-array>
+	<string-array name="pref_play_log_type">
+		<item>Form</item>
+		<item>Quick</item>
+		<item>Wizard</item>
+	</string-array>
+	<string-array name="pref_play_log_type_values">
+		<item>form</item>
+		<item>quick</item>
+		<item>wizard</item>
+	</string-array>
 	<string-array name="collection_status_filter_entries">
 		<item>Own</item>
 		<item>Previously Owned</item>

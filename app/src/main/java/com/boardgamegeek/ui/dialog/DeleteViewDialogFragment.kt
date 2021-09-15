@@ -5,20 +5,22 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class DeleteViewDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val contentResolver = requireContext().contentResolver
         val cursor = contentResolver.load(CollectionViews.CONTENT_URI, arrayOf(CollectionViews._ID, CollectionViews.NAME))
-        val viewModel by activityViewModels<CollectionViewViewModel>()
+        val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT) // TODO improve message
         val msg = requireContext().getString(R.string.msg_collection_view_deleted_named)
+        val firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
 
         return Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_delete_view)
@@ -35,7 +37,11 @@ class DeleteViewDialogFragment : DialogFragment() {
                                     val viewName = cursor.getString(1)
                                     if (viewName.isNotBlank()) toast.setText(String.format(msg, viewName))
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Delete", viewName)
+                                    firebaseAnalytics.logEvent("DataManipulation") {
+                                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+                                        param("Action", "Delete")
+                                        param("Color", viewName)
+                                    }
                                 }
                             }
                             .setNegativeButton(R.string.no, null)
@@ -46,9 +52,6 @@ class DeleteViewDialogFragment : DialogFragment() {
     }
 
     companion object {
-        @JvmStatic
-        fun newInstance(): DeleteViewDialogFragment {
-            return DeleteViewDialogFragment()
-        }
+        fun newInstance() = DeleteViewDialogFragment()
     }
 }

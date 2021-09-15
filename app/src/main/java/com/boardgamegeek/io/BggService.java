@@ -1,9 +1,11 @@
 package com.boardgamegeek.io;
 
 import com.boardgamegeek.io.model.CollectionResponse;
-import com.boardgamegeek.io.model.CompanyResponse2;
+import com.boardgamegeek.io.model.CompanyResponse;
 import com.boardgamegeek.io.model.ForumListResponse;
+import com.boardgamegeek.io.model.ForumResponse;
 import com.boardgamegeek.io.model.GeekListResponse;
+import com.boardgamegeek.io.model.GeekListsResponse;
 import com.boardgamegeek.io.model.HotnessResponse;
 import com.boardgamegeek.io.model.Person;
 import com.boardgamegeek.io.model.PersonResponse2;
@@ -12,8 +14,6 @@ import com.boardgamegeek.io.model.SearchResponse;
 import com.boardgamegeek.io.model.ThingResponse;
 import com.boardgamegeek.io.model.ThreadResponse;
 import com.boardgamegeek.io.model.User;
-import com.boardgamegeek.model.ForumResponse;
-import com.boardgamegeek.model.GeekListsResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -91,7 +91,7 @@ public interface BggService {
 	Call<PersonResponse2> person(@Query("id") int id);
 
 	@GET("/xmlapi2/company/{id}")
-	Call<CompanyResponse2> company(@Query("id") int id);
+	Call<CompanyResponse> company(@Query("id") int id);
 
 	String SEARCH_TYPE_BOARD_GAME = "boardgame";
 	String SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion";
@@ -130,8 +130,8 @@ public interface BggService {
 	String GEEK_LIST_SORT_RECENT = "recent";
 	String GEEK_LIST_SORT_ACTIVE = "active";
 
-	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&showcount=12&tradelists=0&version=v2")
-	Call<GeekListsResponse> geekLists(@Query("pageid") int page, @Query("sort") String sort);
+	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&tradelists=0&version=v5")
+	Call<GeekListsResponse> geekLists(@Query("sort") String sort, @Query("showcount") int pageSize, @Query("pageid") int page);
 
 	@GET("/xmlapi/geeklist/{id}")
 	Call<GeekListResponse> geekList(@Path("id") int id, @Query("comments") int comments);

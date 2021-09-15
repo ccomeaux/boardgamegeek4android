@@ -29,7 +29,7 @@ class CategoriesActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = CategoriesFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = CategoriesFragment()
 
     override val optionsMenuId = R.menu.categories
 

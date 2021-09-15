@@ -19,7 +19,7 @@
 		android:paddingTop="@dimen/material_margin_vertical">
 
 		<TextView
-			android:id="@+id/username"
+			android:id="@+id/usernameView"
 			style="@style/TextWithImage"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
 			tools:text="ccomeaux"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/post_date"
+			android:id="@+id/postDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
 			tools:text="Yesterday"/>
 
 		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/edit_date"
+			android:id="@+id/editDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -50,9 +50,8 @@
 	</LinearLayout>
 
 	<FrameLayout style="@style/WebViewContainer">
-
 		<WebView
-			android:id="@+id/body"
+			android:id="@+id/bodyView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"/>
 	</FrameLayout>

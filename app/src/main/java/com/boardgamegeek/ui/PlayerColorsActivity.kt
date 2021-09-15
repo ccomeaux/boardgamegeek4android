@@ -20,10 +20,9 @@ import com.boardgamegeek.extensions.setColorViewValue
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
-import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_player_colors.*
 import kotlinx.android.synthetic.main.row_player_color.view.*
 import org.jetbrains.anko.startActivity
@@ -78,12 +77,20 @@ class PlayerColorsActivity : BaseActivity() {
                 Snackbar.make(coordinator, getString(R.string.removed_suffix, color.description), Snackbar.LENGTH_LONG)
                         .setAction(R.string.undo) {
                             viewModel.add(color)
-                            PlayerColorsManipulationEvent.log("UndoDelete", color.description)
+                            firebaseAnalytics.logEvent("DataManipulation") {
+                                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                                param("Action", "UndoDelete")
+                                param("Color", color.description)
+                            }
                         }
                         .setActionTextColor(ContextCompat.getColor(this@PlayerColorsActivity, R.color.light_blue))
                         .show()
                 viewModel.remove(color)
-                PlayerColorsManipulationEvent.log("Delete", color.description)
+                firebaseAnalytics.logEvent("DataManipulation") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                    param("Action", "Delete")
+                    param("Color", color.description)
+                }
             }
 
             override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
@@ -164,7 +171,10 @@ class PlayerColorsActivity : BaseActivity() {
         recyclerView.adapter = adapter
 
         emptyButton.setOnClickListener {
-            PlayerColorsManipulationEvent.log("Generate")
+            firebaseAnalytics.logEvent("DataManipulation") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                param("Action", "Generate")
+            }
             viewModel.generate()
         }
 
@@ -196,10 +206,11 @@ class PlayerColorsActivity : BaseActivity() {
         })
 
         if (savedInstanceState == null) {
-            val event = ContentViewEvent().putContentType("PlayerColors")
-            if (!buddyName.isNullOrBlank()) event.putContentId(buddyName)
-            if (!playerName.isNullOrBlank()) event.putContentName(playerName)
-            Answers.getInstance().logContentView(event)
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                param(FirebaseAnalytics.Param.ITEM_ID, buddyName.orEmpty())
+                param(FirebaseAnalytics.Param.ITEM_NAME, playerName.orEmpty())
+            }
         }
     }
 
@@ -213,7 +224,10 @@ class PlayerColorsActivity : BaseActivity() {
             R.id.menu_clear -> this.createThemedBuilder()
                     .setMessage(R.string.are_you_sure_clear_colors)
                     .setPositiveButton(R.string.clear) { _, _ ->
-                        PlayerColorsManipulationEvent.log("Clear")
+                        firebaseAnalytics.logEvent("DataManipulation") {
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                            param("Action", "Clear")
+                        }
                         viewModel.clear()
                     }
                     .setNegativeButton(R.string.cancel, null)

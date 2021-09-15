@@ -1,21 +1,15 @@
 package com.boardgamegeek.ui.adapter
 
-import android.content.ContentResolver
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.loadThumbnailInList
-import com.boardgamegeek.extensions.setTextOrHide
-import com.boardgamegeek.extensions.use
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import java.util.*
 
 class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
-    private val resolver = context.contentResolver
-    private val inflater = LayoutInflater.from(context)
     private val resultList = ArrayList<Result>()
 
     class Result(val title: String,
@@ -33,7 +27,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
     override fun getItem(index: Int) = resultList.getOrNull(index)
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: inflater.inflate(R.layout.autocomplete_player, parent, false) as View
+        val view = convertView ?: parent.inflate(R.layout.autocomplete_player)
         val result = getItem(position) ?: return view
 
         view.findViewById<TextView>(R.id.player_title)?.setTextOrHide(result.title)
@@ -48,12 +42,11 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
     inner class PlayerFilter : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filter = constraint?.toString() ?: ""
-            if (filter.isBlank()) return null
 
             // list all buddies + players with a username that aren't buddies, sorted by username
             val resultList = arrayListOf<Result>()
-            val players = queryPlayerHistory(resolver, filter)
-            val (buddies, buddyUserNames) = queryBuddies(resolver, filter)
+            val players = queryPlayerHistory(filter)
+            val (buddies, buddyUserNames) = queryBuddies(filter)
             resultList.addAll(buddies)
             players.filterTo(resultList) { player ->
                 buddyUserNames.asSequence().none { it.equals(player.username, true) }
@@ -68,11 +61,10 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             resultList.clear()
-            var values: ArrayList<Result>? = null
-            if (results != null && results.count > 0) {
+            val values = if (results != null && results.count > 0) {
                 @Suppress("UNCHECKED_CAST")
-                values = results.values as? ArrayList<Result>
-            }
+                results.values as? ArrayList<Result>
+            } else null
             if (values != null && values.size > 0) {
                 resultList.addAll(values)
                 notifyDataSetChanged()
@@ -82,54 +74,52 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
         }
     }
 
-    companion object {
-        private fun queryPlayerHistory(resolver: ContentResolver, input: String): List<Result> {
-            val results = arrayListOf<Result>()
-            val cursor = resolver.query(Plays.buildPlayersByUniqueUserUri(),
-                    arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME),
-                    if (input.isBlank()) null else "${PlayPlayers.USER_NAME} LIKE ?",
-                    if (input.isBlank()) null else arrayOf("$input%"),
-                    PlayPlayers.NAME)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        val username = it.getString(1) ?: ""
-                        val nickname = it.getString(2) ?: ""
-                        results.add(Result(nickname, username, username))
-                    } while (it.moveToNext())
-                }
+    private fun queryPlayerHistory(input: String): List<Result> {
+        val results = arrayListOf<Result>()
+        val cursor = context.contentResolver.query(Plays.buildPlayersByUniqueUserUri(),
+                arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME),
+                if (input.isBlank()) null else "${PlayPlayers.USER_NAME} LIKE ?",
+                if (input.isBlank()) null else arrayOf("$input%"),
+                PlayPlayers.NAME)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                do {
+                    val username = it.getStringOrNull(1) ?: ""
+                    val nickname = it.getStringOrNull(2) ?: ""
+                    results += Result(nickname, username, username)
+                } while (it.moveToNext())
             }
-            return results
         }
+        return results
+    }
 
-        private fun queryBuddies(resolver: ContentResolver, input: String): Pair<List<Result>, Set<String>> {
-            val results = arrayListOf<Result>()
-            val userNames = hashSetOf<String>()
-            val cursor = resolver.query(Buddies.CONTENT_URI,
-                    arrayOf(Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, Buddies.PLAY_NICKNAME, Buddies.AVATAR_URL),
-                    if (input.isBlank()) null else "${Buddies.BUDDY_NAME} LIKE ?",
-                    if (input.isBlank()) null else arrayOf("$input%"),
-                    Buddies.NAME_SORT)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        val userName = it.getString(1) ?: ""
-                        val firstName = it.getString(2) ?: ""
-                        val lastName = it.getString(3) ?: ""
-                        val nickname = it.getString(4) ?: ""
-                        val avatarUrl = it.getString(5) ?: ""
-                        val fullName = "${firstName.trim()} ${lastName.trim()}".trim()
+    private fun queryBuddies(input: String): Pair<List<Result>, Set<String>> {
+        val results = arrayListOf<Result>()
+        val userNames = hashSetOf<String>()
+        val cursor = context.contentResolver.query(Buddies.CONTENT_URI,
+                arrayOf(Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, Buddies.PLAY_NICKNAME, Buddies.AVATAR_URL),
+                if (input.isBlank()) null else "${Buddies.BUDDY_NAME} LIKE ?",
+                if (input.isBlank()) null else arrayOf("$input%"),
+                Buddies.NAME_SORT)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                do {
+                    val userName = it.getStringOrNull(1) ?: ""
+                    val firstName = it.getStringOrNull(2) ?: ""
+                    val lastName = it.getStringOrNull(3) ?: ""
+                    val nickname = it.getStringOrNull(4) ?: ""
+                    val avatarUrl = it.getStringOrNull(5) ?: ""
+                    val fullName = "${firstName.trim()} ${lastName.trim()}".trim()
 
-                        results.add(Result(
-                                if (nickname.isBlank()) fullName else nickname,
-                                userName,
-                                userName,
-                                avatarUrl))
-                        userNames.add(userName)
-                    } while (it.moveToNext())
-                }
+                    results += Result(
+                            if (nickname.isBlank()) fullName else nickname,
+                            userName,
+                            userName,
+                            avatarUrl)
+                    userNames.add(userName)
+                } while (it.moveToNext())
             }
-            return results to userNames
         }
+        return results to userNames
     }
 }

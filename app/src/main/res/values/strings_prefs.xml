@@ -3,8 +3,7 @@
 
 	<string name="pref_log">Logging plays</string>
 	<string name="pref_log_summary">Options to record plays</string>
-	<string name="pref_log_play">Log play</string>
-	<string name="pref_log_play_quick">Quick log play</string>
+	<string name="pref_log_play_type">Preferred play logging type</string>
 	<string name="pref_edit_player">Edit player on add</string>
 	<string name="pref_edit_player_off">Just add the player</string>
 	<string name="pref_edit_player_on">Start editing the player after adding</string>

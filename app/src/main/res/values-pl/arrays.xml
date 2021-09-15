@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string-array name="pref_sync_status_entries">
+		<item>W Posiadaniu</item>
+		<item>Kiedyś W Posiadaniu</item>
+		<item>Na Sprzedaż</item>
+		<item>Chcę Odkupić</item>
+		<item>Chcę Kupić</item>
+		<item>Lista Życzeń</item>
+		<item>Chcę Zagrać</item>
+		<item>Zamówione</item>
+		<item>Zagrane</item>
+		<item>Ocenione</item>
+		<item>Skomentowane</item>
+		<item>Mam Części</item>
+		<item>Szukam Części</item>
+	</string-array>
+	<string-array name="collection_status_filter_entries">
+		<item>W Posiadaniu</item>
+		<item>Kiedyś W Posiadaniu</item>
+		<item>Na Sprzedaż</item>
+		<item>Chcę Odkupić</item>
+		<item>Chcę Kupić</item>
+		<item>Lista Życzeń</item>
+		<item>Chcę Zagrać</item>
+		<item>Zamówione</item>
+	</string-array>
+	<string-array name="expansion_status_filter">
+		<item>Wszystkie</item>
+		<item>Gry podstawowe</item>
+		<item>Rozszerzenia</item>
+		<item>Akcesoria</item>
+	</string-array>
+	<string-array name="wishlist_priority">
+		<item>Nieznany</item>
+		<item>Muszę mieć</item>
+		<item>Bardzo chcę mieć</item>
+		<item>Chciałbym mieć</item>
+		<item>Myślę o posiadaniu</item>
+		<item>Nie kupuj tego</item>
+		<item>Nieznany</item>
+	</string-array>
+	<string-array name="wishlist_priority_finite">
+		<item>Muszę mieć</item>
+		<item>Bardzo chcę mieć</item>
+		<item>Chciałbym mieć</item>
+		<item>Myślę o posiadaniu</item>
+		<item>Nie kupuj tego</item>
+	</string-array>
+	<string-array name="game_weight">
+		<item>Łatwa</item>
+		<item>Średnio łatwa</item>
+		<item>Średnia</item>
+		<item>Średnio trudna</item>
+		<item>Trudna</item>
+	</string-array>
+	<string-array name="language_poll">
+		<item>Bez znaczących tekstów</item>
+		<item>Znikome użycie tekstów</item>
+		<item>Umiarkowane użycie tekstów</item>
+		<item>Znaczne użycie tekstów</item>
+		<item>Niegrywalna w innym języku</item>
+	</string-array>
+</resources>

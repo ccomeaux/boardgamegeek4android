@@ -65,12 +65,6 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
         }
     }
 
-    companion object {
-        fun newInstance(): DesignersFragment {
-            return DesignersFragment()
-        }
-    }
-
     class DesignersAdapter(private val viewModel: DesignsViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
         var designers: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->

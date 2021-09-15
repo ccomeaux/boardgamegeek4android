@@ -6,7 +6,6 @@
 	<dimen name="padding_half">4dp</dimen>
 	<dimen name="padding_standard">8dp</dimen>
 	<dimen name="padding_extra">16dp</dimen>
-	<dimen name="padding_mid_wide">32dp</dimen>
 	<dimen name="padding_fab">16dp</dimen>
 	<dimen name="fab_buffer">80dp</dimen>
 	<dimen name="fab_elevation">6dp</dimen>
@@ -16,11 +15,14 @@
 	<dimen name="poll_key_height">20dp</dimen>
 	<dimen name="view_row_height">32dp</dimen>
 	<dimen name="edit_row_height">48dp</dimen>
+	<dimen name="form_row_height">56dp</dimen>
 	<dimen name="game_detail_row_height">48dp</dimen>
+	<dimen name="play_detail_row_height">32dp</dimen>
 	<dimen name="edit_label_width">56dp</dimen>
 	<dimen name="player_row_height">56dp</dimen>
 	<dimen name="thumbnail_list_size">56dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
+	<dimen name="thumbnail_grid_size">48dp</dimen>
 	<dimen name="icon_width">32dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>
 	<dimen name="color_circle_diameter">32dp</dimen>
@@ -55,6 +57,6 @@
 	<dimen name="material_progress_bar_unclipped_height">24dp</dimen>
 	<dimen name="recycler_section_header_height">32dp</dimen>
 	<dimen name="chip_group_height">48dp</dimen>
-	<string name="hero_aspect_ratio">H,16:9</string>
+	<string name="hero_aspect_ratio" translatable="false">H,16:9</string>
 
 </resources>

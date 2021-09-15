@@ -149,7 +149,7 @@ class GameRepository(val application: BggApplication) {
                 Timber.i("Synced plays for game ID %s (page %,d)", gameId, 1)
             }
 
-            override fun hasMorePages(result: PlaysResponse) = isFullRefresh && result.hasMorePages()
+            override fun hasMorePages(result: PlaysResponse, currentPage: Int) = isFullRefresh && result.hasMorePages()
 
             override fun onRefreshSucceeded() {
                 if (isFullRefresh) {

@@ -3,7 +3,6 @@ package com.boardgamegeek.extensions
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.boardgamegeek.util.ColorUtils
-import java.util.*
 
 @ColorInt
 fun @receiver:ColorInt Int.darkenColor(): Int {
@@ -44,7 +43,7 @@ fun Int.blendWith(color: Int, ratio: Double): Int {
 }
 
 fun String?.isKnownColor(): Boolean {
-    return if (this == null) false else ColorUtils.colorNameMap.containsKey(formatKey(this))
+    return if (this == null) false else ColorUtils.colorNameMap.containsKey(ColorUtils.formatKey(this))
 }
 
 fun String?.asColorRgb(): Int {
@@ -62,12 +61,8 @@ fun String?.asColorRgb(): Int {
         } else {
             Color.TRANSPARENT
         }
-        else -> ColorUtils.colorNameMap.getOrDefault(formatKey(this), Color.TRANSPARENT)
+        else -> ColorUtils.colorNameMap[ColorUtils.formatKey(this)] ?: Color.TRANSPARENT
     }
-}
-
-private fun formatKey(name: String): String {
-    return name.toLowerCase(Locale.US)
 }
 
 val ratingColors = intArrayOf(

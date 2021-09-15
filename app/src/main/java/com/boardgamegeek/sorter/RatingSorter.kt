@@ -1,25 +1,21 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import android.database.Cursor
-
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asRating
-import com.boardgamegeek.extensions.getDouble
-import com.boardgamegeek.extensions.getDoubleAsString
-
+import com.boardgamegeek.extensions.asScore
 import java.text.DecimalFormat
 
 abstract class RatingSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue: String = context.getString(R.string.text_unknown)
 
-    override val isSortDescending = true
-
     protected abstract val displayFormat: DecimalFormat
 
-    public override fun getHeaderText(cursor: Cursor) = cursor.getDoubleAsString(sortColumn, defaultValue)
+    override fun getHeaderText(item: CollectionItemEntity): String {
+        val rating = getRating(item)
+        return if (rating == 0.0) defaultValue else rating.asScore(context, R.string.unrated_abbr, DecimalFormat("#0.#"))
+    }
 
-    override fun getRating(cursor: Cursor) = cursor.getDouble(sortColumn)
-
-    override fun getRatingText(cursor: Cursor) = getRating(cursor).asRating(context, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asRating(context, R.string.unrated_abbr)
 }

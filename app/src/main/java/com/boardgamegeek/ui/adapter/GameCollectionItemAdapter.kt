@@ -10,13 +10,14 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
-import com.boardgamegeek.util.XmlConverter
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.widget_collection_row.view.*
 import kotlin.properties.Delegates
 
-class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
-    private val xmlConverter = XmlConverter()
+class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
+    private val xmlConverter by lazy { XmlApiMarkupConverter(context) }
 
     var gameYearPublished: Int by Delegates.observable(YEAR_UNKNOWN) { _, oldValue, newValue ->
         if (oldValue != newValue) {
@@ -45,21 +46,21 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
         holder.bind(items.getOrNull(position), gameYearPublished)
     }
 
-    class ViewHolder(itemView: View, private val xmlConverter: XmlConverter) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, private val markupConverter: XmlApiMarkupConverter) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: CollectionItemEntity?, gameYearPublished: Int) {
             if (item == null) return
             itemView.thumbnail.loadThumbnailInList(item.thumbnailUrl)
             itemView.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
 
-            itemView.comment.setTextMaybeHtml(xmlConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT)
+            itemView.comment.setTextMaybeHtml(markupConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
             itemView.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
-                    item.yearPublished != YEAR_UNKNOWN && item.yearPublished != gameYearPublished) {
-                if (item.yearPublished == YEAR_UNKNOWN) {
+                    item.collectionYearPublished != YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished) {
+                if (item.collectionYearPublished == YEAR_UNKNOWN) {
                     item.collectionName
                 } else {
-                    "${item.collectionName} (${item.yearPublished.asYear(itemView.context)})"
+                    "${item.collectionName} (${item.collectionYearPublished.asYear(itemView.context)})"
                 }
             } else ""
             itemView.description.setTextOrHide(description)
@@ -79,21 +80,23 @@ class GameCollectionItemAdapter : RecyclerView.Adapter<GameCollectionItemAdapter
                 itemView.privateInfo.isVisible = false
             }
 
-            itemView.privateComment.setTextMaybeHtml(xmlConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT)
+            itemView.privateComment.setTextMaybeHtml(markupConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
             itemView.privateComment.isVisible = item.privateComment.isNotBlank()
 
-            itemView.setOnClickListener {
-                GameCollectionItemActivity.start(
-                        itemView.context,
-                        item.internalId,
-                        item.gameId,
-                        item.gameName,
-                        item.collectionId,
-                        item.collectionName,
-                        item.thumbnailUrl,
-                        item.heroImageUrl,
-                        gameYearPublished,
-                        item.yearPublished)
+            if (item.collectionId != BggContract.INVALID_ID) {
+                itemView.setOnClickListener {
+                    GameCollectionItemActivity.start(
+                            itemView.context,
+                            item.internalId,
+                            item.gameId,
+                            item.gameName,
+                            item.collectionId,
+                            item.collectionName,
+                            item.thumbnailUrl,
+                            item.heroImageUrl,
+                            gameYearPublished,
+                            item.collectionYearPublished)
+                }
             }
         }
 

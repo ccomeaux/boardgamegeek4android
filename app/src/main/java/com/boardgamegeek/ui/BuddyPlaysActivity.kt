@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class BuddyPlaysActivity : SimpleSinglePaneActivity() {
@@ -30,9 +30,10 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
             supportActionBar?.subtitle = buddyName
         }
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("BuddyPlays")
-                    .putContentId(buddyName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyPlays")
+                param(FirebaseAnalytics.Param.ITEM_ID, buddyName)
+            }
         }
 
         viewModel.setUsername(buddyName)
@@ -43,7 +44,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
     }
 
     override fun readIntent(intent: Intent) {
-        buddyName = intent.getStringExtra(KEY_BUDDY_NAME)
+        buddyName = intent.getStringExtra(KEY_BUDDY_NAME).orEmpty()
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

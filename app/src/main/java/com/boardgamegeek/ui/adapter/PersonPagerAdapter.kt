@@ -15,9 +15,9 @@ class PersonPagerAdapter(
 ) : FragmentStateAdapter(activity) {
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> PersonDescriptionFragment.newInstance()
-            1 -> PersonStatsFragment.newInstance()
-            2 -> PersonCollectionFragment.newInstance()
+            0 -> PersonDescriptionFragment()
+            1 -> PersonStatsFragment()
+            2 -> PersonCollectionFragment()
             3 -> {
                 when (type) {
                     PersonActivity.PersonType.ARTIST -> ForumsFragment.newInstanceForArtist(id, name)
@@ -25,7 +25,7 @@ class PersonPagerAdapter(
                     PersonActivity.PersonType.PUBLISHER -> ForumsFragment.newInstanceForPublisher(id, name)
                 }
             }
-            else -> ErrorFragment.newInstance()
+            else -> ErrorFragment()
         }
     }
 

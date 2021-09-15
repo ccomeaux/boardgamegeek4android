@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.Tall"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
+	android:orientation="vertical">
+
+	<ImageView
+		android:id="@+id/colorView"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:background="#0f0" />
+
+	<TextView
+		android:id="@+id/seatView"
+		style="@style/Text.Huge"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:layout_gravity="center"
+		android:fontFamily="sans-serif-condensed"
+		android:gravity="center"
+		android:visibility="invisible"
+		app:layout_constraintLeft_toLeftOf="@id/colorView"
+		app:layout_constraintTop_toTopOf="@id/colorView"
+		tools:text="3"
+		tools:visibility="visible" />
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:textAppearance="@style/TextAppearance.RowTitle"
+		app:layout_constraintBottom_toTopOf="@+id/usernameView"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toEndOf="@+id/colorView"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Bilbo Baggins" />
+
+	<TextView
+		android:id="@+id/usernameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		app:layout_constraintBottom_toTopOf="@+id/teamView"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toEndOf="@+id/colorView"
+		app:layout_constraintTop_toBottomOf="@+id/nameView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="underhill" />
+
+	<TextView
+		android:id="@+id/teamView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:textAppearance="@style/TextAppearance.RowDetail"
+		app:layout_constraintBottom_toTopOf="@+id/sortView"
+		app:layout_constraintStart_toEndOf="@+id/colorView"
+		app:layout_constraintTop_toBottomOf="@+id/usernameView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Yetis" />
+
+	<TextView
+		android:id="@+id/sortView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:textAppearance="@style/TextAppearance.RowDetail"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toEndOf="@+id/colorView"
+		app:layout_constraintTop_toBottomOf="@+id/teamView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="First" />
+
+	<ImageView
+		android:id="@+id/dragHandle"
+		style="@style/Icon.Right"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="centerInside"
+		android:src="@drawable/ic_drag_handle"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
