@@ -26,13 +26,14 @@ class CollectionViewRepository(val application: BggApplication) {
     }
 
     private val defaultView = CollectionViewEntity(
-            id = CollectionView.DEFAULT_DEFAULT_ID,
-            name = application.getString(R.string.title_collection),
-            sortType = CollectionSorterFactory.TYPE_DEFAULT
+        id = CollectionView.DEFAULT_DEFAULT_ID,
+        name = application.getString(R.string.title_collection),
+        sortType = CollectionSorterFactory.TYPE_DEFAULT
     )
 
-    suspend fun load(): List<CollectionViewEntity> {
-        return listOf(defaultView) + dao.load()
+    suspend fun load(includeDefault: Boolean = true, includeFilters: Boolean = false): List<CollectionViewEntity> {
+        val list = dao.load(includeFilters)
+        return if (includeDefault) listOf(defaultView) + list else list
     }
 
     suspend fun load(viewId: Long): CollectionViewEntity {
@@ -64,9 +65,9 @@ class CollectionViewRepository(val application: BggApplication) {
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun setShortcuts() {
         shortcutManager?.dynamicShortcuts = dao.loadShortcuts()
-                .filter { it.name.isNotBlank() }
-                .take(SHORTCUT_COUNT)
-                .map { it.map(application) }
+            .filter { it.name.isNotBlank() }
+            .take(SHORTCUT_COUNT)
+            .map { it.map(application) }
     }
 
     companion object {

@@ -33,12 +33,9 @@ import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_
 import static timber.log.Timber.DebugTree;
 
 public class BggApplication extends MultiDexApplication {
-	private AppExecutors appExecutors;
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		appExecutors = new AppExecutors();
 		FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
@@ -113,9 +110,5 @@ public class BggApplication extends MultiDexApplication {
 				PreferenceUtils.setSyncStatuses(prefs, oldSyncStatuses);
 			}
 		}
-	}
-
-	public AppExecutors getAppExecutors() {
-		return appExecutors;
 	}
 }

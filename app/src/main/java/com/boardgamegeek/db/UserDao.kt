@@ -50,7 +50,7 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
-    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<UserEntity> =
+    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME, buddiesOnly: Boolean = true): List<UserEntity> =
         withContext(Dispatchers.IO) {
             val results = arrayListOf<UserEntity>()
             val sortOrder = when (sortBy) {
@@ -70,8 +70,14 @@ class UserDao(private val context: BggApplication) {
                     Buddies.PLAY_NICKNAME,
                     Buddies.UPDATED
                 ),
-                "${Buddies.BUDDY_ID}!=? AND ${Buddies.BUDDY_FLAG}=1",
-                arrayOf(Authenticator.getUserId(context)),
+                if (buddiesOnly)
+                    "${Buddies.BUDDY_ID}!=? AND ${Buddies.BUDDY_FLAG}=1"
+                else
+                    null,
+                if (buddiesOnly)
+                    arrayOf(Authenticator.getUserId(context))
+                else
+                    null,
                 sortOrder
             )?.use {
                 if (it.moveToFirst()) {

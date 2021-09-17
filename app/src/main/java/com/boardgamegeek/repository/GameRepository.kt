@@ -103,9 +103,12 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)
 
-    suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
+    /**
+     * Returns a map of all game IDs with player colors.
+     */
+    suspend fun getPlayColors() = dao.loadPlayColors().groupBy({ it.first }, { it.second })
 
-    suspend fun getColors(gameId: Int) = dao.loadColors(gameId)
+    suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
 
     suspend fun addPlayColor(gameId: Int, color: String?) {
         if (gameId != BggContract.INVALID_ID && !color.isNullOrBlank()) {

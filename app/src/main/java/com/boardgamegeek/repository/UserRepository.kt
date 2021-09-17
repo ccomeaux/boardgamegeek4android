@@ -44,10 +44,13 @@ class UserRepository(val application: BggApplication) {
             items
         }
 
-    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<UserEntity> =
-        withContext(Dispatchers.IO) {
-            userDao.loadBuddies(sortBy)
-        }
+    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<UserEntity> = withContext(Dispatchers.IO) {
+        userDao.loadBuddies(sortBy)
+    }
+
+    suspend fun loadAllUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
+        userDao.loadBuddies(buddiesOnly = false)
+    }
 
     suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
         val accountName = Authenticator.getAccount(application)?.name
@@ -76,7 +79,7 @@ class UserRepository(val application: BggApplication) {
     }
 
     suspend fun updateSelf(user: UserEntity?) = withContext(Dispatchers.IO) {
-        Authenticator.putUserId(application, user?.id?: BggContract.INVALID_ID)
+        Authenticator.putUserId(application, user?.id ?: BggContract.INVALID_ID)
         AccountUtils.setUsername(application, user?.userName.orEmpty())
         AccountUtils.setFullName(application, user?.fullName.orEmpty())
         AccountUtils.setAvatarUrl(application, user?.avatarUrl.orEmpty())

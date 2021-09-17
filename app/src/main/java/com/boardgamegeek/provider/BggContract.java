@@ -885,6 +885,8 @@ public class BggContract {
 	}
 
 	public static final class GameColors implements GameColorsColumns, GamesColumns, BaseColumns {
+		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_COLORS).build();
+
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamecolor";
 

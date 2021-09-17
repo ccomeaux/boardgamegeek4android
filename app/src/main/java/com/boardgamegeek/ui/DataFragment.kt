@@ -82,8 +82,9 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         }
         return Intent(action).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            setType("text/json")
+            setType("application/*")
             putExtra(Intent.EXTRA_TITLE, FileUtils.getExportFileName(typeDescription))
+            putExtra(Intent.EXTRA_ORIGINATING_URI, FileUtils.getExportFileName(typeDescription))
         }
     }
 
@@ -91,8 +92,10 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         if (resultCode != Activity.RESULT_OK || !isAdded) return
         val uri: Uri = data?.data ?: return
         try {
-            val modeFlags: Int = data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            requireContext().contentResolver.takePersistableUriPermission(uri, modeFlags)
+            requireContext().contentResolver.takePersistableUriPermission(
+                uri,
+                data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            )
         } catch (e: SecurityException) {
             Timber.e(e, "Could not persist URI permissions for '%s'.", uri.toString())
         }

@@ -15,7 +15,7 @@ class LogPlayerViewModel(application: Application) : AndroidViewModel(applicatio
 
     val colors: LiveData<List<String>> = _gameId.switchMap {
         liveData {
-            repository.getColors(0)
+            repository.getPlayColors(it)
         }
     }
 }

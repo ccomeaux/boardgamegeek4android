@@ -391,7 +391,7 @@ class GameDao(private val context: BggApplication) {
         }
 
     suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<String>()
+        val colors = mutableListOf<String>()
         if (gameId != INVALID_ID) {
             context.contentResolver.load(
                 Games.buildColorsUri(gameId),
@@ -399,23 +399,23 @@ class GameDao(private val context: BggApplication) {
             )?.use {
                 if (it.moveToFirst()) {
                     do {
-                        results.add(it.getString(0))
+                        colors += it.getStringOrNull(0).orEmpty()
                     } while (it.moveToNext())
                 }
             }
         }
-        results
+        colors
     }
 
-    suspend fun loadColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        val colors = mutableListOf<String>()
+    suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
+        val colors = mutableListOf<Pair<Int, String>>()
         context.contentResolver.load(
-            Games.buildColorsUri(gameId),
-            arrayOf(GameColors.COLOR)
+            GameColors.CONTENT_URI,
+            arrayOf(GameColors.GAME_ID, GameColors.COLOR),
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    colors += it.getStringOrNull(0).orEmpty()
+                    colors += (it.getIntOrNull(0) ?: INVALID_ID) to it.getStringOrNull(1).orEmpty()
                 } while (it.moveToNext())
             }
         }
