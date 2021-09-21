@@ -65,7 +65,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
 
     fun exportCollectionViews(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val views = collectionViewRepository.load(includeDefault = false, includeFilters = true).map  { it.mapToExportable() }
+            val views = collectionViewRepository.load(includeDefault = false, includeFilters = true).map { it.mapToExportable() }
             export(
                 uri,
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
@@ -143,9 +143,9 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 JsonWriter(OutputStreamWriter(FileOutputStream(it.fileDescriptor), "UTF-8")).use { writer ->
                     writer.setIndent("  ")
                     writer.beginObject()
-                    writer.name(Constants.NAME_TYPE).value(typeDescription)
-                    writer.name(Constants.NAME_VERSION).value(version)
-                    writer.name(Constants.NAME_ITEMS)
+                    writer.name(NAME_TYPE).value(typeDescription)
+                    writer.name(NAME_VERSION).value(version)
+                    writer.name(NAME_ITEMS)
                     writer.beginArray()
 
                     list.forEachWithIndex { index, record ->
@@ -298,6 +298,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
         openFileToRead(uri)?.use { pfd ->
             val reader = JsonReader(InputStreamReader(FileInputStream(pfd.fileDescriptor), "UTF-8"))
             try {
+                var shouldContinue = true
                 if (reader.peek() == JsonToken.BEGIN_ARRAY) {
                     reader.beginArray()
                     while (reader.hasNext()) {
@@ -305,19 +306,18 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                     }
                     reader.endArray()
                 } else {
-                    var shouldContinue = true
                     reader.beginObject()
                     while (reader.hasNext() && shouldContinue) {
                         when (reader.nextName()) {
-                            Constants.NAME_TYPE -> reader.nextString().also {
+                            NAME_TYPE -> reader.nextString().also {
                                 if (it != typeDescription) {
                                     progress.postValue(items.size to items.size)
                                     postMessage(R.string.msg_import_failed_wrong_type, typeDescription, it!!)
                                     shouldContinue = false
                                 }
                             }
-                            Constants.NAME_VERSION -> version = reader.nextInt()
-                            Constants.NAME_ITEMS -> {
+                            NAME_VERSION -> version = reader.nextInt()
+                            NAME_ITEMS -> {
                                 reader.beginArray()
                                 while (reader.hasNext()) {
                                     items += parseItem(reader)
@@ -327,8 +327,18 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                             else -> reader.skipValue()
                         }
                     }
-                    reader.endObject()
+                    if (shouldContinue) reader.endObject()
                 }
+
+                if (shouldContinue) {
+                    initializeImport()
+                    items.forEachWithIndex { i, item ->
+                        progress.postValue(items.size to i)
+                        importRecord(item, version)
+                    }
+                    postMessage(R.string.msg_import_success)
+                }
+                progress.postValue(items.size to items.size)
             } catch (e: Exception) {
                 progress.postValue(items.size to items.size)
                 Timber.w(e, "Importing %s JSON file.", typeDescription)
@@ -341,21 +351,12 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                     Timber.w(e, "Failed trying to close the JsonReader")
                 }
             }
-
-            initializeImport()
-            items.forEachWithIndex { i, item ->
-                progress.postValue(items.size to i)
-                importRecord(item, version)
-            }
-
-            try {
-                pfd.close()
-            } catch (e: IOException) {
-                Timber.w(e)
-            }
         }
+    }
 
-        progress.postValue(items.size to items.size)
-        postMessage(R.string.msg_import_success)
+    companion object {
+        const val NAME_TYPE = "type"
+        const val NAME_VERSION = "version"
+        const val NAME_ITEMS = "items"
     }
 }

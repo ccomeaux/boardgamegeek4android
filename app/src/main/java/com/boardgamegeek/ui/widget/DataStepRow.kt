@@ -1,28 +1,22 @@
 package com.boardgamegeek.ui.widget
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.annotation.StringRes
+import androidx.core.content.withStyledAttributes
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import kotlinx.android.synthetic.main.widget_data_step_row.view.*
 
-@SuppressLint("ViewConstructor")
-class DataStepRow(context: Context) : LinearLayout(context) {
-    private var type: Int = 0
-    private var listener: Listener? = null
-
-    interface Listener {
-        fun onExportClicked(type: Int)
-
-        fun onImportClicked(type: Int)
-    }
-
+class DataStepRow @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+) : LinearLayout(context, attrs, defStyleAttr) {
     init {
         LayoutInflater.from(getContext()).inflate(R.layout.widget_data_step_row, this, true)
 
@@ -34,22 +28,18 @@ class DataStepRow(context: Context) : LinearLayout(context) {
         val verticalPadding = resources.getDimensionPixelSize(R.dimen.padding_half)
         setPadding(0, verticalPadding, 0, verticalPadding)
 
-        exportButton.setOnClickListener {
-            listener?.onExportClicked(type)
-        }
-        importButton.setOnClickListener {
-            listener?.onImportClicked(type)
+        context.withStyledAttributes(attrs, R.styleable.DataStepRow, defStyleAttr) {
+            typeView.text = getString(R.styleable.DataStepRow_titleLabel)
+            descriptionView.text = getString(R.styleable.DataStepRow_descriptionLabel)
         }
     }
 
-    fun setListener(listener: Listener) {
-        this.listener = listener
+    fun onExport(l: OnClickListener) {
+        exportButton.setOnClickListener(l)
     }
 
-    fun bind(type: Int, @StringRes typeResId: Int, @StringRes descriptionResId: Int) {
-        this.type = type
-        typeView.setText(typeResId)
-        descriptionView.setText(descriptionResId)
+    fun onImport(l: OnClickListener) {
+        importButton.setOnClickListener(l)
     }
 
     fun initProgressBar() {
