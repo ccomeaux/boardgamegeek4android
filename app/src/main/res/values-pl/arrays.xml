@@ -16,6 +16,11 @@
 		<item>Mam Części</item>
 		<item>Szukam Części</item>
 	</string-array>
+	<string-array name="pref_play_log_type">
+		<item>Formularz</item>
+		<item>Szybki</item>
+		<item>Kreator</item>
+	</string-array>
 	<string-array name="collection_status_filter_entries">
 		<item>W Posiadaniu</item>
 		<item>Kiedyś W Posiadaniu</item>
