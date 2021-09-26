@@ -18,24 +18,23 @@ class PlayCountFilterDialog : SliderFilterDialog() {
 
     override val rangeInterval = 3
 
-    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean): CollectionFilterer {
+    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer {
         val filterer = PlayCountFilterer(context)
         filterer.min = min
         filterer.max = max
         return filterer
     }
 
-    override fun initValues(filter: CollectionFilterer?): SliderFilterDialog.InitialValues {
+    override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as PlayCountFilterer?
-        return SliderFilterDialog.InitialValues(
+        return InitialValues(
                 f?.min ?: PlayCountFilterer.lowerBound,
                 f?.max ?: PlayCountFilterer.upperBound
         )
     }
 
     override fun getPinText(context: Context, value: String): String {
-        val count = value.toIntOrNull() ?: PlayCountFilterer.lowerBound
-        return when (count) {
+        return when (value.toIntOrNull() ?: PlayCountFilterer.lowerBound) {
             PlayCountFilterer.upperBound -> value.andMore()
             else -> value
         }

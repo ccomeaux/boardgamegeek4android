@@ -2,16 +2,17 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.entities.CollectionItemEntity
 
 class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(context) {
     var playerCount = 4
     var recommendation = RECOMMENDED
+    private val separator = "|"
 
     override val typeResourceId = R.string.collection_filter_type_recommended_player_count
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val d = data.split(DELIMITER)
         playerCount = d.getOrNull(0)?.toInt() ?: 4
         recommendation = d.getOrNull(1)?.toInt() ?: RECOMMENDED
     }
@@ -37,16 +38,13 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
                 playerCount)
     }
 
-    override fun getColumns(): Array<String>? {
-        return arrayOf(Games.createRecommendedPlayerCountColumn(playerCount.toString()))
-    }
-
-    override fun getSelection() = ""
-
-    override fun getSelectionArgs(): Array<String>? = null
-
-    override fun getHaving(): String? {
-        return Games.createRecommendedPlayerCountColumn(playerCount.toString()) + if (recommendation == BEST) "=2" else ">0"
+    override fun filter(item: CollectionItemEntity): Boolean {
+        val seg = "$separator$playerCount$separator"
+        return when (recommendation) {
+            BEST -> item.bestPlayerCounts.contains(seg)
+            RECOMMENDED -> item.recommendedPlayerCounts.contains(seg)
+            else -> true
+        }
     }
 
     companion object {

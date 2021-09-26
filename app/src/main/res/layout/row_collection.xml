@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/RowContainer.WithThumbnail"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.WithThumbnail"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@drawable/activatable_background"
@@ -11,12 +10,12 @@
 	android:orientation="horizontal">
 
 	<ImageView
-		android:id="@+id/thumbnail"
+		android:id="@+id/thumbnailView"
 		style="@style/ImageList"
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
 		android:contentDescription="@string/thumbnail"
-		android:src="@drawable/thumbnail_image_empty"/>
+		android:src="@drawable/thumbnail_image_empty" />
 
 	<RelativeLayout
 		android:layout_width="0dp"
@@ -25,66 +24,66 @@
 		android:layout_weight="1">
 
 		<TextView
-			android:id="@+id/name"
+			android:id="@+id/nameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textAppearance="@style/TextAppearance.RowTitle"
-			tools:text="Terra Mystica"/>
+			tools:text="Terra Mystica" />
 
 		<TextView
-			android:id="@+id/year"
+			android:id="@+id/yearView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignLeft="@id/name"
-			android:layout_alignStart="@id/name"
-			android:layout_below="@id/name"
+			android:layout_below="@id/nameView"
+			android:layout_alignStart="@id/nameView"
+			android:layout_alignLeft="@id/nameView"
 			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-			tools:text="2012"/>
+			tools:text="2012" />
 
 		<ImageView
-			android:id="@+id/favorite"
+			android:id="@+id/favoriteView"
 			android:layout_width="12dp"
 			android:layout_height="12dp"
+			android:layout_alignParentTop="true"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
 			android:contentDescription="@string/menu_favorite"
 			android:src="@drawable/ic_favorite"
 			android:visibility="gone"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 
 		<TextView
-			android:id="@+id/info"
+			android:id="@+id/infoView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_below="@id/nameView"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/name"
 			android:textAppearance="@style/TextAppearance.RowDetail"
-			tools:text="8.0"/>
+			tools:text="8.0" />
 
 		<TextView
-			android:id="@+id/rating"
+			android:id="@+id/ratingView"
 			style="@style/RatingSmall"
 			android:layout_width="48dp"
 			android:layout_height="wrap_content"
+			android:layout_below="@id/nameView"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/name"
 			android:gravity="center"
 			android:visibility="gone"
 			tools:background="#088"
-			tools:text="8"/>
+			tools:text="8" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
-			android:id="@+id/timestamp"
+			android:id="@+id/timestampView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_below="@id/nameView"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/name"
 			android:textAppearance="@style/TextAppearance.RowDetail"
 			app:hideWhenEmpty="true"
-			tools:text="4 hours ago"/>
+			tools:text="4 hours ago" />
 	</RelativeLayout>
 </LinearLayout>

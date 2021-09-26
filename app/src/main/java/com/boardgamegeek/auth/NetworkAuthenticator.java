@@ -1,14 +1,17 @@
 package com.boardgamegeek.auth;
 
+import android.content.Context;
+import android.os.Bundle;
+
 import com.boardgamegeek.util.HttpUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.LoginEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Event;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 
 import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import hugo.weaving.DebugLog;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,7 +19,7 @@ import okhttp3.Response;
 import timber.log.Timber;
 
 public class NetworkAuthenticator {
-	@SuppressWarnings("FieldCanBeLocal") private static final boolean MOCK_LOGIN = false;
+	private static final boolean MOCK_LOGIN = false;
 
 	private NetworkAuthenticator() {
 	}
@@ -26,20 +29,21 @@ public class NetworkAuthenticator {
 	 * requests, or null if authentication fails.
 	 */
 	@Nullable
-	public static BggCookieJar authenticate(@NonNull String username, @NonNull String password, @NonNull String method) {
+	public static BggCookieJar authenticate(@NonNull String username, @NonNull String password, @NonNull String method, Context context) {
 		if (MOCK_LOGIN) {
 			return BggCookieJar.getMock();
 		} else {
-			return tryAuthenticate(username, password, method);
+			return tryAuthenticate(username, password, method, context);
 		}
 	}
 
 	@Nullable
-	private static BggCookieJar tryAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method) {
+	private static BggCookieJar tryAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method, Context context) {
+		FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
 		try {
-			return performAuthenticate(username, password, method);
+			return performAuthenticate(username, password, method, firebaseAnalytics);
 		} catch (@NonNull final IOException e) {
-			logAuthFailure(method, "IOException");
+			logAuthFailure(method, "IOException", firebaseAnalytics);
 		} finally {
 			Timber.w("Authentication complete");
 		}
@@ -47,8 +51,7 @@ public class NetworkAuthenticator {
 	}
 
 	@Nullable
-	@DebugLog
-	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method) throws IOException {
+	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method, FirebaseAnalytics firebaseAnalytics) throws IOException {
 		final BggCookieJar cookieJar = new BggCookieJar();
 		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
 			.cookieJar(cookieJar)
@@ -57,28 +60,29 @@ public class NetworkAuthenticator {
 		final Response response = client.newCall(post).execute();
 		if (response.isSuccessful()) {
 			if (cookieJar.isValid()) {
-				Answers.getInstance().logLogin(new LoginEvent()
-					.putMethod(method)
-					.putSuccess(true));
+				Bundle bundle = new Bundle();
+				bundle.putString(Param.METHOD, method);
+				bundle.putString(Param.SUCCESS, "true");
+				firebaseAnalytics.logEvent(Event.LOGIN, bundle);
 				return cookieJar;
 			} else {
-				logAuthFailure(method, "Invalid cookie jar");
+				logAuthFailure(method, "Invalid cookie jar", firebaseAnalytics);
 			}
 		} else {
-			logAuthFailure(method, "Response: " + response.toString());
+			logAuthFailure(method, "Response: " + response.toString(), firebaseAnalytics);
 		}
 		return null;
 	}
 
-	private static void logAuthFailure(String method, String reason) {
+	private static void logAuthFailure(String method, String reason, FirebaseAnalytics firebaseAnalytics) {
 		Timber.w("Failed %1$s login: %2$s", method, reason);
-		Answers.getInstance().logLogin(new LoginEvent()
-			.putMethod(method)
-			.putSuccess(false)
-			.putCustomAttribute("Reason", reason));
+		Bundle bundle = new Bundle();
+		bundle.putString(Param.METHOD, method);
+		bundle.putString(Param.SUCCESS, "false");
+		bundle.putString("Reason", reason);
+		firebaseAnalytics.logEvent(Event.LOGIN, bundle);
 	}
 
-	@DebugLog
 	@NonNull
 	private static Request buildRequest(@NonNull String username, @NonNull String password) {
 		FormBody formBody = new FormBody.Builder()

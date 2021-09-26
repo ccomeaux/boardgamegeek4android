@@ -29,7 +29,7 @@ class DesignersActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = DesignersFragment.newInstance()
+    override fun onCreatePane(intent: Intent): Fragment = DesignersFragment()
 
     override val optionsMenuId = R.menu.designers
 

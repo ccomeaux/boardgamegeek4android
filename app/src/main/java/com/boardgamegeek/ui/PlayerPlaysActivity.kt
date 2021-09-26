@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class PlayerPlaysActivity : SimpleSinglePaneActivity() {
@@ -32,9 +32,10 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
         }
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("PlayerPlays")
-                    .putContentName(name))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerPlays")
+                param(FirebaseAnalytics.Param.ITEM_NAME, name)
+            }
         }
 
         viewModel.setPlayerName(name)

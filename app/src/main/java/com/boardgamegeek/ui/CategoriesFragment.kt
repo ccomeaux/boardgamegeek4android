@@ -53,12 +53,6 @@ class CategoriesFragment : Fragment() {
         }
     }
 
-    companion object {
-        fun newInstance(): CategoriesFragment {
-            return CategoriesFragment()
-        }
-    }
-
     class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoryViewHolder>(), AutoUpdatableAdapter {
         var categories: List<CategoryEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->

@@ -2,9 +2,7 @@ package com.boardgamegeek.model;
 
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -27,9 +25,7 @@ public abstract class PlayPostResponse {
 			if (response.isSuccessful()) {
 				final ResponseBody body = response.body();
 				final String content = body == null ? "" : body.string().trim();
-				Crashlytics.log(Log.WARN, "PlaysUpload", content);
 				if (content.startsWith(ERROR_DIV)) {
-					//noinspection deprecation
 					error = Html.fromHtml(content).toString().trim();
 				} else {
 					saveContent(content);

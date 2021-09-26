@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/FormRow"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+<androidx.appcompat.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/log_play_incomplete"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
-
-	<androidx.appcompat.widget.SwitchCompat
-		android:id="@+id/log_play_incomplete"
-		style="@style/Text.Big"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:checked="false"
-		android:paddingLeft="@dimen/edit_label_width"
-		android:paddingStart="@dimen/edit_label_width"
-		android:text="@string/incomplete"
-		tools:ignore="RtlSymmetry"/>
-</LinearLayout>
+	android:layout_height="@dimen/form_row_height"
+	android:layout_marginStart="@dimen/material_indent_horizontal"
+	android:layout_marginLeft="@dimen/material_indent_horizontal"
+	android:layout_marginEnd="@dimen/material_margin_horizontal"
+	android:paddingVertical="@dimen/padding_half"
+	android:layout_marginRight="@dimen/material_margin_horizontal"
+	android:checked="false"
+	android:text="@string/incomplete"
+	android:textAppearance="?attr/textAppearanceSubtitle1" />

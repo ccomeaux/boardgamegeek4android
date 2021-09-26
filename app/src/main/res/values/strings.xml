@@ -28,12 +28,11 @@
 	<string name="draft_prefix">Draft, last saved %s</string>
 	<string name="editing_prefix">Editing, last saved %s</string>
 	<string name="quantity">Quantity</string>
-	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
-	<string name="length_hint">Length in minutes</string>
+	<string name="length_hint">Length (in minutes)</string>
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
-	<string name="location_hint">Location</string>
+	<string name="location_hint">Location name</string>
 	<string name="no_location">&lt;No location&gt;</string>
 	<string name="nowhere_in_angle_brackets">&lt;Nowhere&gt;</string>
 	<string name="incomplete">Incomplete</string>
@@ -42,6 +41,7 @@
 	<string name="send">Send</string>
 	<string name="save">Save</string>
 	<string name="done">Done</string>
+	<string name="next">Next</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="discard">Discard</string>
@@ -52,7 +52,9 @@
 	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
-	<string name="select_range">Select a range</string>
+	<string name="range">Range</string>
+	<string name="single_value">Single value</string>
+	<string name="none">None</string>
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
@@ -60,6 +62,8 @@
 	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
+	<string name="randomize_all">All</string>
+	<string name="randomize_start">1st</string>
 	<string name="plays">plays</string>
 	<string name="played">Played</string>
 	<string name="rated">Rated</string>
@@ -80,13 +84,13 @@
 	<string name="username">Username</string>
 	<string name="colors">Colors</string>
 	<string name="team_color">Team/Color</string>
+	<string name="team_color_prefix">Team/Color for %s</string>
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
 	<string name="geek_rating">Geek rating</string>
 	<string name="my_rating">My rating</string>
 	<string name="my_rating_abbr">Me</string>
-	<string name="rating_hint">Rating</string>
 	<string name="high_score">High Score</string>
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>
@@ -110,6 +114,7 @@
 	<string name="before">before</string>
 	<string name="after">after</string>
 	<string name="status_of_prefix">Status of %s</string>
+	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
 	<string name="msg_color_error_no_players">There are no players that need colors.</string>
@@ -166,12 +171,16 @@
 	<string name="title_buddy">User</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
+	<string name="title_new_play">New Play</string>
+	<string name="title_new_players">New Players</string>
+	<string name="title_winners">Scores &amp; Winners</string>
 	<string name="title_add_players">Add Players</string>
 	<string name="title_comments">Comments</string>
 	<string name="title_private_info">Private Info</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_ranks_ratings">Ranks &amp; Ratings</string>
 	<string name="title_colors">Colors</string>
+	<string name="title_team_colors">Team/Colors</string>
 	<string name="title_favorite_colors">Favorite Colors</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
@@ -203,15 +212,16 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
+	<string name="title_add_team_color">Add Team/Color</string>
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
 	<string name="comment">Comment</string>
-	<string name="title_sort">Sort by</string>
+	<string name="title_sort">Sort</string>
+	<string name="title_sort_by">Sort by</string>
 	<string name="title_filter">Filter by</string>
+	<string name="color_name">Color name</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>
-	<string name="msg_export_confirmation">Are you sure you want to (potentially) replace the export files?</string>
-	<string name="msg_import_confirmation">Are you sure you want to replace the data in app with data from the files?</string>
 	<string name="msg_export_success">Export successful.</string>
 	<string name="msg_export_failed">Export failed.</string>
 	<string name="msg_export_failed_external_permissions">No permissions to write to external storage.</string>
@@ -236,13 +246,11 @@
 	<string name="backup_description_game">The list of colors associated with each game.</string>
 	<string name="backup_description_user">Users\' favorite colors, which includes both GeekBuddies and players you\'ve played against.</string>
 	<string name="msg_export_permission_rationale">To write the export files, the app needs permission to write to the external storage.</string>
-	<string name="msg_export_permission_denied">Can\'t export without the proper permission.</string>
 	<string name="msg_shortcut_create">Select a game to place it on the home screen.</string>
 	<string name="msg_change_play_game">Select a new game for this play</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
-	<string name="title_signin">Sign In</string>
 	<string name="loading">Loading…</string>
 	<string name="empty">Nothing to see here</string>
 	<string name="empty_game">No information</string>
@@ -260,6 +268,11 @@
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter. Maybe you should try different filters.</string>
 	<string name="empty_collection_filter_on_sync_partial">Collection sync for some of the filtered statuses is off. Try to enable it from Settings > Sync to display some games.</string>
+	<string name="empty_new_play_locations">No previous locations. Add a new one.</string>
+	<string name="empty_new_play_locations_filter">No locations matching the filter.</string>
+	<string name="empty_new_play_players">No previous players. Add a new one</string>
+	<string name="empty_new_play_players_filter">No players matching the filter.</string>
+	<string name="new_play_location_hint">Filter or add new</string>
 	<string name="sync">Sync</string>
 	<string name="empty_game_collection">This game isn\'t in your collection.</string>
 	<string name="re_sync">Re-sync</string>
@@ -274,7 +287,7 @@
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play_stats">You have no plays that can be analyzed.</string>
-	<string name="empty_play">No play found (ID=%s)."</string>
+	<string name="empty_play">No play found."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
@@ -311,7 +324,11 @@
 	<string name="menu_view">View</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
+	<string name="menu_log_play_short">Form</string>
+	<string name="menu_log_play_wizard">Log play wizard</string>
+	<string name="menu_log_play_wizard_short">Wizard</string>
 	<string name="menu_log_play_quick">Quick log play</string>
+	<string name="menu_log_play_quick_short">Quick</string>
 	<string name="menu_favorite">Favorite</string>
 	<string name="menu_unfavorite">Unfavorite</string>
 	<string name="menu_users">Users</string>
@@ -346,6 +363,7 @@
 	<string name="collection_sort_collection_name">Name</string>
 	<string name="collection_sort_geek_rating">Geek Rating</string>
 	<string name="collection_sort_last_viewed">Last Viewed</string>
+	<string name="collection_sort_last_modified">Last Modified</string>
 	<string name="collection_sort_my_rating">My Rating</string>
 	<string name="collection_sort_play_count_asc">Least Played</string>
 	<string name="collection_sort_play_count_desc">Most Played</string>
@@ -426,7 +444,8 @@
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
-	<string name="msg_play_added">Logged your <b>%1$s</b> play</string>
+	<string name="msg_play_added">Logged play</string>
+	<string name="msg_play_added_quantity">Logged your <b>%1$s</b> play</string>
 	<string name="msg_play_updated">Updated play</string>
 	<string name="msg_play_deleted">Deleted play</string>
 	<string name="msg_play_deleted_draft">Deleted draft</string>
@@ -613,11 +632,13 @@
 	<string name="game_h_index_prefix">Game H-Index <b>%s</b></string>
 	<string name="title_players_skill">Skill Formula</string>
 	<string name="player_skill_info">Measures the success ratio using:\n\n 100 * PlayTimesPlayer / winnable games\n\nPlayTimesPlayer = \u2211 (# plays * # players)</string>
-	<string name="play_stat_fhm">FHM</string>
+	<string name="play_stat_fhm">Friendless Happiness</string>
 	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: https://extstats.drfriendless.com/\n\nrating * 5 + plays + months played * 4 + hours played</string>
-	<string name="play_stat_hhm">HHM</string>
+	<string name="play_stat_hhm">Huber Happiness</string>
 	<string name="play_stat_hhm_info">The Huber Happiness Metric (HHM) is a measure of the happiness this game has provided, as defined by Joe Huber (huber).\n\n(rating - 5) * hours played</string>
-	<string name="play_stat_ruhm">R!UHM</string>
+	<string name="play_stat_huber_heat">Huber Heat</string>
+	<string name="play_stat_huber_heat_info">The Huber Heat Metric attempts to assess how much you love this game right now. Well, at least for the last year.</string>
+	<string name="play_stat_ruhm">Randy Cox not-Unhappiness</string>
 	<string name="play_stat_ruhm_info">The Randy Cox not-Unhappiness Metric (R!UHM) is a measure of the happiness this game has provided, as defined by Randy Cox.\n\nln(flash / lag * months played * rating)\nflash = time between first and last plays\nlag = time between last play and today</string>
 	<string name="play_stat_utilization">Utilization</string>
 	<string name="play_stat_utilization_info">Utilization (as proposed by Friendless) assumes that if you play a game 10 more times, you gain 90% of the remaining utility.</string>
@@ -706,6 +727,10 @@
 		<item quantity="one">Deleted %s color</item>
 		<item quantity="other">Deleted %s colors</item>
 	</plurals>
+	<plurals name="plays">
+		<item quantity="one">%s play</item>
+		<item quantity="other">%s plays</item>
+	</plurals>
 	<plurals name="msg_plays_selected">
 		<item quantity="one">%s play</item>
 		<item quantity="other">%s plays</item>
@@ -751,8 +776,8 @@
 		<item quantity="other"><b>%,d</b> comments</item>
 	</plurals>
 	<plurals name="msg_play_location_change">
-		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
-		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="one">Changed %1$s play entry from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="other">Changed %1$s play entries from \"%2$s\" to \"%3$s\"</item>
 	</plurals>
 	<plurals name="search_results">
 		<item quantity="one">%1$s match for \"%2$s\"</item>

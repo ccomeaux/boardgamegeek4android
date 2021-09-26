@@ -76,10 +76,6 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
         }
     }
 
-    protected fun ensureFabShown() {
-        fab.ensureShown()
-    }
-
     protected fun setFabImageResource(@DrawableRes imageResId: Int) {
         fab.setImageResource(imageResId)
     }

@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.PlayEntity
@@ -43,20 +42,20 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
 
         syncTimestampView?.timestamp = 0L
 
-        viewModel.game.observe(viewLifecycleOwner, Observer {
+        viewModel.game.observe(viewLifecycleOwner) {
             onGameQueryComplete(it?.data)
-        })
+        }
 
-        viewModel.plays.observe(viewLifecycleOwner, Observer {
+        viewModel.plays.observe(viewLifecycleOwner) {
             swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
             onPlaysQueryComplete(it?.data)
             progressView.hide()
-        })
+        }
 
-        viewModel.playColors.observe(viewLifecycleOwner, Observer {
+        viewModel.playColors.observe(viewLifecycleOwner) {
             updateColors(it)
             progressView.hide()
-        })
+        }
     }
 
     private fun updateColors(colors: List<String>?) {
@@ -104,11 +103,13 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                     inProgressPlaysList.removeAllViews()
                     inProgressPlays.take(3).forEach { play ->
                         val row = LayoutInflater.from(context).inflate(R.layout.row_play_summary_updating, inProgressPlaysList, false)
-                        row.findViewById<InProgressPlay>(R.id.line1).play = play
-                        row.findViewById<InProgressPlay>(R.id.line1).timeHintUpdateInterval = 1_000L
+                        row.findViewById<InProgressPlay>(R.id.line1)?.let {
+                            it.play = play
+                            it.timeHintUpdateInterval = 1_000L
+                        }
                         row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
                         row.setOnClickListener {
-                            PlayActivity.start(context, play.internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl)
+                            PlayActivity.start(requireContext(), play.internalId)
                         }
                         inProgressPlaysList?.addView(row)
                     }
@@ -133,12 +134,12 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
             playCountContainer.fadeIn()
 
             if (plays.isNotEmpty()) {
-                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
+                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
                 if (lastPlay != null) {
                     lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
                     lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
                     lastPlayContainer.setOnClickListener {
-                        PlayActivity.start(context, lastPlay.internalId, lastPlay.gameId, lastPlay.gameName, thumbnailUrl, imageUrl, heroImageUrl)
+                        PlayActivity.start(requireContext(), lastPlay.internalId)
                     }
                     lastPlayContainer.fadeIn()
                 } else {
@@ -147,7 +148,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
 
                 playStatsContainer.setOnClickListener {
                     if (gameId != BggContract.INVALID_ID)
-                        GamePlayStatsActivity.start(context, gameId, gameName, iconColor)
+                        GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
                 }
                 playStatsContainer.fadeIn()
             } else {
@@ -164,12 +165,6 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
     private fun colorize() {
         if (isAdded) {
             arrayOf(inProgressPlaysIcon, playsIcon, playStatsIcon, colorsIcon).forEach { it.setOrClearColorFilter(iconColor) }
-        }
-    }
-
-    companion object {
-        fun newInstance(): GamePlaysFragment {
-            return GamePlaysFragment()
         }
     }
 

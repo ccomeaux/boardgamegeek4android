@@ -27,7 +27,6 @@
 	<string name="draft_prefix">Wersja robocza, ostatni zapis %s</string>
 	<string name="editing_prefix">Edycja, ostatni zapis %s</string>
 	<string name="quantity">Ilość</string>
-	<string name="quantity_hint">Ilość</string>
 	<string name="length">Czas trwania</string>
 	<string name="length_hint">Czas trwania w minutach</string>
 	<string name="location">Lokalizacja</string>
@@ -49,7 +48,6 @@
 	<string name="cancelled">Anulowano</string>
 	<string name="exact">Dokładny</string>
 	<string name="exactly">Dokładnie</string>
-	<string name="select_range">Zaznacz przedział</string>
 	<string name="include_missing_values">Uwzględnij gry z brakującymi danymi</string>
 	<string name="filter_description_player_number">Zostają pokazane tylko gry dla <b>całego zakresu</b>graczy. <i>Dokładny</i> znaczy, że pokazane zostaną tylko gry dla danej liczby graczy (np. gry tylko dla 2 graczy).</string>
 	<string name="filter_description_include_missing_play_time">Jeśli <b>uwzględnisz gry z brakującymi danymi</b> filtr pokaże gry z nieznanym czasem gry.</string>
@@ -83,7 +81,6 @@
 	<string name="geek_rating">Ocena BGG</string>
 	<string name="my_rating">Moja ocena</string>
 	<string name="my_rating_abbr">Ja</string>
-	<string name="rating_hint">Ocena</string>
 	<string name="high_score">Najlepszy wynik</string>
 	<string name="low_score">Najgorszy wynik</string>
 	<string name="average_score">Średni wynik</string>
@@ -199,11 +196,9 @@
 	<string name="title_backup">Kopia zapasowa</string>
 	<string name="title_export">Eksport</string>
 	<string name="comment">Komentarz</string>
-	<string name="title_sort">Sortuj wg</string>
+	<string name="title_sort_by">Sortuj wg</string>
 	<string name="title_filter">Filtruj wg</string>
 	<string name="description_backup">Eksport zapisze dane aplikacji we wskazancyh lokalizacjach nadpisując istniejące pliki. Import odtworzy dane z tych samych plików potencjalnie nadpisując istniejące dane.</string>
-	<string name="msg_export_confirmation">Na pewno chcesz (potencjalnie) zastąpić pliki z eksportem?</string>
-	<string name="msg_import_confirmation">Na pewno chcesz zastąpić dane aplikacji danymi z plików?</string>
 	<string name="msg_export_success">Eksport pomyślny.</string>
 	<string name="msg_export_failed">Eksport nieudany.</string>
 	<string name="msg_export_failed_external_permissions">Brak uprawnień na zapis w pamięci zewnętrznej.</string>
@@ -228,13 +223,11 @@
 	<string name="backup_description_game">Lista kolorów powiązana z każdą grą.</string>
 	<string name="backup_description_user">Ulubione kolory użytkowników, włączając GeekBuddies oraz graczy, z którymi grałeś.</string>
 	<string name="msg_export_permission_rationale">Aplikacja potrzebuje uprawnień zapisywania w pamięci zewnętrznej, aby zapisywać pliki eksportu.</string>
-	<string name="msg_export_permission_denied">Nie można wyeksportować bez odpowiedniego uprawnienia.</string>
 	<string name="msg_shortcut_create">Wybierz grę do umieszczenie na ekranie głównym.</string>
 	<string name="msg_change_play_game">Wybierz grę do tej rozgrywki</string>
 	<string name="msg_missing_nickname">Musisz podać nazwę aby zaktualizować rozgrywki</string>
 	<string name="msg_updated_nickname">Imię Twojego GeekBuddy-ego zostało zmienione na \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">Już istnieje widok kolekcji o tej nazwie. Zaktualizować istniejący widok czy utworzyć nowy?</string>
-	<string name="title_signin">Zaloguj się</string>
 	<string name="loading">Ładowanie…</string>
 	<string name="empty">Nic tu nie ma</string>
 	<string name="empty_game">Brak informacji</string>
@@ -461,7 +454,7 @@
 	<string name="player_range">Liczba graczy</string>
 	<string name="best_prefix">Najlepsza dla <b>%s</b></string>
 	<string name="recommended_prefix">Dobra dla <b>%s</b></string>
-	<string name="recommended_player_count_description_abbr">%1$ dla %2$,d</string>
+	<string name="recommended_player_count_description_abbr">%1$s dla %2$,d</string>
 	<string name="mins_unknown">\? min.</string>
 	<string name="hrs_suffix">%,d godz.</string>
 	<string name="hrs_mins">%1$,d godz. %2$d min.</string>

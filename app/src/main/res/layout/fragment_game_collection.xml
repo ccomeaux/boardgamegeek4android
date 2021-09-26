@@ -24,7 +24,8 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
 				android:gravity="center"
-				android:padding="@dimen/material_margin_horizontal"/>
+				android:padding="@dimen/material_margin_horizontal"
+				tools:visibility="gone" />
 
 			<LinearLayout
 				android:layout_width="match_parent"
@@ -47,7 +48,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-					tools:itemCount="1"
+					tools:itemCount="2"
 					tools:listitem="@layout/widget_collection_row"/>
 
 				<com.boardgamegeek.ui.widget.TimestampView

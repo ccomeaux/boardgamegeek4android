@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import org.jetbrains.anko.startActivity
 
 class PlayersActivity : SimpleSinglePaneActivity() {
@@ -24,7 +24,9 @@ class PlayersActivity : SimpleSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Players"))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Players")
+            }
         }
 
         viewModel.sort(intent.extras?.get(KEY_SORT_TYPE) as? PlayersViewModel.SortType

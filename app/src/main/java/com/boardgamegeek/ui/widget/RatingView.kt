@@ -44,7 +44,7 @@ class RatingView @JvmOverloads constructor(
         setOnClickListener {
             var output = RATING_EDIT_FORMAT.format(ratingView.tag as Double)
             if ("0" == output) output = ""
-            val fragment = CollectionRatingNumberPadDialogFragment.newInstance(gameId, collectionId, internalId, output)
+            val fragment = CollectionRatingNumberPadDialogFragment.newInstance(output)
             (context as? FragmentActivity)?.showAndSurvive(fragment)
         }
     }

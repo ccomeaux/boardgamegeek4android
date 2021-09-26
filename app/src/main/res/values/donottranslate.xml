@@ -28,6 +28,7 @@
 	<string name="collection_sort_type_play_date_max">22</string>
 	<string name="collection_sort_type_play_date_min">23</string>
 	<string name="collection_sort_type_inventory_location">24</string>
+	<string name="collection_sort_type_last_modified">25</string>
 
 	<string name="collection_filter_type_collection_status">1</string>
 	<string name="collection_filter_type_subtype">10</string>
@@ -96,7 +97,7 @@
 	<string name="intent_action_sync">com.boardgamegeek.intent.action.SYNC</string>
 	<string name="intent_action_data">com.boardgamegeek.intent.action.DATA</string>
 
-	<string name="define_int_Hugo"></string>
+	<string name="define_int_Hugo">year;owner</string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
 	<string name="library_Hugo_libraryName">Hugo</string>
@@ -105,6 +106,8 @@
 	<string name="library_Hugo_licenseId">apache_2_0</string>
 	<string name="library_Hugo_isOpenSource">true</string>
 	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
+	<string name="library_Hugo_owner">Jake Wharton</string>
+	<string name="library_Hugo_year">2013</string>
 
 	<string name="define_int_AndroidIcons"></string>
 	<string name="library_AndroidIcons_author">Opoloo</string>
@@ -117,7 +120,7 @@
 	<string name="library_AndroidIcons_isOpenSource">true</string>
 	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
 
-	<string name="define_int_NestedScrollWebView"></string>
+	<string name="define_int_NestedScrollWebView">year;owner</string>
 	<string name="library_NestedScrollWebView_author">Tobias Rohloff</string>
 	<string name="library_NestedScrollWebView_authorWebsite">https://github.com/tobiasrohloff</string>
 	<string name="library_NestedScrollWebView_libraryName">NestedScrollWebView for Android</string>
@@ -126,6 +129,8 @@
 	<string name="library_NestedScrollWebView_licenseId">apache_2_0</string>
 	<string name="library_NestedScrollWebView_isOpenSource">true</string>
 	<string name="library_NestedScrollWebView_repositoryLink">https://github.com/tobiasrohloff/NestedScrollWebView</string>
+	<string name="library_NestedScrollWebView_owner">Tobias Rohloff</string>
+	<string name="library_NestedScrollWebView_year">2016</string>
 
 	<string name="define_license_CCBYSA_4_0"></string>
 	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>

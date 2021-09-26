@@ -1,5 +1,6 @@
 package com.boardgamegeek;
 
+import android.content.SharedPreferences;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
@@ -14,12 +15,9 @@ import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
@@ -29,21 +27,20 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Set;
 
 import androidx.multidex.MultiDexApplication;
-import hugo.weaving.DebugLog;
-import io.fabric.sdk.android.Fabric;
+import androidx.preference.PreferenceManager;
 import timber.log.Timber;
 
+import static com.boardgamegeek.extensions.PreferenceUtils.PREFERENCES_KEY_SYNC_STATUSES;
 import static timber.log.Timber.DebugTree;
 
 public class BggApplication extends MultiDexApplication {
 	private AppExecutors appExecutors;
 
 	@Override
-	@DebugLog
 	public void onCreate() {
 		super.onCreate();
 		appExecutors = new AppExecutors();
-		initializeFabric();
+		FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
 			enableStrictMode();
@@ -53,12 +50,13 @@ public class BggApplication extends MultiDexApplication {
 					.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
 					.build());
 		} else {
+			FirebaseCrashlytics firebase = FirebaseCrashlytics.getInstance();
 			String username = AccountUtils.getUsername(this);
 			if (!TextUtils.isEmpty(username)) {
-				Crashlytics.setUserIdentifier(String.valueOf(username.hashCode()));
+				firebase.setUserId(String.valueOf(username.hashCode()));
 			}
-			Crashlytics.setString("BUILD_TIME", BuildConfig.BUILD_TIME);
-			Crashlytics.setString("GIT_SHA", BuildConfig.GIT_SHA);
+			firebase.setCustomKey("BUILD_TIME", BuildConfig.BUILD_TIME);
+			firebase.setCustomKey("GIT_SHA", BuildConfig.GIT_SHA);
 			Timber.plant(new CrashReportingTree());
 		}
 
@@ -86,11 +84,6 @@ public class BggApplication extends MultiDexApplication {
 		});
 	}
 
-	private void initializeFabric() {
-		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
-		Fabric.with(this, crashlytics, new Answers(), new Crashlytics());
-	}
-
 	private void enableStrictMode() {
 		final VmPolicy.Builder builder = new VmPolicy.Builder()
 			.detectActivityLeaks()
@@ -113,11 +106,12 @@ public class BggApplication extends MultiDexApplication {
 	}
 
 	private void migrateCollectionStatusSettings() {
-		Set<String> set = PreferenceUtils.getSyncStatuses(this, null);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		Set<String> set = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null);
 		if (set == null) {
-			String[] oldSyncStatuses = PreferencesUtils.getOldSyncStatuses(getApplicationContext());
-			if (oldSyncStatuses != null && oldSyncStatuses.length > 0) {
-				PreferenceUtils.setSyncStatuses(getApplicationContext(), oldSyncStatuses);
+			String[] oldSyncStatuses = PreferenceUtils.getOldSyncStatuses(prefs, getApplicationContext());
+			if (oldSyncStatuses.length > 0) {
+				PreferenceUtils.setSyncStatuses(prefs, oldSyncStatuses);
 			}
 		}
 	}

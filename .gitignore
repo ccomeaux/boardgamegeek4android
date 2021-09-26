@@ -42,6 +42,7 @@ captures/
 .idea/libraries
 .idea/misc.xml
 .idea/caches/
+.idea/jarRepositories.xml
 
 # Keystore files
 *.jks
@@ -57,6 +58,4 @@ freeline.py
 freeline/
 freeline_project_description.json
 
-# Fabric
-fabric.properties
 ajcore.*.txt

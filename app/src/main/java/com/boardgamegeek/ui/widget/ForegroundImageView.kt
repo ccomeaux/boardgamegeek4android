@@ -49,7 +49,7 @@ class ForegroundImageView @JvmOverloads constructor(
 
             // Apply foreground padding for nine patches automatically
             if (!foregroundPadding) {
-                val npd = background as NinePatchDrawable?
+                val npd = background as? NinePatchDrawable
                 if (npd?.getPadding(rectPadding) == true) {
                     foregroundPadding = true
                 }
@@ -139,9 +139,9 @@ class ForegroundImageView @JvmOverloads constructor(
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @TargetApi(VERSION_CODES.LOLLIPOP)
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
             if (e.actionMasked == MotionEvent.ACTION_DOWN) {
                 foreground?.setHotspot(e.x, e.y)
             }

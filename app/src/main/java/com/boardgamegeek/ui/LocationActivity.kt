@@ -9,26 +9,22 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
-import com.boardgamegeek.tasks.RenameLocationTask
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment
-import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
+import com.boardgamegeek.ui.dialog.EditLocationNameDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.boardgamegeek.util.fabric.DataManipulationEvent
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.design.snackbar
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
+import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.startActivity
 
-class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
+class LocationActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlaysViewModel>()
 
     private var locationName = ""
     private var playCount = -1
+    private var snackbar: Snackbar? = null
 
     override val optionsMenuId: Int
         get() = R.menu.location
@@ -39,20 +35,35 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
         setSubtitle()
 
         if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Location")
-                    .putContentName(locationName))
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
+                param(FirebaseAnalytics.Param.ITEM_NAME, locationName)
+            }
         }
 
+        viewModel.location.observe(this, Observer {
+            locationName = it
+            intent.putExtra(KEY_LOCATION_NAME, locationName)
+            setSubtitle()
+        })
         viewModel.plays.observe(this, Observer {
             playCount = it.data?.sumBy { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         })
+        viewModel.updateMessage.observe(this, Observer {
+            it.getContentIfNotHandled()?.let { content ->
+                if (content.isBlank()) {
+                    snackbar?.dismiss()
+                } else {
+                    snackbar = rootContainer?.longSnackbar(content)
+                }
+            }
+        })
+        viewModel.setLocation(locationName)
     }
 
     override fun readIntent(intent: Intent) {
         locationName = intent.getStringExtra(KEY_LOCATION_NAME) ?: ""
-        viewModel.setLocation(locationName)
     }
 
     private fun setSubtitle() {
@@ -71,41 +82,17 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_edit) {
-            val editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_edit_location, locationName)
-            showAndSurvive(editTextDialogFragment)
+            showAndSurvive(EditLocationNameDialogFragment.newInstance(locationName))
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: RenameLocationTask.Event) {
-        locationName = event.locationName
-        intent.putExtra(KEY_LOCATION_NAME, locationName)
-        setSubtitle()
-        viewModel.setLocation(locationName)
-        // recreate fragment to load the list with the new location
-        recreateFragment()
-
-        if (event.message.isNotBlank()) {
-            rootContainer?.snackbar(event.message)
-        }
-    }
-
-    override fun onFinishEditDialog(text: String, originalText: String?) {
-        if (text.isNotBlank()) {
-            DataManipulationEvent.log("Location", "Edit")
-            RenameLocationTask(this, originalText, text).executeAsyncTask()
-        }
     }
 
     companion object {
         private const val KEY_LOCATION_NAME = "LOCATION_NAME"
 
         fun start(context: Context, locationName: String) {
-            context.startActivity<LocationActivity>(
-                    KEY_LOCATION_NAME to locationName
-            )
+            context.startActivity<LocationActivity>(KEY_LOCATION_NAME to locationName)
         }
     }
 }

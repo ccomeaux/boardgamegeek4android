@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:orientation="vertical">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
 
 	<LinearLayout
 		android:id="@+id/headerView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingLeft="@dimen/padding_extra"
-		android:paddingRight="@dimen/padding_extra"
-		android:paddingTop="@dimen/padding_standard"
+		android:paddingHorizontal="@dimen/padding_extra"
+		android:paddingVertical="@dimen/padding_standard"
 		tools:background="#0f0">
 
 		<TextView
@@ -22,7 +20,7 @@
 			android:layout_height="wrap_content"
 			android:maxLines="1"
 			android:textAppearance="@style/Text.Title"
-			tools:text="Score"/>
+			tools:text="Score" />
 
 		<TextView
 			android:id="@+id/subtitleView"
@@ -32,7 +30,7 @@
 			android:textAppearance="@style/Text.Subtitle"
 			android:visibility="gone"
 			tools:text="Chris (ccomeaux)"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -52,7 +50,7 @@
 			android:paddingLeft="@dimen/padding_extra"
 			android:text="±"
 			android:textColor="@color/dialog_text"
-			tools:ignore="HardcodedText"/>
+			tools:ignore="HardcodedText" />
 
 		<TextView
 			android:id="@+id/outputView"
@@ -63,7 +61,7 @@
 			android:gravity="center"
 			android:lines="1"
 			android:textAppearance="@style/Text.Readout"
-			tools:text="1234"/>
+			tools:text="1234" />
 
 		<ImageView
 			android:id="@+id/deleteView"
@@ -74,7 +72,7 @@
 			android:contentDescription="@string/delete"
 			android:paddingRight="@dimen/padding_extra"
 			android:scaleType="center"
-			android:src="@drawable/ic_action_backspace"/>
+			android:src="@drawable/ic_action_backspace" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -92,15 +90,15 @@
 
 			<TextView
 				style="@style/NumPad"
-				android:text="1"/>
+				android:text="1" />
 
 			<TextView
 				style="@style/NumPad"
-				android:text="2"/>
+				android:text="2" />
 
 			<TextView
 				style="@style/NumPad"
-				android:text="3"/>
+				android:text="3" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -110,15 +108,15 @@
 
 			<TextView
 				style="@style/NumPad"
-				android:text="4"/>
+				android:text="4" />
 
 			<TextView
 				style="@style/NumPad"
-				android:text="5"/>
+				android:text="5" />
 
 			<TextView
 				style="@style/NumPad"
-				android:text="6"/>
+				android:text="6" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -128,15 +126,15 @@
 
 			<TextView
 				style="@style/NumPad"
-				android:text="7"/>
+				android:text="7" />
 
 			<TextView
 				style="@style/NumPad"
-				android:text="8"/>
+				android:text="8" />
 
 			<TextView
 				style="@style/NumPad"
-				android:text="9"/>
+				android:text="9" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -146,11 +144,12 @@
 
 			<TextView
 				style="@style/NumPad"
-				android:text="0"/>
+				android:text="0" />
 
 			<TextView
+				android:id="@+id/decimalSeparator"
 				style="@style/NumPad"
-				android:text="."/>
+				android:text="." />
 
 			<ImageView
 				android:id="@+id/doneView"
@@ -158,7 +157,7 @@
 				android:contentDescription="@string/done"
 				android:padding="@dimen/padding_extra"
 				android:scaleType="center"
-				android:src="@drawable/ic_done"/>
+				android:src="@drawable/ic_done" />
 		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>

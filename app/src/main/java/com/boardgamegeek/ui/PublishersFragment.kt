@@ -65,12 +65,6 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
         }
     }
 
-    companion object {
-        fun newInstance(): PublishersFragment {
-            return PublishersFragment()
-        }
-    }
-
     class PublisherAdapter(private val viewModel: PublishersViewModel) : RecyclerView.Adapter<PublisherAdapter.PublisherViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
         var publishers: List<CompanyEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->

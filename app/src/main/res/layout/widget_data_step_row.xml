@@ -27,16 +27,6 @@
 		android:textAppearance="@style/Text"
 		tools:text="All kinds of stuff goes here."/>
 
-	<TextView
-		android:id="@+id/fileNameView"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:gravity="center_vertical"
-		android:maxLines="3"
-		android:textAppearance="@style/Text.Secondary"
-		tools:text="bgg4a-games.json"/>
-
 	<ProgressBar
 		android:id="@+id/progressBar"
 		style="@style/Widget.AppCompat.ProgressBar.Horizontal"

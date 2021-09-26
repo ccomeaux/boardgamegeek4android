@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -12,8 +13,6 @@ import com.google.android.material.textfield.TextInputLayout
  * A special sub-class of AppCompatAutoCompleteTextView designed for use as a child of
  * [TextInputLayout].
  *
- *
- *
  * Using this class allows us to display a hint in the IME when in 'extract' mode.
  */
 class TextInputAutoCompleteTextView @JvmOverloads constructor(
@@ -21,6 +20,17 @@ class TextInputAutoCompleteTextView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = android.R.attr.autoCompleteTextViewStyle)
     : AppCompatAutoCompleteTextView(context, attrs, defStyleAttr) {
+
+    override fun enoughToFilter(): Boolean {
+        return true
+    }
+
+    override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect)
+        if (focused && filter != null) {
+            performFiltering(text, 0);
+        }
+    }
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
         val inputConnection = super.onCreateInputConnection(outAttrs)

@@ -20,5 +20,27 @@ fun Context?.isOnWiFi(): Boolean {
 }
 
 fun Context?.isOffline(): Boolean {
-    return this?.getSystemService<ConnectivityManager>()?.activeNetworkInfo?.isConnected != true
+    val connectivityManager = this?.getSystemService<ConnectivityManager>()
+    val isOnline = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val capabilities = connectivityManager?.getNetworkCapabilities(connectivityManager.activeNetwork)
+                ?: return false
+        when {
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
+    } else {
+        @Suppress("DEPRECATION")
+        connectivityManager?.activeNetworkInfo?.let {
+            when (it.type) {
+                ConnectivityManager.TYPE_WIFI -> true
+                ConnectivityManager.TYPE_MOBILE -> true
+                ConnectivityManager.TYPE_ETHERNET -> true
+                else -> false
+            }
+        } ?: false
+    }
+
+    return !isOnline
 }

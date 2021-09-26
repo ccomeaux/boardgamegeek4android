@@ -1,12 +1,14 @@
 package com.boardgamegeek.provider;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
 import com.boardgamegeek.extensions.TaskUtils;
+import com.boardgamegeek.pref.SyncPrefUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -29,7 +31,7 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.tasks.ResetGameTask;
+import com.boardgamegeek.tasks.ResetGamesTask;
 import com.boardgamegeek.tasks.ResetPlaysTask;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
@@ -100,11 +102,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_ARTIST_IMAGES = 52;
 	private static final int VER_DESIGNER_IMAGES = 53;
 	private static final int VER_PUBLISHER_IMAGES = 54;
-	private static final int VER_WHITSCORE_SCORE = 55;
+	private static final int VER_WHITMORE_SCORE = 55;
 	private static final int VER_DAP_STATS_UPDATED_TIMESTAMP = 56;
-	private static final int DATABASE_VERSION = VER_DAP_STATS_UPDATED_TIMESTAMP;
+	private static final int VER_RECOMMENDED_PLAYER_COUNTS = 57;
+	private static final int DATABASE_VERSION = VER_RECOMMENDED_PLAYER_COUNTS;
 
 	private final Context context;
+	private final SharedPreferences syncPrefs;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -220,6 +224,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	public BggDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		this.context = context;
+		syncPrefs = SyncPrefs.getPrefs(context);
 	}
 
 	@Override
@@ -361,6 +366,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.WINS_COLOR, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
+			.addColumn(Games.PLAYER_COUNTS_BEST, COLUMN_TYPE.TEXT)
+			.addColumn(Games.PLAYER_COUNTS_RECOMMENDED, COLUMN_TYPE.TEXT)
+			.addColumn(Games.PLAYER_COUNTS_NOT_RECOMMENDED, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
@@ -695,7 +703,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					buildGamesTable().replace(db);
 					dropTable(db, Tables.COLLECTION);
 					buildCollectionTable().create(db);
-					SyncPrefs.clearCollection(context);
+					SyncPrefUtils.clearCollection(syncPrefs);
 					SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION);
 					version = VER_GAME_COLLECTION_CONFLICT;
 				case VER_GAME_COLLECTION_CONFLICT:
@@ -815,7 +823,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					dropTable(db, Tables.PLAY_PLAYERS);
 					buildPlaysTable().create(db);
 					buildPlayPlayersTable().create(db);
-					SyncPrefs.clearPlaysTimestamps(context);
+					SyncPrefUtils.clearPlaysTimestamps(syncPrefs);
 					SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS);
 					version = VER_PLAYS_HARD_RESET;
 				case VER_PLAYS_HARD_RESET:
@@ -834,8 +842,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER);
 					version = VER_MIN_MAX_PLAYING_TIME;
 				case VER_MIN_MAX_PLAYING_TIME:
-					TaskUtils.executeAsyncTask(new ResetGameTask(context));
-					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
+					TaskUtils.executeAsyncTask(new ResetGamesTask(context));
 					version = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
 				case VER_SUGGESTED_PLAYER_COUNT_RESYNC:
 					addColumn(db, Tables.GAMES, Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT);
@@ -875,12 +882,18 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.DESIGNERS, Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.ARTISTS, Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.PUBLISHERS, Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER);
-					version = VER_WHITSCORE_SCORE;
-				case VER_WHITSCORE_SCORE:
+					version = VER_WHITMORE_SCORE;
+				case VER_WHITMORE_SCORE:
 					addColumn(db, Tables.DESIGNERS, Designers.DESIGNER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.ARTISTS, Artists.ARTIST_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 					addColumn(db, Tables.PUBLISHERS, Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER);
 					version = VER_DAP_STATS_UPDATED_TIMESTAMP;
+				case VER_DAP_STATS_UPDATED_TIMESTAMP:
+					addColumn(db, Tables.GAMES, Games.PLAYER_COUNTS_BEST, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.GAMES, Games.PLAYER_COUNTS_RECOMMENDED, COLUMN_TYPE.TEXT);
+					addColumn(db, Tables.GAMES, Games.PLAYER_COUNTS_NOT_RECOMMENDED, COLUMN_TYPE.TEXT);
+					TaskUtils.executeAsyncTask(new ResetGamesTask(context));
+					version = VER_RECOMMENDED_PLAYER_COUNTS;
 			}
 
 			if (version != DATABASE_VERSION) {

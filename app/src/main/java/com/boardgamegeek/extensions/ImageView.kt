@@ -84,10 +84,10 @@ fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {
     }
 
     if (disabled) {
-        if (color.isColorDark()) {
-            colorChoiceDrawable.colors = intArrayOf(Color.LTGRAY, color)
+        colorChoiceDrawable.colors = if (color.isColorDark()) {
+            intArrayOf(Color.WHITE, color)
         } else {
-            colorChoiceDrawable.colors = intArrayOf(color, Color.DKGRAY)
+            intArrayOf(color, Color.BLACK)
         }
     } else {
         colorChoiceDrawable.setColor(color)

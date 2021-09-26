@@ -3,7 +3,6 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
 import com.boardgamegeek.R;
@@ -29,8 +28,7 @@ public class DialogUtils {
 	}
 
 	public static void showAndSurvive(Fragment host, DialogFragment dialog) {
-		final FragmentManager fragmentManager = host.getFragmentManager();
-		if (fragmentManager == null) return;
+		final FragmentManager fragmentManager = host.getParentFragmentManager();
 		String tag = "dialog";
 
 		FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -66,10 +64,6 @@ public class DialogUtils {
 			})
 			.setCancelable(true)
 			.create();
-	}
-
-	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener) {
-		return createConfirmationDialog(context, messageId, okListener, R.string.ok);
 	}
 
 	public static Dialog createConfirmationDialog(Context context, int messageId, OnClickListener okListener, @StringRes int positiveButtonTextId) {

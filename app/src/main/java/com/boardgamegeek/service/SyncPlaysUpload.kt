@@ -9,10 +9,7 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.getLongOrNull
-import com.boardgamegeek.extensions.toOrdinal
-import com.boardgamegeek.extensions.use
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayDeleteResponse
@@ -28,9 +25,7 @@ import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.extensions.getText
 import com.boardgamegeek.util.SelectionBuilder
-import hugo.weaving.DebugLog
 import okhttp3.FormBody
 import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
@@ -48,6 +43,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         var imageUrl: String = ""
         var thumbnailUrl: String = ""
         var heroImageUrl: String = ""
+        var customPlayerSort: Boolean = false
     }
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_UPLOAD
@@ -67,13 +63,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.thumbnailUrl,
                     currentPlay.heroImageUrl)
         else
-            PlayActivity.createIntent(context,
-                    currentPlay.internalId,
-                    currentPlay.gameId,
-                    currentPlay.gameName,
-                    currentPlay.imageUrl,
-                    currentPlay.thumbnailUrl,
-                    currentPlay.heroImageUrl)
+            PlayActivity.createIntent(context, currentPlay.internalId)
 
     override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_PLAY
 
@@ -81,14 +71,12 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
     override val notificationSummaryMessageId = R.string.sync_notification_plays_upload
 
-    @DebugLog
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
         CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
-    @DebugLog
     private fun updatePendingPlays() {
         val cursor = context.contentResolver.query(
                 Plays.CONTENT_SIMPLE_URI,
@@ -126,15 +114,16 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     } else if (response.hasError()) {
                         syncResult.stats.numIoExceptions++
                         notifyUploadError(response.errorMessage)
-                    } else if (response.playCount <= 0) {
+                    } else if (response.playCount < 0) {
                         syncResult.stats.numIoExceptions++
                         notifyUploadError(context.getString(R.string.msg_play_update_null_response))
                     } else {
                         syncResult.stats.numUpdates++
-                        val message = if (play.playId > 0)
-                            context.getText(R.string.msg_play_updated)
-                        else
-                            context.getText(R.string.msg_play_added, getPlayCountDescription(response.playCount, play.quantity))
+                        val message = when {
+                            play.playId > 0 -> context.getText(R.string.msg_play_updated)
+                            play.quantity > 0 -> context.getText(R.string.msg_play_added_quantity, getPlayCountDescription(response.playCount, play.quantity))
+                            else -> context.getText(R.string.msg_play_added)
+                        }
 
                         play.playId = response.playId
                         play.dirtyTimestamp = 0
@@ -149,13 +138,12 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     }
                 } catch (e: Exception) {
                     syncResult.stats.numParseExceptions++
-                    notifyUploadError(e.localizedMessage)
+                    notifyUploadError(e.localizedMessage.orEmpty())
                 }
             }
         }
     }
 
-    @DebugLog
     private fun deletePendingPlays() {
         val cursor = context.contentResolver.query(Plays.CONTENT_SIMPLE_URI,
                 PlayBuilder.PLAY_PROJECTION_WITH_ID,
@@ -203,13 +191,12 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     }
                 } catch (e: Exception) {
                     syncResult.stats.numParseExceptions++
-                    notifyUploadError(e.localizedMessage)
+                    notifyUploadError(e.localizedMessage.orEmpty())
                 }
             }
         }
     }
 
-    @DebugLog
     private fun updateGamePlayCount(play: Play) {
         val resolver = context.contentResolver
         val cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
@@ -227,7 +214,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         }
     }
 
-    @DebugLog
     private fun postPlayUpdate(play: Play): PlaySaveResponse {
         val builder = FormBody.Builder()
                 .add("ajax", "1")
@@ -268,7 +254,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         return PlaySaveResponse(httpClient, request)
     }
 
-    @DebugLog
     private fun postPlayDelete(playId: Int): PlayDeleteResponse {
         val builder = FormBody.Builder()
                 .add("ajax", "1")
@@ -310,7 +295,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         if (play.gameId != INVALID_ID) {
             val gameCursor = context.contentResolver.query(
                     Games.buildGameUri(play.gameId),
-                    arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL),
+                    arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL, Games.CUSTOM_PLAYER_SORT),
                     null,
                     null,
                     null)
@@ -319,6 +304,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.imageUrl = it.getString(0) ?: ""
                     currentPlay.thumbnailUrl = it.getString(1) ?: ""
                     currentPlay.heroImageUrl = it.getString(2) ?: ""
+                    currentPlay.customPlayerSort = it.getInt(3) == 1
                 }
             }
         }
@@ -330,7 +316,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 currentPlay.heroImageUrl)
     }
 
-    @DebugLog
     override fun createMessageAction(): Action? {
         if (currentPlay.internalId != INVALID_ID.toLong()) {
             val intent = LogPlayActivity.createRematchIntent(context,
@@ -339,7 +324,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.gameName,
                     currentPlay.imageUrl,
                     currentPlay.thumbnailUrl,
-                    currentPlay.heroImageUrl)
+                    currentPlay.heroImageUrl,
+                    currentPlay.customPlayerSort,
+            )
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val builder = Action.Builder(
                     R.drawable.ic_replay_black_24dp,
@@ -353,7 +340,6 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     companion object {
         const val GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php"
 
-        @DebugLog
         private fun getMapKey(index: Int, key: String): String {
             return "players[$index][$key]"
         }

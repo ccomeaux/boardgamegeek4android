@@ -1,7 +1,10 @@
 package com.boardgamegeek.entities
 
 import android.content.Context
-import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_ACCESSORIES
+import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_EXPANSIONS
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
 
 class PersonStatsEntity(
         val averageRating: Double,
@@ -30,8 +33,9 @@ class PersonStatsEntity(
 
             val playCount = baseGameCollection.sumBy { it.playCount } // TODO handle expansions
 
-            val exp = PreferencesUtils.logPlayStatsExpansions(context)
-            val acc = PreferencesUtils.logPlayStatsAccessories(context)
+            val prefs = context.preferences()
+            val exp = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+            val acc = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
             val hIndexList = when {
                 exp && acc -> collection
                 acc -> collection.filter { it.subtype != "boardgameexpansion" }

@@ -10,7 +10,7 @@ import com.boardgamegeek.R
 /**
  * A simple adapter to use for [android.widget.AutoCompleteTextView].
  */
-class AutoCompleteAdapter @JvmOverloads constructor(
+open class AutoCompleteAdapter @JvmOverloads constructor(
         private val context: Context,
         private val columnName: String,
         private val uri: Uri,
@@ -31,8 +31,11 @@ class AutoCompleteAdapter @JvmOverloads constructor(
     override fun runQueryOnBackgroundThread(constraint: CharSequence): Cursor? {
         return context.contentResolver.query(uri,
                 arrayOf(BaseColumns._ID, columnName, extraColumnName),
-                if (constraint.isEmpty()) null else "$columnName LIKE ?",
-                if (constraint.isEmpty()) null else arrayOf("$constraint%"),
+                if (constraint.isEmpty()) defaultSelection else "$columnName LIKE ?",
+                if (constraint.isEmpty()) defaultSelectionArgs else arrayOf("$constraint%"),
                 sortOrder)
     }
+
+    open val defaultSelection: String? = null
+    open val defaultSelectionArgs: Array<String>? = null
 }
