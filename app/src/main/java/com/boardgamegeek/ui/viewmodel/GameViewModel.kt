@@ -10,6 +10,7 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
+import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -210,6 +211,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                             else -> items
                         }.also { areItemsRefreshing.set(false) }
                     } else items
+                if (refreshedItems.any { it.isDirty })
+                    SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
                 emit(RefreshableResource.success(refreshedItems))
             } catch (e: Exception) {
                 areItemsRefreshing.set(false)

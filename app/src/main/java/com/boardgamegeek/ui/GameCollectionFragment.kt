@@ -11,7 +11,6 @@ import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_collection.*
@@ -75,8 +74,6 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
             recyclerView?.fadeOut()
         }
         swipeRefresh.setOnRefreshListener {
-            if (items.any { it.isDirty })
-                SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
             viewModel.refresh()
         }
         swipeRefresh.isEnabled = true
