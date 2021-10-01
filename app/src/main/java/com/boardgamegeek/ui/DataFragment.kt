@@ -53,15 +53,9 @@ class DataFragment : Fragment(R.layout.fragment_data) {
                 toast(content)
             }
         }
-        viewModel.collectionViewProgress.observe(viewLifecycleOwner) { event ->
-            updateProgress(collectionViewsRow, event.first, event.second) // TODO separate import / export
-        }
-        viewModel.gameProgress.observe(viewLifecycleOwner) { event ->
-            updateProgress(gamesRow, event.first, event.second)
-        }
-        viewModel.userProgress.observe(viewLifecycleOwner) { event ->
-            updateProgress(usersRow, event.first, event.second)
-        }
+        viewModel.collectionViewProgress.observe(viewLifecycleOwner) { collectionViewsRow.updateProgressBar(it) }
+        viewModel.gameProgress.observe(viewLifecycleOwner) { gamesRow.updateProgressBar(it) }
+        viewModel.userProgress.observe(viewLifecycleOwner) { usersRow.updateProgressBar(it) }
     }
 
     private val registerForCollectionViewsExport =
@@ -110,11 +104,6 @@ class DataFragment : Fragment(R.layout.fragment_data) {
             import(it)
             logAction("Import")
         }
-    }
-
-    private fun updateProgress(row: DataStepRow, max: Int, progress: Int) {
-        row.updateProgressBar(max, progress)
-        if (progress >= max) row.hideProgressBar()
     }
 
     private fun tryUriPermission(uri: Uri) {

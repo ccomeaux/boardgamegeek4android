@@ -18,6 +18,8 @@ import com.boardgamegeek.export.model.*
 import com.boardgamegeek.extensions.applyBatch
 import com.boardgamegeek.extensions.rowExists
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.ProgressData
+import com.boardgamegeek.livedata.ProgressLiveData
 import com.boardgamegeek.mappers.mapToExportable
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
@@ -51,16 +53,16 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
     val message: LiveData<Event<String>>
         get() = _message
 
-    private val _collectionViewProgress = MutableLiveData<Pair<Int, Int>>()
-    val collectionViewProgress: LiveData<Pair<Int, Int>>
+    private val _collectionViewProgress = ProgressLiveData()
+    val collectionViewProgress: LiveData<ProgressData>
         get() = _collectionViewProgress
 
-    private val _gameProgress = MutableLiveData<Pair<Int, Int>>()
-    val gameProgress: LiveData<Pair<Int, Int>>
+    private val _gameProgress = ProgressLiveData()
+    val gameProgress: LiveData<ProgressData>
         get() = _gameProgress
 
-    private val _userProgress = MutableLiveData<Pair<Int, Int>>()
-    val userProgress: LiveData<Pair<Int, Int>>
+    private val _userProgress = ProgressLiveData()
+    val userProgress: LiveData<ProgressData>
         get() = _userProgress
 
     fun exportCollectionViews(uri: Uri) {
@@ -134,11 +136,12 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
         uri: Uri,
         typeDescription: String,
         version: Int,
-        progress: MutableLiveData<Pair<Int, Int>>,
+        progress: ProgressLiveData,
         list: List<T>,
         writeJsonRecord: (record: T, writer: JsonWriter) -> Unit,
     ) = withContext(Dispatchers.IO) {
         openFile(uri)?.use {
+            progress.start()
             try {
                 JsonWriter(OutputStreamWriter(FileOutputStream(it.fileDescriptor), "UTF-8")).use { writer ->
                     writer.setIndent("  ")
@@ -148,15 +151,15 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                     writer.name(NAME_ITEMS)
                     writer.beginArray()
 
+                    progress.start(list.size)
                     list.forEachWithIndex { index, record ->
-                        progress.postValue(list.size to index)
+                        progress.update(index)
                         try {
                             writeJsonRecord(record, writer)
                         } catch (e: RuntimeException) {
                             Timber.e(e)
                         }
                     }
-                    progress.postValue(list.size to list.size)
 
                     writer.endArray()
                     writer.endObject()
@@ -166,6 +169,8 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
             } catch (e: Exception) {
                 Timber.e(e)
                 postMessage(R.string.msg_export_failed_write_json)
+            } finally {
+                progress.complete()
             }
         }
     }
@@ -288,7 +293,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
     private suspend fun <T> import(
         uri: Uri,
         typeDescription: String,
-        progress: MutableLiveData<Pair<Int, Int>>,
+        progress: ProgressLiveData,
         parseItem: (reader: JsonReader) -> T,
         importRecord: (item: T, version: Int) -> Unit,
         initializeImport: () -> Unit = {},
@@ -298,6 +303,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
         openFileToRead(uri)?.use { pfd ->
             val reader = JsonReader(InputStreamReader(FileInputStream(pfd.fileDescriptor), "UTF-8"))
             try {
+                progress.start()
                 var shouldContinue = true
                 if (reader.peek() == JsonToken.BEGIN_ARRAY) {
                     reader.beginArray()
@@ -311,7 +317,6 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                         when (reader.nextName()) {
                             NAME_TYPE -> reader.nextString().also {
                                 if (it != typeDescription) {
-                                    progress.postValue(items.size to items.size)
                                     postMessage(R.string.msg_import_failed_wrong_type, typeDescription, it!!)
                                     shouldContinue = false
                                 }
@@ -333,21 +338,19 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 if (shouldContinue) {
                     initializeImport()
                     items.forEachWithIndex { i, item ->
-                        progress.postValue(items.size to i)
+                        progress.update(i)
                         importRecord(item, version)
                     }
                     postMessage(R.string.msg_import_success)
                 }
-                progress.postValue(items.size to items.size)
             } catch (e: Exception) {
-                progress.postValue(items.size to items.size)
                 Timber.w(e, "Importing %s JSON file.", typeDescription)
                 postMessage(R.string.msg_import_failed_parse_json)
             } finally {
+                progress.complete()
                 try {
                     reader.close()
                 } catch (e: IOException) {
-                    progress.postValue(items.size to items.size)
                     Timber.w(e, "Failed trying to close the JsonReader")
                 }
             }

@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.livedata.ProgressData
 import kotlinx.android.synthetic.main.widget_data_step_row.view.*
 
 class DataStepRow @JvmOverloads constructor(
@@ -43,26 +43,27 @@ class DataStepRow @JvmOverloads constructor(
     }
 
     fun initProgressBar() {
-        progressBar.isIndeterminate = false
-        progressBar.progress = 0
-        progressBar.fadeIn()
-        importButton?.isEnabled = false
-        exportButton?.isEnabled = false
+        progressBar.isIndeterminate = true
+        progressBar.isVisible = true
+        importButton.isEnabled = false
+        exportButton.isEnabled = false
     }
 
-    fun updateProgressBar(max: Int, progress: Int) {
-        if (max < 0) {
-            progressBar.isIndeterminate = true
-        } else {
-            progressBar.isIndeterminate = false
-            progressBar.max = max
-            progressBar.progress = progress
+    fun updateProgressBar(progressData: ProgressData) {
+        when (progressData.mode) {
+            ProgressData.Mode.OFF -> {
+                progressBar.isVisible = false
+                importButton.isEnabled = true
+                exportButton.isEnabled = true
+            }
+            ProgressData.Mode.INDETERMINATE -> {
+                progressBar.isIndeterminate = true
+            }
+            ProgressData.Mode.DETERMINATE -> {
+                progressBar.isIndeterminate = false
+                progressBar.max = progressData.max
+                progressBar.progress = progressData.current
+            }
         }
-    }
-
-    fun hideProgressBar() {
-        progressBar.fadeOut()
-        importButton?.isEnabled = true
-        exportButton?.isEnabled = true
     }
 }
