@@ -46,7 +46,7 @@
 		app:layout_constraintStart_toEndOf="@id/thumbnailView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		app:layout_constraintWidth_default="wrap"
+		app:layout_constraintWidth="true"
 		tools:text="Gaia Project" />
 
 	<TextView
