@@ -4,7 +4,6 @@ import android.accounts.Account
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.asDateForApi
@@ -22,11 +21,12 @@ import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.repository.PlayRepository
 
 class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
     SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
-    private val playDao: PlayDao = PlayDao(application)
+    private val playRepository = PlayRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
@@ -49,7 +49,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 cancel()
                 return
             }
-            val deletedCount = runBlocking { playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L) }
+            val deletedCount = runBlocking { playRepository.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L) }
             syncResult.stats.numDeletes += deletedCount.toLong()
             Timber.i("...deleted $deletedCount unupdated plays")
 
@@ -60,7 +60,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                     cancel()
                     return
                 }
-                val count = runBlocking { playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L) }
+                val count = runBlocking { playRepository.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L) }
                 syncResult.stats.numDeletes += count.toLong()
                 Timber.i("...deleted $count unupdated plays")
                 syncPrefs.setPlaysOldestTimestamp(0L)
@@ -128,7 +128,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
     private fun persist(plays: List<PlayEntity>) {
         if (plays.isNotEmpty()) {
             runBlocking {
-                playDao.save(plays, startTime)
+                playRepository.saveFromSync(plays, startTime)
             }
             syncResult.stats.numEntries += plays.size.toLong()
             Timber.i("...saved ${plays.size} plays")

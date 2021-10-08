@@ -502,31 +502,6 @@ class PlayDao(private val context: BggApplication) {
         UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
     }
 
-    suspend fun save(plays: List<PlayEntity>, startTime: Long) {
-        var updateCount = 0
-        var insertCount = 0
-        var unchangedCount = 0
-        var dirtyCount = 0
-        var errorCount = 0
-        plays.forEach { play ->
-            when (save(play, startTime)) {
-                SaveStatus.UPDATED -> updateCount++
-                SaveStatus.INSERTED -> insertCount++
-                SaveStatus.DIRTY -> dirtyCount++
-                SaveStatus.ERROR -> errorCount++
-                SaveStatus.UNCHANGED -> unchangedCount++
-            }
-        }
-        Timber.i(
-            "Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
-            updateCount,
-            insertCount,
-            unchangedCount,
-            dirtyCount,
-            errorCount
-        )
-    }
-
     suspend fun save(play: PlayEntity, startTime: Long = System.currentTimeMillis()): SaveStatus {
         val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
         return when {
@@ -837,15 +812,7 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
-    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
-        return deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
-    }
-
-    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long): Int {
-        return deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
-    }
-
-    private suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
+    suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
         val selection = createDeleteSelectionAndArgs(syncTimestamp)
         context.contentResolver.delete(
             Plays.CONTENT_URI,

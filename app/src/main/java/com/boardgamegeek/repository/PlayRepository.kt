@@ -70,7 +70,7 @@ class PlayRepository(val application: BggApplication) {
                 do {
                     val result = bggService.playsByGame(username, gameId, page++)
                     val plays = result.plays.mapToEntity(timestamp)
-                    save(plays, timestamp)
+                    saveFromSync(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
                     if (returnedPlay == null) returnedPlay = plays.find { it.playId == playId }
                 } while (result.hasMorePages() && returnedPlay == null)
@@ -112,7 +112,7 @@ class PlayRepository(val application: BggApplication) {
                 page++
             )
             val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
-            save(plays, syncInitiatedTimestamp)
+            saveFromSync(plays, syncInitiatedTimestamp)
 
             val newestDate = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
             if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
@@ -132,7 +132,7 @@ class PlayRepository(val application: BggApplication) {
                     page++
                 )
                 val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
-                save(plays, syncInitiatedTimestamp)
+                saveFromSync(plays, syncInitiatedTimestamp)
 
                 val oldestDate = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
                 if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
@@ -145,13 +145,21 @@ class PlayRepository(val application: BggApplication) {
             Timber.i("Not syncing old plays; already caught up.")
         }
 
-        newestTimestamp?.let { playDao.deleteUnupdatedPlaysSince(syncInitiatedTimestamp, it) }
+        newestTimestamp?.let { deleteUnupdatedPlaysSince(syncInitiatedTimestamp, it) }
         if (oldestTimestamp > 0L) {
-            playDao.deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
+            deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
         } else {
             syncPrefs.setPlaysOldestTimestamp(0L)
         }
         calculatePlayStats()
+    }
+
+    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
+        return playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
+    }
+
+    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long): Int {
+        return playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
     }
 
     suspend fun refreshPlays(timeInMillis: Long) = withContext(Dispatchers.IO) {
@@ -165,7 +173,7 @@ class PlayRepository(val application: BggApplication) {
             do {
                 val response = bggService.playsByDate(username, date, date, page++)
                 val playsPage = response.plays.mapToEntity(timestamp)
-                save(playsPage, timestamp)
+                saveFromSync(playsPage, timestamp)
                 plays += playsPage
                 Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
             } while (response.hasMorePages())
@@ -263,7 +271,7 @@ class PlayRepository(val application: BggApplication) {
         SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 
-    suspend fun save(plays: List<PlayEntity>, startTime: Long) {
+    suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
         var updateCount = 0
         var insertCount = 0
         var unchangedCount = 0

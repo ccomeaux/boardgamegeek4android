@@ -83,7 +83,7 @@ class GameRepository(val application: BggApplication) {
             do {
                 val response = bggService.playsByGame(username, gameId, page++)
                 val playsPage = response.plays.mapToEntity(timestamp)
-                playRepository.save(playsPage, timestamp)
+                playRepository.saveFromSync(playsPage, timestamp)
             } while (response.hasMorePages())
 
             playDao.deleteUnupdatedPlays(gameId, timestamp)
@@ -97,7 +97,7 @@ class GameRepository(val application: BggApplication) {
         val timestamp = System.currentTimeMillis()
         val response = bggService.playsByGame(username, gameId, 1)
         val plays = response.plays.mapToEntity(timestamp)
-        playRepository.save(plays, timestamp)
+        playRepository.saveFromSync(plays, timestamp)
         playRepository.calculatePlayStats()
     }
 
