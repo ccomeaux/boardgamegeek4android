@@ -13,10 +13,7 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.NotificationUtils
 
 fun Context.preferences(name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
@@ -56,14 +53,6 @@ fun Context.versionName(): String {
     } catch (e: PackageManager.NameNotFoundException) {
         "?.?"
     }
-}
-
-fun Context?.logQuickPlay(gameId: Int, gameName: String) {
-    val play = Play(gameId = gameId, gameName = gameName).apply {
-        updateTimestamp = System.currentTimeMillis()
-    }
-    PlayPersister(this).save(play, BggContract.INVALID_ID.toLong(), false)
-    SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
 }
 
 fun Context?.cancelSync() {

@@ -70,8 +70,8 @@ fun Long.formatTimestamp(context: Context, includeTime: Boolean, isForumTimestam
     }
 }
 
-val FORMAT_API: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-val FORMAT_DATABASE: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+private val FORMAT_API: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+private val FORMAT_DATABASE: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
 fun Long?.asDateForApi(): String {
     if (this == null) return ""

@@ -202,7 +202,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
                 val text = resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount)
                 containerView.snackbar(text).show()
                 for (game in selectedGames) {
-                    context.logQuickPlay(game.id, game.name)
+                    viewModel.logQuickPlay(game.id, game.name)
                 }
                 return true
             }

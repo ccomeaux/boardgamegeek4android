@@ -256,7 +256,7 @@ class PlayDao(private val context: BggApplication) {
     private fun createPendingPlaySelectionAndArgs() =
         "${Plays.DELETE_TIMESTAMP}>0 OR ${Plays.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
 
-    private fun createDraftPlaySelectionAndArgs() ="${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
+    private fun createDraftPlaySelectionAndArgs() = "${Plays.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
 
     fun createPendingUpdatePlaySelectionAndArgs() = "${Plays.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
 
@@ -498,43 +498,25 @@ class PlayDao(private val context: BggApplication) {
         context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
     }
 
+    enum class SaveStatus {
+        UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
+    }
+
     suspend fun save(plays: List<PlayEntity>, startTime: Long) {
         var updateCount = 0
         var insertCount = 0
         var unchangedCount = 0
         var dirtyCount = 0
         var errorCount = 0
-        for (play: PlayEntity in plays) {
-            val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
-            when {
-                !play.isSynced -> {
-                    Timber.i("Can't sync a play without a play ID.")
-                    errorCount++
-                }
-                candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
-                    save(play, INVALID_ID.toLong())
-                    insertCount++
-                }
-                candidate.isDirty -> {
-                    Timber.i("Not saving during the sync; local play is modified.")
-                    dirtyCount++
-                }
-                candidate.syncHashCode == play.generateSyncHashCode() -> {
-                    context.contentResolver.update(
-                        Plays.buildPlayUri(candidate.internalId),
-                        contentValuesOf(Plays.SYNC_TIMESTAMP to startTime),
-                        null,
-                        null
-                    )
-                    unchangedCount++
-                }
-                else -> {
-                    save(play, candidate.internalId)
-                    updateCount++
-                }
+        plays.forEach { play ->
+            when (save(play, startTime)) {
+                SaveStatus.UPDATED -> updateCount++
+                SaveStatus.INSERTED -> insertCount++
+                SaveStatus.DIRTY -> dirtyCount++
+                SaveStatus.ERROR -> errorCount++
+                SaveStatus.UNCHANGED -> unchangedCount++
             }
         }
-
         Timber.i(
             "Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
             updateCount,
@@ -545,7 +527,38 @@ class PlayDao(private val context: BggApplication) {
         )
     }
 
-    suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
+    suspend fun save(play: PlayEntity, startTime: Long = System.currentTimeMillis()): SaveStatus {
+        val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
+        return when {
+            !play.isSynced -> {
+                Timber.i("Can't sync a play without a play ID.")
+                SaveStatus.ERROR
+            }
+            candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
+                upsert(play, INVALID_ID.toLong())
+                SaveStatus.INSERTED
+            }
+            candidate.isDirty -> {
+                Timber.i("Not saving during the sync; local play is modified.")
+                SaveStatus.DIRTY
+            }
+            candidate.syncHashCode == play.generateSyncHashCode() -> {
+                context.contentResolver.update(
+                    Plays.buildPlayUri(candidate.internalId),
+                    contentValuesOf(Plays.SYNC_TIMESTAMP to startTime),
+                    null,
+                    null
+                )
+                SaveStatus.UNCHANGED
+            }
+            else -> {
+                upsert(play, candidate.internalId)
+                SaveStatus.UPDATED
+            }
+        }
+    }
+
+    suspend fun upsert(play: PlayEntity, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
 
         val values = contentValuesOf(
@@ -568,13 +581,11 @@ class PlayDao(private val context: BggApplication) {
             Plays.DIRTY_TIMESTAMP to play.dirtyTimestamp
         )
 
-        batch.add(
-            if (internalId != INVALID_ID.toLong()) {
-                ContentProviderOperation.newUpdate(Plays.buildPlayUri(internalId)).withValues(values).build()
-            } else {
-                ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build()
-            }
-        )
+        batch += if (internalId != INVALID_ID.toLong()) {
+            ContentProviderOperation.newUpdate(Plays.buildPlayUri(internalId))
+        } else {
+            ContentProviderOperation.newInsert(Plays.CONTENT_URI)
+        }.withValues(values).build()
 
         if (play.deleteTimestamp == 0L) {
             deletePlayerWithEmptyUserNameInBatch(internalId, batch)
@@ -604,12 +615,10 @@ class PlayDao(private val context: BggApplication) {
 
     private fun deletePlayerWithEmptyUserNameInBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>) {
         if (internalId == INVALID_ID.toLong()) return
-        batch.add(
-            ContentProviderOperation
-                .newDelete(Plays.buildPlayerUri(internalId))
-                .withSelection(String.format("%1\$s IS NULL OR %1\$s=''", PlayPlayers.USER_NAME), null)
-                .build()
-        )
+        batch += ContentProviderOperation
+            .newDelete(Plays.buildPlayerUri(internalId))
+            .withSelection(String.format("%1\$s IS NULL OR %1\$s=''", PlayPlayers.USER_NAME), null)
+            .build()
     }
 
     private fun removeDuplicateUserNamesFromBatch(
@@ -617,28 +626,25 @@ class PlayDao(private val context: BggApplication) {
         batch: ArrayList<ContentProviderOperation>
     ): List<String> {
         if (internalId == INVALID_ID.toLong()) return emptyList()
-        val userNames = context.contentResolver.queryStrings(Plays.buildPlayerUri(internalId), PlayPlayers.USER_NAME)
-            .filterNotNull()
+        val playerUri = Plays.buildPlayerUri(internalId)
+
+        val userNames = context.contentResolver.queryStrings(playerUri, PlayPlayers.USER_NAME).filterNotNull()
         if (userNames.isEmpty()) return emptyList()
 
         val uniqueUserNames = mutableListOf<String>()
         val userNamesToDelete = mutableListOf<String>()
-        userNames.forEach { userName ->
-            if (userName.isNotEmpty()) {
-                if (uniqueUserNames.contains(userName)) {
-                    userNamesToDelete.add(userName)
-                } else {
-                    uniqueUserNames.add(userName)
-                }
+        userNames.filter { it.isNotEmpty() }.forEach { userName ->
+            if (uniqueUserNames.contains(userName)) {
+                userNamesToDelete += userName
+            } else {
+                uniqueUserNames += userName
             }
         }
-        for (userName in userNamesToDelete) {
-            batch.add(
-                ContentProviderOperation
-                    .newDelete(Plays.buildPlayerUri(internalId))
-                    .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(userName))
-                    .build()
-            )
+        userNamesToDelete.forEach { userName ->
+            batch += ContentProviderOperation
+                .newDelete(playerUri)
+                .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(userName))
+                .build()
             uniqueUserNames.remove(userName)
         }
         return uniqueUserNames
@@ -664,28 +670,22 @@ class PlayDao(private val context: BggApplication) {
                 PlayPlayers.WIN to player.isWin
             )
             if (playerUserNames.remove(userName)) {
-                batch.add(
-                    ContentProviderOperation
-                        .newUpdate(Plays.buildPlayerUri(internalId))
-                        .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(userName))
-                        .withValues(values).build()
-                )
+                batch += ContentProviderOperation
+                    .newUpdate(Plays.buildPlayerUri(internalId))
+                    .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(userName))
+                    .withValues(values).build()
             } else {
-                if (internalId == INVALID_ID.toLong()) {
-                    batch.add(
-                        ContentProviderOperation
-                            .newInsert(Plays.buildPlayerUri())
-                            .withValueBackReference(PlayPlayers._PLAY_ID, 0)
-                            .withValues(values)
-                            .build()
-                    )
+                batch += if (internalId == INVALID_ID.toLong()) {
+                    ContentProviderOperation
+                        .newInsert(Plays.buildPlayerUri())
+                        .withValueBackReference(PlayPlayers._PLAY_ID, 0)
+                        .withValues(values)
+                        .build()
                 } else {
-                    batch.add(
-                        ContentProviderOperation
-                            .newInsert(Plays.buildPlayerUri(internalId))
-                            .withValues(values)
-                            .build()
-                    )
+                    ContentProviderOperation
+                        .newInsert(Plays.buildPlayerUri(internalId))
+                        .withValues(values)
+                        .build()
                 }
             }
         }
@@ -698,12 +698,10 @@ class PlayDao(private val context: BggApplication) {
     ) {
         if (internalId == INVALID_ID.toLong()) return
         for (playerUserName in playerUserNames) {
-            batch.add(
-                ContentProviderOperation
-                    .newDelete(Plays.buildPlayerUri(internalId))
-                    .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(playerUserName))
-                    .build()
-            )
+            batch += ContentProviderOperation
+                .newDelete(Plays.buildPlayerUri(internalId))
+                .withSelection("${PlayPlayers.USER_NAME}=?", arrayOf(playerUserName))
+                .build()
         }
     }
 
@@ -716,12 +714,10 @@ class PlayDao(private val context: BggApplication) {
             // We can't save the sort order if we aren't storing the game
             val gameUri = Games.buildGameUri(play.gameId)
             if (context.contentResolver.rowExists(gameUri)) {
-                batch.add(
-                    ContentProviderOperation
-                        .newUpdate(gameUri)
-                        .withValue(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
-                        .build()
-                )
+                batch += ContentProviderOperation
+                    .newUpdate(gameUri)
+                    .withValue(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
+                    .build()
             }
         }
     }
@@ -751,18 +747,16 @@ class PlayDao(private val context: BggApplication) {
      * Update GeekBuddies' nicknames with the names used here.
      */
     private suspend fun saveBuddyNicknamesToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        play.players.forEach { player ->
-            if (player.username.isNotBlank() && player.name.isNotBlank()) {
-                val uri = Buddies.buildBuddyUri(player.username)
-                if (context.contentResolver.rowExists(uri)) {
-                    val nickname = context.contentResolver.queryString(uri, Buddies.PLAY_NICKNAME)
-                    if (nickname.isNullOrBlank()) {
-                        batch += ContentProviderOperation
-                            .newUpdate(Buddies.CONTENT_URI)
-                            .withSelection("${Buddies.BUDDY_NAME}=?", arrayOf(player.username))
-                            .withValue(Buddies.PLAY_NICKNAME, player.name)
-                            .build()
-                    }
+        play.players.filter { it.username.isNotBlank() && it.name.isNotBlank() }.forEach { player ->
+            val uri = Buddies.buildBuddyUri(player.username)
+            if (context.contentResolver.rowExists(uri)) {
+                val nickname = context.contentResolver.queryString(uri, Buddies.PLAY_NICKNAME)
+                if (nickname.isNullOrBlank()) {
+                    batch += ContentProviderOperation
+                        .newUpdate(Buddies.CONTENT_URI)
+                        .withSelection("${Buddies.BUDDY_NAME}=?", arrayOf(player.username))
+                        .withValue(Buddies.PLAY_NICKNAME, player.name)
+                        .build()
                 }
             }
         }
@@ -832,12 +826,11 @@ class PlayDao(private val context: BggApplication) {
             colors.forEach {
                 if (it.description.isNotBlank()) {
                     val sortUri = PlayerColors.addSortUri(uri, it.sortOrder)
-                    val builder = if (context.contentResolver.rowExists(sortUri)) {
+                    batch += if (context.contentResolver.rowExists(sortUri)) {
                         ContentProviderOperation.newUpdate(sortUri)
                     } else {
                         ContentProviderOperation.newInsert(uri).withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                    }
-                    batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, it.description).build())
+                    }.withValue(PlayerColors.PLAYER_COLOR, it.description).build()
                 }
             }
             resolver.applyBatch(batch)

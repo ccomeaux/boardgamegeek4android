@@ -10,6 +10,7 @@ import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.launch
@@ -51,6 +52,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val gameRepository = GameRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
+    private val playRepository = PlayRepository(getApplication())
 
     fun setId(gameId: Int) {
         if (_gameId.value != gameId) _gameId.value = gameId
@@ -291,6 +293,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
             refresh()
+        }
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            playRepository.logQuickPlay(gameId, gameName)
         }
     }
 

@@ -18,7 +18,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GamePagerAdapter(private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
-        FragmentStateAdapter(activity) {
+    FragmentStateAdapter(activity) {
     var currentPosition = 0
         set(value) {
             field = value
@@ -40,9 +40,10 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private val prefs: SharedPreferences by lazy { activity.preferences() }
 
     private inner class Tab(
-            @field:StringRes val titleResId: Int,
-            @field:DrawableRes var imageResId: Int = INVALID_RES_ID,
-            val listener: () -> Unit = {})
+        @field:StringRes val titleResId: Int,
+        @field:DrawableRes var imageResId: Int = INVALID_RES_ID,
+        val listener: () -> Unit = {}
+    )
 
     init {
         updateTabs()
@@ -110,7 +111,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private fun logPlay() {
         when (prefs.logPlayPreference()) {
             LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
-            LOG_PLAY_TYPE_QUICK -> activity.logQuickPlay(gameId, gameName)
+            LOG_PLAY_TYPE_QUICK -> viewModel.logQuickPlay(gameId, gameName)
             LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
         }
     }

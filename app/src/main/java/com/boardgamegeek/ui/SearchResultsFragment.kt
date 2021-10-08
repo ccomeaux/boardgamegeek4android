@@ -177,7 +177,7 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
                 )
                 for (position in searchResultsAdapter.getSelectedItems()) {
                     searchResultsAdapter.getItem(position)?.let {
-                        context.logQuickPlay(it.id, it.name)
+                        viewModel.logQuickPlay(it.id, it.name)
                     }
                 }
                 mode.finish()

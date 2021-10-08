@@ -515,7 +515,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             R.id.menu_log_play_quick -> {
                 toast(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
                 for (position in adapter.selectedItemPositions) {
-                    adapter.getItem(position)?.let { context.logQuickPlay(it.gameId, it.gameName) }
+                    adapter.getItem(position)?.let { viewModel.logQuickPlay(it.gameId, it.gameName) }
                 }
                 mode.finish()
                 return true

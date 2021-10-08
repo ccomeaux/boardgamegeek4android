@@ -15,7 +15,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
-import com.boardgamegeek.extensions.logQuickPlay
 import com.boardgamegeek.extensions.shareGame
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
@@ -141,7 +140,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
             R.id.menu_log_play_quick -> {
                 getCoordinatorLayout().snackbar(R.string.msg_logging_play)
-                logQuickPlay(gameId, gameName)
+                viewModel.logQuickPlay(gameId, gameName)
                 return true
             }
             R.id.menu_log_play -> {
@@ -161,7 +160,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_view -> {
-                linkToBgg("boardgame",gameId);
+                linkToBgg("boardgame",gameId)
                 return true
             }
         }

@@ -22,11 +22,15 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.provider.BggContract.PlayerColors
 import com.boardgamegeek.provider.BggContract.PlayPlayers
+import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.min
 
 class PlayRepository(val application: BggApplication) {
@@ -66,7 +70,7 @@ class PlayRepository(val application: BggApplication) {
                 do {
                     val result = bggService.playsByGame(username, gameId, page++)
                     val plays = result.plays.mapToEntity(timestamp)
-                    playDao.save(plays, timestamp)
+                    save(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
                     if (returnedPlay == null) returnedPlay = plays.find { it.playId == playId }
                 } while (result.hasMorePages() && returnedPlay == null)
@@ -108,7 +112,7 @@ class PlayRepository(val application: BggApplication) {
                 page++
             )
             val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
-            playDao.save(plays, syncInitiatedTimestamp)
+            save(plays, syncInitiatedTimestamp)
 
             val newestDate = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
             if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
@@ -128,7 +132,7 @@ class PlayRepository(val application: BggApplication) {
                     page++
                 )
                 val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
-                playDao.save(plays, syncInitiatedTimestamp)
+                save(plays, syncInitiatedTimestamp)
 
                 val oldestDate = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
                 if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
@@ -161,7 +165,7 @@ class PlayRepository(val application: BggApplication) {
             do {
                 val response = bggService.playsByDate(username, date, date, page++)
                 val playsPage = response.plays.mapToEntity(timestamp)
-                playDao.save(playsPage, timestamp)
+                save(playsPage, timestamp)
                 plays += playsPage
                 Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
             } while (response.hasMorePages())
@@ -247,6 +251,41 @@ class PlayRepository(val application: BggApplication) {
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): List<LocationEntity> {
         return playDao.loadLocations(sortBy)
+    }
+
+    private val dateFormatForApi: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+    suspend fun logQuickPlay(gameId: Int, gameName: String) {
+        val calendar = Calendar.getInstance()
+        val date = dateFormatForApi.format(calendar.time)
+        val playEntity = PlayEntity(gameId = gameId, gameName = gameName, rawDate = date, updateTimestamp = System.currentTimeMillis())
+        playDao.upsert(playEntity)
+        SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+    }
+
+    suspend fun save(plays: List<PlayEntity>, startTime: Long) {
+        var updateCount = 0
+        var insertCount = 0
+        var unchangedCount = 0
+        var dirtyCount = 0
+        var errorCount = 0
+        plays.forEach { play ->
+            when (playDao.save(play, startTime)) {
+                PlayDao.SaveStatus.UPDATED -> updateCount++
+                PlayDao.SaveStatus.INSERTED -> insertCount++
+                PlayDao.SaveStatus.DIRTY -> dirtyCount++
+                PlayDao.SaveStatus.ERROR -> errorCount++
+                PlayDao.SaveStatus.UNCHANGED -> unchangedCount++
+            }
+        }
+        Timber.i(
+            "Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
+            updateCount,
+            insertCount,
+            unchangedCount,
+            dirtyCount,
+            errorCount
+        )
     }
 
     suspend fun delete(internalId: Long): Boolean {
@@ -373,7 +412,7 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun save(play: PlayEntity): Long {
-        val id = playDao.save(play)
+        val id = playDao.upsert(play)
 
         // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
         val isUpdating = play.updateTimestamp > 0

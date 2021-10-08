@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.SearchResultEntity
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
+import kotlinx.coroutines.launch
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val _query = MutableLiveData<Pair<String, Boolean>>()
@@ -12,6 +14,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         get() = _query
 
     private val repository = SearchRepository(getApplication())
+    private val playRepository = PlayRepository(getApplication())
 
     fun search(query: String) {
         if (_query.value?.first != query) _query.value = (query to true)
@@ -38,6 +41,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     }
                 else -> emit(RefreshableResource.success(null))
             }
+        }
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            playRepository.logQuickPlay(gameId, gameName)
         }
     }
 }

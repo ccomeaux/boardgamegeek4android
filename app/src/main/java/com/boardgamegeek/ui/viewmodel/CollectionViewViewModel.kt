@@ -12,6 +12,7 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
     private val viewRepository = CollectionViewRepository(getApplication())
     private val itemRepository = CollectionItemRepository(getApplication())
+    private val playRepository = PlayRepository(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val defaultViewId
@@ -295,6 +297,12 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             if (viewId == _selectedViewId.value) {
                 selectView(defaultViewId)
             }
+        }
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            playRepository.logQuickPlay(gameId, gameName)
         }
     }
 
