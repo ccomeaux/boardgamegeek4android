@@ -270,7 +270,7 @@
 	<string name="empty_collection_filter_on_sync_partial">Collection sync for some of the filtered statuses is off. Try to enable it from Settings > Sync to display some games.</string>
 	<string name="empty_new_play_locations">No previous locations. Add a new one.</string>
 	<string name="empty_new_play_locations_filter">No locations matching the filter.</string>
-	<string name="empty_new_play_players">No previous players. Add a new one</string>
+	<string name="empty_new_play_players">No previous players. Add a new one.</string>
 	<string name="empty_new_play_players_filter">No players matching the filter.</string>
 	<string name="new_play_location_hint">Filter or add new</string>
 	<string name="sync">Sync</string>
@@ -717,7 +717,7 @@
 	<string name="person_stat_collection_status">These stats work much better if you sync your rated and played games.</string>
 	<string name="play_count">Play Count</string>
 	<string name="h_index">H-Index</string>
-	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/thread/2420064/whats-whitmore-score</string>
+	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
