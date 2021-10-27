@@ -480,6 +480,17 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     fun save() {
         viewModelScope.launch {
             val startTime = startTime.value ?: 0L
+            val players = _addedPlayers.value.orEmpty().map { player ->
+                PlayPlayerEntity(
+                    player.name,
+                    player.username,
+                    (playerSortMap.value ?: emptyMap())[player.id].orEmpty(),
+                    color = (playerColorMap.value ?: emptyMap())[player.id].orEmpty(),
+                    isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
+                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
+                    score = (playerScoresMap.value ?: emptyMap())[player.id].orEmpty(),
+                )
+}
             val play = PlayEntity(
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,
@@ -496,21 +507,9 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 initialPlayerCount = _addedPlayers.value?.size ?: 0,
                 startTime = startTime,
                 updateTimestamp = if (startTime == 0L) System.currentTimeMillis() else 0L,
-                dirtyTimestamp = System.currentTimeMillis()
+                dirtyTimestamp = System.currentTimeMillis(),
+                _players = players,
             )
-
-            for (player in _addedPlayers.value ?: mutableListOf()) {
-                val p = PlayPlayerEntity(
-                    player.name,
-                    player.username,
-                    (playerSortMap.value ?: emptyMap())[player.id],
-                    color = (playerColorMap.value ?: emptyMap())[player.id],
-                    isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
-                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
-                    score = (playerScoresMap.value ?: emptyMap())[player.id] ?: "",
-                )
-                play.addPlayer(p)
-            }
 
             _insertedId.value = playRepository.save(play)
         }

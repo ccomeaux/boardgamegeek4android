@@ -23,10 +23,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.dialog.*
@@ -74,8 +74,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var heroImageUrl: String = ""
     private var shouldCustomSortPlayers = false
 
-    private var play: Play? = null
-    private var lastRemovedPlayer: Player? = null
+    private var play: PlayEntity? = null
+    private var lastRemovedPlayer: PlayPlayerEntity? = null
     private val gameColors = ArrayList<String>()
     private val availablePlayers = mutableListOf<PlayerEntity>()
 
@@ -300,13 +300,14 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         }
     }
 
-    private fun bindDate(play: Play) {
-        dateButton.text = play.getDateForDisplay(this)
+    private fun bindDate(play: PlayEntity) {
+        dateButton.text = DateUtils.formatDateTime(this, play.dateInMillis,
+            DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY)
     }
 
-    private fun bindLocation(play: Play) {
+    private fun bindLocation(play: PlayEntity) {
         locationView.setTextKeepState(play.location)
-        locationFrame.isVisible = !play.location.isNullOrEmpty() || isUserShowingLocation || preferences().showLogPlayLocation()
+        locationFrame.isVisible = play.location.isNotEmpty() || isUserShowingLocation || preferences().showLogPlayLocation()
     }
 
     private fun bindLength() {
@@ -317,11 +318,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 timerGroup.isVisible = true
             }
             length > 0 -> {
-                lengthView.setTextKeepState(if (length == Play.LENGTH_DEFAULT) "" else length.toString())
+                lengthView.setTextKeepState(length.toString())
                 lengthGroup.isVisible = true
                 timerGroup.isVisible = false
             }
             else -> {
+                lengthView.setText("")
                 lengthGroup.isVisible = isUserShowingLength || preferences().showLogPlayLength()
                 timerGroup.isVisible = false
             }
@@ -329,24 +331,24 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         timerButton.isEnabled = (dateInMillis ?: 0 + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
     }
 
-    private fun bindQuantity(play: Play) {
+    private fun bindQuantity(play: PlayEntity) {
         quantityView.setTextKeepState(play.quantity.toString())
-        quantityFrame.isVisible = play.quantity != Play.QUANTITY_DEFAULT || isUserShowingQuantity || preferences().showLogPlayQuantity()
+        quantityFrame.isVisible = play.quantity != 1 || isUserShowingQuantity || preferences().showLogPlayQuantity()
     }
 
-    private fun bindIncomplete(play: Play) {
+    private fun bindIncomplete(play: PlayEntity) {
         incompleteView.isChecked = play.incomplete
         incompleteView.isVisible = play.incomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete()
     }
 
-    private fun bindNoWinStats(play: Play) {
+    private fun bindNoWinStats(play: PlayEntity) {
         noWinStatsView.isChecked = play.noWinStats
         noWinStatsView.isVisible = play.noWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats()
     }
 
-    private fun bindComments(play: Play) {
-        commentsView.setTextKeepState(play.comments.orEmpty())
-        commentsFrame.isVisible = !play.comments.isNullOrEmpty() || isUserShowingComments || preferences().showLogPlayComments()
+    private fun bindComments(play: PlayEntity) {
+        commentsView.setTextKeepState(play.comments)
+        commentsFrame.isVisible = play.comments.isNotEmpty() || isUserShowingComments || preferences().showLogPlayComments()
     }
 
     private fun bindPlayerHeader(playerCount: Int) {
@@ -363,6 +365,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         setDoneCancelActionBarView { v: View ->
             when (v.id) {
                 R.id.menu_done -> {
+                    shouldSaveOnPause = false
                     viewModel.updateComments(commentsView.text.toString())
                     if (startTime > 0L) {
                         toast(R.string.msg_saving_draft)
@@ -557,8 +560,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             startTime = it.startTime
             playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
             playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
-            playersAreCustomSorted = it.arePlayersCustomSorted()
-            playerCount = it.getPlayerCount()
+            playersAreCustomSorted = viewModel.arePlayersCustomSorted(it)
+            playerCount = it.players.size
             playerDescriptions = it.players.mapIndexed { i, p ->
                 p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
             }
@@ -572,7 +575,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             bindIncomplete(it)
             bindNoWinStats(it)
             bindComments(it)
-            bindPlayerHeader(it.getPlayerCount())
+            bindPlayerHeader(it.players.size)
             playAdapter.submit(it.players)
             progressView.hide()
 
@@ -581,8 +584,8 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 this.launchPlayingNotification(
                     internalId,
                     it.gameName,
-                    it.location.orEmpty(),
-                    it.getPlayerCount(),
+                    it.location,
+                    it.players.size,
                     it.startTime,
                     thumbnailUrl,
                     imageUrl,
@@ -624,23 +627,27 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         super.onPause()
         locationAdapter.changeCursor(null)
         if (shouldSaveOnPause && !isLaunchingActivity) {
-            viewModel.updateComments(commentsView.text.toString())
-            viewModel.saveDraft() // TODO already called when back is pressed
+            saveDraft()
         }
     }
 
     override fun onBackPressed() {
-        viewModel.updateComments(commentsView.text.toString())
-        viewModel.saveDraft()
+        saveDraft()
         toast(R.string.msg_saving_draft)
         setResult(RESULT_OK)
         finish()
     }
 
+    private fun saveDraft() {
+        shouldSaveOnPause = false
+        viewModel.updateComments(commentsView.text.toString())
+        viewModel.saveDraft()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
-            (data?.getParcelableExtra(LogPlayerActivity.KEY_PLAYER) as? Player)?.let { player ->
+            (data?.getParcelableExtra(LogPlayerActivity.KEY_PLAYER) as? PlayPlayerEntity)?.let { player ->
                 val position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION)
                 when (requestCode) {
                     REQUEST_ADD_PLAYER -> {
@@ -832,9 +839,9 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {
         var isDragging = false
 
-        private var players: List<Player> = emptyList()
+        private var players = emptyList<PlayPlayerEntity>()
 
-        private inner class Diff(private val oldList: List<Player>, private val newList: List<Player>) :
+        private inner class Diff(private val oldList: List<PlayPlayerEntity>, private val newList: List<PlayPlayerEntity>) :
             DiffUtil.Callback() {
             override fun getOldListSize() = oldList.size
 
@@ -853,7 +860,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             }
         }
 
-        fun submit(players: List<Player>) {
+        fun submit(players: List<PlayPlayerEntity>) {
             val oldPlayers = this.players
             this.players = players // mutableListOf<Player>().apply { addAll(players) }.toList()
             val diffResult = DiffUtil.calculateDiff(Diff(oldPlayers, this.players))
@@ -881,7 +888,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             holder.bind(position)
         }
 
-        fun getPlayer(position: Int): Player? {
+        fun getPlayer(position: Int): PlayPlayerEntity? {
             return players.getOrNull(position)
         }
 

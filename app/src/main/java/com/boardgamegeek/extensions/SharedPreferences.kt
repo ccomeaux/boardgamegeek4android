@@ -8,7 +8,6 @@ import androidx.core.content.edit
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.model.Player
 import java.util.*
 
 /**
@@ -245,27 +244,6 @@ fun SharedPreferences.putLastPlayLocation(location: String?) {
     this[KEY_LAST_PLAY_LOCATION] = location
 }
 
-fun SharedPreferences.getLastPlayPlayers(): List<Player> {
-    val players: MutableList<Player> = ArrayList()
-    val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
-    val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
-    for (playerString in playerStringArray) {
-        if (playerString.isNotEmpty()) {
-            val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
-            if (playerSplit.size in 1..2) {
-                val player = Player()
-                player.name = playerSplit[0]
-                if (playerSplit.size == 2) {
-                    player.username = playerSplit[1]
-                }
-                players.add(player)
-            }
-        }
-    }
-    return players
-}
-
-// TODO
 fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
     val players: MutableList<PlayerEntity> = ArrayList()
     val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
@@ -285,15 +263,6 @@ fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
     return players
 }
 
-fun SharedPreferences.putLastPlayPlayers(players: List<Player>) {
-    val sb = StringBuilder()
-    for (player in players) {
-        sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)
-    }
-    this[KEY_LAST_PLAY_PLAYERS] = sb.toString()
-}
-
-// TODO
 fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>) {
     val sb = StringBuilder()
     for (player in players) {

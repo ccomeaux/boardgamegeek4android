@@ -30,10 +30,10 @@ data class PlayEntity(
     val heroImageUrl: String = "",
     val updatedPlaysTimestamp: Long = 0L,
     val subtypes: List<String> = emptyList(),
+    private val _players: List<PlayPlayerEntity>? = null,
 ) {
-    private val _players = mutableListOf<PlayPlayerEntity>()
-    val players: List<PlayPlayerEntity>
-        get() = _players
+    val players
+        get() = _players.orEmpty()
 
     val isSynced
         get() = playId > 0
@@ -54,27 +54,16 @@ data class PlayEntity(
         return length == 0 && startTime > 0
     }
 
-    private var playersAdded = false
-
-    fun addPlayer(player: PlayPlayerEntity) {
-        playersAdded = true
-        _players.add(player)
-    }
-
     val playerCount: Int
-        get() = if (playersAdded) {
-            _players.size
-        } else {
-            initialPlayerCount
-        }
+        get() = _players?.size ?: initialPlayerCount
 
     /**
      * Determine if the starting positions indicate the players are custom sorted.
      */
     fun arePlayersCustomSorted(): Boolean {
-        if (_players.size == 0) return false
+        if (players.isEmpty()) return false
         if (!hasStartingPositions()) return true
-        for (i in 1.._players.size) {
+        for (i in 1..players.size) {
             val foundSeat = (getPlayerAtSeat(i) != null)
             if (!foundSeat) return true
         }
@@ -82,7 +71,7 @@ data class PlayEntity(
     }
 
     private fun hasStartingPositions(): Boolean {
-        return _players.all { !it.startingPosition.isNullOrBlank() }
+        return players.all { it.startingPosition.isNotBlank() }
     }
 
     fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
@@ -129,8 +118,11 @@ data class PlayEntity(
         const val UNKNOWN_DATE: Long = -1L
 
         fun currentDate(): String {
-            val c = Calendar.getInstance()
-            return FORMAT.format(c.timeInMillis)
+            return millisToRawDate(Calendar.getInstance().timeInMillis)
+        }
+
+        fun millisToRawDate(millis: Long): String {
+            return FORMAT.format(millis)
         }
     }
 }

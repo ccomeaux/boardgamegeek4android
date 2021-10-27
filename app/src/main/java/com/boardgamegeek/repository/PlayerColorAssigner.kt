@@ -1,15 +1,15 @@
 package com.boardgamegeek.repository
 
 import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.extensions.queryStrings
-import com.boardgamegeek.model.Play
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class PlayerColorAssigner(private val application: BggApplication, private val play: Play) {
+class PlayerColorAssigner(private val application: BggApplication, private val gameId: Int, private val players: List<PlayPlayerEntity>) {
     private val colorsAvailable = mutableListOf<String>()
     private val playersNeedingColor = mutableListOf<PlayerColorChoices>()
     private val results = mutableListOf<PlayerResult>()
@@ -19,16 +19,15 @@ class PlayerColorAssigner(private val application: BggApplication, private val p
     suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
         colorsAvailable.clear()
-        val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(play.gameId), BggContract.GameColors.COLOR)?.filterNotNull()
-                ?: emptyList())
-        val takenColors = play.players.filter { it.color.isNotEmpty() }.map { it.color }
+        val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(gameId), BggContract.GameColors.COLOR)?.filterNotNull().orEmpty())
+        val takenColors = players.filter { it.color.isNotEmpty() }.map { it.color }
         colorsAvailable.addAll(gameColors - takenColors)
 
         playersNeedingColor.clear()
-        play.players.filter { it.color.isEmpty() && it.username.isNotBlank() }.distinctBy { it.username }.forEach { player ->
+        players.filter { it.color.isBlank() && it.username.isNotBlank() }.distinctBy { it.username }.forEach { player ->
             playersNeedingColor.add(PlayerColorChoices(player.username, PlayerType.USER))
         }
-        play.players.filter { it.color.isEmpty() && it.username.isBlank() && it.name.isNotBlank() }.distinctBy { it.name }.forEach { player ->
+        players.filter { it.color.isBlank() && it.username.isBlank() && it.name.isNotBlank() }.distinctBy { it.name }.forEach { player ->
             playersNeedingColor.add(PlayerColorChoices(player.name, PlayerType.NON_USER))
         }
 

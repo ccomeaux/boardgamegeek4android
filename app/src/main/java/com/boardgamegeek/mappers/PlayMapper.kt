@@ -11,7 +11,7 @@ fun List<Play>?.mapToEntity(syncTimestamp: Long = System.currentTimeMillis()): L
 }
 
 private fun Play.mapToEntity(syncTimestamp: Long): PlayEntity {
-    val play = PlayEntity(
+    return PlayEntity(
         internalId = BggContract.INVALID_ID.toLong(),
         playId = id,
         rawDate = date,
@@ -25,12 +25,9 @@ private fun Play.mapToEntity(syncTimestamp: Long): PlayEntity {
         comments = comments.orEmpty(),
         syncTimestamp = syncTimestamp,
         initialPlayerCount = players?.size ?: 0,
-        subtypes = subtypes.map { it.value }
+        subtypes = subtypes.map { it.value },
+        _players = players?.map { it.mapToEntity() },
     )
-    players?.forEach {
-        play.addPlayer(it.mapToEntity())
-    }
-    return play
 }
 
 private fun Player.mapToEntity(): PlayPlayerEntity {

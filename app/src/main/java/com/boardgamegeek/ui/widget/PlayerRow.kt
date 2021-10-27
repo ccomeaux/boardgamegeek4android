@@ -14,8 +14,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.Player
 import kotlinx.android.synthetic.main.row_player.view.*
 import java.text.DecimalFormat
 
@@ -87,7 +87,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         dragHandle.isVisible = value
     }
 
-    fun setPlayer(player: Player?) {
+    fun setPlayer(player: PlayPlayerEntity?) {
         if (player == null) {
             colorView.visibility = View.GONE
             seatView.setTextOrHide("")
@@ -101,7 +101,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         } else {
             seatView.setTextOrHide(player.startingPosition)
             if (player.name.isEmpty() && player.username.isEmpty()) {
-                val name = if (player.seat == Player.SEAT_UNKNOWN)
+                val name = if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN)
                     resources.getString(R.string.title_player)
                 else
                     resources.getString(R.string.generic_player, player.seat)
@@ -115,9 +115,9 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 setText(usernameView, player.username, usernameTypeface, player.isNew, player.isWin)
             }
 
-            val scoreDescription = player.score?.toDoubleOrNull()?.asScore() ?: player.score.orEmpty()
+            val scoreDescription = player.score.toDoubleOrNull()?.asScore() ?: player.score
             setText(scoreView, scoreDescription, scoreTypeface, false, player.isWin)
-            scoreButton.visibility = if (player.score.isNullOrBlank()) View.GONE else View.VISIBLE
+            scoreButton.visibility = if (player.score.isBlank()) View.GONE else View.VISIBLE
 
             if (player.rating == 0.0) {
                 ratingView.isVisible = false
@@ -132,7 +132,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             val color = player.color.asColorRgb()
             colorView.visibility = View.VISIBLE
             colorView.setColorViewValue(color)
-            if (player.seat == Player.SEAT_UNKNOWN) {
+            if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN) {
                 seatView.visibility = View.GONE
             } else {
                 seatView.setTextColor(color.getTextColor())

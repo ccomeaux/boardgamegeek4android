@@ -14,8 +14,8 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter
 import com.boardgamegeek.ui.adapter.GameColorAdapter
@@ -37,8 +37,8 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
 
     private var gameName = ""
     private var position = 0
-    private var player = Player()
-    private var originalPlayer: Player? = null
+    private var player = PlayPlayerEntity()
+    private var originalPlayer: PlayPlayerEntity? = null
 
     private var userHasShownTeamColor = false
     private var userHasShownPosition = false
@@ -46,7 +46,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     private var userHasShownRating = false
     private var userHasShownNew = false
     private var userHasShownWin = false
-    private var autoPosition = Player.SEAT_UNKNOWN
+    private var autoPosition = PlayPlayerEntity.SEAT_UNKNOWN
     private var isNewPlayer = false
     private var usedColors: ArrayList<String>? = null
     private val colors = arrayListOf<String>()
@@ -89,7 +89,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         val imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN)
+        autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, PlayPlayerEntity.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
 
         viewModel.colors.observe(this, {
@@ -105,11 +105,11 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
 
         fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
-            player = intent.getParcelableExtra(KEY_PLAYER) ?: Player()
-            if (hasAutoPosition()) player.seat = autoPosition
+            player = intent.getParcelableExtra(KEY_PLAYER) ?: PlayPlayerEntity()
+            if (hasAutoPosition()) player = player.copy(startingPosition = autoPosition.toString())
             originalPlayer = player.copy()
         } else {
-            player = savedInstanceState.getParcelable(KEY_PLAYER) ?: Player()
+            player = savedInstanceState.getParcelable(KEY_PLAYER) ?: PlayPlayerEntity()
             userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR)
             userHasShownPosition = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_POSITION)
             userHasShownScore = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_SCORE)
@@ -124,7 +124,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         lifecycleScope.launch {
             thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
         }
-        lifecycleScope.launchWhenCreated {  }
+
         bindUi()
         nameView.setAdapter(PlayerNameAdapter(this))
         usernameView.setAdapter(BuddyNameAdapter(this))
@@ -186,7 +186,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         teamColorView.setTextKeepState(player.color)
         positionView.setTextKeepState(player.startingPosition)
         scoreView.setTextKeepState(player.score)
-        ratingView.setTextKeepState(if (player.rating == Player.DEFAULT_RATING) "" else player.rating.toString())
+        ratingView.setTextKeepState(if (player.rating == PlayPlayerEntity.DEFAULT_RATING) "" else player.rating.toString())
         newView.isChecked = player.isNew
         winView.isChecked = player.isWin
     }
@@ -205,7 +205,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     }
 
     private fun hasAutoPosition(): Boolean {
-        return autoPosition != Player.SEAT_UNKNOWN
+        return autoPosition != PlayPlayerEntity.SEAT_UNKNOWN
     }
 
     private fun addField() {
@@ -286,16 +286,16 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     }
 
     private fun captureForm() {
-        player.apply {
-            name = nameView.text.toString().trim()
-            username = usernameView.text.toString().trim()
-            color = teamColorView.text.toString().trim()
-            startingPosition = positionView.text.toString().trim()
-            score = scoreView.text.toString().trim()
-            rating = ratingView.text.toString().toDoubleOrNull() ?: 0.0
-            isNew = newView.isChecked
-            isWin = winView.isChecked
-        }
+        player = player.copy(
+            name = nameView.text.toString().trim(),
+            username = usernameView.text.toString().trim(),
+            color = teamColorView.text.toString().trim(),
+            startingPosition = positionView.text.toString().trim(),
+            score = scoreView.text.toString().trim(),
+            rating = ratingView.text.toString().toDoubleOrNull() ?: 0.0,
+            isNew = newView.isChecked,
+            isWin = winView.isChecked,
+        )
     }
 
     companion object {

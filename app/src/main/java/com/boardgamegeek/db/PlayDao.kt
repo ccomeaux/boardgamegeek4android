@@ -66,6 +66,7 @@ class PlayDao(private val context: BggApplication) {
             ),
         )?.use {
             if (it.moveToFirst()) {
+                val players = loadPlayers(id)
                 val play = PlayEntity(
                     internalId = it.getLong(0),
                     playId = it.getInt(1),
@@ -88,10 +89,8 @@ class PlayDao(private val context: BggApplication) {
                     thumbnailUrl = it.getStringOrNull(18).orEmpty(),
                     heroImageUrl = it.getStringOrNull(19).orEmpty(),
                     updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                    _players = players,
                 )
-                loadPlayers(id).forEach { player ->
-                    play.addPlayer(player)
-                }
                 play
             } else null
         }
@@ -215,8 +214,10 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
+                    val internalId = it.getLong(0)
+                    val players = if (includePlayers) loadPlayers(internalId) else null
                     val play = PlayEntity(
-                        internalId = it.getLong(0),
+                        internalId = internalId,
                         playId = it.getInt(1),
                         rawDate = it.getString(2),
                         gameId = it.getInt(3),
@@ -237,12 +238,8 @@ class PlayDao(private val context: BggApplication) {
                         thumbnailUrl = it.getStringOrNull(18).orEmpty(),
                         heroImageUrl = it.getStringOrNull(19).orEmpty(),
                         updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                        _players = players,
                     )
-                    if (includePlayers) {
-                        loadPlayers(play.internalId).forEach { player ->
-                            play.addPlayer(player)
-                        }
-                    }
                     list += play
                 } while (it.moveToNext())
             }
@@ -706,7 +703,7 @@ class PlayDao(private val context: BggApplication) {
             // We can't save the colors if we aren't storing the game
             if (context.contentResolver.rowExists(Games.buildGameUri(play.gameId))) {
                 val insertUri = Games.buildColorsUri(play.gameId)
-                play.players.filter { !it.color.isNullOrBlank() }.distinctBy { it.color }.forEach {
+                play.players.filter { it.color.isNotBlank() }.distinctBy { it.color }.forEach {
                     if (!context.contentResolver.rowExists(Games.buildColorsUri(play.gameId, it.color))) {
                         batch += ContentProviderOperation
                             .newInsert(insertUri)

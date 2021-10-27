@@ -4,14 +4,10 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.Player
-import com.boardgamegeek.model.builder.PlayBuilder
-import com.boardgamegeek.model.persister.PlayPersister
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -23,15 +19,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.*
-import kotlin.io.use
 
 class LogPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private val playPersister = PlayPersister(getApplication())
     private val playRepository = PlayRepository(getApplication())
     private val gameRepository = GameRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
-    private var originalPlay: Play? = null
+    private var originalPlay: PlayEntity? = null
     private val scoreFormat = DecimalFormat("0.#########")
     private var internalIdToDelete: Long = INVALID_ID.toLong()
 
@@ -39,8 +33,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     val internalId: LiveData<Long>
         get() = _internalId
 
-    private val _play: MutableLiveData<Play> = MutableLiveData<Play>()
-    val play: LiveData<Play>
+    private val _play = MutableLiveData<PlayEntity>()
+    val play: LiveData<PlayEntity>
         get() = _play
 
     private val _gameId = MutableLiveData<Int>()
@@ -68,7 +62,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private fun filterPlayersByLocation(
         location: String = _location.value.orEmpty(),
-        currentPlayers: List<Player> = play.value?.players.orEmpty(),
+        currentPlayers: List<PlayPlayerEntity> = play.value?.players.orEmpty(),
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             val allPlayers = playRepository.loadPlayersByLocation(location)
@@ -87,88 +81,69 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         isRequestingRematch: Boolean,
         isChangingGame: Boolean
     ) {
-        _gameId.postValue(gameId)
-        val p: Play? = if (internalId == INVALID_ID.toLong()) {
-            Play(gameId, gameName).apply {
-                val lastPlay = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
-                if (lastPlay.howManyHoursOld() < 12) {
-                    this.location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
-                    this.players.addAll(prefs.getLastPlayPlayers())
-                    pickStartPlayer(0) // TODO - only choose if game is auto-sortable
+        viewModelScope.launch {
+            _gameId.postValue(gameId)
+            val fetchedPlay: PlayEntity? = if (internalId == INVALID_ID.toLong()) {
+                var location = ""
+                var seatedPlayers: List<PlayPlayerEntity>? = null
+                val lastPlayTime = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
+                if (lastPlayTime.howManyHoursOld() < 12) {
+                    location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
+                    val players = prefs.getLastPlayPlayerEntities()
+                    // TODO - only choose if game is auto-sortable
+                    seatedPlayers = addSeats(players.map { PlayPlayerEntity(name = it.name, username = it.username) })
                 }
+                PlayEntity(
+                    rawDate = PlayEntity.currentDate(),
+                    gameId = gameId,
+                    gameName = gameName,
+                    location = location,
+                    _players = seatedPlayers,
+                )
+            } else {
+                playRepository.loadPlay(internalId)
             }
-        } else {
-            loadPlay(internalId)
-        }
-        p?.let {
-            if (originalPlay == null) originalPlay = it.deepCopy()
-            _location.postValue(it.location.orEmpty())
-            if (isRequestingToEndPlay) {
-                it.length = if (it.startTime > 0) {
-                    it.startTime.howManyMinutesOld()
-                } else {
-                    0
-                }
-                it.startTime = 0
-            }
-
-            when {
-                isRequestingRematch -> {
-                    val rematch = Play(
-                        gameId = it.gameId,
-                        gameName = it.gameName,
-                        location = it.location,
-                        noWinStats = it.noWinStats,
+            fetchedPlay?.let {
+                if (originalPlay == null) originalPlay = it.copy()
+                _location.postValue(it.location)
+                val pp = if (isRequestingToEndPlay) {
+                    it.copy(
+                        length = if (it.startTime > 0) it.startTime.howManyMinutesOld() else 0,
+                        startTime = 0,
                     )
-                    for (player in it.players) {
-                        val rematchPlayer = player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
-                        if (it.arePlayersCustomSorted()) {
-                            rematchPlayer.startingPosition = ""
-                        }
-                        rematch.addPlayer(rematchPlayer)
-                    }
-                    internalIdToDelete = INVALID_ID.toLong()
-                    _internalId.value = INVALID_ID.toLong()
-                    _play.postValue(rematch)
-                }
-                isChangingGame -> {
-                    internalIdToDelete = internalId
-                    _internalId.value = INVALID_ID.toLong()
-                    _play.postValue(it.copy(playId = INVALID_ID, gameId = gameId, gameName = gameName))
-                }
-                else -> {
-                    internalIdToDelete = INVALID_ID.toLong()
-                    _internalId.value = internalId
-                    _play.postValue(it)
-                }
-            }
-        }
-    }
+                } else it
 
-    private fun loadPlay(internalId: Long): Play? {
-        // TODO don't user PlayBuilder, use repository/dao
-        getApplication<BggApplication>().contentResolver.query(
-            BggContract.Plays.buildPlayUri(internalId),
-            PlayBuilder.PLAY_PROJECTION,
-            null,
-            null,
-            null
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val play = PlayBuilder.fromCursor(cursor)
-                getApplication<BggApplication>().contentResolver.query(
-                    BggContract.Plays.buildPlayerUri(internalId),
-                    PlayBuilder.PLAYER_PROJECTION,
-                    null,
-                    null,
-                    null
-                )?.use { innerCursor ->
-                    PlayBuilder.addPlayers(innerCursor, play)
+                when {
+                    isRequestingRematch -> {
+                        val rematch = PlayEntity(
+                            rawDate = PlayEntity.currentDate(),
+                            gameId = pp.gameId,
+                            gameName = pp.gameName,
+                            location = pp.location,
+                            noWinStats = pp.noWinStats,
+                            _players = if (arePlayersCustomSorted(pp)) pp.players.map { player ->
+                                player.copy(startingPosition = "", score = "", rating = 0.0, isWin = false, isNew = false)
+                            } else pp.players.map { player ->
+                                player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
+                            },
+                        )
+                        internalIdToDelete = INVALID_ID.toLong()
+                        _internalId.value = INVALID_ID.toLong()
+                        _play.postValue(rematch)
+                    }
+                    isChangingGame -> {
+                        internalIdToDelete = internalId
+                        _internalId.value = INVALID_ID.toLong()
+                        _play.postValue(pp.copy(playId = INVALID_ID, gameId = gameId, gameName = gameName))
+                    }
+                    else -> {
+                        internalIdToDelete = INVALID_ID.toLong()
+                        _internalId.value = internalId
+                        _play.postValue(pp)
+                    }
                 }
-                return play
             }
         }
-        return null
     }
 
     fun updateDate(year: Int, month: Int, day: Int) {
@@ -177,7 +152,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         c[Calendar.MONTH] = month
         c[Calendar.YEAR] = year
         if (play.value?.dateInMillis != c.timeInMillis) {
-            _play.value = play.value?.copy(dateInMillis = c.timeInMillis)
+            _play.value = play.value?.copy(rawDate = PlayEntity.millisToRawDate(c.timeInMillis))
         }
     }
 
@@ -197,31 +172,30 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     fun startTimer() {
         logTimer("Start")
         _play.value?.let {
-            it.length = 0
-            it.startTime = System.currentTimeMillis()
-            _play.value = it.copy()
+            _play.value = it.copy(
+                length = 0,
+                startTime = System.currentTimeMillis(),
+            )
         }
     }
 
     fun resumeTimer() {
         logTimer("Resume")
         _play.value?.let {
-            it.startTime = System.currentTimeMillis() - it.length * DateUtils.MINUTE_IN_MILLIS
-            it.length = 0
-            _play.value = it.copy()
+            _play.value = it.copy(
+                length = 0,
+                startTime = System.currentTimeMillis() - it.length * DateUtils.MINUTE_IN_MILLIS,
+            )
         }
     }
 
     fun endTimer() {
         logTimer("Off")
         _play.value?.let {
-            it.length = if (it.startTime > 0) {
-                it.startTime.howManyMinutesOld()
-            } else {
-                0
-            }
-            it.startTime = 0
-            _play.value = it.copy()
+            _play.value = it.copy(
+                startTime = 0,
+                length = if (it.startTime > 0) it.startTime.howManyMinutesOld() else 0,
+            )
         }
     }
 
@@ -232,7 +206,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateQuantity(quantity: Int?) {
-        val q = quantity ?: Play.QUANTITY_DEFAULT
+        val q = quantity ?: 1
         if (play.value?.quantity != q) {
             _play.value = play.value?.copy(quantity = q)
         }
@@ -257,56 +231,54 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun addPlayers(players: List<PlayerEntity>, resort: Boolean) {
-        play.value?.deepCopy()?.let { play ->
-            play.players.addAll(players.map { Player(name = it.name, username = it.username) })
-            if (resort) {
-                val playerCount = play.players.size
-                for (i in 0 until playerCount) {
-                    play.players[i].seat = (i + playerCount) % playerCount + 1
-                }
-                play.players.sortBy { player -> player.seat }
-            }
-            _play.value = play
+        play.value?.let { it ->
+            val playPlayers = it.players.toMutableList()
+            playPlayers.addAll(players.mapIndexed { index, pe ->
+                if (resort) {
+                    PlayPlayerEntity(name = pe.name, username = pe.username, startingPosition = (index + it.players.size + 1).toString())
+                } else PlayPlayerEntity(name = pe.name, username = pe.username)
+            })
+            if (resort) playPlayers.sortBy { it.seat }
+            _play.value = it.copy(_players = playPlayers)
         }
     }
 
-    fun editPlayer(player: Player = Player(), position: Int? = null, resort: Boolean) {
-        play.value?.deepCopy()?.let {
+    fun editPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), position: Int? = null, resort: Boolean) {
+        play.value?.let {
+            val players = it.players.toMutableList()
             if (position in it.players.indices) {
-                position?.let { p -> it.players[p] = player }
+                position?.let { pos -> players[pos] = player }
             } else {
-                it.players.add(player)
+                players += player
             }
-            if (resort) it.players.sortBy { player -> player.seat }
-            _play.value = it
+            if (resort) players.sortBy { player -> player.seat }
+            _play.value = it.copy(_players = players)
         }
     }
 
-    fun addPlayer(player: Player = Player(), resort: Boolean) {
-        play.value?.deepCopy()?.let {
+    fun addPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), resort: Boolean) {
+        play.value?.let {
+            var players = it.players.toMutableList()
             if (resort) {
-                if (player.seat == Player.SEAT_UNKNOWN) {
-                    player.seat = it.players.size + 1
-                } else {
-                    it.players.filter { p -> p.seat >= player.seat }.forEach { p -> p.seat = p.seat + 1 }
-                }
+                players.add(player.seat - 1, player)
+                players = addSeats(players).toMutableList()
+                players.sortBy { player -> player.seat }
+            } else {
+                players += player
             }
-            it.players.add(player)
-            if (resort) it.players.sortBy { player -> player.seat }
-            _play.value = it
+            _play.value = it.copy(_players = players)
         }
     }
 
-    fun removePlayer(player: Player, resort: Boolean) {
-        play.value?.deepCopy()?.let {
-            if (it.players.size > 0) {
-                if (resort && !it.arePlayersCustomSorted()) {
-                    for (i in player.seat until it.players.size) {
-                        it.getPlayerAtSeat(i + 1)?.seat = i
-                    }
+    fun removePlayer(player: PlayPlayerEntity, resort: Boolean) {
+        play.value?.let {
+            if (it.players.isNotEmpty()) {
+                var players = it.players.toMutableList()
+                players.remove(player)
+                if (resort) { // XXX - this is always false after removing a player (unless its the last one):  && !arePlayersCustomSorted(it)
+                    players = addSeats(players).toMutableList() // TODO
                 }
-                it.players.remove(player)
-                _play.value = it
+                _play.value = it.copy(_players = players)
             }
         }
     }
@@ -316,123 +288,134 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun clearPositions() {
-        play.value?.deepCopy()?.let {
-            it.players.forEach { player -> player.startingPosition = "" }
-            _play.value = it
-        }
+        modifyPlayers { it.copy(startingPosition = "") }
     }
 
-    fun pickStartPlayer(index: Int) {
-        play.value?.deepCopy()?.let {
-            val playerCount = it.players.size
-            for (i in 0 until playerCount) {
-                it.players[i].seat = (i - index + playerCount) % playerCount + 1
-            }
-            it.players.sortBy { player -> player.seat }
-            _play.value = it
+    fun pickStartPlayer(playerIndex: Int) {
+        play.value?.let {
+            val players = addSeats(it.players, playerIndex)
+            _play.value = it.copy(_players = players)
         }
     }
 
     fun pickRandomStartPlayer() {
-        play.value?.deepCopy()?.let {
-            val startPlayerIndex = (0 until it.getPlayerCount()).random()
-            val playerCount = it.players.size
-            for (i in 0 until playerCount) {
-                it.players[i].seat = (i - startPlayerIndex + playerCount) % playerCount + 1
-            }
-            it.players.sortBy { player -> player.seat }
-            _play.value = it
+        play.value?.let {
+            val players = addSeats(it.players, it.players.indices.random()) // TODO - if this is "0", need to animate something
+            _play.value = it.copy(_players = players)
         }
     }
 
+    /**
+     * Return the list of players, with seats assigned from 1 to N, starting at the specified index and re-sorted to begin at seat 1.
+     */
+    private fun addSeats(players: List<PlayPlayerEntity>, playerIndex: Int = 0): List<PlayPlayerEntity> {
+        val newPlayers = mutableListOf<PlayPlayerEntity>()
+        for (index in players.indices) {
+            newPlayers += players[index].copy(startingPosition = ((index - playerIndex + players.size) % players.size + 1).toString())
+        }
+        return newPlayers.sortedBy { player -> player.seat }
+    }
+
     fun randomizePlayerOrder() {
-        play.value?.deepCopy()?.let {
-            if (it.players.size > 0) {
-                it.players.shuffle()
-                for (i in 0 until it.players.size) {
-                    it.players[i].seat = i + 1
+        play.value?.let {
+            if (it.players.isNotEmpty()) {
+                val sortedPlayers = mutableListOf<PlayPlayerEntity>()
+                val players = it.players.shuffled()
+                for (index in it.players.indices) {
+                    sortedPlayers += players[index].copy(startingPosition = (index + 1).toString())
                 }
-                _play.value = it
+                _play.value = it.copy(_players = sortedPlayers)
             }
         }
     }
 
     fun reorderPlayers(fromSeat: Int, toSeat: Int) {
-        play.value?.deepCopy()?.let {
-            if (it.players.size > 0 && !it.arePlayersCustomSorted()) {
-                it.getPlayerAtSeat(fromSeat)?.let { player ->
-                    player.seat = Player.SEAT_UNKNOWN
-                    if (fromSeat > toSeat) {
-                        for (i in fromSeat - 1 downTo toSeat) {
-                            it.getPlayerAtSeat(i)?.seat = i + 1
-                        }
-                    } else {
-                        for (i in fromSeat + 1..toSeat) {
-                            it.getPlayerAtSeat(i)?.seat = i - 1
-                        }
-                    }
-                    player.seat = toSeat
-                    it.players.sortBy { p -> p.seat }
-                    _play.value = it
+        play.value?.let {
+            if (it.players.isNotEmpty() && !arePlayersCustomSorted(it)) {
+                val players = it.players.toMutableList()
+                getPlayerAtSeat(players, fromSeat)?.let { movingPlayer ->
+                    players.remove(movingPlayer)
+                    players.add(toSeat - 1, movingPlayer)
+                    _play.value = it.copy(_players = addSeats(players))
                 }
             }
         }
     }
 
+    private fun getPlayerAtSeat(players: List<PlayPlayerEntity>, seat: Int): PlayPlayerEntity? {
+        return players.find { it.seat == seat }
+    }
+
+    fun arePlayersCustomSorted(play: PlayEntity): Boolean {
+        for (seat in 1..play.players.size) {
+            if (play.players.count { it.seat == seat } != 1) return true
+        }
+        return false
+    }
+
     fun assignColors(clearExisting: Boolean = false) {
-        _play.value?.deepCopy()?.let {
+        _play.value?.let { play ->
             viewModelScope.launch(Dispatchers.Default) {
-                if (clearExisting) it.players.forEach { p -> p.color = "" }
-                val results = PlayerColorAssigner(getApplication(), it).execute()
-                results.forEach { pr ->
-                    when (pr.type) {
-                        PlayerColorAssigner.PlayerType.USER -> it.players.find { player -> player.username == pr.name }
-                        PlayerColorAssigner.PlayerType.NON_USER -> it.players.find { player -> player.username.isEmpty() && player.name == pr.name }
-                    }?.color = pr.color
+                val existingPlayers = if (clearExisting) {
+                    play.players.map { it.copy(color = "") }.toMutableList()
+                } else {
+                    play.players.toMutableList()
                 }
-                _play.postValue(it)
+                val results = PlayerColorAssigner(getApplication(), play.gameId, existingPlayers).execute()
+                val players = mutableListOf<PlayPlayerEntity>()
+                existingPlayers.forEach { ppe ->
+                    val result = if (ppe.username.isEmpty()) {
+                        results.find { it.type == PlayerColorAssigner.PlayerType.NON_USER && it.name == ppe.name }
+                    } else {
+                        results.find { it.type == PlayerColorAssigner.PlayerType.USER && it.name == ppe.username }
+                    }
+                    players += if (result == null) ppe.copy() else ppe.copy(color = result.color)
+                }
+                _play.postValue(play.copy(_players = players))
             }
         }
     }
 
     fun addColorToPlayer(playerIndex: Int, color: String) {
-        play.value?.deepCopy()?.let {
-            it.players[playerIndex].color = color
-            _play.value = it
-        }
+        modifyPlayerAtIndex(playerIndex) { it.copy(color = color) }
     }
 
     fun addScoreToPlayer(playerIndex: Int, score: Double) {
-        play.value?.deepCopy()?.let {
-            it.players[playerIndex].score = scoreFormat.format(score)
-            val highScore = it.players.maxOf { player ->
-                player.score.toDoubleOrNull() ?: -Double.MAX_VALUE
+        play.value?.let {
+            val players = it.players.mapIndexed { i, player ->
+                if (i == playerIndex) player.copy(score = scoreFormat.format(score)) else player.copy()
             }
-            for (p in it.players) {
-                p.isWin = (p.score.toDoubleOrNull() ?: Double.NaN) == highScore
-            }
-            _play.value = it
+            val highScore = players.maxOfOrNull { player -> player.numericScore ?: -Double.MAX_VALUE }
+            _play.value = it.copy(_players = players.map { ppe ->
+                ppe.copy(isWin = (ppe.numericScore == highScore))
+            })
         }
     }
 
     fun addRatingToPlayer(playerIndex: Int, rating: Double) {
-        play.value?.deepCopy()?.let {
-            it.players[playerIndex].rating = rating
-            _play.value = it
-        }
+        modifyPlayerAtIndex(playerIndex) { it.copy(rating = rating) }
     }
 
     fun win(isWin: Boolean, playerIndex: Int) {
-        play.value?.deepCopy()?.let {
-            it.players[playerIndex].isWin = isWin
-            _play.value = it
-        }
+        modifyPlayerAtIndex(playerIndex) { it.copy(isWin = isWin) }
     }
 
     fun new(isNew: Boolean, playerIndex: Int) {
-        play.value?.deepCopy()?.let {
-            it.players[playerIndex].isNew = isNew
-            _play.value = it
+        modifyPlayerAtIndex(playerIndex) { it.copy(isNew = isNew) }
+    }
+
+    private fun modifyPlayers(indexFunction: (PlayPlayerEntity) -> PlayPlayerEntity) {
+        play.value?.let {
+            _play.value = it.copy(_players = it.players.map { players -> indexFunction(players) })
+        }
+    }
+
+    private fun modifyPlayerAtIndex(playerIndex: Int, indexFunction: (PlayPlayerEntity) -> PlayPlayerEntity) {
+        play.value?.let {
+            val players = it.players.mapIndexed { i, player ->
+                if (i == playerIndex) indexFunction(player) else player.copy()
+            }
+            _play.value = it.copy(_players = players)
         }
     }
 
@@ -446,13 +429,16 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                 ) {
                     prefs[KEY_LAST_PLAY_TIME] = now
                     prefs[KEY_LAST_PLAY_LOCATION] = it.location
-                    prefs.putLastPlayPlayers(it.players)
+                    prefs.putLastPlayPlayerEntities(it.players)
                 }
 
-                it.updateTimestamp = now
-                it.deleteTimestamp = 0
-                it.dirtyTimestamp = now
-                save(it)
+                save(
+                    it.copy(
+                        updateTimestamp = now,
+                        deleteTimestamp = 0,
+                        dirtyTimestamp = now,
+                    )
+                )
                 if (internalIdToDelete != INVALID_ID.toLong()) {
                     playRepository.markAsDeleted(internalIdToDelete)
                 }
@@ -463,28 +449,32 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun saveDraft() {
         play.value?.let {
-            it.dirtyTimestamp = System.currentTimeMillis()
-            it.deleteTimestamp = 0
-            save(it)
+            save(
+                it.copy(
+                    dirtyTimestamp = System.currentTimeMillis(),
+                    deleteTimestamp = 0,
+                )
+            )
         }
     }
 
     fun deletePlay() {
         play.value?.let {
-            it.updateTimestamp = 0
-            it.deleteTimestamp = System.currentTimeMillis()
-            it.dirtyTimestamp = 0
-            save(it)
+            save(
+                it.copy(
+                    updateTimestamp = 0,
+                    deleteTimestamp = System.currentTimeMillis(),
+                    dirtyTimestamp = 0,
+                )
+            )
             triggerUpload()
         }
     }
 
-    private fun save(play: Play) {
-        _internalId.value = playPersister.save(
-            play,
-            _internalId.value ?: INVALID_ID.toLong(),
-            true
-        )
+    private fun save(play: PlayEntity) {
+        viewModelScope.launch {
+            _internalId.postValue(playRepository.save(play, _internalId.value ?: INVALID_ID.toLong()))
+        }
     }
 
     private fun triggerUpload() {

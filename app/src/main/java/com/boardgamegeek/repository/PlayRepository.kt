@@ -419,8 +419,8 @@ class PlayRepository(val application: BggApplication) {
         application.contentResolver.applyBatch(batch)
     }
 
-    suspend fun save(play: PlayEntity): Long {
-        val id = playDao.upsert(play)
+    suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
+        val id = playDao.upsert(play, internalId)
 
         // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
         val isUpdating = play.updateTimestamp > 0
