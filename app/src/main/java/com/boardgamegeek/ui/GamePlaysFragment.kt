@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
@@ -68,14 +69,14 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                     colorsList.addView(this)
                 }
             }
-            colorsList?.fadeIn()
-            colorsLabel?.fadeOut()
+            colorsList.isVisible = true
+            colorsLabel.isVisible = false
         } else {
-            colorsLabel?.text = context?.getQuantityText(R.plurals.colors_suffix, count, count) ?: ""
-            colorsLabel?.fadeIn()
-            colorsList?.fadeOut()
+            colorsLabel.text = context?.getQuantityText(R.plurals.colors_suffix, count, count) ?: ""
+            colorsLabel.isVisible = true
+            colorsList.isVisible = false
         }
-        colorsContainer?.fadeIn()
+        colorsContainer.isVisible = true
         colorsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
                 GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
@@ -90,7 +91,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
         thumbnailUrl = game.thumbnailUrl
         heroImageUrl = game.heroImageUrl
         arePlayersCustomSorted = game.customPlayerSort
-        syncTimestampView?.timestamp = game.updatedPlays
+        syncTimestampView.timestamp = game.updatedPlays
         iconColor = game.iconColor
         colorize()
     }
@@ -114,12 +115,12 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                         }
                         inProgressPlaysList?.addView(row)
                     }
-                    inProgressPlaysContainer.fadeIn()
+                    inProgressPlaysContainer.isVisible = true
                 } else {
-                    inProgressPlaysContainer.fadeOut()
+                    inProgressPlaysContainer.isVisible = false
                 }
             } else {
-                inProgressPlaysContainer.fadeOut()
+                inProgressPlaysContainer.isVisible = false
             }
 
             val playCount = plays.sumOf { it.quantity }
@@ -141,7 +142,7 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                         iconColor
                     )
             }
-            playCountContainer.fadeIn()
+            playCountContainer.isVisible = true
 
             if (plays.isNotEmpty()) {
                 val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
@@ -152,24 +153,24 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
                     lastPlayContainer.setOnClickListener {
                         PlayActivity.start(requireContext(), lastPlay.internalId)
                     }
-                    lastPlayContainer.fadeIn()
+                    lastPlayContainer.isVisible = true
                 } else {
-                    lastPlayContainer.fadeOut()
+                    lastPlayContainer.isVisible = false
                 }
 
                 playStatsContainer.setOnClickListener {
                     if (gameId != BggContract.INVALID_ID)
                         GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
                 }
-                playStatsContainer.fadeIn()
+                playStatsContainer.isVisible = true
             } else {
-                playStatsContainer.fadeOut()
-                lastPlayContainer.fadeOut()
+                playStatsContainer.isVisible = false
+                lastPlayContainer.isVisible = false
             }
         } else {
-            playCountContainer.fadeOut()
-            lastPlayContainer.fadeOut()
-            playStatsContainer.fadeOut()
+            playCountContainer.isVisible = false
+            lastPlayContainer.isVisible = false
+            playStatsContainer.isVisible = false
         }
     }
 
