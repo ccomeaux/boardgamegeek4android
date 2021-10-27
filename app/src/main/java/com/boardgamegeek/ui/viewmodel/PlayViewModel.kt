@@ -27,13 +27,11 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val play = repository.loadPlay(id)
                 val refreshedPlay = play?.let {
-                    val shouldRefresh =
-                        it.playId != BggContract.INVALID_ID &&
-                                it.gameId != BggContract.INVALID_ID &&
-                                it.syncTimestamp.isOlderThan(2, TimeUnit.HOURS)
                     if (arePlaysRefreshing.compareAndSet(false, true)) {
+                        val canRefresh = it.playId != BggContract.INVALID_ID && it.gameId != BggContract.INVALID_ID
+                        val shouldRefresh = it.syncTimestamp.isOlderThan(2, TimeUnit.HOURS)
                         when {
-                            shouldRefresh || forceRefresh.compareAndSet(true, false) -> {
+                            canRefresh && (shouldRefresh || forceRefresh.compareAndSet(true, false)) -> {
                                 emit(RefreshableResource.refreshing(it))
                                 repository.refreshPlay(id, it.playId, it.gameId)
                             }
@@ -55,8 +53,15 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refresh() {
+        play.value?.data?.let {
+            if (it.updateTimestamp > 0 || it.deleteTimestamp > 0)
+                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        }
         forceRefresh.set(true)
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        reload()
+    }
+
+    fun reload() {
         internalId.value = internalId.value
     }
 

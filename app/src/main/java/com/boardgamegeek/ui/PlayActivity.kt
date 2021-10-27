@@ -29,6 +29,11 @@ class PlayActivity : SimpleSinglePaneActivity() {
         viewModel.setId(internalId)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.reload()
+    }
+
     override fun readIntent(intent: Intent) {
         internalId = intent.getLongExtra(KEY_ID, BggContract.INVALID_ID.toLong())
     }
