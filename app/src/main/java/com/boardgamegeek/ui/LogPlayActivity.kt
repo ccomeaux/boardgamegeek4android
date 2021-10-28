@@ -28,7 +28,7 @@ import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
+import com.boardgamegeek.ui.adapter.LocationAdapter
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
@@ -301,8 +301,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     }
 
     private fun bindDate(play: PlayEntity) {
-        dateButton.text = DateUtils.formatDateTime(this, play.dateInMillis,
-            DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY)
+        dateButton.text = DateUtils.formatDateTime(
+            this, play.dateInMillis,
+            DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
+        )
     }
 
     private fun bindLocation(play: PlayEntity) {
@@ -548,6 +550,11 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 gameColors.addAll(it)
             }
         }
+        viewModel.locations.observe(this) {
+            it?.let { list ->
+                locationAdapter.addData(list.filter { location -> location.name.isNotBlank() }.map { location -> location.name })
+            }
+        }
         viewModel.playersByLocation.observe(this) {
             availablePlayers.clear()
             availablePlayers.addAll(it)
@@ -625,7 +632,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
     override fun onPause() {
         super.onPause()
-        locationAdapter.changeCursor(null)
         if (shouldSaveOnPause && !isLaunchingActivity) {
             saveDraft()
         }
@@ -744,18 +750,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         if (!commentsFrame.isVisible) list.add(getString(R.string.comments))
         if (!playerHeader.isVisible) list.add(getString(R.string.title_players))
         return list.toTypedArray()
-    }
-
-    // TODO replace with ViewModel
-    internal class LocationAdapter(context: Context) : AutoCompleteAdapter(
-        context,
-        Plays.LOCATION,
-        Plays.buildLocationsUri(),
-        PlayLocations.SORT_BY_SUM_QUANTITY,
-        Plays.SUM_QUANTITY
-    ) {
-        override val defaultSelection: String
-            get() = "${Plays.LOCATION}<>''"
     }
 
     private fun showPlayersToAddDialog(): Boolean {

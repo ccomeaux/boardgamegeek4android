@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.lifecycle.*
+import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
@@ -43,6 +44,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         liveData {
             emit(if (gameId == INVALID_ID) null else gameRepository.getPlayColors(gameId))
         }
+    }
+
+    val locations = liveData {
+        emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
     }
 
     private val _location = MutableLiveData<String>()
