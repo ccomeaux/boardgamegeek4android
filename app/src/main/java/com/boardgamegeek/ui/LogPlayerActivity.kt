@@ -1,11 +1,13 @@
 package com.boardgamegeek.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -212,47 +214,47 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         val array = createAddFieldArray()
         if (array.isEmpty()) return
         AlertDialog.Builder(this).setTitle(R.string.add_field)
-                .setItems(array) { _, which ->
-                    val selection = array[which].toString()
-                    val views = when (selection) {
-                        resources.getString(R.string.team_color) -> {
-                            userHasShownTeamColor = true
-                            teamColorView to teamColorContainer
-                        }
-                        resources.getString(R.string.starting_position) -> {
-                            userHasShownPosition = true
-                            positionView to positionContainer
-                        }
-                        resources.getString(R.string.score) -> {
-                            userHasShownScore = true
-                            scoreView to scoreContainer
-                        }
-                        resources.getString(R.string.rating) -> {
-                            userHasShownRating = true
-                            ratingView to ratingContainer
-                        }
-                        resources.getString(R.string.new_label) -> {
-                            userHasShownNew = true
-                            newView.isChecked = true
-                            newView to newView
-                        }
-                        resources.getString(R.string.win) -> {
-                            userHasShownWin = true
-                            winView.isChecked = true
-                            winView to winView
-                        }
-                        else -> null to null
+            .setItems(array) { _, which ->
+                val selection = array[which].toString()
+                val views = when (selection) {
+                    resources.getString(R.string.team_color) -> {
+                        userHasShownTeamColor = true
+                        teamColorView to teamColorContainer
                     }
-                    firebaseAnalytics.logEvent("AddField") {
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "Player")
-                        param(FirebaseAnalytics.Param.ITEM_NAME, selection)
+                    resources.getString(R.string.starting_position) -> {
+                        userHasShownPosition = true
+                        positionView to positionContainer
                     }
-                    setViewVisibility()
-                    views.first?.requestFocus()
-                    views.second?.let {
-                        scrollContainer.post { scrollContainer.smoothScrollTo(0, it.bottom) }
+                    resources.getString(R.string.score) -> {
+                        userHasShownScore = true
+                        scoreView to scoreContainer
                     }
-                }.show()
+                    resources.getString(R.string.rating) -> {
+                        userHasShownRating = true
+                        ratingView to ratingContainer
+                    }
+                    resources.getString(R.string.new_label) -> {
+                        userHasShownNew = true
+                        newView.isChecked = true
+                        newView to newView
+                    }
+                    resources.getString(R.string.win) -> {
+                        userHasShownWin = true
+                        winView.isChecked = true
+                        winView to winView
+                    }
+                    else -> null to null
+                }
+                firebaseAnalytics.logEvent("AddField") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "Player")
+                    param(FirebaseAnalytics.Param.ITEM_NAME, selection)
+                }
+                setViewVisibility()
+                views.first?.requestFocus()
+                views.second?.let {
+                    scrollContainer.post { scrollContainer.smoothScrollTo(0, it.bottom) }
+                }
+            }.show()
     }
 
     private fun createAddFieldArray(): Array<CharSequence> {
@@ -296,6 +298,72 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
             isNew = newView.isChecked,
             isWin = winView.isChecked,
         )
+    }
+
+    data class LaunchInput(
+        val gameId: Int,
+        val gameName: String,
+        val imageUrl: String,
+        val thumbnailUrl: String,
+        val heroImageUrl: String,
+        val isRequestingToEndPlay: Boolean,
+        val fabColor: Int,
+        val usedColors: List<String>,
+        val autoPosition: Int,
+    )
+
+    class AddPlayerContract : ActivityResultContract<LaunchInput, PlayPlayerEntity?>() {
+        override fun createIntent(context: Context, input: LaunchInput?): Intent {
+            if (input == null) throw IllegalArgumentException("input can't be null")
+            val i = Intent().apply {
+                setClass(context, LogPlayerActivity::class.java)
+                putExtra(KEY_GAME_ID, input.gameId)
+                putExtra(KEY_GAME_NAME, input.gameName)
+                putExtra(KEY_IMAGE_URL, input.imageUrl)
+                putExtra(KEY_THUMBNAIL_URL, input.thumbnailUrl)
+                putExtra(KEY_HERO_IMAGE_URL, input.heroImageUrl)
+                putExtra(KEY_END_PLAY, input.isRequestingToEndPlay)
+                putExtra(KEY_FAB_COLOR, input.fabColor)
+                putExtra(KEY_USED_COLORS, input.usedColors.toTypedArray())
+                putExtra(KEY_NEW_PLAYER, true)
+                putExtra(KEY_AUTO_POSITION, input.autoPosition)
+            }
+            return i
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): PlayPlayerEntity? {
+            return if (resultCode == RESULT_OK) {
+                val player = intent?.getParcelableExtra(KEY_PLAYER) as? PlayPlayerEntity
+                player
+            } else null
+        }
+    }
+
+    class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>, Pair<Int, PlayPlayerEntity?>>() {
+        override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>?): Intent {
+            if (input == null) throw IllegalArgumentException("input can't be null")
+            return Intent().apply {
+                setClass(context, LogPlayerActivity::class.java)
+                putExtra(KEY_GAME_ID, input.first.gameId)
+                putExtra(KEY_GAME_NAME, input.first.gameName)
+                putExtra(KEY_IMAGE_URL, input.first.imageUrl)
+                putExtra(KEY_THUMBNAIL_URL, input.first.thumbnailUrl)
+                putExtra(KEY_HERO_IMAGE_URL, input.first.heroImageUrl)
+                putExtra(KEY_END_PLAY, input.first.isRequestingToEndPlay)
+                putExtra(KEY_FAB_COLOR, input.first.fabColor)
+                putExtra(KEY_USED_COLORS, input.first.usedColors.toTypedArray())
+                putExtra(KEY_NEW_PLAYER, false)
+                putExtra(KEY_AUTO_POSITION, input.first.autoPosition)
+            }
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Pair<Int, PlayPlayerEntity?> {
+            return if (resultCode == RESULT_OK) {
+                val position = intent?.getIntExtra(KEY_POSITION, INVALID_POSITION) ?: INVALID_POSITION
+                val player = intent?.getParcelableExtra(KEY_PLAYER) as? PlayPlayerEntity
+                position to player
+            } else INVALID_POSITION to null
+        }
     }
 
     companion object {

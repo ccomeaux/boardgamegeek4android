@@ -107,6 +107,21 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var playerDescriptions = listOf<String>()
     private var usedColors = listOf<String>()
 
+    private val addPlayerLauncher = registerForActivityResult(LogPlayerActivity.AddPlayerContract()) { player ->
+        player?.let {
+            viewModel.addPlayer(it, resort = shouldAutoSort())
+            addNewPlayer(playerCount + 2) // this offset the zero-index and accounts for the player just added, but not in the playerCount yet
+        }
+    }
+
+    private val editPlayerLauncher = registerForActivityResult(LogPlayerActivity.EditPlayerContract()) { (position, player) ->
+        when {
+            position == LogPlayerActivity.INVALID_POSITION -> Timber.w("Invalid player position after edit")
+            player == null -> Timber.w("No player found after edit")
+            else -> viewModel.editPlayer(player, position, resort = shouldAutoSort())
+        }
+    }
+
     private fun wireUi() {
         val datePickerDialogTag = "DATE_PICKER_DIALOG"
         dateButton.setOnClickListener {
@@ -650,27 +665,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         viewModel.saveDraft()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            (data?.getParcelableExtra(LogPlayerActivity.KEY_PLAYER) as? PlayPlayerEntity)?.let { player ->
-                val position = data.getIntExtra(LogPlayerActivity.KEY_POSITION, LogPlayerActivity.INVALID_POSITION)
-                when (requestCode) {
-                    REQUEST_ADD_PLAYER -> {
-                        viewModel.addPlayer(player, resort = shouldAutoSort())
-                        addNewPlayer(playerCount + 2) // this offset the zero-index and accounts for the player just added, but not in the playerCount yet
-                    }
-                    REQUEST_EDIT_PLAYER -> if (position == LogPlayerActivity.INVALID_POSITION) {
-                        Timber.w("Invalid player position after edit")
-                    } else {
-                        viewModel.editPlayer(player, position, resort = shouldAutoSort())
-                    }
-                    else -> Timber.w("Received invalid request code: %d", requestCode)
-                }
-            }
-        }
-    }
-
     private fun cancel() {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
@@ -789,42 +783,34 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     }
 
     private fun addNewPlayer(autoPosition: Int = playerCount + 1) {
-        val intent = Intent()
-        if (shouldAutoSort()) {
-            intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, autoPosition)
-        }
-        editPlayer(intent, REQUEST_ADD_PLAYER)
+        isLaunchingActivity = true
+        addPlayerLauncher.launch(
+            createLaunchInput(autoPosition)
+        )
     }
 
     private fun editPlayer(position: Int) {
+        isLaunchingActivity = true
         val player = playAdapter.getPlayer(position)
-        val intent = Intent().apply {
-            putExtra(LogPlayerActivity.KEY_PLAYER, player)
-            putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
-            if (shouldAutoSort() && player != null) {
-                putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.seat)
-            }
-            putExtra(LogPlayerActivity.KEY_POSITION, position)
+        if (player != null) {
+            val input = createLaunchInput(player.seat)
+            editPlayerLauncher.launch(input to (position to player))
+        } else {
+            Timber.w("TODO")
         }
-        editPlayer(intent, REQUEST_EDIT_PLAYER)
     }
 
-    private fun editPlayer(intent: Intent, requestCode: Int) {
-        isLaunchingActivity = true
-        intent.apply {
-            setClass(this@LogPlayActivity, LogPlayerActivity::class.java)
-            putExtra(LogPlayerActivity.KEY_GAME_ID, gameId)
-            putExtra(LogPlayerActivity.KEY_GAME_NAME, gameName)
-            putExtra(LogPlayerActivity.KEY_IMAGE_URL, imageUrl)
-            putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, thumbnailUrl)
-            putExtra(LogPlayerActivity.KEY_HERO_IMAGE_URL, heroImageUrl)
-            putExtra(LogPlayerActivity.KEY_END_PLAY, isRequestingToEndPlay)
-            putExtra(LogPlayerActivity.KEY_FAB_COLOR, fabColor)
-            putExtra(LogPlayerActivity.KEY_USED_COLORS, usedColors.toTypedArray())
-            putExtra(LogPlayerActivity.KEY_NEW_PLAYER, requestCode == REQUEST_ADD_PLAYER)
-        }
-        startActivityForResult(intent, requestCode)
-    }
+    private fun createLaunchInput(autoPosition: Int) = LogPlayerActivity.LaunchInput(
+        gameId = gameId,
+        gameName = gameName,
+        imageUrl = imageUrl,
+        thumbnailUrl = thumbnailUrl,
+        heroImageUrl = heroImageUrl,
+        isRequestingToEndPlay = isRequestingToEndPlay,
+        fabColor = fabColor,
+        usedColors = usedColors,
+        autoPosition = if (shouldAutoSort()) autoPosition else LogPlayerActivity.INVALID_POSITION,
+    )
 
     private fun cancelPlayingNotification() {
         cancel(TAG_PLAY_TIMER, internalId)
@@ -1003,8 +989,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         private const val KEY_IS_USER_SHOWING_NO_WIN_STATS = "IS_USER_SHOWING_NO_WIN_STATS"
         private const val KEY_IS_USER_SHOWING_COMMENTS = "IS_USER_SHOWING_COMMENTS"
         private const val KEY_IS_USER_SHOWING_PLAYERS = "IS_USER_SHOWING_PLAYERS"
-        private const val REQUEST_ADD_PLAYER = 1
-        private const val REQUEST_EDIT_PLAYER = 2
 
         fun logPlay(
             context: Context,

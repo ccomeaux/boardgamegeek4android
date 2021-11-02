@@ -19,9 +19,7 @@ class LocationAdapter(context: Context) : ArrayAdapter<String>(context, R.layout
         notifyDataSetChanged()
     }
 
-    override fun getFilter() = LocationFilter()
-
-    inner class LocationFilter : Filter() {
+    override fun getFilter(): Filter = object : Filter() {
         @Suppress("RedundantNullableReturnType")
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filter = constraint?.toString().orEmpty()
