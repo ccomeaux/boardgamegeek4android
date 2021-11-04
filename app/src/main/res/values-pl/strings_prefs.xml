@@ -3,8 +3,7 @@
 
 	<string name="pref_log">Zapisywanie rozgrywek</string>
 	<string name="pref_log_summary">Opcje zapisywania rozgrywek</string>
-	<string name="pref_log_play">Zapisz rozgrywkę</string>
-	<string name="pref_log_play_quick">Szybki zapis rozgrywki</string>
+	<string name="pref_log_play_type">Preferowany sposób zapisu rozgrywki</string>
 	<string name="pref_edit_player">Edytuj gracza po dodaniu</string>
 	<string name="pref_edit_player_off">Po prostu dodaj gracza</string>
 	<string name="pref_edit_player_on">Rozpocznij edycję gracza po jego dodaniu</string>
