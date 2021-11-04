@@ -38,6 +38,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     val play: LiveData<PlayEntity>
         get() = _play
 
+    private val _customPlayerSort = MutableLiveData<Boolean>()
+    val customPlayerSort: LiveData<Boolean>
+        get() = _customPlayerSort
+
     private val _gameId = MutableLiveData<Int>()
 
     val colors = _gameId.switchMap { gameId ->
@@ -65,6 +69,15 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun shouldCustomSort(sort: Boolean) {
+        _customPlayerSort.value?.let {
+            if (it != sort) {
+                _customPlayerSort.value = sort
+                if (!sort) pickStartPlayer(0)
+            }
+        }
+    }
+
     private fun filterPlayersByLocation(
         location: String = _location.value.orEmpty(),
         currentPlayers: List<PlayPlayerEntity> = play.value?.players.orEmpty(),
@@ -88,6 +101,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     ) {
         viewModelScope.launch {
             _gameId.postValue(gameId)
+            val game = gameRepository.loadGame(gameId)
+            var arePlayersCustomSorted = game?.customPlayerSort ?: true
             val fetchedPlay: PlayEntity? = if (internalId == INVALID_ID.toLong()) {
                 var location = ""
                 var seatedPlayers: List<PlayPlayerEntity>? = null
@@ -95,8 +110,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                 if (lastPlayTime.howManyHoursOld() < 12) {
                     location = prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty()
                     val players = prefs.getLastPlayPlayerEntities()
-                    // TODO - only choose if game is auto-sortable
-                    seatedPlayers = addSeats(players.map { PlayPlayerEntity(name = it.name, username = it.username) })
+                    seatedPlayers = if (arePlayersCustomSorted)
+                        players.map { PlayPlayerEntity(name = it.name, username = it.username) }
+                    else
+                        addSeats(players.map { PlayPlayerEntity(name = it.name, username = it.username) })
                 }
                 PlayEntity(
                     rawDate = PlayEntity.currentDate(),
@@ -106,11 +123,16 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                     _players = seatedPlayers,
                 )
             } else {
-                playRepository.loadPlay(internalId)
+                val play = playRepository.loadPlay(internalId)
+                if (play != null && !arePlayersCustomSorted) {
+                    arePlayersCustomSorted = play.arePlayersCustomSorted()
+                }
+                play
             }
             fetchedPlay?.let {
                 if (originalPlay == null) originalPlay = it.copy()
                 _location.postValue(it.location)
+                _customPlayerSort.postValue(arePlayersCustomSorted)
                 val pp = if (isRequestingToEndPlay) {
                     it.copy(
                         length = if (it.startTime > 0) it.startTime.howManyMinutesOld() else 0,
@@ -126,7 +148,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                             gameName = pp.gameName,
                             location = pp.location,
                             noWinStats = pp.noWinStats,
-                            _players = if (arePlayersCustomSorted(pp)) pp.players.map { player ->
+                            _players = if (customPlayerSort.value == true) pp.players.map { player ->
                                 player.copy(startingPosition = "", score = "", rating = 0.0, isWin = false, isNew = false)
                             } else pp.players.map { player ->
                                 player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
@@ -235,20 +257,20 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun addPlayers(players: List<PlayerEntity>, resort: Boolean) {
+    fun addPlayers(players: List<PlayerEntity>) {
         play.value?.let { it ->
             val playPlayers = it.players.toMutableList()
             playPlayers.addAll(players.mapIndexed { index, pe ->
-                if (resort) {
+                if (customPlayerSort.value != true) {
                     PlayPlayerEntity(name = pe.name, username = pe.username, startingPosition = (index + it.players.size + 1).toString())
                 } else PlayPlayerEntity(name = pe.name, username = pe.username)
             })
-            if (resort) playPlayers.sortBy { it.seat }
+            if (customPlayerSort.value != true) playPlayers.sortBy { it.seat }
             _play.value = it.copy(_players = playPlayers)
         }
     }
 
-    fun editPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), position: Int? = null, resort: Boolean) {
+    fun editPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), position: Int? = null) {
         play.value?.let {
             val players = it.players.toMutableList()
             if (position in it.players.indices) {
@@ -256,15 +278,15 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             } else {
                 players += player
             }
-            if (resort) players.sortBy { player -> player.seat }
+            if (customPlayerSort.value != true) players.sortBy { player -> player.seat }
             _play.value = it.copy(_players = players)
         }
     }
 
-    fun addPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), resort: Boolean) {
+    fun addPlayer(player: PlayPlayerEntity = PlayPlayerEntity()) {
         play.value?.let {
             var players = it.players.toMutableList()
-            if (resort) {
+            if (customPlayerSort.value != true) {
                 players.add(player.seat - 1, player)
                 players = addSeats(players).toMutableList()
                 players.sortBy { player -> player.seat }
@@ -275,15 +297,15 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun removePlayer(player: PlayPlayerEntity, resort: Boolean) {
+    fun removePlayer(player: PlayPlayerEntity) {
         play.value?.let {
             if (it.players.isNotEmpty()) {
-                var players = it.players.toMutableList()
+                val players = it.players.toMutableList()
                 players.remove(player)
-                if (resort) { // XXX - this is always false after removing a player (unless its the last one):  && !arePlayersCustomSorted(it)
-                    players = addSeats(players).toMutableList() // TODO
-                }
-                _play.value = it.copy(_players = players)
+                val seatedPlayers = if (customPlayerSort.value != true) {
+                    addSeats(players)
+                } else players
+                _play.value = it.copy(_players = seatedPlayers)
             }
         }
     }
@@ -336,7 +358,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun reorderPlayers(fromSeat: Int, toSeat: Int) {
         play.value?.let {
-            if (it.players.isNotEmpty() && !arePlayersCustomSorted(it)) {
+            if (it.players.isNotEmpty() && customPlayerSort.value != true) {
                 val players = it.players.toMutableList()
                 getPlayerAtSeat(players, fromSeat)?.let { movingPlayer ->
                     players.remove(movingPlayer)
@@ -349,13 +371,6 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private fun getPlayerAtSeat(players: List<PlayPlayerEntity>, seat: Int): PlayPlayerEntity? {
         return players.find { it.seat == seat }
-    }
-
-    fun arePlayersCustomSorted(play: PlayEntity): Boolean {
-        for (seat in 1..play.players.size) {
-            if (play.players.count { it.seat == seat } != 1) return true
-        }
-        return false
     }
 
     fun assignColors(clearExisting: Boolean = false) {

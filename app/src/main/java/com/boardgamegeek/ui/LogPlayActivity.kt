@@ -109,7 +109,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
     private val addPlayerLauncher = registerForActivityResult(LogPlayerActivity.AddPlayerContract()) { player ->
         player?.let {
-            viewModel.addPlayer(it, resort = shouldAutoSort())
+            viewModel.addPlayer(it)
             addNewPlayer(playerCount + 2) // this offset the zero-index and accounts for the player just added, but not in the playerCount yet
         }
     }
@@ -118,7 +118,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         when {
             position == LogPlayerActivity.INVALID_POSITION -> Timber.w("Invalid player position after edit")
             player == null -> Timber.w("No player found after edit")
-            else -> viewModel.editPlayer(player, position, resort = shouldAutoSort())
+            else -> viewModel.editPlayer(player, position)
         }
     }
 
@@ -200,15 +200,15 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                     R.id.menu_custom_player_order -> {
                         if (shouldCustomSortPlayers) {
                             logPlayerOrder("NotCustom")
-                            if (playersHaveStartingPositions && playersAreCustomSorted) {
+                            if (playersHaveStartingPositions) {
                                 DialogUtils.createConfirmationDialog(
                                     this@LogPlayActivity,
                                     R.string.are_you_sure_player_sort_custom_off,
-                                    { _: DialogInterface?, _: Int -> autoSortPlayers() },
+                                    { _: DialogInterface?, _: Int -> viewModel.shouldCustomSort(false) },
                                     R.string.sort
                                 ).show()
                             } else {
-                                autoSortPlayers()
+                                viewModel.shouldCustomSort(false)
                             }
                         } else {
                             logPlayerOrder("Custom")
@@ -216,10 +216,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                                 val builder = AlertDialog.Builder(this@LogPlayActivity)
                                     .setMessage(R.string.message_custom_player_order)
                                     .setPositiveButton(R.string.keep) { _: DialogInterface?, _: Int ->
-                                        shouldCustomSortPlayers = true
+                                        viewModel.shouldCustomSort(true)
                                     }
                                     .setNegativeButton(R.string.clear) { _: DialogInterface?, _: Int ->
-                                        shouldCustomSortPlayers = true
+                                        viewModel.shouldCustomSort(true)
                                         viewModel.clearPositions()
                                     }
                                     .setCancelable(true)
@@ -269,7 +269,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 addNewPlayer()
             }
         } else {
-            viewModel.addPlayer(resort = shouldAutoSort())
+            viewModel.addPlayer()
         }
     }
 
@@ -478,9 +478,9 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
                             getString(R.string.undo)
                         ) {
-                            lastRemovedPlayer?.let { viewModel.addPlayer(player, resort = shouldAutoSort()) }
+                            lastRemovedPlayer?.let { viewModel.addPlayer(player) }
                         }
-                        viewModel.removePlayer(player, shouldAutoSort())
+                        viewModel.removePlayer(player)
                     }
                 }
 
@@ -505,7 +505,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 }
 
                 override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-                    return if (!shouldAutoSort()) makeMovementFlags(
+                    return if (shouldCustomSortPlayers) makeMovementFlags(
                         0,
                         getSwipeDirs(recyclerView, viewHolder)
                     ) else super.getMovementFlags(recyclerView, viewHolder)
@@ -559,6 +559,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             cancelPlayingNotification()
         }
 
+        viewModel.customPlayerSort.observe(this) {
+            it?.let { shouldCustomSortPlayers = it }
+        }
+
         viewModel.colors.observe(this) {
             it?.let {
                 gameColors.clear()
@@ -582,7 +586,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             startTime = it.startTime
             playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
             playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
-            playersAreCustomSorted = viewModel.arePlayersCustomSorted(it)
             playerCount = it.players.size
             playerDescriptions = it.players.mapIndexed { i, p ->
                 p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
@@ -752,10 +755,10 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         AlertDialog.Builder(this)
             .setTitle(R.string.title_add_players)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.addPlayers(playersToAdd, shouldAutoSort())
+                viewModel.addPlayers(playersToAdd)
             }
             .setNeutralButton(R.string.more) { _, _ ->
-                viewModel.addPlayers(playersToAdd, shouldAutoSort())
+                viewModel.addPlayers(playersToAdd)
                 addNewPlayer()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -773,13 +776,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
             .create()
             .show()
         return true
-    }
-
-    private fun shouldAutoSort() = !shouldCustomSortPlayers && !playersAreCustomSorted
-
-    private fun autoSortPlayers() {
-        shouldCustomSortPlayers = false
-        viewModel.pickStartPlayer(0)
     }
 
     private fun addNewPlayer(autoPosition: Int = playerCount + 1) {
@@ -809,7 +805,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         isRequestingToEndPlay = isRequestingToEndPlay,
         fabColor = fabColor,
         usedColors = usedColors,
-        autoPosition = if (shouldAutoSort()) autoPosition else LogPlayerActivity.INVALID_POSITION,
+        autoPosition = if (!shouldCustomSortPlayers) autoPosition else LogPlayerActivity.INVALID_POSITION,
     )
 
     private fun cancelPlayingNotification() {
@@ -842,7 +838,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
         fun submit(players: List<PlayPlayerEntity>) {
             val oldPlayers = this.players
-            this.players = players // mutableListOf<Player>().apply { addAll(players) }.toList()
+            this.players = players
             val diffResult = DiffUtil.calculateDiff(Diff(oldPlayers, this.players))
             diffResult.dispatchUpdatesTo(this)
             // TODO: smooth scroll to the "newest" player
@@ -893,7 +889,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
 
             @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
-                row.setAutoSort(shouldAutoSort())
+                row.setAutoSort(!shouldCustomSortPlayers)
                 row.setPlayer(getPlayer(position))
                 row.setNameListener { editPlayer(position) }
                 row.setOnMoreListener {

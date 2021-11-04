@@ -62,16 +62,10 @@ data class PlayEntity(
      */
     fun arePlayersCustomSorted(): Boolean {
         if (players.isEmpty()) return false
-        if (!hasStartingPositions()) return true
-        for (i in 1..players.size) {
-            val foundSeat = (getPlayerAtSeat(i) != null)
-            if (!foundSeat) return true
+        for (seat in 1..players.size) {
+            if (players.count { it.seat == seat } != 1) return true
         }
-        return true
-    }
-
-    private fun hasStartingPositions(): Boolean {
-        return players.all { it.startingPosition.isNotBlank() }
+        return false
     }
 
     fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
