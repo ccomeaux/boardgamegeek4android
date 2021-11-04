@@ -6,7 +6,7 @@ import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
 
-class RetryInterceptor : Interceptor {
+class RetryInterceptor(private val retry202Response: Boolean = true) : Interceptor {
     private val initialIntervalMillisFor202 = RemoteConfig.getInt(RemoteConfig.KEY_RETRY_202_INITIAL_INTERVAL_MILLIS)
     private val randomizationFactorFor202 = RemoteConfig.getDouble(RemoteConfig.KEY_RETRY_202_RANDOMIZATION_FACTOR)
     private val multiplierFor202 = RemoteConfig.getDouble(RemoteConfig.KEY_RETRY_202_MULTIPLIER)
@@ -56,7 +56,10 @@ class RetryInterceptor : Interceptor {
 
     private fun nextBackOffMillis(response: Response): Long {
         return when (response.code) {
-            COLLECTION_REQUEST_PROCESSING -> backOff202.nextBackOffMillis()
+            COLLECTION_REQUEST_PROCESSING -> {
+                if (retry202Response) backOff202.nextBackOffMillis()
+                else BackOff.STOP
+            }
             RATE_LIMIT_EXCEEDED -> backOff429.nextBackOffMillis()
             API_RATE_EXCEEDED -> backOff503.nextBackOffMillis()
             else -> BackOff.STOP
