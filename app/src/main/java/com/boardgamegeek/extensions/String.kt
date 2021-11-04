@@ -60,7 +60,7 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
         try {
             format.parse(this)?.time ?: defaultMillis
         } catch (e: Exception) {
-            Timber.w(e, "Unable to parse \"%s\"", this)
+            Timber.w(e, "Unable to parse \"%s\" as \"%s\"", this, format)
             defaultMillis
         }
     }
@@ -84,7 +84,7 @@ inline fun String.andLess() = "<${this}"
 
 fun String?.firstChar(): String {
     if (this == null || isEmpty()) return "-"
-    return substring(0, 1).toUpperCase(Locale.getDefault())
+    return substring(0, 1).uppercase(Locale.getDefault())
 }
 
 fun String?.ensureHttpsScheme(): String? {
