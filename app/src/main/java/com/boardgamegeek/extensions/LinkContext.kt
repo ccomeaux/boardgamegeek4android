@@ -5,8 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.HttpUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
 import org.jetbrains.anko.toast
 import timber.log.Timber
 
@@ -44,20 +42,14 @@ fun Context?.linkEbay(gameName: String) {
 
 fun Context?.linkToBgg(path: String) {
     link(createBggUri(path))
-    Answers.getInstance().logCustom(CustomEvent("Link")
-            .putCustomAttribute("Path", path))
 }
 
 fun Context?.linkToBgg(path: String, id: Int) {
     link(createBggUri(path, id))
-    Answers.getInstance().logCustom(CustomEvent("Link")
-            .putCustomAttribute("Path", path)
-            .putCustomAttribute("Id", id))
 }
 
 fun Context?.link(url: String) {
     link(Uri.parse(url))
-    Answers.getInstance().logCustom(CustomEvent("Link").putCustomAttribute("Url", url))
 }
 
 private fun Context?.link(link: Uri) {

@@ -44,9 +44,6 @@ import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.fabric.PlayManipulationEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ShareEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -68,7 +65,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
@@ -198,7 +194,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		getListView().setOnScrollListener(onScrollListener);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -214,7 +209,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
@@ -260,7 +254,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				}).show();
 				return true;
 			case R.id.menu_edit:
-				PlayManipulationEvent.log("Edit", play.gameName);
 				LogPlayActivity.editPlay(getActivity(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				return true;
 			case R.id.menu_send:
@@ -286,34 +279,26 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				return true;
 			}
 			case R.id.menu_rematch:
-				PlayManipulationEvent.log("Rematch", play.gameName);
 				LogPlayActivity.rematch(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_change_game:
-				PlayManipulationEvent.log("Change game", play.gameName);
 				startActivity(CollectionActivity.createIntentForGameChange(requireContext(), internalId));
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), play.toShortDescription(getActivity()), play.toLongDescription(getActivity()), R.string.share_play_title);
-				Answers.getInstance().logShare(new ShareEvent()
-					.putContentType("Play")
-					.putContentName(play.toShortDescription(getActivity()))
-					.putContentId(String.valueOf(play.playId)));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	@DebugLog
 	@Override
 	public void onRefresh() {
 		triggerRefresh();
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
 	public void onEvent(SyncPlaysByGameTask.CompletedEvent event) {
 		if (play != null && event.getGameId() == play.gameId) {
@@ -326,7 +311,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
 	private void updateRefreshStatus(final boolean value) {
 		isRefreshing = value;
 		if (swipeRefreshLayout != null) {
@@ -525,7 +509,6 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void save(String action) {
-		PlayManipulationEvent.log(TextUtils.isEmpty(action) ? "Save" : action, play.gameName);
 		new PlayPersister(getActivity()).save(play, internalId, false);
 		triggerRefresh();
 	}

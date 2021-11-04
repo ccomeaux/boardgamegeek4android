@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -38,20 +37,17 @@ public class HelpUtils {
 	/**
 	 * Determines if this version of the help key should be shown.
 	 */
-	@DebugLog
 	public static boolean shouldShowHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		final int shownVersion = preferences.getInt(key, 0);
 		return version > shownVersion;
 	}
 
-	@DebugLog
 	public static void updateHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		preferences.edit().putInt(key, version).apply();
 	}
 
-	@DebugLog
 	@Nullable
 	public static ShowcaseView.Builder getShowcaseBuilder(Activity activity) {
 		if (activity == null) return null;
@@ -76,7 +72,6 @@ public class HelpUtils {
 		return child;
 	}
 
-	@DebugLog
 	@NonNull
 	public static LayoutParams getLowerLeftLayoutParams(Context context) {
 		LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -87,7 +82,6 @@ public class HelpUtils {
 		return layoutParams;
 	}
 
-	@DebugLog
 	@NonNull
 	public static LayoutParams getCenterLeftLayoutParams(Context context) {
 		LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

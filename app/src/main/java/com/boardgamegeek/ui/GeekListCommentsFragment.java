@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class GeekListCommentsFragment extends Fragment {
 	private static final String KEY_COMMENTS = "GEEK_LIST_COMMENTS";
@@ -41,7 +40,6 @@ public class GeekListCommentsFragment extends Fragment {
 		return fragment;
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		comments = getArguments().getParcelableArrayList(KEY_COMMENTS);

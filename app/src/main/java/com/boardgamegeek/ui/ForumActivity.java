@@ -10,8 +10,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -64,13 +62,6 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 				}
 				actionBar.setSubtitle(forumTitle);
 			}
-		}
-
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("Forum")
-				.putContentId(String.valueOf(forumId))
-				.putContentName(forumTitle));
 		}
 	}
 

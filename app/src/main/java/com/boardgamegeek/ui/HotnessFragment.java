@@ -44,7 +44,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import retrofit2.Call;
 
 public class HotnessFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, ActionMode.Callback {
@@ -58,7 +57,6 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@BindView(android.R.id.empty) TextView emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_hotness, container, false);

@@ -10,8 +10,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 
 class LocationsActivity : SimpleSinglePaneActivity() {
     private val viewModel: LocationsViewModel by lazy {
@@ -26,9 +24,6 @@ class LocationsActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Locations"))
-        }
 
         viewModel.locations.observe(this, Observer {
             locationCount = it?.size ?: 0

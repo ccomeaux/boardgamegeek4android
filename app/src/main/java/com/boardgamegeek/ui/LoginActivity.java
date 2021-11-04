@@ -33,7 +33,6 @@ import androidx.appcompat.app.AlertDialog;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -69,7 +68,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		return bundle;
 	}
 
-	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -101,7 +99,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		});
 	}
 
-	@DebugLog
 	@Override
 	public void onBackPressed() {
 		if (userLoginTask != null) {
@@ -111,7 +108,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
-	@DebugLog
 	@OnClick(R.id.sign_in_button)
 	public void onSignInClick() {
 		attemptLogin();
@@ -121,7 +117,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	 * Attempts to sign in or register the account specified by the login form. If there are form errors (invalid email,
 	 * missing fields, etc.), the errors are presented and no actual login attempt is made.
 	 */
-	@DebugLog
 	public void attemptLogin() {
 		if (userLoginTask != null) {
 			return;
@@ -164,7 +159,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
-	@DebugLog
 	private void showProgress(final boolean show) {
 		int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -216,7 +210,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
-	@DebugLog
 	private void createAccount(BggCookieJar bggCookieJar) {
 		Timber.i("Creating account");
 		final Account account = new Account(username, Authenticator.ACCOUNT_TYPE);
@@ -279,7 +272,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		finish();
 	}
 
-	@DebugLog
 	private void showError(@StringRes int message) {
 		new AlertDialog.Builder(this)
 			.setTitle(R.string.title_error)

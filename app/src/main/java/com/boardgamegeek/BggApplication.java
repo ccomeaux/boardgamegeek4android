@@ -5,7 +5,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
-import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.events.BggEventBusIndex;
@@ -16,9 +15,6 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.jakewharton.picasso.OkHttp3Downloader;
@@ -29,8 +25,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Set;
 
 import androidx.multidex.MultiDexApplication;
-import hugo.weaving.DebugLog;
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 import static timber.log.Timber.DebugTree;
@@ -39,11 +33,9 @@ public class BggApplication extends MultiDexApplication {
 	private AppExecutors appExecutors;
 
 	@Override
-	@DebugLog
 	public void onCreate() {
 		super.onCreate();
 		appExecutors = new AppExecutors();
-		initializeFabric();
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugTree());
 			enableStrictMode();
@@ -54,11 +46,6 @@ public class BggApplication extends MultiDexApplication {
 					.build());
 		} else {
 			String username = AccountUtils.getUsername(this);
-			if (!TextUtils.isEmpty(username)) {
-				Crashlytics.setUserIdentifier(String.valueOf(username.hashCode()));
-			}
-			Crashlytics.setString("BUILD_TIME", BuildConfig.BUILD_TIME);
-			Crashlytics.setString("GIT_SHA", BuildConfig.GIT_SHA);
 			Timber.plant(new CrashReportingTree());
 		}
 
@@ -84,11 +71,6 @@ public class BggApplication extends MultiDexApplication {
 			String deviceToken = instanceIdResult.getToken();
 			Timber.i("Firebase token is %s", deviceToken);
 		});
-	}
-
-	private void initializeFabric() {
-		final Crashlytics crashlytics = new Crashlytics.Builder().core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build();
-		Fabric.with(this, crashlytics, new Answers(), new Crashlytics());
 	}
 
 	private void enableStrictMode() {

@@ -69,9 +69,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.fabric.FilterEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
@@ -310,7 +307,6 @@ public class CollectionFragment extends Fragment implements
 		public boolean onMenuItemClick(@NonNull MenuItem item) {
 			switch (item.getItemId()) {
 				case R.id.menu_collection_random_game:
-					Answers.getInstance().logCustom(new CustomEvent("RandomGame"));
 					final CollectionItem ci = adapter.getRandomItem();
 					if (ci != null) {
 						GameActivity.start(requireContext(),
@@ -513,7 +509,6 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void addFilter(@NotNull CollectionFilterer filter) {
 		viewModel.addFilter(filter);
-		FilterEvent.log("Collection", String.valueOf(filter.getType()));
 	}
 
 	private void setEmptyText() {

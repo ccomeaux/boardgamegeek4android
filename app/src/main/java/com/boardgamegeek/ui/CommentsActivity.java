@@ -15,8 +15,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.UIUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import icepick.Icepick;
 import icepick.State;
@@ -45,13 +43,6 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 		Icepick.restoreInstanceState(this, savedInstanceState);
 
 		updateActionBar();
-
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("GameComments")
-				.putContentId(String.valueOf(gameId))
-				.putContentName(gameName));
-		}
 	}
 
 	@Override

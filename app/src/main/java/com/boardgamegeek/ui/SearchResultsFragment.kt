@@ -20,8 +20,6 @@ import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.PreferencesUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.SearchEvent
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_search_results.*
@@ -130,7 +128,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             snackbar.setText(resources.getQuantityString(messageId, count, count, queryText))
             if (isExactMatch) {
                 snackbar.setAction(R.string.more) {
-                    Answers.getInstance().logSearch(SearchEvent().putQuery(queryText).putCustomAttribute("exact", "false"))
                     viewModel.searchInexact(queryText)
                 }
             } else {

@@ -10,7 +10,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
 import org.jetbrains.anko.support.v4.act
 
 class DeleteViewDialogFragment : DialogFragment() {
@@ -36,7 +35,6 @@ class DeleteViewDialogFragment : DialogFragment() {
                                     val viewName = cursor.getString(1)
                                     if (viewName.isNotBlank()) toast.setText(String.format(msg, viewName))
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Delete", viewName)
                                 }
                             }
                             .setNegativeButton(R.string.no, null)

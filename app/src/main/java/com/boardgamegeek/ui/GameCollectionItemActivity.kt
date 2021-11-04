@@ -29,8 +29,6 @@ import com.boardgamegeek.tasks.sync.SyncCollectionByGameTask
 import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.model.PrivateInfo
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.longToast
@@ -62,13 +60,6 @@ class GameCollectionItemActivity : HeroActivity(),
 
         safelySetTitle()
         changeImage()
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameCollection")
-                    .putContentId(collectionId.toString())
-                    .putContentName(collectionName))
-        }
 
         fabOnClickListener = View.OnClickListener {
             if (isInEditMode) (fragment as GameCollectionItemFragment?)?.syncChanges()

@@ -40,7 +40,6 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
@@ -83,7 +82,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
@@ -109,7 +107,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	@DebugLog
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
@@ -186,7 +183,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 	}
 
-	@DebugLog
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 		recyclerView.setLayoutManager(layoutManager);
@@ -206,7 +202,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		});
 	}
 
-	@DebugLog
 	private void showHelp() {
 		final Builder builder = HelpUtils.getShowcaseBuilder(getActivity());
 		if (builder != null) {
@@ -222,7 +217,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		}
 	}
 
-	@DebugLog
 	private Target getTarget() {
 		final View child = HelpUtils.getRecyclerViewVisibleChild(recyclerView);
 		return child == null ? null : new SafeViewTarget(child.findViewById(R.id.view_button));
@@ -230,13 +224,11 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 	@NotNull
 	@Override
-	@DebugLog
 	public Loader<ThreadSafeResponse> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), threadId);
 	}
 
 	@Override
-	@DebugLog
 	public void onLoadFinished(@NotNull Loader<ThreadSafeResponse> loader, ThreadSafeResponse data) {
 		if (getActivity() == null) {
 			return;
@@ -266,7 +258,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		getActivity().invalidateOptionsMenu();
 	}
 
-	@DebugLog
 	private void maybeShowHelp() {
 		if (HelpUtils.shouldShowHelp(getContext(), HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
 			new Handler().postDelayed(this::showHelp, 100);
@@ -274,7 +265,6 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	@DebugLog
 	public void onLoaderReset(@NotNull Loader<ThreadSafeResponse> loader) {
 	}
 

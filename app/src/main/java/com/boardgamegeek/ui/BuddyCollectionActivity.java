@@ -9,13 +9,9 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.boardgamegeek.events.CollectionStatusChangedEvent;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import hugo.weaving.DebugLog;
 
 public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
@@ -27,7 +23,6 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 		context.startActivity(starter);
 	}
 
-	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,11 +33,6 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 				bar.setSubtitle(buddyName);
 			}
 		}
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("BuddyCollection")
-				.putContentId(buddyName));
-		}
 	}
 
 	@Override
@@ -50,13 +40,11 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 		buddyName = intent.getStringExtra(KEY_BUDDY_NAME);
 	}
 
-	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return BuddyCollectionFragment.newInstance(buddyName);
 	}
 
-	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -69,7 +57,6 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
 	public void onEvent(CollectionStatusChangedEvent event) {
 		String text = buddyName;

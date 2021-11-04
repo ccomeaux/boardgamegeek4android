@@ -31,7 +31,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 import retrofit2.Call;
@@ -59,7 +58,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		return fragment;
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
@@ -118,7 +116,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		});
 	}
 
-	@DebugLog
 	private void loadMoreResults() {
 		if (isAdded()) {
 			Loader<List<Comment>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
@@ -128,7 +125,6 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 		}
 	}
 
-	@DebugLog
 	private CommentsLoader getLoader() {
 		if (isAdded()) {
 			Loader<PaginatedData<Comment>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
@@ -165,14 +161,12 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	public void onLoaderReset(Loader<PaginatedData<Comment>> loader) {
 	}
 
-	@DebugLog
 	private void requery() {
 		if (adapter != null) adapter.clear();
 		AnimationUtils.fadeIn(progressView);
 		LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
 	}
 
-	@DebugLog
 	public void setSort(int sortType) {
 		boolean oldSort = isSortedByRating;
 		isSortedByRating = sortType == CommentsActivity.SORT_TYPE_RATING;

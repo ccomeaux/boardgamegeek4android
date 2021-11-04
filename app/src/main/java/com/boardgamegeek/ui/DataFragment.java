@@ -34,8 +34,6 @@ import com.boardgamegeek.ui.widget.DataStepRow;
 import com.boardgamegeek.ui.widget.DataStepRow.Listener;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.FileUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,7 +48,6 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class DataFragment extends Fragment implements Listener {
@@ -64,7 +61,6 @@ public class DataFragment extends Fragment implements Listener {
 	@BindView(R.id.backup_types) ViewGroup fileTypesView;
 	private String currentType;
 
-	@DebugLog
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,14 +82,12 @@ public class DataFragment extends Fragment implements Listener {
 		fileTypesView.addView(row);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
@@ -219,7 +213,6 @@ public class DataFragment extends Fragment implements Listener {
 		}
 	}
 
-	@DebugLog
 	private void performExport(String type, Uri uri) {
 		JsonExportTask task = getExportTask(type, uri);
 		if (task == null) {
@@ -230,10 +223,8 @@ public class DataFragment extends Fragment implements Listener {
 		if (row != null) row.initProgressBar();
 		//noinspection unchecked
 		TaskUtils.<Void>executeAsyncTask(task);
-		logAnswer("Export");
 	}
 
-	@DebugLog
 	private void performImport(String type, Uri uri) {
 		JsonImportTask task = getImportTask(type, uri);
 		if (task == null) {
@@ -244,14 +235,8 @@ public class DataFragment extends Fragment implements Listener {
 		if (row != null) row.initProgressBar();
 		//noinspection unchecked
 		TaskUtils.<Void>executeAsyncTask(task);
-		logAnswer("Import");
 	}
 
-	private void logAnswer(String action) {
-		Answers.getInstance().logCustom(new CustomEvent(ANSWERS_EVENT_NAME).putCustomAttribute(ANSWERS_ATTRIBUTE_KEY_ACTION, action));
-	}
-
-	@DebugLog
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportFinishedEvent event) {
@@ -260,7 +245,6 @@ public class DataFragment extends Fragment implements Listener {
 		notifyEnd(event.getErrorMessage(), R.string.msg_export_success, R.string.msg_export_failed);
 	}
 
-	@DebugLog
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportFinishedEvent event) {
@@ -269,7 +253,6 @@ public class DataFragment extends Fragment implements Listener {
 		notifyEnd(event.getErrorMessage(), R.string.msg_import_success, R.string.msg_import_failed);
 	}
 
-	@DebugLog
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ExportProgressEvent event) {
@@ -277,7 +260,6 @@ public class DataFragment extends Fragment implements Listener {
 		if (row != null) row.updateProgressBar(event.getTotalCount(), event.getCurrentCount());
 	}
 
-	@DebugLog
 	@SuppressWarnings("unused")
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(ImportProgressEvent event) {

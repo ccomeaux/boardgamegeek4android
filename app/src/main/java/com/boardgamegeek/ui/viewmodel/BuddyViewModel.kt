@@ -13,7 +13,6 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.util.fabric.DataManipulationEvent
 
 class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
@@ -87,7 +86,6 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName))
         }
-        DataManipulationEvent.log("BuddyNickname", "Edit")
     }
 
     fun renamePlayer(newName: String) {

@@ -58,7 +58,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> {
@@ -89,7 +88,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		return fragment;
 	}
 
-	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -97,7 +95,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	}
 
 	@Nullable
-	@DebugLog
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
@@ -188,7 +185,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		super.onDestroyView();
 	}
 
-	@DebugLog
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -203,14 +199,12 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		iconColor = bundle.getInt(KEY_ICON_COLOR, Color.TRANSPARENT);
 	}
 
-	@DebugLog
 	@Override
 	public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {
 		inflater.inflate(R.menu.game_colors, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
-	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
@@ -222,13 +216,11 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	}
 
 	@NonNull
-	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), Games.buildColorsUri(gameId), GameColorRecyclerViewAdapter.PROJECTION, null, null, null);
 	}
 
-	@DebugLog
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, @NonNull Cursor cursor) {
 		if (getActivity() == null) {
@@ -325,7 +317,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		AnimationUtils.fadeOut(progressView);
 	}
 
-	@DebugLog
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		if (adapter != null) adapter.changeCursor(null);
@@ -337,7 +328,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");
 	}
 
-	@DebugLog
 	public void addColor(String color) {
 		ContentValues values = new ContentValues();
 		values.put(GameColors.COLOR, color);
@@ -345,7 +335,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	}
 
 	private class Task extends AsyncTask<Void, Void, Integer> {
-		@DebugLog
 		@Override
 		protected Integer doInBackground(Void... params) {
 			Integer count = 0;
@@ -377,7 +366,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			return count;
 		}
 
-		@DebugLog
 		@Override
 		protected void onPostExecute(Integer result) {
 			if (result > 0) {

@@ -5,19 +5,12 @@ import android.util.Pair
 import androidx.annotation.StringRes
 import androidx.core.app.ShareCompat
 import com.boardgamegeek.R
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ShareEvent
 import java.util.*
 
 fun Activity.shareGame(gameId: Int, gameName: String, method: String) {
     val subject = String.format(resources.getString(R.string.share_game_subject), gameName)
     val text = "${resources.getString(R.string.share_game_text)}\n\n${formatGameLink(gameId, gameName)}"
     share(subject, text, R.string.title_share_game)
-    Answers.getInstance().logShare(ShareEvent()
-            .putMethod(method)
-            .putContentType("Game")
-            .putContentName(gameName)
-            .putContentId(gameId.toString()))
 }
 
 fun Activity.shareGames(games: List<Pair<Int, String>>, method: String) {
@@ -31,11 +24,6 @@ fun Activity.shareGames(games: List<Pair<Int, String>>, method: String) {
         gameIds.add(game.first)
     }
     share(resources.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games)
-    Answers.getInstance().logShare(ShareEvent()
-            .putMethod(method)
-            .putContentType("Games")
-            .putContentName(gameNames.formatList())
-            .putContentId(gameIds.formatList()))
 }
 
 fun Activity.share(subject: String, text: CharSequence, @StringRes titleResId: Int) {

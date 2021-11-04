@@ -1,14 +1,11 @@
 package com.boardgamegeek.auth;
 
 import com.boardgamegeek.util.HttpUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.LoginEvent;
 
 import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import hugo.weaving.DebugLog;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -47,7 +44,6 @@ public class NetworkAuthenticator {
 	}
 
 	@Nullable
-	@DebugLog
 	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method) throws IOException {
 		final BggCookieJar cookieJar = new BggCookieJar();
 		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
@@ -57,9 +53,6 @@ public class NetworkAuthenticator {
 		final Response response = client.newCall(post).execute();
 		if (response.isSuccessful()) {
 			if (cookieJar.isValid()) {
-				Answers.getInstance().logLogin(new LoginEvent()
-					.putMethod(method)
-					.putSuccess(true));
 				return cookieJar;
 			} else {
 				logAuthFailure(method, "Invalid cookie jar");
@@ -72,13 +65,8 @@ public class NetworkAuthenticator {
 
 	private static void logAuthFailure(String method, String reason) {
 		Timber.w("Failed %1$s login: %2$s", method, reason);
-		Answers.getInstance().logLogin(new LoginEvent()
-			.putMethod(method)
-			.putSuccess(false)
-			.putCustomAttribute("Reason", reason));
 	}
 
-	@DebugLog
 	@NonNull
 	private static Request buildRequest(@NonNull String username, @NonNull String password) {
 		FormBody formBody = new FormBody.Builder()

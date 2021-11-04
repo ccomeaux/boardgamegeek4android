@@ -27,8 +27,6 @@ import com.boardgamegeek.ui.widget.ContentLoadingProgressBar;
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -189,9 +187,6 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		if (!TextUtils.isEmpty(status) && !status.equals(statusValue)) {
 			statusValue = status;
 			statusLabel = statusEntries[i];
-			Answers.getInstance().logCustom(new CustomEvent("Filter")
-				.putCustomAttribute("contentType", "BuddyCollection")
-				.putCustomAttribute("filterType", status));
 			reload();
 			return true;
 		}

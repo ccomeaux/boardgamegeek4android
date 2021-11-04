@@ -11,8 +11,6 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.util.PaletteTransformation
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_image.*
@@ -35,9 +33,6 @@ class ImageActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             val imageId = Uri.parse(imageUrl).lastPathSegment
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Image")
-                    .putContentId(imageId))
         }
 
         Picasso.with(this)

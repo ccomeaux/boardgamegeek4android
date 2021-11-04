@@ -1,7 +1,7 @@
 package com.boardgamegeek.util
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
 /**
@@ -12,9 +12,9 @@ class CrashReportingTree : Timber.Tree() {
         if (priority == Log.VERBOSE || priority == Log.DEBUG) {
             return
         }
-        Crashlytics.getInstance().core.log(priority, tag, message)
+        FirebaseCrashlytics.getInstance().log(message)
         if (t != null && priority == Log.ERROR) {
-            Crashlytics.getInstance().core.logException(t)
+            FirebaseCrashlytics.getInstance().recordException(t)
         }
     }
 }

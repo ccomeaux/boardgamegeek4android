@@ -17,10 +17,6 @@ import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.boardgamegeek.util.fabric.FilterEvent
-import com.boardgamegeek.util.fabric.SortEvent
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import java.util.*
 
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
@@ -33,9 +29,6 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent().putContentType("Plays"))
-        }
 
         viewModel.plays.observe(this, Observer {
             invalidateOptionsMenu()
@@ -131,12 +124,10 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     }
 
     fun setSort(type: PlaysViewModel.SortType) {
-        SortEvent.log("Plays", type.toString())
         viewModel.setSort(type)
     }
 
     fun filter(type: PlaysViewModel.FilterType) {
-        FilterEvent.log("Plays", type.toString())
         viewModel.setFilter(type)
     }
 
