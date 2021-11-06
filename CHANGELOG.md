@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 6.8.1
+-------------
+* Correct problem logging into BGG
+
 Version 6.8
 -----------
  * Collection text fields now support mark down
