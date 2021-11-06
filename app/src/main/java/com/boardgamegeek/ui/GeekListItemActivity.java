@@ -11,8 +11,6 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -100,13 +98,6 @@ public class GeekListItemActivity extends HeroTabActivity {
 		initializeViewPager();
 
 		safelySetTitle(objectName);
-
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("GeekListItem")
-				.putContentId(String.valueOf(objectId))
-				.putContentName(objectName));
-		}
 
 		loadToolbarImage(imageId);
 	}

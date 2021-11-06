@@ -7,7 +7,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.boardgamegeek.util.ColorUtils
-import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
 import java.util.*
 
 class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
@@ -17,7 +16,6 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {
         item?.let {
-            PlayerColorsManipulationEvent.log("Add", it.first)
             viewModel.add(it.first)
         }
     }

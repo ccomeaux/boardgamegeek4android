@@ -20,7 +20,6 @@ import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.util.PreferencesUtils
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
-import hugo.weaving.DebugLog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -100,8 +99,7 @@ class SettingsActivity : DrawerActivity() {
                                 .withLibraries(
                                         "AndroidIcons",
                                         "Hugo",
-                                        "MaterialRangeBar",
-                                        "NestedScrollWebView"
+                                        "MaterialRangeBar"
                                 )
                                 .withAutoDetect(true)
                                 .withLicenseShown(true)
@@ -118,7 +116,6 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        @DebugLog
         override fun onStart() {
             super.onStart()
             EventBus.getDefault().register(this)
@@ -134,7 +131,6 @@ class SettingsActivity : DrawerActivity() {
             preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         }
 
-        @DebugLog
         override fun onStop() {
             super.onStop()
             EventBus.getDefault().unregister(this)

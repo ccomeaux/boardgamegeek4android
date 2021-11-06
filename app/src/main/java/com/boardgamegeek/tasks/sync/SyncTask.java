@@ -16,7 +16,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import hugo.weaving.DebugLog;
 import retrofit2.Call;
 import retrofit2.Response;
 import timber.log.Timber;
@@ -33,7 +32,6 @@ public abstract class SyncTask<T, E extends CompletedEvent> extends AsyncTask<Vo
 		startTime = System.currentTimeMillis();
 	}
 
-	@DebugLog
 	@Override
 	protected String doInBackground(Void... params) {
 		if (context == null) return "Error.";

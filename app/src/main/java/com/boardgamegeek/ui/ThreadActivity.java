@@ -10,9 +10,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
-import com.crashlytics.android.answers.ShareEvent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -75,13 +72,6 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				actionBar.setSubtitle(objectName);
 			}
 		}
-
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("Thread")
-				.putContentName(threadSubject)
-				.putContentId(String.valueOf(threadId)));
-		}
 	}
 
 	@Override
@@ -124,10 +114,6 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				String contentName = TextUtils.isEmpty(objectName) ?
 					String.format("%s | %s", forumTitle, threadSubject) :
 					String.format("%s | %s | %s", objectName, forumTitle, threadSubject);
-				Answers.getInstance().logShare(new ShareEvent()
-					.putContentType("Thread")
-					.putContentName(contentName)
-					.putContentId(String.valueOf(threadId)));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

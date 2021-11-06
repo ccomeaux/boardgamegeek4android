@@ -1,22 +1,23 @@
 package com.boardgamegeek.auth;
 
 import com.boardgamegeek.util.HttpUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.LoginEvent;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import hugo.weaving.DebugLog;
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Request.Builder;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import timber.log.Timber;
 
 public class NetworkAuthenticator {
-	@SuppressWarnings("FieldCanBeLocal") private static final boolean MOCK_LOGIN = false;
+	private static final boolean MOCK_LOGIN = false;
 
 	private NetworkAuthenticator() {
 	}
@@ -47,19 +48,15 @@ public class NetworkAuthenticator {
 	}
 
 	@Nullable
-	@DebugLog
 	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method) throws IOException {
 		final BggCookieJar cookieJar = new BggCookieJar();
-		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
+		final OkHttpClient client = HttpUtils.getHttpClient(false).newBuilder()
 			.cookieJar(cookieJar)
 			.build();
 		Request post = buildRequest(username, password);
 		final Response response = client.newCall(post).execute();
 		if (response.isSuccessful()) {
 			if (cookieJar.isValid()) {
-				Answers.getInstance().logLogin(new LoginEvent()
-					.putMethod(method)
-					.putSuccess(true));
 				return cookieJar;
 			} else {
 				logAuthFailure(method, "Invalid cookie jar");
@@ -72,22 +69,26 @@ public class NetworkAuthenticator {
 
 	private static void logAuthFailure(String method, String reason) {
 		Timber.w("Failed %1$s login: %2$s", method, reason);
-		Answers.getInstance().logLogin(new LoginEvent()
-			.putMethod(method)
-			.putSuccess(false)
-			.putCustomAttribute("Reason", reason));
 	}
 
-	@DebugLog
 	@NonNull
 	private static Request buildRequest(@NonNull String username, @NonNull String password) {
-		FormBody formBody = new FormBody.Builder()
-			.add("username", username)
-			.add("password", password)
-			.build();
-		return new Request.Builder()
-			.url("https://www.boardgamegeek.com/login")
-			.post(formBody)
+		JsonObject credentials = new JsonObject();
+		credentials.addProperty("username", username);
+		credentials.addProperty("password", password);
+		JsonObject body = new JsonObject();
+		body.add("credentials", credentials);
+		byte[] bytes;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+			bytes = body.toString().getBytes(StandardCharsets.UTF_8);
+		} else {
+			//noinspection CharsetObjectCanBeUsed
+			bytes = body.toString().getBytes(Charset.forName("UTF-8"));
+		}
+		return new Builder()
+			.url("https://boardgamegeek.com/login/api/v1")
+			.post(RequestBody.create(bytes))
+			.addHeader("Content-Type", "application/json")
 			.build();
 	}
 }

@@ -22,7 +22,6 @@ import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import hugo.weaving.DebugLog;
 
 public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecyclerViewAdapter.ArticleViewHolder> {
 	private final int threadId;
@@ -88,7 +87,6 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 		@BindView(R.id.body) TextView bodyView;
 		@BindView(R.id.view_button) View viewButton;
 
-		@DebugLog
 		public ArticleViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);

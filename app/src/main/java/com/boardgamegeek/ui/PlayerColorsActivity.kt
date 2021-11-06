@@ -20,9 +20,6 @@ import com.boardgamegeek.extensions.setColorViewValue
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
-import com.boardgamegeek.util.fabric.PlayerColorsManipulationEvent
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_player_colors.*
 import kotlinx.android.synthetic.main.row_player_color.view.*
@@ -80,12 +77,10 @@ class PlayerColorsActivity : BaseActivity() {
                 Snackbar.make(coordinator, getString(R.string.removed_suffix, color.description), Snackbar.LENGTH_LONG)
                         .setAction(R.string.undo) {
                             viewModel.add(color)
-                            PlayerColorsManipulationEvent.log("UndoDelete", color.description)
                         }
                         .setActionTextColor(ContextCompat.getColor(this@PlayerColorsActivity, R.color.light_blue))
                         .show()
                 viewModel.remove(color)
-                PlayerColorsManipulationEvent.log("Delete", color.description)
             }
 
             override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
@@ -166,7 +161,6 @@ class PlayerColorsActivity : BaseActivity() {
         recyclerView.adapter = adapter
 
         emptyButton.setOnClickListener {
-            PlayerColorsManipulationEvent.log("Generate")
             viewModel.generate()
         }
 
@@ -196,13 +190,6 @@ class PlayerColorsActivity : BaseActivity() {
                 recyclerView.fadeIn()
             }
         })
-
-        if (savedInstanceState == null) {
-            val event = ContentViewEvent().putContentType("PlayerColors")
-            if (!buddyName.isNullOrBlank()) event.putContentId(buddyName)
-            if (!playerName.isNullOrBlank()) event.putContentName(playerName)
-            Answers.getInstance().logContentView(event)
-        }
     }
 
     override fun onStop() {
@@ -215,7 +202,6 @@ class PlayerColorsActivity : BaseActivity() {
             R.id.menu_clear -> this.createThemedBuilder()
                     .setMessage(R.string.are_you_sure_clear_colors)
                     .setPositiveButton(R.string.clear) { _, _ ->
-                        PlayerColorsManipulationEvent.log("Clear")
                         viewModel.clear()
                     }
                     .setNegativeButton(R.string.cancel, null)

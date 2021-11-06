@@ -8,8 +8,6 @@ import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.service.SyncService;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -50,11 +48,6 @@ public class PlayActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Icepick.restoreInstanceState(this, savedInstanceState);
-
-		if (savedInstanceState == null) {
-			final ContentViewEvent event = new ContentViewEvent().putContentType("Play");
-			Answers.getInstance().logContentView(event);
-		}
 	}
 
 	@Override

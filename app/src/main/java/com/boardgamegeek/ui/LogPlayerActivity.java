@@ -38,7 +38,6 @@ import com.boardgamegeek.util.ShowcaseViewWizard;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.fabric.AddFieldEvent;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -56,7 +55,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
-import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
@@ -138,7 +136,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			super(cr);
 		}
 
-		@DebugLog
 		@Override
 		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 			if (cursor == null) {
@@ -170,7 +167,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		}
 	}
 
-	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -236,7 +232,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		showcaseWizard.maybeShowHelp();
 	}
 
-	@DebugLog
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -249,30 +244,25 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		setViewVisibility();
 	}
 
-	@DebugLog
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
 
-	@DebugLog
 	@Override
 	public void onBackPressed() {
 		cancel();
 	}
 
-	@DebugLog
 	private OnItemClickListener nameClickListener() {
 		return (parent, view, position, id) -> usernameView.setText((String) view.getTag());
 	}
 
-	@DebugLog
 	private OnItemClickListener userNameClickListener() {
 		return (parent, view, position, id) -> nameView.setText((String) view.getTag());
 	}
 
-	@DebugLog
 	@OnClick(R.id.color_view)
 	public void onColorClick() {
 		ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(colors, teamColorView.getText().toString(), usedColors);
@@ -284,14 +274,12 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		teamColorView.setText(description);
 	}
 
-	@DebugLog
 	@OnTextChanged(R.id.log_player_team_color)
 	public void afterTextChanged(Editable text) {
 		int color = ColorUtils.parseColor(text.toString());
 		ColorUtils.setColorViewValue(colorView, color);
 	}
 
-	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
 	public void onNumberToTextClick(ImageButton button) {
 		EditText editText = null;
@@ -325,13 +313,11 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		UIUtils.focusWithKeyboard(editText);
 	}
 
-	@DebugLog
 	private void setUpShowcaseViewWizard() {
 		showcaseWizard = new ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION);
 		showcaseWizard.addTarget(R.string.help_logplayer, Target.NONE);
 	}
 
-	@DebugLog
 	private void bindUi() {
 		if (hasAutoPosition()) {
 			titleView.setText(gameName);
@@ -355,7 +341,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		winView.setChecked(player.isWin);
 	}
 
-	@DebugLog
 	private void setViewVisibility() {
 		boolean enableButton = hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
 		enableButton |= hideRow(shouldHidePosition(), findViewById(R.id.log_player_position_container));
@@ -374,7 +359,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		}
 	}
 
-	@DebugLog
 	private boolean hideRow(boolean shouldHide, View view) {
 		if (shouldHide) {
 			view.setVisibility(View.GONE);
@@ -384,42 +368,34 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		return false;
 	}
 
-	@DebugLog
 	private boolean shouldHideTeamColor() {
 		return !preferToShowTeamColor && !userHasShownTeamColor && TextUtils.isEmpty(player.color);
 	}
 
-	@DebugLog
 	private boolean shouldHidePosition() {
 		return !preferToShowPosition && !userHasShownPosition && TextUtils.isEmpty(player.getStartingPosition());
 	}
 
-	@DebugLog
 	private boolean hasAutoPosition() {
 		return autoPosition != Player.SEAT_UNKNOWN;
 	}
 
-	@DebugLog
 	private boolean shouldHideScore() {
 		return !preferToShowScore && !userHasShownScore && TextUtils.isEmpty(player.score);
 	}
 
-	@DebugLog
 	private boolean shouldHideRating() {
 		return !preferToShowRating && !userHasShownRating && !(player.rating > 0);
 	}
 
-	@DebugLog
 	private boolean shouldHideNew() {
 		return !preferToShowNew && !userHasShownNew && !player.isNew;
 	}
 
-	@DebugLog
 	private boolean shouldHideWin() {
 		return !preferToShowWin && !userHasShownWin && !player.isWin;
 	}
 
-	@DebugLog
 	@OnClick(R.id.fab)
 	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
@@ -460,7 +436,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 					viewToScroll = winView;
 					viewToFocus = winView;
 				}
-				AddFieldEvent.log("Player", selection);
 				setViewVisibility();
 				if (viewToFocus != null) {
 					viewToFocus.requestFocus();
@@ -472,7 +447,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			}).show();
 	}
 
-	@DebugLog
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<>();
@@ -501,7 +475,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		return csa;
 	}
 
-	@DebugLog
 	private void save() {
 		captureForm();
 		Intent intent = new Intent();
@@ -511,7 +484,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		finish();
 	}
 
-	@DebugLog
 	private void cancel() {
 		captureForm();
 		if (player.equals(originalPlayer)) {
@@ -522,7 +494,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		}
 	}
 
-	@DebugLog
 	private void captureForm() {
 		player.name = nameView.getText().toString().trim();
 		player.username = usernameView.getText().toString().trim();

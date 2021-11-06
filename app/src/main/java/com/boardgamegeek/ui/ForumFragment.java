@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class ForumFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
@@ -89,7 +88,6 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
-	@DebugLog
 	public void onResume() {
 		super.onResume();
 		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
@@ -125,7 +123,6 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 		});
 	}
 
-	@DebugLog
 	@Nullable
 	private ForumLoader getLoader() {
 		if (isAdded()) {
@@ -135,7 +132,6 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 		return null;
 	}
 
-	@DebugLog
 	private void loadMoreResults() {
 		if (isAdded()) {
 			Loader<List<Thread>> loader = LoaderManager.getInstance(this).getLoader(LOADER_ID);
@@ -147,13 +143,11 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@NotNull
 	@Override
-	@DebugLog
 	public Loader<PaginatedData<Thread>> onCreateLoader(int id, Bundle data) {
 		return new ForumLoader(getActivity(), forumId);
 	}
 
 	@Override
-	@DebugLog
 	public void onLoadFinished(@NotNull Loader<PaginatedData<Thread>> loader, PaginatedData<Thread> data) {
 		if (getActivity() == null) {
 			return;
@@ -175,11 +169,9 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
-	@DebugLog
 	public void onLoaderReset(@NotNull Loader<PaginatedData<Thread>> loader) {
 	}
 
-	@DebugLog
 	private static class ForumLoader extends PaginatedLoader<Thread> {
 		private final BggService bggService;
 		private final int forumId;
@@ -190,7 +182,6 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 			this.forumId = forumId;
 		}
 
-		@DebugLog
 		@Override
 		protected PaginatedData<Thread> fetchPage(int pageNumber) {
 			ForumThreads data;

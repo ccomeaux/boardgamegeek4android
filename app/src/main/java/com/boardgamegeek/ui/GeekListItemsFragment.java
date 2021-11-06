@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GeekListItemsFragment extends Fragment {
@@ -54,7 +53,6 @@ public class GeekListItemsFragment extends Fragment {
 		if (unbinder != null) unbinder.unbind();
 	}
 
-	@DebugLog
 	private void setUpRecyclerView() {
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		recyclerView.setHasFixedSize(true);

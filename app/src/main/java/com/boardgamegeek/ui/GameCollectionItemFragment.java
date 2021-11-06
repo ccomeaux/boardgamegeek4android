@@ -69,7 +69,6 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
@@ -191,7 +190,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		return fragment;
 	}
 
-	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -222,29 +220,24 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		LoaderManager.getInstance(this).restartLoader(_TOKEN, getArguments(), this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
 	}
 
-	@DebugLog
 	@Override
 	public void onStop() {
 		super.onStop();
 		EventBus.getDefault().unregister(this);
 	}
 
-
-	@DebugLog
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
 
-	@DebugLog
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
@@ -275,7 +268,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		return super.onOptionsItemSelected(item);
 	}
 
-	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		if (id != _TOKEN || getContext() == null) return null;
@@ -288,7 +280,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 			null);
 	}
 
-	@DebugLog
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) return;
@@ -316,7 +307,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	@DebugLog
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
@@ -376,14 +366,12 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
 	@Subscribe
 	public void onEvent(CollectionItemUpdatedEvent event) {
 		needsUploading = true;
 	}
 
 	@SuppressWarnings({ "unused", "UnusedParameters" })
-	@DebugLog
 	@Subscribe
 	public void onEvent(CollectionItemResetEvent event) {
 		if (event.getInternalId() == internalId) {
@@ -392,13 +380,11 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	@DebugLog
 	public void onPaletteGenerated(Palette palette) {
 		this.palette = palette;
 		colorize(palette);
 	}
 
-	@DebugLog
 	private void colorize(Palette palette) {
 		if (palette == null || !isAdded()) return;
 		if (colorizedHeaders == null || textEditorViews == null) return;
@@ -456,43 +442,36 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		TaskUtils.executeAsyncTask(task);
 	}
 
-	@DebugLog
 	@OnClick(R.id.comment)
 	public void onCommentClick() {
 		onTextEditorClick(commentView, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
 	}
 
-	@DebugLog
 	@OnClick(R.id.private_comment)
 	public void onPrivateCommentClick() {
 		onTextEditorClick(privateInfoCommentView, Collection.PRIVATE_INFO_COMMENT, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
 	}
 
-	@DebugLog
 	@OnClick(R.id.wishlist_comment)
 	public void onWishlistCommentClick() {
 		onTextEditorClick(wishlistCommentView, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
 	}
 
-	@DebugLog
 	@OnClick(R.id.condition)
 	public void onConditionClick() {
 		onTextEditorClick(conditionView, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
 	}
 
-	@DebugLog
 	@OnClick(R.id.want_parts)
 	public void onWantPartsClick() {
 		onTextEditorClick(wantPartsView, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
 	}
 
-	@DebugLog
 	@OnClick(R.id.has_parts)
 	public void onHasPartsClick() {
 		onTextEditorClick(hasPartsView, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
 	}
 
-	@DebugLog
 	private void onTextEditorClick(TextEditorView view, final String textColumn, final String timestampColumn) {
 		EditCollectionTextDialogFragment dialogFragment = EditCollectionTextDialogFragment.newInstance(
 			view.getHeaderText(),
@@ -502,7 +481,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 
-	@DebugLog
 	@OnClick(R.id.private_info_edit_container)
 	public void onPrivateInfoClick() {
 		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance();
@@ -531,7 +509,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		return (int) tag;
 	}
 
-	@DebugLog
 	public boolean triggerRefresh() {
 		mightNeedRefreshing = false;
 		if (!isRefreshing && gameId != BggContract.INVALID_ID) {
@@ -543,7 +520,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	}
 
 	@SuppressWarnings("unused")
-	@DebugLog
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onEvent(CompletedEvent event) {
 		if (event.getGameId() == gameId) {
@@ -551,7 +527,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	@DebugLog
 	private void updateUi(CollectionItem item) {
 		notifyChange(item);
 		bindMainContainer(item);
@@ -563,7 +538,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		isItemEditable = true;
 	}
 
-	@DebugLog
 	private void notifyChange(CollectionItem item) {
 		CollectionItemChangedEvent event = new CollectionItemChangedEvent(item.getName(), item.getThumbnailUrl(), item.getHeroImageUrl(), item.getYear());
 		EventBus.getDefault().post(event);

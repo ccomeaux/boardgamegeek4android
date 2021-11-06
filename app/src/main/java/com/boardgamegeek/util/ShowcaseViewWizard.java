@@ -17,7 +17,6 @@ import java.util.List;
 
 import androidx.annotation.StringRes;
 import androidx.core.util.Pair;
-import hugo.weaving.DebugLog;
 
 public class ShowcaseViewWizard {
 	private final WeakReference<Activity> activityWeakReference;
@@ -38,7 +37,6 @@ public class ShowcaseViewWizard {
 		helpTargets.add(new Pair<>(contextResId, target));
 	}
 
-	@DebugLog
 	public void showHelp() {
 		final Activity activity = activityWeakReference.get();
 		if (activity == null) return;
@@ -74,7 +72,6 @@ public class ShowcaseViewWizard {
 		showNextHelp();
 	}
 
-	@DebugLog
 	private void showNextHelp() {
 		Activity activity = activityWeakReference.get();
 		if (activity == null) return;
@@ -96,7 +93,6 @@ public class ShowcaseViewWizard {
 		helpIndex++;
 	}
 
-	@DebugLog
 	public void maybeShowHelp() {
 		Activity activity = activityWeakReference.get();
 		if (activity == null) return;

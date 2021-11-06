@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class GeekListDescriptionFragment extends Fragment {
 	private Unbinder unbinder;
@@ -38,14 +37,12 @@ public class GeekListDescriptionFragment extends Fragment {
 	}
 
 	@Override
-	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		xmlConverter = new XmlConverter();
 	}
 
 	@Override
-	@DebugLog
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
 		unbinder = ButterKnife.bind(this, rootView);

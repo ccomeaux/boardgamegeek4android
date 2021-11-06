@@ -14,7 +14,6 @@ import com.boardgamegeek.ui.model.PaginatedData;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import hugo.weaving.DebugLog;
 
 public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapter<PaginatedRecyclerViewAdapter.PaginatedViewHolder> {
 	private static final int VIEW_TYPE_ITEM = 0;
@@ -24,7 +23,6 @@ public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapt
 	@LayoutRes private final int layoutResourceId;
 	private PaginatedData<T> data;
 
-	@DebugLog
 	public PaginatedRecyclerViewAdapter(Context context, @LayoutRes int layoutResourceId, PaginatedData<T> data) {
 		inflater = LayoutInflater.from(context);
 		this.layoutResourceId = layoutResourceId;
@@ -32,18 +30,15 @@ public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapt
 		setHasStableIds(true);
 	}
 
-	@DebugLog
 	public void update(PaginatedData<T> data) {
 		this.data = data;
 		notifyDataSetChanged();
 	}
 
-	@DebugLog
 	public void clear() {
 		this.data.clear();
 	}
 
-	@DebugLog
 	@Override
 	public PaginatedViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		switch (viewType) {
@@ -60,7 +55,6 @@ public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapt
 	@NonNull
 	protected abstract PaginatedViewHolder getViewHolder(View itemView);
 
-	@DebugLog
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(PaginatedRecyclerViewAdapter.PaginatedViewHolder holder, int position) {
@@ -75,19 +69,16 @@ public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapt
 		}
 	}
 
-	@DebugLog
 	@Override
 	public int getItemCount() {
 		return data.getItems().size() + ((data.hasMoreResults() || data.hasError()) ? 1 : 0);
 	}
 
-	@DebugLog
 	@Override
 	public int getItemViewType(int position) {
 		return (position >= data.getItems().size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
 	}
 
-	@DebugLog
 	@Override
 	public long getItemId(int position) {
 		return (getItemViewType(position) == VIEW_TYPE_ITEM) ? position : -1;

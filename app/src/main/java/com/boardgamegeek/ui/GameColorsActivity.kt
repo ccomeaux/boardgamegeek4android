@@ -9,9 +9,6 @@ import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
-import hugo.weaving.DebugLog
 import org.jetbrains.anko.startActivity
 
 class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.EditTextDialogListener {
@@ -20,19 +17,11 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
     @ColorInt
     private var iconColor: Int = Color.TRANSPARENT
 
-    @DebugLog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (gameName.isNotBlank()) {
             supportActionBar?.subtitle = gameName
-        }
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameColors")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
         }
     }
 
@@ -42,12 +31,10 @@ class GameColorsActivity : SimpleSinglePaneActivity(), EditTextDialogFragment.Ed
         iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT)
     }
 
-    @DebugLog
     override fun onCreatePane(intent: Intent): Fragment {
         return ColorsFragment.newInstance(gameId, iconColor)
     }
 
-    @DebugLog
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {

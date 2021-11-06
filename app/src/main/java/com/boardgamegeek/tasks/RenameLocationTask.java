@@ -18,8 +18,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
-import hugo.weaving.DebugLog;
-
 /**
  * Renames a location in all plays, then triggers an update.
  */
@@ -29,7 +27,6 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	private final String newLocationName;
 	private final long startTime;
 
-	@DebugLog
 	public RenameLocationTask(@Nullable Context context, String oldLocation, String newLocation) {
 		this.context = context == null ? null : context.getApplicationContext();
 		oldLocationName = oldLocation;
@@ -37,7 +34,6 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 		startTime = System.currentTimeMillis();
 	}
 
-	@DebugLog
 	@Override
 	protected String doInBackground(String... params) {
 		if (context == null) return "Error.";
@@ -84,7 +80,6 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 		return result;
 	}
 
-	@DebugLog
 	@Override
 	protected void onPostExecute(String result) {
 		EventBus.getDefault().post(new Event(newLocationName, result));

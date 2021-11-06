@@ -13,8 +13,6 @@ import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import com.google.android.material.snackbar.Snackbar
 import org.jetbrains.anko.clearTop
 import org.jetbrains.anko.design.longSnackbar
@@ -34,13 +32,6 @@ class BuddyActivity : SimpleSinglePaneActivity() {
         super.onCreate(savedInstanceState)
         if (name.isNullOrBlank() && username.isNullOrBlank()) finish()
         setSubtitle()
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Buddy")
-                    .putContentId(username)
-                    .putContentName(name))
-        }
 
         if (username != null && username?.isNotBlank() == true) {
             viewModel.setUsername(username)

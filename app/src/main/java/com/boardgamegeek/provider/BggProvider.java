@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 
 import androidx.annotation.NonNull;
 import androidx.collection.SimpleArrayMap;
-import hugo.weaving.DebugLog;
 
 public class BggProvider extends ContentProvider {
 	private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -20,7 +19,6 @@ public class BggProvider extends ContentProvider {
 	private static int URI_MATCH_CODE = 1;
 	private BggDatabase openHelper;
 
-	@DebugLog
 	private static SimpleArrayMap<Integer, BaseProvider> buildProviderMap() {
 		SimpleArrayMap<Integer, BaseProvider> map = new SimpleArrayMap<>();
 
@@ -126,27 +124,23 @@ public class BggProvider extends ContentProvider {
 		return map;
 	}
 
-	@DebugLog
 	private static void addProvider(SimpleArrayMap<Integer, BaseProvider> map, BaseProvider provider) {
 		URI_MATCH_CODE++;
 		URI_MATCHER.addURI(BggContract.CONTENT_AUTHORITY, provider.getPath(), URI_MATCH_CODE);
 		map.put(URI_MATCH_CODE, provider);
 	}
 
-	@DebugLog
 	@Override
 	public boolean onCreate() {
 		openHelper = new BggDatabase(getContext());
 		return true;
 	}
 
-	@DebugLog
 	@Override
 	public String getType(@NonNull Uri uri) {
 		return getProvider(uri).getType(uri);
 	}
 
-	@DebugLog
 	@Override
 	public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		SQLiteDatabase db = openHelper.getReadableDatabase();
@@ -159,7 +153,6 @@ public class BggProvider extends ContentProvider {
 		}
 	}
 
-	@DebugLog
 	@Override
 	public Uri insert(@NonNull Uri uri, ContentValues values) {
 		SQLiteDatabase db = openHelper.getWritableDatabase();
@@ -170,27 +163,23 @@ public class BggProvider extends ContentProvider {
 		return newUri;
 	}
 
-	@DebugLog
 	@Override
 	public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		return getProvider(uri).update(getContext(), openHelper.getWritableDatabase(), uri, values, selection, selectionArgs);
 	}
 
-	@DebugLog
 	@Override
 	public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 		BaseProvider provider = getProvider(uri);
 		return provider.delete(getContext(), openHelper.getWritableDatabase(), uri, selection, selectionArgs);
 	}
 
-	@DebugLog
 	@Override
 	public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
 		BaseProvider provider = getProvider(uri);
 		return provider.openFile(getContext(), uri, mode);
 	}
 
-	@DebugLog
 	private BaseProvider getProvider(Uri uri) {
 		int match = URI_MATCHER.match(uri);
 		if (PROVIDERS.containsKey(match)) {

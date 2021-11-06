@@ -18,7 +18,6 @@ import java.text.NumberFormat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 
 public class ArticleFragment extends Fragment {
 	private static final String KEY_USER = "USER";
@@ -53,7 +52,6 @@ public class ArticleFragment extends Fragment {
 	}
 
 	@Override
-	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);

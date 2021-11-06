@@ -22,7 +22,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.util.PreferencesUtils
-import com.boardgamegeek.util.fabric.CollectionViewManipulationEvent
 import kotlinx.android.synthetic.main.dialog_save_view.*
 import org.jetbrains.anko.support.v4.act
 
@@ -55,19 +54,16 @@ class SaveViewDialogFragment : DialogFragment() {
                                 .setMessage(R.string.msg_collection_view_name_in_use)
                                 .setPositiveButton(R.string.update) { _, _ ->
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Update", name)
                                     viewModel.update(isDefault)
                                 }
                                 .setNegativeButton(R.string.create) { _, _ ->
                                     toast.show()
-                                    CollectionViewManipulationEvent.log("Insert", name)
                                     viewModel.insert(name, isDefault)
                                 }
                                 .create()
                                 .show()
                     } else {
                         toast.show()
-                        CollectionViewManipulationEvent.log("Insert", name)
                         viewModel.insert(name, isDefault)
                     }
                 }

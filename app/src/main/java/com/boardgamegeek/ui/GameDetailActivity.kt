@@ -9,8 +9,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import org.jetbrains.anko.startActivity
 
 class GameDetailActivity : SimpleSinglePaneActivity() {
@@ -28,12 +26,6 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
 
         supportActionBar?.title = gameName
         supportActionBar?.subtitle = title
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("GameDetail")
-                    .putContentName(title))
-        }
 
         viewModel.setId(gameId)
         viewModel.setProducerType(type)

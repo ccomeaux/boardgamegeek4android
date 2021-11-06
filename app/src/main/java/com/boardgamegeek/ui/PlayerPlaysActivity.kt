@@ -11,8 +11,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import org.jetbrains.anko.startActivity
 
 class PlayerPlaysActivity : SimpleSinglePaneActivity() {
@@ -31,12 +29,6 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
 
         if (name.isNotBlank()) {
             supportActionBar?.subtitle = name
-        }
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("PlayerPlays")
-                    .putContentName(name))
         }
 
         viewModel.setPlayerName(name)

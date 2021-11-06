@@ -8,8 +8,6 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -41,13 +39,6 @@ public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 			if (actionBar != null) {
 				actionBar.setSubtitle(gameName);
 			}
-		}
-
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("GamePlayStats")
-				.putContentId(String.valueOf(gameId))
-				.putContentName(gameName));
 		}
 	}
 

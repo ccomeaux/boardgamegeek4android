@@ -23,8 +23,6 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ActivityUtils
 import com.boardgamegeek.util.PreferencesUtils
 import com.boardgamegeek.util.ShortcutUtils
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
@@ -82,13 +80,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         })
 
         viewModel.updateLastViewed(System.currentTimeMillis())
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Game")
-                    .putContentId(gameId.toString())
-                    .putContentName(gameName))
-        }
     }
 
     override fun createAdapter(): FragmentPagerAdapter {

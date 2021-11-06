@@ -19,8 +19,6 @@ import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -74,13 +72,6 @@ public class GeekListActivity extends TabActivity implements LoaderManager.Loade
 		geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID);
 		geekListTitle = intent.getStringExtra(KEY_TITLE);
 		safelySetTitle(geekListTitle);
-
-		if (savedInstanceState == null) {
-			Answers.getInstance().logContentView(new ContentViewEvent()
-				.putContentType("GeekList")
-				.putContentId(String.valueOf(geekListId))
-				.putContentName(geekListTitle));
-		}
 	}
 
 	@Override

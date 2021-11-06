@@ -15,7 +15,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.boardgamegeek.util.fabric.SortEvent
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
 import org.jetbrains.anko.support.v4.act
 import timber.log.Timber
@@ -53,7 +52,6 @@ class CollectionSortDialogFragment : DialogFragment() {
             val sortType = getTypeFromView(group.findViewById(checkedId))
             Timber.d("Sort by $sortType")
             viewModel.setSort(sortType)
-            SortEvent.log("Collection", sortType.toString())
             dismiss()
         }
     }

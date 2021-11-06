@@ -18,7 +18,6 @@ import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GeekLists;
 import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.fabric.SortEvent;
 
 import java.util.List;
 
@@ -32,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
 import icepick.Icepick;
 import icepick.State;
 
@@ -51,7 +49,6 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@BindView(android.R.id.empty) View emptyView;
 	@BindView(android.R.id.list) RecyclerView recyclerView;
 
-	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,7 +56,6 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 		setHasOptionsMenu(true);
 	}
 
-	@DebugLog
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_geeklists, container, false);
@@ -68,28 +64,24 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 		return rootView;
 	}
 
-	@DebugLog
 	@Override
 	public void onResume() {
 		super.onResume();
 		LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
 	}
 
-	@DebugLog
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Icepick.saveInstanceState(this, outState);
 	}
 
-	@DebugLog
 	@Override
 	public void onDestroyView() {
 		unbinder.unbind();
 		super.onDestroyView();
 	}
 
-	@DebugLog
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.geeklists, menu);
@@ -108,7 +100,6 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
-	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int sort = SORT_TYPE_INVALID;
@@ -137,13 +128,11 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 				adapter.clear();
 			}
 			LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
-			SortEvent.log("GeekLists", String.valueOf(sortType));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	@DebugLog
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 		recyclerView.setLayoutManager(layoutManager);

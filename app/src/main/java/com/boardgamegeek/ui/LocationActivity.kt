@@ -16,9 +16,6 @@ import com.boardgamegeek.tasks.RenameLocationTask
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment
 import com.boardgamegeek.ui.dialog.EditTextDialogFragment.EditTextDialogListener
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.boardgamegeek.util.fabric.DataManipulationEvent
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.ContentViewEvent
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.design.snackbar
@@ -39,12 +36,6 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
         super.onCreate(savedInstanceState)
 
         setSubtitle()
-
-        if (savedInstanceState == null) {
-            Answers.getInstance().logContentView(ContentViewEvent()
-                    .putContentType("Location")
-                    .putContentName(locationName))
-        }
 
         viewModel.plays.observe(this, Observer {
             playCount = it.data?.sumBy { play -> play.quantity } ?: 0
@@ -96,7 +87,6 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
 
     override fun onFinishEditDialog(text: String, originalText: String?) {
         if (text.isNotBlank()) {
-            DataManipulationEvent.log("Location", "Edit")
             RenameLocationTask(this, originalText, text).executeAsyncTask()
         }
     }
