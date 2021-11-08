@@ -261,12 +261,8 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadLocations(sortBy)
     }
 
-    private val dateFormatForApi: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
     suspend fun logQuickPlay(gameId: Int, gameName: String) {
-        val calendar = Calendar.getInstance()
-        val date = dateFormatForApi.format(calendar.time)
-        val playEntity = PlayEntity(gameId = gameId, gameName = gameName, rawDate = date, updateTimestamp = System.currentTimeMillis())
+        val playEntity = PlayEntity(gameId = gameId, gameName = gameName, rawDate = PlayEntity.currentDate(), updateTimestamp = System.currentTimeMillis())
         playDao.upsert(playEntity)
         SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
