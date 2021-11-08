@@ -1,6 +1,5 @@
 package com.boardgamegeek.db
 
-import android.content.ContentValues
 import android.net.Uri
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
@@ -157,9 +156,8 @@ class CollectionViewDao(private val context: BggApplication) {
 
     private suspend fun insertDetails(viewFiltersUri: Uri, filters: List<CollectionViewFilterEntity>?) = withContext(Dispatchers.IO) {
         filters?.let {
-            val values = mutableListOf<ContentValues>()
-            for (filter in it) {
-                values += contentValuesOf(
+            val values = it.map { filter ->
+                contentValuesOf(
                     CollectionViewFilters.TYPE to filter.type,
                     CollectionViewFilters.DATA to filter.data,
                 )
