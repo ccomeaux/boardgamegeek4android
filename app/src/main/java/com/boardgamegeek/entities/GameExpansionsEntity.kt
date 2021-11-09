@@ -11,8 +11,12 @@ data class GameExpansionsEntity(
     val wantToPlay: Boolean = false,
     val wantToBuy: Boolean = false,
     val wishList: Boolean = false,
-    val wishListPriority: Int = 3,
+    val wishListPriority: Int = WISHLIST_PRIORITY_UNKNOWN,
     val numberOfPlays: Int = 0,
     val rating: Double = 0.0,
     val comment: String = ""
-)
+) {
+    companion object {
+        const val WISHLIST_PRIORITY_UNKNOWN = CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN
+    }
+}

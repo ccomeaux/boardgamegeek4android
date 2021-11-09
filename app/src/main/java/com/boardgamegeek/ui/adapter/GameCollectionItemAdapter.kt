@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
@@ -19,7 +18,7 @@ import kotlin.properties.Delegates
 class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
     private val xmlConverter by lazy { XmlApiMarkupConverter(context) }
 
-    var gameYearPublished: Int by Delegates.observable(YEAR_UNKNOWN) { _, oldValue, newValue ->
+    var gameYearPublished: Int by Delegates.observable(CollectionItemEntity.YEAR_UNKNOWN) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             notifyDataSetChanged()
         }
@@ -56,8 +55,9 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             itemView.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
-                    item.collectionYearPublished != YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished) {
-                if (item.collectionYearPublished == YEAR_UNKNOWN) {
+                item.collectionYearPublished != CollectionItemEntity.YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished
+            ) {
+                if (item.collectionYearPublished == CollectionItemEntity.YEAR_UNKNOWN) {
                     item.collectionName
                 } else {
                     "${item.collectionName} (${item.collectionYearPublished.asYear(itemView.context)})"
@@ -86,16 +86,17 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             if (item.collectionId != BggContract.INVALID_ID) {
                 itemView.setOnClickListener {
                     GameCollectionItemActivity.start(
-                            itemView.context,
-                            item.internalId,
-                            item.gameId,
-                            item.gameName,
-                            item.collectionId,
-                            item.collectionName,
-                            item.thumbnailUrl,
-                            item.heroImageUrl,
-                            gameYearPublished,
-                            item.collectionYearPublished)
+                        itemView.context,
+                        item.internalId,
+                        item.gameId,
+                        item.gameName,
+                        item.collectionId,
+                        item.collectionName,
+                        item.thumbnailUrl,
+                        item.heroImageUrl,
+                        gameYearPublished,
+                        item.collectionYearPublished
+                    )
                 }
             }
         }

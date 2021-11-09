@@ -141,4 +141,10 @@ data class CollectionItemEntity(
             ""
         } else sb.append(".")
     }
+
+    companion object {
+        const val WISHLIST_PRIORITY_UNKNOWN = 0
+        const val RANK_UNKNOWN = GameRankEntity.RANK_UNKNOWN
+        const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+    }
 }

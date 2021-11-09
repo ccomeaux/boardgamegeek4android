@@ -1,7 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.entities.RANK_UNKNOWN
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.SelectionBuilder
@@ -22,7 +22,7 @@ class GamesProvider : BasicProvider() {
         if (FRAGMENT_PLAYS == uri.fragment) {
             builder
                     .table(Tables.GAMES_JOIN_PLAYS)
-                    .mapIfNull(Games.GAME_RANK, RANK_UNKNOWN.toString())
+                    .mapIfNull(Games.GAME_RANK, GameRankEntity.RANK_UNKNOWN.toString()) // TODO move upstream or is this even necessary?
                     .mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
                     .mapAsMax(Plays.MAX_DATE, Plays.DATE)
         } else {

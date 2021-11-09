@@ -7,8 +7,8 @@ import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.RANK_UNKNOWN
-import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.BggService
 import java.math.BigDecimal
 import java.math.MathContext
@@ -41,7 +41,7 @@ fun Int.toOrdinal(): String {
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()
-        this == YEAR_UNKNOWN -> context.getString(R.string.year_zero)
+        this == GameEntity.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
         this > 0 -> context.getString(R.string.year_positive, this.toString())
         else -> context.getString(R.string.year_negative, (-this).toString())
     }
@@ -61,7 +61,7 @@ fun Int.asWishListPriority(context: Context?): String {
 }
 
 fun Int.isRankValid(): Boolean {
-    return this != RANK_UNKNOWN
+    return this != GameRankEntity.RANK_UNKNOWN
 }
 
 fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {

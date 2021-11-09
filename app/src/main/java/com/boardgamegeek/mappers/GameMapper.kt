@@ -15,7 +15,7 @@ fun Game.mapToEntity(): GameEntity {
         thumbnailUrl = this.thumbnail.orEmpty(),
         description = this.description.replaceHtmlLineFeeds().trim(),
         subtype = this.type.orEmpty(),
-        yearPublished = this.yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+        yearPublished = this.yearpublished?.toIntOrNull() ?: GameEntity.YEAR_UNKNOWN,
         minPlayers = this.minplayers?.toIntOrNull() ?: 0,
         maxPlayers = this.maxplayers?.toIntOrNull() ?: 0,
         playingTime = this.playingtime?.toIntOrNull() ?: 0,
@@ -27,8 +27,7 @@ fun Game.mapToEntity(): GameEntity {
         publishers = this.links.filter { it.type == "boardgamepublisher" }.map { it.id to it.value },
         categories = this.links.filter { it.type == "boardgamecategory" }.map { it.id to it.value },
         mechanics = this.links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
-        expansions = this.links.filter { it.type == "boardgameexpansion" }
-            .map { Triple(it.id, it.value, it.inbound == "true") },
+        expansions = this.links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
         families = this.links.filter { it.type == "boardgamefamily" }.map { it.id to it.value },
         // "boardgameimplementation"
     )
@@ -47,7 +46,7 @@ fun Game.mapToEntity(): GameEntity {
             numberOfComments = this.statistics.numcomments?.toIntOrNull() ?: 0,
             numberOfUsersWeighting = this.statistics.numweights?.toIntOrNull() ?: 0,
             averageWeight = this.statistics.averageweight?.toDoubleOrNull() ?: 0.0,
-            overallRank = this.statistics.ranks.find { it.type == "subtype" }?.value?.toIntOrNull() ?: RANK_UNKNOWN,
+            overallRank = this.statistics.ranks.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
             ranks = createRanks(this),
             polls = createPolls(this),
             playerPoll = createPlayerPoll(this),
@@ -56,8 +55,7 @@ fun Game.mapToEntity(): GameEntity {
 }
 
 private fun findPrimaryName(from: Game): Pair<String, Int> {
-    return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())
-        ?.let { it.value to it.sortindex } ?: "" to 0
+    return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: "" to 0
 }
 
 private fun createRanks(from: Game): List<GameRankEntity> {
@@ -68,7 +66,7 @@ private fun createRanks(from: Game): List<GameRankEntity> {
             it.type,
             it.name,
             it.friendlyname,
-            it.value.toIntOrNull() ?: RANK_UNKNOWN,
+            it.value.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
             it.bayesaverage.toDoubleOrNull() ?: 0.0
         )
     }

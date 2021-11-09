@@ -5,7 +5,6 @@ import android.util.SparseArray
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.RANK_UNKNOWN
 import java.text.NumberFormat
 
 class RankSorter(context: Context) : CollectionSorter(context) {
@@ -29,7 +28,7 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     }
 
     override fun getDisplayInfo(item: CollectionItemEntity): String {
-        return if (item.rank == RANK_UNKNOWN) {
+        return if (item.rank == CollectionItemEntity.RANK_UNKNOWN) {
             defaultText
         } else NumberFormat.getIntegerInstance().format(item.rank)
     }
@@ -43,7 +42,7 @@ class RankSorter(context: Context) : CollectionSorter(context) {
             for (i in rankSteps.indices) {
                 ranks.put(rankSteps[i], String.format("%,d - %,d", (rankSteps.getOrElse(i - 1) { 0 }) + 1, rankSteps[i]))
             }
-            ranks.put(RANK_UNKNOWN - 1, String.format("%,d+", rankSteps.last() + 1))
+            ranks.put(CollectionItemEntity.RANK_UNKNOWN - 1, String.format("%,d+", rankSteps.last() + 1))
             return ranks
         }
     }

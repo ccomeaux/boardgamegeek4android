@@ -5,7 +5,7 @@ package com.boardgamegeek.extensions
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.io.BggService
 import timber.log.Timber
 import java.text.DateFormat
@@ -67,17 +67,17 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     }
 }
 
-fun String?.asYear(): Int {
-    if (this.isNullOrBlank()) return YEAR_UNKNOWN
+fun String?.asYear(unknownYear: Int = GameEntity.YEAR_UNKNOWN): Int {
+    if (this.isNullOrBlank()) return unknownYear
     val l = this.toLong()
     return if (l > Integer.MAX_VALUE) {
         try {
             (l - Long.MAX_VALUE).toInt() - 1
         } catch (e: Exception) {
-            YEAR_UNKNOWN
+            unknownYear
         }
     } else {
-        this.toIntOrNull() ?: YEAR_UNKNOWN
+        this.toIntOrNull() ?: unknownYear
     }
 }
 
@@ -99,7 +99,7 @@ inline fun String.andLess() = "<${this}"
 
 fun String?.firstChar(): String {
     if (this == null || isEmpty()) return "-"
-    return substring(0, 1).toUpperCase(Locale.getDefault())
+    return substring(0, 1).uppercase(Locale.getDefault())
 }
 
 fun String?.ensureHttpsScheme(): String? {

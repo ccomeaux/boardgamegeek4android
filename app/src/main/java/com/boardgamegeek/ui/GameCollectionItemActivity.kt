@@ -10,8 +10,8 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.createDiscardDialog
 import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.ensureShown
@@ -32,8 +32,8 @@ class GameCollectionItemActivity : HeroActivity() {
     private var collectionName = ""
     private var thumbnailUrl = ""
     private var heroImageUrl = ""
-    private var yearPublished = YEAR_UNKNOWN
-    private var collectionYearPublished = YEAR_UNKNOWN
+    private var yearPublished = CollectionItemEntity.YEAR_UNKNOWN
+    private var collectionYearPublished = CollectionItemEntity.YEAR_UNKNOWN
     private var isInEditMode = false
     private var isItemUpdated = false
     private var imageUrl: String? = null
@@ -91,8 +91,8 @@ class GameCollectionItemActivity : HeroActivity() {
         collectionName = intent.getStringExtra(KEY_COLLECTION_NAME) ?: ""
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, YEAR_UNKNOWN)
-        collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, YEAR_UNKNOWN)
+        yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
+        collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
     }
 
     override fun onResume() {
@@ -109,11 +109,12 @@ class GameCollectionItemActivity : HeroActivity() {
         if (isInEditMode) {
             if (isItemUpdated) {
                 createDiscardDialog(
-                        this@GameCollectionItemActivity,
-                        R.string.collection_item,
-                        R.string.keep,
-                        isNew = false,
-                        finishActivity = false) {
+                    this@GameCollectionItemActivity,
+                    R.string.collection_item,
+                    R.string.keep,
+                    isNew = false,
+                    finishActivity = false
+                ) {
                     viewModel.reset()
                     toggleEditMode()
                 }.show()
@@ -153,17 +154,17 @@ class GameCollectionItemActivity : HeroActivity() {
             }
             R.id.menu_delete -> {
                 this.createThemedBuilder()
-                        .setMessage(R.string.are_you_sure_delete_collection_item)
-                        .setPositiveButton(R.string.delete) { _, _ ->
-                            isItemUpdated = false
-                            viewModel.delete()
-                            longToast(R.string.msg_collection_item_deleted)
-                            SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
-                            finish()
-                        }
-                        .setNegativeButton(R.string.cancel, null)
-                        .setCancelable(true)
-                        .show()
+                    .setMessage(R.string.are_you_sure_delete_collection_item)
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        isItemUpdated = false
+                        viewModel.delete()
+                        longToast(R.string.msg_collection_item_deleted)
+                        SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                        finish()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .setCancelable(true)
+                    .show()
                 return true
             }
         }
@@ -171,7 +172,7 @@ class GameCollectionItemActivity : HeroActivity() {
     }
 
     private fun safelySetTitle() {
-        if (collectionYearPublished == YEAR_UNKNOWN || collectionYearPublished == yearPublished)
+        if (collectionYearPublished == CollectionItemEntity.YEAR_UNKNOWN || collectionYearPublished == yearPublished)
             safelySetTitle(collectionName)
         else
             safelySetTitle("$collectionName ($collectionYearPublished)")
@@ -216,27 +217,29 @@ class GameCollectionItemActivity : HeroActivity() {
         private const val KEY_COLLECTION_YEAR_PUBLISHED = "COLLECTION_YEAR_PUBLISHED"
         private const val KEY_STATE_IS_IN_EDIT_MODE = "STATE_IS_IN_EDIT_MODE"
 
-        fun start(context: Context,
-                  internalId: Long,
-                  gameId: Int,
-                  gameName: String,
-                  collectionId: Int,
-                  collectionName: String,
-                  thumbnailUrl: String,
-                  heroImageUrl: String,
-                  yearPublished: Int,
-                  collectionYearPublished: Int) {
+        fun start(
+            context: Context,
+            internalId: Long,
+            gameId: Int,
+            gameName: String,
+            collectionId: Int,
+            collectionName: String,
+            thumbnailUrl: String,
+            heroImageUrl: String,
+            yearPublished: Int,
+            collectionYearPublished: Int
+        ) {
             if (internalId == BggContract.INVALID_ID.toLong()) return
             return context.startActivity<GameCollectionItemActivity>(
-                    KEY_INTERNAL_ID to internalId,
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_COLLECTION_ID to collectionId,
-                    KEY_COLLECTION_NAME to collectionName,
-                    KEY_THUMBNAIL_URL to thumbnailUrl,
-                    KEY_HERO_IMAGE_URL to heroImageUrl,
-                    KEY_YEAR_PUBLISHED to yearPublished,
-                    KEY_COLLECTION_YEAR_PUBLISHED to collectionYearPublished
+                KEY_INTERNAL_ID to internalId,
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
+                KEY_COLLECTION_ID to collectionId,
+                KEY_COLLECTION_NAME to collectionName,
+                KEY_THUMBNAIL_URL to thumbnailUrl,
+                KEY_HERO_IMAGE_URL to heroImageUrl,
+                KEY_YEAR_PUBLISHED to yearPublished,
+                KEY_COLLECTION_YEAR_PUBLISHED to collectionYearPublished
             )
         }
     }

@@ -2,7 +2,6 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.CollectionItem
@@ -20,8 +19,8 @@ fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGam
         collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
         collectionName = name,
         sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-        gameYearPublished = yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
-        collectionYearPublished = yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+        gameYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
+        collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
         imageUrl = image.orEmpty(),
         thumbnailUrl = thumbnail.orEmpty(),
         rating = stats?.rating?.toDoubleOrNull() ?: 0.0,
@@ -56,7 +55,7 @@ fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGam
         gameId = objectid,
         gameName = if (originalname.isNullOrBlank()) name else originalname,
         sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-        yearPublished = yearpublished?.toIntOrNull() ?: YEAR_UNKNOWN,
+        yearPublished = yearpublished?.toIntOrNull() ?: CollectionItemGameEntity.YEAR_UNKNOWN,
         imageUrl = image.orEmpty(),
         thumbnailUrl = thumbnail.orEmpty(),
         minNumberOfPlayers = stats?.minplayers ?: 0,

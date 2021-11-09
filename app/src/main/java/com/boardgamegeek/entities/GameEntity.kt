@@ -32,7 +32,7 @@ data class GameEntity(
     val numberOfComments: Int = 0,
     val numberOfUsersWeighting: Int = 0,
     val averageWeight: Double = 0.0,
-    val overallRank: Int = RANK_UNKNOWN,
+    val overallRank: Int = GameRankEntity.RANK_UNKNOWN,
     val ranks: List<GameRankEntity> = emptyList(),
     val updated: Long = 0,
     val updatedPlays: Long = 0,
@@ -82,4 +82,8 @@ data class GameEntity(
         }
 
     override fun toString() = "$id: $name"
+
+    companion object {
+        const val YEAR_UNKNOWN = 0
+    }
 }

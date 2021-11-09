@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
@@ -391,7 +390,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             fun bindView(item: CollectionItemEntity?, position: Int) {
                 if (item == null) return
                 itemView.nameView.text = item.collectionName
-                val year = if (item.collectionYearPublished == YEAR_UNKNOWN) item.gameYearPublished else item.collectionYearPublished
+                val year = if (item.collectionYearPublished == CollectionItemEntity.YEAR_UNKNOWN) item.gameYearPublished else item.collectionYearPublished
                 itemView.yearView.text = year.asYear(context)
                 itemView.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
                 itemView.favoriteView.isVisible = item.isFavorite
