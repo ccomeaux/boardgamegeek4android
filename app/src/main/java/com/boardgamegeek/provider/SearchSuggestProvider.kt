@@ -26,12 +26,20 @@ open class SearchSuggestProvider : BaseProvider() {
 
     override val defaultSortOrder = BggContract.Collection.DEFAULT_SORT
 
-    override fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        val searchTerm = uri.lastPathSegment?.toLowerCase(Locale.getDefault()).orEmpty()
+    override fun query(
+        resolver: ContentResolver,
+        db: SQLiteDatabase,
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
+    ): Cursor? {
+        val searchTerm = uri.lastPathSegment?.lowercase(Locale.getDefault()).orEmpty()
         val limit = uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT)
         val qb = SQLiteQueryBuilder().apply {
             tables = Tables.COLLECTION_JOIN_GAMES
-            setProjectionMap(suggestionProjectionMap)
+            projectionMap = suggestionProjectionMap
             appendWhere("($COLLECTION_NAME like '$searchTerm%%' OR $COLLECTION_NAME like '%% $searchTerm%%')")
         }
         return qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, getSortOrder(sortOrder), limit).apply {
@@ -43,13 +51,13 @@ open class SearchSuggestProvider : BaseProvider() {
         private const val GROUP_BY = "$COLLECTION_NAME, $COLLECTION_YEAR_PUBLISHED"
 
         val suggestionProjectionMap = mutableMapOf(
-                BaseColumns._ID to "${Tables.GAMES}.${BaseColumns._ID}",
-                SearchManager.SUGGEST_COLUMN_TEXT_1 to "$COLLECTION_NAME AS ${SearchManager.SUGGEST_COLUMN_TEXT_1}",
-                SearchManager.SUGGEST_COLUMN_TEXT_2 to "IFNULL(CASE WHEN $COLLECTION_YEAR_PUBLISHED=0 THEN NULL ELSE $COLLECTION_YEAR_PUBLISHED END, '?') AS ${SearchManager.SUGGEST_COLUMN_TEXT_2}",
-                SearchManager.SUGGEST_COLUMN_ICON_2 to "'${BggContract.Games.CONTENT_URI}/' || ${Tables.COLLECTION}.$GAME_ID || '/$PATH_THUMBNAILS' AS ${SearchManager.SUGGEST_COLUMN_ICON_2}",
-                SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID to "${Tables.GAMES}.$GAME_ID AS ${SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID}",
-                SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA to "$COLLECTION_NAME AS ${SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA}",
-                SearchManager.SUGGEST_COLUMN_LAST_ACCESS_HINT to "$LAST_VIEWED AS ${SearchManager.SUGGEST_COLUMN_LAST_ACCESS_HINT}"
+            BaseColumns._ID to "${Tables.GAMES}.${BaseColumns._ID}",
+            SearchManager.SUGGEST_COLUMN_TEXT_1 to "$COLLECTION_NAME AS ${SearchManager.SUGGEST_COLUMN_TEXT_1}",
+            SearchManager.SUGGEST_COLUMN_TEXT_2 to "IFNULL(CASE WHEN $COLLECTION_YEAR_PUBLISHED=0 THEN NULL ELSE $COLLECTION_YEAR_PUBLISHED END, '?') AS ${SearchManager.SUGGEST_COLUMN_TEXT_2}",
+            SearchManager.SUGGEST_COLUMN_ICON_2 to "'${BggContract.Games.CONTENT_URI}/' || ${Tables.COLLECTION}.$GAME_ID || '/$PATH_THUMBNAILS' AS ${SearchManager.SUGGEST_COLUMN_ICON_2}",
+            SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID to "${Tables.GAMES}.$GAME_ID AS ${SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID}",
+            SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA to "$COLLECTION_NAME AS ${SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA}",
+            SearchManager.SUGGEST_COLUMN_LAST_ACCESS_HINT to "$LAST_VIEWED AS ${SearchManager.SUGGEST_COLUMN_LAST_ACCESS_HINT}",
         )
     }
 }
