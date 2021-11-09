@@ -60,7 +60,7 @@ class PlayerNameAdapter(context: Context) :
             }
             resultList.addAll(buddies)
             players.filterTo(resultList) { player ->
-                player.username.isBlank() || buddyUserNames.asSequence().none { it.equals(player.username, true) }
+                player.username.isBlank() || buddyUserNames.none { it.equals(player.username, true) }
             }
             resultList.sortByDescending { it.playCount }
 

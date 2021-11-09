@@ -21,7 +21,7 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
 
         if (savedInstanceState == null) {
             createFragment()
-            if (!answersContentType.isBlank()) {
+            if (answersContentType.isNotBlank()) {
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, answersContentType)
                 }

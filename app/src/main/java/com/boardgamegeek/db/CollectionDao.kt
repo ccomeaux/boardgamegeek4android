@@ -613,7 +613,7 @@ class CollectionDao(private val context: BggApplication) {
                 return SyncCandidate()
             }
 
-            fun fromCursor(cursor: Cursor): SyncCandidate {
+            private fun fromCursor(cursor: Cursor): SyncCandidate {
                 return SyncCandidate(
                     cursor.getLongOrNull(0) ?: INVALID_ID.toLong(),
                     cursor.getLongOrNull(1) ?: 0L,

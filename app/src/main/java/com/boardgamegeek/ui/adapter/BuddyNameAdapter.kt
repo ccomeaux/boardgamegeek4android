@@ -50,7 +50,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             val (buddies, buddyUserNames) = queryBuddies(filter)
             resultList.addAll(buddies)
             players.filterTo(resultList) { player ->
-                buddyUserNames.asSequence().none { it.equals(player.username, true) }
+                buddyUserNames.none { it.equals(player.username, true) }
             }
             resultList.sortBy { it.username }
 

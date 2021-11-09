@@ -102,7 +102,7 @@ class ScoreGraphView @JvmOverloads constructor(
             scoreSpread <= 500 -> 20
             else -> (ceil(scoreSpread / 100) * 10).toInt().significantDigits(2)
         }
-        var tickScore = Math.ceil(lowScore / tickSpacing) * tickSpacing
+        var tickScore = ceil(lowScore / tickSpacing) * tickSpacing
         while (tickScore <= highScore) {
             val x = ((tickScore - lowScore) / scoreSpread * (right - left) + left).toFloat()
             val tickHeight: Float
