@@ -35,6 +35,22 @@ fun Long.asDate(context: Context, @StringRes zeroResId: Int = R.string.never, in
     }
 }
 
+fun Long.asDateTime(
+    context: Context,
+    @StringRes zeroResId: Int = R.string.never,
+    abbreviate: Boolean = true,
+    includeWeekDay: Boolean = false
+): CharSequence {
+    return if (this == 0L)
+        context.getString(zeroResId)
+    else {
+        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_SHOW_TIME
+        if (abbreviate) flags = flags or FORMAT_ABBREV_ALL
+        if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
+        formatDateTime(context, this, flags)
+    }
+}
+
 fun Long.howManyMinutesOld(): Int {
     return ((System.currentTimeMillis() - this + 30_000) / MINUTE_IN_MILLIS).toInt()
 }
@@ -45,10 +61,6 @@ fun Long.howManyHoursOld(): Int {
 
 fun Long.howManyWeeksOld(): Int {
     return ((System.currentTimeMillis() - this) / WEEK_IN_MILLIS).toInt()
-}
-
-fun Long.asPastMinuteSpan(context: Context): CharSequence {
-    return if (this == 0L) context.getString(R.string.never) else getRelativeTimeSpanString(this, System.currentTimeMillis(), MINUTE_IN_MILLIS)
 }
 
 fun Long.forDatabase(): String {

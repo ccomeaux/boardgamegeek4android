@@ -37,8 +37,8 @@ class SyncPrefs {
             prefs.setLastCompleteCollectionTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE", 0L))
             prefs.setPartialCollectionSyncLastCompletedAt(getLong(context, "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL", 0L))
             prefs.setBuddiesTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_BUDDIES", 0L))
-            prefs.setPlaysNewestTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE", 0L))
-            prefs.setPlaysOldestTimestamp(getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE", Long.MAX_VALUE))
+            prefs[TIMESTAMP_PLAYS_NEWEST_DATE] = getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE", 0L)
+            prefs[TIMESTAMP_PLAYS_OLDEST_DATE] = getLong(context, "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE", Long.MAX_VALUE)
         }
 
         private fun getLong(context: Context, key: String, defaultValue: Long): Long {
@@ -53,17 +53,13 @@ class SyncPrefs {
     }
 }
 
-fun SharedPreferences.getCurrentTimestamp() = this[TIMESTAMP_CURRENT, 0L] ?: 0L
-
-@JvmOverloads
 fun SharedPreferences.setCurrentTimestamp(timestamp: Long = System.currentTimeMillis()) {
     this[TIMESTAMP_CURRENT] = timestamp
 }
 
 // COLLECTION
 
-fun SharedPreferences.getLastCompleteCollectionTimestamp() = this[TIMESTAMP_COLLECTION_COMPLETE, 0L]
-        ?: 0L
+fun SharedPreferences.getLastCompleteCollectionTimestamp() = this[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L
 
 fun SharedPreferences.setLastCompleteCollectionTimestamp(timestamp: Long = System.currentTimeMillis()) {
     this[TIMESTAMP_COLLECTION_COMPLETE] = timestamp
@@ -89,8 +85,7 @@ fun SharedPreferences.setCompleteCollectionSyncTimestamp(subtype: String, status
     this["${TIMESTAMP_COLLECTION_COMPLETE}.$subtype.$status"] = timestamp
 }
 
-fun SharedPreferences.getPartialCollectionSyncLastCompletedAt() = this[TIMESTAMP_COLLECTION_PARTIAL, 0L]
-        ?: 0L
+fun SharedPreferences.getPartialCollectionSyncLastCompletedAt() = this[TIMESTAMP_COLLECTION_PARTIAL, 0L] ?: 0L
 
 fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(timestamp: Long = System.currentTimeMillis()) {
     this[TIMESTAMP_COLLECTION_PARTIAL] = timestamp
@@ -114,12 +109,12 @@ fun SharedPreferences.clearCollection() {
     setCurrentCollectionSyncTimestamp(0L)
     val map = this.all
     map.keys
-            .filter { it.startsWith("$TIMESTAMP_COLLECTION_COMPLETE.") }
-            .forEach { this.remove(it) }
+        .filter { it.startsWith("$TIMESTAMP_COLLECTION_COMPLETE.") }
+        .forEach { this.remove(it) }
     setPartialCollectionSyncLastCompletedAt(0L)
     map.keys
-            .filter { it.startsWith("$TIMESTAMP_COLLECTION_PARTIAL.") }
-            .forEach { this.remove(it) }
+        .filter { it.startsWith("$TIMESTAMP_COLLECTION_PARTIAL.") }
+        .forEach { this.remove(it) }
 }
 
 // BUDDIES
@@ -128,8 +123,7 @@ fun SharedPreferences.clearBuddyListTimestamps() {
     setBuddiesTimestamp(0L)
 }
 
-fun SharedPreferences.getBuddiesTimestamp() = this[TIMESTAMP_BUDDIES, 0L]
-        ?: 0L
+fun SharedPreferences.getBuddiesTimestamp() = this[TIMESTAMP_BUDDIES, 0L] ?: 0L
 
 fun SharedPreferences.setBuddiesTimestamp(timestamp: Long = System.currentTimeMillis()) {
     this[TIMESTAMP_BUDDIES] = timestamp
@@ -137,31 +131,7 @@ fun SharedPreferences.setBuddiesTimestamp(timestamp: Long = System.currentTimeMi
 
 // PLAYS
 
-fun SharedPreferences.getPlaysNewestTimestamp(): Long? {
-    val l: Long? = this[TIMESTAMP_PLAYS_NEWEST_DATE]
-    return when {
-        l == null -> null
-        l < 0L -> null
-        else -> l
-    }
-}
-
-fun SharedPreferences.setPlaysNewestTimestamp(timestamp: Long = System.currentTimeMillis()) {
-    this[TIMESTAMP_PLAYS_NEWEST_DATE] = timestamp
-}
-
-fun SharedPreferences.getPlaysOldestTimestamp() = this[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE]
-        ?: Long.MAX_VALUE
-
-fun SharedPreferences.setPlaysOldestTimestamp(timestamp: Long = System.currentTimeMillis()) {
-    this[TIMESTAMP_PLAYS_OLDEST_DATE] = timestamp
-}
-
-fun SharedPreferences.isPlaysSyncUpToDate(): Boolean {
-    return this.getPlaysOldestTimestamp() == 0L
-}
-
 fun SharedPreferences.clearPlaysTimestamps() {
-    this.setPlaysNewestTimestamp(-1L)
-    this.setPlaysOldestTimestamp(Long.MAX_VALUE)
+    this[TIMESTAMP_PLAYS_NEWEST_DATE] = 0L
+    this[TIMESTAMP_PLAYS_OLDEST_DATE] = Long.MAX_VALUE
 }

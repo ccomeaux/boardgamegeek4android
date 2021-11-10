@@ -577,7 +577,7 @@ class PlayDao(private val context: BggApplication) {
             if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
                 insertedId = results.getOrNull(0)?.uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
             }
-            Timber.i("Saved play _ID=$insertedId")
+            Timber.d("Saved play _ID=$insertedId")
             insertedId
         } else {
             Timber.i("Skipping inserting a deleted play")
@@ -950,7 +950,7 @@ class PlayDao(private val context: BggApplication) {
     suspend fun update(internalId: Long, values: ContentValues) = withContext(Dispatchers.IO) {
         val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
         if (rowsUpdated == 1) {
-            Timber.i("Updated play _ID=$internalId")
+            Timber.d("Updated play _ID=$internalId")
         } else {
             Timber.w("Upserted $rowsUpdated plays when trying to set _ID=$internalId")
         }

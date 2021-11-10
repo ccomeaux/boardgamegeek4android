@@ -18,6 +18,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.*
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.provider.BggContract.PlayerColors
@@ -28,9 +30,6 @@ import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.math.min
 
 class PlayRepository(val application: BggApplication) {
@@ -99,58 +98,65 @@ class PlayRepository(val application: BggApplication) {
     suspend fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean) = playDao.loadPlaysByPlayerAndGame(name, gameId, isUser)
 
     suspend fun refreshPlays() = withContext(Dispatchers.IO) {
-        val newestTimestamp = syncPrefs.getPlaysNewestTimestamp()
-        val oldestTimestamp = syncPrefs.getPlaysOldestTimestamp()
         val syncInitiatedTimestamp = System.currentTimeMillis()
 
+        val newestTimestamp = syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
+        val minDate = if (newestTimestamp == 0L) null else newestTimestamp.asDateForApi()
         var page = 1
         do {
-            val response = bggService.plays(
-                username,
-                newestTimestamp?.asDateForApi(),
-                null,
-                page++
-            )
+            val response = bggService.plays(username, minDate, null, page++)
             val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
 
-            val newestDate = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
-            if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
-                syncPrefs.setPlaysNewestTimestamp(newestDate)
+            plays.maxOfOrNull { it.dateInMillis }?.let {
+                if (it > syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L) {
+                    syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] = it
+                }
+            }
+            plays.minOfOrNull { it.dateInMillis }?.let {
+                if (it < syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE) {
+                    syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
+                }
             }
 
-            Timber.i("Synced %,d new plays on page %,d", plays.size, page - 1)
+            if (minDate == null) {
+                Timber.i("Synced page %,d of the newest plays (%,d plays in this page)", page - 1, plays.size)
+            } else {
+                Timber.i("Synced page %,d of plays from %s or later (%,d plays in this page)", page - 1, minDate, plays.size)
+            }
         } while (response.hasMorePages())
+        if (minDate != null) {
+            deleteUnupdatedPlaysSince(syncInitiatedTimestamp, newestTimestamp)
+        }
 
+        val oldestTimestamp = syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
         if (oldestTimestamp > 0) {
             page = 1
+            val maxDate = if (oldestTimestamp == Long.MAX_VALUE) null else oldestTimestamp.asDateForApi()
             do {
-                val response = bggService.plays(
-                    username,
-                    null,
-                    oldestTimestamp.asDateForApi(),
-                    page++
-                )
+                val response = bggService.plays(username, null, maxDate, page++)
                 val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
                 saveFromSync(plays, syncInitiatedTimestamp)
 
-                val oldestDate = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
-                if (oldestDate < SyncPrefs.getPrefs(application).getPlaysOldestTimestamp()) {
-                    syncPrefs.setPlaysOldestTimestamp(oldestDate)
+                plays.minOfOrNull { it.dateInMillis }?.let {
+                    if (it < syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE) {
+                        syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
+                    }
                 }
-
-                Timber.i("Synced %,d old plays on page %,d", plays.size, page - 1)
+                if (maxDate == null) {
+                    Timber.i("Synced page %,d of the oldest plays (%,d plays in this page)", page - 1, plays.size)
+                } else {
+                    Timber.i("Synced page %,d of plays from %s or earlier (%,d plays in this page)", page - 1, maxDate, plays.size)
+                }
             } while (response.hasMorePages())
+            if (oldestTimestamp != Long.MAX_VALUE) {
+                deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
+            }
+            syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
         } else {
             Timber.i("Not syncing old plays; already caught up.")
         }
 
-        newestTimestamp?.let { deleteUnupdatedPlaysSince(syncInitiatedTimestamp, it) }
-        if (oldestTimestamp > 0L) {
-            deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
-        } else {
-            syncPrefs.setPlaysOldestTimestamp(0L)
-        }
         calculatePlayStats()
     }
 
@@ -432,7 +438,7 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {
-        if (SyncPrefs.getPrefs(application).isPlaysSyncUpToDate()) {
+        if (syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE] ?: Long.MAX_VALUE == 0L) {
             val includeIncompletePlays = prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
             val includeExpansions = prefs[PlayStats.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
             val includeAccessories = prefs[PlayStats.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
