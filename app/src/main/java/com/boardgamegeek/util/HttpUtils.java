@@ -33,11 +33,11 @@ public class HttpUtils {
 		return Uri.encode(s, "UTF-8");
 	}
 
-	public static OkHttpClient getHttpClient() {
+	public static OkHttpClient getHttpClient(boolean retry202Response) {
 		Builder builder = getBuilder();
 		final List<Interceptor> interceptors = builder.interceptors();
 		interceptors.add(new UserAgentInterceptor(null));
-		interceptors.add(new RetryInterceptor());
+		interceptors.add(new RetryInterceptor(retry202Response));
 		addLoggingInterceptor(builder);
 		return builder.build();
 	}

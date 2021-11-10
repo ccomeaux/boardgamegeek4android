@@ -628,7 +628,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         fun calculateWhitmoreScore(): Int {
             // A score that ranges from 0 for a completely neutral game (6.5) to 7 for a perfect 10.
-            // http://www.boardgamegeek.com/geeklist/37832/my-favorite-designers
+            // https://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23
             return (personalRating * 2 - 13).toInt().coerceAtLeast(0)
         }
 

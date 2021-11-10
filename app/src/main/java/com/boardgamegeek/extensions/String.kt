@@ -61,7 +61,7 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
         try {
             format.parse(this)?.time ?: defaultMillis
         } catch (e: Exception) {
-            Timber.w(e, "Unable to parse \"%s\"", this)
+            Timber.w(e, "Unable to parse \"%s\" as \"%s\"", this, format)
             defaultMillis
         }
     }

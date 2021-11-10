@@ -28,9 +28,9 @@
 	<string name="editing_prefix">Edycja, ostatni zapis %s</string>
 	<string name="quantity">Ilość</string>
 	<string name="length">Czas trwania</string>
-	<string name="length_hint">Czas trwania w minutach</string>
+	<string name="length_hint">Czas trwania (w minutach)</string>
 	<string name="location">Lokalizacja</string>
-	<string name="location_hint">Lokalizacja</string>
+	<string name="location_hint">Nazwa lokalizacji</string>
 	<string name="no_location">&lt;Brak lokalizacji&gt;</string>
 	<string name="nowhere_in_angle_brackets">&lt;Nigdzie&gt;</string>
 	<string name="incomplete">Niezakończona</string>
@@ -39,6 +39,7 @@
 	<string name="send">Wyślij</string>
 	<string name="save">zapisz</string>
 	<string name="done">Zakończone</string>
+	<string name="next">Dalej</string>
 	<string name="cancel">Anuluj</string>
 	<string name="discard">Odrzuć</string>
 	<string name="continue_">Kontynuuj</string>
@@ -48,6 +49,9 @@
 	<string name="cancelled">Anulowano</string>
 	<string name="exact">Dokładny</string>
 	<string name="exactly">Dokładnie</string>
+	<string name="range">Zakres</string>
+	<string name="single_value">Jedna wartość</string>
+	<string name="none">Żadne</string>
 	<string name="include_missing_values">Uwzględnij gry z brakującymi danymi</string>
 	<string name="filter_description_player_number">Zostają pokazane tylko gry dla <b>całego zakresu</b>graczy. <i>Dokładny</i> znaczy, że pokazane zostaną tylko gry dla danej liczby graczy (np. gry tylko dla 2 graczy).</string>
 	<string name="filter_description_include_missing_play_time">Jeśli <b>uwzględnisz gry z brakującymi danymi</b> filtr pokaże gry z nieznanym czasem gry.</string>
@@ -55,6 +59,8 @@
 	<string name="filter_description_include_missing_average_weight">Jeśli <b>uwzględnisz gry z brakującymi danymi</b> filtr pokaże gry bez określonej średniej trudności.</string>
 	<string name="clear">Wyczyść</string>
 	<string name="set">Ustaw</string>
+	<string name="randomize_all">Wszystkie</string>
+	<string name="randomize_start">Pierwszy</string>
 	<string name="plays">rozgrywek</string>
 	<string name="played">Rozegrane</string>
 	<string name="rated">Ocenione</string>
@@ -75,6 +81,7 @@
 	<string name="username">Nazwa użytkownika</string>
 	<string name="colors">Kolory</string>
 	<string name="team_color">Drużyna/Kolor</string>
+	<string name="team_color_prefix">Drużyna/Kolor dla %s</string>
 	<string name="starting_position">Pozycja startowa</string>
 	<string name="score">Punkty</string>
 	<string name="rating">Ocena</string>
@@ -103,6 +110,7 @@
 	<string name="before">przed</string>
 	<string name="after">po</string>
 	<string name="status_of_prefix">Status %s</string>
+	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Wyczyścić kolory?</string>
 	<string name="msg_clear_colors">Chcesz wyczyścić bieżące kolory przed przypisaniem nowych?</string>
 	<string name="msg_color_error_no_players">Nie ma graczy, którzy potrzebują koloru.</string>
@@ -124,6 +132,7 @@
 	<string name="provider_label">Kolekcja, Rozgrywki i Znajomi</string>
 	<string name="title_search">Szukaj</string>
 	<string name="title_collection">Kolekcja</string>
+	<string name="title_my_games">Moje Gry</string>
 	<string name="title_collection_details">Szczegóły kolekcji</string>
 	<string name="title_filtered_collection">Odfiltrowana kolekcja</string>
 	<string name="title_hotness">Popularność gry</string>
@@ -157,12 +166,16 @@
 	<string name="title_buddy">Użytkownik</string>
 	<string name="title_log_play">Zapisz rozgrywkę</string>
 	<string name="title_log_player">Zapisz gracza</string>
+	<string name="title_new_play">Nowa Rozgrywka</string>
+	<string name="title_new_players">Nowi Gracze</string>
+	<string name="title_winners">Wyniki i Zwycięzcy</string>
 	<string name="title_add_players">Dodaj graczy</string>
 	<string name="title_comments">Komentarze</string>
 	<string name="title_private_info">Prywatne informacje</string>
 	<string name="title_ratings">Oceny</string>
 	<string name="title_ranks_ratings">Ranking i Oceny</string>
 	<string name="title_colors">Kolory</string>
+	<string name="title_team_colors">Drużyny/Kolory</string>
 	<string name="title_favorite_colors">Ulubione kolory</string>
 	<string name="title_forums">Fora</string>
 	<string name="title_thread">Wątki</string>
@@ -193,11 +206,14 @@
 	<string name="title_save_view">Zapisz widok</string>
 	<string name="title_delete_view">Usuń widok</string>
 	<string name="title_add_color">Dodaj kolor</string>
+	<string name="title_add_team_color">Dodaj drużynę/kolor</string>
 	<string name="title_backup">Kopia zapasowa</string>
 	<string name="title_export">Eksport</string>
 	<string name="comment">Komentarz</string>
+	<string name="title_sort">Sortuj</string>
 	<string name="title_sort_by">Sortuj wg</string>
 	<string name="title_filter">Filtruj wg</string>
+	<string name="color_name">Nazwa koloru</string>
 	<string name="description_backup">Eksport zapisze dane aplikacji we wskazancyh lokalizacjach nadpisując istniejące pliki. Import odtworzy dane z tych samych plików potencjalnie nadpisując istniejące dane.</string>
 	<string name="msg_export_success">Eksport pomyślny.</string>
 	<string name="msg_export_failed">Eksport nieudany.</string>
@@ -245,6 +261,11 @@
 	<string name="empty_collection_sync_off">Jeśli chcesz zobaczyć swoją kolekcję, w Ustawieniach > Synchronizacja zaznacz jakieś statusy pod "Kolekcja".</string>
 	<string name="empty_collection_filter_on">Brak gier w kolekcji, które pasują do filtra. Spróbuj innego filtra.</string>
 	<string name="empty_collection_filter_on_sync_partial">Synchronizacja kolekcji jest wyłączona dla niektórych filtrowanych statusów. Spróbuj włączyć je w Ustawienia > Synchronizacja.</string>
+	<string name="empty_new_play_locations">Brak wcześniejszych lokalizacji. Dodaj nową.</string>
+	<string name="empty_new_play_locations_filter">Brak lokalizacji spełniających kryteria.</string>
+	<string name="empty_new_play_players">Brak wcześniejszych graczy. Dodaj nowego.</string>
+	<string name="empty_new_play_players_filter">Brak graczy spełniających kryteria.</string>
+	<string name="new_play_location_hint">Filtruj lub dodaj nowego.</string>
 	<string name="sync">Synchronizacja</string>
 	<string name="empty_game_collection">Ta gra nie jest w Twojej kolekcji.</string>
 	<string name="re_sync">Ponowna synchronizacja</string>
@@ -259,7 +280,7 @@
 	<string name="empty_plays_draft">Nie masz żadnej wersji roboczej rozgrywki.</string>
 	<string name="empty_plays_pending">Żadne rozgrywki nie oczekują nie przesłanie do BGG.</string>
 	<string name="empty_play_stats">Nie ma żadnych rozgrywek do analizy.</string>
-	<string name="empty_play">Nie znaleziono żadnej rozgrywki (ID=%s)."</string>
+	<string name="empty_play">Nie znaleziono żadnej rozgrywki."</string>
 	<string name="empty_geeklists">Błąd podczas ładowania GeekList.</string>
 	<string name="empty_forums">Brak forum.</string>
 	<string name="empty_forum">Brak wątków na tym forum.</string>
@@ -295,7 +316,11 @@
 	<string name="menu_view">Pokaż</string>
 	<string name="menu_view_in_browser">Pokaż w przeglądarce</string>
 	<string name="menu_log_play">Zapisz rozgrywkę</string>
+	<string name="menu_log_play_short">Formularz</string>
+	<string name="menu_log_play_wizard">Kreator zapisu rozgrywki</string>
+	<string name="menu_log_play_wizard_short">Kreator</string>
 	<string name="menu_log_play_quick">Szybki zapis rozgrywki</string>
+	<string name="menu_log_play_quick_short">Szybki</string>
 	<string name="menu_favorite">Dodaj do Ulubionych</string>
 	<string name="menu_unfavorite">Usuń z Ulubionych</string>
 	<string name="menu_users">Użytkownicy</string>
@@ -322,6 +347,7 @@
 	<string name="collection_sort_collection_name">Nazwa</string>
 	<string name="collection_sort_geek_rating">Ocena BGG</string>
 	<string name="collection_sort_last_viewed">Ostatnio oglądana</string>
+	<string name="collection_sort_last_modified">Ostatnio zmodyfikowane</string>
 	<string name="collection_sort_my_rating">Moja ocena</string>
 	<string name="collection_sort_play_count_asc">Najrzadziej grane</string>
 	<string name="collection_sort_play_count_desc">Najczęściej grane</string>
@@ -400,7 +426,8 @@
 	<string name="msg_player_deleted">Usunięto: %s.</string>
 	<string name="msg_logging_play">Zapisuję rozgrywkę…</string>
 	<string name="msg_saving_draft">Zapisuję wersję roboczą</string>
-	<string name="msg_play_added">Zapisano Twoją <b>%1$s</b> rozgrywkę</string>
+	<string name="msg_play_added">Zapisano rozgrywkę</string>
+	<string name="msg_play_added_quantity">Zapisano Twoją <b>%1$s</b> rozgrywkę</string>
 	<string name="msg_play_updated">Zaktualizowano rozgrywkę</string>
 	<string name="msg_play_deleted">Usunięto rozgrywkę</string>
 	<string name="msg_play_deleted_draft">Usunięto wersję roboczą</string>
@@ -411,6 +438,7 @@
 	<string name="msg_play_location_change">Zmieniono lokalizację z \"%1$s\" na \"%2$s\"</string>
 	<string name="msg_play_sync">Obecnie nie synchronizujesz swoich rozgrywek. Włączyć tę funkcję?</string>
 	<string name="msg_collection_view_deleted">Pomyślnie usunięto widok kolekcji</string>
+	<string name="msg_collection_view_deleted_named">Pomyślnie usunięto widok kolekcji \"%1$s\"</string>
 	<string name="msg_saved">Zapisano!</string>
 	<string name="msg_sign_out_success">Pomyślnie wylogowano!</string>
 	<string name="msg_warning_private_info">Uwaga! Jakiekolwiek zmiany tutaj spowodują usunięcie daty inwentarza.</string>
@@ -560,9 +588,14 @@
 	<string name="game_h_index_prefix">Wskaźnik H-index dla gier<b>%s</b></string>
 	<string name="title_players_skill">Wzór na Biegłość</string>
 	<string name="player_skill_info">Mierzy współczynnik wygranych za pomocą wzoru:\n\n 100 × WagaWygranych / (gry "Do wygrania")\n\nWagaWygranych = \u2211(l_wygranych × l_graczy_w_grze)</string>
-	<string name="play_stat_fhm_info">Friendlessa Wskaźnik Szczęścia (FHM) jest miarą radości jaką ta gra wywołała, wg definicji Friendlessa.\n\nSprawdź więcej rozszerzonych statystyk na jego genialnej stronie: https://extstats.drfriendless.com/\n\nocena × 5 + rozgrywki + l_miesięcy_z_rozgrywkami × 4 + czas_gry_w_godz</string>
-	<string name="play_stat_hhm_info">Hubera Wskaźnik Szczęścia (HHM) jest miarą radości jaką ta gra wywołała, wg definicji Joe Hubera (huber).\n\n(ocena - 5) × czas_gry_w_godz</string>
-	<string name="play_stat_ruhm_info">Randy-ego Coxa Wskaźnik Nie-nieszczęścia (R!UHM) jest miarą radości jaką ta gra wywołała, wg definicji Randy-ego Coxa.\n\nln(mig / opóźnienie × l_miesięcy_z_rozgrywkami × ocena)\nmig = czas między 1. i ost. rozgrywką\nopóźnienie = czas pomiędzy ost. rozgrywką i dziś</string>
+	<string name="play_stat_fhm">Friendlessa Szczęście</string>
+	<string name="play_stat_fhm_info">Friendlessa Wskaźnik Szczęścia (FHM, ang. Friendless Happiness Metric) jest miarą radości jaką ta gra wywołała, wg definicji Friendlessa.\n\nSprawdź więcej rozszerzonych statystyk na jego genialnej stronie: https://extstats.drfriendless.com/\n\nocena × 5 + rozgrywki + l_miesięcy_z_rozgrywkami × 4 + czas_gry_w_godz</string>
+	<string name="play_stat_hhm">Hubera Szczęście</string>
+	<string name="play_stat_hhm_info">Hubera Wskaźnik Szczęścia (HHM, ang. Huber Happiness Metric) jest miarą radości jaką ta gra wywołała, wg definicji Joe Hubera (huber).\n\n(ocena - 5) × czas_gry_w_godz</string>
+	<string name="play_stat_huber_heat">Hubera Ciepło</string>
+	<string name="play_stat_huber_heat_info">Hubera Wskaźnik Ciepła (HHM, ang. Huber Heat Metric) próbuje ocenić jak bardzo lubisz tę grę w tym momencie. Znaczy się, przynajmniej przez ostatni rok.</string>
+	<string name="play_stat_ruhm">Randy-ego Coxa Wskaźnik nie-Nieszczęścia</string>
+	<string name="play_stat_ruhm_info">Randy-ego Coxa Wskaźnik nie-Nieszczęścia (R!UHM, ang. Randy Cox not-Unhappiness Metric) jest miarą radości jaką ta gra wywołała, wg definicji Randy-ego Coxa.\n\nln(mig / opóźnienie × l_miesięcy_z_rozgrywką × ocena)\nmig = czas między 1. i ost. rozgrywką\nopóźnienie = czas pomiędzy ost. rozgrywką i dziś</string>
 	<string name="play_stat_utilization">Używalność</string>
 	<string name="play_stat_utilization_info">Używalność (zaproponowana przez Friendlessa) zakłada, że jeśli zagrasz w grę kolejne 10× to otrzymasz 90% pozostałej używalności.</string>
 	<string name="play_stat_play_count">Rozgrywki</string>
@@ -575,6 +608,9 @@
 	<string name="title_modify_collection_status">Zmienić statusy synchronizacji?</string>
 	<string name="msg_modify_collection_status">Możesz to cofnąć w Ustawieniach Synchronizacji.</string>
 	<string name="last_played_prefix">Ostatnio zagrana <b>%s</b></string>
+	<string name="playing_prefix">Grane <b>%s</b></string>
+	<string name="playing_for_prefix">Grane przez <b>%s</b></string>
+	<string name="playing_since_prefix">Grane od <b>%s</b></string>
 	<string name="removed_suffix">%s usunięto.</string>
 	<string name="msg_invalid_username">Nieprawdiłowa nazwa użytkownika \"%1$s\".</string>
 	<string name="msg_color_deleted">Usunięto \"%s\"</string>
@@ -594,7 +630,9 @@
 	<string name="empty_top_games">Błąd przy ładowaniu najlepszych gier</string>
 	<string name="title_top_games">Najlepsze gry</string>
 	<string name="title_description">Opis</string>
+	<string name="title_descr">Opis</string>
 	<string name="title_info">Informacje</string>
+	<string name="title_credits">Twórcy</string>
 	<string name="plays_sync_status_none">Nigdy nie synchronizowano rozgrywek.</string>
 	<string name="plays_sync_status_new">Zsynchronizowano rozgrywki aż do %s.</string>
 	<string name="plays_sync_status_old">Zsynchronizowano rozgrywki od %s.</string>
@@ -645,6 +683,11 @@
 		<item quantity="one">Usunięto %s kolor</item>
 		<item quantity="few">Usunięto %s kolory</item>
 		<item quantity="other">Usunięto %s kolorów</item>
+	</plurals>
+	<plurals name="plays">
+		<item quantity="one">%s rozgrywka</item>
+		<item quantity="few">%s rozgrywki</item>
+		<item quantity="other">%s rozgrywek</item>
 	</plurals>
 	<plurals name="msg_plays_selected">
 		<item quantity="one">%s rozgrywka</item>

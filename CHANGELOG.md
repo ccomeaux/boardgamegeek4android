@@ -11,6 +11,10 @@ Coming Soon...
  * Click on your username in the nav drawer to link to your BGG profile
  * Improve UI in some input forms
 
+Version 6.8.1
+-------------
+* Correct problem logging into BGG
+
 Version 6.8
 -----------
  * Collection text fields now support mark down
