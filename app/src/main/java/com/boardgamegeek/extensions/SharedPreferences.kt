@@ -119,7 +119,7 @@ fun SharedPreferences.getSyncOnlyWifi(): Boolean {
 private const val KEY_SYNC_STATUSES_OLD = "syncStatuses"
 private const val SEPARATOR = "OV=I=XseparatorX=I=VO"
 
-fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String?> {
+fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String> {
     val value = this[KEY_SYNC_STATUSES_OLD, ""] ?: ""
     return if (value.isEmpty()) context.resources.getStringArray(R.array.pref_sync_status_default)
     else value.split(SEPARATOR).toTypedArray()

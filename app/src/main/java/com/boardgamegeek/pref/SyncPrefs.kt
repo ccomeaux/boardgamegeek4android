@@ -30,7 +30,6 @@ class SyncPrefs {
         @JvmStatic
         fun getPrefs(context: Context) = context.preferences(NAME)
 
-        @JvmStatic
         fun migrate(context: Context) {
             val prefs = getPrefs(context)
             if (prefs.contains(TIMESTAMP_COLLECTION_COMPLETE)) return

@@ -228,7 +228,6 @@ class LoginActivity : AppCompatActivity() {
     companion object {
         private const val KEY_USERNAME = "USERNAME"
 
-        @JvmStatic
         fun createIntentBundle(context: Context, response: AccountAuthenticatorResponse?, accountName: String?): Bundle {
             val intent = context.intentFor<LoginActivity>(
                 KEY_USERNAME to accountName,
