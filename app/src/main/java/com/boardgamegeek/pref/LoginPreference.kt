@@ -2,17 +2,16 @@ package com.boardgamegeek.pref
 
 import android.content.Context
 import android.content.Intent
-import androidx.preference.Preference
 import android.util.AttributeSet
-
-import com.boardgamegeek.auth.AccountUtils
+import androidx.preference.Preference
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.ui.LoginActivity
 
 class LoginPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
-    private var username = context.preferences()[AccountUtils.KEY_USERNAME, ""]
+    private var username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
 
     init {
         intent = Intent(getContext(), LoginActivity::class.java)

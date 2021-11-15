@@ -1,28 +1,28 @@
 package com.boardgamegeek
 
-import com.boardgamegeek.extensions.getOldSyncStatuses
-import com.boardgamegeek.extensions.setSyncStatuses
-import androidx.multidex.MultiDexApplication
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.boardgamegeek.auth.AccountUtils
-import com.boardgamegeek.util.RemoteConfig
-import com.google.firebase.messaging.FirebaseMessaging
-import timber.log.Timber
-import com.boardgamegeek.util.CrashReportingTree
-import com.facebook.stetho.Stetho
-import com.squareup.picasso.Picasso
-import com.jakewharton.picasso.OkHttp3Downloader
-import android.os.StrictMode.VmPolicy
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
-import com.boardgamegeek.pref.SyncPrefs
+import android.os.StrictMode.VmPolicy
+import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
+import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
+import com.boardgamegeek.extensions.getOldSyncStatuses
+import com.boardgamegeek.extensions.setSyncStatuses
+import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.util.RemoteConfig
+import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.messaging.FirebaseMessaging
+import com.jakewharton.picasso.OkHttp3Downloader
+import com.squareup.picasso.Picasso
+import timber.log.Timber
 
 class BggApplication : MultiDexApplication() {
     override fun onCreate() {
@@ -41,7 +41,7 @@ class BggApplication : MultiDexApplication() {
         } else {
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
             val firebase = FirebaseCrashlytics.getInstance()
-            PreferenceManager.getDefaultSharedPreferences(this).getString(AccountUtils.KEY_USERNAME, "")?.let {
+            PreferenceManager.getDefaultSharedPreferences(this).getString(AccountPreferences.KEY_USERNAME, "")?.let {
                 if (it.isNotBlank()) firebase.setUserId(it.hashCode().toString())
             }
             firebase.setCustomKey("BUILD_TIME", BuildConfig.BUILD_TIME)

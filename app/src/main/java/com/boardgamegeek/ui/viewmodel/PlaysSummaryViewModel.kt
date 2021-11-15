@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -11,7 +10,6 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
@@ -20,7 +18,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
     private val syncTimestamp = MutableLiveData<Long>()
     private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)
     private val n = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
-    private val username = LiveSharedPreference<String>(getApplication(), AccountUtils.KEY_USERNAME)
+    private val username = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME)
 
     init {
         refresh()

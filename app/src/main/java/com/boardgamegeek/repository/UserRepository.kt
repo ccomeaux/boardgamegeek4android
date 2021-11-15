@@ -3,11 +3,11 @@ package com.boardgamegeek.repository
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.set
 import com.boardgamegeek.io.Adapter
@@ -86,8 +86,8 @@ class UserRepository(val application: BggApplication) {
     fun updateSelf(user: UserEntity?) {
         Authenticator.putUserId(application, user?.id ?: BggContract.INVALID_ID)
         if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
-        prefs[AccountUtils.KEY_USERNAME] = user?.userName.orEmpty()
-        prefs[AccountUtils.KEY_FULL_NAME] = user?.fullName.orEmpty()
-        prefs[AccountUtils.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
+        prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()
+        prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()
+        prefs[AccountPreferences.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
     }
 }

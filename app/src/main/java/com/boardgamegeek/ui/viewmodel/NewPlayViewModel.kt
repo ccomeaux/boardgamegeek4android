@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -388,7 +387,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
         // 1. me
-        val self = allPlayers?.find { it.username == prefs[AccountUtils.KEY_USERNAME, ""] }
+        val self = allPlayers?.find { it.username == prefs[AccountPreferences.KEY_USERNAME, ""] }
         self?.let { newList.add(it) }
         //  2. last played at this location
         if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {

@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
@@ -17,13 +16,11 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.pref.*
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.provider.BggContract.PlayerColors
-import com.boardgamegeek.provider.BggContract.PlayPlayers
+import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
@@ -38,7 +35,7 @@ class PlayRepository(val application: BggApplication) {
     private val collectionDao = CollectionDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
-    private val username: String? by lazy { prefs[AccountUtils.KEY_USERNAME, ""] }
+    private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
     private val bggService = Adapter.createForXml()
 
     enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
@@ -268,7 +265,12 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun logQuickPlay(gameId: Int, gameName: String) {
-        val playEntity = PlayEntity(gameId = gameId, gameName = gameName, rawDate = PlayEntity.currentDate(), updateTimestamp = System.currentTimeMillis())
+        val playEntity = PlayEntity(
+            gameId = gameId,
+            gameName = gameName,
+            rawDate = PlayEntity.currentDate(),
+            updateTimestamp = System.currentTimeMillis()
+        )
         playDao.upsert(playEntity)
         SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }

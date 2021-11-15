@@ -1,20 +1,19 @@
 package com.boardgamegeek.auth
 
 import android.accounts.*
-import kotlin.Throws
-import android.os.Bundle
-import timber.log.Timber
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.annotation.TargetApi
 import android.content.Context
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
+import android.os.Bundle
 import androidx.core.os.bundleOf
-import com.boardgamegeek.ui.LoginActivity
+import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.set
+import com.boardgamegeek.ui.LoginActivity
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import timber.log.Timber
 import java.io.IOException
-import java.lang.UnsupportedOperationException
 
 class Authenticator(private val context: Context?) : AbstractAccountAuthenticator(context) {
     @Throws(NetworkErrorException::class)
@@ -199,9 +198,9 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
                 accountManager.setUserData(account, KEY_USER_ID, INVALID_USER_ID)
             }
             FirebaseCrashlytics.getInstance().setUserId("")
-            context.preferences()[AccountUtils.KEY_USERNAME] = null
-            context.preferences()[AccountUtils.KEY_FULL_NAME] = null
-            context.preferences()[AccountUtils.KEY_AVATAR_URL] = null
+            context.preferences()[AccountPreferences.KEY_USERNAME] = null
+            context.preferences()[AccountPreferences.KEY_FULL_NAME] = null
+            context.preferences()[AccountPreferences.KEY_AVATAR_URL] = null
         }
 
         fun removeAccounts(context: Context) {
@@ -226,7 +225,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result)
-                            context.preferences()[AccountUtils.KEY_USERNAME] = null
+                            context.preferences()[AccountPreferences.KEY_USERNAME] = null
                     } catch (e: OperationCanceledException) {
                         Timber.e(e, "removeAccount")
                     } catch (e: AuthenticatorException) {
@@ -244,7 +243,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
-                            context.preferences()[AccountUtils.KEY_USERNAME] = null
+                            context.preferences()[AccountPreferences.KEY_USERNAME] = null
                         }
                     } catch (e: OperationCanceledException) {
                         Timber.e(e, "removeAccount")

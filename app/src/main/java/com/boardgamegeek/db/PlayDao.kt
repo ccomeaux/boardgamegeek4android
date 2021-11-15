@@ -10,14 +10,12 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import kotlin.io.use
 
 class PlayDao(private val context: BggApplication) {
     enum class PlaysSortBy {
@@ -264,7 +262,7 @@ class PlayDao(private val context: BggApplication) {
         "${existing.first} AND ${Plays.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
 
     suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
-        val username = context.preferences()[AccountUtils.KEY_USERNAME, ""]
+        val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
         val selection = arrayListOf<String>().apply {
             add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
             if (!username.isNullOrBlank()) {

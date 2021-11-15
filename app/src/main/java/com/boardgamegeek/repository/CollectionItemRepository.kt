@@ -2,7 +2,6 @@ package com.boardgamegeek.repository
 
 import android.content.SharedPreferences
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
@@ -19,7 +18,7 @@ import java.util.*
 class CollectionItemRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val username: String? by lazy { prefs[AccountUtils.KEY_USERNAME, ""] }
+    private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
     private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 

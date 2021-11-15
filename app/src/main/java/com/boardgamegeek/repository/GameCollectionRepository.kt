@@ -3,18 +3,18 @@ package com.boardgamegeek.repository
 import android.content.ContentValues
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +24,7 @@ import timber.log.Timber
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
     private val gameDao = GameDao(application)
-    private val username: String? by lazy { application.preferences()[AccountUtils.KEY_USERNAME, ""] }
+    private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
 
     suspend fun loadCollectionItem(collectionId: Int) = dao.load(collectionId)
 

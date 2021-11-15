@@ -22,7 +22,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
@@ -109,9 +108,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             xAxis.setDrawGridLines(false)
         }
 
-            playerTransition = AutoTransition()
-            playerTransition?.duration = 150
-            setInterpolator(context, playerTransition)
+        playerTransition = AutoTransition()
+        playerTransition?.duration = 150
+        setInterpolator(context, playerTransition)
 
         scoreHelpView.setOnClickListener {
             AlertDialog.Builder(requireContext())
@@ -566,7 +565,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         }
 
         private val personalStats: PlayerStats?
-            get() = prefs[AccountUtils.KEY_USERNAME, ""]?.let { username ->
+            get() = prefs[AccountPreferences.KEY_USERNAME, ""]?.let { username ->
                 playerStats.values.find { it.username == username }
             }
 

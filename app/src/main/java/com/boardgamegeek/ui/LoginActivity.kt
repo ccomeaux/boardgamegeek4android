@@ -12,14 +12,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.auth.BggCookieJar
 import com.boardgamegeek.auth.NetworkAuthenticator
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.fade
-import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.extensions.set
+import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.intentFor
 import timber.log.Timber
@@ -210,7 +206,7 @@ class LoginActivity : AppCompatActivity() {
         } else {
             accountManager.setPassword(account, password)
         }
-        preferences()[AccountUtils.KEY_USERNAME] = username
+        preferences()[AccountPreferences.KEY_USERNAME] = username
 
         val extras = bundleOf(
             AccountManager.KEY_ACCOUNT_NAME to username,

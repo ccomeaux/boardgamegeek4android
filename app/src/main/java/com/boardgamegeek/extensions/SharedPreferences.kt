@@ -49,6 +49,13 @@ object CollectionView {
     const val DEFAULT_DEFAULT_ID: Long = -1L
 }
 
+object AccountPreferences {
+    private const val KEY_PREFIX = "account_"
+    const val KEY_USERNAME = KEY_PREFIX + "username"
+    const val KEY_FULL_NAME = KEY_PREFIX + "full_name"
+    const val KEY_AVATAR_URL = KEY_PREFIX + "avatar_url"
+}
+
 //region SYNC
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
@@ -138,11 +145,11 @@ const val LOG_PLAY_TYPE_WIZARD = "wizard"
 
 fun SharedPreferences.logPlayPreference(): String {
     return this.getString("logPlayType", null)
-            ?: return when {
-                showLogPlayField("logPlay", "logHideLog", true) -> LOG_PLAY_TYPE_FORM
-                showLogPlayField("quickLogPlay", "logHideQuickLog", true) -> LOG_PLAY_TYPE_QUICK
-                else -> LOG_PLAY_TYPE_WIZARD
-            }
+        ?: return when {
+            showLogPlayField("logPlay", "logHideLog", true) -> LOG_PLAY_TYPE_FORM
+            showLogPlayField("quickLogPlay", "logHideQuickLog", true) -> LOG_PLAY_TYPE_QUICK
+            else -> LOG_PLAY_TYPE_WIZARD
+        }
 }
 
 fun SharedPreferences.showLogPlayLocation(): Boolean {
@@ -253,8 +260,8 @@ fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
             val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
             if (playerSplit.size in 1..2) {
                 val player = PlayerEntity(
-                        playerSplit[0],
-                        if (playerSplit.size == 2) playerSplit[1] else ""
+                    playerSplit[0],
+                    if (playerSplit.size == 2) playerSplit[1] else ""
                 )
                 players.add(player)
             }

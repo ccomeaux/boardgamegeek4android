@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -210,8 +209,10 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_sort -> {
-                DialogUtils.showAndSurvive(this@CollectionFragment, CollectionSortDialogFragment.newInstance(sorter?.type
-                        ?: CollectionSorterFactory.TYPE_DEFAULT))
+                DialogUtils.showAndSurvive(
+                    this@CollectionFragment,
+                    CollectionSortDialogFragment.newInstance(sorter?.type ?: CollectionSorterFactory.TYPE_DEFAULT)
+                )
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_filter -> {
@@ -229,22 +230,22 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             else -> getString(R.string.title_collection)
         }
         val text = StringBuilder(description)
-                .append("\n")
-                .append("-".repeat(description.length))
-                .append("\n")
+            .append("\n")
+            .append("-".repeat(description.length))
+            .append("\n")
 
         val maxGames = 10
         adapter.items.take(maxGames).map { text.append("\u2022 ${formatGameLink(it.gameId, it.collectionName)}") }
         val leftOverCount = adapter.itemCount - maxGames
         if (leftOverCount > 0) text.append(getString(R.string.and_more, leftOverCount)).append("\n")
 
-        val username = prefs[AccountUtils.KEY_USERNAME, ""]
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         text.append("\n")
-                .append(createViewDescription(sorter, filters))
-                .append("\n")
-                .append("\n")
-                .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${HttpUtils.encode(username)}"))
-        val fullName = prefs[AccountUtils.KEY_FULL_NAME, ""]
+            .append(createViewDescription(sorter, filters))
+            .append("\n")
+            .append("\n")
+            .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${HttpUtils.encode(username)}"))
+        val fullName = prefs[AccountPreferences.KEY_FULL_NAME, ""]
         requireActivity().share(getString(R.string.share_collection_subject, fullName, username), text, R.string.title_share_collection)
     }
 
@@ -256,22 +257,24 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     override fun addFilter(filter: CollectionFilterer) {
         progressBar.show()
         viewModel.addFilter(filter)
-        firebaseAnalytics.logEvent("Filter", bundleOf(
+        firebaseAnalytics.logEvent(
+            "Filter",
+            bundleOf(
                 FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
                 "FilterBy" to filter.type.toString()
-        ))
+            )
+        )
     }
 
     private fun setEmptyText() {
-        val syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null) ?: emptySet()
+        val syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty()
         if (syncedStatuses.isEmpty()) {
             setEmptyStateForSettingsAction(R.string.empty_collection_sync_off)
         } else {
             if (SyncPrefs.getPrefs(requireContext()).noPreviousCollectionSync()) {
                 setEmptyStateForNoAction(R.string.empty_collection_sync_never)
             } else if (filters.isNotEmpty()) {
-                val appliedStatuses = filters.filterIsInstance<CollectionStatusFilterer>().firstOrNull()?.getSelectedStatusesSet()
-                        ?: emptySet()
+                val appliedStatuses = filters.filterIsInstance<CollectionStatusFilterer>().firstOrNull()?.getSelectedStatusesSet().orEmpty()
                 if (syncedStatuses.containsAll(appliedStatuses)) {
                     setEmptyStateForNoAction(R.string.empty_collection_filter_on)
                 } else {
@@ -412,7 +415,15 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                     when {
                         isCreatingShortcut -> createShortcut(item.gameId, item.gameName, item.thumbnailUrl)
                         changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
-                            LogPlayActivity.changeGame(requireContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl)
+                            LogPlayActivity.changeGame(
+                                requireContext(),
+                                changingGamePlayId,
+                                item.gameId,
+                                item.gameName,
+                                item.thumbnailUrl,
+                                item.imageUrl,
+                                item.heroImageUrl
+                            )
                             requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
                         }
                         actionMode == null -> GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
@@ -468,12 +479,11 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
 
     @RequiresApi(api = VERSION_CODES.O)
     private fun createShortcutForOreo(id: Int, name: String, thumbnailUrl: String, shortcutIntent: Intent): Intent? {
-        val shortcutManager = requireContext().getSystemService(ShortcutManager::class.java)
-                ?: return null
+        val shortcutManager = requireContext().getSystemService(ShortcutManager::class.java) ?: return null
         val builder = ShortcutInfo.Builder(context, ShortcutUtils.createGameShortcutId(id))
-                .setShortLabel(name.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
-                .setLongLabel(name.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
-                .setIntent(shortcutIntent)
+            .setShortLabel(name.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
+            .setLongLabel(name.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
+            .setIntent(shortcutIntent)
         val file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl)
         if (file != null && file.exists()) {
             builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.absolutePath)))
@@ -508,7 +518,17 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         val ci = adapter.getItem(adapter.selectedItemPositions.iterator().next())
         when (item.itemId) {
             R.id.menu_log_play_form -> {
-                ci?.let { LogPlayActivity.logPlay(requireContext(), it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted) }
+                ci?.let {
+                    LogPlayActivity.logPlay(
+                        requireContext(),
+                        it.gameId,
+                        it.gameName,
+                        it.thumbnailUrl,
+                        it.imageUrl,
+                        it.heroImageUrl,
+                        it.arePlayersCustomSorted
+                    )
+                }
                 mode.finish()
                 return true
             }
@@ -567,13 +587,13 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
 
         fun newInstance(isCreatingShortcut: Boolean): CollectionFragment {
             return CollectionFragment().withArguments(
-                    KEY_IS_CREATING_SHORTCUT to isCreatingShortcut
+                KEY_IS_CREATING_SHORTCUT to isCreatingShortcut
             )
         }
 
         fun newInstanceForPlayGameChange(playId: Long): CollectionFragment {
             return CollectionFragment().withArguments(
-                    KEY_CHANGING_GAME_PLAY_ID to playId
+                KEY_CHANGING_GAME_PLAY_ID to playId
             )
         }
     }

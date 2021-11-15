@@ -11,7 +11,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
@@ -199,7 +198,7 @@ class PlaysSummaryFragment : Fragment() {
             }
         }
         editColorsButton.setOnClickListener {
-            val username = defaultSharedPreferences[AccountUtils.KEY_USERNAME, ""]
+            val username = defaultSharedPreferences[AccountPreferences.KEY_USERNAME, ""]
             if (username.isNullOrBlank()) {
                 toast("Can't figure out your username.")
             } else {
