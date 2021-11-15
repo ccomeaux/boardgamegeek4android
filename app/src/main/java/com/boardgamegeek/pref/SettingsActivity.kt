@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.collection.arrayMapOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
@@ -14,6 +15,7 @@ import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
+import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import org.greenrobot.eventbus.EventBus
@@ -21,9 +23,9 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.support.v4.toast
 
 class SettingsActivity : DrawerActivity() {
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -71,6 +73,19 @@ class SettingsActivity : DrawerActivity() {
         private var entries = emptyArray<String>()
         private var syncType = SyncService.FLAG_SYNC_NONE
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
+        private val syncViewModel by activityViewModels<SyncViewModel>()
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            syncViewModel.username.observe(this) {
+                if (it.isNullOrBlank()) {
+                    toast(R.string.msg_sign_out_success)
+                    updateAccountPrefs("")
+                } else {
+                    updateAccountPrefs(it)
+                }
+            }
+        }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val fragmentKey = arguments?.getString(KEY_SETTINGS_FRAGMENT)
@@ -93,29 +108,24 @@ class SettingsActivity : DrawerActivity() {
                 ACTION_ABOUT -> {
                     findPreference<Preference>("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                         LibsBuilder()
-                                .withFields(R.string::class.java.fields)
-                                .withLibraries(
-                                        "AndroidIcons",
-                                        "MaterialRangeBar"
-                                )
-                                .withAutoDetect(true)
-                                .withLicenseShown(true)
-                                .withActivityTitle(getString(R.string.pref_about_licenses))
-                                .withActivityTheme(R.style.Theme_bgglight_About)
-                                .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
-                                .withAboutIconShown(true)
-                                .withAboutAppName(getString(R.string.app_name))
-                                .withAboutVersionShownName(true)
-                                .start(requireContext())
+                            .withFields(R.string::class.java.fields)
+                            .withLibraries(
+                                "AndroidIcons",
+                                "MaterialRangeBar"
+                            )
+                            .withAutoDetect(true)
+                            .withLicenseShown(true)
+                            .withActivityTitle(getString(R.string.pref_about_licenses))
+                            .withActivityTheme(R.style.Theme_bgglight_About)
+                            .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                            .withAboutIconShown(true)
+                            .withAboutAppName(getString(R.string.app_name))
+                            .withAboutVersionShownName(true)
+                            .start(requireContext())
                         true
                     }
                 }
             }
-        }
-
-        override fun onStart() {
-            super.onStart()
-            EventBus.getDefault().register(this)
         }
 
         override fun onResume() {
@@ -162,8 +172,8 @@ class SettingsActivity : DrawerActivity() {
                 getString(R.string.pref_list_empty)
             } else {
                 entryValues.indices
-                        .filter { statuses.contains(entryValues[it]) }
-                        .joinToString { entries[it] }
+                    .filter { statuses.contains(entryValues[it]) }
+                    .joinToString { entries[it] }
             }
         }
 
@@ -233,13 +243,13 @@ class SettingsActivity : DrawerActivity() {
         private const val ACTION_AUTHORS = ACTION_PREFIX + "AUTHORS"
 
         private val FRAGMENT_MAP = arrayMapOf(
-                ACTION_ACCOUNT to R.xml.preference_account,
-                ACTION_SYNC to R.xml.preference_sync,
-                ACTION_DATA to R.xml.preference_data,
-                ACTION_LOG to R.xml.preference_log,
-                ACTION_ADVANCED to R.xml.preference_advanced,
-                ACTION_ABOUT to R.xml.preference_about,
-                ACTION_AUTHORS to R.xml.preference_authors
+            ACTION_ACCOUNT to R.xml.preference_account,
+            ACTION_SYNC to R.xml.preference_sync,
+            ACTION_DATA to R.xml.preference_data,
+            ACTION_LOG to R.xml.preference_log,
+            ACTION_ADVANCED to R.xml.preference_advanced,
+            ACTION_ABOUT to R.xml.preference_about,
+            ACTION_AUTHORS to R.xml.preference_authors
         )
     }
 }

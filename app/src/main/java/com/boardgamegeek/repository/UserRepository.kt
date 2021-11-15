@@ -1,5 +1,6 @@
 package com.boardgamegeek.repository
 
+import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
@@ -7,17 +8,21 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.set
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
         userDao.loadUser(username)
@@ -78,10 +83,11 @@ class UserRepository(val application: BggApplication) {
         }
     }
 
-    suspend fun updateSelf(user: UserEntity?) = withContext(Dispatchers.IO) {
+    fun updateSelf(user: UserEntity?) {
         Authenticator.putUserId(application, user?.id ?: BggContract.INVALID_ID)
-        AccountUtils.setUsername(application, user?.userName.orEmpty())
-        AccountUtils.setFullName(application, user?.fullName.orEmpty())
-        AccountUtils.setAvatarUrl(application, user?.avatarUrl.orEmpty())
+        if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
+        prefs[AccountUtils.KEY_USERNAME] = user?.userName.orEmpty()
+        prefs[AccountUtils.KEY_FULL_NAME] = user?.fullName.orEmpty()
+        prefs[AccountUtils.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
     }
 }

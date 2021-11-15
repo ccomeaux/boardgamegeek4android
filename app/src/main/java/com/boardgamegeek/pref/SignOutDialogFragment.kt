@@ -9,7 +9,7 @@ class SignOutDialogFragment : PreferenceDialogFragmentCompat() {
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
             context.cancelSync()
-            Authenticator.signOut(context)
+            Authenticator.signOut(requireContext())
         }
     }
 

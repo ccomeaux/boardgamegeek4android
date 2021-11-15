@@ -18,8 +18,8 @@ import java.util.*
 
 class CollectionItemRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
-    private val username: String? by lazy { AccountUtils.getUsername(application) }
     private val prefs: SharedPreferences by lazy { application.preferences() }
+    private val username: String? by lazy { prefs[AccountUtils.KEY_USERNAME, ""] }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
     private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 
@@ -55,9 +55,9 @@ class CollectionItemRepository(val application: BggApplication) {
         if (lastStatusSync <= lastPartialSync) {
             val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
             val options = mutableMapOf(
-                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                    BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
+                BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
             )
             if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
             val response = Adapter.createForXml().collectionC(username, options)

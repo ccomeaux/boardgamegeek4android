@@ -12,21 +12,7 @@ import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.applyBatch
-import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.ascending
-import com.boardgamegeek.extensions.collateNoCase
-import com.boardgamegeek.extensions.descending
-import com.boardgamegeek.extensions.getBoolean
-import com.boardgamegeek.extensions.joinTo
-import com.boardgamegeek.extensions.load
-import com.boardgamegeek.extensions.queryCount
-import com.boardgamegeek.extensions.queryLongs
-import com.boardgamegeek.extensions.queryString
-import com.boardgamegeek.extensions.queryStrings
-import com.boardgamegeek.extensions.rowExists
-import com.boardgamegeek.extensions.whereEqualsOrNull
-import com.boardgamegeek.extensions.whereZeroOrNull
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -278,7 +264,7 @@ class PlayDao(private val context: BggApplication) {
         "${existing.first} AND ${Plays.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
 
     suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
-        val username = AccountUtils.getUsername(context)
+        val username = context.preferences()[AccountUtils.KEY_USERNAME, ""]
         val selection = arrayListOf<String>().apply {
             add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
             if (!username.isNullOrBlank()) {

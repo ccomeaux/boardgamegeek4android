@@ -47,7 +47,7 @@ public class BggApplication extends MultiDexApplication {
 					.build());
 		} else {
 			FirebaseCrashlytics firebase = FirebaseCrashlytics.getInstance();
-			String username = AccountUtils.getUsername(this);
+			String username = PreferenceManager.getDefaultSharedPreferences(this).getString(AccountUtils.KEY_USERNAME, "");
 			if (!TextUtils.isEmpty(username)) {
 				firebase.setUserId(String.valueOf(username.hashCode()));
 			}

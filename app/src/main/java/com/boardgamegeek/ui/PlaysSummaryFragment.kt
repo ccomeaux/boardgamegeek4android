@@ -18,6 +18,7 @@ import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.startActivity
+import org.jetbrains.anko.support.v4.toast
 
 class PlaysSummaryFragment : Fragment() {
     private var syncPlays = false
@@ -85,7 +86,11 @@ class PlaysSummaryFragment : Fragment() {
             oldestSyncDate == Long.MAX_VALUE && newestSyncDate <= 0L -> getString(R.string.plays_sync_status_none)
             oldestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), newestSyncDate.asDate(requireContext()))
             newestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), oldestSyncDate.asDate(requireContext()))
-            else -> String.format(getString(R.string.plays_sync_status_range), oldestSyncDate.asDate(requireContext()), newestSyncDate.asDate(requireContext()))
+            else -> String.format(
+                getString(R.string.plays_sync_status_range),
+                oldestSyncDate.asDate(requireContext()),
+                newestSyncDate.asDate(requireContext())
+            )
         }
     }
 
@@ -194,7 +199,12 @@ class PlaysSummaryFragment : Fragment() {
             }
         }
         editColorsButton.setOnClickListener {
-            PlayerColorsActivity.start(requireContext(), AccountUtils.getUsername(context), null)
+            val username = defaultSharedPreferences[AccountUtils.KEY_USERNAME, ""]
+            if (username.isNullOrBlank()) {
+                toast("Can't figure out your username.")
+            } else {
+                PlayerColorsActivity.start(requireContext(), username, null)
+            }
         }
     }
 }

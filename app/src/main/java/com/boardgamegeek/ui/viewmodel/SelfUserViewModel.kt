@@ -6,13 +6,12 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.repository.UserRepository
 import java.util.concurrent.TimeUnit
 
 class SelfUserViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
-    private val username = MutableLiveData<String>()
+    private val username = MutableLiveData<String?>()
 
     init {
         username.value = if (Authenticator.isSignedIn(getApplication())) {
@@ -21,17 +20,15 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setUsername(newUsername: String?) {
-        newUsername?.let {
-            if (username.value != it) username.value = it
-        }
+        if (username.value != newUsername) username.value = newUsername
     }
 
     val user: LiveData<RefreshableResource<UserEntity>> = username.switchMap { username ->
         liveData {
             when {
-                username.isNotBlank() -> {
+                !username.isNullOrBlank() -> {
                     try {
-                        emit(RefreshableResource.refreshing(null))
+                        emit(RefreshableResource.refreshing(latestValue?.data))
                         val entity = userRepository.load(username)
                         if (entity == null || entity.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
                             val refreshedUser = userRepository.refresh(username)

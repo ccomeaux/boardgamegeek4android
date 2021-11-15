@@ -81,15 +81,23 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         }
 
         if (headerColor != Color.TRANSPARENT) {
-            listOf(playCountHeaderView, scoreHeaderView, playersHeaderView, datesHeaderView, playTimeHeaderView, locationsHeaderView, advancedHeaderView)
-                    .forEach { it?.setTextColor(headerColor) }
+            listOf(
+                playCountHeaderView,
+                scoreHeaderView,
+                playersHeaderView,
+                datesHeaderView,
+                playTimeHeaderView,
+                locationsHeaderView,
+                advancedHeaderView
+            )
+                .forEach { it?.setTextColor(headerColor) }
             listOf(scoreHelpView, playersSkillHelpView)
-                    .forEach { it?.setColorFilter(headerColor) }
+                .forEach { it?.setColorFilter(headerColor) }
         }
         playCountColors = intArrayOf(
-                ContextCompat.getColor(requireContext(), R.color.orange),
-                ContextCompat.getColor(requireContext(), R.color.dark_blue),
-                ContextCompat.getColor(requireContext(), R.color.light_blue)
+            ContextCompat.getColor(requireContext(), R.color.orange),
+            ContextCompat.getColor(requireContext(), R.color.dark_blue),
+            ContextCompat.getColor(requireContext(), R.color.light_blue)
         )
 
         playCountChart.apply {
@@ -101,32 +109,33 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             xAxis.setDrawGridLines(false)
         }
 
-        if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
             playerTransition = AutoTransition()
             playerTransition?.duration = 150
             setInterpolator(context, playerTransition)
-        }
 
         scoreHelpView.setOnClickListener {
             AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.title_scores)
-                    .setView(R.layout.dialog_help_score)
-                    .show()
+                .setTitle(R.string.title_scores)
+                .setView(R.layout.dialog_help_score)
+                .show()
         }
 
         playersSkillHelpView.setOnClickListener {
             AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.title_players_skill)
-                    .setMessage(R.string.player_skill_info)
-                    .show()
+                .setTitle(R.string.title_players_skill)
+                .setMessage(R.string.player_skill_info)
+                .show()
         }
 
         viewModel.game.observe(viewLifecycleOwner, { (_, data, _) ->
             data?.first()?.let {
                 playCountColors = intArrayOf(
-                        if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
-                        if (it.winnablePlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.dark_blue) else it.winnablePlaysColor,
-                        if (it.allPlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.light_blue) else it.allPlaysColor
+                    if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
+                    if (it.winnablePlaysColor == Color.TRANSPARENT) ContextCompat.getColor(
+                        requireContext(),
+                        R.color.dark_blue
+                    ) else it.winnablePlaysColor,
+                    if (it.allPlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.light_blue) else it.allPlaysColor
                 )
             }
 
@@ -194,10 +203,13 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             val wins = stats.getPersonalWinCount(i)
             val playCount = stats.getPlayCount(i)
             playCountValues.add(
-                    BarEntry(i.toFloat(), floatArrayOf(
-                            wins.toFloat(),
-                            winnablePlayCount - wins.toFloat(),
-                            playCount - winnablePlayCount.toFloat()))
+                BarEntry(
+                    i.toFloat(), floatArrayOf(
+                        wins.toFloat(),
+                        winnablePlayCount - wins.toFloat(),
+                        playCount - winnablePlayCount.toFloat()
+                    )
+                )
             )
         }
         if (playCountValues.size > 0) {
@@ -235,16 +247,16 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
             lowScoreView.setOnClickListener {
                 AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.title_low_scorers)
-                        .setMessage(stats.lowScorers)
-                        .show()
+                    .setTitle(R.string.title_low_scorers)
+                    .setMessage(stats.lowScorers)
+                    .show()
             }
 
             highScoreView.setOnClickListener {
                 AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.title_high_scorers)
-                        .setMessage(stats.highScorers)
-                        .show()
+                    .setTitle(R.string.title_high_scorers)
+                    .setMessage(stats.highScorers)
+                    .show()
             }
 
             scoresCard.visibility = View.VISIBLE
@@ -273,9 +285,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                 showScores(selectedItems[position, false])
                 if (stats.hasScores()) {
                     setOnClickListener {
-                        if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-                            TransitionManager.beginDelayedTransition(playersList, playerTransition)
-                        }
+                        TransitionManager.beginDelayedTransition(playersList, playerTransition)
                         if (selectedItems.get(position, false)) {
                             selectedItems.delete(position)
                             showScores(false)
@@ -343,11 +353,19 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         if (personalRating > 0.0) {
             addPlayStat(advancedTable, stats.calculateFhm().toString(), R.string.play_stat_fhm).setInfoText(R.string.play_stat_fhm_info)
             addPlayStat(advancedTable, stats.calculateHhm().toString(), R.string.play_stat_hhm).setInfoText(R.string.play_stat_hhm_info)
-            addPlayStat(advancedTable, DOUBLE_FORMAT.format(stats.calculateHuberHeat()), R.string.play_stat_huber_heat).setInfoText(R.string.play_stat_huber_heat_info)
+            addPlayStat(
+                advancedTable,
+                DOUBLE_FORMAT.format(stats.calculateHuberHeat()),
+                R.string.play_stat_huber_heat
+            ).setInfoText(R.string.play_stat_huber_heat_info)
             addPlayStat(advancedTable, DOUBLE_FORMAT.format(stats.calculateRuhm()), R.string.play_stat_ruhm).setInfoText(R.string.play_stat_ruhm_info)
         }
         if (gameOwned) {
-            addPlayStat(advancedTable, stats.calculateUtilization().asPercentage(), R.string.play_stat_utilization).setInfoText(R.string.play_stat_utilization_info)
+            addPlayStat(
+                advancedTable,
+                stats.calculateUtilization().asPercentage(),
+                R.string.play_stat_utilization
+            ).setInfoText(R.string.play_stat_utilization_info)
         }
         val hIndexOffset = stats.hIndexOffset
         if (hIndexOffset == HIndexEntity.INVALID_H_INDEX) {
@@ -436,13 +454,13 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             highScore = Int.MIN_VALUE.toDouble()
             lowScore = Int.MAX_VALUE.toDouble()
 
-            playCountIncomplete = playEntities.sumBy { it.quantity }
+            playCountIncomplete = playEntities.sumOf { it.quantity }
 
             firstPlayDate = plays.first().date
             firstPlayDateInMillis = plays.first().dateInMillis
             lastPlayDate = plays.last().date
             lastPlayDateInMillis = plays.last().dateInMillis
-            numberOfWinnablePlays = plays.filter { it.isWinnable }.sumBy { it.quantity }
+            numberOfWinnablePlays = plays.filter { it.isWinnable }.sumOf { it.quantity }
 
             playCountByPlayerCount = plays.filter { it.playerCount > 0 }.groupingBy { it.playerCount }.fold(0) { playCount, play ->
                 playCount + play.quantity
@@ -502,13 +520,13 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         val plays: List<PlayEntity> = playEntities.filter { prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
 
-        val playCount: Int by lazy { plays.sumBy { it.quantity } }
+        val playCount: Int by lazy { plays.sumOf { it.quantity } }
 
-        fun playCountSince(dateInMillis: Long): Int = plays.filter { it.dateInMillis > dateInMillis }.sumBy { it.quantity }
+        fun playCountSince(dateInMillis: Long): Int = plays.filter { it.dateInMillis > dateInMillis }.sumOf { it.quantity }
 
         fun hoursPlayedSince(dateInMillis: Long): Double {
-            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumBy { playingTime * it.quantity }
-            val actual = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length > 0 }.sumBy { it.length }
+            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumOf { playingTime * it.quantity }
+            val actual = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length > 0 }.sumOf { it.length }
             return (estimated + actual) / 60.0
         }
 
@@ -548,7 +566,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         }
 
         private val personalStats: PlayerStats?
-            get() = AccountUtils.getUsername(activity)?.let { username ->
+            get() = prefs[AccountUtils.KEY_USERNAME, ""]?.let { username ->
                 playerStats.values.find { it.username == username }
             }
 
@@ -772,8 +790,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         fun newInstance(gameId: Int, @ColorInt headerColor: Int): GamePlayStatsFragment {
             return GamePlayStatsFragment().withArguments(
-                    KEY_GAME_ID to gameId,
-                    KEY_HEADER_COLOR to headerColor)
+                KEY_GAME_ID to gameId,
+                KEY_HEADER_COLOR to headerColor
+            )
         }
     }
 }

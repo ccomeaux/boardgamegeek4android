@@ -8,6 +8,8 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
@@ -22,10 +24,7 @@ import timber.log.Timber
 class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
     private val gameDao = GameDao(application)
-
-    private val username: String? by lazy {
-        AccountUtils.getUsername(application)
-    }
+    private val username: String? by lazy { application.preferences()[AccountUtils.KEY_USERNAME, ""] }
 
     suspend fun loadCollectionItem(collectionId: Int) = dao.load(collectionId)
 

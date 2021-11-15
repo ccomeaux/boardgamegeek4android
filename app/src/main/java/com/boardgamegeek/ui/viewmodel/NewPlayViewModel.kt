@@ -388,7 +388,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
         // 1. me
-        val self = allPlayers?.find { it.username == AccountUtils.getUsername(getApplication()) }
+        val self = allPlayers?.find { it.username == prefs[AccountUtils.KEY_USERNAME, ""] }
         self?.let { newList.add(it) }
         //  2. last played at this location
         if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {
@@ -490,7 +490,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                     isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
                     score = (playerScoresMap.value ?: emptyMap())[player.id].orEmpty(),
                 )
-}
+            }
             val play = PlayEntity(
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,

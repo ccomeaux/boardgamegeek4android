@@ -20,6 +20,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
     private val syncTimestamp = MutableLiveData<Long>()
     private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)
     private val n = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
+    private val username = LiveSharedPreference<String>(getApplication(), AccountUtils.KEY_USERNAME)
 
     init {
         refresh()
@@ -66,7 +67,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
             emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT))
         }
     }.map { p ->
-        p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(ITEMS_TO_DISPLAY)
+        p.filter { it.username != username.value }.take(ITEMS_TO_DISPLAY)
     }
 
     val locations: LiveData<List<LocationEntity>> = plays.switchMap {
@@ -78,10 +79,9 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
     }
 
     val colors: LiveData<List<PlayerColorEntity>> = liveData {
-        val username = AccountUtils.getUsername(getApplication())
         emit(
-            if (username.isNullOrBlank()) emptyList()
-            else playRepository.loadUserColors(username)
+            if (username.value.isNullOrBlank()) emptyList()
+            else playRepository.loadUserColors(username.value.orEmpty())
         )
     }
 

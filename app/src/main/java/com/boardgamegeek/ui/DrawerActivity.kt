@@ -16,16 +16,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.UserEntity
-import com.boardgamegeek.events.SignInEvent
-import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.startActivity
 
@@ -72,17 +67,19 @@ abstract class DrawerActivity : BaseActivity() {
 
         viewModel.user.observe(this, {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
-            it?.data?.let { user -> refreshHeader(user) }
+            refreshHeader(it?.data)
         })
 
-        syncViewModel.currentSyncTimestamp.observe(this, {
+        syncViewModel.currentSyncTimestamp.observe(this) {
             invalidateOptionsMenu()
-        })
+        }
+        syncViewModel.username.observe(this) {
+            viewModel.setUsername(it)
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        EventBus.getDefault().register(this)
         if (defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER, false] != true) {
             drawerLayout.openDrawer(GravityCompat.START)
             defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER] = true
@@ -91,23 +88,7 @@ abstract class DrawerActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
         navigationView.setCheckedItem(navigationItemId)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SignInEvent) {
-        viewModel.setUsername(event.username)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SignOutEvent) {
-        viewModel.setUsername("")
     }
 
     override fun onBackPressed() {
@@ -137,7 +118,7 @@ abstract class DrawerActivity : BaseActivity() {
         drawerLayout.closeDrawer(navigationView)
     }
 
-    private fun refreshHeader(user: UserEntity) {
+    private fun refreshHeader(user: UserEntity?) {
         val view = navigationView.getHeaderView(0)
         val primaryView = view.findViewById<TextView>(R.id.account_info_primary)
         val secondaryView = view.findViewById<TextView>(R.id.account_info_secondary)
@@ -145,7 +126,7 @@ abstract class DrawerActivity : BaseActivity() {
         val signedInGroup = view.findViewById<Group>(R.id.signed_in)
         val signInButton = view.findViewById<Button>(R.id.singInButton)
 
-        if (Authenticator.isSignedIn(this)) {
+        if (Authenticator.isSignedIn(this) && user != null) {
             if (user.fullName.isNotBlank() && user.userName.isNotBlank()) {
                 primaryView.text = user.fullName
                 secondaryView.text = user.userName

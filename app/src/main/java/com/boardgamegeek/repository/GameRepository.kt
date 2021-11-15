@@ -7,6 +7,8 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.GameCommentsEntity
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
@@ -21,9 +23,7 @@ class GameRepository(val application: BggApplication) {
     private val playDao = PlayDao(application)
     private val bggService = Adapter.createForXml()
     private val playRepository = PlayRepository(application)
-    private val username: String? by lazy {
-        AccountUtils.getUsername(application)
-    }
+    private val username: String? by lazy { application.preferences()[AccountUtils.KEY_USERNAME, ""] }
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
 

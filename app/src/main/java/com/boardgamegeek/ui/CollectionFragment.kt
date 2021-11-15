@@ -238,13 +238,14 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         val leftOverCount = adapter.itemCount - maxGames
         if (leftOverCount > 0) text.append(getString(R.string.and_more, leftOverCount)).append("\n")
 
-        val username = AccountUtils.getUsername(context)
+        val username = prefs[AccountUtils.KEY_USERNAME, ""]
         text.append("\n")
                 .append(createViewDescription(sorter, filters))
                 .append("\n")
                 .append("\n")
                 .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${HttpUtils.encode(username)}"))
-        requireActivity().share(getString(R.string.share_collection_subject, AccountUtils.getFullName(context), username), text, R.string.title_share_collection)
+        val fullName = prefs[AccountUtils.KEY_FULL_NAME, ""]
+        requireActivity().share(getString(R.string.share_collection_subject, fullName, username), text, R.string.title_share_collection)
     }
 
     override fun removeFilter(type: Int) {

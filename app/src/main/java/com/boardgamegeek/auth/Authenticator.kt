@@ -6,12 +6,13 @@ import android.os.Bundle
 import timber.log.Timber
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
-import com.boardgamegeek.events.SignOutEvent
 import android.annotation.TargetApi
 import android.content.Context
 import androidx.core.os.bundleOf
 import com.boardgamegeek.ui.LoginActivity
-import org.greenrobot.eventbus.EventBus
+import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.set
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import java.io.IOException
 import java.lang.UnsupportedOperationException
 
@@ -123,7 +124,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
         const val ACCOUNT_TYPE = "com.boardgamegeek"
         const val AUTH_TOKEN_TYPE = "com.boardgamegeek"
         const val KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY"
-        const val INVALID_USER_ID = "0"
+        private const val INVALID_USER_ID = "0"
         private const val KEY_USER_ID = "com.boardgamegeek.USER_ID"
 
         /**
@@ -191,37 +192,41 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
             return data != null
         }
 
-        fun signOut(context: Context?) {
+        fun signOut(context: Context) {
             val accountManager = AccountManager.get(context)
             getAccount(accountManager)?.let { account ->
-                removeAccountCompat(accountManager, account, true)
+                removeAccountCompat(context, account, true)
                 accountManager.setUserData(account, KEY_USER_ID, INVALID_USER_ID)
             }
-            AccountUtils.clearFields(context)
+            FirebaseCrashlytics.getInstance().setUserId("")
+            context.preferences()[AccountUtils.KEY_USERNAME] = null
+            context.preferences()[AccountUtils.KEY_FULL_NAME] = null
+            context.preferences()[AccountUtils.KEY_AVATAR_URL] = null
         }
 
-        fun removeAccounts(context: Context?) {
-            val am = AccountManager.get(context)
-            val accounts = am.getAccountsByType(ACCOUNT_TYPE)
+        fun removeAccounts(context: Context) {
+            val accountManager = AccountManager.get(context)
+            val accounts = accountManager.getAccountsByType(ACCOUNT_TYPE)
             for (account in accounts) {
-                removeAccountCompat(am, account, false)
-                am.setUserData(account, KEY_USER_ID, INVALID_USER_ID)
+                removeAccountCompat(context, account, false)
+                accountManager.setUserData(account, KEY_USER_ID, INVALID_USER_ID)
             }
         }
 
-        private fun removeAccountCompat(am: AccountManager, account: Account, postEvent: Boolean) {
+        private fun removeAccountCompat(context: Context, account: Account, postEvent: Boolean) {
             if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
-                removeAccountWithActivity(am, account, postEvent)
+                removeAccountWithActivity(context, account, postEvent)
             } else {
-                removeAccount(am, account, postEvent)
+                removeAccount(context, account, postEvent)
             }
         }
 
-        private fun removeAccount(am: AccountManager, account: Account, postEvent: Boolean) {
-            am.removeAccount(account, { future ->
+        private fun removeAccount(context: Context, account: Account, postEvent: Boolean) {
+            AccountManager.get(context).removeAccount(account, { future ->
                 if (future.isDone) {
                     try {
-                        if (postEvent && future.result) EventBus.getDefault().post(SignOutEvent())
+                        if (postEvent && future.result)
+                            context.preferences()[AccountUtils.KEY_USERNAME] = null
                     } catch (e: OperationCanceledException) {
                         Timber.e(e, "removeAccount")
                     } catch (e: AuthenticatorException) {
@@ -234,12 +239,12 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
         }
 
         @TargetApi(VERSION_CODES.LOLLIPOP_MR1)
-        private fun removeAccountWithActivity(am: AccountManager, account: Account, postEvent: Boolean) {
-            am.removeAccount(account, null, { future ->
+        private fun removeAccountWithActivity(context: Context, account: Account, postEvent: Boolean) {
+            AccountManager.get(context).removeAccount(account, null, { future ->
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
-                            EventBus.getDefault().post(SignOutEvent())
+                            context.preferences()[AccountUtils.KEY_USERNAME] = null
                         }
                     } catch (e: OperationCanceledException) {
                         Timber.e(e, "removeAccount")

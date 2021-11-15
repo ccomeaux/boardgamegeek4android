@@ -38,7 +38,7 @@ class PlayRepository(val application: BggApplication) {
     private val collectionDao = CollectionDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
-    private val username: String? by lazy { AccountUtils.getUsername(application) }
+    private val username: String? by lazy { prefs[AccountUtils.KEY_USERNAME, ""] }
     private val bggService = Adapter.createForXml()
 
     enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
