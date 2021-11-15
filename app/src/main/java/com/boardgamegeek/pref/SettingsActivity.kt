@@ -10,19 +10,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.events.SignInEvent
-import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.toast
 import org.jetbrains.anko.support.v4.toast
 
 class SettingsActivity : DrawerActivity() {
@@ -140,7 +134,6 @@ class SettingsActivity : DrawerActivity() {
 
         override fun onStop() {
             super.onStop()
-            EventBus.getDefault().unregister(this)
             if (syncType != SyncService.FLAG_SYNC_NONE) {
                 SyncService.sync(activity, syncType)
                 syncType = SyncService.FLAG_SYNC_NONE
@@ -210,17 +203,6 @@ class SettingsActivity : DrawerActivity() {
                 dialogFragment.setTargetFragment(this, 0)
                 dialogFragment.show(parentFragmentManager, dialogFragmentTag)
             } else super.onDisplayPreferenceDialog(preference)
-        }
-
-        @Subscribe(threadMode = ThreadMode.MAIN)
-        fun onEvent(event: SignInEvent) {
-            updateAccountPrefs(event.username)
-        }
-
-        @Subscribe(threadMode = ThreadMode.MAIN)
-        fun onEvent(@Suppress("UNUSED_PARAMETER") event: SignOutEvent) {
-            context?.toast(R.string.msg_sign_out_success)
-            updateAccountPrefs("")
         }
 
         private fun updateAccountPrefs(username: String) {

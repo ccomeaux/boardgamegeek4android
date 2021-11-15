@@ -179,9 +179,6 @@ dependencies {
         transitive = true
     }
 
-    implementation 'org.greenrobot:eventbus:3.1.1'
-    annotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.1'
-
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
 
     implementation 'com.appyvet:materialrangebar:1.4.8'

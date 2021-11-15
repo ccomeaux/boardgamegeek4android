@@ -21,8 +21,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.Set;
 
 import androidx.multidex.MultiDexApplication;
@@ -57,11 +55,6 @@ public class BggApplication extends MultiDexApplication {
 		}
 
 		RemoteConfig.init();
-
-		EventBus.builder()
-			.logNoSubscriberMessages(BuildConfig.DEBUG)
-			.throwSubscriberException(BuildConfig.DEBUG)
-			.installDefaultEventBus();
 
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
 			.downloader(new OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
