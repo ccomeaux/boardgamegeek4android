@@ -62,8 +62,9 @@ abstract class DrawerActivity : BaseActivity() {
             true
         }
 
-        val signInButton = navigationView.getHeaderView(0).findViewById<Button>(R.id.singInButton)
-        signInButton.setOnClickListener { startActivity<LoginActivity>() }
+        navigationView.getHeaderView(0).findViewById<Button>(R.id.signInButton)?.let {
+            it.setOnClickListener { startActivity<LoginActivity>() }
+        }
 
         viewModel.user.observe(this, {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
@@ -120,11 +121,11 @@ abstract class DrawerActivity : BaseActivity() {
 
     private fun refreshHeader(user: UserEntity?) {
         val view = navigationView.getHeaderView(0)
-        val primaryView = view.findViewById<TextView>(R.id.account_info_primary)
-        val secondaryView = view.findViewById<TextView>(R.id.account_info_secondary)
-        val imageView = view.findViewById<ImageView>(R.id.account_image)
-        val signedInGroup = view.findViewById<Group>(R.id.signed_in)
-        val signInButton = view.findViewById<Button>(R.id.singInButton)
+        val primaryView = view.findViewById<TextView>(R.id.accountInfoPrimaryView)
+        val secondaryView = view.findViewById<TextView>(R.id.accountInfoSecondaryView)
+        val imageView = view.findViewById<ImageView>(R.id.accountImageView)
+        val signedInGroup = view.findViewById<Group>(R.id.signedInGroup)
+        val signInButton = view.findViewById<Button>(R.id.signInButton)
 
         if (Authenticator.isSignedIn(this) && user != null) {
             if (user.fullName.isNotBlank() && user.userName.isNotBlank()) {
