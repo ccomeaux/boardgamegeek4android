@@ -55,7 +55,7 @@ fun Context.versionName(): String {
     }
 }
 
-fun Context?.cancelSync() {
+fun Context.cancelSync() {
     NotificationUtils.cancel(this, NotificationUtils.TAG_SYNC_PROGRESS)
     Authenticator.getAccount(this)?.let { account ->
         ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY)

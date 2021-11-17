@@ -6,6 +6,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import com.boardgamegeek.BggApplication
@@ -15,7 +16,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
-import com.boardgamegeek.util.*
+import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import okhttp3.Request
 import timber.log.Timber
@@ -175,13 +178,17 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
             val content = body?.string()?.trim().orEmpty()
             if (content.contains("Please update your privacy and marketing preferences")) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                val pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                val pendingIntent = PendingIntent.getActivity(context,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                )
                 val message = context.getString(R.string.sync_notification_message_privacy_error)
                 val builder = NotificationUtils
                         .createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
                         .setContentText(message)
                         .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                        .setContentIntent(pi)
+                        .setContentIntent(pendingIntent)
                         .setCategory(NotificationCompat.CATEGORY_ERROR)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                 NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, Int.MAX_VALUE, builder)

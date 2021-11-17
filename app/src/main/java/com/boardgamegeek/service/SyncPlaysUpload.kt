@@ -3,15 +3,19 @@ package com.boardgamegeek.service
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.SyncResult
+import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.getText
+import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
@@ -221,9 +225,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 .add(getMapKey(i, "playerid"), "player_$i")
                 .add(getMapKey(i, "name"), player.name)
                 .add(getMapKey(i, "username"), player.username)
-                .add(getMapKey(i, "color"), player.color.orEmpty())
-                .add(getMapKey(i, "position"), player.startingPosition.orEmpty())
-                .add(getMapKey(i, "score"), player.score.orEmpty())
+                .add(getMapKey(i, "color"), player.color)
+                .add(getMapKey(i, "position"), player.startingPosition)
+                .add(getMapKey(i, "score"), player.score)
                 .add(getMapKey(i, "rating"), player.rating.toString())
                 .add(getMapKey(i, "new"), if (player.isNew) "1" else "0")
                 .add(getMapKey(i, "win"), if (player.isWin) "1" else "0")
@@ -309,7 +313,12 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 currentPlay.heroImageUrl,
                 currentPlay.customPlayerSort,
             )
-            val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            )
             val builder = Action.Builder(
                 R.drawable.ic_replay_black_24dp,
                 context.getString(R.string.rematch),

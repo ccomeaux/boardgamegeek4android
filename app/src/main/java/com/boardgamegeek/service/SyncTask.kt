@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SyncResult
+import android.os.Build
 import androidx.annotation.PluralsRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
@@ -66,14 +67,16 @@ abstract class SyncTask(protected val application: BggApplication, protected val
         FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_DETAIL, detail ?: "")
         if (prefs[KEY_SYNC_NOTIFICATIONS, false] != true) return
 
-        val message = if (notificationSummaryMessageId == NO_NOTIFICATION)
-            ""
-        else
-            context.getString(notificationSummaryMessageId)
+        val message = if (notificationSummaryMessageId == NO_NOTIFICATION) "" else context.getString(notificationSummaryMessageId)
 
         val intent = Intent(context, CancelReceiver::class.java)
         intent.action = SyncService.ACTION_CANCEL_SYNC
-        val pi = PendingIntent.getBroadcast(context, 0, intent, 0)
+        val cancelIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        )
         val builder = NotificationUtils
                 .createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
                 .setContentText(message)
@@ -81,7 +84,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setOngoing(true)
                 .setProgress(1, 0, true)
-                .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi)
+                .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), cancelIntent)
         if (!detail.isNullOrBlank()) {
             builder.setStyle(BigTextStyle().bigText(detail))
         }

@@ -5,6 +5,7 @@ package com.boardgamegeek.extensions
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.boardgamegeek.R
@@ -48,7 +49,11 @@ private fun Context.buildAndNotifyPlaying(
         largeIcon: Bitmap? = null) {
     val builder = NotificationUtils.createNotificationBuilder(this, gameName, NotificationUtils.CHANNEL_ID_PLAYING)
     val intent = PlayActivity.createIntent(this, internalId).clearTop().newTask()
-    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+    val pendingIntent = PendingIntent.getActivity(this,
+            0,
+            intent,
+            PendingIntent.FLAG_CANCEL_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+    )
 
     var info = ""
     if (location.isNotBlank()) info += "${getString(R.string.at)} $location "

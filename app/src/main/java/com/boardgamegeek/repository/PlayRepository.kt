@@ -5,6 +5,7 @@ import android.content.ContentProviderOperation
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
@@ -56,9 +57,9 @@ class PlayRepository(val application: BggApplication) {
         withContext(Dispatchers.IO) {
             var page = 1
             if (username.isNullOrBlank() ||
-                internalId == BggContract.INVALID_ID.toLong() ||
-                playId == BggContract.INVALID_ID ||
-                gameId == BggContract.INVALID_ID
+                internalId == INVALID_ID.toLong() ||
+                playId == INVALID_ID ||
+                gameId == INVALID_ID
             ) {
                 null
             } else {
@@ -503,7 +504,7 @@ class PlayRepository(val application: BggApplication) {
                                 context,
                                 0,
                                 Intent(context, PlayStatsActivity::class.java),
-                                PendingIntent.FLAG_UPDATE_CURRENT,
+                                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
                             )
                         )
                 )
