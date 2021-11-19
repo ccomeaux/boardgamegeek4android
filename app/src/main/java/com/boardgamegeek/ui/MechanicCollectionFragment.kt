@@ -25,7 +25,7 @@ class MechanicCollectionFragment : Fragment(R.layout.fragment_linked_collection)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).toLowerCase(Locale.getDefault()))
+        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).lowercase(Locale.getDefault()))
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
         viewModel.sort.observe(viewLifecycleOwner, {

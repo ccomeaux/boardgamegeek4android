@@ -26,7 +26,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh.setBggColors()
 
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
+        emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
         lastUpdated.timestamp = 0L
 
         viewModel.person.observe(viewLifecycleOwner, {
@@ -36,7 +36,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
                 PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
                 PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             }
-            emptyMessageDescription = getString(resourceId).toLowerCase(Locale.getDefault())
+            emptyMessageDescription = getString(resourceId).lowercase(Locale.getDefault())
         })
 
         viewModel.details.observe(viewLifecycleOwner, {

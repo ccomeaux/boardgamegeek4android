@@ -49,7 +49,7 @@ fun createDiscardDialog(
     else
         R.string.discard_changes_message)
     return activity.createThemedBuilder()
-            .setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase(Locale.getDefault())))
+            .setMessage(String.format(messageFormat, activity.getString(objectResId).lowercase(Locale.getDefault())))
             .setPositiveButton(positiveButtonResId, null)
             .setNegativeButton(R.string.discard) { _, _ ->
                 discardListener()

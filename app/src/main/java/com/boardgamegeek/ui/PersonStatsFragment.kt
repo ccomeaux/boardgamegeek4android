@@ -39,14 +39,14 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
 
         bindCollectionStatusMessage()
 
-        objectDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
+        objectDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
         viewModel.person.observe(viewLifecycleOwner, {
             val resourceId = when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
                 PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
                 PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             }
-            objectDescription = getString(resourceId).toLowerCase(Locale.getDefault())
+            objectDescription = getString(resourceId).lowercase(Locale.getDefault())
         })
 
         viewModel.stats.observe(viewLifecycleOwner, {

@@ -85,6 +85,6 @@ class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
     }
 
     private fun setEmptyMessage(@StringRes resId: Int) {
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).toLowerCase(Locale.getDefault()))
+        emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).lowercase(Locale.getDefault()))
     }
 }

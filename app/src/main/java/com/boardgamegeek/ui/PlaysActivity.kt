@@ -71,7 +71,7 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
 
-        val playCount = viewModel.plays.value?.data?.sumBy { play -> play.quantity } ?: 0
+        val playCount = viewModel.plays.value?.data?.sumOf { play -> play.quantity } ?: 0
         val sortName = when (viewModel.sortType.value) {
             PlaysViewModel.SortType.DATE -> getString(R.string.menu_plays_sort_date)
             PlaysViewModel.SortType.LOCATION -> getString(R.string.menu_plays_sort_location)

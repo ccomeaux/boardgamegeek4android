@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.*
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +40,8 @@ class PlayerColorsActivity : BaseActivity() {
     private val viewModel by viewModels<PlayerColorsViewModel>()
 
     private val itemTouchHelper by lazy {
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             val horizontalPadding = resources.getDimensionPixelSize(R.dimen.material_margin_horizontal).toFloat()
             val deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
             val swipePaint: Paint by lazy {
@@ -51,9 +51,7 @@ class PlayerColorsActivity : BaseActivity() {
             }
 
             override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder, target: ViewHolder): Boolean {
-                val fromPosition = viewHolder.adapterPosition
-                val toPosition = target.adapterPosition
-                return viewModel.move(fromPosition, toPosition)
+                return viewModel.move(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
             }
 
             override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
@@ -73,18 +71,18 @@ class PlayerColorsActivity : BaseActivity() {
             }
 
             override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
-                val color = adapter.getItem(viewHolder.adapterPosition) ?: return
+                val color = adapter.getItem(viewHolder.bindingAdapterPosition) ?: return
                 Snackbar.make(coordinator, getString(R.string.removed_suffix, color.description), Snackbar.LENGTH_LONG)
-                        .setAction(R.string.undo) {
-                            viewModel.add(color)
-                            firebaseAnalytics.logEvent("DataManipulation") {
-                                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-                                param("Action", "UndoDelete")
-                                param("Color", color.description)
-                            }
+                    .setAction(R.string.undo) {
+                        viewModel.add(color)
+                        firebaseAnalytics.logEvent("DataManipulation") {
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                            param("Action", "UndoDelete")
+                            param("Color", color.description)
                         }
-                        .setActionTextColor(ContextCompat.getColor(this@PlayerColorsActivity, R.color.light_blue))
-                        .show()
+                    }
+                    .setActionTextColor(ContextCompat.getColor(this@PlayerColorsActivity, R.color.light_blue))
+                    .show()
                 viewModel.remove(color)
                 firebaseAnalytics.logEvent("DataManipulation") {
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
@@ -93,7 +91,15 @@ class PlayerColorsActivity : BaseActivity() {
                 }
             }
 
-            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                     val itemView = viewHolder.itemView
 
@@ -112,27 +118,31 @@ class PlayerColorsActivity : BaseActivity() {
                     if (dX > 0) {
                         background = RectF(itemView.left.toFloat(), itemView.top.toFloat(), dX, itemView.bottom.toFloat())
                         iconSrc = Rect(
-                                0,
-                                0,
-                                min((dX - itemView.left.toFloat() - horizontalPadding).toInt(), deleteIcon.width),
-                                deleteIcon.height)
+                            0,
+                            0,
+                            min((dX - itemView.left.toFloat() - horizontalPadding).toInt(), deleteIcon.width),
+                            deleteIcon.height
+                        )
                         iconDst = RectF(
-                                itemView.left.toFloat() + horizontalPadding,
-                                itemView.top.toFloat() + verticalPadding,
-                                min(itemView.left.toFloat() + horizontalPadding + deleteIcon.width.toFloat(), dX),
-                                itemView.bottom.toFloat() - verticalPadding)
+                            itemView.left.toFloat() + horizontalPadding,
+                            itemView.top.toFloat() + verticalPadding,
+                            min(itemView.left.toFloat() + horizontalPadding + deleteIcon.width.toFloat(), dX),
+                            itemView.bottom.toFloat() - verticalPadding
+                        )
                     } else {
                         background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
                         iconSrc = Rect(
-                                max(deleteIcon.width + horizontalPadding.toInt() + dX.toInt(), 0),
-                                0,
-                                deleteIcon.width,
-                                deleteIcon.height)
+                            max(deleteIcon.width + horizontalPadding.toInt() + dX.toInt(), 0),
+                            0,
+                            deleteIcon.width,
+                            deleteIcon.height
+                        )
                         iconDst = RectF(
-                                max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - deleteIcon.width.toFloat()),
-                                itemView.top.toFloat() + verticalPadding,
-                                itemView.right.toFloat() - horizontalPadding,
-                                itemView.bottom.toFloat() - verticalPadding)
+                            max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - deleteIcon.width.toFloat()),
+                            itemView.top.toFloat() + verticalPadding,
+                            itemView.right.toFloat() - horizontalPadding,
+                            itemView.bottom.toFloat() - verticalPadding
+                        )
                     }
                     c.drawRect(background, swipePaint)
                     c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint)
@@ -188,7 +198,7 @@ class PlayerColorsActivity : BaseActivity() {
         } else {
             viewModel.setUsername(buddyName)
         }
-        viewModel.colors.observe(this, Observer { playerColorEntities ->
+        viewModel.colors.observe(this, { playerColorEntities ->
             usedColors.clear()
             if (playerColorEntities != null) {
                 usedColors.addAll(playerColorEntities.map { it.description })
@@ -222,17 +232,17 @@ class PlayerColorsActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_clear -> this.createThemedBuilder()
-                    .setMessage(R.string.are_you_sure_clear_colors)
-                    .setPositiveButton(R.string.clear) { _, _ ->
-                        firebaseAnalytics.logEvent("DataManipulation") {
-                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-                            param("Action", "Clear")
-                        }
-                        viewModel.clear()
+                .setMessage(R.string.are_you_sure_clear_colors)
+                .setPositiveButton(R.string.clear) { _, _ ->
+                    firebaseAnalytics.logEvent("DataManipulation") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+                        param("Action", "Clear")
                     }
-                    .setNegativeButton(R.string.cancel, null)
-                    .setCancelable(true)
-                    .show()
+                    viewModel.clear()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(true)
+                .show()
             android.R.id.home -> {
                 BuddyActivity.startUp(this, buddyName, playerName)
                 finish()
@@ -242,7 +252,8 @@ class PlayerColorsActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    class PlayerColorsAdapter(private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<PlayerColorsAdapter.ColorViewHolder>(), AutoUpdatableAdapter {
+    class PlayerColorsAdapter(private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<PlayerColorsAdapter.ColorViewHolder>(),
+        AutoUpdatableAdapter {
         var colors: List<PlayerColorEntity> by Delegates.observable(emptyList()) { _, old, new ->
             autoNotify(old, new) { o, n ->
                 o.description == n.description || o.sortOrder == n.sortOrder
@@ -304,8 +315,8 @@ class PlayerColorsActivity : BaseActivity() {
 
         fun start(context: Context, buddyName: String?, playerName: String?) {
             context.startActivity<PlayerColorsActivity>(
-                    KEY_BUDDY_NAME to buddyName,
-                    KEY_PLAYER_NAME to playerName
+                KEY_BUDDY_NAME to buddyName,
+                KEY_PLAYER_NAME to playerName
             )
         }
     }

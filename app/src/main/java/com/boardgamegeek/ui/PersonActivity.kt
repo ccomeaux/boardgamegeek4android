@@ -43,7 +43,7 @@ class PersonActivity : HeroTabActivity() {
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
         name = intent.getStringExtra(KEY_PERSON_NAME).orEmpty()
         personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
+        emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
 
         initializeViewPager()
         safelySetTitle(name)
@@ -51,15 +51,15 @@ class PersonActivity : HeroTabActivity() {
         emptyMessageDescription = when (personType) {
             PersonType.ARTIST -> {
                 viewModel.setArtistId(id)
-                getString(R.string.title_artist).toLowerCase(Locale.getDefault())
+                getString(R.string.title_artist).lowercase(Locale.getDefault())
             }
             PersonType.DESIGNER -> {
                 viewModel.setDesignerId(id)
-                getString(R.string.title_designer).toLowerCase(Locale.getDefault())
+                getString(R.string.title_designer).lowercase(Locale.getDefault())
             }
             PersonType.PUBLISHER -> {
                 viewModel.setPublisherId(id)
-                getString(R.string.title_publisher).toLowerCase(Locale.getDefault())
+                getString(R.string.title_publisher).lowercase(Locale.getDefault())
             }
         }
 

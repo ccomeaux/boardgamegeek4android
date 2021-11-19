@@ -77,7 +77,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                adapter.getColorName(viewHolder.adapterPosition)?.let { color ->
+                adapter.getColorName(viewHolder.bindingAdapterPosition)?.let { color ->
                     viewModel.removeColor(color)
                     Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
                             .setAction(R.string.undo) { viewModel.addColor(color) }

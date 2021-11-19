@@ -7,7 +7,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
@@ -41,16 +40,16 @@ class LocationActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.location.observe(this, Observer {
+        viewModel.location.observe(this, {
             locationName = it
             intent.putExtra(KEY_LOCATION_NAME, locationName)
             setSubtitle()
         })
-        viewModel.plays.observe(this, Observer {
-            playCount = it.data?.sumBy { play -> play.quantity } ?: 0
+        viewModel.plays.observe(this, {
+            playCount = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         })
-        viewModel.updateMessage.observe(this, Observer {
+        viewModel.updateMessage.observe(this, {
             it.getContentIfNotHandled()?.let { content ->
                 if (content.isBlank()) {
                     snackbar?.dismiss()

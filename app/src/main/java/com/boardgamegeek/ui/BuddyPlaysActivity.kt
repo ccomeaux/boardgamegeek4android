@@ -7,7 +7,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
@@ -37,8 +36,8 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
         }
 
         viewModel.setUsername(buddyName)
-        viewModel.plays.observe(this, Observer {
-            numberOfPlays = it.data?.sumBy { play -> play.quantity } ?: 0
+        viewModel.plays.observe(this, {
+            numberOfPlays = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         })
     }
@@ -73,7 +72,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, buddyName: String?) {
             context.startActivity<BuddyPlaysActivity>(
-                    KEY_BUDDY_NAME to buddyName
+                KEY_BUDDY_NAME to buddyName
             )
         }
     }

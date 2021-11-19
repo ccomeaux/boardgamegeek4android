@@ -68,8 +68,8 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
         }
     }
 
-    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
-        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
+    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel) :
+        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
         var useColorPicker = true
         private var featuredColors = emptyList<String>()
@@ -117,12 +117,12 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
                             itemView.teamView.setTextOrHide(player.color)
                             itemView.removeTeamView.isVisible = true
                             itemView.removeTeamView.setOnClickListener {
-                                viewModel.addColorToPlayer(adapterPosition, "")
+                                viewModel.addColorToPlayer(bindingAdapterPosition, "")
                             }
                         } else {
                             itemView.colorView.setColorViewValue(color)
                             itemView.colorView.setOnClickListener {
-                                viewModel.addColorToPlayer(adapterPosition, "")
+                                viewModel.addColorToPlayer(bindingAdapterPosition, "")
                             }
                             itemView.colorView.isVisible = true
                             itemView.teamView.isVisible = false
@@ -140,7 +140,7 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
                     if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
                         itemView.favoriteColorView.setColorViewValue(favoriteColorRgb)
                         itemView.favoriteColorView.setOnClickListener {
-                            viewModel.addColorToPlayer(adapterPosition, favoriteColor)
+                            viewModel.addColorToPlayer(bindingAdapterPosition, favoriteColor)
                         }
                         itemView.favoriteColorView.isVisible = true
                     } else {
@@ -159,14 +159,15 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
             private fun pickTeamOrColor(player: NewPlayPlayerEntity) {
                 if (useColorPicker) {
                     NewPlayPlayerColorPickerDialogFragment.launch(
-                            activity,
-                            player.description,
-                            featuredColors,
-                            player.color,
-                            selectedColors,
-                            adapterPosition)
+                        activity,
+                        player.description,
+                        featuredColors,
+                        player.color,
+                        selectedColors,
+                        bindingAdapterPosition
+                    )
                 } else {
-                    TeamPickerDialogFragment.launch(activity, adapterPosition, player.description, player.color)
+                    TeamPickerDialogFragment.launch(activity, bindingAdapterPosition, player.description, player.color)
                 }
             }
         }

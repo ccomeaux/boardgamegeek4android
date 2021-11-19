@@ -33,9 +33,7 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
             }
 
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                val fromPosition = viewHolder.adapterPosition
-                val toPosition = target.adapterPosition
-                return viewModel.movePlayer(fromPosition, toPosition)
+                return viewModel.movePlayer(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
             }
 
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
@@ -119,8 +117,8 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
         }
     }
 
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val itemTouchHelper: ItemTouchHelper)
-        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
+    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val itemTouchHelper: ItemTouchHelper) :
+        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
         var isDraggable = false
         var isDragging = false

@@ -25,7 +25,7 @@ class CategoryCollectionFragment : Fragment(R.layout.fragment_linked_collection)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).toLowerCase(Locale.getDefault()))
+        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).lowercase(Locale.getDefault()))
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
         viewModel.sort.observe(viewLifecycleOwner, {
