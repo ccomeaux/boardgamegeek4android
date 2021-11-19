@@ -332,8 +332,8 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
         sb.append(player.name)
         if (player.username.isNotEmpty()) sb.append(getString(R.string.player_description_username_segment, player.username))
         if (player.isNew) sb.append(getString(R.string.player_description_new_segment))
-        if (player.color?.isBlank() == false) sb.append(getString(R.string.player_description_color_segment, player.color))
-        if (player.score?.isBlank() == false) sb.append(getString(R.string.player_description_score_segment, player.score))
+        if (player.color.isNotBlank()) sb.append(getString(R.string.player_description_color_segment, player.color))
+        if (player.score.isNotBlank()) sb.append(getString(R.string.player_description_score_segment, player.score))
         if (player.isWin) sb.append(getString(R.string.player_description_win_segment))
         return sb.toString()
     }
