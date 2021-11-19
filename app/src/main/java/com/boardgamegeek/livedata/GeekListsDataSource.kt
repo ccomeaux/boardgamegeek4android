@@ -7,7 +7,6 @@ import com.boardgamegeek.io.model.GeekListsResponse
 import com.boardgamegeek.repository.GeekListRepository
 import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
 
 class GeekListsDataSource(
         private val sort: String,
@@ -24,7 +23,7 @@ class GeekListsDataSource(
             val response = repository.getGeekLists(sort, page)
             val nextPage = if (response.isEmpty() || page * GeekListsResponse.PAGE_SIZE >= GeekListsResponse.TOTAL_COUNT) null else page + 1
             LoadResult.Page(response, null, nextPage)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             if (e is HttpException) {
                 Timber.w("Error code: ${e.code()}\n${e.response()?.body()}")
             } else {
