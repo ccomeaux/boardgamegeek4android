@@ -6,12 +6,12 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class ArticleEntity(
-        val id: Int = BggContract.INVALID_ID,
-        val username: String = "",
-        val link: String = "",
-        val postTicks: Long = 0,
-        val editTicks: Long = 0,
-        val body: String = "",
-        val numberOfEdits: Int = 0
+    val id: Int = BggContract.INVALID_ID,
+    val username: String = "",
+    val link: String = "",
+    val postTicks: Long = 0,
+    val editTicks: Long = 0,
+    val body: String = "",
+    val numberOfEdits: Int = 0
 ) : Parcelable
 

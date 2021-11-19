@@ -3,14 +3,14 @@ package com.boardgamegeek.entities
 import com.boardgamegeek.provider.BggContract.INVALID_URL
 
 data class UserEntity(
-        val internalId: Long,
-        val id: Int,
-        val userName: String,
-        val firstName: String,
-        val lastName: String,
-        val avatarUrlRaw: String,
-        val playNickname: String = "",
-        val updatedTimestamp: Long = 0L,
+    val internalId: Long,
+    val id: Int,
+    val userName: String,
+    val firstName: String,
+    val lastName: String,
+    val avatarUrlRaw: String,
+    val playNickname: String = "",
+    val updatedTimestamp: Long = 0L,
 ) {
     val fullName = "$firstName $lastName".trim()
 

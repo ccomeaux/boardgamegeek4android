@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
 data class ForumThreadsEntity(
-        val numberOfThreads: Int,
-        val threads: List<ThreadEntity>
+    val numberOfThreads: Int,
+    val threads: List<ThreadEntity>
 )

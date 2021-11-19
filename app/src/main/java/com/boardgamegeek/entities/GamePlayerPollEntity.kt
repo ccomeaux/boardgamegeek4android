@@ -31,6 +31,3 @@ data class GamePlayerPollEntity(val results: List<GamePlayerPollResultsEntity>) 
         const val separator = "|"
     }
 }
-
-fun Set<Int>.forDatabase() =
-    this.joinToString(GamePlayerPollEntity.separator, prefix = GamePlayerPollEntity.separator, postfix = GamePlayerPollEntity.separator)

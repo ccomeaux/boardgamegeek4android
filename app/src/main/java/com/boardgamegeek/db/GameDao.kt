@@ -625,9 +625,9 @@ class GameDao(private val context: BggApplication) {
         val pollValues = game.playerPoll?.let {
             contentValuesOf(
                 Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL to it.totalVotes,
-                Games.PLAYER_COUNTS_BEST to it.bestCounts.forDatabase(),
-                Games.PLAYER_COUNTS_RECOMMENDED to it.recommendedAndBestCounts.forDatabase(),
-                Games.PLAYER_COUNTS_NOT_RECOMMENDED to it.notRecommendedCounts.forDatabase(),
+                Games.PLAYER_COUNTS_BEST to it.bestCounts.forDatabase(GamePlayerPollEntity.separator),
+                Games.PLAYER_COUNTS_RECOMMENDED to it.recommendedAndBestCounts.forDatabase(GamePlayerPollEntity.separator),
+                Games.PLAYER_COUNTS_NOT_RECOMMENDED to it.notRecommendedCounts.forDatabase(GamePlayerPollEntity.separator),
             )
         } ?: contentValuesOf()
         values.putAll(statsValues)

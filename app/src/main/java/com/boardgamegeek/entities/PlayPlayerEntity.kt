@@ -10,17 +10,17 @@ import java.util.*
 
 @Parcelize
 data class PlayPlayerEntity(
-        val name: String = "",
-        val username: String = "",
-        val startingPosition: String = "",
-        val color: String = "",
-        val score: String = "",
-        val rating: Double = DEFAULT_RATING,
-        val userId: Int? = INVALID_ID,
-        val isNew: Boolean = false,
-        val isWin: Boolean = false,
-        val playId: Int = INVALID_ID,
-        val uiId: Long = UUID.randomUUID().toString().hashCode().toLong(),
+    val name: String = "",
+    val username: String = "",
+    val startingPosition: String = "",
+    val color: String = "",
+    val score: String = "",
+    val rating: Double = DEFAULT_RATING,
+    val userId: Int? = INVALID_ID,
+    val isNew: Boolean = false,
+    val isWin: Boolean = false,
+    val playId: Int = INVALID_ID,
+    val uiId: Long = UUID.randomUUID().toString().hashCode().toLong(),
 ) : Parcelable {
     @IgnoredOnParcel
     private val format = NumberFormat.getInstance()
@@ -39,6 +39,7 @@ data class PlayPlayerEntity(
             null
         }
 
+    @IgnoredOnParcel
     val description: String = if (username.isBlank()) name else "$name ($username)"
 
     val fullDescription: String

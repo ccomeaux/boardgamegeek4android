@@ -6,13 +6,14 @@ import java.text.DecimalFormat
 import java.util.*
 
 data class NewPlayPlayerEntity(
-        val name: String,
-        val username: String,
-        private val rawAvatarUrl: String = "") {
+    val name: String,
+    val username: String,
+    private val rawAvatarUrl: String = ""
+) {
     constructor(player: PlayerEntity) : this(player.name, player.username, player.rawAvatarUrl)
 
     val id: String
-        get() = if (username.isBlank()) "P|$name" else "U|${username.toLowerCase(Locale.getDefault())}"
+        get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"
 
     val avatarUrl: String = rawAvatarUrl
         get() = if (field == "N/A") "" else field
