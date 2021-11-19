@@ -8,7 +8,10 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.pref.*
+import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.getCurrentCollectionSyncTimestamp
+import com.boardgamegeek.pref.getPartialCollectionSyncLastCompletedAt
+import com.boardgamegeek.pref.setPartialCollectionSyncLastCompletedAt
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,26 +29,19 @@ class CollectionItemRepository(val application: BggApplication) {
         dao.load()
     }
 
-    suspend fun refresh(): List<CollectionItemEntity> = withContext(Dispatchers.IO) { // TODO change dispatcher?
+    suspend fun refresh() = withContext(Dispatchers.IO) {
         if (!prefs.isCollectionSetToSync()) {
             Timber.i("Collection not set to sync any statuses")
-            return@withContext dao.load()
-        }
-
-        if (username.isNullOrBlank()) {
+        } else if (username.isNullOrBlank()) {
             Timber.i("User name not set")
-            return@withContext dao.load()
-        }
-
-        if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
+        } else if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
             Timber.i("Collection sync is already under way")
-            return@withContext dao.load()
+        } else {
+            listOf("", BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY).forEach { subtype ->
+                refreshSubtype(subtype)
+            }
+            syncPrefs.setPartialCollectionSyncLastCompletedAt()
         }
-
-        listOf("", BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY).forEach { subtype ->
-            refreshSubtype(subtype)
-        }
-        dao.load()
     }
 
     private suspend fun refreshSubtype(subtype: String, timestamp: Long = System.currentTimeMillis()) {

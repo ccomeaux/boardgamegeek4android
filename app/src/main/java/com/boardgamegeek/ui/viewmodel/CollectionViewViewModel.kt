@@ -55,7 +55,8 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         liveData {
             try {
                 emit(itemRepository.load())
-                refresh()
+                itemRepository.refresh()
+                emit(itemRepository.load())
             } catch (e: Exception) {
                 _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
             }
