@@ -19,7 +19,6 @@ import com.boardgamegeek.provider.BggContract.Artists
 import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.anko.collections.forEachWithIndex
 
 class ArtistRepository(val application: BggApplication) {
     private val dao = ArtistDao(application)
@@ -41,12 +40,13 @@ class ArtistRepository(val application: BggApplication) {
         val response = Adapter.createForXml().person(BggService.PERSON_TYPE_ARTIST, artistId)
         if (!response.name.isNullOrBlank()) {
             val missingArtistMessage = "This page does not exist. You can edit this page to create it."
-            val values = contentValuesOf(
+            dao.upsert(
+                artistId, contentValuesOf(
                     Artists.ARTIST_NAME to response.name,
                     Artists.ARTIST_DESCRIPTION to (if (response.description == missingArtistMessage) "" else response.description),
                     Artists.UPDATED to System.currentTimeMillis(),
+                )
             )
-            dao.upsert(artistId, values)
         }
         response.mapToEntity(artistId)
     }
@@ -54,11 +54,13 @@ class ArtistRepository(val application: BggApplication) {
     suspend fun refreshImages(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().person(artist.id)
         response.items.firstOrNull()?.let {
-            dao.upsert(artist.id, contentValuesOf(
+            dao.upsert(
+                artist.id, contentValuesOf(
                     Artists.ARTIST_THUMBNAIL_URL to it.thumbnail,
                     Artists.ARTIST_IMAGE_URL to it.image,
                     Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-            ))
+                )
+            )
             artist.copy(thumbnailUrl = it.thumbnail.orEmpty(), imageUrl = it.image.orEmpty())
         } ?: artist
     }
@@ -73,7 +75,7 @@ class ArtistRepository(val application: BggApplication) {
     suspend fun calculateWhitmoreScores(artists: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
         val sortedList = artists.sortedBy { it.statsUpdatedTimestamp }
         val maxProgress = sortedList.size
-        sortedList.forEachWithIndex { i, data ->
+        sortedList.forEachIndexed { i, data ->
             progress.postValue(i to maxProgress)
             val collection = dao.loadCollection(data.id)
             val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
@@ -84,9 +86,7 @@ class ArtistRepository(val application: BggApplication) {
     }
 
     suspend fun calculateStats(artistId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {
-        val collection = withContext(Dispatchers.IO) {
-            dao.loadCollection(artistId)
-        }
+        val collection = dao.loadCollection(artistId)
         val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
         updateWhitmoreScore(artistId, linkedCollection.whitmoreScore)
         linkedCollection

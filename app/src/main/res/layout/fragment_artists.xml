@@ -42,7 +42,7 @@
 			android:paddingBottom="@dimen/material_margin_vertical"
 			android:text="@string/empty_artists"
 			android:visibility="gone" />
-	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-	<include layout="@layout/include_horizontal_progress" />
+		<include layout="@layout/include_horizontal_progress" />
+	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

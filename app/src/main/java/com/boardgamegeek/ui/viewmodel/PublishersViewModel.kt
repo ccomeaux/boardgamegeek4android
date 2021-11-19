@@ -7,8 +7,8 @@ import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class PublishersViewModel(application: Application) : AndroidViewModel(application) {
     enum class SortType {
@@ -26,7 +26,7 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
     val progress: LiveData<Pair<Int, Int>>
         get() = _progress
 
-    private var isCalculating = false
+    private var isCalculating = AtomicBoolean()
 
     init {
         val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
@@ -41,13 +41,12 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
             val publishers = publisherRepository.loadPublishers(it.sortBy)
             emit(publishers)
             val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
-            if (!isCalculating && lastCalculation.isOlderThan(1, TimeUnit.HOURS)) {
-                isCalculating = true
-                val job = viewModelScope.launch { publisherRepository.calculateWhitmoreScores(publishers, _progress) }
-                job.invokeOnCompletion {
-                    refresh()
-                    isCalculating = false
-                }
+            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+                isCalculating.compareAndSet(false, true)
+            ) {
+                publisherRepository.calculateWhitmoreScores(publishers, _progress)
+                emit(publisherRepository.loadPublishers(it.sortBy))
+                isCalculating.set(false)
             }
         }
     }
@@ -67,7 +66,7 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun getSectionHeader(publisher: CompanyEntity?): String {
-        return _sort.value?.getSectionHeader(publisher) ?: ""
+        return _sort.value?.getSectionHeader(publisher).orEmpty()
     }
 
     sealed class PublishersSort {

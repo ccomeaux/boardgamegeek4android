@@ -7,8 +7,8 @@ import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class DesignersViewModel(application: Application) : AndroidViewModel(application) {
     enum class SortType {
@@ -26,7 +26,7 @@ class DesignersViewModel(application: Application) : AndroidViewModel(applicatio
     val progress: LiveData<Pair<Int, Int>>
         get() = _progress
 
-    private var isCalculating = false
+    private var isCalculating = AtomicBoolean()
 
     init {
         val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
@@ -41,13 +41,12 @@ class DesignersViewModel(application: Application) : AndroidViewModel(applicatio
             val designers = designerRepository.loadDesigners(it.sortBy)
             emit(designers)
             val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
-            if (!isCalculating && lastCalculation.isOlderThan(1, TimeUnit.HOURS)) {
-                isCalculating = true
-                val job = viewModelScope.launch { designerRepository.calculateWhitmoreScores(designers, _progress) }
-                job.invokeOnCompletion {
-                    refresh()
-                    isCalculating = false
-                }
+            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+                isCalculating.compareAndSet(false, true)
+            ) {
+                designerRepository.calculateWhitmoreScores(designers, _progress)
+                emit(designerRepository.loadDesigners(it.sortBy))
+                isCalculating.set(false)
             }
         }
     }
@@ -67,7 +66,7 @@ class DesignersViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getSectionHeader(designer: PersonEntity?): String {
-        return _sort.value?.getSectionHeader(designer) ?: ""
+        return _sort.value?.getSectionHeader(designer).orEmpty()
     }
 
     sealed class DesignersSort {

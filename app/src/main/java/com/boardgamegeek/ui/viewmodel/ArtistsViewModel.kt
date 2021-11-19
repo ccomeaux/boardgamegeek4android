@@ -7,8 +7,8 @@ import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.ArtistRepository
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ArtistsViewModel(application: Application) : AndroidViewModel(application) {
     enum class SortType {
@@ -26,7 +26,7 @@ class ArtistsViewModel(application: Application) : AndroidViewModel(application)
     val progress: LiveData<Pair<Int, Int>>
         get() = _progress
 
-    private var isCalculating = false
+    private var isCalculating = AtomicBoolean()
 
     init {
         val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
@@ -40,15 +40,13 @@ class ArtistsViewModel(application: Application) : AndroidViewModel(application)
         liveData {
             val artists = artistRepository.loadArtists(it.sortBy)
             emit(artists)
-            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L]
-                    ?: 0L
-            if (!isCalculating && lastCalculation.isOlderThan(1, TimeUnit.HOURS)) {
-                isCalculating = true
-                val job = viewModelScope.launch { artistRepository.calculateWhitmoreScores(artists, _progress) }
-                job.invokeOnCompletion {
-                    refresh()
-                    isCalculating = false
-                }
+            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
+            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+                isCalculating.compareAndSet(false, true)
+            ) {
+                artistRepository.calculateWhitmoreScores(artists, _progress)
+                emit(artistRepository.loadArtists(it.sortBy))
+                isCalculating.set(false)
             }
         }
     }
@@ -68,7 +66,7 @@ class ArtistsViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun getSectionHeader(artist: PersonEntity?): String {
-        return _sort.value?.getSectionHeader(artist) ?: ""
+        return _sort.value?.getSectionHeader(artist).orEmpty()
     }
 
     sealed class ArtistsSort {

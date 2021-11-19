@@ -17,7 +17,6 @@ import com.boardgamegeek.provider.BggContract.Designers
 import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.anko.collections.forEachWithIndex
 
 class DesignerRepository(val application: BggApplication) {
     private val dao = DesignerDao(application)
@@ -38,22 +37,26 @@ class DesignerRepository(val application: BggApplication) {
     suspend fun refreshDesigner(designerId: Int): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().person(BggService.PERSON_TYPE_DESIGNER, designerId)
         val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
-        dao.upsert(designerId, contentValuesOf(
+        dao.upsert(
+            designerId, contentValuesOf(
                 Designers.DESIGNER_NAME to response.name,
                 Designers.DESIGNER_DESCRIPTION to (if (response.description == missingDesignerMessage) "" else response.description),
                 Designers.UPDATED to System.currentTimeMillis()
-        ))
+            )
+        )
         response.mapToEntity(designerId)
     }
 
     suspend fun refreshImages(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().person(designer.id)
         response.items.firstOrNull()?.let {
-            dao.upsert(designer.id, contentValuesOf(
+            dao.upsert(
+                designer.id, contentValuesOf(
                     Designers.DESIGNER_THUMBNAIL_URL to it.thumbnail,
                     Designers.DESIGNER_IMAGE_URL to it.image,
                     Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-            ))
+                )
+            )
             designer.copy(thumbnailUrl = it.thumbnail.orEmpty(), imageUrl = it.image.orEmpty())
         } ?: designer
     }
@@ -68,7 +71,7 @@ class DesignerRepository(val application: BggApplication) {
     suspend fun calculateWhitmoreScores(designers: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
         val sortedList = designers.sortedBy { it.statsUpdatedTimestamp }
         val maxProgress = sortedList.size
-        sortedList.forEachWithIndex { i, data ->
+        sortedList.forEachIndexed { i, data ->
             progress.postValue(i to maxProgress)
             val collection = dao.loadCollection(data.id)
             val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
@@ -79,9 +82,7 @@ class DesignerRepository(val application: BggApplication) {
     }
 
     suspend fun calculateStats(designerId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {
-        val collection = withContext(Dispatchers.IO) {
-            dao.loadCollection(designerId)
-        }
+        val collection = dao.loadCollection(designerId)
         val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
         updateWhitmoreScore(designerId, linkedCollection.whitmoreScore)
         linkedCollection
@@ -90,10 +91,12 @@ class DesignerRepository(val application: BggApplication) {
     private suspend fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
         val realOldScore = if (oldScore == -1) dao.loadDesigner(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
-            dao.upsert(id, contentValuesOf(
-                Designers.WHITMORE_SCORE to newScore,
-                Designers.DESIGNER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-            ))
+            dao.upsert(
+                id, contentValuesOf(
+                    Designers.WHITMORE_SCORE to newScore,
+                    Designers.DESIGNER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
+                )
+            )
         }
     }
 }
