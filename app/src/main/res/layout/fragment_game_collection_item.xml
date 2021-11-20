@@ -100,7 +100,7 @@
 						android:text="@string/collection_status_want_to_play"/>
 				</LinearLayout>
 
-				<androidx.legacy.widget.Space
+				<android.widget.Space
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
 					android:layout_weight="1"
