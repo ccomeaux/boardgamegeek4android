@@ -221,6 +221,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
         }
 
         private fun removeAccount(context: Context, account: Account, postEvent: Boolean) {
+            @Suppress("DEPRECATION")
             AccountManager.get(context).removeAccount(account, { future ->
                 if (future.isDone) {
                     try {

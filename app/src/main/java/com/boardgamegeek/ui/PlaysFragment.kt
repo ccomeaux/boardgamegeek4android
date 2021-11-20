@@ -48,6 +48,40 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        emptyStringResId = arguments.getIntOrElse(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
+        showGameName = arguments.getBooleanOrElse(KEY_SHOW_GAME_NAME, true)
+        gameId = arguments.getIntOrElse(KEY_GAME_ID, INVALID_ID)
+        gameName = arguments?.getString(KEY_GAME_NAME)
+        thumbnailUrl = arguments?.getString(KEY_THUMBNAIL_URL)
+        imageUrl = arguments?.getString(KEY_IMAGE_URL)
+        heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
+        arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
+        @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
+
+        if (gameId != INVALID_ID) {
+            fabView.colorize(iconColor)
+            fabView.setOnClickListener {
+                LogPlayActivity.logPlay(
+                    requireContext(),
+                    gameId,
+                    gameName.orEmpty(),
+                    thumbnailUrl.orEmpty(),
+                    imageUrl.orEmpty(),
+                    heroImageUrl.orEmpty(),
+                    arePlayersCustomSorted
+                )
+            }
+            fabView.show()
+        } else {
+            fabView.hide()
+        }
+
+        updateEmptyText()
+
+        swipeRefreshLayout.setBggColors()
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
@@ -82,53 +116,16 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
 
     private fun updateEmptyText() {
         emptyTextView.setText(
-                when (viewModel.filterType.value) {
-                    PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
-                    PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
+            when (viewModel.filterType.value) {
+                PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
+                PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
                 else -> if (requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS, false] == true) {
-                        emptyStringResId
-                    } else {
-                        R.string.empty_plays_sync_off
-                    }
+                    emptyStringResId
+                } else {
+                    R.string.empty_plays_sync_off
                 }
-        )
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        emptyStringResId = arguments.getIntOrElse(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
-        showGameName = arguments.getBooleanOrElse(KEY_SHOW_GAME_NAME, true)
-        gameId = arguments.getIntOrElse(KEY_GAME_ID, INVALID_ID)
-        gameName = arguments?.getString(KEY_GAME_NAME)
-        thumbnailUrl = arguments?.getString(KEY_THUMBNAIL_URL)
-        imageUrl = arguments?.getString(KEY_IMAGE_URL)
-        heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
-        arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
-        @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
-
-        if (gameId != INVALID_ID) {
-            fabView.colorize(iconColor)
-            fabView.setOnClickListener {
-                LogPlayActivity.logPlay(
-                    requireContext(),
-                    gameId,
-                    gameName.orEmpty(),
-                    thumbnailUrl.orEmpty(),
-                    imageUrl.orEmpty(),
-                    heroImageUrl.orEmpty(),
-                    arePlayersCustomSorted
-                )
             }
-            fabView.show()
-        } else {
-            fabView.hide()
-        }
-
-        updateEmptyText()
-
-        swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        )
     }
 
     internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), AutoUpdatableAdapter,
@@ -161,9 +158,9 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
 
         fun areAllSelectedItemsPending(): Boolean {
             return adapter.selectedItemPositions
-                    .map { adapter.getItem(it) }
-                    .map { (it?.dirtyTimestamp ?: 0) > 0 }
-                    .all { it }
+                .map { adapter.getItem(it) }
+                .map { (it?.dirtyTimestamp ?: 0) > 0 }
+                .all { it }
         }
 
         fun toggleSelection(position: Int) {
@@ -303,14 +300,14 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         when (item.itemId) {
             R.id.menu_send -> {
                 AlertDialog.Builder(requireContext())
-                        .setMessage(resources.getQuantityString(R.plurals.are_you_sure_send_play, adapter.selectedItemCount))
-                        .setCancelable(true)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.send) { _, _ ->
-                            updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
-                            mode.finish()
-                        }
-                        .show()
+                    .setMessage(resources.getQuantityString(R.plurals.are_you_sure_send_play, adapter.selectedItemCount))
+                    .setCancelable(true)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.send) { _, _ ->
+                        updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
+                        mode.finish()
+                    }
+                    .show()
                 return true
             }
             R.id.menu_edit -> {
@@ -330,14 +327,14 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
             }
             R.id.menu_delete -> {
                 AlertDialog.Builder(requireContext())
-                        .setMessage(resources.getQuantityString(R.plurals.are_you_sure_delete_play, adapter.selectedItemCount))
-                        .setCancelable(true)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.delete) { _, _ ->
-                            updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis())
-                            mode.finish()
-                        }
-                        .show()
+                    .setMessage(resources.getQuantityString(R.plurals.are_you_sure_delete_play, adapter.selectedItemCount))
+                    .setCancelable(true)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis())
+                        mode.finish()
+                    }
+                    .show()
                 return true
             }
         }
@@ -388,15 +385,15 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         ): PlaysFragment {
             return PlaysFragment().apply {
                 arguments = bundleOf(
-                        KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_game,
-                        KEY_SHOW_GAME_NAME to false,
-                        KEY_GAME_ID to gameId,
-                        KEY_GAME_NAME to gameName,
-                        KEY_IMAGE_URL to imageUrl,
-                        KEY_THUMBNAIL_URL to thumbnailUrl,
-                        KEY_HERO_IMAGE_URL to heroImageUrl,
-                        KEY_CUSTOM_PLAYER_SORT to arePlayersCustomSorted,
-                        KEY_ICON_COLOR to iconColor
+                    KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_game,
+                    KEY_SHOW_GAME_NAME to false,
+                    KEY_GAME_ID to gameId,
+                    KEY_GAME_NAME to gameName,
+                    KEY_IMAGE_URL to imageUrl,
+                    KEY_THUMBNAIL_URL to thumbnailUrl,
+                    KEY_HERO_IMAGE_URL to heroImageUrl,
+                    KEY_CUSTOM_PLAYER_SORT to arePlayersCustomSorted,
+                    KEY_ICON_COLOR to iconColor
                 )
             }
         }

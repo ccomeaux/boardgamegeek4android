@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.graphics.Point
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -38,9 +37,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
         super.onViewCreated(view, savedInstanceState)
 
         val columnWidth = 240
-        val size = Point()
-        requireActivity().windowManager.defaultDisplay.getSize(size)
-        val width = size.x
+        val width = requireActivity().calculateScreenWidth()
         recyclerView.layoutManager = GridLayoutManager(context, width / columnWidth)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
@@ -69,9 +66,9 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
             if (it.isEmpty()) {
                 emptyView.setText(
                     if (filterEditText.text.isNullOrBlank()) {
-                    R.string.empty_new_play_players
-                } else {
-                    R.string.empty_new_play_players_filter
+                        R.string.empty_new_play_players
+                    } else {
+                        R.string.empty_new_play_players_filter
                     }
                 )
                 emptyView.fadeIn()
@@ -106,7 +103,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
     }
 
     private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val filterView: TextView) :
-            RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
+        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
         var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name && old.username == new.username && old.avatarUrl == new.avatarUrl

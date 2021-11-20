@@ -63,6 +63,7 @@ private fun Context.buildAndNotifyPlaying(
             .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
     if (startTime > 0) builder.setWhen(startTime).setUsesChronometer(true)
+    @Suppress("DEPRECATION")
     largeIcon?.let { builder.extend(NotificationCompat.WearableExtender().setBackground(it)) }
 
     notify(TAG_PLAY_TIMER, internalId.toInt(), builder)

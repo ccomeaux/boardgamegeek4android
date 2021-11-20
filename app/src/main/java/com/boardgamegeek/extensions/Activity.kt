@@ -3,8 +3,12 @@
 package com.boardgamegeek.extensions
 
 import android.app.Activity
+import android.graphics.Insets
+import android.os.Build
+import android.util.DisplayMetrics
 import android.util.Pair
 import android.view.View
+import android.view.WindowInsets
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -46,15 +50,14 @@ fun Activity.shareGames(games: List<Pair<Int, String>>, method: String, firebase
 }
 
 fun Activity.share(subject: String, text: CharSequence, @StringRes titleResId: Int = R.string.title_share) {
-    val intent = ShareCompat.IntentBuilder.from(this)
+    startActivity(
+        ShareCompat.IntentBuilder(this)
             .setType("text/plain")
             .setSubject(subject.trim())
             .setText(text)
             .setChooserTitle(titleResId)
             .createChooserIntent()
-    if (intent.resolveActivity(packageManager) != null) {
-        startActivity(intent)
-    }
+    )
 }
 
 fun formatGameLink(id: Int, name: String) = "$name (${createBggUri(BOARDGAME_PATH, id)})\n"
@@ -65,4 +68,17 @@ fun AppCompatActivity.setDoneCancelActionBarView(listener: View.OnClickListener?
     toolbar.findViewById<View>(R.id.menu_cancel).setOnClickListener(listener)
     toolbar.findViewById<View>(R.id.menu_done).setOnClickListener(listener)
     setSupportActionBar(toolbar)
+}
+
+@Suppress("DEPRECATION")
+fun Activity.calculateScreenWidth(): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val windowMetrics = windowManager.currentWindowMetrics
+        val insets: Insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        windowMetrics.bounds.width() - insets.left - insets.right
+    } else {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        displayMetrics.widthPixels
+    }
 }

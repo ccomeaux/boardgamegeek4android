@@ -81,17 +81,17 @@ class NewPlayActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.startTime.observe(this, {
+        viewModel.startTime.observe(this) {
             startTime = viewModel.startTime.value ?: 0L
             updateSummary()
             invalidateOptionsMenu()
-        })
+        }
 
-        viewModel.length.observe(this, { updateSummary() })
+        viewModel.length.observe(this) { updateSummary() }
 
-        viewModel.location.observe(this, { updateSummary() })
+        viewModel.location.observe(this) { updateSummary() }
 
-        viewModel.currentStep.observe(this, {
+        viewModel.currentStep.observe(this) {
             when (it) {
                 NewPlayViewModel.Step.LOCATION, null -> {
                     supportFragmentManager
@@ -143,7 +143,7 @@ class NewPlayActivity : AppCompatActivity() {
                 }
             }
             updateSummary()
-        })
+        }
 
         viewModel.setGame(gameId, gameName)
     }
@@ -255,7 +255,7 @@ class NewPlayActivity : AppCompatActivity() {
         fun start(context: Context, gameId: Int, gameName: String) {
             context.startActivity<NewPlayActivity>(
                 KEY_GAME_ID to gameId,
-                KEY_GAME_NAME to gameName
+                KEY_GAME_NAME to gameName,
             )
         }
     }

@@ -30,12 +30,11 @@ abstract class NumberPadDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        val window = dialog?.window
-        if (window != null) {
-            val dm = resources.displayMetrics
+        dialog?.window?.let { window ->
             val width = min(
-                    requireActivity().resources.getDimensionPixelSize(R.dimen.dialog_width),
-                    dm.widthPixels * 3 / 4)
+                requireActivity().resources.getDimensionPixelSize(R.dimen.dialog_width),
+                resources.displayMetrics.widthPixels * 3 / 4
+            )
             val height = window.attributes.height
             window.setLayout(width, height)
         }
@@ -113,7 +112,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         }
     }
 
-    abstract fun done(output: Double, requestCode: Int, requestKey:String)
+    abstract fun done(output: Double, requestCode: Int, requestKey: String)
 
     private fun maybeUpdateOutput(output: String, view: View) {
         if (isWithinLength(output) && isWithinRange(output)) {
@@ -196,15 +195,15 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         const val DEFAULT_REQUEST_CODE = 0
 
         fun createBundle(
-                requestCode: Int,
-                @StringRes titleResId: Int,
-                initialValue: String,
-                colorDescription: String?,
-                subtitle: String?,
-                minValue: Double = DEFAULT_MIN_VALUE,
-                maxValue: Double = DEFAULT_MAX_VALUE,
-                maxMantissa: Int = DEFAULT_MAX_MANTISSA,
-                requestKey: String = "",
+            requestCode: Int,
+            @StringRes titleResId: Int,
+            initialValue: String,
+            colorDescription: String?,
+            subtitle: String?,
+            minValue: Double = DEFAULT_MIN_VALUE,
+            maxValue: Double = DEFAULT_MAX_VALUE,
+            maxMantissa: Int = DEFAULT_MAX_MANTISSA,
+            requestKey: String = "",
         ): Bundle {
             return Bundle().apply {
                 putInt(KEY_TITLE, titleResId)
