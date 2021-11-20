@@ -6,14 +6,15 @@ import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.view.LayoutInflater
-import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setSelectableBackground
-import kotlinx.android.synthetic.main.widget_play_stat.view.*
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -25,11 +26,11 @@ class PlayStatRow(context: Context) : TableRow(context) {
     }
 
     fun setLabel(text: CharSequence) {
-        labelView.text = text
+        findViewById<TextView>(R.id.labelView).text = text
     }
 
     fun setLabel(@StringRes textId: Int) {
-        labelView.setText(textId)
+        findViewById<TextView>(R.id.labelView).setText(textId)
     }
 
     fun setValue(value: Int) {
@@ -43,9 +44,13 @@ class PlayStatRow(context: Context) : TableRow(context) {
     fun setValueAsDate(date: String, context: Context) {
         if (date.isNotEmpty()) {
             try {
-                setValue(DateUtils.formatDateTime(context,
+                setValue(
+                    DateUtils.formatDateTime(
+                        context,
                         FORMAT.parse(date)?.time ?: 0L,
-                        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH))
+                        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH
+                    )
+                )
             } catch (e: ParseException) {
                 setValue(date)
             }
@@ -53,22 +58,24 @@ class PlayStatRow(context: Context) : TableRow(context) {
     }
 
     fun setValue(text: CharSequence) {
-        valueView.text = text
+        findViewById<TextView>(R.id.valueView).text = text
     }
 
     fun setInfoText(@StringRes textResId: Int) {
         val text = context.getString(textResId)
-        infoImageView.visibility = View.VISIBLE
-        labelContainer.setSelectableBackground()
+        findViewById<ImageView>(R.id.infoImageView).isVisible = true
         val spannableString = SpannableString(text)
         Linkify.addLinks(spannableString, Linkify.WEB_URLS)
         val builder = AlertDialog.Builder(context)
-        builder.setTitle(labelView.text).setMessage(spannableString)
+        builder.setTitle(findViewById<TextView>(R.id.labelView).text).setMessage(spannableString)
 
-        labelContainer.setOnClickListener {
-            val dialog = builder.show()
-            val textView = dialog.findViewById<TextView>(android.R.id.message)
-            textView?.movementMethod = LinkMovementMethod.getInstance()
+        findViewById<LinearLayout>(R.id.labelContainer).apply {
+            setSelectableBackground()
+            setOnClickListener {
+                val dialog = builder.show()
+                val textView = dialog.findViewById<TextView>(android.R.id.message)
+                textView?.movementMethod = LinkMovementMethod.getInstance()
+            }
         }
     }
 

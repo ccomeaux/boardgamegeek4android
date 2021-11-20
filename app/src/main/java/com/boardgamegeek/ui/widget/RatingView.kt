@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
@@ -12,14 +13,13 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.CollectionRatingNumberPadDialogFragment
-import kotlinx.android.synthetic.main.widget_rating.view.*
 import java.text.DecimalFormat
 
 class RatingView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0,
-        defStyleRes: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
 ) : ForegroundLinearLayout(context, attrs, defStyleAttr, defStyleRes) {
     private var hideWhenZero: Boolean = false
     private var isEditMode: Boolean = false
@@ -28,7 +28,7 @@ class RatingView @JvmOverloads constructor(
     private var internalId = BggContract.INVALID_ID.toLong()
 
     init {
-        LayoutInflater.from(getContext()).inflate(R.layout.widget_rating, this, true)
+        LayoutInflater.from(context).inflate(R.layout.widget_rating, this)
 
         visibility = View.GONE
         gravity = Gravity.CENTER_VERTICAL
@@ -41,7 +41,7 @@ class RatingView @JvmOverloads constructor(
         }
 
         setOnClickListener {
-            var output = RATING_EDIT_FORMAT.format(ratingView.tag as Double)
+            var output = RATING_EDIT_FORMAT.format(findViewById<TextView>(R.id.ratingView).tag as Double)
             if ("0" == output) output = ""
             val fragment = CollectionRatingNumberPadDialogFragment.newInstance(output)
             (context as? FragmentActivity)?.showAndSurvive(fragment)
@@ -50,18 +50,20 @@ class RatingView @JvmOverloads constructor(
 
     private var rating: Double
         get() {
-            return ratingView.tag as Double? ?: return 0.0
+            return findViewById<TextView>(R.id.ratingView).tag as Double? ?: return 0.0
         }
         set(value) {
             val constrainedRating = value.coerceIn(0.0, 10.0)
-            ratingView.text = constrainedRating.asPersonalRating(context)
-            ratingView.tag = constrainedRating
-            ratingView.setTextViewBackground(constrainedRating.toColor(ratingColors))
+            findViewById<TextView>(R.id.ratingView).apply {
+                text = constrainedRating.asPersonalRating(context)
+                tag = constrainedRating
+                setTextViewBackground(constrainedRating.toColor(ratingColors))
+            }
         }
 
     fun setContent(rating: Double, timestamp: Long, gameId: Int, collectionId: Int, internalId: Long) {
         this.rating = rating
-        timestampView.timestamp = timestamp
+        findViewById<TimestampView>(R.id.timestampView).timestamp = timestamp
         this.gameId = gameId
         this.collectionId = collectionId
         this.internalId = internalId
