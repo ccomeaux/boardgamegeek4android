@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -19,7 +20,6 @@ import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.boardgamegeek.ui.widget.TextEditorView
 import kotlinx.android.synthetic.main.fragment_game_collection_item.*
-import org.jetbrains.anko.support.v4.withArguments
 
 class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_item) {
     private var gameId = BggContract.INVALID_ID
@@ -35,7 +35,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
         setHasOptionsMenu(true)
         gameId = arguments?.getInt(KEY_GAME_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         collectionId = arguments?.getInt(KEY_COLLECTION_ID, BggContract.INVALID_ID)
-                ?: BggContract.INVALID_ID
+            ?: BggContract.INVALID_ID
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -66,7 +66,11 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
             onTextEditorClick(commentView, BggContract.Collection.COMMENT, BggContract.Collection.COMMENT_DIRTY_TIMESTAMP)
         }
         privateInfoCommentView.setOnClickListener {
-            onTextEditorClick(privateInfoCommentView, BggContract.Collection.PRIVATE_INFO_COMMENT, BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP)
+            onTextEditorClick(
+                privateInfoCommentView,
+                BggContract.Collection.PRIVATE_INFO_COMMENT,
+                BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP
+            )
         }
         wishlistCommentView.setOnClickListener {
             onTextEditorClick(wishlistCommentView, BggContract.Collection.WISHLIST_COMMENT, BggContract.Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
@@ -82,14 +86,14 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
         }
         privateInfoEditContainer.setOnClickListener {
             val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
-                    editPrivateInfoView.getTag(R.id.priceCurrencyView).toString(),
-                    editPrivateInfoView.getTag(R.id.priceView) as? Double,
-                    editPrivateInfoView.getTag(R.id.currentValueCurrencyView).toString(),
-                    editPrivateInfoView.getTag(R.id.currentValueView) as? Double,
-                    editPrivateInfoView.getTag(R.id.quantityView) as? Int,
-                    editPrivateInfoView.getTag(R.id.acquisitionDateView) as? Long,
-                    editPrivateInfoView.getTag(R.id.acquiredFromView).toString(),
-                    editPrivateInfoView.getTag(R.id.inventoryLocationView).toString()
+                editPrivateInfoView.getTag(R.id.priceCurrencyView).toString(),
+                editPrivateInfoView.getTag(R.id.priceView) as? Double,
+                editPrivateInfoView.getTag(R.id.currentValueCurrencyView).toString(),
+                editPrivateInfoView.getTag(R.id.currentValueView) as? Double,
+                editPrivateInfoView.getTag(R.id.quantityView) as? Int,
+                editPrivateInfoView.getTag(R.id.acquisitionDateView) as? Long,
+                editPrivateInfoView.getTag(R.id.acquiredFromView).toString(),
+                editPrivateInfoView.getTag(R.id.inventoryLocationView).toString()
             )
             this.showAndSurvive(privateInfoDialogFragment)
         }
@@ -185,7 +189,16 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
 
     private fun updateStatuses() {
         val statuses = mutableListOf<String>()
-        listOf(wantToBuyView, preorderedView, ownView, wantToPlayView, previouslyOwnedView, wantInTradeView, forTradeView, wishlistView).forEach { checkBox ->
+        listOf(
+            wantToBuyView,
+            preorderedView,
+            ownView,
+            wantToPlayView,
+            previouslyOwnedView,
+            wantInTradeView,
+            forTradeView,
+            wishlistView
+        ).forEach { checkBox ->
             if (checkBox.isChecked) {
                 (checkBox.tag as? String)?.let {
                     if (it.isNotBlank()) statuses.add(it)
@@ -197,11 +210,14 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
     }
 
     private fun onTextEditorClick(view: TextEditorView, textColumn: String, timestampColumn: String) {
-        showAndSurvive(EditCollectionTextDialogFragment.newInstance(
+        showAndSurvive(
+            EditCollectionTextDialogFragment.newInstance(
                 view.headerText,
                 view.contentText,
                 textColumn,
-                timestampColumn))
+                timestampColumn
+            )
+        )
     }
 
     private fun updateUi(item: CollectionItemEntity) {
@@ -310,9 +326,11 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
         } else status
     }
 
-    private class WishlistPriorityAdapter(context: Context) : ArrayAdapter<String?>(context,
-            android.R.layout.simple_spinner_item,
-            context.resources.getStringArray(R.array.wishlist_priority_finite)) {
+    private class WishlistPriorityAdapter(context: Context) : ArrayAdapter<String?>(
+        context,
+        android.R.layout.simple_spinner_item,
+        context.resources.getStringArray(R.array.wishlist_priority_finite)
+    ) {
         init {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
@@ -330,10 +348,12 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
         private const val KEY_COLLECTION_ID = "COLLECTION_ID"
 
         fun newInstance(gameId: Int, collectionId: Int): GameCollectionItemFragment {
-            return GameCollectionItemFragment().withArguments(
+            return GameCollectionItemFragment().apply {
+                arguments = bundleOf(
                     KEY_GAME_ID to gameId,
-                    KEY_COLLECTION_ID to collectionId
-            )
+                    KEY_COLLECTION_ID to collectionId,
+                )
+            }
         }
 
         private fun setVisibleTag(view: View, isVisible: Boolean) {

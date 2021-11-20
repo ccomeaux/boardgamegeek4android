@@ -67,11 +67,13 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
             adapter.players = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
-                emptyView.setText(if (filterEditText.text.isNullOrBlank()) {
+                emptyView.setText(
+                    if (filterEditText.text.isNullOrBlank()) {
                     R.string.empty_new_play_players
                 } else {
                     R.string.empty_new_play_players_filter
-                })
+                    }
+                )
                 emptyView.fadeIn()
             } else {
                 emptyView.fadeOut()

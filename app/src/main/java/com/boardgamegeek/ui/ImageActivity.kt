@@ -10,13 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.ensureHttpsScheme
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.util.PaletteTransformation
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_image.*
-import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
 class ImageActivity : AppCompatActivity() {
@@ -44,17 +44,17 @@ class ImageActivity : AppCompatActivity() {
         }
 
         Picasso.with(this)
-                .load(imageUrl.ensureHttpsScheme())
-                .error(R.drawable.thumbnail_image_empty)
-                .fit()
-                .centerInside()
-                .transform(PaletteTransformation.instance())
-                .into(imageView, object : Callback.EmptyCallback() {
-                    override fun onSuccess() {
-                        setBackgroundColor()
-                        progressBar.visibility = View.GONE
-                    }
-                })
+            .load(imageUrl.ensureHttpsScheme())
+            .error(R.drawable.thumbnail_image_empty)
+            .fit()
+            .centerInside()
+            .transform(PaletteTransformation.instance())
+            .into(imageView, object : Callback.EmptyCallback() {
+                override fun onSuccess() {
+                    setBackgroundColor()
+                    progressBar.visibility = View.GONE
+                }
+            })
     }
 
     private fun setBackgroundColor() {

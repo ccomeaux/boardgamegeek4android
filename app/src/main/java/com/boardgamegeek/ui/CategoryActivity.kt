@@ -7,9 +7,9 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.CategoryViewModel
-import org.jetbrains.anko.startActivity
 
 class CategoryActivity : SimpleSinglePaneActivity() {
     private var id = BggContract.INVALID_ID
@@ -42,8 +42,8 @@ class CategoryActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, categoryId: Int, categoryName: String) {
             context.startActivity<CategoryActivity>(
-                    KEY_CATEGORY_ID to categoryId,
-                    KEY_CATEGORY_NAME to categoryName
+                KEY_CATEGORY_ID to categoryId,
+                KEY_CATEGORY_NAME to categoryName,
             )
         }
     }

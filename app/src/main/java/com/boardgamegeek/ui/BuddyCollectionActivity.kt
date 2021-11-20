@@ -5,12 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.BuddyActivity.Companion.startUp
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
 class BuddyCollectionActivity : SimpleSinglePaneActivity() {
@@ -39,8 +38,8 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
         val statuses = statusValues.zip(statusEntries).toMap()
 
         viewModel.setUsername(buddyName)
-        viewModel.status.observe(this, Observer {
-            val status = statuses[it ?: ""]
+        viewModel.status.observe(this, {
+            val status = statuses[it.orEmpty()]
             supportActionBar?.subtitle = buddyName + if (status != null && status.isNotEmpty()) {
                 " - $status"
             } else {

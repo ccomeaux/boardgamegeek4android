@@ -17,6 +17,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -28,7 +29,10 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
 import com.boardgamegeek.R
+import com.google.android.material.snackbar.Snackbar
+import java.util.*
 import kotlin.math.pow
 
 fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
@@ -213,5 +217,60 @@ fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {
     } else {
         setOnClickListener { }
         isClickable = false
+    }
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.snackbar(messageResourceId: Int) = Snackbar
+    .make(this, messageResourceId, Snackbar.LENGTH_SHORT)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.snackbar(message: CharSequence) = Snackbar
+    .make(this, message, Snackbar.LENGTH_SHORT)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.longSnackbar(message: CharSequence) = Snackbar
+    .make(this, message, Snackbar.LENGTH_LONG)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.indefiniteSnackbar(message: CharSequence) = Snackbar
+    .make(this, message, Snackbar.LENGTH_INDEFINITE)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.indefiniteSnackbar(message: CharSequence, actionText: CharSequence, noinline action: (View) -> Unit) = Snackbar
+    .make(this, message, Snackbar.LENGTH_INDEFINITE)
+    .setAction(actionText, action)
+    .apply { show() }
+
+fun View.childrenRecursiveSequence(): Sequence<View> = ViewChildrenRecursiveSequence(this)
+
+private class ViewChildrenRecursiveSequence(private val view: View) : Sequence<View> {
+    override fun iterator(): Iterator<View> {
+        return if (view is ViewGroup) RecursiveViewIterator(view) else emptyList<View>().iterator()
+    }
+
+    private class RecursiveViewIterator(view: ViewGroup) : Iterator<View> {
+        private val sequences = arrayListOf(view.children)
+        private var current = sequences.removeLast().iterator()
+
+        override fun next(): View {
+            if (!hasNext()) throw NoSuchElementException()
+            val view = current.next()
+            if (view is ViewGroup && view.childCount > 0) {
+                sequences.add(view.children)
+            }
+            return view
+        }
+
+        override fun hasNext(): Boolean {
+            if (!current.hasNext() && sequences.isNotEmpty()) {
+                current = sequences.removeLast().iterator()
+            }
+            return current.hasNext()
+        }
     }
 }

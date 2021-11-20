@@ -8,7 +8,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.HttpUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.toast
 import timber.log.Timber
 
 const val BOARDGAME_PATH = "boardgame"

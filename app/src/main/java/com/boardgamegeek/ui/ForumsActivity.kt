@@ -3,8 +3,8 @@ package com.boardgamegeek.ui
 import android.content.Context
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.intentFor
+import com.boardgamegeek.extensions.clearTop
+import com.boardgamegeek.extensions.intentFor
 
 class ForumsActivity : TopLevelSinglePaneActivity() {
     override val answersContentType = "Forums"

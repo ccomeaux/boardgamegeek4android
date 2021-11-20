@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
@@ -9,7 +10,6 @@ import com.boardgamegeek.entities.ArticleEntity
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.extensions.toFormattedString
 import kotlinx.android.synthetic.main.fragment_article.*
-import org.jetbrains.anko.support.v4.withArguments
 
 class ArticleFragment : Fragment(R.layout.fragment_article) {
     private var article = ArticleEntity()
@@ -33,9 +33,9 @@ class ArticleFragment : Fragment(R.layout.fragment_article) {
     companion object {
         private const val KEY_ARTICLE = "ARTICLE"
         fun newInstance(article: ArticleEntity): ArticleFragment {
-            return ArticleFragment().withArguments(
-                    KEY_ARTICLE to article
-            )
+            return ArticleFragment().apply {
+                arguments = bundleOf(KEY_ARTICLE to article)
+            }
         }
     }
 }

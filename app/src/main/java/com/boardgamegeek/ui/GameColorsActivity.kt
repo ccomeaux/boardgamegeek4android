@@ -8,11 +8,11 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class GameColorsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
@@ -43,7 +43,7 @@ class GameColorsActivity : SimpleSinglePaneActivity() {
 
     override fun readIntent(intent: Intent) {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT)
     }
 
@@ -69,9 +69,10 @@ class GameColorsActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, gameId: Int, gameName: String, @ColorInt iconColor: Int) {
             context.startActivity<GameColorsActivity>(
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_ICON_COLOR to iconColor)
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
+                KEY_ICON_COLOR to iconColor
+            )
         }
     }
 }

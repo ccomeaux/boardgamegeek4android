@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui.dialog
 
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_edit_text.*
-import org.jetbrains.anko.support.v4.withArguments
 
 class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<PlaysViewModel>()
@@ -33,9 +33,9 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
         private const val KEY_TEXT = "text"
 
         fun newInstance(text: String?): EditLocationNameDialogFragment {
-            return EditLocationNameDialogFragment().withArguments(
-                    KEY_TEXT to text
-            )
+            return EditLocationNameDialogFragment().apply {
+                arguments = bundleOf(KEY_TEXT to text)
+            }
         }
     }
 }

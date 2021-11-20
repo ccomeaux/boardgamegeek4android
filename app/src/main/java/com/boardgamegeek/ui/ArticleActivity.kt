@@ -10,10 +10,10 @@ import com.boardgamegeek.entities.ArticleEntity
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.extensions.link
 import com.boardgamegeek.extensions.share
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
 class ArticleActivity : SimpleSinglePaneActivity() {
@@ -89,7 +89,10 @@ class ArticleActivity : SimpleSinglePaneActivity() {
                 share(getString(R.string.share_thread_subject), message, R.string.title_share)
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
                     param(FirebaseAnalytics.Param.ITEM_ID, article.id.toString())
-                    param(FirebaseAnalytics.Param.ITEM_NAME, if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject")
+                    param(
+                        FirebaseAnalytics.Param.ITEM_NAME,
+                        if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
+                    )
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, "Article")
                 }
             }
@@ -108,16 +111,26 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         private const val KEY_THREAD_SUBJECT = "THREAD_SUBJECT"
         private const val KEY_ARTICLE = "ARTICLE"
 
-        fun start(context: Context, threadId: Int, threadSubject: String?, forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType?, article: ArticleEntity?) {
+        fun start(
+            context: Context,
+            threadId: Int,
+            threadSubject: String?,
+            forumId: Int,
+            forumTitle: String?,
+            objectId: Int,
+            objectName: String?,
+            objectType: ForumEntity.ForumType?,
+            article: ArticleEntity?
+        ) {
             context.startActivity<ArticleActivity>(
-                    KEY_THREAD_ID to threadId,
-                    KEY_THREAD_SUBJECT to threadSubject,
-                    KEY_FORUM_ID to forumId,
-                    KEY_FORUM_TITLE to forumTitle,
-                    KEY_OBJECT_ID to objectId,
-                    KEY_OBJECT_NAME to objectName,
-                    KEY_OBJECT_TYPE to objectType,
-                    KEY_ARTICLE to article
+                KEY_THREAD_ID to threadId,
+                KEY_THREAD_SUBJECT to threadSubject,
+                KEY_FORUM_ID to forumId,
+                KEY_FORUM_TITLE to forumTitle,
+                KEY_OBJECT_ID to objectId,
+                KEY_OBJECT_NAME to objectName,
+                KEY_OBJECT_TYPE to objectType,
+                KEY_ARTICLE to article,
             )
         }
     }

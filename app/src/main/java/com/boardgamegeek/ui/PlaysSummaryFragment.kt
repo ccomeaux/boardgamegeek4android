@@ -15,9 +15,6 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import kotlinx.android.synthetic.main.fragment_plays_summary.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.support.v4.startActivity
-import org.jetbrains.anko.support.v4.toast
 
 class PlaysSummaryFragment : Fragment() {
     private var syncPlays = false
@@ -40,13 +37,14 @@ class PlaysSummaryFragment : Fragment() {
         }
 
         syncButton.setOnClickListener {
-            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS] = true
-            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
+            val prefs = requireContext().preferences()
+            prefs[PREFERENCES_KEY_SYNC_PLAYS] = true
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
             viewModel.refresh()
         }
 
         syncCancelButton.setOnClickListener {
-            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
+            requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
         }
 
         viewModel.plays.observe(viewLifecycleOwner) { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
@@ -198,7 +196,7 @@ class PlaysSummaryFragment : Fragment() {
             }
         }
         editColorsButton.setOnClickListener {
-            val username = defaultSharedPreferences[AccountPreferences.KEY_USERNAME, ""]
+            val username = requireContext().preferences()[AccountPreferences.KEY_USERNAME, ""]
             if (username.isNullOrBlank()) {
                 toast("Can't figure out your username.")
             } else {

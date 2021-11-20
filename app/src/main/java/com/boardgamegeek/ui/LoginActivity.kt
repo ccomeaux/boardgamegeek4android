@@ -17,7 +17,6 @@ import com.boardgamegeek.auth.BggCookieJar
 import com.boardgamegeek.auth.NetworkAuthenticator
 import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.activity_login.*
-import org.jetbrains.anko.intentFor
 import timber.log.Timber
 
 /**

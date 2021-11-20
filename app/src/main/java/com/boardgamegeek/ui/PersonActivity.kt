@@ -7,16 +7,12 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.linkToBgg
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.clearTask
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.toast
 import java.util.*
 
 class PersonActivity : HeroTabActivity() {
@@ -146,9 +142,9 @@ class PersonActivity : HeroTabActivity() {
 
         private fun createIntent(context: Context, id: Int, name: String, personType: PersonType): Intent {
             return context.intentFor<PersonActivity>(
-                    KEY_PERSON_ID to id,
-                    KEY_PERSON_NAME to name,
-                    KEY_PERSON_TYPE to personType
+                KEY_PERSON_ID to id,
+                KEY_PERSON_NAME to name,
+                KEY_PERSON_TYPE to personType,
             )
         }
     }

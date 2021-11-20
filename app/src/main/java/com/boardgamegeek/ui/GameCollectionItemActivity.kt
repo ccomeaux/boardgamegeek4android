@@ -12,17 +12,13 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.createDiscardDialog
-import com.boardgamegeek.extensions.createThemedBuilder
-import com.boardgamegeek.extensions.ensureShown
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_hero.*
-import org.jetbrains.anko.longToast
-import org.jetbrains.anko.startActivity
 
 class GameCollectionItemActivity : HeroActivity() {
     private var internalId = BggContract.INVALID_ID.toLong()
@@ -86,9 +82,9 @@ class GameCollectionItemActivity : HeroActivity() {
     override fun readIntent(intent: Intent) {
         internalId = intent.getLongExtra(KEY_INTERNAL_ID, BggContract.INVALID_ID.toLong())
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         collectionId = intent.getIntExtra(KEY_COLLECTION_ID, BggContract.INVALID_ID)
-        collectionName = intent.getStringExtra(KEY_COLLECTION_NAME) ?: ""
+        collectionName = intent.getStringExtra(KEY_COLLECTION_NAME).orEmpty()
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
@@ -239,7 +235,7 @@ class GameCollectionItemActivity : HeroActivity() {
                 KEY_THUMBNAIL_URL to thumbnailUrl,
                 KEY_HERO_IMAGE_URL to heroImageUrl,
                 KEY_YEAR_PUBLISHED to yearPublished,
-                KEY_COLLECTION_YEAR_PUBLISHED to collectionYearPublished
+                KEY_COLLECTION_YEAR_PUBLISHED to collectionYearPublished,
             )
         }
     }

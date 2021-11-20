@@ -20,7 +20,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.fragment_search_results.*
 import kotlinx.android.synthetic.main.include_horizontal_progress.*
-import org.jetbrains.anko.toast
 import java.util.*
 
 class SearchResultsFragment : Fragment(R.layout.fragment_search_results), ActionMode.Callback {

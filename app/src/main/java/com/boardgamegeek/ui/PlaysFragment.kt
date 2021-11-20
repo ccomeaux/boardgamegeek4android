@@ -25,8 +25,6 @@ import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.support.v4.withArguments
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -87,7 +85,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                 when (viewModel.filterType.value) {
                     PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
                     PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
-                    else -> if (defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS, false] == true) {
+                else -> if (requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS, false] == true) {
                         emptyStringResId
                     } else {
                         R.string.empty_plays_sync_off
@@ -112,7 +110,15 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         if (gameId != INVALID_ID) {
             fabView.colorize(iconColor)
             fabView.setOnClickListener {
-                LogPlayActivity.logPlay(requireContext(), gameId, gameName.orEmpty(), thumbnailUrl.orEmpty(), imageUrl.orEmpty(), heroImageUrl.orEmpty(), arePlayersCustomSorted)
+                LogPlayActivity.logPlay(
+                    requireContext(),
+                    gameId,
+                    gameName.orEmpty(),
+                    thumbnailUrl.orEmpty(),
+                    imageUrl.orEmpty(),
+                    heroImageUrl.orEmpty(),
+                    arePlayersCustomSorted
+                )
             }
             fabView.show()
         } else {
@@ -125,7 +131,8 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
-    internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
+    internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), AutoUpdatableAdapter,
+        RecyclerSectionItemDecoration.SectionCallback {
         private val selectedItems = SparseBooleanArray()
 
         val selectedItemCount: Int
@@ -309,7 +316,15 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
             R.id.menu_edit -> {
                 val play = adapter.getItem(adapter.selectedItemPositions.iterator().next())
                 if (play != null)
-                    LogPlayActivity.editPlay(requireContext(), play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                    LogPlayActivity.editPlay(
+                        requireContext(),
+                        play.internalId,
+                        play.gameId,
+                        play.gameName,
+                        play.thumbnailUrl,
+                        play.imageUrl,
+                        play.heroImageUrl,
+                    )
                 mode.finish()
                 return true
             }
@@ -334,10 +349,12 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         for (position in adapter.selectedItemPositions) {
             val play = adapter.getItem(position)
             if (play != null && play.internalId != INVALID_ID.toLong())
-                batch.add(ContentProviderOperation
+                batch.add(
+                    ContentProviderOperation
                         .newUpdate(Plays.buildPlayUri(play.internalId))
                         .withValue(key, value)
-                        .build())
+                        .build()
+                )
         }
         requireContext().contentResolver.applyBatch(batch)
         SyncService.sync(activity, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
@@ -355,12 +372,20 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         private const val KEY_SHOW_GAME_NAME = "SHOW_GAME_NAME"
 
         fun newInstance(): PlaysFragment {
-            return PlaysFragment().withArguments(
-                    KEY_EMPTY_STRING_RES_ID to R.string.empty_plays
-            )
+            return PlaysFragment().apply {
+                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays)
+            }
         }
 
-        fun newInstanceForGame(gameId: Int, gameName: String, imageUrl: String, thumbnailUrl: String, heroImageUrl: String, arePlayersCustomSorted: Boolean, @ColorInt iconColor: Int): PlaysFragment {
+        fun newInstanceForGame(
+            gameId: Int,
+            gameName: String,
+            imageUrl: String,
+            thumbnailUrl: String,
+            heroImageUrl: String,
+            arePlayersCustomSorted: Boolean,
+            @ColorInt iconColor: Int
+        ): PlaysFragment {
             return PlaysFragment().apply {
                 arguments = bundleOf(
                         KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_game,

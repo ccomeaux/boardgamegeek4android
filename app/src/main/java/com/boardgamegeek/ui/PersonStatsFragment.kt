@@ -11,7 +11,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import kotlinx.android.synthetic.main.fragment_person_stats.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.util.*
 
 class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
@@ -23,18 +22,19 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
         super.onViewCreated(view, savedInstanceState)
 
         collectionStatusButton.setOnClickListener {
+            val prefs = requireContext().preferences()
             requireActivity().createThemedBuilder()
-                    .setTitle(R.string.title_modify_collection_status)
-                    .setMessage(R.string.msg_modify_collection_status)
-                    .setPositiveButton(R.string.modify) { _, _ ->
-                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_PLAYED)
-                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_RATED)
-                        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
-                        bindCollectionStatusMessage()
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .setCancelable(true)
-                    .show()
+                .setTitle(R.string.title_modify_collection_status)
+                .setMessage(R.string.msg_modify_collection_status)
+                .setPositiveButton(R.string.modify) { _, _ ->
+                    prefs.addSyncStatus(COLLECTION_STATUS_PLAYED)
+                    prefs.addSyncStatus(COLLECTION_STATUS_RATED)
+                    SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                    bindCollectionStatusMessage()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(true)
+                .show()
         }
 
         bindCollectionStatusMessage()
@@ -59,7 +59,7 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
     }
 
     private fun bindCollectionStatusMessage() {
-        collectionStatusGroup.isVisible = !defaultSharedPreferences.isStatusSetToSync(COLLECTION_STATUS_RATED)
+        collectionStatusGroup.isVisible = !requireContext().preferences().isStatusSetToSync(COLLECTION_STATUS_RATED)
     }
 
     private fun showEmpty() {
@@ -85,20 +85,22 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
         }
         whitmoreScoreLabel.setOnClickListener {
             context?.showClickableAlertDialog(
-                    R.string.whitmore_score,
-                    R.string.whitmore_score_info,
-                    objectDescription)
+                R.string.whitmore_score,
+                R.string.whitmore_score_info,
+                objectDescription
+            )
         }
 
         playCount.text = stats.playCount.toString()
         hIndex.text = stats.hIndex.description
         hIndexLabel.setOnClickListener {
             context?.showClickableAlertDialogPlural(
-                    R.string.h_index,
-                    R.plurals.person_game_h_index_info,
-                    stats.hIndex.h,
-                    stats.hIndex.h,
-                    stats.hIndex.n)
+                R.string.h_index,
+                R.plurals.person_game_h_index_info,
+                stats.hIndex.h,
+                stats.hIndex.h,
+                stats.hIndex.n
+            )
         }
 
         statsView.fadeIn()

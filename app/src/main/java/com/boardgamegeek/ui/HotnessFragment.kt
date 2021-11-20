@@ -17,7 +17,6 @@ import com.boardgamegeek.ui.viewmodel.HotnessViewModel
 import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.android.synthetic.main.fragment_hotness.*
 import kotlinx.android.synthetic.main.row_hotness.view.*
-import org.jetbrains.anko.design.snackbar
 import kotlin.properties.Delegates
 
 class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback {

@@ -12,10 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.extensions.createThemedBuilder
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.setColorViewValue
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
@@ -24,7 +21,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_player_colors.*
 import kotlinx.android.synthetic.main.row_player_color.view.*
-import org.jetbrains.anko.startActivity
 import timber.log.Timber
 import kotlin.math.abs
 import kotlin.math.max
@@ -316,7 +312,7 @@ class PlayerColorsActivity : BaseActivity() {
         fun start(context: Context, buddyName: String?, playerName: String?) {
             context.startActivity<PlayerColorsActivity>(
                 KEY_BUDDY_NAME to buddyName,
-                KEY_PLAYER_NAME to playerName
+                KEY_PLAYER_NAME to playerName,
             )
         }
     }

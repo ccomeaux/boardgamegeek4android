@@ -11,12 +11,12 @@ import androidx.activity.viewModels
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.longSnackbar
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.design.longSnackbar
 import java.util.*
 
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
@@ -81,19 +81,23 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
         }
         menu.setActionBarCount(R.id.menu_list_count, playCount, getString(R.string.by_prefix, sortName))
 
-        menu.findItem(when (viewModel.filterType.value) {
-            PlaysViewModel.FilterType.DIRTY -> R.id.menu_filter_in_progress
-            PlaysViewModel.FilterType.PENDING -> R.id.menu_filter_pending
-            PlaysViewModel.FilterType.ALL -> R.id.menu_filter_all
-            else -> R.id.menu_filter_all
-        })?.isChecked = true
-        menu.findItem(when (viewModel.sortType.value) {
-            PlaysViewModel.SortType.DATE -> R.id.menu_sort_date
-            PlaysViewModel.SortType.GAME -> R.id.menu_sort_game
-            PlaysViewModel.SortType.LENGTH -> R.id.menu_sort_length
-            PlaysViewModel.SortType.LOCATION -> R.id.menu_sort_location
-            else -> R.id.menu_sort_date
-        })?.isChecked = true
+        menu.findItem(
+            when (viewModel.filterType.value) {
+                PlaysViewModel.FilterType.DIRTY -> R.id.menu_filter_in_progress
+                PlaysViewModel.FilterType.PENDING -> R.id.menu_filter_pending
+                PlaysViewModel.FilterType.ALL -> R.id.menu_filter_all
+                else -> R.id.menu_filter_all
+            }
+        )?.isChecked = true
+        menu.findItem(
+            when (viewModel.sortType.value) {
+                PlaysViewModel.SortType.DATE -> R.id.menu_sort_date
+                PlaysViewModel.SortType.GAME -> R.id.menu_sort_game
+                PlaysViewModel.SortType.LENGTH -> R.id.menu_sort_length
+                PlaysViewModel.SortType.LOCATION -> R.id.menu_sort_location
+                else -> R.id.menu_sort_date
+            }
+        )?.isChecked = true
         return true
     }
 
@@ -158,11 +162,13 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val calendar = Calendar.getInstance()
-            return DatePickerDialog(requireContext(),
-                    listener,
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH))
+            return DatePickerDialog(
+                requireContext(),
+                listener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+            )
         }
 
         fun setListener(listener: DatePickerDialog.OnDateSetListener) {

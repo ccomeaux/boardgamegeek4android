@@ -13,8 +13,7 @@ import androidx.appcompat.widget.AppCompatSpinner
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.extensions.CollectionView
-import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
@@ -22,8 +21,6 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.*
-import org.jetbrains.anko.design.indefiniteSnackbar
 
 class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogFragment.Listener {
     private var viewId: Long = 0
@@ -72,7 +69,8 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
             if (hideNavigation) {
                 viewModel.selectView(CollectionView.DEFAULT_DEFAULT_ID)
             } else {
-                val defaultId = defaultSharedPreferences[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID] ?: CollectionView.DEFAULT_DEFAULT_ID
+                val defaultId = preferences()[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
+                    ?: CollectionView.DEFAULT_DEFAULT_ID
                 val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
                 viewModel.selectView(viewId)
             }
@@ -150,11 +148,11 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
 
         fun createIntentAsShortcut(context: Context, viewId: Long): Intent {
             return context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
-                    .clearTask()
-                    .newTask()
-                    .apply {
-                        action = Intent.ACTION_VIEW
-                    }
+                .clearTask()
+                .newTask()
+                .apply {
+                    action = Intent.ACTION_VIEW
+                }
         }
 
         fun startForGameChange(context: Context, playId: Long) {

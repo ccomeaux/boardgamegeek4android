@@ -10,11 +10,11 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.extensions.link
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class GeekListItemActivity : HeroTabActivity() {
     private var geekListId = 0
@@ -95,7 +95,7 @@ class GeekListItemActivity : HeroTabActivity() {
     }
 
     inner class GeekListItemPagerAdapter(activity: FragmentActivity) :
-            FragmentStateAdapter(activity) {
+        FragmentStateAdapter(activity) {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> GeekListItemFragment.newInstance(order, geekListTitle, glItem)
@@ -115,10 +115,11 @@ class GeekListItemActivity : HeroTabActivity() {
 
         fun start(context: Context, geekList: GeekListEntity, item: GeekListItemEntity, order: Int) {
             context.startActivity<GeekListItemActivity>(
-                    KEY_ID to geekList.id,
-                    KEY_TITLE to geekList.title,
-                    KEY_ORDER to order,
-                    KEY_ITEM to item)
+                KEY_ID to geekList.id,
+                KEY_TITLE to geekList.title,
+                KEY_ORDER to order,
+                KEY_ITEM to item,
+            )
         }
     }
 }

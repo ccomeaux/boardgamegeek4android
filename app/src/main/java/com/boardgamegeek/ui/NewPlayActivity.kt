@@ -18,7 +18,6 @@ import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
 import com.boardgamegeek.util.ImageUtils
 import kotlinx.android.synthetic.main.activity_new_play.*
-import org.jetbrains.anko.startActivity
 
 class NewPlayActivity : AppCompatActivity() {
     private var startTime = 0L
@@ -32,7 +31,7 @@ class NewPlayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val gameId = intent.getIntExtra(KEY_GAME_ID, INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
 
         setContentView(R.layout.activity_new_play)
 
@@ -45,14 +44,16 @@ class NewPlayActivity : AppCompatActivity() {
                 this.cancel(TAG_PLAY_TIMER, it)
                 SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
             } else {
-                launchPlayingNotification(it,
-                        gameName,
-                        viewModel.location.value.orEmpty(),
-                        viewModel.addedPlayers.value?.size ?: 0,
-                        startTime,
-                        thumbnailUrl.orEmpty(),
-                        imageUrl.orEmpty(),
-                        heroImageUrl.orEmpty())
+                launchPlayingNotification(
+                    it,
+                    gameName,
+                    viewModel.location.value.orEmpty(),
+                    viewModel.addedPlayers.value?.size ?: 0,
+                    startTime,
+                    thumbnailUrl.orEmpty(),
+                    imageUrl.orEmpty(),
+                    heroImageUrl.orEmpty()
+                )
             }
             setResult(Activity.RESULT_OK)
             finish()
@@ -94,51 +95,51 @@ class NewPlayActivity : AppCompatActivity() {
             when (it) {
                 NewPlayViewModel.Step.LOCATION, null -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .add(R.id.fragmentContainer, NewPlayLocationsFragment())
-                            .commit()
+                        .beginTransaction()
+                        .add(R.id.fragmentContainer, NewPlayLocationsFragment())
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_COLOR -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_SORT -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_NEW -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerIsNewFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerIsNewFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_WIN -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerWinFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerWinFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayCommentsFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayCommentsFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
             }
             updateSummary()
@@ -185,9 +186,10 @@ class NewPlayActivity : AppCompatActivity() {
 
     private fun maybeDiscard(): Boolean {
         return if ((viewModel.startTime.value ?: 0) > 0 ||
-                viewModel.location.value.orEmpty().isNotBlank() ||
-                viewModel.addedPlayers.value.orEmpty().isNotEmpty() ||
-                viewModel.comments.isNotBlank()) {
+            viewModel.location.value.orEmpty().isNotBlank() ||
+            viewModel.addedPlayers.value.orEmpty().isNotEmpty() ||
+            viewModel.comments.isNotBlank()
+        ) {
             createDiscardDialog(this, R.string.play, isNew = false).show()
             true
         } else false
@@ -199,16 +201,16 @@ class NewPlayActivity : AppCompatActivity() {
         summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.Step.LOCATION
         summaryView.startTime = startTime
         summaryView.length = viewModel.length.value ?: 0
-        summaryView.location = viewModel.location.value ?: ""
+        summaryView.location = viewModel.location.value.orEmpty()
         summaryView.playerCount = viewModel.addedPlayers.value?.size ?: 0
 
         summaryView.updateText()
     }
 
     class PlaySummary @JvmOverloads constructor(
-            context: Context,
-            attrs: AttributeSet? = null,
-            defStyleAttr: Int = android.R.attr.textViewStyle
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = android.R.attr.textViewStyle
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
         var gameName = ""
         var step = NewPlayViewModel.Step.LOCATION
@@ -235,7 +237,9 @@ class NewPlayActivity : AppCompatActivity() {
                 else -> ""
             }
             summary += when {
-                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR || step == NewPlayViewModel.Step.PLAYERS_SORT -> " ${context.getString(R.string.with)}"
+                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR || step == NewPlayViewModel.Step.PLAYERS_SORT -> " ${context.getString(
+                        R.string.with
+                    )}"
                 step > NewPlayViewModel.Step.PLAYERS -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
                 else -> ""
             }
@@ -250,8 +254,8 @@ class NewPlayActivity : AppCompatActivity() {
 
         fun start(context: Context, gameId: Int, gameName: String) {
             context.startActivity<NewPlayActivity>(
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName
             )
         }
     }

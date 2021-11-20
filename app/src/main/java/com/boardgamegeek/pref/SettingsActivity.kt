@@ -16,8 +16,6 @@ import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.support.v4.toast
 
 class SettingsActivity : DrawerActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,7 +158,7 @@ class SettingsActivity : DrawerActivity() {
 
         private fun updateSyncStatusSummary(key: String) {
             val pref = findPreference<Preference>(key) ?: return
-            val statuses = defaultSharedPreferences.getSyncStatusesOrDefault()
+            val statuses = requireContext().preferences().getSyncStatusesOrDefault()
             pref.summary = if (statuses.isEmpty()) {
                 getString(R.string.pref_list_empty)
             } else {

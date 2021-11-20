@@ -12,8 +12,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.util.LargeIconLoader
 import com.boardgamegeek.util.NotificationUtils
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.newTask
 
 private const val TAG_PREFIX = "com.boardgamegeek."
 const val TAG_PLAY_TIMER = TAG_PREFIX + "PLAY_TIMER"

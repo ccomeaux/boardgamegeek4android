@@ -14,8 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.linkToBgg
-import com.boardgamegeek.extensions.shareGame
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
@@ -25,8 +24,6 @@ import com.boardgamegeek.util.ShortcutUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_hero_tab.*
-import org.jetbrains.anko.*
-import org.jetbrains.anko.design.snackbar
 import timber.log.Timber
 
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
@@ -57,7 +54,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
         initializeViewPager()
 
-        changeName(intent.getStringExtra(KEY_GAME_NAME) ?: "")
+        changeName(intent.getStringExtra(KEY_GAME_NAME).orEmpty())
         changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty(), intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty())
 
         viewModel.setId(gameId)
@@ -160,7 +157,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 return true
             }
             R.id.menu_view -> {
-                linkToBgg("boardgame",gameId)
+                linkToBgg("boardgame", gameId)
                 return true
             }
         }
@@ -204,13 +201,12 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
         fun start(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
-                    ?: return
+                ?: return
             context.startActivity(intent)
         }
 
         fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
-            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
-                    ?: return
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
             context.startActivity(intent.clearTask().clearTop())
         }
 
@@ -223,10 +219,10 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         fun createIntent(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
             if (gameId == BggContract.INVALID_ID) return null
             return context.intentFor<GameActivity>(
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_THUMBNAIL_URL to thumbnailUrl,
-                    KEY_HERO_IMAGE_URL to heroImageUrl
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
+                KEY_THUMBNAIL_URL to thumbnailUrl,
+                KEY_HERO_IMAGE_URL to heroImageUrl
             )
         }
     }

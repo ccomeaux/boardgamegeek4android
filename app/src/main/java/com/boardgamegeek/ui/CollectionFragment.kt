@@ -50,8 +50,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_collection.*
 import kotlinx.android.synthetic.main.row_collection.view.*
-import org.jetbrains.anko.support.v4.toast
-import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
 import java.text.NumberFormat
 import java.util.*
@@ -586,15 +584,15 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
         fun newInstance(isCreatingShortcut: Boolean): CollectionFragment {
-            return CollectionFragment().withArguments(
-                KEY_IS_CREATING_SHORTCUT to isCreatingShortcut
-            )
+            return CollectionFragment().apply {
+                arguments = bundleOf(KEY_IS_CREATING_SHORTCUT to isCreatingShortcut)
+            }
         }
 
         fun newInstanceForPlayGameChange(playId: Long): CollectionFragment {
-            return CollectionFragment().withArguments(
-                KEY_CHANGING_GAME_PLAY_ID to playId
-            )
+            return CollectionFragment().apply {
+                arguments = bundleOf(KEY_CHANGING_GAME_PLAY_ID to playId)
+            }
         }
     }
 }

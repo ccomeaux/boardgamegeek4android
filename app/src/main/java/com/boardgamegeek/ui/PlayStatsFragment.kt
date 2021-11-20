@@ -19,7 +19,6 @@ import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
 import kotlinx.android.synthetic.main.fragment_play_stats.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.util.*
 
 class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
@@ -34,18 +33,19 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         super.onViewCreated(view, savedInstanceState)
 
         collectionStatusSettingsButton.setOnClickListener {
+            val prefs = requireContext().preferences()
             requireActivity().createThemedBuilder()
-                    .setTitle(R.string.title_modify_collection_status)
-                    .setMessage(R.string.msg_modify_collection_status)
-                    .setPositiveButton(R.string.modify) { _, _ ->
-                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_OWN)
-                        defaultSharedPreferences.addSyncStatus(COLLECTION_STATUS_PLAYED)
-                        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
-                        bindCollectionStatusMessage()
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .setCancelable(true)
-                    .show()
+                .setTitle(R.string.title_modify_collection_status)
+                .setMessage(R.string.msg_modify_collection_status)
+                .setPositiveButton(R.string.modify) { _, _ ->
+                    prefs.addSyncStatus(COLLECTION_STATUS_OWN)
+                    prefs.addSyncStatus(COLLECTION_STATUS_PLAYED)
+                    SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                    bindCollectionStatusMessage()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(true)
+                .show()
         }
 
         includeSettingsButton.setOnClickListener {
@@ -72,10 +72,11 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
                 bindUi(entity)
                 gameHIndexInfoView.setOnClickListener {
                     context?.showClickableAlertDialog(
-                            R.string.play_stat_game_h_index,
-                            R.string.play_stat_game_h_index_info,
-                            entity.hIndex.h,
-                            entity.hIndex.n)
+                        R.string.play_stat_game_h_index,
+                        R.string.play_stat_game_h_index_info,
+                        entity.hIndex.h,
+                        entity.hIndex.n
+                    )
                 }
             }
         })
@@ -84,10 +85,11 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             bindPlayerUi(entity)
             playerHIndexInfoView.setOnClickListener {
                 context?.showClickableAlertDialog(
-                        R.string.play_stat_player_h_index,
-                        R.string.play_stat_player_h_index_info,
-                        entity.hIndex.h,
-                        entity.hIndex.n)
+                    R.string.play_stat_player_h_index,
+                    R.string.play_stat_player_h_index_info,
+                    entity.hIndex.h,
+                    entity.hIndex.n
+                )
             }
         })
 
@@ -95,8 +97,9 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     }
 
     private fun bindCollectionStatusMessage() {
-        isOwnedSynced = defaultSharedPreferences.isStatusSetToSync(COLLECTION_STATUS_OWN)
-        isPlayedSynced = defaultSharedPreferences.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
+        val prefs = requireContext().preferences()
+        isOwnedSynced = prefs.isStatusSetToSync(COLLECTION_STATUS_OWN)
+        isPlayedSynced = prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
         collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 
@@ -115,9 +118,13 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             accuracyContainer.visibility = View.GONE
         } else {
             accuracyContainer.visibility = View.VISIBLE
-            accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).lowercase(
-                Locale.getDefault()
-            )))
+            accuracyMessage.text = getString(
+                R.string.play_stat_accuracy, messages.formatList(
+                    getString(R.string.or).lowercase(
+                        Locale.getDefault()
+                    )
+                )
+            )
         }
     }
 
@@ -199,10 +206,11 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         if (entries == null || entries.isEmpty()) {
             table.visibility = View.GONE
         } else {
-            val rankedEntries = entries.filter { pair -> pair.first.isNotBlank() && pair.second > 0 }.mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
+            val rankedEntries = entries.filter { pair -> pair.first.isNotBlank() && pair.second > 0 }
+                .mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
             val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second
-                    ?: hIndex.h + 1
+                ?: hIndex.h + 1
             val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: hIndex.h - 1
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex && it.first.isNotBlank() }

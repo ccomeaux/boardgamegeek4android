@@ -30,8 +30,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_logplayer.*
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.defaultSharedPreferences
-import kotlin.collections.ArrayList
 
 class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -194,12 +192,13 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     }
 
     private fun setViewVisibility() {
-        teamColorContainer.isVisible = defaultSharedPreferences.showLogPlayerTeamColor() || userHasShownTeamColor || player.color.isNotEmpty()
-        positionContainer.isVisible = !hasAutoPosition() && (defaultSharedPreferences.showLogPlayerPosition() || userHasShownPosition || player.startingPosition.isNotEmpty())
-        scoreContainer.isVisible = defaultSharedPreferences.showLogPlayerScore() || userHasShownScore || player.score.isNotEmpty()
-        ratingContainer.isVisible = defaultSharedPreferences.showLogPlayerRating() || userHasShownRating || player.rating > 0
-        newView.isVisible = defaultSharedPreferences.showLogPlayerNew() || userHasShownNew || player.isNew
-        winView.isVisible = defaultSharedPreferences.showLogPlayerWin() || userHasShownWin || player.isWin
+        val prefs = preferences()
+        teamColorContainer.isVisible = prefs.showLogPlayerTeamColor() || userHasShownTeamColor || player.color.isNotEmpty()
+        positionContainer.isVisible = !hasAutoPosition() && (prefs.showLogPlayerPosition() || userHasShownPosition || player.startingPosition.isNotEmpty())
+        scoreContainer.isVisible = prefs.showLogPlayerScore() || userHasShownScore || player.score.isNotEmpty()
+        ratingContainer.isVisible = prefs.showLogPlayerRating() || userHasShownRating || player.rating > 0
+        newView.isVisible = prefs.showLogPlayerNew() || userHasShownNew || player.isNew
+        winView.isVisible = prefs.showLogPlayerWin() || userHasShownWin || player.isWin
 
         val enableButton = createAddFieldArray().isNotEmpty()
         if (enableButton) fab.show() else fab.hide()

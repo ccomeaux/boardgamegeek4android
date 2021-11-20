@@ -25,7 +25,6 @@ import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
-import org.jetbrains.anko.intentFor
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit

@@ -3,11 +3,11 @@ package com.boardgamegeek.ui.dialog
 import android.os.Bundle
 import android.text.InputFilter
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import kotlinx.android.synthetic.main.dialog_edit_text.*
-import org.jetbrains.anko.support.v4.withArguments
 
 class NewPlayAddTeamColorDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<NewPlayViewModel>()
@@ -29,7 +29,7 @@ class NewPlayAddTeamColorDialogFragment : AbstractEditTextDialogFragment() {
     override fun onPositiveButton() {
         val playerIndex = arguments?.getInt(PLAYER_INDEX, -1) ?: -1
         if (playerIndex > -1) {
-            val text = editText?.text?.toString() ?: ""
+            val text = editText?.text?.toString().orEmpty()
             viewModel.addColorToPlayer(playerIndex, text)
         }
     }
@@ -38,9 +38,9 @@ class NewPlayAddTeamColorDialogFragment : AbstractEditTextDialogFragment() {
         private const val PLAYER_INDEX = "PLAYER_INDEX"
 
         fun newInstance(playerIndex: Int): NewPlayAddTeamColorDialogFragment {
-            return NewPlayAddTeamColorDialogFragment().withArguments(
-                    PLAYER_INDEX to playerIndex
-            )
+            return NewPlayAddTeamColorDialogFragment().apply {
+                arguments = bundleOf(PLAYER_INDEX to playerIndex)
+            }
         }
     }
 }

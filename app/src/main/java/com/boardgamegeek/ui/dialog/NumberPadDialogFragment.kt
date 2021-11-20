@@ -12,8 +12,6 @@ import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import kotlinx.android.synthetic.main.dialog_number_pad.*
-import org.jetbrains.anko.childrenRecursiveSequence
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.text.ParseException
@@ -127,7 +125,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
 
     private fun maybeBuzz(v: View) {
         // TODO - store in a field and listen for changes
-        if (defaultSharedPreferences[KEY_HAPTIC_FEEDBACK, true] == true) {
+        if (requireContext().preferences()[KEY_HAPTIC_FEEDBACK, true] == true) {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }

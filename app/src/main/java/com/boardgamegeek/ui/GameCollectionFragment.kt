@@ -11,10 +11,10 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
+import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import kotlinx.android.synthetic.main.fragment_game_collection.*
-import org.jetbrains.anko.support.v4.toast
 
 class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
     private val adapter: GameCollectionItemAdapter by lazy {

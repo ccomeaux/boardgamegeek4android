@@ -6,9 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import kotlinx.android.synthetic.main.fragment_new_play_comments.*
-import org.jetbrains.anko.support.v4.toast
 
 class NewPlayCommentsFragment : Fragment(R.layout.fragment_new_play_comments) {
     private val viewModel by activityViewModels<NewPlayViewModel>()

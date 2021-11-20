@@ -10,15 +10,11 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.createBggUri
-import com.boardgamegeek.extensions.linkToBgg
-import com.boardgamegeek.extensions.share
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.intentFor
 
 class GeekListActivity : TabActivity() {
     private var geekListId = BggContract.INVALID_ID
@@ -88,7 +84,7 @@ class GeekListActivity : TabActivity() {
     }
 
     private class GeekListPagerAdapter(activity: FragmentActivity) :
-            FragmentStateAdapter(activity) {
+        FragmentStateAdapter(activity) {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> GeekListDescriptionFragment()
@@ -115,8 +111,8 @@ class GeekListActivity : TabActivity() {
 
         private fun createIntent(context: Context, id: Int, title: String): Intent {
             return context.intentFor<GeekListActivity>(
-                    KEY_ID to id,
-                    KEY_TITLE to title
+                KEY_ID to id,
+                KEY_TITLE to title,
             )
         }
     }

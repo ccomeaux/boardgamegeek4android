@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -24,7 +25,6 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_poll.*
-import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.*
@@ -128,7 +128,8 @@ class PollFragment : DialogFragment(R.layout.fragment_poll) {
         }
 
         private fun launch(host: Fragment, type: Int) {
-            host.showAndSurvive(PollFragment().withArguments(KEY_TYPE to type).apply {
+            host.showAndSurvive(PollFragment().apply {
+                arguments = bundleOf(KEY_TYPE to type)
                 setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             })
         }

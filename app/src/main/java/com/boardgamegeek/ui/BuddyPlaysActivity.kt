@@ -9,10 +9,10 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class BuddyPlaysActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlaysViewModel>()
@@ -72,7 +72,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, buddyName: String?) {
             context.startActivity<BuddyPlaysActivity>(
-                KEY_BUDDY_NAME to buddyName
+                KEY_BUDDY_NAME to buddyName,
             )
         }
     }

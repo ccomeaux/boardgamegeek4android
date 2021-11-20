@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.export.Constants
+import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.DataPortViewModel
 import com.boardgamegeek.ui.widget.DataStepRow
 import com.boardgamegeek.util.FileUtils
@@ -18,7 +19,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_data.*
-import org.jetbrains.anko.support.v4.toast
 import timber.log.Timber
 
 class DataFragment : Fragment(R.layout.fragment_data) {

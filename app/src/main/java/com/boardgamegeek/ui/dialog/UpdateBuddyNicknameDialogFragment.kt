@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
@@ -14,7 +15,6 @@ import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import kotlinx.android.synthetic.main.dialog_edit_nickname.*
-import org.jetbrains.anko.support.v4.withArguments
 
 class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     lateinit var layout: View
@@ -27,16 +27,16 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_nickname, null)
 
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setView(layout)
-                .setTitle(R.string.title_edit_nickname)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    val nickname = nicknameView.text?.toString()
-                    viewModel.updateNickName(nickname?.trim() ?: "", changePlaysCheckBox.isChecked)
-                }
-                .create().apply {
-                    requestFocus(nicknameView)
-                }
+            .setView(layout)
+            .setTitle(R.string.title_edit_nickname)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val nickname = nicknameView.text?.toString()
+                viewModel.updateNickName(nickname?.trim().orEmpty(), changePlaysCheckBox.isChecked)
+            }
+            .create().apply {
+                requestFocus(nicknameView)
+            }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -53,9 +53,9 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
         private const val KEY_NICKNAME = "NICKNAME"
 
         fun newInstance(nickname: String?): UpdateBuddyNicknameDialogFragment {
-            return UpdateBuddyNicknameDialogFragment().withArguments(
-                    KEY_NICKNAME to nickname
-            )
+            return UpdateBuddyNicknameDialogFragment().apply {
+                arguments = bundleOf(KEY_NICKNAME to nickname)
+            }
         }
     }
 }

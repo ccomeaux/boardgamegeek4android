@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,16 +13,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.set
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
 import kotlinx.android.synthetic.main.fragment_thread.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.support.v4.withArguments
 import kotlin.math.abs
 
 class ThreadFragment : Fragment(R.layout.fragment_thread) {
@@ -63,7 +59,7 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 currentAdapterPosition = (recyclerView.layoutManager as? LinearLayoutManager)?.findLastCompletelyVisibleItemPosition()
-                        ?: RecyclerView.NO_POSITION
+                    ?: RecyclerView.NO_POSITION
                 if (currentAdapterPosition != RecyclerView.NO_POSITION) {
                     val currentArticleId = adapter.getItemId(currentAdapterPosition)
                     if (currentArticleId > latestArticleId) {
@@ -107,13 +103,13 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
 
     override fun onResume() {
         super.onResume()
-        latestArticleId = defaultSharedPreferences[getThreadKey(threadId), INVALID_ARTICLE_ID] ?: INVALID_ARTICLE_ID
+        latestArticleId = requireContext().preferences()[getThreadKey(threadId), INVALID_ARTICLE_ID] ?: INVALID_ARTICLE_ID
     }
 
     override fun onPause() {
         super.onPause()
         if (latestArticleId != INVALID_ARTICLE_ID) {
-            defaultSharedPreferences[getThreadKey(threadId)] = latestArticleId
+            requireContext().preferences()[getThreadKey(threadId)] = latestArticleId
         }
     }
 
@@ -173,15 +169,24 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         private const val INVALID_ARTICLE_ID = -1
         // private const val HELP_VERSION = 2
 
-        fun newInstance(threadId: Int, forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType?): ThreadFragment {
-            return ThreadFragment().withArguments(
+        fun newInstance(
+            threadId: Int,
+            forumId: Int,
+            forumTitle: String?,
+            objectId: Int,
+            objectName: String?,
+            objectType: ForumEntity.ForumType?
+        ): ThreadFragment {
+            return ThreadFragment().apply {
+                arguments = bundleOf(
                     KEY_THREAD_ID to threadId,
                     KEY_FORUM_ID to forumId,
                     KEY_FORUM_TITLE to forumTitle,
                     KEY_OBJECT_ID to objectId,
                     KEY_OBJECT_NAME to objectName,
-                    KEY_OBJECT_TYPE to objectType
-            )
+                    KEY_OBJECT_TYPE to objectType,
+                )
+            }
         }
     }
 }

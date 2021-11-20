@@ -8,15 +8,15 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.longSnackbar
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.dialog.EditLocationNameDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.design.longSnackbar
-import org.jetbrains.anko.startActivity
 
 class LocationActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlaysViewModel>()
@@ -62,7 +62,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
     }
 
     override fun readIntent(intent: Intent) {
-        locationName = intent.getStringExtra(KEY_LOCATION_NAME) ?: ""
+        locationName = intent.getStringExtra(KEY_LOCATION_NAME).orEmpty()
     }
 
     private fun setSubtitle() {

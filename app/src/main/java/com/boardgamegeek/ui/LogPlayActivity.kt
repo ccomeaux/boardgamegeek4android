@@ -40,18 +40,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_logplay.*
-import kotlinx.android.synthetic.main.activity_logplay.commentsView
-import kotlinx.android.synthetic.main.activity_logplay.incompleteView
-import kotlinx.android.synthetic.main.activity_logplay.lengthView
-import kotlinx.android.synthetic.main.activity_logplay.locationView
-import kotlinx.android.synthetic.main.activity_logplay.noWinStatsView
-import kotlinx.android.synthetic.main.activity_logplay.playersLabel
-import kotlinx.android.synthetic.main.activity_logplay.quantityView
-import kotlinx.android.synthetic.main.activity_logplay.thumbnailView
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.design.indefiniteSnackbar
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.toast
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -102,7 +91,6 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private var length: Int = 0
     private var playersHaveColors = false
     private var playersHaveStartingPositions = false
-    private var playersAreCustomSorted = true
     private var playerCount = 0
     private var playerDescriptions = listOf<String>()
     private var usedColors = listOf<String>()

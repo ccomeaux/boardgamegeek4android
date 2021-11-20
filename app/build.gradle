@@ -128,16 +128,12 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     def paging_version = "3.0.1"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
-
-    def anko_version='0.10.8'
-    implementation "org.jetbrains.anko:anko-support-v4-commons:$anko_version"
-    implementation "org.jetbrains.anko:anko-commons:$anko_version"
-    implementation "org.jetbrains.anko:anko-design:$anko_version"
 
     def arch_lifecycle_version = '2.3.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_lifecycle_version"

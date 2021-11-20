@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
@@ -21,7 +22,6 @@ import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import kotlinx.android.synthetic.main.dialog_private_info.*
-import org.jetbrains.anko.support.v4.withArguments
 import java.text.DecimalFormat
 import java.util.*
 
@@ -39,28 +39,28 @@ class PrivateInfoDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val viewModel = ViewModelProvider(requireActivity()).get(GameCollectionItemViewModel::class.java)
+        val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
         @SuppressLint("InflateParams")
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_private_info, null)
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setTitle(R.string.title_private_info)
-                .setView(layout)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    viewModel.updatePrivateInfo(
-                            priceCurrencyView.selectedItem.toString(),
-                            priceView.getDoubleOrNull(),
-                            currentValueCurrencyView.selectedItem.toString(),
-                            currentValueView.getDoubleOrNull(),
-                            quantityView.getIntOrNull(),
-                            acquisitionDate,
-                            acquiredFromView.text.trim().toString(),
-                            inventoryLocationView.text.trim().toString()
-                    )
-                }
-                .create().apply {
-                    requestFocus()
-                }
+            .setTitle(R.string.title_private_info)
+            .setView(layout)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                viewModel.updatePrivateInfo(
+                    priceCurrencyView.selectedItem.toString(),
+                    priceView.getDoubleOrNull(),
+                    currentValueCurrencyView.selectedItem.toString(),
+                    currentValueView.getDoubleOrNull(),
+                    quantityView.getIntOrNull(),
+                    acquisitionDate,
+                    acquiredFromView.text.trim().toString(),
+                    inventoryLocationView.text.trim().toString()
+                )
+            }
+            .create().apply {
+                requestFocus()
+            }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -116,7 +116,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     private fun createDatePickerDialogFragment(): DatePickerDialogFragment {
         return parentFragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG) as DatePickerDialogFragment?
-                ?: DatePickerDialogFragment()
+            ?: DatePickerDialogFragment()
     }
 
     override fun onResume() {
@@ -146,11 +146,13 @@ class PrivateInfoDialogFragment : DialogFragment() {
         acquisitionDateLabelView.visibility = if (acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE
     }
 
-    inner class AcquiredFromAdapter(context: Context) : AutoCompleteAdapter(context, Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri()) {
+    inner class AcquiredFromAdapter(context: Context) :
+        AutoCompleteAdapter(context, Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri()) {
         override val defaultSelection = "${Collection.PRIVATE_INFO_ACQUIRED_FROM}<>''"
     }
 
-    class InventoryLocationAdapter(context: Context) : AutoCompleteAdapter(context, Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri()) {
+    class InventoryLocationAdapter(context: Context) :
+        AutoCompleteAdapter(context, Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri()) {
         override val defaultSelection = "${Collection.PRIVATE_INFO_INVENTORY_LOCATION}<>''"
     }
 
@@ -166,8 +168,18 @@ class PrivateInfoDialogFragment : DialogFragment() {
         private const val KEY_ACQUIRED_FROM = "ACQUIRED_FROM"
         private const val KEY_INVENTORY_LOCATION = "INVENTORY_LOCATION"
 
-        fun newInstance(priceCurrency: String?, price: Double?, currentValueCurrency: String?, currentValue: Double?, quantity: Int?, acquisitionDate: Long?, acquiredFrom: String?, inventoryLocation: String?): PrivateInfoDialogFragment {
-            return PrivateInfoDialogFragment().withArguments(
+        fun newInstance(
+            priceCurrency: String?,
+            price: Double?,
+            currentValueCurrency: String?,
+            currentValue: Double?,
+            quantity: Int?,
+            acquisitionDate: Long?,
+            acquiredFrom: String?,
+            inventoryLocation: String?
+        ): PrivateInfoDialogFragment {
+            return PrivateInfoDialogFragment().apply {
+                arguments = bundleOf(
                     KEY_PRICE_CURRENCY to priceCurrency,
                     KEY_PRICE to price,
                     KEY_CURRENT_VALUE_CURRENCY to currentValueCurrency,
@@ -175,8 +187,9 @@ class PrivateInfoDialogFragment : DialogFragment() {
                     KEY_QUANTITY to quantity,
                     KEY_ACQUISITION_DATE to acquisitionDate,
                     KEY_ACQUIRED_FROM to acquiredFrom,
-                    KEY_INVENTORY_LOCATION to inventoryLocation
-            )
+                    KEY_INVENTORY_LOCATION to inventoryLocation,
+                )
+            }
         }
     }
 }

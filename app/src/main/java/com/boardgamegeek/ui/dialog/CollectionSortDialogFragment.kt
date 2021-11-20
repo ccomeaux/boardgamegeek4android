@@ -14,12 +14,12 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.dialog_collection_sort.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import timber.log.Timber
 
 class CollectionSortDialogFragment : DialogFragment() {
@@ -40,7 +40,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
 
-        if (defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
+        if (requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
             hideRadioButtonIfNotSelected(playDateMaxRadioButton, selectedType)
             hideRadioButtonIfNotSelected(playDateMinRadioButton, selectedType)
         }

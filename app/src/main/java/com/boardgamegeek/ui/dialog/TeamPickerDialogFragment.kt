@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
@@ -20,7 +21,6 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import kotlinx.android.synthetic.main.dialog_teams.view.*
 import kotlinx.android.synthetic.main.row_team.view.*
-import org.jetbrains.anko.support.v4.withArguments
 import kotlin.properties.Delegates
 
 class TeamPickerDialogFragment : DialogFragment() {
@@ -31,7 +31,7 @@ class TeamPickerDialogFragment : DialogFragment() {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_teams, null)
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
-        val playerName = arguments?.getString(KEY_PLAYER_NAME) ?: ""
+        val playerName = arguments?.getString(KEY_PLAYER_NAME).orEmpty()
         if (playerName.isBlank()) {
             builder.setTitle(R.string.team_color)
         } else {
@@ -48,7 +48,7 @@ class TeamPickerDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: 0
-        val playerTeam = arguments?.getString(KEY_PLAYER_TEAM) ?: ""
+        val playerTeam = arguments?.getString(KEY_PLAYER_TEAM).orEmpty()
 
         val viewModel by activityViewModels<NewPlayViewModel>()
         val adapter = TeamAdapter(this, viewModel, requestCode, playerTeam)
@@ -73,17 +73,23 @@ class TeamPickerDialogFragment : DialogFragment() {
         private const val KEY_PLAYER_TEAM = "player_team"
 
         fun launch(activity: FragmentActivity, playerIndex: Int, playerName: String, playerTeam: String) {
-            val df = TeamPickerDialogFragment().withArguments(
+            val df = TeamPickerDialogFragment().apply {
+                arguments = bundleOf(
                     KEY_REQUEST_CODE to playerIndex,
                     KEY_PLAYER_NAME to playerName,
-                    KEY_PLAYER_TEAM to playerTeam
-            )
+                    KEY_PLAYER_TEAM to playerTeam,
+                )
+            }
             activity.showAndSurvive(df)
         }
     }
 
-    class TeamAdapter(private val df: DialogFragment, private val viewModel: NewPlayViewModel, private val playerIndex: Int, private val playerTeam: String)
-        : RecyclerView.Adapter<TeamAdapter.ViewHolder>(), AutoUpdatableAdapter {
+    class TeamAdapter(
+        private val df: DialogFragment,
+        private val viewModel: NewPlayViewModel,
+        private val playerIndex: Int,
+        private val playerTeam: String
+    ) : RecyclerView.Adapter<TeamAdapter.ViewHolder>(), AutoUpdatableAdapter {
 
         private val textColor = ContextCompat.getColor(df.requireContext(), R.color.primary_text)
         private val disabledTextColor = ContextCompat.getColor(df.requireContext(), R.color.disabled_text)

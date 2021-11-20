@@ -7,14 +7,10 @@ import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.extensions.createBggUri
-import com.boardgamegeek.extensions.linkToBgg
-import com.boardgamegeek.extensions.share
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.intentFor
 
 class ThreadActivity : SimpleSinglePaneActivity() {
     private var threadId = BggContract.INVALID_ID
@@ -78,15 +74,20 @@ class ThreadActivity : SimpleSinglePaneActivity() {
                 else
                     String.format(getString(R.string.share_thread_game_text), threadSubject, forumTitle, objectName)
                 val link = createBggUri("thread", threadId).toString()
-                share(getString(R.string.share_thread_subject), """
+                share(
+                    getString(R.string.share_thread_subject), """
                     $description
                     
                     $link
-                    """.trimIndent(), R.string.title_share)
+                    """.trimIndent(), R.string.title_share
+                )
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, "Thread")
                     param(FirebaseAnalytics.Param.ITEM_ID, threadId.toString())
-                    param(FirebaseAnalytics.Param.ITEM_NAME, if (objectName.isBlank()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject")
+                    param(
+                        FirebaseAnalytics.Param.ITEM_NAME,
+                        if (objectName.isBlank()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
+                    )
                 }
                 return true
             }
@@ -103,23 +104,50 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         private const val KEY_THREAD_ID = "THREAD_ID"
         private const val KEY_THREAD_SUBJECT = "THREAD_SUBJECT"
 
-        fun start(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+        fun start(
+            context: Context,
+            threadId: Int,
+            threadSubject: String,
+            forumId: Int,
+            forumTitle: String,
+            objectId: Int,
+            objectName: String,
+            objectType: ForumEntity.ForumType
+        ) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType))
         }
 
-        fun startUp(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+        fun startUp(
+            context: Context,
+            threadId: Int,
+            threadSubject: String,
+            forumId: Int,
+            forumTitle: String,
+            objectId: Int,
+            objectName: String,
+            objectType: ForumEntity.ForumType
+        ) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType).clearTop())
         }
 
-        private fun createIntent(context: Context, threadId: Int, threadSubject: String, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType): Intent {
+        private fun createIntent(
+            context: Context,
+            threadId: Int,
+            threadSubject: String,
+            forumId: Int,
+            forumTitle: String,
+            objectId: Int,
+            objectName: String,
+            objectType: ForumEntity.ForumType
+        ): Intent {
             return context.intentFor<ThreadActivity>(
-                    KEY_THREAD_ID to threadId,
-                    KEY_THREAD_SUBJECT to threadSubject,
-                    KEY_FORUM_ID to forumId,
-                    KEY_FORUM_TITLE to forumTitle,
-                    KEY_OBJECT_ID to objectId,
-                    KEY_OBJECT_NAME to objectName,
-                    KEY_OBJECT_TYPE to objectType
+                KEY_THREAD_ID to threadId,
+                KEY_THREAD_SUBJECT to threadSubject,
+                KEY_FORUM_ID to forumId,
+                KEY_FORUM_TITLE to forumTitle,
+                KEY_OBJECT_ID to objectId,
+                KEY_OBJECT_NAME to objectName,
+                KEY_OBJECT_TYPE to objectType,
             )
         }
     }

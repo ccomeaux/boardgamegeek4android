@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,7 +17,6 @@ import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
 import kotlinx.android.synthetic.main.fragment_forum.*
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.support.v4.withArguments
 
 class ForumFragment : Fragment(R.layout.fragment_forum) {
     private var forumId = BggContract.INVALID_ID
@@ -84,13 +84,15 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
 
         fun newInstance(forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType?): ForumFragment {
-            return ForumFragment().withArguments(
+            return ForumFragment().apply {
+                arguments = bundleOf(
                     KEY_FORUM_ID to forumId,
                     KEY_FORUM_TITLE to forumTitle,
                     KEY_OBJECT_ID to objectId,
                     KEY_OBJECT_NAME to objectName,
-                    KEY_OBJECT_TYPE to objectType
-            )
+                    KEY_OBJECT_TYPE to objectType,
+                )
+            }
         }
     }
 }

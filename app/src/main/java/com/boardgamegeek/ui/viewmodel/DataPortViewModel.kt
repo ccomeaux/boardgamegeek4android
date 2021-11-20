@@ -35,7 +35,6 @@ import com.google.gson.stream.JsonWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.anko.collections.forEachWithIndex
 import timber.log.Timber
 import java.io.*
 
@@ -152,7 +151,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                     writer.beginArray()
 
                     progress.start(list.size)
-                    list.forEachWithIndex { index, record ->
+                    list.forEachIndexed { index, record ->
                         progress.update(index)
                         try {
                             writeJsonRecord(record, writer)
@@ -337,7 +336,7 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
 
                 if (shouldContinue) {
                     initializeImport()
-                    items.forEachWithIndex { i, item ->
+                    items.forEachIndexed { i, item ->
                         progress.update(i)
                         importRecord(item, version)
                     }

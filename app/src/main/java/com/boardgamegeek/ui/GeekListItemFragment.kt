@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
@@ -9,7 +10,6 @@ import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_geeklist_item.*
-import org.jetbrains.anko.support.v4.withArguments
 
 class GeekListItemFragment : Fragment(R.layout.fragment_geeklist_item) {
     private var order = 0
@@ -46,11 +46,13 @@ class GeekListItemFragment : Fragment(R.layout.fragment_geeklist_item) {
         private const val KEY_ITEM = "ITEM"
 
         fun newInstance(order: Int, title: String, item: GeekListItemEntity): GeekListItemFragment {
-            return GeekListItemFragment().withArguments(
+            return GeekListItemFragment().apply {
+                arguments = bundleOf(
                     KEY_ORDER to order,
                     KEY_TITLE to title,
-                    KEY_ITEM to item
-            )
+                    KEY_ITEM to item,
+                )
+            }
         }
     }
 }

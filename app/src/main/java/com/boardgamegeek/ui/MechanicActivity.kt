@@ -7,9 +7,9 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel
-import org.jetbrains.anko.startActivity
 
 class MechanicActivity : SimpleSinglePaneActivity() {
     private var id = BggContract.INVALID_ID
@@ -42,8 +42,8 @@ class MechanicActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, mechanicId: Int, mechanicName: String) {
             context.startActivity<MechanicActivity>(
-                    KEY_MECHANIC_ID to mechanicId,
-                    KEY_MECHANIC_NAME to mechanicName
+                KEY_MECHANIC_ID to mechanicId,
+                KEY_MECHANIC_NAME to mechanicName,
             )
         }
     }

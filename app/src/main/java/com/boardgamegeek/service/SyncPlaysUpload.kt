@@ -12,6 +12,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.getText
+import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Games
@@ -26,7 +27,6 @@ import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
 import okhttp3.Request.Builder
-import org.jetbrains.anko.intentFor
 import java.util.concurrent.TimeUnit
 
 class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
@@ -284,9 +284,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
             )
             gameCursor?.use {
                 if (it.moveToFirst()) {
-                    currentPlay.imageUrl = it.getString(0) ?: ""
-                    currentPlay.thumbnailUrl = it.getString(1) ?: ""
-                    currentPlay.heroImageUrl = it.getString(2) ?: ""
+                    currentPlay.imageUrl = it.getString(0).orEmpty()
+                    currentPlay.thumbnailUrl = it.getString(1).orEmpty()
+                    currentPlay.heroImageUrl = it.getString(2).orEmpty()
                     currentPlay.customPlayerSort = it.getInt(3) == 1
                 }
             }

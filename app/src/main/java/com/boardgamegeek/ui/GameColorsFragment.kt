@@ -5,22 +5,18 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.colorize
-import com.boardgamegeek.extensions.fade
-import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter
 import com.boardgamegeek.ui.dialog.AddColorToGameDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_colors.*
-import org.jetbrains.anko.design.snackbar
-import org.jetbrains.anko.support.v4.withArguments
 import kotlin.math.max
 import kotlin.math.min
 
@@ -80,8 +76,8 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                 adapter.getColorName(viewHolder.bindingAdapterPosition)?.let { color ->
                     viewModel.removeColor(color)
                     Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
-                            .setAction(R.string.undo) { viewModel.addColor(color) }
-                            .show()
+                        .setAction(R.string.undo) { viewModel.addColor(color) }
+                        .show()
                 }
             }
 
@@ -89,7 +85,15 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                 return if (actionMode != null) 0 else super.getSwipeDirs(recyclerView, viewHolder)
             }
 
-            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
                 val horizontalPadding = requireContext().resources.getDimension(R.dimen.material_margin_horizontal)
 
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
@@ -102,11 +106,22 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                         if (dX > 0) {
                             background = RectF(itemView.left.toFloat(), itemView.top.toFloat(), dX, itemView.bottom.toFloat())
                             iconSrc = Rect(0, 0, min((dX - itemView.left - horizontalPadding).toInt(), it.width), it.height)
-                            iconDst = RectF(itemView.left.toFloat() + horizontalPadding, itemView.top.toFloat() + verticalPadding, min(itemView.left + horizontalPadding + it.width, dX), itemView.bottom.toFloat() - verticalPadding)
+                            iconDst = RectF(
+                                itemView.left.toFloat() + horizontalPadding,
+                                itemView.top.toFloat() + verticalPadding,
+                                min(itemView.left + horizontalPadding + it.width, dX),
+                                itemView.bottom.toFloat() - verticalPadding
+                            )
                         } else {
-                            background = RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
+                            background =
+                                RectF(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
                             iconSrc = Rect(max(it.width + horizontalPadding.toInt() + dX.toInt(), 0), 0, it.width, it.height)
-                            iconDst = RectF(max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - it.width), itemView.top.toFloat() + verticalPadding, itemView.right.toFloat() - horizontalPadding, itemView.bottom.toFloat() - verticalPadding)
+                            iconDst = RectF(
+                                max(itemView.right.toFloat() + dX, itemView.right.toFloat() - horizontalPadding - it.width),
+                                itemView.top.toFloat() + verticalPadding,
+                                itemView.right.toFloat() - horizontalPadding,
+                                itemView.bottom.toFloat() - verticalPadding
+                            )
                         }
                         c.drawRect(background, swipePaint)
                         c.drawBitmap(it, iconSrc, iconDst, swipePaint)
@@ -196,9 +211,9 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
         private const val KEY_ICON_COLOR = "ICON_COLOR"
 
         fun newInstance(@ColorInt iconColor: Int): GameColorsFragment {
-            return GameColorsFragment().withArguments(
-                    KEY_ICON_COLOR to iconColor
-            )
+            return GameColorsFragment().apply {
+                arguments = bundleOf(KEY_ICON_COLOR to iconColor)
+            }
         }
     }
 }

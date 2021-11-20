@@ -7,18 +7,13 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.linkToBgg
-import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.design.longSnackbar
-import org.jetbrains.anko.intentFor
 import timber.log.Timber
 
 class BuddyActivity : SimpleSinglePaneActivity() {
@@ -47,27 +42,28 @@ class BuddyActivity : SimpleSinglePaneActivity() {
             viewModel.setPlayerName(name)
         }
 
-        viewModel.user.observe(this, Observer {
-            when {
-                it == null -> return@Observer
-                it.second == BuddyViewModel.TYPE_PLAYER && it.first != name -> {
-                    name = it.first
-                    intent.putExtra(KEY_PLAYER_NAME, name)
-                    setSubtitle()
-                }
-                it.second == BuddyViewModel.TYPE_USER && it.first != username -> {
-                    username = it.first
-                    intent.putExtra(KEY_USERNAME, username)
-                    setSubtitle()
+        viewModel.user.observe(this) {
+            it?.let {
+                when {
+                    it.second == BuddyViewModel.TYPE_PLAYER && it.first != name -> {
+                        name = it.first
+                        intent.putExtra(KEY_PLAYER_NAME, name)
+                        setSubtitle()
+                    }
+                    it.second == BuddyViewModel.TYPE_USER && it.first != username -> {
+                        username = it.first
+                        intent.putExtra(KEY_USERNAME, username)
+                        setSubtitle()
+                    }
                 }
             }
-        })
+        }
 
-        viewModel.updateMessage.observe(this, Observer {
+        viewModel.updateMessage.observe(this) {
             it.getContentIfNotHandled()?.let { content ->
                 showSnackbar(content)
             }
-        })
+        }
     }
 
     override fun readIntent(intent: Intent) {
@@ -135,8 +131,8 @@ class BuddyActivity : SimpleSinglePaneActivity() {
                 return null
             }
             return context.intentFor<BuddyActivity>(
-                    KEY_USERNAME to username,
-                    KEY_PLAYER_NAME to playerName
+                KEY_USERNAME to username,
+                KEY_PLAYER_NAME to playerName,
             )
         }
     }

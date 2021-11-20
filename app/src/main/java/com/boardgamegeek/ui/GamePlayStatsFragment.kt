@@ -18,6 +18,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -43,7 +44,6 @@ import kotlinx.android.synthetic.main.include_game_play_stats_locations.*
 import kotlinx.android.synthetic.main.include_game_play_stats_players.*
 import kotlinx.android.synthetic.main.include_game_play_stats_scores.*
 import kotlinx.android.synthetic.main.include_game_play_stats_time.*
-import org.jetbrains.anko.support.v4.withArguments
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -788,10 +788,12 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         private const val KEY_HEADER_COLOR = "HEADER_COLOR"
 
         fun newInstance(gameId: Int, @ColorInt headerColor: Int): GamePlayStatsFragment {
-            return GamePlayStatsFragment().withArguments(
-                KEY_GAME_ID to gameId,
-                KEY_HEADER_COLOR to headerColor
-            )
+            return GamePlayStatsFragment().apply {
+                arguments = bundleOf(
+                    KEY_GAME_ID to gameId,
+                    KEY_HEADER_COLOR to headerColor,
+                )
+            }
         }
     }
 }

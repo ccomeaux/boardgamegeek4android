@@ -21,8 +21,6 @@ import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
-import org.jetbrains.anko.defaultSharedPreferences
-import org.jetbrains.anko.startActivity
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
@@ -81,9 +79,9 @@ abstract class DrawerActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER, false] != true) {
+        if (preferences()[KEY_HAS_SEEN_NAV_DRAWER, false] != true) {
             drawerLayout.openDrawer(GravityCompat.START)
-            defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER] = true
+            preferences()[KEY_HAS_SEEN_NAV_DRAWER] = true
         }
     }
 

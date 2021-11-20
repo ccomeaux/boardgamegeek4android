@@ -10,7 +10,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.collections.forEachWithIndex
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -294,7 +293,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             }
         } else {
             sortMap.clear()
-            _addedPlayers.value?.forEachWithIndex { i, playerEntity ->
+            _addedPlayers.value?.forEachIndexed { i, playerEntity ->
                 val number = (i + playerCount - index) % playerCount + 1
                 sortMap[playerEntity.id] = number.toString()
             }
@@ -428,7 +427,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
             val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
-                color = playerColors[id] ?: ""
+                color = playerColors[id].orEmpty()
                 val favoriteForPlayer = favoriteColorsMap[id]?.map { it.description } ?: emptyList()
                 val rankedChoices = favoriteForPlayer
                     .filter { gameColorList.contains(it) }
@@ -438,10 +437,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                     .filterNot { favoriteForPlayer.contains(it) }
                     .filterNot { playerColors.containsValue(it) }
                 favoriteColors = rankedChoices
-                sortOrder = playerSort[id] ?: ""
+                sortOrder = playerSort[id].orEmpty()
                 isNew = playerIsNew[id] ?: false
                 isWin = playerWin[id] ?: false
-                score = playerScores[id] ?: ""
+                score = playerScores[id].orEmpty()
             }
             players.add(newPlayer)
         }
@@ -495,10 +494,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 BggContract.INVALID_ID,
                 PlayEntity.currentDate(),
                 gameId.value ?: BggContract.INVALID_ID,
-                gameName.value ?: "",
+                gameName.value.orEmpty(),
                 quantity = 1,
                 length = if (startTime == 0L) length.value ?: 0 else 0,
-                location = location.value ?: "",
+                location = location.value.orEmpty(),
                 incomplete = false,
                 noWinStats = false,
                 comments = _comments,
