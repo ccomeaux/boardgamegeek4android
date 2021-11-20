@@ -5,6 +5,7 @@ import android.util.Pair
 import android.view.*
 import androidx.annotation.PluralsRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -68,35 +69,34 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.searchResults.observe(this, { resource ->
-            when (resource?.status) {
-                Status.REFRESHING -> progressContainer.fadeIn()
-                Status.ERROR -> {
-                    emptyView.text = getString(R.string.search_error, viewModel.query.value, resource.message)
-                    emptyView.fadeIn()
-                    recyclerView.fadeOut()
-                    progressContainer.fadeOut()
-                }
-                Status.SUCCESS -> {
-                    val data = resource.data
-                    val query = viewModel.query.value
-                    if (data == null || data.isEmpty()) {
-                        if (query == null || query.first.isBlank()) {
-                            emptyView.setText(R.string.search_initial_help)
+            resource?.let { (status, data) ->
+                when (status) {
+                    Status.REFRESHING -> progressContainer.isVisible = true
+                    Status.ERROR -> {
+                        emptyView.text = getString(R.string.search_error, viewModel.query.value, resource.message)
+                        emptyView.isVisible = true
+                        recyclerView.isVisible = false
+                        progressContainer.isVisible = false
+                    }
+                    Status.SUCCESS -> {
+                        val query = viewModel.query.value
+                        if (data == null || data.isEmpty()) {
+                            if (query == null || query.first.isBlank()) {
+                                emptyView.setText(R.string.search_initial_help)
+                            } else {
+                                emptyView.setText(R.string.empty_search)
+                            }
+                            searchResultsAdapter.clear()
+                            emptyView.isVisible = true
+                            recyclerView.isVisible = false
                         } else {
-                            emptyView.setText(R.string.empty_search)
+                            searchResultsAdapter.results = data
+                            emptyView.isVisible = false
+                            recyclerView.isVisible = true
                         }
-                        searchResultsAdapter.clear()
-                        emptyView.fadeIn()
-                        recyclerView.fadeOut()
-                    } else {
-                        searchResultsAdapter.results = data
-                        emptyView.fadeOut()
-                        recyclerView.fadeIn(isResumed)
+                        query?.let { showSnackbar(it.first, it.second, data?.size ?: 0) }
+                        progressContainer.isVisible = false
                     }
-                    if (query != null) {
-                        showSnackbar(query.first, query.second, data?.size ?: 0)
-                    }
-                    progressContainer.fadeOut()
                 }
             }
         })
