@@ -1,24 +1,27 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentForumBinding
 import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
-import kotlinx.android.synthetic.main.fragment_forum.*
 import kotlinx.coroutines.launch
 
-class ForumFragment : Fragment(R.layout.fragment_forum) {
+class ForumFragment : Fragment() {
+    private var _binding: FragmentForumBinding? = null
+    private val binding get() = _binding!!
     private var forumId = BggContract.INVALID_ID
     private var forumTitle = ""
     private var objectId = BggContract.INVALID_ID
@@ -31,6 +34,12 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
         ForumPagedListAdapter(forumId, forumTitle, objectId, objectName, objectType)
     }
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentForumBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         arguments?.let {
             forumId = it.getInt(KEY_FORUM_ID, BggContract.INVALID_ID)
@@ -40,40 +49,40 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
             objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
         }
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.recyclerView.adapter = adapter
 
         adapter.addLoadStateListener { loadStates ->
             when (val state = loadStates.refresh) {
                 is LoadState.Loading -> {
-                    progressView.show()
+                    binding.progressView.show()
                 }
                 is LoadState.NotLoading -> {
-                    if (adapter.itemCount == 0) {
-                        emptyView.setText(R.string.empty_forum)
-                        emptyView.fadeIn()
-                        recyclerView.fadeOut()
-                    } else {
-                        emptyView.fadeOut()
-                        recyclerView.fadeIn()
-                    }
-                    progressView.hide()
+                    binding.emptyView.setText(R.string.empty_forum)
+                    binding.emptyView.isVisible = adapter.itemCount == 0
+                    binding.recyclerView.isVisible = adapter.itemCount > 0
+                    binding.progressView.hide()
                 }
                 is LoadState.Error -> {
-                    emptyView.text = state.error.localizedMessage
-                    emptyView.fadeIn()
-                    recyclerView.fadeOut()
-                    progressView.hide()
+                    binding.emptyView.text = state.error.localizedMessage
+                    binding.emptyView.isVisible = true
+                    binding.recyclerView.isVisible = false
+                    binding.progressView.hide()
                 }
             }
         }
 
-        viewModel.threads.observe(viewLifecycleOwner, { threads ->
+        viewModel.threads.observe(viewLifecycleOwner) { threads ->
             lifecycleScope.launch { adapter.submitData(threads) }
-            recyclerView.fadeIn()
-        })
+            binding.recyclerView.isVisible = true
+        }
         viewModel.setForumId(forumId)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

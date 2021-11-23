@@ -1,31 +1,40 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentForumsBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
-import kotlinx.android.synthetic.main.fragment_forums.*
 
-class ForumsFragment : Fragment(R.layout.fragment_forums) {
+class ForumsFragment : Fragment() {
+    private var _binding: FragmentForumsBinding? = null
+    private val binding get() = _binding!!
     private var forumType = ForumEntity.ForumType.REGION
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
 
-    private val adapter: ForumsRecyclerViewAdapter by lazy {
+    private val recyclerViewAdapter: ForumsRecyclerViewAdapter by lazy {
         ForumsRecyclerViewAdapter(objectId, objectName, forumType)
     }
 
     private val viewModel by activityViewModels<ForumsViewModel>()
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentForumsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,9 +44,12 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
         }
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        binding.recyclerView.apply {
+            setHasFixedSize(true)
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            adapter = recyclerViewAdapter
+            if (forumType == ForumEntity.ForumType.REGION) setPadding(paddingLeft, 0, paddingRight, paddingBottom)
+        }
 
         when (forumType) {
             ForumEntity.ForumType.GAME -> viewModel.setGameId(objectId)
@@ -46,30 +58,26 @@ class ForumsFragment : Fragment(R.layout.fragment_forums) {
             ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
             ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
-        viewModel.forums.observe(viewLifecycleOwner, {
-            if (it != null) {
+        viewModel.forums.observe(viewLifecycleOwner) {
+            it?.let {
                 when (it.status) {
-                    Status.REFRESHING -> progressView.show()
+                    Status.REFRESHING -> binding.progressView.show()
                     Status.ERROR -> {
-                        emptyView.text = it.message
-                        emptyView.fadeIn()
-                        recyclerView.fadeOut()
-                        progressView.hide()
+                        binding.emptyView.text = it.message
+                        binding.emptyView.isVisible = true
+                        binding.recyclerView.isVisible = false
+                        binding.progressView.hide()
                     }
                     Status.SUCCESS -> {
-                        adapter.forums = it.data.orEmpty()
-                        if (adapter.itemCount == 0) {
-                            emptyView.fadeIn()
-                            recyclerView.fadeOut()
-                        } else {
-                            recyclerView.fadeIn()
-                            emptyView.fadeOut()
-                        }
-                        progressView.hide()
+                        recyclerViewAdapter.forums = it.data.orEmpty()
+                        binding.emptyView.setText(R.string.empty_forums)
+                        binding.emptyView.isVisible = recyclerViewAdapter.itemCount == 0
+                        binding.recyclerView.isVisible = recyclerViewAdapter.itemCount > 0
+                        binding.progressView.hide()
                     }
                 }
             }
-        })
+        }
     }
 
     companion object {

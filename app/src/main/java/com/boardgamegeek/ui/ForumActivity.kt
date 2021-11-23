@@ -68,14 +68,11 @@ class ForumActivity : SimpleSinglePaneActivity() {
                     ForumEntity.ForumType.PUBLISHER -> startUpForPublisher(this, objectId, objectName)
                 }
                 finish()
-                return true
             }
-            R.id.menu_view -> {
-                linkToBgg("forum/$forumId")
-                return true
-            }
+            R.id.menu_view -> linkToBgg("forum/$forumId")
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     companion object {

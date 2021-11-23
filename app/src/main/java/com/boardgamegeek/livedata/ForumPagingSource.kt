@@ -8,12 +8,9 @@ import com.boardgamegeek.repository.ForumRepository
 import retrofit2.HttpException
 import timber.log.Timber
 
-class ForumDataSource(
-        private val forumId: Int?,
-        private val repository: ForumRepository
-) : PagingSource<Int, ThreadEntity>() {
+class ForumPagingSource(private val forumId: Int?, private val repository: ForumRepository) : PagingSource<Int, ThreadEntity>() {
     override fun getRefreshKey(state: PagingState<Int, ThreadEntity>): Int? {
-        return null // not sure this is correct, but I hope this will have paging start over from 1
+        return null
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ThreadEntity> {
@@ -21,15 +18,10 @@ class ForumDataSource(
             if (forumId == null) return LoadResult.Error(Exception("Null ID"))
             if (forumId == BggContract.INVALID_ID) return LoadResult.Error(Exception("Invalid Forum ID"))
 
-            val page = params.key ?: 1
-
-            val entity = repository.loadForum(forumId, page)
-
-            val nextPage = if (page * params.loadSize < entity.numberOfThreads) {
-                page + 1
-            } else null
-
-            LoadResult.Page(entity.threads, null, nextPage)
+            val currentPage = params.key ?: 1
+            val forumEntity = repository.loadForum(forumId, currentPage)
+            val nextPage = getNextPage(currentPage, params.loadSize, forumEntity.numberOfThreads)
+            LoadResult.Page(forumEntity.threads, null, nextPage)
         } catch (e: Exception) {
             if (e is HttpException) {
                 Timber.w("Error code: ${e.code()}\n${e.response()?.body()}")
@@ -38,5 +30,9 @@ class ForumDataSource(
             }
             LoadResult.Error(e)
         }
+    }
+
+    private fun getNextPage(currentPage: Int, pageSize: Int, totalCount: Int): Int? {
+        return if (currentPage * pageSize < totalCount) currentPage + 1 else null
     }
 }

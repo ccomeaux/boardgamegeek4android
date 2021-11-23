@@ -1,26 +1,26 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentThreadBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
-import kotlinx.android.synthetic.main.fragment_thread.*
 import kotlin.math.abs
 
 class ThreadFragment : Fragment(R.layout.fragment_thread) {
+    private var _binding: FragmentThreadBinding? = null
+    private val binding get() = _binding!!
     private var threadId = BggContract.INVALID_ID
     private var forumId = BggContract.INVALID_ID
     private var forumTitle = ""
@@ -42,6 +42,12 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         setHasOptionsMenu(true)
     }
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentThreadBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
@@ -53,9 +59,9 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
             objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
         }
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 currentAdapterPosition = (recyclerView.layoutManager as? LinearLayoutManager)?.findLastCompletelyVisibleItemPosition()
@@ -70,35 +76,29 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         })
 
         viewModel.setThreadId(threadId)
-        viewModel.articles.observe(viewLifecycleOwner, {
-            if (it != null) {
-                when (it.status) {
-                    Status.REFRESHING -> progressView.show()
+        viewModel.articles.observe(viewLifecycleOwner) {
+            it?.let { (status, data, message) ->
+                when (status) {
+                    Status.REFRESHING -> binding.progressView.show()
                     Status.ERROR -> {
-                        emptyView.text = it.message.ifEmpty { getString(R.string.empty_thread) }
-                        recyclerView.fadeOut()
-                        emptyView.fadeIn()
-                        progressView.hide()
+                        binding.emptyView.text = it.message.ifEmpty { getString(R.string.empty_thread) }
+                        binding.emptyView.isVisible = true
+                        binding.recyclerView.isVisible = false
+                        binding.progressView.hide()
                     }
                     Status.SUCCESS -> {
-                        it.data?.let { entity ->
-                            adapter.threadId = entity.threadId
-                            adapter.threadSubject = entity.subject
-                            if (entity.articles.isEmpty()) {
-                                recyclerView.fadeOut()
-                                emptyView.fadeIn()
-                            } else {
-                                adapter.articles = entity.articles
-                                emptyView.fadeOut()
-                                recyclerView.fadeIn()
-                            }
-                        }
-                        progressView.hide()
+                        binding.emptyView.setText(R.string.empty_thread)
+                        adapter.articles = data?.articles.orEmpty()
+                        adapter.threadId = data?.threadId ?: BggContract.INVALID_ID
+                        adapter.threadSubject = data?.subject.orEmpty()
+                        binding.emptyView.isVisible = data?.articles.orEmpty().isEmpty()
+                        binding.recyclerView.isVisible = data?.articles.orEmpty().isNotEmpty()
+                        binding.progressView.hide()
                     }
                 }
             }
             activity?.invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onResume() {
@@ -111,6 +111,11 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         if (latestArticleId != INVALID_ARTICLE_ID) {
             requireContext().preferences()[getThreadKey(threadId)] = latestArticleId
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun getThreadKey(threadId: Int): String {
@@ -151,9 +156,9 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         if (position != RecyclerView.NO_POSITION) {
             val difference = abs(currentAdapterPosition - position)
             if (difference <= SMOOTH_SCROLL_THRESHOLD) {
-                recyclerView.smoothScrollToPosition(position)
+                binding.recyclerView.smoothScrollToPosition(position)
             } else {
-                recyclerView.scrollToPosition(position)
+                binding.recyclerView.scrollToPosition(position)
             }
         }
     }
@@ -167,7 +172,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         private const val KEY_THREAD_ID = "THREAD_ID"
         private const val SMOOTH_SCROLL_THRESHOLD = 10
         private const val INVALID_ARTICLE_ID = -1
-        // private const val HELP_VERSION = 2
 
         fun newInstance(
             threadId: Int,
@@ -175,7 +179,7 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
             forumTitle: String?,
             objectId: Int,
             objectName: String?,
-            objectType: ForumEntity.ForumType?
+            objectType: ForumEntity.ForumType?,
         ): ThreadFragment {
             return ThreadFragment().apply {
                 arguments = bundleOf(

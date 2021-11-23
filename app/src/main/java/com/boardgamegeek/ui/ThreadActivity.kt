@@ -62,11 +62,9 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             android.R.id.home -> {
                 ForumActivity.startUp(this, forumId, forumTitle, objectId, objectName, objectType)
                 finish()
-                return true
             }
             R.id.menu_view -> {
                 linkToBgg("thread", threadId)
-                return true
             }
             R.id.menu_share -> {
                 val description = if (objectName.isBlank())
@@ -89,10 +87,10 @@ class ThreadActivity : SimpleSinglePaneActivity() {
                         if (objectName.isBlank()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
                     )
                 }
-                return true
             }
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     companion object {
@@ -138,7 +136,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType
+            objectType: ForumEntity.ForumType,
         ): Intent {
             return context.intentFor<ThreadActivity>(
                 KEY_THREAD_ID to threadId,

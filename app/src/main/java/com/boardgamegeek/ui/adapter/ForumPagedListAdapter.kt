@@ -6,12 +6,12 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowForumThreadBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.ThreadEntity
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.toFormattedString
 import com.boardgamegeek.ui.ThreadActivity
-import kotlinx.android.synthetic.main.row_forum_thread.view.*
 
 class ForumPagedListAdapter(
     private val forumId: Int,
@@ -38,11 +38,13 @@ class ForumPagedListAdapter(
     }
 
     inner class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = RowForumThreadBinding.bind(itemView)
+
         fun bind(thread: ThreadEntity?) {
-            itemView.subjectView.text = thread?.subject.orEmpty()
-            itemView.authorView.text = thread?.author.orEmpty()
-            itemView.numberOfArticlesView.text = ((thread?.numberOfArticles ?: 1) - 1).toFormattedString()
-            itemView.lastPostDateView.timestamp = thread?.lastPostDate ?: 0L
+            binding.subjectView.text = thread?.subject.orEmpty()
+            binding.authorView.text = thread?.author.orEmpty()
+            binding.numberOfArticlesView.text = ((thread?.numberOfArticles ?: 1) - 1).toFormattedString()
+            binding.lastPostDateView.timestamp = thread?.lastPostDate ?: 0L
             itemView.setOnClickListener {
                 thread?.let { thread ->
                     ThreadActivity.start(it.context, thread.threadId, thread.subject, forumId, forumTitle, objectId, objectName, objectType)

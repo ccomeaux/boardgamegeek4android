@@ -1,26 +1,28 @@
 package com.boardgamegeek.ui.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowForumBinding
+import com.boardgamegeek.databinding.RowForumHeaderBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.ui.ForumActivity
-import kotlinx.android.synthetic.main.row_forum.view.*
-import kotlinx.android.synthetic.main.row_forum_header.view.*
 import java.text.NumberFormat
 
 class ForumsRecyclerViewAdapter(
-        private val objectId: Int,
-        private val objectName: String,
-        private val objectType: ForumEntity.ForumType
+    private val objectId: Int,
+    private val objectName: String,
+    private val objectType: ForumEntity.ForumType
 ) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
     init {
         setHasStableIds(true)
     }
 
     var forums: List<ForumEntity> = emptyList()
+        @SuppressLint("NotifyDataSetChanged")
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -59,21 +61,22 @@ class ForumsRecyclerViewAdapter(
 
     sealed class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
+            private val binding = RowForumBinding.bind(itemView)
 
             fun bind(forum: ForumEntity?, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
                 if (forum == null) return
-                itemView.apply {
-                    titleView.text = forum.title
-                    numberOfThreadsView.text = numberFormat.format(forum.numberOfThreads.toLong())
-                    lastPostDateView.timestamp = forum.lastPostDateTime
-                    setOnClickListener { ForumActivity.start(it.context, forum.id, forum.title, objectId, objectName, objectType) }
-                }
+                binding.titleView.text = forum.title
+                binding.numberOfThreadsView.text = numberFormat.format(forum.numberOfThreads.toLong())
+                binding.lastPostDateView.timestamp = forum.lastPostDateTime
+                itemView.setOnClickListener { ForumActivity.start(itemView.context, forum.id, forum.title, objectId, objectName, objectType) }
             }
         }
 
         class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
+            private val binding = RowForumHeaderBinding.bind(itemView)
+
             fun bind(forum: ForumEntity?) {
-                itemView.headerView.text = forum?.title
+                binding.headerView.text = forum?.title
             }
         }
     }

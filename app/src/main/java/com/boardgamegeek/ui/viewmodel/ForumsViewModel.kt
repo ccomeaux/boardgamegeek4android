@@ -7,7 +7,6 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
-import java.lang.Exception
 
 class ForumsViewModel(application: Application) : AndroidViewModel(application) {
     private enum class ForumType {
@@ -39,21 +38,25 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
 
     val forums: LiveData<RefreshableResource<List<ForumEntity>>> = _id.switchMap { pair ->
         liveData {
-            emit(RefreshableResource.refreshing())
-            try {
-                if (pair.second == BggContract.INVALID_ID) {
-                    emit(RefreshableResource.error<List<ForumEntity>>("Invalid ID!"))
-                } else {
-                    when (pair.first) {
-                        ForumType.REGION -> emit(RefreshableResource.success(repository.loadForRegion()))
-                        ForumType.COMPANY -> emit(RefreshableResource.success(repository.loadForCompany(pair.second)))
-                        ForumType.GAME -> emit(RefreshableResource.success(repository.loadForGame(pair.second)))
-                        ForumType.PERSON -> emit(RefreshableResource.success(repository.loadForPerson(pair.second)))
+            emit(RefreshableResource.refreshing(latestValue?.data))
+            emit(
+                try {
+                    if (pair.second == BggContract.INVALID_ID) {
+                        RefreshableResource.error("Invalid ID!")
+                    } else {
+                        RefreshableResource.success(
+                            when (pair.first) {
+                                ForumType.REGION -> repository.loadForRegion()
+                                ForumType.COMPANY -> repository.loadForCompany(pair.second)
+                                ForumType.GAME -> repository.loadForGame(pair.second)
+                                ForumType.PERSON -> repository.loadForPerson(pair.second)
+                            }
+                        )
                     }
+                } catch (e: Exception) {
+                    RefreshableResource.error(e, application)
                 }
-            } catch (e: Exception) {
-                emit(RefreshableResource.error<List<ForumEntity>>(e, application))
-            }
+            )
         }
     }
 }
