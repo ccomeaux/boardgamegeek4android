@@ -3,12 +3,12 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.palette.graphics.Palette
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityImageBinding
 import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.util.PaletteTransformation
@@ -16,17 +16,18 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_image.*
 import timber.log.Timber
 
 class ImageActivity : AppCompatActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private lateinit var binding : ActivityImageBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
-        setContentView(R.layout.activity_image)
+        binding = ActivityImageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val imageUrl = intent.getStringExtra(KEY_IMAGE_URL)
         if (imageUrl.isNullOrBlank()) {
@@ -36,10 +37,9 @@ class ImageActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState == null) {
-            val imageId = Uri.parse(imageUrl).lastPathSegment
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Image")
-                param(FirebaseAnalytics.Param.ITEM_ID, imageId.orEmpty())
+                param(FirebaseAnalytics.Param.ITEM_ID, imageUrl.toUri().lastPathSegment.orEmpty())
             }
         }
 
@@ -49,19 +49,19 @@ class ImageActivity : AppCompatActivity() {
             .fit()
             .centerInside()
             .transform(PaletteTransformation.instance())
-            .into(imageView, object : Callback.EmptyCallback() {
+            .into(binding.imageView, object : Callback.EmptyCallback() {
                 override fun onSuccess() {
                     setBackgroundColor()
-                    progressBar.visibility = View.GONE
+                    binding.progressBar.isVisible = false
                 }
             })
     }
 
     private fun setBackgroundColor() {
-        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+        val bitmap = (binding.imageView.drawable as BitmapDrawable).bitmap
         val palette = PaletteTransformation.getPalette(bitmap)
-        val swatch: Palette.Swatch? = palette?.darkMutedSwatch ?: palette?.darkVibrantSwatch ?: palette?.mutedSwatch
-        imageView.setBackgroundColor(swatch?.rgb ?: Color.BLACK)
+        val swatch = palette?.darkMutedSwatch ?: palette?.darkVibrantSwatch ?: palette?.mutedSwatch
+        binding.imageView.setBackgroundColor(swatch?.rgb ?: Color.BLACK)
     }
 
     companion object {
