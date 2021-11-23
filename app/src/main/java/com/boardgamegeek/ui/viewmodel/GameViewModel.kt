@@ -6,7 +6,6 @@ import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
@@ -164,6 +163,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val absent = _gameId.switchMap {
+        liveData {
+            emit(null)
+        }
+    }
+
     private fun describeStatuses(entity: GameExpansionsEntity, application: Application): String {
         val ctx = application.applicationContext
         val statuses = mutableListOf<String>()
@@ -190,7 +195,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ProducerType.MECHANICS -> mechanics
             ProducerType.EXPANSIONS -> expansions
             ProducerType.BASE_GAMES -> baseGames
-            else -> AbsentLiveData.create()
+            else -> absent
         }
     }
 

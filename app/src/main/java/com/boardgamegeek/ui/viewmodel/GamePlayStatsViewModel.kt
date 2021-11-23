@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.livedata.AbsentLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
