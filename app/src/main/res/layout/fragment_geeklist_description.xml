@@ -22,7 +22,9 @@
 		android:visibility="gone"
 		tools:visibility="visible">
 
-		<include layout="@layout/header_geek_list" />
+		<include
+			android:id="@+id/header"
+			layout="@layout/header_geek_list" />
 
 		<FrameLayout style="@style/WebViewContainer">
 

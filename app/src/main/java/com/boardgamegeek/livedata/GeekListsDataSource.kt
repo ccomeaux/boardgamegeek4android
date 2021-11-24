@@ -8,11 +8,7 @@ import com.boardgamegeek.repository.GeekListRepository
 import retrofit2.HttpException
 import timber.log.Timber
 
-class GeekListsDataSource(
-        private val sort: String,
-        private val repository: GeekListRepository,
-) : PagingSource<Int, GeekListEntity>() {
-
+class GeekListsDataSource(private val sort: String, private val repository: GeekListRepository) : PagingSource<Int, GeekListEntity>() {
     override fun getRefreshKey(state: PagingState<Int, GeekListEntity>): Int? {
         return null
     }
@@ -21,7 +17,7 @@ class GeekListsDataSource(
         return try {
             val page = params.key ?: 1
             val response = repository.getGeekLists(sort, page)
-            val nextPage = if (response.isEmpty() || page * GeekListsResponse.PAGE_SIZE >= GeekListsResponse.TOTAL_COUNT) null else page + 1
+            val nextPage = if (response.isEmpty()) null else getNextPage(page, GeekListsResponse.PAGE_SIZE, GeekListsResponse.TOTAL_COUNT)
             LoadResult.Page(response, null, nextPage)
         } catch (e: Exception) {
             if (e is HttpException) {
@@ -31,5 +27,9 @@ class GeekListsDataSource(
             }
             LoadResult.Error(e)
         }
+    }
+
+    private fun getNextPage(currentPage: Int, pageSize: Int, totalCount: Int): Int? {
+        return if (currentPage * pageSize < totalCount) currentPage + 1 else null
     }
 }

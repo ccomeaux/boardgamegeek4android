@@ -15,6 +15,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 
 class GeekListsViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = GeekListRepository()
     private val _sort = MutableLiveData<String>()
 
     fun setSort(sort: SortType) {
@@ -32,16 +33,16 @@ class GeekListsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    val geekLists = _sort.switchMap {
+    val geekLists = _sort.switchMap { sort ->
         Pager(
-                PagingConfig(
-                        pageSize = GeekListsResponse.PAGE_SIZE,
-                        initialLoadSize = GeekListsResponse.PAGE_SIZE,
-                        prefetchDistance = 30,
-                        enablePlaceholders = true,
-                )
+            PagingConfig(
+                pageSize = GeekListsResponse.PAGE_SIZE,
+                initialLoadSize = GeekListsResponse.PAGE_SIZE,
+                prefetchDistance = 30,
+                enablePlaceholders = true,
+            )
         ) {
-            GeekListsDataSource(it, GeekListRepository())
+            GeekListsDataSource(sort, repository)
         }.flow.asLiveData()
     }
 

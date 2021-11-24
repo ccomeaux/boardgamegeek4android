@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowGeeklistCommentBinding
 import com.boardgamegeek.entities.GeekListCommentEntity
 import com.boardgamegeek.extensions.inflate
-import kotlinx.android.synthetic.main.row_geeklist_comment.view.*
 import kotlin.properties.Delegates
 
 class GeekListCommentsRecyclerViewAdapter
@@ -28,16 +28,18 @@ class GeekListCommentsRecyclerViewAdapter
 
     override fun getItemCount() = comments.size
 
-    inner class CommentViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView!!) {
+    inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = RowGeeklistCommentBinding.bind(itemView)
+
         fun bind(comment: GeekListCommentEntity?) {
             comment?.let {
-                itemView.usernameView.text = it.username
-                itemView.numberOfThumbsView.text = it.numberOfThumbs.toString()
-                itemView.postedDateView.timestamp = it.postDate
-                itemView.editedDateView.timestamp = it.editDate
-                itemView.editedDateView.isVisible = it.editDate != it.postDate
-                itemView.datetimeDividerView.isVisible = it.editDate != it.postDate
-                itemView.commentView.text = it.content
+                binding.usernameView.text = it.username
+                binding.numberOfThumbsView.text = it.numberOfThumbs.toString()
+                binding.postedDateView.timestamp = it.postDate
+                binding.editedDateView.timestamp = it.editDate
+                binding.editedDateView.isVisible = it.editDate != it.postDate
+                binding.datetimeDividerView.isVisible = it.editDate != it.postDate
+                binding.commentView.text = it.content
             }
         }
     }

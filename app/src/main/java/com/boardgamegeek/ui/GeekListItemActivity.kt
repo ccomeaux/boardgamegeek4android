@@ -20,7 +20,7 @@ class GeekListItemActivity : HeroTabActivity() {
     private var geekListId = 0
     private var geekListTitle = ""
     private var order = 0
-    private var glItem = GeekListItemEntity()
+    private var geekListItemEntity = GeekListItemEntity()
 
     private val adapter: GeekListItemPagerAdapter by lazy {
         GeekListItemPagerAdapter(this)
@@ -31,19 +31,19 @@ class GeekListItemActivity : HeroTabActivity() {
         geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()
         geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID)
         order = intent.getIntExtra(KEY_ORDER, 0)
-        glItem = intent.getParcelableExtra(KEY_ITEM) ?: GeekListItemEntity()
+        geekListItemEntity = intent.getParcelableExtra(KEY_ITEM) ?: GeekListItemEntity()
 
         initializeViewPager()
 
-        safelySetTitle(glItem.objectName)
-        if (savedInstanceState == null && glItem.objectId != BggContract.INVALID_ID) {
+        safelySetTitle(geekListItemEntity.objectName)
+        if (savedInstanceState == null && geekListItemEntity.objectId != BggContract.INVALID_ID) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekListItem")
-                param(FirebaseAnalytics.Param.ITEM_ID, glItem.objectId.toString())
-                param(FirebaseAnalytics.Param.ITEM_NAME, glItem.objectName)
+                param(FirebaseAnalytics.Param.ITEM_ID, geekListItemEntity.objectId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, geekListItemEntity.objectName)
             }
         }
-        loadToolbarImage(glItem.imageId)
+        loadToolbarImage(geekListItemEntity.imageId)
     }
 
     override val optionsMenuId = R.menu.view
@@ -51,32 +51,24 @@ class GeekListItemActivity : HeroTabActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                when {
-                    geekListId != BggContract.INVALID_ID -> {
-                        GeekListActivity.startUp(this, geekListId, geekListTitle)
-                        finish()
-                    }
-                    else -> onBackPressed()
+                if (geekListId != BggContract.INVALID_ID) {
+                    GeekListActivity.startUp(this, geekListId, geekListTitle)
+                    finish()
                 }
+                else onBackPressed()
                 true
             }
             R.id.menu_view -> {
-                when (glItem.isBoardGame) {
-                    true -> {
-                        if (glItem.objectId == BggContract.INVALID_ID || glItem.objectName.isBlank()) {
-                            false
-                        } else {
-                            start(this, glItem.objectId, glItem.objectName)
-                            true
-                        }
+                if (geekListItemEntity.isBoardGame) {
+                    if (geekListItemEntity.objectId == BggContract.INVALID_ID || geekListItemEntity.objectName.isBlank()) false else {
+                        start(this, geekListItemEntity.objectId, geekListItemEntity.objectName)
+                        true
                     }
-                    else -> {
-                        if (glItem.objectUrl.isBlank()) {
-                            false
-                        } else {
-                            link(glItem.objectUrl)
-                            true
-                        }
+                }
+                else {
+                    if (geekListItemEntity.objectUrl.isBlank()) false else {
+                        link(geekListItemEntity.objectUrl)
+                        true
                     }
                 }
             }
@@ -98,8 +90,8 @@ class GeekListItemActivity : HeroTabActivity() {
         FragmentStateAdapter(activity) {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> GeekListItemFragment.newInstance(order, geekListTitle, glItem)
-                1 -> GeekListItemCommentsFragment.newInstance(glItem.comments)
+                0 -> GeekListItemFragment.newInstance(order, geekListTitle, geekListItemEntity)
+                1 -> GeekListItemCommentsFragment.newInstance(geekListItemEntity.comments)
                 else -> ErrorFragment()
             }
         }

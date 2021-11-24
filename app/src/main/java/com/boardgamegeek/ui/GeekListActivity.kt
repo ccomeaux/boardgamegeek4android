@@ -20,9 +20,7 @@ class GeekListActivity : TabActivity() {
     private var geekListId = BggContract.INVALID_ID
     private var geekListTitle: String = ""
     private val viewModel by viewModels<GeekListViewModel>()
-    private val adapter: GeekListPagerAdapter by lazy {
-        GeekListPagerAdapter(this)
-    }
+    private val adapter: GeekListPagerAdapter by lazy { GeekListPagerAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,12 +39,14 @@ class GeekListActivity : TabActivity() {
         }
 
         viewModel.setId(geekListId)
-        viewModel.geekList.observe(this, { (status, data, _) ->
-            if (status == Status.SUCCESS && data != null) {
-                geekListTitle = data.title
-                safelySetTitle(geekListTitle)
+        viewModel.geekList.observe(this) {
+            it?.let { (status, data, _) ->
+                if (status == Status.SUCCESS && data != null) {
+                    geekListTitle = data.title
+                    safelySetTitle(geekListTitle)
+                }
             }
-        })
+        }
     }
 
     override val optionsMenuId = R.menu.view_share
