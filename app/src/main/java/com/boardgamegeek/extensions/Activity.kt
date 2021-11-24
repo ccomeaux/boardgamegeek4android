@@ -6,7 +6,6 @@ import android.app.Activity
 import android.graphics.Insets
 import android.os.Build
 import android.util.DisplayMetrics
-import android.util.Pair
 import android.view.View
 import android.view.WindowInsets
 import androidx.annotation.StringRes

@@ -10,7 +10,6 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.repository.HotnessRepository
 import com.boardgamegeek.repository.PlayRepository
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class HotnessViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = HotnessRepository(getApplication())
@@ -18,11 +17,11 @@ class HotnessViewModel(application: Application) : AndroidViewModel(application)
 
     val hotness: LiveData<RefreshableResource<List<HotGameEntity>>> = liveData {
         try {
-            emit(RefreshableResource.refreshing(null))
+            emit(RefreshableResource.refreshing(latestValue?.data))
             val games = repository.getHotness()
             emit(RefreshableResource.success(games))
         } catch (e: Exception) {
-            emit(RefreshableResource.error<List<HotGameEntity>>(e, application))
+            emit(RefreshableResource.error(e, application))
         }
     }
 

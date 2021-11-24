@@ -10,7 +10,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.util.Pair
 import android.util.SparseBooleanArray
 import android.view.*
 import android.widget.LinearLayout
@@ -550,7 +549,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 } else {
                     val games: MutableList<Pair<Int, String>> = ArrayList(adapter.selectedItemCount)
                     for (position in adapter.selectedItemPositions) {
-                        adapter.getItem(position)?.let { games.add(Pair.create(it.gameId, it.gameName)) }
+                        adapter.getItem(position)?.let { games.add(it.gameId to it.gameName) }
                     }
                     requireActivity().shareGames(games, shareMethod, firebaseAnalytics)
                 }
