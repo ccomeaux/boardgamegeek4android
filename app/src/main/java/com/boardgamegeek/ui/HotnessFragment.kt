@@ -160,9 +160,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
         val selectedItemCount: Int
             get() = selectedItems.filterTrue().size
 
-        fun getSelectedGames(): List<HotGameEntity> {
-            return selectedItems.filterTrue().mapNotNull { games.getOrNull(it) }
-        }
+        fun getSelectedGames() = selectedItems.filterTrue().mapNotNull { games.getOrNull(it) }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {

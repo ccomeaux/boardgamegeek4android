@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.util.Pair
 import android.view.*
 import androidx.annotation.PluralsRes
 import androidx.core.content.ContextCompat
@@ -11,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.databinding.FragmentSearchResultsBinding
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
@@ -19,15 +19,15 @@ import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.fragment_search_results.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import java.util.*
 
 class SearchResultsFragment : Fragment(R.layout.fragment_search_results), ActionMode.Callback {
+    private var _binding: FragmentSearchResultsBinding? = null
+    private val binding get() = _binding!!
     private var actionMode: ActionMode? = null
 
     private val snackbar: Snackbar by lazy {
-        Snackbar.make(containerView, "", Snackbar.LENGTH_INDEFINITE).apply {
+        Snackbar.make(binding.containerView, "", Snackbar.LENGTH_INDEFINITE).apply {
             view.setBackgroundResource(R.color.dark_blue)
             setActionTextColor(ContextCompat.getColor(context, R.color.accent))
         }
@@ -66,40 +66,54 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
             })
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.searchResults.observe(this, { resource ->
-            resource?.let { (status, data) ->
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentSearchResultsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.progress.progressView.isIndeterminate = true
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.recyclerView.adapter = searchResultsAdapter
+
+        viewModel.searchResults.observe(this) { resource ->
+            resource?.let { (status, data, message) ->
                 when (status) {
-                    Status.REFRESHING -> progressContainer.isVisible = true
+                    Status.REFRESHING -> binding.progress.progressContainer.isVisible = true
                     Status.ERROR -> {
-                        emptyView.text = getString(R.string.search_error, viewModel.query.value, resource.message)
-                        emptyView.isVisible = true
-                        recyclerView.isVisible = false
-                        progressContainer.isVisible = false
+                        binding.emptyView.text = getString(R.string.search_error, viewModel.query.value, message)
+                        binding.emptyView.isVisible = true
+                        binding.recyclerView.isVisible = false
+                        binding.progress.progressContainer.isVisible = false
                     }
                     Status.SUCCESS -> {
                         val query = viewModel.query.value
                         if (data == null || data.isEmpty()) {
-                            if (query == null || query.first.isBlank()) {
-                                emptyView.setText(R.string.search_initial_help)
-                            } else {
-                                emptyView.setText(R.string.empty_search)
-                            }
+                            binding.emptyView.setText(
+                                if (query == null || query.first.isBlank()) R.string.search_initial_help else R.string.empty_search
+                            )
                             searchResultsAdapter.clear()
-                            emptyView.isVisible = true
-                            recyclerView.isVisible = false
+                            binding.emptyView.isVisible = true
+                            binding.recyclerView.isVisible = false
                         } else {
                             searchResultsAdapter.results = data
-                            emptyView.isVisible = false
-                            recyclerView.isVisible = true
+                            binding.emptyView.isVisible = false
+                            binding.recyclerView.isVisible = true
                         }
                         query?.let { showSnackbar(it.first, it.second, data?.size ?: 0) }
-                        progressContainer.isVisible = false
+                        binding.progress.progressContainer.isVisible = false
                     }
                 }
             }
-        })
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showSnackbar(queryText: String, isExactMatch: Boolean, count: Int) {
@@ -121,13 +135,6 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
             }
             snackbar.show()
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        progressView.isIndeterminate = true
-        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = searchResultsAdapter
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -155,17 +162,14 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        if (searchResultsAdapter.getSelectedItems().isEmpty()) {
-            return false
-        }
-        val game = searchResultsAdapter.getItem(searchResultsAdapter.getSelectedItems()[0])
+        if (searchResultsAdapter.getSelectedItems().isEmpty()) return false
+        val game = searchResultsAdapter.getSelectedItems().firstOrNull()
         when (item.itemId) {
             R.id.menu_log_play_form -> {
                 game?.let {
                     LogPlayActivity.logPlay(requireContext(), it.id, it.name)
                 }
                 mode.finish()
-                return true
             }
             R.id.menu_log_play_quick -> {
                 context?.toast(
@@ -174,42 +178,32 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
                         searchResultsAdapter.selectedItemCount
                     )
                 )
-                for (position in searchResultsAdapter.getSelectedItems()) {
-                    searchResultsAdapter.getItem(position)?.let {
-                        viewModel.logQuickPlay(it.id, it.name)
-                    }
+                searchResultsAdapter.getSelectedItems().forEach {
+                    viewModel.logQuickPlay(it.id, it.name)
                 }
                 mode.finish()
-                return true
             }
             R.id.menu_log_play_wizard -> {
                 game?.let { it ->
                     NewPlayActivity.start(requireContext(), it.id, it.name)
                 }
                 mode.finish()
-                return true
             }
             R.id.menu_share -> {
                 val shareMethod = "Search"
                 if (searchResultsAdapter.selectedItemCount == 1) {
                     game?.let { requireActivity().shareGame(it.id, it.name, shareMethod, firebaseAnalytics) }
                 } else {
-                    val games = ArrayList<Pair<Int, String>>(searchResultsAdapter.selectedItemCount)
-                    for (position in searchResultsAdapter.getSelectedItems()) {
-                        searchResultsAdapter.getItem(position)?.let {
-                            games.add(Pair.create(it.id, it.name))
-                        }
-                    }
+                    val games = searchResultsAdapter.getSelectedItems().map { it.id to it.name }
                     requireActivity().shareGames(games, shareMethod, firebaseAnalytics)
                 }
                 mode.finish()
-                return true
             }
             R.id.menu_link -> {
                 game?.let { context.linkBgg(it.id) }
                 mode.finish()
-                return true
             }
+            else -> return false
         }
         return false
     }

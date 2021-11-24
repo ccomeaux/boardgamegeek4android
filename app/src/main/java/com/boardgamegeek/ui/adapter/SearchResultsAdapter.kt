@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowSearchBinding
 import com.boardgamegeek.entities.SearchResultEntity
 import com.boardgamegeek.extensions.asYear
+import com.boardgamegeek.extensions.filterTrue
 import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.toggle
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.SearchResultViewHolder
-import kotlinx.android.synthetic.main.row_search.view.*
-import java.util.*
 import kotlin.properties.Delegates
 
 class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapter<SearchResultViewHolder>(), AutoUpdatableAdapter {
@@ -46,17 +47,19 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
     }
 
     inner class SearchResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = RowSearchBinding.bind(itemView)
+
         fun bind(game: SearchResultEntity?, position: Int) {
             game?.let { result ->
-                itemView.nameView.text = result.name
+                binding.nameView.text = result.name
                 val style = when (result.nameType) {
                     SearchResultEntity.NAME_TYPE_ALTERNATE -> Typeface.ITALIC
                     SearchResultEntity.NAME_TYPE_PRIMARY, SearchResultEntity.NAME_TYPE_UNKNOWN -> Typeface.NORMAL
                     else -> Typeface.NORMAL
                 }
-                itemView.nameView.setTypeface(itemView.nameView.typeface, style)
-                itemView.yearView.text = result.yearPublished.asYear(itemView.context)
-                itemView.gameIdView.text = itemView.context.getString(R.string.id_list_text, result.id.toString())
+                binding.nameView.setTypeface(binding.nameView.typeface, style)
+                binding.yearView.text = result.yearPublished.asYear(itemView.context)
+                binding.gameIdView.text = itemView.context.getString(R.string.id_list_text, result.id.toString())
 
                 itemView.isActivated = selectedItems.get(position, false)
 
@@ -73,32 +76,23 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
         }
     }
 
-    private val selectedItems: SparseBooleanArray = SparseBooleanArray()
+    private val selectedItems = SparseBooleanArray()
 
     val selectedItemCount: Int
-        get() = selectedItems.size()
+        get() = selectedItems.filterTrue().size
 
     fun toggleSelection(position: Int) {
-        if (selectedItems.get(position, false)) {
-            selectedItems.delete(position)
-        } else {
-            selectedItems.put(position, true)
-        }
+        selectedItems.toggle(position)
         notifyItemChanged(position)
     }
 
     fun clearSelections() {
+        val oldSelectedItems = selectedItems.clone()
         selectedItems.clear()
-        notifyDataSetChanged()
+        oldSelectedItems.filterTrue().forEach { notifyItemChanged(it) }
     }
 
-    fun getSelectedItems(): List<Int> {
-        val items = ArrayList<Int>(selectedItems.size())
-        for (i in 0 until selectedItems.size()) {
-            items.add(selectedItems.keyAt(i))
-        }
-        return items
-    }
+    fun getSelectedItems() = selectedItems.filterTrue().mapNotNull { getItem(it) }
 
     interface Callback {
         fun onItemClick(position: Int): Boolean
