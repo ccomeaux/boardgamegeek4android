@@ -2,9 +2,10 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.boardgamegeek.io.model.Game
-import com.boardgamegeek.livedata.CommentsDataSource
+import com.boardgamegeek.livedata.CommentsPagingSource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 
@@ -13,6 +14,7 @@ class GameCommentsViewModel(application: Application) : AndroidViewModel(applica
         RATING, USER
     }
 
+    private val repository = GameRepository(getApplication())
     private val _id = MutableLiveData<Pair<Int, SortType>>()
 
     val sort: LiveData<SortType> = Transformations.map(_id) {
@@ -37,7 +39,7 @@ class GameCommentsViewModel(application: Application) : AndroidViewModel(applica
                 enablePlaceholders = true,
             )
         ) {
-            CommentsDataSource(it.first, sortByRating, GameRepository(getApplication()))
+            CommentsPagingSource(it.first, sortByRating, repository)
         }.flow.asLiveData()
     }
 }

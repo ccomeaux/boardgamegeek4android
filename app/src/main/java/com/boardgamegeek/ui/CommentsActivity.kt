@@ -22,19 +22,19 @@ class CommentsActivity : SimpleSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.setGameId(gameId)
-        viewModel.setSort(if (sortType == SORT_TYPE_USER) GameCommentsViewModel.SortType.USER else GameCommentsViewModel.SortType.RATING)
-        viewModel.sort.observe(this, {
-            sortType = if (it == GameCommentsViewModel.SortType.RATING) SORT_TYPE_RATING else SORT_TYPE_USER
-            invalidateOptionsMenu()
-        })
-
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameComments")
                 param(FirebaseAnalytics.Param.ITEM_ID, gameId.toString())
                 param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
             }
+        }
+
+        viewModel.setGameId(gameId)
+        viewModel.setSort(if (sortType == SORT_TYPE_USER) GameCommentsViewModel.SortType.USER else GameCommentsViewModel.SortType.RATING)
+        viewModel.sort.observe(this) {
+            sortType = if (it == GameCommentsViewModel.SortType.RATING) SORT_TYPE_RATING else SORT_TYPE_USER
+            invalidateOptionsMenu()
         }
     }
 
@@ -69,24 +69,22 @@ class CommentsActivity : SimpleSinglePaneActivity() {
             android.R.id.home -> {
                 GameActivity.startUp(this, gameId, gameName)
                 finish()
-                return true
             }
             R.id.menu_sort_comments -> {
                 sortType = SORT_TYPE_USER
                 invalidateOptionsMenu()
                 (fragment as? CommentsFragment)?.clear()
                 viewModel.setSort(GameCommentsViewModel.SortType.USER)
-                return true
             }
             R.id.menu_sort_rating -> {
                 sortType = SORT_TYPE_RATING
                 invalidateOptionsMenu()
                 (fragment as? CommentsFragment)?.clear()
                 viewModel.setSort(GameCommentsViewModel.SortType.RATING)
-                return true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     companion object {

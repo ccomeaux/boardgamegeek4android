@@ -9,7 +9,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GeekListsResponse
-import com.boardgamegeek.livedata.GeekListsDataSource
+import com.boardgamegeek.livedata.GeekListsPagingSource
 import com.boardgamegeek.repository.GeekListRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -42,7 +42,7 @@ class GeekListsViewModel(application: Application) : AndroidViewModel(applicatio
                 enablePlaceholders = true,
             )
         ) {
-            GeekListsDataSource(sort, repository)
+            GeekListsPagingSource(sort, repository)
         }.flow.asLiveData()
     }
 

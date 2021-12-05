@@ -9,7 +9,7 @@ open class Event<out T>(private val content: T) {
         private set // Allow external read but not write
 
     /**
-     * Returns the content and prevents its use again.
+     * Returns the content and prevents its use again. Returns null if it has already been handled.
      */
     fun getContentIfNotHandled(): T? {
         return if (hasBeenHandled) {

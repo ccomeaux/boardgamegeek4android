@@ -8,7 +8,7 @@ import com.boardgamegeek.repository.GeekListRepository
 import retrofit2.HttpException
 import timber.log.Timber
 
-class GeekListsDataSource(private val sort: String, private val repository: GeekListRepository) : PagingSource<Int, GeekListEntity>() {
+class GeekListsPagingSource(private val sort: String, private val repository: GeekListRepository) : PagingSource<Int, GeekListEntity>() {
     override fun getRefreshKey(state: PagingState<Int, GeekListEntity>): Int? {
         return null
     }

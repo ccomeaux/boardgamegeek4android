@@ -8,7 +8,7 @@ import com.boardgamegeek.repository.GameRepository
 import retrofit2.HttpException
 import timber.log.Timber
 
-class CommentsDataSource(val gameId: Int, private val sortByRating: Boolean = false, val repository: GameRepository) :
+class CommentsPagingSource(val gameId: Int, private val sortByRating: Boolean = false, val repository: GameRepository) :
     PagingSource<Int, GameCommentEntity>() {
     override fun getRefreshKey(state: PagingState<Int, GameCommentEntity>): Int? {
         return null // not sure this is correct, but I hope this will have paging start over from 1
@@ -20,12 +20,8 @@ class CommentsDataSource(val gameId: Int, private val sortByRating: Boolean = fa
 
             val page = params.key ?: 1
             val entity = if (sortByRating) repository.loadRatings(gameId, page) else repository.loadComments(gameId, page)
-
-            val nextPage = if (page * params.loadSize < entity?.numberOfRatings ?: 0) {
-                page + 1
-            } else null
-
-            LoadResult.Page(entity?.ratings ?: emptyList(), null, nextPage)
+            val nextPage = getNextPage(page, params.loadSize, entity?.numberOfRatings ?: 0)
+            LoadResult.Page(entity?.ratings.orEmpty(), null, nextPage)
         } catch (e: Exception) {
             if (e is HttpException) {
                 Timber.w("Error code: ${e.code()}\n${e.response()?.body()}")
@@ -34,5 +30,9 @@ class CommentsDataSource(val gameId: Int, private val sortByRating: Boolean = fa
             }
             LoadResult.Error(e)
         }
+    }
+
+    private fun getNextPage(currentPage: Int, pageSize: Int, totalCount: Int): Int? {
+        return if (currentPage * pageSize < totalCount) currentPage + 1 else null
     }
 }
