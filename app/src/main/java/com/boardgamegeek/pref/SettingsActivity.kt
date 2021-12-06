@@ -169,18 +169,15 @@ class SettingsActivity : DrawerActivity() {
         }
 
         override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-            preference?.key?.let {
-                return when {
+            return preference?.key?.let {
+                when {
                     it.startsWith(ACTION_PREFIX) -> {
                         (activity as SettingsActivity).replaceFragment(it)
                         true
                     }
-                    else -> {
-                        super.onPreferenceTreeClick(preference)
-                    }
+                    else -> super.onPreferenceTreeClick(preference)
                 }
-            }
-            return super.onPreferenceTreeClick(preference)
+            } ?: super.onPreferenceTreeClick(preference)
         }
 
         private val dialogFragmentTag = "PreferenceFragment.DIALOG"

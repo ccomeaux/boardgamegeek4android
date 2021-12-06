@@ -8,8 +8,7 @@ import com.boardgamegeek.tasks.*
 class ConfirmDialogFragment : PreferenceDialogFragmentCompat() {
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
-            val key = arguments?.getString(ARG_KEY)
-            val task: ToastingAsyncTask? = when (key) {
+            val task: ToastingAsyncTask? = when (arguments?.getString(ARG_KEY)) {
                 "clear" -> ClearDatabaseTask(context)
                 "collection" -> ResetCollectionTask(context)
                 "plays" -> ResetPlaysTask(context)

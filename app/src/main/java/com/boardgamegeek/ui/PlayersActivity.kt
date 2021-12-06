@@ -29,14 +29,14 @@ class PlayersActivity : SimpleSinglePaneActivity() {
         }
 
         viewModel.sort(intent.extras?.get(KEY_SORT_TYPE) as? PlayersViewModel.SortType ?: PlayersViewModel.SortType.NAME)
-        viewModel.players.observe(this, {
+        viewModel.players.observe(this) {
             playerCount = it?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortType = it?.sortType ?: PlayersViewModel.SortType.NAME
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -60,20 +60,12 @@ class PlayersActivity : SimpleSinglePaneActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_name -> {
-                viewModel.sort(PlayersViewModel.SortType.NAME)
-                return true
-            }
-            R.id.menu_sort_quantity -> {
-                viewModel.sort(PlayersViewModel.SortType.PLAY_COUNT)
-                return true
-            }
-            R.id.menu_sort_wins -> {
-                viewModel.sort(PlayersViewModel.SortType.WIN_COUNT)
-                return true
-            }
+            R.id.menu_sort_name -> viewModel.sort(PlayersViewModel.SortType.NAME)
+            R.id.menu_sort_quantity -> viewModel.sort(PlayersViewModel.SortType.PLAY_COUNT)
+            R.id.menu_sort_wins -> viewModel.sort(PlayersViewModel.SortType.WIN_COUNT)
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     companion object {
