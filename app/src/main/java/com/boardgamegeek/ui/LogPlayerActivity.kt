@@ -105,6 +105,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
 
         fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
+            position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
             player = intent.getParcelableExtra(KEY_PLAYER) ?: PlayPlayerEntity()
             if (hasAutoPosition()) player = player.copy(startingPosition = autoPosition.toString())
             originalPlayer = player.copy()
@@ -353,6 +354,8 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
                 putExtra(KEY_USED_COLORS, input.first.usedColors.toTypedArray())
                 putExtra(KEY_NEW_PLAYER, false)
                 putExtra(KEY_AUTO_POSITION, input.first.autoPosition)
+                putExtra(KEY_POSITION, input.second.first)
+                putExtra(KEY_PLAYER, input.second.second)
             }
         }
 
