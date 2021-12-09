@@ -118,8 +118,9 @@
 					app:startIconDrawable="@drawable/ic_location"
 					tools:visibility="visible">
 
-					<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+					<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 						android:id="@+id/locationView"
+						style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:imeOptions="actionNext"
@@ -339,13 +340,13 @@
 					android:descendantFocusability="blocksDescendants"
 					android:focusable="false"
 					android:gravity="center"
-					android:visibility="gone"
-					tools:visibility="visible"
 					android:minHeight="64dp"
 					android:paddingVertical="@dimen/padding_half"
+					android:visibility="gone"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/recyclerView">
+					app:layout_constraintTop_toBottomOf="@id/recyclerView"
+					tools:visibility="visible">
 
 					<Button
 						android:id="@+id/addPlayerButton"

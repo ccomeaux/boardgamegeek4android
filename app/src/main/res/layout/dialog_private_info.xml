@@ -110,8 +110,8 @@
 			android:layout_marginLeft="8dp"
 			android:layout_marginTop="@dimen/padding_half"
 			android:layout_marginBottom="-8dp"
-			android:text="@string/acquisition_date"
 			android:paddingHorizontal="@dimen/padding_half"
+			android:text="@string/acquisition_date"
 			android:textAppearance="?attr/textAppearanceCaption"
 			android:textColor="#99000000" />
 
@@ -159,9 +159,9 @@
 			android:hint="@string/acquired_from"
 			app:endIconMode="dropdown_menu">
 
-			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+			<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 				android:id="@+id/acquiredFromView"
-				style="?attr/editTextStyle"
+				style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:imeOptions="actionNext"
@@ -177,9 +177,9 @@
 			android:hint="@string/inventory_location"
 			app:endIconMode="dropdown_menu">
 
-			<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+			<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 				android:id="@+id/inventoryLocationView"
-				style="?attr/editTextStyle"
+				style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:imeOptions="actionNext"

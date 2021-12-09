@@ -98,8 +98,9 @@
 						app:endIconMode="dropdown_menu"
 						app:startIconDrawable="@drawable/ic_face">
 
-						<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+						<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 							android:id="@+id/nameView"
+							style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:imeOptions="actionNext"
@@ -118,8 +119,9 @@
 						app:endIconMode="dropdown_menu"
 						app:startIconDrawable="@drawable/ic_user">
 
-						<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+						<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 							android:id="@+id/usernameView"
+							style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:imeOptions="actionNext"
@@ -146,8 +148,9 @@
 							app:endIconMode="dropdown_menu"
 							app:startIconDrawable="@drawable/ic_colors">
 
-							<com.boardgamegeek.ui.widget.TextInputAutoCompleteTextView
+							<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 								android:id="@+id/teamColorView"
+								style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:imeOptions="actionNext"
