@@ -34,6 +34,9 @@ import kotlinx.coroutines.launch
 class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val viewModel by viewModels<LogPlayerViewModel>()
+    private val playerNameAdapter: PlayerNameAdapter by lazy { PlayerNameAdapter(this) }
+    private val buddyNameAdapter: BuddyNameAdapter by lazy { BuddyNameAdapter(this) }
+    private val colorAdapter: GameColorAdapter by lazy { GameColorAdapter(this) }
 
     private var gameName = ""
     private var position = 0
@@ -92,10 +95,21 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, PlayPlayerEntity.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
 
-        viewModel.colors.observe(this, {
+        viewModel.colors.observe(this) {
             colors.clear()
             colors.addAll(it)
-        })
+        }
+        viewModel.players.observe(this) {
+            playerNameAdapter.addPlayers(it)
+            buddyNameAdapter.addPlayers(it)
+        }
+        viewModel.buddies.observe(this) {
+            playerNameAdapter.addUsers(it)
+            buddyNameAdapter.addUsers(it)
+        }
+        viewModel.colors.observe(this) {
+            colorAdapter.addData(it)
+        }
 
         if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
             userHasShownScore = true
@@ -127,9 +141,9 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         }
 
         bindUi()
-        nameView.setAdapter(PlayerNameAdapter(this))
-        usernameView.setAdapter(BuddyNameAdapter(this))
-        teamColorView.setAdapter(GameColorAdapter(this, gameId))
+        nameView.setAdapter(playerNameAdapter)
+        usernameView.setAdapter(buddyNameAdapter)
+        teamColorView.setAdapter(colorAdapter)
         viewModel.setGameId(gameId)
     }
 
@@ -315,8 +329,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     class AddPlayerContract : ActivityResultContract<LaunchInput, PlayPlayerEntity?>() {
         override fun createIntent(context: Context, input: LaunchInput?): Intent {
             if (input == null) throw IllegalArgumentException("input can't be null")
-            val i = Intent().apply {
-                setClass(context, LogPlayerActivity::class.java)
+            return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.gameId)
                 putExtra(KEY_GAME_NAME, input.gameName)
                 putExtra(KEY_IMAGE_URL, input.imageUrl)
@@ -328,7 +341,6 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
                 putExtra(KEY_NEW_PLAYER, true)
                 putExtra(KEY_AUTO_POSITION, input.autoPosition)
             }
-            return i
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): PlayPlayerEntity? {
@@ -342,8 +354,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>, Pair<Int, PlayPlayerEntity?>>() {
         override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>?): Intent {
             if (input == null) throw IllegalArgumentException("input can't be null")
-            return Intent().apply {
-                setClass(context, LogPlayerActivity::class.java)
+            return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.first.gameId)
                 putExtra(KEY_GAME_NAME, input.first.gameName)
                 putExtra(KEY_IMAGE_URL, input.first.imageUrl)

@@ -421,11 +421,10 @@ class PlayDao(private val context: BggApplication) {
         )?.use {
             if (it.moveToFirst()) {
                 do {
-                    val count = it.getIntOrNull(3) ?: 0
-                    Timber.i(count.toString())
                     results += PlayerEntity(
                         name = it.getStringOrNull(0).orEmpty(),
                         username = it.getStringOrNull(1).orEmpty(),
+                        playCount = it.getIntOrNull(3) ?: 0,
                         rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
                     )
                 } while (it.moveToNext())
@@ -455,7 +454,8 @@ class PlayDao(private val context: BggApplication) {
                 PlayPlayers.NAME,
                 PlayPlayers.USER_NAME,
                 PlayPlayers.SUM_QUANTITY,
-                PlayPlayers.SUM_WINS
+                PlayPlayers.SUM_WINS,
+                Buddies.AVATAR_URL,
             ),
             selection?.first,
             selection?.second,
@@ -468,6 +468,7 @@ class PlayDao(private val context: BggApplication) {
                         username = it.getStringOrNull(1).orEmpty(),
                         playCount = it.getIntOrNull(2) ?: 0,
                         winCount = it.getIntOrNull(3) ?: 0,
+                        rawAvatarUrl = it.getStringOrNull(4).orEmpty(),
                     )
                 } while (it.moveToNext())
             }
