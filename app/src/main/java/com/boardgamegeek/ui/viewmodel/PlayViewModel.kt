@@ -25,25 +25,26 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     val play: LiveData<RefreshableResource<PlayEntity>> = internalId.switchMap { id ->
         liveData {
             try {
+                latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
                 val play = repository.loadPlay(id)
-                val refreshedPlay = play?.let {
-                    if (arePlaysRefreshing.compareAndSet(false, true)) {
+                emit(RefreshableResource.success(play))
+                if (arePlaysRefreshing.compareAndSet(false, true)) {
+                    play?.let {
                         val canRefresh = it.playId != BggContract.INVALID_ID && it.gameId != BggContract.INVALID_ID
                         val shouldRefresh = it.syncTimestamp.isOlderThan(2, TimeUnit.HOURS)
-                        when {
-                            canRefresh && (shouldRefresh || forceRefresh.compareAndSet(true, false)) -> {
-                                emit(RefreshableResource.refreshing(it))
-                                repository.refreshPlay(id, it.playId, it.gameId)
-                            }
-                            else -> it
-                        }.also { arePlaysRefreshing.set(false) }
-                    } else it
+                        if (canRefresh && (shouldRefresh || forceRefresh.compareAndSet(true, false))) {
+                            emit(RefreshableResource.refreshing(it))
+                            repository.refreshPlay(id, it.playId, it.gameId)
+                            val refreshedPlay = repository.loadPlay(id)
+                            emit(RefreshableResource.success(refreshedPlay))
+                        }
+                    }
+                    arePlaysRefreshing.set(false)
                 }
-                emit(RefreshableResource.success(refreshedPlay))
             } catch (e: Exception) {
                 forceRefresh.set(false)
                 arePlaysRefreshing.set(false)
-                emit(RefreshableResource.error<PlayEntity>(e, application))
+                emit(RefreshableResource.error(e, application))
             }
         }
     }
