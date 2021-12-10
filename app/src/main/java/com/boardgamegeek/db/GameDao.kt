@@ -648,7 +648,7 @@ class GameDao(private val context: BggApplication) {
 
     private suspend fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
-        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.POLL_NAME).filterNotNull().toMutableList()
+        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.POLL_NAME).toMutableList()
         for (poll in game.polls) {
             val values = contentValuesOf(
                 GamePolls.POLL_TITLE to poll.title,
@@ -660,7 +660,7 @@ class GameDao(private val context: BggApplication) {
                 existingResultKeys += resolver.queryStrings(
                     Games.buildPollResultsUri(game.id, poll.name),
                     GamePollResults.POLL_RESULTS_PLAYERS
-                ).filterNotNull()
+                )
                 ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name))
             } else {
                 values.put(GamePolls.POLL_NAME, poll.name)
@@ -675,7 +675,7 @@ class GameDao(private val context: BggApplication) {
                     existingResultsResultKeys += resolver.queryStrings(
                         Games.buildPollResultsResultUri(game.id, poll.name, results.key),
                         GamePollResultsResult.POLL_RESULTS_RESULT_KEY
-                    ).filterNotNull()
+                    )
                     ContentProviderOperation.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.key))
                 } else {
                     resultsValues.put(GamePollResults.POLL_RESULTS_PLAYERS, results.key)
@@ -717,7 +717,7 @@ class GameDao(private val context: BggApplication) {
                 val existingResults = resolver.queryStrings(
                     Games.buildSuggestedPlayerCountPollResultsUri(gameId),
                     GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT
-                ).filterNotNull().toMutableList()
+                ).toMutableList()
                 for ((sortIndex, results) in poll.results.withIndex()) {
                     val values = contentValuesOf(
                         GameSuggestedPlayerCountPollPollResults.SORT_INDEX to sortIndex + 1,

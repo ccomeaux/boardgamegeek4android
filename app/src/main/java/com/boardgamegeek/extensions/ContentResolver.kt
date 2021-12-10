@@ -1,6 +1,8 @@
 package com.boardgamegeek.extensions
 
-import android.content.*
+import android.content.ContentProviderOperation
+import android.content.ContentProviderResult
+import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
@@ -10,7 +12,13 @@ import timber.log.Timber
 import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun ContentResolver.load(uri: Uri, projection: Array<String>? = null, selection: String? = null, selectionArgs: Array<String>? = null, sortOrder: String? = null): Cursor? {
+inline fun ContentResolver.load(
+    uri: Uri,
+    projection: Array<String>? = null,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null
+): Cursor? {
     return this.query(uri, projection, selection, selectionArgs, sortOrder)
 }
 
@@ -39,8 +47,8 @@ fun ContentResolver.getCount(uri: Uri): Int {
 }
 
 fun ContentResolver.queryString(
-        uri: Uri,
-        columnName: String
+    uri: Uri,
+    columnName: String
 ): String? {
     query(uri, arrayOf(columnName), null, null, null)?.use {
         if (it.count == 1 && it.moveToFirst()) {
@@ -51,26 +59,29 @@ fun ContentResolver.queryString(
 }
 
 fun ContentResolver.queryStrings(
-        uri: Uri, columnName: String,
-        selection: String? = null,
-        selectionArgs: Array<String>? = null,
-        sortOrder: String? = null
-): List<String?> {
-    val list = arrayListOf<String?>()
+    uri: Uri,
+    columnName: String,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null
+): List<String> {
+    val list = mutableListOf<String>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
-        while (it.moveToNext()) {
-            list.add(it.getStringOrNull(0))
+        if (it.moveToFirst()) {
+            while (it.moveToNext()) {
+                list += it.getStringOrNull(0).orEmpty()
+            }
         }
     }
     return list
 }
 
 fun ContentResolver.queryInts(
-        uri: Uri,
-        columnName: String,
-        selection: String? = null,
-        selectionArgs: Array<String>? = null,
-        sortOrder: String? = null
+    uri: Uri,
+    columnName: String,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null
 ): List<Int> {
     val list = arrayListOf<Int>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
@@ -82,12 +93,12 @@ fun ContentResolver.queryInts(
 }
 
 fun ContentResolver.queryInt(
-        uri: Uri,
-        columnName: String,
-        defaultValue: Int = 0,
-        selection: String? = null,
-        selectionArgs: Array<String>? = null,
-        sortOrder: String? = null
+    uri: Uri,
+    columnName: String,
+    defaultValue: Int = 0,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null
 ): Int {
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         if (it.count != 1) return defaultValue
@@ -97,11 +108,11 @@ fun ContentResolver.queryInt(
 }
 
 fun ContentResolver.queryLongs(
-        uri: Uri,
-        columnName: String,
-        selection: String? = null,
-        selectionArgs: Array<String>? = null,
-        sortOrder: String? = null
+    uri: Uri,
+    columnName: String,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null
 ): List<Long> {
     val list = arrayListOf<Long>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
@@ -113,12 +124,12 @@ fun ContentResolver.queryLongs(
 }
 
 fun ContentResolver.queryLong(
-        uri: Uri,
-        columnName: String,
-        defaultValue: Long = 0,
-        selection: String? = null,
-        selectionArgs: Array<String>? = null,
-        sortOrder: String? = null
+    uri: Uri,
+    columnName: String,
+    defaultValue: Long = 0,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null
 ): Long {
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         if (it.count != 1) return defaultValue

@@ -19,7 +19,7 @@ class SyncBuddiesDetailUnupdated(application: BggApplication, service: BggServic
 
     override val logMessage = "Syncing unupdated buddies..."
 
-    override fun fetchBuddyNames(): List<String?> {
+    override fun fetchBuddyNames(): List<String> {
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
                 Buddies.BUDDY_NAME,

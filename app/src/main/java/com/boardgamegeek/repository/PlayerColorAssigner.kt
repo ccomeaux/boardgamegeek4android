@@ -19,7 +19,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
     suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
         colorsAvailable.clear()
-        val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(gameId), BggContract.GameColors.COLOR)?.filterNotNull().orEmpty())
+        val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(gameId), BggContract.GameColors.COLOR).orEmpty())
         val takenColors = players.filter { it.color.isNotEmpty() }.map { it.color }
         colorsAvailable.addAll(gameColors - takenColors)
 
