@@ -11,7 +11,9 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.BriefGameEntity
+import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -21,11 +23,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.List
-import kotlin.collections.arrayListOf
-import kotlin.collections.forEach
-import kotlin.collections.plusAssign
-import kotlin.collections.toMutableList
 
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
@@ -329,6 +326,25 @@ class CollectionDao(private val context: BggApplication) {
             }
             list
         }
+
+    suspend fun loadAcquiredFrom(): List<String> = withContext(Dispatchers.IO) {
+        val list = mutableListOf<String>()
+        resolver.load(
+            Collection.buildAcquiredFromUri(),
+            arrayOf(Collection.PRIVATE_INFO_ACQUIRED_FROM)
+        )?.use {
+            if (it.moveToFirst()) {
+                do {
+                    list += it.getStringOrNull(0).orEmpty()
+                } while (it.moveToNext())
+            }
+        }
+        list
+    }
+
+    suspend fun loadInventoryLocation(): List<String> = withContext(Dispatchers.IO) {
+        resolver.queryStrings(Collection.buildInventoryLocationUri(), Collection.PRIVATE_INFO_INVENTORY_LOCATION)
+    }
 
     suspend fun update(internalId: Long, values: ContentValues): Int = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {

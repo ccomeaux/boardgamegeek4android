@@ -103,6 +103,10 @@ class GameCollectionRepository(val application: BggApplication) {
         } else null
     }
 
+    suspend fun loadAcquiredFrom() = dao.loadAcquiredFrom()
+
+    suspend fun loadInventoryLocation() = dao.loadInventoryLocation()
+
     suspend fun addCollectionItem(
         gameId: Int,
         statuses: List<String>,

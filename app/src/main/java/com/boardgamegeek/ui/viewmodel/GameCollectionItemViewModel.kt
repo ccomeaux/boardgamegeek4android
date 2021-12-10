@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
-import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.getHeaderSwatch
 import com.boardgamegeek.extensions.isOlderThan
@@ -61,9 +60,17 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
                 } else refreshedItem
                 emit(RefreshableResource.success(itemWithImage))
             } catch (e: Exception) {
-                emit(RefreshableResource.error<CollectionItemEntity?>(e, application))
+                emit(RefreshableResource.error(e, application))
             }
         }
+    }
+
+    val acquiredFrom = liveData {
+        emit(gameCollectionRepository.loadAcquiredFrom())
+    }
+
+    val inventoryLocation = liveData {
+        emit(gameCollectionRepository.loadInventoryLocation())
     }
 
     private val _swatch = MutableLiveData<Palette.Swatch>()

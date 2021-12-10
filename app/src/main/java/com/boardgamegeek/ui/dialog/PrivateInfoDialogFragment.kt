@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.LayoutInflater
@@ -14,10 +13,10 @@ import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
@@ -26,17 +25,11 @@ import java.text.DecimalFormat
 import java.util.*
 
 class PrivateInfoDialogFragment : DialogFragment() {
+    private val viewModel by activityViewModels<GameCollectionItemViewModel>()
     private var acquisitionDate = 0L
-
     private lateinit var layout: View
-
-    private val acquiredFromAdapter: AutoCompleteAdapter by lazy {
-        AcquiredFromAdapter(requireContext())
-    }
-
-    private val inventoryLocationAdapter: AutoCompleteAdapter by lazy {
-        InventoryLocationAdapter(requireContext())
-    }
+    private val acquiredFromAdapter by lazy { AutoCompleteAdapter(requireContext()) }
+    private val inventoryLocationAdapter by lazy { AutoCompleteAdapter(requireContext()) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
@@ -69,6 +62,13 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.acquiredFrom.observe(viewLifecycleOwner) {
+            acquiredFromAdapter.addData(it)
+        }
+        viewModel.inventoryLocation.observe(viewLifecycleOwner) {
+            inventoryLocationAdapter.addData(it)
+        }
 
         setUpCurrencyView(priceCurrencyView, savedInstanceState?.getString(KEY_PRICE_CURRENCY) ?: arguments?.getString(KEY_PRICE_CURRENCY))
         setUpValue(priceView, savedInstanceState?.getDouble(KEY_PRICE) ?: arguments?.getDouble(KEY_PRICE))
@@ -125,12 +125,6 @@ class PrivateInfoDialogFragment : DialogFragment() {
         inventoryLocationView.setAdapter(inventoryLocationAdapter)
     }
 
-    override fun onPause() {
-        super.onPause()
-        acquiredFromAdapter.changeCursor(null)
-        inventoryLocationAdapter.changeCursor(null)
-    }
-
     private fun setUpCurrencyView(spinner: Spinner, item: String?) {
         val priceCurrencyAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.currency, android.R.layout.simple_spinner_item)
         priceCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -143,17 +137,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     }
 
     private fun showOrHideAcquisitionDateLabel() {
-        acquisitionDateLabelView.visibility = if (acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE
-    }
-
-    inner class AcquiredFromAdapter(context: Context) :
-        AutoCompleteAdapter(context, Collection.PRIVATE_INFO_ACQUIRED_FROM, Collection.buildAcquiredFromUri()) {
-        override val defaultSelection = "${Collection.PRIVATE_INFO_ACQUIRED_FROM}<>''"
-    }
-
-    class InventoryLocationAdapter(context: Context) :
-        AutoCompleteAdapter(context, Collection.PRIVATE_INFO_INVENTORY_LOCATION, Collection.buildInventoryLocationUri()) {
-        override val defaultSelection = "${Collection.PRIVATE_INFO_INVENTORY_LOCATION}<>''"
+        acquisitionDateLabelView.visibility = if (acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE // TODO
     }
 
     companion object {
