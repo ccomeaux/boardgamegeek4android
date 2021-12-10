@@ -29,7 +29,7 @@ class GeekListCommentsRecyclerViewAdapter
     override fun getItemCount() = comments.size
 
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val binding = RowGeeklistCommentBinding.bind(itemView)
+        private val binding = RowGeeklistCommentBinding.bind(itemView)
 
         fun bind(comment: GeekListCommentEntity?) {
             comment?.let {

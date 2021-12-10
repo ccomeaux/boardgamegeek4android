@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -7,24 +8,24 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.WidgetCollectionRowBinding
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
 import com.boardgamegeek.util.XmlApiMarkupConverter
-import kotlinx.android.synthetic.main.widget_collection_row.view.*
 import kotlin.properties.Delegates
 
 class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
     private val xmlConverter by lazy { XmlApiMarkupConverter(context) }
 
     var gameYearPublished: Int by Delegates.observable(CollectionItemEntity.YEAR_UNKNOWN) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            notifyDataSetChanged()
-        }
+        @SuppressLint("NotifyDataSetChanged")
+        if (oldValue != newValue) notifyDataSetChanged()
     }
 
     var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        @SuppressLint("NotifyDataSetChanged")
         if (oldValue.isEmpty()) {
             // this is a hack for the first load
             notifyDataSetChanged()
@@ -46,13 +47,15 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
     }
 
     class ViewHolder(itemView: View, private val markupConverter: XmlApiMarkupConverter) : RecyclerView.ViewHolder(itemView) {
+        private val binding = WidgetCollectionRowBinding.bind(itemView)
+
         fun bind(item: CollectionItemEntity?, gameYearPublished: Int) {
             if (item == null) return
-            itemView.thumbnail.loadThumbnailInList(item.thumbnailUrl)
-            itemView.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
+            binding.thumbnail.loadThumbnailInList(item.thumbnailUrl)
+            binding.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
 
-            itemView.comment.setTextMaybeHtml(markupConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
-            itemView.comment.isVisible = item.comment.isNotBlank()
+            binding.comment.setTextMaybeHtml(markupConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
+            binding.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
                 item.collectionYearPublished != CollectionItemEntity.YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished
@@ -63,25 +66,25 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
                     "${item.collectionName} (${item.collectionYearPublished.asYear(itemView.context)})"
                 }
             } else ""
-            itemView.description.setTextOrHide(description)
+            binding.description.setTextOrHide(description)
 
             if (item.rating in 1.0..10.0) {
-                itemView.rating.text = item.rating.asPersonalRating(itemView.context)
-                itemView.rating.setTextViewBackground(item.rating.toColor(ratingColors))
-                itemView.rating.isVisible = true
+                binding.rating.text = item.rating.asPersonalRating(itemView.context)
+                binding.rating.setTextViewBackground(item.rating.toColor(ratingColors))
+                binding.rating.isVisible = true
             } else {
-                itemView.rating.isVisible = false
+                binding.rating.isVisible = false
             }
 
             if (item.hasPrivateInfo()) {
-                itemView.privateInfo.text = item.getPrivateInfo(itemView.context)
-                itemView.privateInfo.isVisible = true
+                binding.privateInfo.text = item.getPrivateInfo(itemView.context)
+                binding.privateInfo.isVisible = true
             } else {
-                itemView.privateInfo.isVisible = false
+                binding.privateInfo.isVisible = false
             }
 
-            itemView.privateComment.setTextMaybeHtml(markupConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
-            itemView.privateComment.isVisible = item.privateComment.isNotBlank()
+            binding.privateComment.setTextMaybeHtml(markupConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
+            binding.privateComment.isVisible = item.privateComment.isNotBlank()
 
             if (item.collectionId != BggContract.INVALID_ID) {
                 itemView.setOnClickListener {

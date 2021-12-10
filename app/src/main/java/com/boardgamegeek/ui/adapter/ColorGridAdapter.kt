@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setColorViewValue
@@ -31,9 +32,8 @@ internal class ColorGridAdapter(private val choices: List<Pair<String, Int>>, pr
         val isSelected = color?.first == selectedColor
         val isDisabled = !isSelected && disabledColors?.contains(color?.first) == true
         view.findViewById<TextView>(R.id.color_description)?.text = color?.first
-        view.findViewById<ImageView>(R.id.color_view)?.setColorViewValue(
-                color?.second ?: Color.TRANSPARENT, isDisabled)
-        view.findViewById<ImageView>(R.id.color_picker_selected).visibility = if (isSelected) View.VISIBLE else View.GONE
+        view.findViewById<ImageView>(R.id.color_view)?.setColorViewValue(color?.second ?: Color.TRANSPARENT, isDisabled)
+        view.findViewById<ImageView>(R.id.color_picker_selected).isVisible = isSelected
 
         return view
     }

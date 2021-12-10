@@ -6,12 +6,11 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowCommentBinding
 import com.boardgamegeek.entities.GameCommentEntity
 import com.boardgamegeek.extensions.*
-import kotlinx.android.synthetic.main.row_comment.view.*
 
 class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCommentsPagedListAdapter.CommentViewHolder>(diffCallback) {
-
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<GameCommentEntity>() {
             override fun areItemsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity) = oldItem.username == newItem.username
@@ -29,13 +28,15 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCo
     }
 
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding = RowCommentBinding.bind(itemView)
+
         fun bind(comment: GameCommentEntity?) {
-            itemView.usernameView.text = comment?.username.orEmpty()
-            itemView.ratingView.text = comment?.rating?.asRating(itemView.context).orEmpty()
-            itemView.ratingView.setTextViewBackground(
+            binding.usernameView.text = comment?.username.orEmpty()
+            binding.ratingView.text = comment?.rating?.asRating(itemView.context).orEmpty()
+            binding.ratingView.setTextViewBackground(
                 (comment?.rating ?: 0.0).toColor(ratingColors)
             )
-            itemView.commentView.setTextOrHide(comment?.comment)
+            binding.commentView.setTextOrHide(comment?.comment)
         }
     }
 }

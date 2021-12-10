@@ -47,8 +47,7 @@ class ForumsRecyclerViewAdapter(
     override fun getItemCount() = forums.size
 
     override fun getItemViewType(position: Int): Int {
-        val forum = forums.getOrNull(position)
-        return if (forum?.isHeader != false) ITEM_VIEW_TYPE_HEADER else ITEM_VIEW_TYPE_FORUM
+        return if (forums.getOrNull(position)?.isHeader != false) ITEM_VIEW_TYPE_HEADER else ITEM_VIEW_TYPE_FORUM
     }
 
     override fun getItemId(position: Int) = position.toLong()

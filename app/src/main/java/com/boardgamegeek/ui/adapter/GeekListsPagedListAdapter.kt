@@ -15,7 +15,6 @@ class GeekListsPagedListAdapter : PagingDataAdapter<GeekListEntity, GeekListsPag
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<GeekListEntity>() {
             override fun areItemsTheSame(oldItem: GeekListEntity, newItem: GeekListEntity): Boolean = oldItem.id == newItem.id
-
             override fun areContentsTheSame(oldItem: GeekListEntity, newItem: GeekListEntity): Boolean = oldItem == newItem
         }
     }
@@ -29,7 +28,7 @@ class GeekListsPagedListAdapter : PagingDataAdapter<GeekListEntity, GeekListsPag
     }
 
     inner class GeekListsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val binding = RowGeeklistBinding.bind(itemView)
+        private val binding = RowGeeklistBinding.bind(itemView)
 
         fun bind(entity: GeekListEntity?) {
             if (entity == null) return

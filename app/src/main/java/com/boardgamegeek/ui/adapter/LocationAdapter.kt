@@ -1,13 +1,14 @@
 package com.boardgamegeek.ui.adapter
 
 import android.content.Context
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Filter
+import android.widget.Filterable
 import com.boardgamegeek.R
-import kotlin.collections.ArrayList
 
 class LocationAdapter(context: Context) : ArrayAdapter<String>(context, R.layout.autocomplete_item), Filterable {
-    private var locationsList: ArrayList<String> = ArrayList()
-    private var locationsListFiltered: ArrayList<String> = ArrayList()
+    private var locationsList = listOf<String>()
+    private var locationsListFiltered = listOf<String>()
 
     override fun getCount() = locationsListFiltered.size
 
@@ -25,7 +26,7 @@ class LocationAdapter(context: Context) : ArrayAdapter<String>(context, R.layout
             val filter = constraint?.toString().orEmpty()
 
             val locationsListFiltered = if (filter.isEmpty()) locationsList else {
-                locationsList.filter { it.contains(filter, ignoreCase = true) } as ArrayList<String>
+                locationsList.filter { it.contains(filter, ignoreCase = true) }
             }
 
             return FilterResults().apply {
@@ -36,7 +37,7 @@ class LocationAdapter(context: Context) : ArrayAdapter<String>(context, R.layout
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             @Suppress("UNCHECKED_CAST")
-            locationsListFiltered = results?.values as? ArrayList<String> ?: ArrayList()
+            locationsListFiltered = results?.values as? List<String> ?: emptyList()
             notifyDataSetChanged()
         }
     }

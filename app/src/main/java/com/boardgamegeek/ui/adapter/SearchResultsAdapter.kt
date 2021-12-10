@@ -47,7 +47,7 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
     }
 
     inner class SearchResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val binding = RowSearchBinding.bind(itemView)
+        private val binding = RowSearchBinding.bind(itemView)
 
         fun bind(game: SearchResultEntity?, position: Int) {
             game?.let { result ->

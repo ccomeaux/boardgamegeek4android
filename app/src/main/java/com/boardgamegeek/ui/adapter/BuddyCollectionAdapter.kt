@@ -4,13 +4,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowCollectionBuddyBinding
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity.Companion.start
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter.BuddyGameViewHolder
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import kotlinx.android.synthetic.main.row_collection_buddy.view.*
 import kotlin.properties.Delegates
 
 class BuddyCollectionAdapter : RecyclerView.Adapter<BuddyGameViewHolder>(), AutoUpdatableAdapter, SectionCallback {
@@ -31,9 +31,11 @@ class BuddyCollectionAdapter : RecyclerView.Adapter<BuddyGameViewHolder>(), Auto
     }
 
     inner class BuddyGameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding = RowCollectionBuddyBinding.bind(itemView)
+
         fun bind(item: CollectionItemEntity?) {
-            itemView.nameView.text = item?.gameName ?: ""
-            itemView.yearView.text = item?.gameId?.toString() ?: ""
+            binding.nameView.text = item?.gameName.orEmpty()
+            binding.yearView.text = item?.gameId?.toString().orEmpty()
             itemView.setOnClickListener {
                 if (item != null) start(itemView.context, item.gameId, item.gameName)
             }

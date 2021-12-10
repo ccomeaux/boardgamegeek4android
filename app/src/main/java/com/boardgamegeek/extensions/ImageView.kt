@@ -78,6 +78,14 @@ fun ImageView.loadThumbnailInList(imageUrl: String?, @DrawableRes errorResId: In
             .into(this)
 }
 
+fun ImageView.setOrClearColorViewValue(color: Int, disabled: Boolean = false) {
+    if (color != Color.TRANSPARENT) {
+        setColorViewValue(color, disabled)
+    } else {
+        setImageDrawable(null)
+    }
+}
+
 fun ImageView.setColorViewValue(color: Int, disabled: Boolean = false) {
     val colorChoiceDrawable = drawable as? GradientDrawable ?: GradientDrawable().apply {
         shape = GradientDrawable.OVAL

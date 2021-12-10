@@ -7,21 +7,18 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowCollectionBinding
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.GameActivity
-import kotlinx.android.synthetic.main.row_collection.view.*
 
 class LinkedCollectionAdapter :
-        ListAdapter<BriefGameEntity, LinkedCollectionAdapter.DetailViewHolder>(
-                object : DiffUtil.ItemCallback<BriefGameEntity>() {
-                    override fun areItemsTheSame(oldItem: BriefGameEntity, newItem: BriefGameEntity) =
-                            oldItem.gameId == newItem.gameId
-
-                    override fun areContentsTheSame(oldItem: BriefGameEntity, newItem: BriefGameEntity) =
-                            oldItem == newItem
-                }
-        ) {
+    ListAdapter<BriefGameEntity, LinkedCollectionAdapter.DetailViewHolder>(
+        object : DiffUtil.ItemCallback<BriefGameEntity>() {
+            override fun areItemsTheSame(oldItem: BriefGameEntity, newItem: BriefGameEntity) = oldItem.gameId == newItem.gameId
+            override fun areContentsTheSame(oldItem: BriefGameEntity, newItem: BriefGameEntity) = oldItem == newItem
+        }
+    ) {
 
     init {
         setHasStableIds(true)
@@ -44,21 +41,31 @@ class LinkedCollectionAdapter :
     override fun getItemId(position: Int): Long = getItem(position).internalId
 
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding = RowCollectionBinding.bind(itemView)
+
         fun bind(gameDetail: BriefGameEntity?) {
             gameDetail?.let { entity ->
-                itemView.nameView.text = entity.name
-                itemView.yearView.text = entity.year.asYear(itemView.context)
-                itemView.thumbnailView.loadThumbnailInList(entity.thumbnailUrl)
-                itemView.favoriteView.isVisible = entity.isFavorite
+                binding.nameView.text = entity.name
+                binding.yearView.text = entity.year.asYear(itemView.context)
+                binding.thumbnailView.loadThumbnailInList(entity.thumbnailUrl)
+                binding.favoriteView.isVisible = entity.isFavorite
                 val personalRating = entity.personalRating.asPersonalRating(itemView.context, 0)
                 if (personalRating.isNotBlank()) {
-                    itemView.ratingView.text = personalRating
-                    itemView.ratingView.setTextViewBackground(entity.personalRating.toColor(ratingColors))
-                    itemView.ratingView.isVisible = true
+                    binding.ratingView.text = personalRating
+                    binding.ratingView.setTextViewBackground(entity.personalRating.toColor(ratingColors))
+                    binding.ratingView.isVisible = true
                 } else {
-                    itemView.ratingView.isVisible = false
+                    binding.ratingView.isVisible = false
                 }
-                itemView.setOnClickListener { GameActivity.start(itemView.context, entity.gameId, entity.gameName, entity.gameThumbnailUrl, entity.gameHeroImageUrl) }
+                itemView.setOnClickListener {
+                    GameActivity.start(
+                        itemView.context,
+                        entity.gameId,
+                        entity.gameName,
+                        entity.gameThumbnailUrl,
+                        entity.gameHeroImageUrl
+                    )
+                }
             }
         }
     }

@@ -57,7 +57,7 @@ class ThreadRecyclerViewAdapter(
     }
 
     inner class ArticleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val binding = RowThreadArticleBinding.bind(itemView)
+        private val binding = RowThreadArticleBinding.bind(itemView)
 
         fun bind(entity: ArticleEntity?) {
             entity?.let { article ->

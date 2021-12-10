@@ -1,14 +1,13 @@
 package com.boardgamegeek.ui.adapter
 
 import android.content.Context
-import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asColorRgb
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.setColorViewValue
+import com.boardgamegeek.extensions.setOrClearColorViewValue
 
 class GameColorAdapter(context: Context) : ArrayAdapter<GameColorAdapter.ColorRow>(context, R.layout.autocomplete_color), Filterable {
     private var colorList = listOf<ColorRow>()
@@ -25,14 +24,8 @@ class GameColorAdapter(context: Context) : ArrayAdapter<GameColorAdapter.ColorRo
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = convertView ?: parent.inflate(R.layout.autocomplete_color)
         val result = getItem(position) ?: return view
-
         view.findViewById<TextView>(R.id.color_name).text = result.title
-        val imageView = view.findViewById<ImageView>(R.id.color_view)
-        if (result.rgb != Color.TRANSPARENT) {
-            imageView.setColorViewValue(result.rgb)
-        } else {
-            imageView.setImageDrawable(null)
-        }
+        view.findViewById<ImageView>(R.id.color_view).setOrClearColorViewValue(result.rgb)
         return view
     }
 

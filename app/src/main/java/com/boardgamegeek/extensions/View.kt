@@ -211,7 +211,7 @@ fun View.setSelectableBackground(backgroundResId: Int = android.R.attr.selectabl
     visibility = VISIBLE
 }
 
-fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {
+fun View.setOrClearOnClickListener(clickable: Boolean = false, l: (View) -> Unit = { }) {
     if (clickable) {
         setOnClickListener(l)
     } else {

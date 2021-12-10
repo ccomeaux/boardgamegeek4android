@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.adapter
 
-import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
@@ -17,8 +16,7 @@ import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class GamePagerAdapter(private val activity: FragmentActivity, private val gameId: Int, var gameName: String) :
-    FragmentStateAdapter(activity) {
+class GamePagerAdapter(private val activity: FragmentActivity, private val gameId: Int, var gameName: String) : FragmentStateAdapter(activity) {
     var currentPosition = 0
         set(value) {
             field = value
@@ -35,9 +33,9 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
 
-    private val fab: FloatingActionButton by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
-    private val viewModel by lazy { ViewModelProvider(activity).get(GameViewModel::class.java) }
-    private val prefs: SharedPreferences by lazy { activity.preferences() }
+    private val fab by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
+    private val viewModel by lazy { ViewModelProvider(activity)[GameViewModel::class.java] }
+    private val prefs by lazy { activity.preferences() }
 
     private inner class Tab(
         @field:StringRes val titleResId: Int,
@@ -71,27 +69,17 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     private fun updateTabs() {
         tabs.clear()
-        tabs.add(Tab(R.string.title_info, R.drawable.fab_log_play) {
-            logPlay()
-        })
-        tabs.add(Tab(R.string.title_credits, R.drawable.fab_favorite_off) {
-            viewModel.updateFavorite(!isFavorite)
-        })
-        tabs.add(Tab(R.string.title_descr, R.drawable.fab_favorite_off) {
-            viewModel.updateFavorite(!isFavorite)
-        })
+        tabs += Tab(R.string.title_info, R.drawable.fab_log_play) { logPlay() }
+        tabs += Tab(R.string.title_credits, R.drawable.fab_favorite_off) { viewModel.updateFavorite(!isFavorite) }
+        tabs += Tab(R.string.title_descr, R.drawable.fab_favorite_off) { viewModel.updateFavorite(!isFavorite) }
         if (shouldShowCollection())
-            tabs.add(Tab(R.string.title_my_games, R.drawable.fab_add) {
-                activity.showAndSurvive(CollectionStatusDialogFragment())
-            })
+            tabs += Tab(R.string.title_my_games, R.drawable.fab_add) { activity.showAndSurvive(CollectionStatusDialogFragment()) }
         if (shouldShowPlays())
-            tabs.add(Tab(R.string.title_plays, R.drawable.fab_log_play) {
-                logPlay()
-            })
-        tabs.add(Tab(R.string.title_forums))
-        tabs.add(Tab(R.string.links))
+            tabs += Tab(R.string.title_plays, R.drawable.fab_log_play) { logPlay() }
+        tabs += Tab(R.string.title_forums)
+        tabs += Tab(R.string.links)
 
-        viewModel.game.observe(activity, { resource ->
+        viewModel.game.observe(activity) { resource ->
             resource.data?.let { entity ->
                 gameName = entity.name
                 imageUrl = entity.imageUrl
@@ -105,7 +93,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
                 fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
                 displayFab(false)
             }
-        })
+        }
     }
 
     private fun logPlay() {

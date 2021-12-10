@@ -38,7 +38,7 @@ class ForumPagedListAdapter(
     }
 
     inner class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val binding = RowForumThreadBinding.bind(itemView)
+        private val binding = RowForumThreadBinding.bind(itemView)
 
         fun bind(thread: ThreadEntity?) {
             binding.subjectView.text = thread?.subject.orEmpty()
