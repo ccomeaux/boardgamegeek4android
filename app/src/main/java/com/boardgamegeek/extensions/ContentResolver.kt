@@ -68,9 +68,9 @@ fun ContentResolver.queryStrings(
     val list = mutableListOf<String>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         if (it.moveToFirst()) {
-            while (it.moveToNext()) {
+            do {
                 list += it.getStringOrNull(0).orEmpty()
-            }
+            } while (it.moveToNext())
         }
     }
     return list
