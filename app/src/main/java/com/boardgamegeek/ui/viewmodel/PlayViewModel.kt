@@ -39,12 +39,11 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
                             emit(RefreshableResource.success(refreshedPlay))
                         }
                     }
-                    arePlaysRefreshing.set(false)
                 }
             } catch (e: Exception) {
-                forceRefresh.set(false)
-                arePlaysRefreshing.set(false)
                 emit(RefreshableResource.error(e, application))
+            } finally {
+                arePlaysRefreshing.set(false)
             }
         }
     }

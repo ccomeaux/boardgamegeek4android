@@ -10,6 +10,16 @@
 	android:orientation="vertical"
 	tools:context=".ui.GameCollectionItemActivity">
 
+	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
+		android:id="@+id/progressView"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:padding="@dimen/material_margin_horizontal"
+		tools:visibility="gone" />
+
 	<TextView
 		android:id="@+id/invalidStatusView"
 		android:layout_width="match_parent"

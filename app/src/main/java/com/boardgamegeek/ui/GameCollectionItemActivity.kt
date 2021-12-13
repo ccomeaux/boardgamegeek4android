@@ -38,9 +38,6 @@ class GameCollectionItemActivity : HeroActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            isInEditMode = savedInstanceState.getBoolean(KEY_STATE_IS_IN_EDIT_MODE)
-        }
 
         safelySetTitle()
         changeImage()
@@ -58,12 +55,12 @@ class GameCollectionItemActivity : HeroActivity() {
                 SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
                 isItemUpdated = false
             }
-            toggleEditMode()
+            viewModel.toggleEditMode()
         }
         if (collectionId == BggContract.INVALID_ID) fab.hide() else fab.ensureShown()
 
         viewModel.setId(collectionId)
-        viewModel.item.observe(this, { resource ->
+        viewModel.item.observe(this) { resource ->
             swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
             if (resource?.status == Status.SUCCESS) {
                 resource.data?.let { entity ->
@@ -75,8 +72,13 @@ class GameCollectionItemActivity : HeroActivity() {
                     changeImage()
                 }
             }
-        })
-        viewModel.isEdited.observe(this, { isItemUpdated = it })
+        }
+        viewModel.isEditMode.observe(this) {
+            isInEditMode = it
+            enableSwipeRefreshLayout(!it)
+            setFabImageResource(if (it) R.drawable.fab_done else R.drawable.fab_edit)
+        }
+        viewModel.isEdited.observe(this) { isItemUpdated = it }
     }
 
     override fun readIntent(intent: Intent) {
@@ -91,16 +93,6 @@ class GameCollectionItemActivity : HeroActivity() {
         collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
     }
 
-    override fun onResume() {
-        super.onResume()
-        displayEditMode()
-    }
-
-    public override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(KEY_STATE_IS_IN_EDIT_MODE, isInEditMode)
-    }
-
     override fun onBackPressed() {
         if (isInEditMode) {
             if (isItemUpdated) {
@@ -112,10 +104,10 @@ class GameCollectionItemActivity : HeroActivity() {
                     finishActivity = false
                 ) {
                     viewModel.reset()
-                    toggleEditMode()
+                    viewModel.toggleEditMode()
                 }.show()
             } else {
-                toggleEditMode()
+                viewModel.toggleEditMode()
             }
         } else {
             super.onBackPressed()
@@ -142,11 +134,9 @@ class GameCollectionItemActivity : HeroActivity() {
                     GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl)
                 }
                 finish()
-                return true
             }
             R.id.menu_view_image -> {
                 ImageActivity.start(this, imageUrl)
-                return true
             }
             R.id.menu_delete -> {
                 this.createThemedBuilder()
@@ -161,10 +151,10 @@ class GameCollectionItemActivity : HeroActivity() {
                     .setNegativeButton(R.string.cancel, null)
                     .setCancelable(true)
                     .show()
-                return true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     private fun safelySetTitle() {
@@ -190,17 +180,6 @@ class GameCollectionItemActivity : HeroActivity() {
         if (!isInEditMode) viewModel.refresh()
     }
 
-    private fun toggleEditMode() {
-        isInEditMode = !isInEditMode
-        displayEditMode()
-    }
-
-    private fun displayEditMode() {
-        enableSwipeRefreshLayout(!isInEditMode)
-        (fragment as GameCollectionItemFragment?)?.enableEditMode(isInEditMode)
-        setFabImageResource(if (isInEditMode) R.drawable.fab_done else R.drawable.fab_edit)
-    }
-
     companion object {
         private const val KEY_INTERNAL_ID = "_ID"
         private const val KEY_GAME_ID = "GAME_ID"
@@ -211,7 +190,6 @@ class GameCollectionItemActivity : HeroActivity() {
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_YEAR_PUBLISHED = "YEAR_PUBLISHED"
         private const val KEY_COLLECTION_YEAR_PUBLISHED = "COLLECTION_YEAR_PUBLISHED"
-        private const val KEY_STATE_IS_IN_EDIT_MODE = "STATE_IS_IN_EDIT_MODE"
 
         fun start(
             context: Context,

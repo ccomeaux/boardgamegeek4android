@@ -55,7 +55,7 @@ class TextEditorView @JvmOverloads constructor(
         }
 
         findViewById<TimestampView>(R.id.timestampView).timestamp = timestamp
-        setEditMode()
+        setVisibilityAndClickability()
     }
 
     fun setHeaderColor(swatch: Palette.Swatch) {
@@ -64,13 +64,13 @@ class TextEditorView @JvmOverloads constructor(
 
     fun enableEditMode(enable: Boolean) {
         isEditMode = enable
-        setEditMode()
+        setVisibilityAndClickability()
     }
 
-    private fun setEditMode() {
-        findViewById<ImageView>(R.id.imageView).isVisible = isEditMode
+    private fun setVisibilityAndClickability() {
+        findViewById<ImageView>(R.id.editImageView).isVisible = isEditMode
         isVisible = isEditMode ||
-                findViewById<TextView>(R.id.contentView).text.isNullOrBlank() ||
+                !findViewById<TextView>(R.id.contentView).text.isNullOrBlank() ||
                 findViewById<TimestampView>(R.id.timestampView).timestamp != 0L
         isClickable = isEditMode
     }
