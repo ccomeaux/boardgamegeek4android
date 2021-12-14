@@ -3,7 +3,9 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.text.Html
 import android.text.TextUtils
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -13,6 +15,8 @@ import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.GameRanksFragment
+import com.boardgamegeek.ui.dialog.PollDialogFragment
+import com.boardgamegeek.ui.dialog.SuggestedPlayerCountPollDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
 import kotlinx.android.synthetic.main.fragment_game.*
@@ -170,7 +174,7 @@ class GameFragment : Fragment() {
         languageScoreView.setTextColor(textColor)
 
         languageContainer.setOrClearOnClickListener(totalVotes > 0) {
-            PollFragment.launchLanguageDependence(this)
+            PollDialogFragment.launchLanguageDependence(this)
         }
     }
 
@@ -179,7 +183,7 @@ class GameFragment : Fragment() {
         else context?.getText(R.string.age_community, entity?.modalValue.orEmpty()) ?: ""
         playerAgePollView?.setTextOrHide(message)
         playerAgeContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
-            PollFragment.launchSuggestedPlayerAge(this)
+            PollDialogFragment.launchSuggestedPlayerAge(this)
         }
     }
 
@@ -197,7 +201,7 @@ class GameFragment : Fragment() {
         }
         playerCountCommunityView?.setTextOrHide(communityText)
         playerCountContainer?.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
-            SuggestedPlayerCountPollFragment.launch(this)
+            SuggestedPlayerCountPollDialogFragment.launch(this)
         }
     }
 
