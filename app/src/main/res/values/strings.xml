@@ -534,7 +534,7 @@
 	<string name="synced_prefix">Synced %s</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="standard_deviation_prefix">Standard deviation: <b>%.3f</b></string>
+	<string name="standard_deviation_prefix">Std Dev: <b>%.3f</b></string>
 	<string name="by_prefix">by %s</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
