@@ -56,11 +56,6 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.refresh()
-    }
-
     private fun showData(items: List<CollectionItemEntity>) {
         if (!isAdded) return
         if (items.isNotEmpty()) {
@@ -73,9 +68,7 @@ class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
             showError()
             recyclerView?.fadeOut()
         }
-        swipeRefresh.setOnRefreshListener {
-            viewModel.refresh()
-        }
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         swipeRefresh.isEnabled = true
     }
 

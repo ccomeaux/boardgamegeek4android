@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -54,7 +55,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())
 
     fun setId(gameId: Int) {
-        if (_gameId.value != gameId) _gameId.value = gameId
+        if (_gameId.value != gameId) {
+            viewModelScope.launch {
+                gameRepository.updateLastViewed(gameId, System.currentTimeMillis())
+            }
+            _gameId.value = gameId
+        }
     }
 
     fun setProducerType(type: ProducerType) {
@@ -64,113 +70,132 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val game: LiveData<RefreshableResource<GameEntity>> = _gameId.switchMap { gameId ->
         liveData {
             try {
-                val game = gameRepository.loadGame(gameId)
-                val refreshedGame =
-                    if ((game == null || game.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)) &&
-                        isGameRefreshing.compareAndSet(false, true)
-                    ) {
-                        emit(RefreshableResource.refreshing(game))
-                        gameRepository.refreshGame(gameId).also {
-                            isGameRefreshing.set(false)
-                            refresh() // force an update for other observers; prefer to push this to whenever the DB updates
-                        }
+                if (gameId == BggContract.INVALID_ID) {
+                    emit(RefreshableResource.success(null))
+                } else {
+                    latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
+                    val game = gameRepository.loadGame(gameId)
+                    emit(RefreshableResource.success(game))
+                    val refreshedGame = if (isGameRefreshing.compareAndSet(false, true)) {
+                        if (game == null || game.updated.isOlderThan(refreshGameMinutes, TimeUnit.MINUTES)) {
+                            emit(RefreshableResource.refreshing(game))
+                            gameRepository.refreshGame(gameId)
+                            val loadedGame = gameRepository.loadGame(gameId)
+                            emit(RefreshableResource.success(loadedGame))
+                            loadedGame
+                        } else game
                     } else game
-                val gameWithHeroImage = refreshedGame?.let {
-                    if (it.heroImageUrl.isBlank()) {
-                        emit(RefreshableResource.refreshing(it))
-                        gameRepository.refreshHeroImage(it)
-                    } else refreshedGame
+                    refreshedGame?.let {
+                        if (it.heroImageUrl.isBlank()) {
+                            emit(RefreshableResource.refreshing(it))
+                            gameRepository.refreshHeroImage(it)
+                            val gameWithHeroImage = gameRepository.loadGame(gameId)
+                            emit(RefreshableResource.success(gameWithHeroImage))
+                        }
+                    }
                 }
-                emit(RefreshableResource.success(gameWithHeroImage))
             } catch (e: Exception) {
+                emit(RefreshableResource.error(e, application))
+            } finally {
                 isGameRefreshing.set(false)
-                emit(RefreshableResource.error<GameEntity>(e, application))
             }
         }
     }
 
-    val ranks = _gameId.switchMap { gameId ->
+    val ranks = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getRanks(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getRanks(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val languagePoll = _gameId.switchMap { gameId ->
+    val languagePoll = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getLanguagePoll(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getLanguagePoll(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val agePoll = _gameId.switchMap { gameId ->
+    val agePoll = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getAgePoll(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getAgePoll(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val playerPoll = _gameId.switchMap { gameId ->
+    val playerPoll = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayerPoll(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getPlayerPoll(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val designers = _gameId.switchMap { gameId ->
+    val designers = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getDesigners(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getDesigners(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val artists = _gameId.switchMap { gameId ->
+    val artists = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getArtists(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getArtists(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val publishers = _gameId.switchMap { gameId ->
+    val publishers = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPublishers(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getPublishers(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val categories = _gameId.switchMap { gameId ->
+    val categories = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getCategories(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getCategories(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val mechanics = _gameId.switchMap { gameId ->
+    val mechanics = game.switchMap {
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getMechanics(gameId))
-        }
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getMechanics(it.id)
+            })
+        }.distinctUntilChanged()
     }
 
-    val expansions = _gameId.switchMap { gameId ->
+    val expansions = game.switchMap {
         liveData {
-            emit(
-                if (gameId == BggContract.INVALID_ID) null else gameRepository.getExpansions(gameId).map {
-                    GameDetailEntity(it.id, it.name, describeStatuses(it, application))
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getExpansions(it.id).map { expansion ->
+                    GameDetailEntity(expansion.id, expansion.name, describeStatuses(expansion))
                 }
-            )
-        }
+            })
+        }.distinctUntilChanged()
     }
 
-    val baseGames = _gameId.switchMap { gameId ->
+    val baseGames = game.switchMap {
         liveData {
-            emit(
-                if (gameId == BggContract.INVALID_ID) null else gameRepository.getBaseGames(gameId).map {
-                    GameDetailEntity(it.id, it.name, describeStatuses(it, application))
+            emit(it.data?.let {
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getBaseGames(it.id).map { expansion ->
+                    GameDetailEntity(expansion.id, expansion.name, describeStatuses(expansion))
                 }
-            )
-        }
+            })
+        }.distinctUntilChanged()
     }
 
-    private val absent = _gameId.switchMap {
-        liveData {
-            emit(null)
-        }
-    }
-
-    private fun describeStatuses(entity: GameExpansionsEntity, application: Application): String {
-        val ctx = application.applicationContext
+    private fun describeStatuses(entity: GameExpansionsEntity): String {
+        val ctx = getApplication<BggApplication>()
         val statuses = mutableListOf<String>()
         if (entity.own) statuses.add(ctx.getString(R.string.collection_status_own))
         if (entity.previouslyOwned) statuses.add(ctx.getString(R.string.collection_status_prev_owned))
@@ -195,65 +220,72 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ProducerType.MECHANICS -> mechanics
             ProducerType.EXPANSIONS -> expansions
             ProducerType.BASE_GAMES -> baseGames
-            else -> absent
+            else -> liveData { emit(null) }
         }
     }
 
-    val collectionItems = game.switchMap { game ->
+    val collectionItems: LiveData<RefreshableResource<List<CollectionItemEntity>>> = game.switchMap { game ->
         liveData {
             try {
                 val gameId = game.data?.id ?: BggContract.INVALID_ID
-                val items =
-                    if (gameId == BggContract.INVALID_ID) emptyList()
-                    else gameCollectionRepository.loadCollectionItems(gameId)
-                val refreshedItems =
-                    if (areItemsRefreshing.compareAndSet(false, true)) {
+                if (gameId == BggContract.INVALID_ID) {
+                    emit(RefreshableResource.success(emptyList()))
+                } else {
+                    latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
+                    val items = gameCollectionRepository.loadCollectionItems(gameId)
+                    emit(RefreshableResource.success(items))
+                    val refreshedItems = if (areItemsRefreshing.compareAndSet(false, true)) {
                         val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                        when {
-                            lastUpdated.isOlderThan(refreshItemsMinutes, TimeUnit.MINUTES) -> {
-                                emit(RefreshableResource.refreshing(items))
-                                gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
-                                    ?: items
-                            }
-                            else -> items
-                        }.also { areItemsRefreshing.set(false) }
+                        if (lastUpdated.isOlderThan(refreshItemsMinutes, TimeUnit.MINUTES)) {
+                            emit(RefreshableResource.refreshing(items))
+                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
+                            val newItems = gameCollectionRepository.loadCollectionItems(gameId)
+                            emit(RefreshableResource.success(newItems))
+                            newItems
+                        } else items
                     } else items
-                if (refreshedItems.any { it.isDirty })
-                    SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
-                emit(RefreshableResource.success(refreshedItems))
+                    if (refreshedItems.any { it.isDirty })
+                        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                }
             } catch (e: Exception) {
+                emit(RefreshableResource.error(e, application))
+            } finally {
                 areItemsRefreshing.set(false)
-                emit(RefreshableResource.error<List<CollectionItemEntity>>(e, application))
             }
         }
     }
 
-    val plays = game.switchMap { game ->
+    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = game.switchMap { game ->
         liveData {
             try {
                 val gameId = game.data?.id ?: BggContract.INVALID_ID
-                val plays = if (gameId == BggContract.INVALID_ID) emptyList() else gameRepository.getPlays(gameId)
-                val refreshedPlays =
+                if (gameId == BggContract.INVALID_ID) {
+                    emit(RefreshableResource.success(emptyList()))
+                } else {
+                    latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
+                    val plays = gameRepository.getPlays(gameId)
+                    emit(RefreshableResource.success(plays))
                     if (arePlaysRefreshing.compareAndSet(false, true)) {
+                        emit(RefreshableResource.refreshing(plays))
                         val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
-                        when {
+                        val refreshedPlays = when {
                             lastUpdated.isOlderThan(refreshPlaysFullHours, TimeUnit.HOURS) -> {
-                                emit(RefreshableResource.refreshing(plays))
                                 gameRepository.refreshPlays(gameId)
                                 gameRepository.getPlays(gameId)
                             }
                             lastUpdated.isOlderThan(refreshPlaysPartialMinutes, TimeUnit.MINUTES) -> {
-                                emit(RefreshableResource.refreshing(plays))
                                 gameRepository.refreshPartialPlays(gameId)
                                 gameRepository.getPlays(gameId)
                             }
                             else -> plays
-                        }.also { arePlaysRefreshing.set(false) }
-                    } else plays
-                emit(RefreshableResource.success(refreshedPlays))
+                        }
+                        emit(RefreshableResource.success(refreshedPlays))
+                    }
+                }
             } catch (e: Exception) {
+                emit(RefreshableResource.error(e, application))
+            } finally {
                 arePlaysRefreshing.set(false)
-                emit(RefreshableResource.error<List<PlayEntity>>(e, application))
             }
         }
     }
@@ -268,28 +300,30 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _gameId.value?.let { _gameId.value = it }
     }
 
-    fun updateLastViewed(lastViewed: Long = System.currentTimeMillis()) {
-        viewModelScope.launch {
-            gameRepository.updateLastViewed(gameId.value ?: BggContract.INVALID_ID, lastViewed)
-            refresh()
-        }
-    }
-
     fun updateGameColors(palette: Palette?) {
         palette?.let { p ->
-            viewModelScope.launch {
-                val iconColor = p.getIconSwatch().rgb
-                val darkColor = p.getDarkSwatch().rgb
-                val (wins, winnablePlays, allPlays) = p.getPlayCountColors(getApplication())
-                gameRepository.updateGameColors(
-                    gameId.value ?: BggContract.INVALID_ID,
-                    iconColor,
-                    darkColor,
-                    wins,
-                    winnablePlays,
-                    allPlays,
-                )
-                refresh()
+            game.value?.data?.let { game ->
+                viewModelScope.launch {
+                    val iconColor = p.getIconSwatch().rgb
+                    val darkColor = p.getDarkSwatch().rgb
+                    val (winsColor, winnablePlaysColor, allPlaysColor) = p.getPlayCountColors(getApplication())
+                    val modified = game.iconColor != iconColor ||
+                            game.darkColor != darkColor ||
+                            game.winsColor != winsColor ||
+                            game.winnablePlaysColor != winnablePlaysColor ||
+                            game.allPlaysColor != allPlaysColor
+                    if (modified) {
+                        gameRepository.updateGameColors(
+                            gameId.value ?: BggContract.INVALID_ID,
+                            iconColor,
+                            darkColor,
+                            winsColor,
+                            winnablePlaysColor,
+                            allPlaysColor,
+                        )
+                        // refresh() TODO - stop this
+                    }
+                }
             }
         }
     }

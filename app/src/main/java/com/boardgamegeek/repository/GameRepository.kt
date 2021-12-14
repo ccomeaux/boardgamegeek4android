@@ -27,14 +27,13 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
 
-    suspend fun refreshGame(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
+    suspend fun refreshGame(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = bggService.thing2(gameId, 1)
-        for (game in response.games) {
+        response.games.firstOrNull()?.let { game ->
             dao.save(game.mapToEntity(), timestamp)
             Timber.i("Synced game '$gameId'")
         }
-        response.games.firstOrNull()?.mapToEntity()?.copy(updated = timestamp)
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {

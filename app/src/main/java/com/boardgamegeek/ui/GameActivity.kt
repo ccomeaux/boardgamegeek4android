@@ -79,8 +79,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
         })
 
-        viewModel.updateLastViewed(System.currentTimeMillis())
-
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Game")
