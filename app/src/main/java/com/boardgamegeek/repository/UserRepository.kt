@@ -76,8 +76,7 @@ class UserRepository(val application: BggApplication) {
         upsertedCount to deletedCount
     }
 
-    suspend fun updateNickName(username: String, nickName: String) = withContext(Dispatchers.IO) {
-        // TODO remove withContext() when DAO uses it
+    suspend fun updateNickName(username: String, nickName: String) {
         if (username.isNotBlank()) {
             userDao.upsert(contentValuesOf(BggContract.Buddies.PLAY_NICKNAME to nickName), username)
         }
