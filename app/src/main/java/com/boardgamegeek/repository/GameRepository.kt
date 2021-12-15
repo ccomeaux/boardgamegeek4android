@@ -122,7 +122,8 @@ class GameRepository(val application: BggApplication) {
     }
 
     suspend fun computePlayColors(gameId: Int) {
-        dao.computeColors(gameId)
+        val colors = dao.loadPlayColors(gameId)
+        dao.insertColors(gameId, colors)
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {

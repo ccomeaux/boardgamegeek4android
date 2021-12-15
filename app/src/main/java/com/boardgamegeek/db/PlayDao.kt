@@ -720,7 +720,6 @@ class PlayDao(private val context: BggApplication) {
     }
 
     suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
-        // TODO be sure to exclude deleted plays!
         if (gameId == INVALID_ID) emptyList()
         else loadPlayPlayers(Plays.buildPlayersUri(), createGamePlaySelectionAndArgs(gameId))
     }
@@ -775,23 +774,16 @@ class PlayDao(private val context: BggApplication) {
         results
     }
 
-    suspend fun saveColors(uri: Uri, colors: List<PlayerColorEntity>?) = withContext(Dispatchers.IO) {
-        val resolver = context.contentResolver
-        resolver.delete(uri, null, null) // TODO change to batch
-        if (colors != null && colors.isNotEmpty()) {
-            val batch = arrayListOf<ContentProviderOperation>()
-            colors.forEach {
-                if (it.description.isNotBlank()) {
-                    val sortUri = PlayerColors.addSortUri(uri, it.sortOrder)
-                    batch += if (context.contentResolver.rowExists(sortUri)) {
-                        ContentProviderOperation.newUpdate(sortUri)
-                    } else {
-                        ContentProviderOperation.newInsert(uri).withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                    }.withValue(PlayerColors.PLAYER_COLOR, it.description).build()
-                }
-            }
-            resolver.applyBatch(batch)
+    suspend fun saveColorsForPlayer(uri: Uri, colors: List<PlayerColorEntity>?) = withContext(Dispatchers.IO) {
+        val batch = arrayListOf<ContentProviderOperation>()
+        batch += ContentProviderOperation.newDelete(uri).build()
+        colors?.filter { it.description.isNotBlank() }?.forEach {
+            batch += ContentProviderOperation
+                .newInsert(uri).withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                .withValue(PlayerColors.PLAYER_COLOR, it.description)
+                .build()
         }
+        context.contentResolver.applyBatch(batch)
     }
 
     suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {

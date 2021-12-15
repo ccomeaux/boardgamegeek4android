@@ -23,7 +23,6 @@ import com.boardgamegeek.util.DataUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import kotlin.collections.ArrayList
 
 class GameDao(private val context: BggApplication) {
     private val resolver: ContentResolver = context.contentResolver
@@ -391,20 +390,7 @@ class GameDao(private val context: BggApplication) {
         }
 
     suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        val colors = mutableListOf<String>()
-        if (gameId != INVALID_ID) {
-            context.contentResolver.load(
-                Games.buildColorsUri(gameId),
-                arrayOf(GameColors.COLOR),
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        colors += it.getStringOrNull(0).orEmpty()
-                    } while (it.moveToNext())
-                }
-            }
-        }
-        colors
+        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.COLOR)
     }
 
     suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
@@ -485,29 +471,12 @@ class GameDao(private val context: BggApplication) {
         resolver.delete(Games.buildColorsUri(gameId, color), null, null)
     }
 
-    suspend fun computeColors(gameId: Int): Int = withContext(Dispatchers.IO) {
-        // TODO break this into 2 methods
-        val values = mutableListOf<ContentValues>()
-        val cursor = resolver.query(
-            Plays.buildPlayersByColor(),
-            arrayOf(PlayPlayers.COLOR),
-            "${Plays.OBJECT_ID}=?",
-            arrayOf(gameId.toString()),
-            null
-        )
-        cursor?.use { c ->
-            if (c.moveToFirst()) {
-                do {
-                    val color = c.getString(0).orEmpty()
-                    if (color.isNotBlank()) {
-                        values += contentValuesOf(GameColors.COLOR to color)
-                    }
-                } while (c.moveToNext())
-            }
+    suspend fun insertColors(gameId: Int, colors: List<String>): Int = withContext(Dispatchers.IO) {
+        if (colors.isEmpty()) 0
+        else {
+            val values = colors.map { contentValuesOf(GameColors.COLOR to it) }
+            resolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
         }
-        if (values.size == 0) 0
-        else resolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
-
     }
 
     suspend fun update(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
