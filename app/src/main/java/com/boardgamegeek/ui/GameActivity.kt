@@ -8,11 +8,11 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.core.app.NavUtils
 import androidx.core.app.TaskStackBuilder
-import androidx.lifecycle.Observer
 import androidx.palette.graphics.Palette
 import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.databinding.ActivityHeroTabBinding
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -23,7 +23,6 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.util.ShortcutUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.activity_hero_tab.*
 import timber.log.Timber
 
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
@@ -35,6 +34,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var arePlayersCustomSorted = false
     private var isFavorite: Boolean = false
     private var isUserMenuEnabled = false
+    private lateinit var binding: ActivityHeroTabBinding
     private val viewModel by viewModels<GameViewModel>()
 
     private val adapter: GamePagerAdapter by lazy {
@@ -45,6 +45,8 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        binding = ActivityHeroTabBinding.bind(findViewById(R.id.drawer_layout))
 
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         if (gameId == BggContract.INVALID_ID) {
@@ -59,25 +61,20 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
         viewModel.setId(gameId)
 
-        viewModel.game.observe(this, Observer {
-            when {
-                it == null -> return@Observer
-                it.status == Status.ERROR -> toast(if (it.message.isBlank()) getString(R.string.empty_game) else it.message)
-                it.data == null -> return@Observer
-                else -> {
-                    it.data.apply {
-                        changeName(name)
-                        changeImage(heroImageUrl, thumbnailUrl)
-
-                        this@GameActivity.isFavorite = isFavorite
-                        this@GameActivity.isUserMenuEnabled = maxUsers > 0
-                        this@GameActivity.thumbnailUrl = thumbnailUrl
-                        this@GameActivity.imageUrl = imageUrl
-                        arePlayersCustomSorted = customPlayerSort
-                    }
+        viewModel.game.observe(this) {
+            it?.let { (status, data, message) ->
+                if (status == Status.ERROR) toast(if (message.isBlank()) getString(R.string.empty_game) else message)
+                data?.let { game ->
+                    changeName(game.name)
+                    changeImage(game.heroImageUrl, game.thumbnailUrl)
+                    isFavorite = game.isFavorite
+                    isUserMenuEnabled = game.maxUsers > 0
+                    thumbnailUrl = game.thumbnailUrl
+                    imageUrl = game.imageUrl
+                    arePlayersCustomSorted = game.customPlayerSort
                 }
             }
-        })
+        }
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
@@ -89,7 +86,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     override fun createAdapter(): GamePagerAdapter {
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 adapter.currentPosition = position
@@ -118,48 +115,25 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 } else {
                     NavUtils.navigateUpTo(this, upIntent)
                 }
-                return true
             }
-            R.id.menu_share -> {
-                shareGame(gameId, gameName, "Game", firebaseAnalytics)
-                return true
-            }
+            R.id.menu_share -> shareGame(gameId, gameName, "Game", firebaseAnalytics)
             R.id.menu_favorite -> {
                 isFavorite = !isFavorite
                 viewModel.updateFavorite(isFavorite)
-                return true
             }
-            R.id.menu_shortcut -> {
-                ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl)
-                return true
-            }
+            R.id.menu_shortcut -> ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl)
             R.id.menu_log_play_quick -> {
                 getCoordinatorLayout().snackbar(R.string.msg_logging_play)
                 viewModel.logQuickPlay(gameId, gameName)
-                return true
             }
-            R.id.menu_log_play -> {
-                LogPlayActivity.logPlay(this, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
-                return true
-            }
-            R.id.menu_log_play_wizard -> {
-                NewPlayActivity.start(this, gameId, gameName)
-                return true
-            }
-            R.id.menu_view_image -> {
-                ImageActivity.start(this, heroImageUrl)
-                return true
-            }
-            R.id.menu_users -> {
-                GameUsersDialogFragment.launch(this)
-                return true
-            }
-            R.id.menu_view -> {
-                linkToBgg("boardgame", gameId)
-                return true
-            }
+            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+            R.id.menu_log_play_wizard -> NewPlayActivity.start(this, gameId, gameName)
+            R.id.menu_view_image -> ImageActivity.start(this, heroImageUrl)
+            R.id.menu_users -> GameUsersDialogFragment.launch(this)
+            R.id.menu_view -> linkToBgg("boardgame", gameId)
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     private fun shouldUpRecreateTask(): Boolean {
@@ -198,8 +172,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         private const val KEY_FROM_SHORTCUT = "FROM_SHORTCUT"
 
         fun start(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
-            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl)
-                ?: return
+            val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
             context.startActivity(intent)
         }
 
@@ -220,7 +193,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 KEY_GAME_ID to gameId,
                 KEY_GAME_NAME to gameName,
                 KEY_THUMBNAIL_URL to thumbnailUrl,
-                KEY_HERO_IMAGE_URL to heroImageUrl
+                KEY_HERO_IMAGE_URL to heroImageUrl,
             )
         }
     }

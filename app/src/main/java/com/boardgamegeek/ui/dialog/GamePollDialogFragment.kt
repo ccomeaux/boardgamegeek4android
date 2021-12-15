@@ -31,7 +31,7 @@ import com.google.android.material.snackbar.Snackbar
 import timber.log.Timber
 import java.text.DecimalFormat
 
-class PollDialogFragment : DialogFragment() {
+class GamePollDialogFragment : DialogFragment() {
     private var pollType = UNKNOWN
     private var snackBar: Snackbar? = null
     private var _binding: FragmentPollBinding? = null
@@ -144,7 +144,7 @@ class PollDialogFragment : DialogFragment() {
         }
 
         private fun launch(host: Fragment, type: Int) {
-            host.showAndSurvive(PollDialogFragment().apply {
+            host.showAndSurvive(GamePollDialogFragment().apply {
                 arguments = bundleOf(KEY_TYPE to type)
                 setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             })

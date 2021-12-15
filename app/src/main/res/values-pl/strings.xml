@@ -673,6 +673,7 @@
 	<string name="play_count">Liczba rozgrywek</string>
 	<string name="h_index">Wskaźnik H-index</string>
 	<string name="whitmore_score_info">Wskaźnik wymyślony, aby określić który %s jest Twoim ulubionym.\n\nhttps://boardgamegeek.com/thread/2420064/whats-whitmore-score</string>
+	<string name="ampersand">%1$s amp; %2$s</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s kolor</item>

@@ -15,7 +15,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameRankRow
 import timber.log.Timber
 
-class GameRanksFragment : DialogFragment() {
+class GameRanksDialogFragment : DialogFragment() {
     private var _binding: DialogGameRanksBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
@@ -86,9 +86,9 @@ class GameRanksFragment : DialogFragment() {
 
     companion object {
         fun launch(host: Fragment) {
-            val dialog = GameRanksFragment()
-            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
-            host.showAndSurvive(dialog)
+            host.showAndSurvive(GameRanksDialogFragment().apply {
+                setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            })
         }
     }
 }

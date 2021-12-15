@@ -1,83 +1,89 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentGameCollectionBinding
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
+import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import kotlinx.android.synthetic.main.fragment_game_collection.*
 
-class GameCollectionFragment : Fragment(R.layout.fragment_game_collection) {
-    private val adapter: GameCollectionItemAdapter by lazy {
-        GameCollectionItemAdapter(requireContext())
-    }
-
+class GameCollectionFragment : Fragment() {
+    private var _binding: FragmentGameCollectionBinding? = null
+    private val binding get() = _binding!!
+    private val adapter: GameCollectionItemAdapter by lazy { GameCollectionItemAdapter(requireContext()) }
     private val viewModel by activityViewModels<GameViewModel>()
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentGameCollectionBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefresh?.isEnabled = false
-        swipeRefresh?.setBggColors()
-        syncTimestamp?.timestamp = 0L
+        binding.swipeRefresh.isEnabled = false
+        binding.swipeRefresh.setBggColors()
+        binding.syncTimestamp.timestamp = 0L
 
-        recyclerView?.setHasFixedSize(false)
-        recyclerView?.adapter = adapter
+        binding.recyclerView.setHasFixedSize(false)
+        binding.recyclerView.adapter = adapter
 
         viewModel.game.observe(viewLifecycleOwner, {
             adapter.gameYearPublished = it?.data?.yearPublished ?: GameEntity.YEAR_UNKNOWN
         })
 
-        viewModel.collectionItems.observe(viewLifecycleOwner, {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
-            when {
-                it == null -> showError()
-                it.status == Status.ERROR -> {
-                    val errorMessage = if (it.message.isNotBlank()) it.message else getString(R.string.empty_game_collection)
-                    if (it.data?.isNotEmpty() == true) {
-                        showData(it.data)
-                        showError(errorMessage, true)
-                    } else {
-                        showError(errorMessage, false)
-                    }
+        viewModel.collectionItems.observe(viewLifecycleOwner) {
+            it?.let { (status, data, message) ->
+                binding.swipeRefresh.isRefreshing = status == Status.REFRESHING
+                if (status == Status.ERROR) {
+                    showError(
+                        message.ifBlank { getString(R.string.empty_game_collection) },
+                        hasData = data?.isNotEmpty() ?: false,
+                    )
                 }
-                else -> showData(it.data ?: emptyList())
+                showData(data.orEmpty())
+                binding.progressView.hide()
             }
-            progressView.hide()
-        })
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showData(items: List<CollectionItemEntity>) {
-        if (!isAdded) return
         if (items.isNotEmpty()) {
             adapter.items = items
-            syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-            emptyMessage.fadeOut()
-            recyclerView?.fadeIn()
+            binding.syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
+            binding.emptyMessage.isVisible = false
+            binding.recyclerView.isVisible = true
         } else {
-            syncTimestamp.timestamp = System.currentTimeMillis()
+            binding.syncTimestamp.timestamp = System.currentTimeMillis()
+            binding.recyclerView.isVisible = false
             showError()
-            recyclerView?.fadeOut()
         }
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh.isEnabled = true
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.isEnabled = true
     }
 
     private fun showError(message: String = getString(R.string.empty_game_collection), hasData: Boolean = false) {
         if (hasData) {
             toast(message)
         } else {
-            emptyMessage.text = message
-            emptyMessage.fadeIn()
+            binding.emptyMessage.setTextOrHide(message)
         }
     }
 }

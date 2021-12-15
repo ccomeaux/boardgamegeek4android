@@ -25,14 +25,8 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
     }
 
     var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-        @SuppressLint("NotifyDataSetChanged")
-        if (oldValue.isEmpty()) {
-            // this is a hack for the first load
-            notifyDataSetChanged()
-        } else {
-            autoNotify(oldValue, newValue) { old, new ->
-                old.collectionId == new.collectionId
-            }
+        autoNotify(oldValue, newValue) { old, new ->
+            old.collectionId == new.collectionId
         }
     }
 

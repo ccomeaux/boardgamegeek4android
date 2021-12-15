@@ -20,7 +20,7 @@ import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.PlayerNumberRow
 
-class SuggestedPlayerCountPollDialogFragment : DialogFragment() {
+class GameSuggestedPlayerCountPollDialogFragment : DialogFragment() {
     private var _binding: FragmentPollSuggestedPlayerCountBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
@@ -97,9 +97,9 @@ class SuggestedPlayerCountPollDialogFragment : DialogFragment() {
 
     companion object {
         fun launch(host: Fragment) {
-            val dialog = SuggestedPlayerCountPollDialogFragment()
-            dialog.setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
-            host.showAndSurvive(dialog)
+            host.showAndSurvive(GameSuggestedPlayerCountPollDialogFragment().apply {
+                setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
+            })
         }
     }
 }

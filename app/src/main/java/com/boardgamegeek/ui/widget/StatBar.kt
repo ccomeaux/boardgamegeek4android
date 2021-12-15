@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -38,7 +39,7 @@ class StatBar @JvmOverloads constructor(
     }
 
     fun colorize(@ColorInt color: Int) {
-        findViewById<TextView>(R.id.valueView).setBackgroundColor(color)
+        findViewById<View>(R.id.valueView).setBackgroundColor(color)
     }
 
     companion object {

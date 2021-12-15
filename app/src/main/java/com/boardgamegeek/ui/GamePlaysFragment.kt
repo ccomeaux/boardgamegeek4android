@@ -7,22 +7,24 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.databinding.FragmentGamePlaysBinding
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
-import kotlinx.android.synthetic.main.fragment_game_plays.*
 
-class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
+class GamePlaysFragment : Fragment() {
+    private var _binding: FragmentGamePlaysBinding? = null
+    private val binding get() = _binding!!
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var imageUrl = ""
@@ -35,159 +37,150 @@ class GamePlaysFragment : Fragment(R.layout.fragment_game_plays) {
 
     private val viewModel by activityViewModels<GameViewModel>()
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentGamePlaysBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh?.setBggColors()
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setBggColors()
 
-        syncTimestampView?.timestamp = 0L
+        binding.syncTimestampView.timestamp = 0L
 
         viewModel.game.observe(viewLifecycleOwner) {
-            onGameQueryComplete(it?.data)
+            it?.data?.let { game ->
+                gameId = game.id
+                gameName = game.name
+                imageUrl = game.imageUrl
+                thumbnailUrl = game.thumbnailUrl
+                heroImageUrl = game.heroImageUrl
+                arePlayersCustomSorted = game.customPlayerSort
+                binding.syncTimestampView.timestamp = game.updatedPlays
+                iconColor = game.iconColor
+                listOf(binding.inProgressPlaysIcon, binding.playsIcon, binding.playStatsIcon, binding.colorsIcon).forEach { v ->
+                    v.setOrClearColorFilter(iconColor)
+                }
+            }
         }
 
         viewModel.plays.observe(viewLifecycleOwner) {
-            swipeRefresh.post { swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
-            onPlaysQueryComplete(it?.data)
-            progressView.hide()
+            binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
+            onPlaysQueryComplete(it?.data.orEmpty())
+            binding.progressView.hide()
         }
 
         viewModel.playColors.observe(viewLifecycleOwner) {
-            updateColors(it)
-            progressView.hide()
+            it?.let { updateColors(it) }
+            binding.progressView.hide()
         }
     }
 
-    private fun updateColors(colors: List<String>?) {
-        val count = colors?.size ?: 0
-        if (colors != null && count > 0 && colors.all { it.isKnownColor() }) {
-            colorsList.removeAllViews()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun updateColors(colors: List<String>) {
+        binding.colorsList.removeAllViews()
+        if (colors.isNotEmpty() && colors.all { it.isKnownColor() }) {
             colors.forEach {
                 requireContext().createSmallCircle().apply {
                     setColorViewValue(it.asColorRgb())
-                    colorsList.addView(this)
+                    binding.colorsList.addView(this)
                 }
             }
-            colorsList.isVisible = true
-            colorsLabel.isVisible = false
+            binding.colorsList.isVisible = true
+            binding.colorsLabel.isVisible = false
         } else {
-            colorsLabel.text = context?.getQuantityText(R.plurals.colors_suffix, count, count) ?: ""
-            colorsLabel.isVisible = true
-            colorsList.isVisible = false
+            binding.colorsLabel.text = requireContext().getQuantityText(R.plurals.colors_suffix, colors.size, colors.size)
+            binding.colorsLabel.isVisible = true
+            binding.colorsList.isVisible = false
         }
-        colorsContainer.isVisible = true
-        colorsContainer.setOnClickListener {
+        binding.colorsContainer.isVisible = true
+        binding.colorsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
                 GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
         }
     }
 
-    private fun onGameQueryComplete(game: GameEntity?) {
-        if (game == null) return
-        gameId = game.id
-        gameName = game.name
-        imageUrl = game.imageUrl
-        thumbnailUrl = game.thumbnailUrl
-        heroImageUrl = game.heroImageUrl
-        arePlayersCustomSorted = game.customPlayerSort
-        syncTimestampView.timestamp = game.updatedPlays
-        iconColor = game.iconColor
-        colorize()
-    }
-
-    private fun onPlaysQueryComplete(plays: List<PlayEntity>?) {
-        if (plays != null) {
-            if (plays.isNotEmpty()) {
-                val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
-                if (inProgressPlays.isNotEmpty()) {
-                    inProgressPlaysList.removeAllViews()
-                    inProgressPlays.take(3).forEach { play ->
-                        val row = LayoutInflater.from(context)
-                            .inflate(R.layout.row_play_summary_updating, inProgressPlaysList, false)
-                        row.findViewById<InProgressPlay>(R.id.line1)?.let {
-                            it.play = play
-                            it.timeHintUpdateInterval = 1_000L
-                        }
-                        row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
-                        row.setOnClickListener {
-                            PlayActivity.start(requireContext(), play.internalId)
-                        }
-                        inProgressPlaysList?.addView(row)
+    private fun onPlaysQueryComplete(plays: List<PlayEntity>) {
+        if (plays.isNotEmpty()) {
+            val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
+            if (inProgressPlays.isNotEmpty()) {
+                binding.inProgressPlaysList.removeAllViews()
+                inProgressPlays.take(3).forEach { play ->
+                    val row = binding.inProgressPlaysList.inflate(R.layout.row_play_summary_updating)
+                    row.findViewById<InProgressPlay>(R.id.line1)?.let {
+                        it.play = play
+                        it.timeHintUpdateInterval = 1_000L
                     }
-                    inProgressPlaysContainer.isVisible = true
-                } else {
-                    inProgressPlaysContainer.isVisible = false
-                }
-            } else {
-                inProgressPlaysContainer.isVisible = false
-            }
-
-            val playCount = plays.sumOf { it.quantity }
-            val description = playCount.asPlayCount(requireContext())
-            playCountIcon.text = description.first.toString()
-            playCountView.text = requireContext().getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
-            playCountDescriptionView.setTextOrHide(description.second)
-            playCountBackground.setColorViewValue(description.third)
-            playCountContainer.setOnClickListener {
-                if (gameId != BggContract.INVALID_ID)
-                    GamePlaysActivity.start(
-                        requireContext(),
-                        gameId,
-                        gameName,
-                        imageUrl,
-                        thumbnailUrl,
-                        heroImageUrl,
-                        arePlayersCustomSorted,
-                        iconColor
-                    )
-            }
-            playCountContainer.isVisible = true
-
-            if (plays.isNotEmpty()) {
-                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
-                if (lastPlay != null) {
-                    lastPlayDateView.text =
-                        requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
-                    lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
-                    lastPlayContainer.setOnClickListener {
-                        PlayActivity.start(requireContext(), lastPlay.internalId)
+                    row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
+                    row.setOnClickListener {
+                        PlayActivity.start(requireContext(), play.internalId)
                     }
-                    lastPlayContainer.isVisible = true
-                } else {
-                    lastPlayContainer.isVisible = false
+                    binding.inProgressPlaysList.addView(row)
                 }
-
-                playStatsContainer.setOnClickListener {
-                    if (gameId != BggContract.INVALID_ID)
-                        GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
-                }
-                playStatsContainer.isVisible = true
+                binding.inProgressPlaysContainer.isVisible = true
             } else {
-                playStatsContainer.isVisible = false
-                lastPlayContainer.isVisible = false
+                binding.inProgressPlaysContainer.isVisible = false
             }
         } else {
-            playCountContainer.isVisible = false
-            lastPlayContainer.isVisible = false
-            playStatsContainer.isVisible = false
+            binding.inProgressPlaysContainer.isVisible = false
         }
-    }
 
-    private fun colorize() {
-        if (isAdded) {
-            arrayOf(inProgressPlaysIcon, playsIcon, playStatsIcon, colorsIcon).forEach {
-                it.setOrClearColorFilter(
-                    iconColor
+        val playCount = plays.sumOf { it.quantity }
+        val (count, description, color) = playCount.asPlayCount(requireContext())
+        binding.playCountIcon.text = count.toString()
+        binding.playCountView.text = requireContext().getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
+        binding.playCountDescriptionView.setTextOrHide(description)
+        binding.playCountBackground.setColorViewValue(color)
+        binding.playCountContainer.setOnClickListener {
+            if (gameId != BggContract.INVALID_ID)
+                GamePlaysActivity.start(
+                    requireContext(),
+                    gameId,
+                    gameName,
+                    imageUrl,
+                    thumbnailUrl,
+                    heroImageUrl,
+                    arePlayersCustomSorted,
+                    iconColor,
                 )
+        }
+        binding.playCountContainer.isVisible = true
+
+        if (plays.isNotEmpty()) {
+            val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
+            if (lastPlay != null) {
+                binding.lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
+                binding.lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
+                binding.lastPlayContainer.setOnClickListener {
+                    PlayActivity.start(requireContext(), lastPlay.internalId)
+                }
+                binding.lastPlayContainer.isVisible = true
+            } else {
+                binding.lastPlayContainer.isVisible = false
             }
+
+            binding.playStatsContainer.setOnClickListener {
+                if (gameId != BggContract.INVALID_ID)
+                    GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
+            }
+            binding.playStatsContainer.isVisible = true
+        } else {
+            binding.playStatsContainer.isVisible = false
+            binding.lastPlayContainer.isVisible = false
         }
     }
 
     class InProgressPlay @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = android.R.attr.textViewStyle
+        defStyleAttr: Int = android.R.attr.textViewStyle,
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
         var play: PlayEntity? = null
 
