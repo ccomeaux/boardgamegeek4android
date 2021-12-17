@@ -73,5 +73,4 @@ class CollectionViewRepository(val application: BggApplication) {
     companion object {
         private const val SHORTCUT_COUNT = 3
     }
-
 }

@@ -124,7 +124,7 @@
 	<string name="discard_changes_message">"Are you sure you want to discard changes to this %s?"</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_player_sort_custom_off">Do you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
-	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
+	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete the \"%s\" collection view?</string>
 	<string name="are_you_sure_timer_reset">Do you want to continue the timer where you left off or reset it and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
@@ -454,9 +454,9 @@
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_play_sync">You are not currently syncing your plays. Would you like to enable that feature now?</string>
-	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
-	<string name="msg_collection_view_deleted_named">Collection view \"%1$s\" deleted successfully</string>
-	<string name="msg_saved">Saved!</string>
+	<string name="msg_collection_view_inserted">Saved \"%s\" as a collection view.</string>
+	<string name="msg_collection_view_updated">Updated collection view \"%s\".</string>
+	<string name="msg_collection_view_deleted">Collection view \"%1$s\" deleted successfully.</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
 	<string name="msg_warning_private_info">Warning! Making any changes here will remove the inventory date.</string>
 	<string name="title_share">Share</string>

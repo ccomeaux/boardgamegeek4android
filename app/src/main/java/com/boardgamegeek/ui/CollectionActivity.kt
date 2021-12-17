@@ -30,10 +30,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
     private var snackbar: Snackbar? = null
 
     private val viewModel by viewModels<CollectionViewViewModel>()
-
-    private val adapter: CollectionViewAdapter by lazy {
-        CollectionViewAdapter(this@CollectionActivity)
-    }
+    private val adapter: CollectionViewAdapter by lazy { CollectionViewAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +46,8 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
                 it.setCustomView(R.layout.actionbar_collection)
             }
         }
-        if (savedInstanceState == null) {
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
-            }
-        }
 
-        viewModel.errorMessage.observe(this, {
+        viewModel.errorMessage.observe(this) {
             it.getContentIfNotHandled()?.let { message ->
                 if (message.isBlank()) {
                     snackbar?.dismiss()
@@ -63,17 +55,16 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
                     snackbar = rootContainer?.indefiniteSnackbar(message)
                 }
             }
-        })
-        viewModel.selectedViewId.observe(this, { id: Long -> viewId = id })
+        }
+        viewModel.selectedViewId.observe(this) { id: Long -> viewId = id }
         if (savedInstanceState == null) {
-            if (hideNavigation) {
-                viewModel.selectView(CollectionView.DEFAULT_DEFAULT_ID)
-            } else {
-                val defaultId = preferences()[CollectionView.PREFERENCES_KEY_DEFAULT_ID, CollectionView.DEFAULT_DEFAULT_ID]
-                    ?: CollectionView.DEFAULT_DEFAULT_ID
-                val viewId = intent.getLongExtra(KEY_VIEW_ID, defaultId)
-                viewModel.selectView(viewId)
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
             }
+            selectView(
+                if (hideNavigation) CollectionView.DEFAULT_DEFAULT_ID else intent.getLongExtra(KEY_VIEW_ID, viewModel.defaultViewId),
+                !hideNavigation
+            )
         }
     }
 
@@ -88,25 +79,31 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         findViewById<AppCompatSpinner>(R.id.menu_spinner)?.let {
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    viewModel.selectView(id)
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
-                    }
+                    selectView(id)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing
                 }
             }
             it.adapter = adapter
-            viewModel.views.observe(this, { collectionViews: List<CollectionViewEntity?> ->
+            viewModel.views.observe(this) { collectionViews: List<CollectionViewEntity?> ->
                 if (collectionViews.isNotEmpty()) {
                     adapter.clear()
                     adapter.addAll(collectionViews)
                 }
                 it.setSelection(adapter.findIndexOf(viewId))
-            })
+            }
         }
         return true
+    }
+
+    private fun selectView(id: Long, logEvent: Boolean = true) {
+        viewModel.selectView(id)
+        if (logEvent) {
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+            }
+        }
     }
 
     override val navigationItemId: Int = R.id.collection

@@ -3,7 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.entities.CollectionViewFilterEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -25,16 +27,14 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     private val playRepository = PlayRepository(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val defaultViewId
-        get() = prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID, DEFAULT_DEFAULT_ID]
-            ?: DEFAULT_DEFAULT_ID
+    val defaultViewId
+        get() = prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID, DEFAULT_DEFAULT_ID] ?: DEFAULT_DEFAULT_ID
 
     private val collectionFiltererFactory: CollectionFiltererFactory by lazy { CollectionFiltererFactory(application) }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 
-    val views: LiveData<List<CollectionViewEntity>> = liveData { emit(viewRepository.load()) }
-
     private val syncTimestamp = MutableLiveData<Long>()
+    private val viewsTimestamp = MutableLiveData<Long>()
     private val _sortType = MutableLiveData<Int>()
     private val _addedFilters = MutableLiveData<List<CollectionFilterer>>()
     private val _removedFilterTypes = MutableLiveData<List<Int>>()
@@ -55,10 +55,13 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         liveData {
             try {
                 emit(itemRepository.load())
+                _isRefreshing.postValue(true)
                 itemRepository.refresh()
                 emit(itemRepository.load())
             } catch (e: Exception) {
                 _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
+            } finally {
+                _isRefreshing.postValue(false)
             }
         }
     }
@@ -75,6 +78,10 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val selectedViewId: LiveData<Long>
         get() = _selectedViewId
 
+    val views: LiveData<List<CollectionViewEntity>> = viewsTimestamp.switchMap {
+        liveData { emit(viewRepository.load()) }
+    }
+
     private val selectedView: LiveData<CollectionViewEntity> = _selectedViewId.switchMap {
         liveData {
             _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
@@ -89,6 +96,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     init {
+        refreshViews()
         viewModelScope.launch { initMediators() }
         _selectedViewId.value = defaultViewId
     }
@@ -141,23 +149,25 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    fun findViewId(viewName: String) = views.value?.find { it.name == viewName }?.id ?: BggContract.INVALID_ID.toLong()
+
     fun setSort(sortType: Int) {
         val type = when (sortType) {
             CollectionSorterFactory.TYPE_UNKNOWN -> CollectionSorterFactory.TYPE_DEFAULT
             else -> sortType
         }
-        if (_sortType.value != sortType) _sortType.value = type
+        if (_sortType.value != type) _sortType.value = type
     }
 
     fun addFilter(filter: CollectionFilterer) {
         viewModelScope.launch(Dispatchers.Default) {
             if (filter.isValid) {
-                val removedFilters = _removedFilterTypes.value?.toMutableList() ?: mutableListOf()
+                val removedFilters = _removedFilterTypes.value.orEmpty().toMutableList()
                 if (removedFilters.remove(filter.type)) {
-                    _removedFilterTypes.value = removedFilters
+                    _removedFilterTypes.postValue(removedFilters)
                 }
 
-                val filters = _addedFilters.value?.toMutableList() ?: mutableListOf()
+                val filters = _addedFilters.value.orEmpty().toMutableList()
                 filters.apply {
                     remove(filter)
                     add(filter)
@@ -169,14 +179,14 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
 
     fun removeFilter(type: Int) {
         viewModelScope.launch(Dispatchers.Default) {
-            val filters = _addedFilters.value?.toMutableList() ?: mutableListOf()
+            val filters = _addedFilters.value.orEmpty().toMutableList()
             filters.find { it.type == type }?.let {
                 if (filters.remove(it)) {
                     _addedFilters.postValue(filters)
                 }
             }
 
-            val removedFilters = _removedFilterTypes.value?.toMutableList() ?: mutableListOf()
+            val removedFilters = _removedFilterTypes.value.orEmpty().toMutableList()
             removedFilters.apply {
                 remove(type)
                 add(type)
@@ -229,7 +239,6 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
         if (itemList == null) return
-        _isRefreshing.postValue(true)
         viewModelScope.launch(Dispatchers.Default) {
             var list = itemList.asSequence()
             if (_selectedViewId.value == DEFAULT_DEFAULT_ID && filters.none { it.type == CollectionFiltererFactory.TYPE_STATUS }) {
@@ -254,7 +263,6 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             }
             val sorter = collectionSorterFactory.create(sortType)
             _items.postValue(sorter?.sort(list.toList()) ?: list.toList())
-            _isRefreshing.postValue(false)
         }
     }
 
@@ -274,6 +282,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                 filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
             )
             val viewId = viewRepository.insertView(view)
+            refreshViews()
             setOrRemoveDefault(viewId, isDefault)
             selectView(viewId)
         }
@@ -288,6 +297,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                 filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
             )
             viewRepository.updateView(view)
+            refreshViews()
             setOrRemoveDefault(view.id, isDefault)
         }
     }
@@ -295,10 +305,15 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     fun deleteView(viewId: Long) {
         viewModelScope.launch {
             viewRepository.deleteView(viewId)
+            refreshViews()
             if (viewId == _selectedViewId.value) {
                 selectView(defaultViewId)
             }
         }
+    }
+
+    private fun refreshViews() {
+        viewsTimestamp.postValue(System.currentTimeMillis())
     }
 
     fun logQuickPlay(gameId: Int, gameName: String) {
@@ -310,10 +325,8 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {
         if (isDefault) {
             prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID] = viewId
-        } else {
-            if (viewId == defaultViewId) {
-                prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
-            }
+        } else if (viewId == defaultViewId) {
+            prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
         }
     }
 }

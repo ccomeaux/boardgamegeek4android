@@ -125,7 +125,7 @@
 	<string name="discard_changes_message">"Na pewno chcesz odrzucić zmiany w %s?"</string>
 	<string name="are_you_sure_delete_play">Na pewno chcesz usunąć tę rozgrywkę?</string>
 	<string name="are_you_sure_player_sort_custom_off">Chcesz włączyć automatyczne sortowanie graczy? Obecne pozycje startowe zostaną zmienione.</string>
-	<string name="are_you_sure_delete_collection_view">Na pewno chcesz usunąć ten widok kolekcji?</string>
+	<string name="are_you_sure_delete_collection_view">Na pewno chcesz usunąć ten widok kolekcji? %s</string>
 	<string name="are_you_sure_timer_reset">Chcesz aby zegar kontynuował tam gdzie przerwałeś czy chcesz zresetować i stracić obecny czas trwania gry?</string>
 	<string name="are_you_sure_clear_colors">Na pewno chcessz wyczyścić listę kolorów?</string>
 	<string name="are_you_sure_delete_collection_item">Na pewno chcesz usunąć tę pozycję z Twojej kolekcji?</string>
@@ -437,8 +437,7 @@
 	<string name="msg_player_add_username">Dodano nazwę użytkownika \"%1$s\" do gracza \"%2$s\"</string>
 	<string name="msg_play_location_change">Zmieniono lokalizację z \"%1$s\" na \"%2$s\"</string>
 	<string name="msg_play_sync">Obecnie nie synchronizujesz swoich rozgrywek. Włączyć tę funkcję?</string>
-	<string name="msg_collection_view_deleted">Pomyślnie usunięto widok kolekcji</string>
-	<string name="msg_collection_view_deleted_named">Pomyślnie usunięto widok kolekcji \"%1$s\"</string>
+	<string name="msg_collection_view_deleted">Pomyślnie usunięto widok kolekcji \"%1$s\"</string>
 	<string name="msg_saved">Zapisano!</string>
 	<string name="msg_sign_out_success">Pomyślnie wylogowano!</string>
 	<string name="msg_warning_private_info">Uwaga! Jakiekolwiek zmiany tutaj spowodują usunięcie daty inwentarza.</string>

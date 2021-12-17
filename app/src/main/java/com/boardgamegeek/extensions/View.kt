@@ -231,6 +231,11 @@ inline fun View.snackbar(message: CharSequence) = Snackbar
     .apply { show() }
 
 @Suppress("NOTHING_TO_INLINE")
+inline fun View.longSnackbar(messageResourceId: Int) = Snackbar
+    .make(this, messageResourceId, Snackbar.LENGTH_LONG)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
 inline fun View.longSnackbar(message: CharSequence) = Snackbar
     .make(this, message, Snackbar.LENGTH_LONG)
     .apply { show() }

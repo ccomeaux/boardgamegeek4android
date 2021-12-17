@@ -103,6 +103,9 @@ data class CollectionItemEntity(
                 inventoryLocation.isNotBlank()
     }
 
+    val yearPublished: Int
+        get() = if (collectionYearPublished == YEAR_UNKNOWN) gameYearPublished else collectionYearPublished
+
     fun getPrivateInfo(context: Context): CharSequence {
         val initialText = context.resources.getString(R.string.acquired)
         val sb = SpannableStringBuilder()
