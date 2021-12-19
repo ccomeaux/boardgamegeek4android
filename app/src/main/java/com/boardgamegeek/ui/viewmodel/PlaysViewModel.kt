@@ -173,4 +173,22 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun send(plays: List<PlayEntity>) {
+        viewModelScope.launch {
+            plays.forEach {
+                playRepository.markAsUpdated(it.internalId)
+            }
+            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        }
+    }
+
+    fun delete(plays: List<PlayEntity>) {
+        viewModelScope.launch {
+            plays.forEach {
+              playRepository.markAsDeleted(it.internalId)
+            }
+            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        }
+    }
 }

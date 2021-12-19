@@ -1,36 +1,35 @@
 package com.boardgamegeek.ui
 
-import android.content.ContentProviderOperation
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPlaysBinding
+import com.boardgamegeek.databinding.RowPlayBinding
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.INVALID_ID
-import com.boardgamegeek.provider.BggContract.Plays
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.XmlApiMarkupConverter
-import kotlinx.android.synthetic.main.fragment_plays.*
-import kotlinx.android.synthetic.main.row_play.view.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callback {
+    private var _binding: FragmentPlaysBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<PlaysViewModel>()
     private val markupConverter by lazy { XmlApiMarkupConverter(requireContext()) }
 
@@ -46,6 +45,12 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
     private var showGameName = true
     private var actionMode: ActionMode? = null
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentPlaysBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,31 +64,33 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
         @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
 
-        if (gameId != INVALID_ID) {
-            fabView.colorize(iconColor)
-            fabView.setOnClickListener {
-                LogPlayActivity.logPlay(
-                    requireContext(),
-                    gameId,
-                    gameName.orEmpty(),
-                    thumbnailUrl.orEmpty(),
-                    imageUrl.orEmpty(),
-                    heroImageUrl.orEmpty(),
-                    arePlayersCustomSorted
-                )
+        binding.fabView.apply {
+            if (gameId != INVALID_ID) {
+                colorize(iconColor)
+                setOnClickListener {
+                    LogPlayActivity.logPlay(
+                        requireContext(),
+                        gameId,
+                        gameName.orEmpty(),
+                        thumbnailUrl.orEmpty(),
+                        imageUrl.orEmpty(),
+                        heroImageUrl.orEmpty(),
+                        arePlayersCustomSorted
+                    )
+                }
+                show()
+            } else {
+                hide()
             }
-            fabView.show()
-        } else {
-            fabView.hide()
         }
 
         updateEmptyText()
 
-        swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefreshLayout.setBggColors()
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
         viewModel.syncingStatus.observe(viewLifecycleOwner) {
             showSyncingState(it)
@@ -92,15 +99,10 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         viewModel.plays.observe(viewLifecycleOwner) {
             showSyncingState(it.status == Status.REFRESHING)
             adapter.items = it.data.orEmpty()
-            recyclerView.addHeader(adapter)
-            progressBar.hide()
-            if (it.data.isNullOrEmpty()) {
-                emptyContainer.fadeIn()
-                recyclerView.fadeOut()
-            } else {
-                recyclerView.fadeIn()
-                emptyContainer.fadeOut()
-            }
+            binding.recyclerView.addHeader(adapter)
+            binding.progressBar.hide()
+            binding.emptyContainer.isVisible = it.data.isNullOrEmpty()
+            binding.recyclerView.isVisible = !it.data.isNullOrEmpty()
         }
 
         viewModel.filterType.observe(viewLifecycleOwner) {
@@ -109,13 +111,11 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
     }
 
     private fun showSyncingState(it: Boolean?) {
-        swipeRefreshLayout?.post {
-            swipeRefreshLayout?.isRefreshing = it ?: false
-        }
+        binding.swipeRefreshLayout.isRefreshing = it ?: false
     }
 
     private fun updateEmptyText() {
-        emptyTextView.setText(
+        binding.emptyTextView.setText(
             when (viewModel.filterType.value) {
                 PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
                 PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
@@ -133,14 +133,12 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         private val selectedItems = SparseBooleanArray()
 
         val selectedItemCount: Int
-            get() = selectedItems.size()
+            get() = selectedItems.filterTrue().size
 
         val selectedItemPositions: List<Int>
-            get() {
-                val items = ArrayList<Int>(selectedItems.size())
-                (0 until selectedItems.size()).mapTo(items) { selectedItems.keyAt(it) }
-                return items
-            }
+            get() = selectedItems.filterTrue()
+
+        fun getSelectedItems() = selectedItems.filterTrue().mapNotNull { items.getOrNull(it) }
 
         init {
             setHasStableIds(true)
@@ -163,12 +161,9 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                 .all { it }
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         fun toggleSelection(position: Int) {
-            if (selectedItems.get(position, false)) {
-                selectedItems.delete(position)
-            } else {
-                selectedItems.put(position, true)
-            }
+            selectedItems.toggle(position)
             notifyDataSetChanged() // I'd prefer to call notifyItemChanged(position), but that causes the section header to appear briefly
             actionMode?.let {
                 if (selectedItemCount == 0) {
@@ -180,8 +175,9 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         }
 
         fun clearSelection() {
+            val oldSelectedItems = selectedItems.clone()
             selectedItems.clear()
-            notifyDataSetChanged()
+            oldSelectedItems.filterTrue().forEach { notifyItemChanged(it) }
         }
 
         override fun getItemCount() = items.size
@@ -195,12 +191,14 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
         }
 
         internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowPlayBinding.bind(itemView)
+
             fun bind(play: PlayEntity?, position: Int) {
                 if (play == null) return
 
-                itemView.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
-                itemView.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
-                itemView.commentView.setTextOrHide(markupConverter.strip(play.comments))
+                binding.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
+                binding.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
+                binding.commentView.setTextOrHide(markupConverter.strip(play.comments))
 
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete
@@ -208,7 +206,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                     play.dirtyTimestamp > 0 -> if (play.isSynced) R.string.sync_editing else R.string.sync_draft
                     else -> 0
                 }
-                itemView.statusView.setTextOrHide(statusMessageId)
+                binding.statusView.setTextOrHide(statusMessageId)
 
                 itemView.isActivated = selectedItems.get(position, false)
 
@@ -296,19 +294,17 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        if (!adapter.selectedItemPositions.iterator().hasNext()) return false
+        val plays = adapter.getSelectedItems()
+        if (plays.isEmpty()) return false
         when (item.itemId) {
             R.id.menu_send -> {
-                AlertDialog.Builder(requireContext())
-                    .setMessage(resources.getQuantityString(R.plurals.are_you_sure_send_play, adapter.selectedItemCount))
-                    .setCancelable(true)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.send) { _, _ ->
-                        updateSelectedPlays(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
-                        mode.finish()
-                    }
-                    .show()
-                return true
+                requireContext().showDialog(
+                    resources.getQuantityString(R.plurals.are_you_sure_send_play, adapter.selectedItemCount),
+                    R.string.send,
+                ) { _, _ ->
+                    viewModel.send(adapter.getSelectedItems())
+                    mode.finish()
+                }
             }
             R.id.menu_edit -> {
                 val play = adapter.getItem(adapter.selectedItemPositions.iterator().next())
@@ -323,38 +319,19 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                         play.heroImageUrl,
                     )
                 mode.finish()
-                return true
             }
             R.id.menu_delete -> {
-                AlertDialog.Builder(requireContext())
-                    .setMessage(resources.getQuantityString(R.plurals.are_you_sure_delete_play, adapter.selectedItemCount))
-                    .setCancelable(true)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.delete) { _, _ ->
-                        updateSelectedPlays(Plays.DELETE_TIMESTAMP, System.currentTimeMillis())
-                        mode.finish()
-                    }
-                    .show()
-                return true
+                requireContext().showDialog(
+                    resources.getQuantityString(R.plurals.are_you_sure_delete_play, adapter.selectedItemCount),
+                    R.string.delete
+                ) { _, _ ->
+                    viewModel.delete(adapter.getSelectedItems())
+                    mode.finish()
+                }
             }
+            else -> return false
         }
-        return false
-    }
-
-    private fun updateSelectedPlays(key: String, value: Long) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        for (position in adapter.selectedItemPositions) {
-            val play = adapter.getItem(position)
-            if (play != null && play.internalId != INVALID_ID.toLong())
-                batch.add(
-                    ContentProviderOperation
-                        .newUpdate(Plays.buildPlayUri(play.internalId))
-                        .withValue(key, value)
-                        .build()
-                )
-        }
-        requireContext().contentResolver.applyBatch(batch)
-        SyncService.sync(activity, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        return true
     }
 
     companion object {
@@ -393,7 +370,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                     KEY_THUMBNAIL_URL to thumbnailUrl,
                     KEY_HERO_IMAGE_URL to heroImageUrl,
                     KEY_CUSTOM_PLAYER_SORT to arePlayersCustomSorted,
-                    KEY_ICON_COLOR to iconColor
+                    KEY_ICON_COLOR to iconColor,
                 )
             }
         }

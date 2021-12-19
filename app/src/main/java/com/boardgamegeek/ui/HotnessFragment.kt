@@ -89,12 +89,12 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
 
             private fun toggleSelection(position: Int) {
                 adapter.toggleSelection(position)
-                val count = adapter.selectedItemCount
-                if (count == 0) {
-                    actionMode?.finish()
-                } else {
-                    actionMode?.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
-                    actionMode?.invalidate()
+                actionMode?.let {
+                    if (adapter.selectedItemCount == 0) {
+                        it.finish()
+                    } else {
+                        it.invalidate()
+                    }
                 }
             }
         })
@@ -171,6 +171,7 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         val count = adapter.selectedItemCount
+        mode.title = resources.getQuantityString(R.plurals.msg_games_selected, count, count)
         if (Authenticator.isSignedIn(context)) {
             menu.findItem(R.id.menu_log_play_form).isVisible = count == 1
             menu.findItem(R.id.menu_log_play_wizard).isVisible = count == 1
@@ -192,45 +193,39 @@ class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback
         if (selectedGames.isEmpty()) return false
         when (item.itemId) {
             R.id.menu_log_play_form -> {
-                mode.finish()
                 selectedGames.firstOrNull()?.let { game ->
                     LogPlayActivity.logPlay(requireContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl)
                 }
             }
             R.id.menu_log_play_quick -> {
-                mode.finish()
-                val text = resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount)
-                binding.containerView.snackbar(text)
+                binding.containerView.snackbar(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
                 for (game in selectedGames) {
                     viewModel.logQuickPlay(game.id, game.name)
                 }
             }
             R.id.menu_log_play_wizard -> {
-                mode.finish()
                 selectedGames.firstOrNull()?.let { game ->
                     NewPlayActivity.start(requireContext(), game.id, game.name)
                 }
             }
             R.id.menu_share -> {
-                mode.finish()
                 val shareMethod = "Hotness"
                 if (selectedGames.size == 1) {
                     selectedGames.firstOrNull()?.let { game ->
                         requireActivity().shareGame(game.id, game.name, shareMethod)
                     }
                 } else {
-                    val games = selectedGames.map { it.id to it.name }
-                    requireActivity().shareGames(games, shareMethod)
+                    requireActivity().shareGames(selectedGames.map { it.id to it.name }, shareMethod)
                 }
             }
             R.id.menu_link -> {
-                mode.finish()
                 selectedGames.firstOrNull()?.let { game ->
                     context.linkBgg(game.id)
                 }
             }
             else -> return false
         }
+        mode.finish()
         return true
     }
 }

@@ -3,10 +3,7 @@
 package com.boardgamegeek.extensions
 
 import android.app.Activity
-import android.content.ContentResolver
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.pm.PackageManager
 import android.text.Html
 import android.text.SpannedString
@@ -14,8 +11,10 @@ import android.text.TextUtils
 import android.widget.Toast
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
+import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.NotificationUtils
@@ -98,3 +97,12 @@ inline fun Context.longToast(message: Int): Toast = Toast
     .apply {
         show()
     }
+
+fun Context.showDialog(message: String, okButtonResId: Int = R.string.ok, okListener: DialogInterface.OnClickListener) {
+    AlertDialog.Builder(this)
+        .setMessage(message)
+        .setCancelable(true)
+        .setNegativeButton(R.string.cancel, null)
+        .setPositiveButton(okButtonResId, okListener)
+        .show()
+}
