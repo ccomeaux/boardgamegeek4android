@@ -23,7 +23,7 @@ class EditCollectionTextDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_text, null)
-        val viewModel = ViewModelProvider(requireActivity()).get(GameCollectionItemViewModel::class.java)
+        val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(arguments?.getString(KEY_TITLE))
                 .setView(layout)

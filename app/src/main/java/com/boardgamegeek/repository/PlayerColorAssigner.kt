@@ -21,7 +21,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
         colorsAvailable.clear()
         val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(gameId), BggContract.GameColors.COLOR).orEmpty())
         val takenColors = players.filter { it.color.isNotEmpty() }.map { it.color }
-        colorsAvailable.addAll(gameColors - takenColors)
+        colorsAvailable.addAll(gameColors - takenColors.toSet())
 
         playersNeedingColor.clear()
         players.filter { it.color.isBlank() && it.username.isNotBlank() }.distinctBy { it.username }.forEach { player ->

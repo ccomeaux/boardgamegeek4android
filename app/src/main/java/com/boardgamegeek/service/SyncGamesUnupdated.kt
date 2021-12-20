@@ -7,7 +7,6 @@ import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.SelectionBuilder
 
 /**
  * Syncs all games in the collection that have not been updated completely.

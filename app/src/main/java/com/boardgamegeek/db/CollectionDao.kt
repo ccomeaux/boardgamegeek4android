@@ -368,7 +368,7 @@ class CollectionDao(private val context: BggApplication) {
             arrayOf(gameId.toString())
         )
             .toMutableList()
-        collectionIdsToDelete.removeAll(protectedCollectionIds)
+        collectionIdsToDelete.removeAll(protectedCollectionIds.toSet())
         // remove them
         if (collectionIdsToDelete.size > 0) {
             for (collectionId in collectionIdsToDelete) {

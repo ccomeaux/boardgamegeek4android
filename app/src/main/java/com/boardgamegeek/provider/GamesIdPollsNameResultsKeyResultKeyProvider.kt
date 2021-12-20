@@ -24,7 +24,7 @@ class GamesIdPollsNameResultsKeyResultKeyProvider : BaseProvider() {
         val key2 = Games.getPollResultsResultKey(uri)
         return SelectionBuilder()
                 .table(Tables.GAME_POLL_RESULTS_RESULT)
-                .mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
+                .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
                 .where("$POLL_RESULTS_ID = (SELECT ${Tables.GAME_POLL_RESULTS}.$_ID FROM ${Tables.GAME_POLL_RESULTS} WHERE ${Tables.GAME_POLL_RESULTS}.$POLL_RESULTS_KEY=? AND ${Tables.GAME_POLL_RESULTS}.$POLL_ID = (SELECT ${Tables.GAME_POLLS}.$_ID FROM ${Tables.GAME_POLLS} WHERE $GAME_ID=? AND $POLL_NAME=?))",
                         key, gameId.toString(), pollName)
                 .whereEquals(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key2)

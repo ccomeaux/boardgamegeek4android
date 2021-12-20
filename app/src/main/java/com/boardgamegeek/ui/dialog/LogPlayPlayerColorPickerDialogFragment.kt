@@ -4,7 +4,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
-import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.util.ColorUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
