@@ -433,6 +433,18 @@ class PlayDao(private val context: BggApplication) {
         results
     }
 
+    /**
+     * Load all non-blank colors/teams in the specified game's logged plays.
+     */
+    suspend fun loadPlayerColors(gameId: Int) = withContext(Dispatchers.IO) {
+        context.contentResolver.queryStrings(
+            Plays.buildPlayersByColor(),
+            PlayPlayers.COLOR,
+            "${Plays.OBJECT_ID}=?",
+            arrayOf(gameId.toString()),
+        ).filter { it.isNotBlank() }
+    }
+
     enum class PlayerSortBy {
         NAME, PLAY_COUNT, WIN_COUNT
     }

@@ -122,7 +122,7 @@ class GameRepository(val application: BggApplication) {
     }
 
     suspend fun computePlayColors(gameId: Int) {
-        val colors = dao.loadPlayColors(gameId)
+        val colors = playDao.loadPlayerColors(gameId)
         dao.insertColors(gameId, colors)
     }
 
