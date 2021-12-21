@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class PlaysIdPlayersProvider : BaseProvider() {
     override fun getType(uri: Uri) = PlayPlayers.CONTENT_TYPE
@@ -18,16 +17,16 @@ class PlaysIdPlayersProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val internalId = Plays.getInternalId(uri)
         return SelectionBuilder()
-                .table(Tables.PLAY_PLAYERS)
-                .whereEquals(PlayPlayers._PLAY_ID, internalId)
+            .table(Tables.PLAY_PLAYERS)
+            .whereEquals(PlayPlayers._PLAY_ID, internalId)
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val internalId = Plays.getInternalId(uri)
         return SelectionBuilder()
-                .table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-                .mapToTable(PlayPlayers._ID, Tables.PLAY_PLAYERS)
-                .whereEquals(PlayPlayers._PLAY_ID, internalId)
+            .table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+            .mapToTable(PlayPlayers._ID, Tables.PLAY_PLAYERS)
+            .whereEquals(PlayPlayers._PLAY_ID, internalId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {

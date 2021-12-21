@@ -7,7 +7,6 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 /**
  *  /games/13/colors
@@ -22,8 +21,8 @@ class GamesIdColorsProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAME_COLORS)
-                .whereEquals(GAME_ID, gameId)
+            .table(Tables.GAME_COLORS)
+            .whereEquals(GAME_ID, gameId)
     }
 
     /**

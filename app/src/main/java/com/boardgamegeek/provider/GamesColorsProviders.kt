@@ -1,7 +1,6 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesColorsProviders : BaseProvider() {
     override fun getType(uri: Uri) = BggContract.GameColors.CONTENT_ITEM_TYPE

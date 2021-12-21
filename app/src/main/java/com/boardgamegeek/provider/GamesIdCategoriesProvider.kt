@@ -8,7 +8,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.GamesCategories.CATEGORY_ID
 import com.boardgamegeek.provider.BggDatabase.GamesCategories.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdCategoriesProvider : BaseProvider() {
     override fun getType(uri: Uri) = Categories.CONTENT_TYPE
@@ -25,11 +24,11 @@ class GamesIdCategoriesProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_CATEGORIES_JOIN_CATEGORIES)
-                .mapToTable(Categories._ID, Tables.CATEGORIES)
-                .mapToTable(CATEGORY_ID, Tables.CATEGORIES)
-                .mapToTable(SyncColumns.UPDATED, Tables.CATEGORIES)
-                .whereEquals("${Tables.GAMES_CATEGORIES}.$GAME_ID", gameId)
+            .table(Tables.GAMES_CATEGORIES_JOIN_CATEGORIES)
+            .mapToTable(Categories._ID, Tables.CATEGORIES)
+            .mapToTable(CATEGORY_ID, Tables.CATEGORIES)
+            .mapToTable(SyncColumns.UPDATED, Tables.CATEGORIES)
+            .whereEquals("${Tables.GAMES_CATEGORIES}.$GAME_ID", gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {

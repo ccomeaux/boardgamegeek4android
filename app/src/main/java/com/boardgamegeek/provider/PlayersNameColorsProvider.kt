@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class PlayersNameColorsProvider : BaseProvider() {
     override fun getType(uri: Uri) = PlayerColors.CONTENT_TYPE
@@ -19,8 +18,8 @@ class PlayersNameColorsProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val playerName = PlayerColors.getPlayerName(uri)
         return SelectionBuilder().table(Tables.PLAYER_COLORS)
-                .where("${PlayerColors.PLAYER_TYPE}=?", PlayerColors.TYPE_PLAYER.toString())
-                .where("${PlayerColors.PLAYER_NAME}=?", playerName)
+            .where("${PlayerColors.PLAYER_TYPE}=?", PlayerColors.TYPE_PLAYER.toString())
+            .where("${PlayerColors.PLAYER_NAME}=?", playerName)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {

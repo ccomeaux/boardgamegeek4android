@@ -9,7 +9,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.PlayerColorsColumns.PLAYER_NAME
 import com.boardgamegeek.provider.BggContract.PlayerColorsColumns.PLAYER_TYPE
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class UsersNameColorsProvider : BaseProvider() {
     override fun getType(uri: Uri) = PlayerColors.CONTENT_TYPE
@@ -20,8 +19,8 @@ class UsersNameColorsProvider : BaseProvider() {
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder().table(Tables.PLAYER_COLORS)
-                .where("$PLAYER_TYPE=?", PlayerColors.TYPE_USER.toString())
-                .where("$PLAYER_NAME=?", PlayerColors.getUsername(uri))
+            .where("$PLAYER_TYPE=?", PlayerColors.TYPE_USER.toString())
+            .where("$PLAYER_NAME=?", PlayerColors.getUsername(uri))
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {

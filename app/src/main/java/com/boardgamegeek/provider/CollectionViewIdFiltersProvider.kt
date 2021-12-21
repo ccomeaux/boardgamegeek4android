@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class CollectionViewIdFiltersProvider : BaseProvider() {
     override fun getType(uri: Uri) = CollectionViewFilters.CONTENT_TYPE
@@ -20,9 +19,11 @@ class CollectionViewIdFiltersProvider : BaseProvider() {
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
-        return buildSelection(uri,
-                Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS,
-                "${Tables.COLLECTION_VIEWS}.${CollectionViews._ID}")
+        return buildSelection(
+            uri,
+            Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS,
+            "${Tables.COLLECTION_VIEWS}.${CollectionViews._ID}"
+        )
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
@@ -35,7 +36,7 @@ class CollectionViewIdFiltersProvider : BaseProvider() {
     private fun buildSelection(uri: Uri, table: String, idColumnName: String): SelectionBuilder {
         val filterId = CollectionViews.getViewId(uri).toLong()
         return SelectionBuilder().table(table)
-                .mapIfNullToTable(CollectionViewFilters._ID, Tables.COLLECTION_VIEW_FILTERS, "0")
-                .where("$idColumnName=?", filterId.toString())
+            .mapIfNull(CollectionViewFilters._ID, "0", Tables.COLLECTION_VIEW_FILTERS)
+            .where("$idColumnName=?", filterId.toString())
     }
 }

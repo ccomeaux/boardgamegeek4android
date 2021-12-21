@@ -7,7 +7,6 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdDesignersProvider : BaseProvider() {
     override fun getType(uri: Uri) = Designers.CONTENT_TYPE
@@ -24,11 +23,11 @@ class GamesIdDesignersProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_DESIGNERS_JOIN_DESIGNERS)
-                .mapToTable(Designers._ID, Tables.DESIGNERS)
-                .mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
-                .mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
-                .whereEquals("${Tables.GAMES_DESIGNERS}.$GAME_ID", gameId)
+            .table(Tables.GAMES_DESIGNERS_JOIN_DESIGNERS)
+            .mapToTable(Designers._ID, Tables.DESIGNERS)
+            .mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
+            .mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
+            .whereEquals("${Tables.GAMES_DESIGNERS}.$GAME_ID", gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {

@@ -8,7 +8,6 @@ import com.boardgamegeek.provider.BggContract.GamePollResultsColumns.POLL_RESULT
 import com.boardgamegeek.provider.BggContract.GamePollsColumns.POLL_NAME
 import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdPollsNameResultsKeyProvider : BaseProvider() {
     override val path = "$PATH_GAMES/#/$PATH_POLLS/*/$PATH_POLL_RESULTS/*"
@@ -20,10 +19,14 @@ class GamesIdPollsNameResultsKeyProvider : BaseProvider() {
         val pollName = Games.getPollName(uri)
         val key = Games.getPollResultsKey(uri)
         return SelectionBuilder()
-                .table(Tables.GAME_POLL_RESULTS)
-                .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
-                .where("$POLL_ID = (SELECT ${Tables.GAME_POLLS}.$_ID FROM ${Tables.GAME_POLLS} WHERE $GAME_ID=? AND $POLL_NAME=?)", gameId.toString(), pollName)
-                .whereEquals(POLL_RESULTS_PLAYERS, key)
+            .table(Tables.GAME_POLL_RESULTS)
+            .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
+            .where(
+                "$POLL_ID = (SELECT ${Tables.GAME_POLLS}.$_ID FROM ${Tables.GAME_POLLS} WHERE $GAME_ID=? AND $POLL_NAME=?)",
+                gameId.toString(),
+                pollName
+            )
+            .whereEquals(POLL_RESULTS_PLAYERS, key)
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
@@ -31,9 +34,9 @@ class GamesIdPollsNameResultsKeyProvider : BaseProvider() {
         val pollName = Games.getPollName(uri)
         val players = Games.getPollResultsKey(uri)
         return SelectionBuilder().table(Tables.POLLS_JOIN_POLL_RESULTS)
-                .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
-                .whereEquals(GAME_ID, gameId)
-                .whereEquals(POLL_NAME, pollName)
-                .whereEquals(POLL_RESULTS_PLAYERS, players)
+            .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
+            .whereEquals(GAME_ID, gameId)
+            .whereEquals(POLL_NAME, pollName)
+            .whereEquals(POLL_RESULTS_PLAYERS, players)
     }
 }

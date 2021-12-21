@@ -9,7 +9,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.GamePollsColumns.POLL_NAME
 import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 
 class GamesIdPollsProvider : BaseProvider() {

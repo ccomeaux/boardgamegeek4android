@@ -9,7 +9,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollResultsColumns.PLAYER_COUNT
 import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 
 class GamesIdSuggestedPlayerCountPollResultsProvider : BaseProvider() {
@@ -22,15 +21,15 @@ class GamesIdSuggestedPlayerCountPollResultsProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
-                .whereEquals(GAME_ID, gameId)
+            .table(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
+            .whereEquals(GAME_ID, gameId)
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.POLLS_JOIN_GAMES)
-                .whereEquals("${Tables.GAMES}.$GAME_ID", gameId)
+            .table(Tables.POLLS_JOIN_GAMES)
+            .whereEquals("${Tables.GAMES}.$GAME_ID", gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {

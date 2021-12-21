@@ -3,7 +3,6 @@ package com.boardgamegeek.provider
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesRanksProvider : BaseProvider() {
     override fun getType(uri: Uri) = GameRanks.CONTENT_TYPE

@@ -4,7 +4,6 @@ import android.net.Uri
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesProvider : BasicProvider() {
     override fun getType(uri: Uri) = Games.CONTENT_TYPE
@@ -21,14 +20,14 @@ class GamesProvider : BasicProvider() {
         val builder = SelectionBuilder()
         if (FRAGMENT_PLAYS == uri.fragment) {
             builder
-                    .table(Tables.GAMES_JOIN_PLAYS)
-                    .mapIfNull(Games.GAME_RANK, GameRankEntity.RANK_UNKNOWN.toString()) // TODO move upstream or is this even necessary?
-                    .mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
-                    .mapAsMax(Plays.MAX_DATE, Plays.DATE)
+                .table(Tables.GAMES_JOIN_PLAYS)
+                .mapIfNull(Games.GAME_RANK, GameRankEntity.RANK_UNKNOWN.toString()) // TODO move upstream or is this even necessary?
+                .mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY, Tables.PLAYS)
+                .mapAsMax(Plays.MAX_DATE, Plays.DATE)
         } else {
             builder
-                    .table(Tables.GAMES_JOIN_COLLECTION)
-                    .mapToTable(Games.GAME_ID, Tables.GAMES)
+                .table(Tables.GAMES_JOIN_COLLECTION)
+                .mapToTable(Games.GAME_ID, Tables.GAMES)
         }
         builder.mapToTable(Games.UPDATED, Tables.GAMES)
         val groupBy = uri.getQueryParameter(QUERY_KEY_GROUP_BY).orEmpty()

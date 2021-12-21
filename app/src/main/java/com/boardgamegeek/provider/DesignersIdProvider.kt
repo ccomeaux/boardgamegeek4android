@@ -4,7 +4,6 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Designers
 import com.boardgamegeek.provider.BggContract.PATH_DESIGNERS
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class DesignersIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Designers.CONTENT_ITEM_TYPE

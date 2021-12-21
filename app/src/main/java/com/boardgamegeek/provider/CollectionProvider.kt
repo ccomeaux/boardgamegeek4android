@@ -10,7 +10,6 @@ import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
 import com.boardgamegeek.provider.BggContract.SyncColumns.UPDATED
 import com.boardgamegeek.provider.BggContract.SyncListColumns.UPDATED_LIST
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class CollectionProvider : BasicProvider() {
     override fun getType(uri: Uri) = BggContract.Collection.CONTENT_TYPE

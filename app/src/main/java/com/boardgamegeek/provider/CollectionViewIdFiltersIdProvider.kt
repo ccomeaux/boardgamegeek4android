@@ -3,7 +3,6 @@ package com.boardgamegeek.provider
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class CollectionViewIdFiltersIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = CollectionViewFilters.CONTENT_ITEM_TYPE
@@ -22,7 +21,7 @@ class CollectionViewIdFiltersIdProvider : BaseProvider() {
         val filterId = CollectionViews.getViewId(uri).toLong()
         val type = CollectionViewFilters.getFilterType(uri)
         return SelectionBuilder().table(table)
-                .where("${CollectionViewFilters.VIEW_ID}=?", filterId.toString())
-                .where("${CollectionViewFilters.TYPE}=?", type.toString())
+            .where("${CollectionViewFilters.VIEW_ID}=?", filterId.toString())
+            .where("${CollectionViewFilters.TYPE}=?", type.toString())
     }
 }

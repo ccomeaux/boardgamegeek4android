@@ -14,7 +14,6 @@ import com.boardgamegeek.extensions.KEY_SYNC_NOTIFICATIONS
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.SelectionBuilder
 import java.io.FileNotFoundException
 
 abstract class BaseProvider {
@@ -24,7 +23,15 @@ abstract class BaseProvider {
 
     abstract val path: String
 
-    open fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    open fun query(
+        resolver: ContentResolver,
+        db: SQLiteDatabase,
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
+    ): Cursor? {
         val builder = buildExpandedSelection(uri, projection).where(selection, *(selectionArgs.orEmpty()))
         builder.limit(uri.getQueryParameter(BggContract.QUERY_KEY_LIMIT))
         return builder.query(db, projection, getSortOrder(sortOrder))
@@ -75,7 +82,7 @@ abstract class BaseProvider {
     }
 
     protected fun queryInt(db: SQLiteDatabase, builder: SelectionBuilder, columnName: String, defaultValue: Int = BggContract.INVALID_ID): Int {
-        builder.query(db, arrayOf(columnName), null)?.use {
+        builder.query(db, arrayOf(columnName), null).use {
             if (it.moveToFirst()) {
                 return it.getInt(0)
             }
@@ -87,9 +94,9 @@ abstract class BaseProvider {
         val prefs = context?.preferences()
         if (prefs != null && prefs[KEY_SYNC_NOTIFICATIONS, false] == true) {
             val builder = NotificationUtils
-                    .createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
-                    .setContentText(e.localizedMessage)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
+                .setContentText(e.localizedMessage)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.localizedMessage))
             NotificationUtils.notify(context, NotificationUtils.TAG_PROVIDER_ERROR, 0, builder)
         }

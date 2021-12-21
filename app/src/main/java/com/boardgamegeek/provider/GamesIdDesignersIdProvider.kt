@@ -6,7 +6,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners.DESIGNER_ID
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdDesignersIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Designers.CONTENT_ITEM_TYPE
@@ -17,8 +16,8 @@ class GamesIdDesignersIdProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         val designerId = ContentUris.parseId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_DESIGNERS)
-                .whereEquals(GAME_ID, gameId)
-                .whereEquals(DESIGNER_ID, designerId)
+            .table(Tables.GAMES_DESIGNERS)
+            .whereEquals(GAME_ID, gameId)
+            .whereEquals(DESIGNER_ID, designerId)
     }
 }

@@ -11,7 +11,6 @@ import com.boardgamegeek.provider.BggContract.GamePollResultsColumns.POLL_ID
 import com.boardgamegeek.provider.BggContract.GamePollsColumns.POLL_NAME
 import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 
 class GamesIdPollsNameResultsProvider : BaseProvider() {
@@ -25,18 +24,22 @@ class GamesIdPollsNameResultsProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         val pollName = Games.getPollName(uri)
         return SelectionBuilder()
-                .table(Tables.GAME_POLL_RESULTS)
-                .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
-                .where("$POLL_ID = (SELECT ${Tables.GAME_POLLS}.$_ID FROM ${Tables.GAME_POLLS} WHERE $GAME_ID=? AND $POLL_NAME=?)", gameId.toString(), pollName)
+            .table(Tables.GAME_POLL_RESULTS)
+            .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
+            .where(
+                "$POLL_ID = (SELECT ${Tables.GAME_POLLS}.$_ID FROM ${Tables.GAME_POLLS} WHERE $GAME_ID=? AND $POLL_NAME=?)",
+                gameId.toString(),
+                pollName
+            )
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         val pollName = Games.getPollName(uri)
         return SelectionBuilder().table(Tables.POLLS_JOIN_POLL_RESULTS)
-                .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
-                .whereEquals(GamePolls.GAME_ID, gameId)
-                .whereEquals(GamePolls.POLL_NAME, pollName)
+            .mapToTable(_ID, Tables.GAME_POLL_RESULTS)
+            .whereEquals(GamePolls.GAME_ID, gameId)
+            .whereEquals(GamePolls.POLL_NAME, pollName)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
@@ -46,7 +49,7 @@ class GamesIdPollsNameResultsProvider : BaseProvider() {
         val pollId = queryInt(db, builder, GamePolls._ID)
         values.put(GamePollResults.POLL_ID, pollId)
         var key = values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS)
-        if (key.isNullOrEmpty()) key =  "X"
+        if (key.isNullOrEmpty()) key = "X"
         values.put(GamePollResults.POLL_RESULTS_KEY, key)
         try {
             val rowId = db.insertOrThrow(Tables.GAME_POLL_RESULTS, null, values)

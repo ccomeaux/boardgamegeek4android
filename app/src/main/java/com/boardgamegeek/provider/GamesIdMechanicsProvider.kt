@@ -7,7 +7,6 @@ import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdMechanicsProvider : BaseProvider() {
     override fun getType(uri: Uri) = Mechanics.CONTENT_TYPE
@@ -19,11 +18,11 @@ class GamesIdMechanicsProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_MECHANICS_JOIN_MECHANICS)
-                .mapToTable(Mechanics._ID, Tables.MECHANICS)
-                .mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
-                .mapToTable(SyncColumns.UPDATED, Tables.MECHANICS)
-                .whereEquals("${Tables.GAMES_MECHANICS}.$GAME_ID", gameId)
+            .table(Tables.GAMES_MECHANICS_JOIN_MECHANICS)
+            .mapToTable(Mechanics._ID, Tables.MECHANICS)
+            .mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
+            .mapToTable(SyncColumns.UPDATED, Tables.MECHANICS)
+            .whereEquals("${Tables.GAMES_MECHANICS}.$GAME_ID", gameId)
     }
 
     public override fun buildSimpleSelection(uri: Uri): SelectionBuilder {

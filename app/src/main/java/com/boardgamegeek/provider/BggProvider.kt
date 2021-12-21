@@ -10,7 +10,6 @@ import android.os.ParcelFileDescriptor
 import androidx.collection.SimpleArrayMap
 import androidx.core.content.contentValuesOf
 import java.io.FileNotFoundException
-import java.lang.IllegalStateException
 
 class BggProvider : ContentProvider() {
     private lateinit var openHelper: BggDatabase
