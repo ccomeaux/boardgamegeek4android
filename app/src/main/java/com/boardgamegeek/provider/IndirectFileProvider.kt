@@ -12,14 +12,15 @@ abstract class IndirectFileProvider : BaseFileProvider() {
 
     override fun generateFileName(context: Context, uri: Uri): String? {
         return getFileUri(uri)?.let {
-            val url = context.contentResolver.load(it, arrayOf(columnName))?.use { cursor ->
+            context.contentResolver.load(it, arrayOf(columnName))?.use { cursor ->
                 if (cursor.count == 1 && cursor.moveToFirst()) {
                     cursor.getString(0)
                 } else {
                     null
                 }
+            }?.let { url ->
+                FileUtils.getFileNameFromUrl(url)
             }
-            FileUtils.getFileNameFromUrl(url)
         }
     }
 }

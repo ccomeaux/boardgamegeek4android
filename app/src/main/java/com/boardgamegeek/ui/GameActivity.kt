@@ -2,12 +2,16 @@ package com.boardgamegeek.ui
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.core.app.NavUtils
 import androidx.core.app.TaskStackBuilder
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.palette.graphics.Palette
 import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
@@ -20,7 +24,6 @@ import com.boardgamegeek.ui.adapter.GamePagerAdapter
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.util.ShortcutUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import timber.log.Timber
@@ -121,7 +124,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 isFavorite = !isFavorite
                 viewModel.updateFavorite(isFavorite)
             }
-            R.id.menu_shortcut -> ShortcutUtils.createGameShortcut(this, gameId, gameName, thumbnailUrl)
+            R.id.menu_shortcut -> viewModel.createShortcut()
             R.id.menu_log_play_quick -> {
                 getCoordinatorLayout().snackbar(R.string.msg_logging_play)
                 viewModel.logQuickPlay(gameId, gameName)
@@ -181,12 +184,6 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             context.startActivity(intent.clearTask().clearTop())
         }
 
-        fun createIntentAsShortcut(context: Context, gameId: Int, gameName: String, thumbnailUrl: String): Intent? {
-            val intent = createIntent(context, gameId, gameName, thumbnailUrl) ?: return null
-            intent.action = Intent.ACTION_VIEW
-            return intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
-        }
-
         fun createIntent(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = ""): Intent? {
             if (gameId == BggContract.INVALID_ID) return null
             return context.intentFor<GameActivity>(
@@ -195,6 +192,30 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 KEY_THUMBNAIL_URL to thumbnailUrl,
                 KEY_HERO_IMAGE_URL to heroImageUrl,
             )
+        }
+
+        fun createShortcutInfo(context: Context, gameId: Int, gameName: String, bitmap: Bitmap? = null): ShortcutInfoCompat? {
+            if (gameId != BggContract.INVALID_ID &&
+                gameName.isNotBlank() &&
+                ShortcutManagerCompat.isRequestPinShortcutSupported(context)
+            ) {
+                val intent = createIntent(context, gameId, gameName)
+                intent?.let {
+                    intent.action = Intent.ACTION_VIEW
+                    intent.putExtra(KEY_FROM_SHORTCUT, true).clearTop().newTask()
+                    val builder = ShortcutInfoCompat.Builder(context, "game-$gameId")
+                        .setShortLabel(gameName.toShortLabel())
+                        .setLongLabel(gameName.toLongLabel())
+                        .setIntent(intent)
+                    if (bitmap != null) {
+                        builder.setIcon(IconCompat.createWithAdaptiveBitmap(bitmap))
+                    } else {
+                        builder.setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_foreground))
+                    }
+                    return builder.build()
+                }
+            }
+            return null
         }
     }
 }

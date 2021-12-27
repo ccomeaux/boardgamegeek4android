@@ -1,33 +1,25 @@
 package com.boardgamegeek.util
 
 import android.content.Context
-import android.text.TextUtils
 import com.boardgamegeek.provider.BggContract
 import java.io.File
 import java.io.IOException
-import java.lang.IllegalArgumentException
-import kotlin.Throws
 
 object FileUtils {
     /**
      * Returns a usable filename from the specified URL.
      */
-    fun getFileNameFromUrl(url: String): String? {
-        if (!TextUtils.isEmpty(url) && BggContract.INVALID_URL != url) {
-            val index = url.lastIndexOf('/')
-            if (index > 0) return url.substring(index + 1)
-        }
-        return null
+    fun getFileNameFromUrl(url: String?): String {
+        return if (!url.isNullOrBlank() && BggContract.INVALID_URL != url) {
+            url.substringAfterLast('/', "")
+        } else ""
     }
 
     /**
      * Find a path to store the specific type of content, ensuring that it exists. Returns null if none can be found or
      * created.
      */
-    fun generateContentPath(context: Context?, type: String?): File? {
-        if (context == null) {
-            return null
-        }
+    fun generateContentPath(context: Context, type: String?): File? {
         val base = context.getExternalFilesDir(type) ?: return null
         if (!base.exists()) {
             if (!base.mkdirs()) {
@@ -40,6 +32,7 @@ object FileUtils {
     /**
      * Recursively delete everything in `dir`.
      */
+    @JvmStatic
     @Throws(IOException::class)
     fun deleteContents(directory: File?): Int {
         // TODO: this should specify paths as Strings rather than as Files
@@ -60,7 +53,5 @@ object FileUtils {
         return count
     }
 
-    fun getExportFileName(type: String): String {
-        return "bgg4a-$type.json"
-    }
+    fun getExportFileName(type: String) = "bgg4a-$type.json"
 }

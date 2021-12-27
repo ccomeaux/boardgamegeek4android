@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.BggApplication
@@ -10,9 +11,12 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
+import com.boardgamegeek.repository.ImageRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -53,6 +57,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
     private val playRepository = PlayRepository(getApplication())
+    private val imageRepository = ImageRepository(getApplication())
 
     fun setId(gameId: Int) {
         if (_gameId.value != gameId) {
@@ -348,6 +353,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 statuses,
                 wishListPriority
             )
+        }
+    }
+
+    fun createShortcut() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val context = getApplication<BggApplication>().applicationContext
+            val gameId = _gameId.value ?: BggContract.INVALID_ID
+            val gameName = game.value?.data?.name.orEmpty()
+            val thumbnailUrl = game.value?.data?.thumbnailUrl.orEmpty()
+            val bitmap = imageRepository.fetchThumbnail(thumbnailUrl.ensureHttpsScheme())
+            GameActivity.createShortcutInfo(context, gameId, gameName, bitmap)?.let { info ->
+                ShortcutManagerCompat.requestPinShortcut(context, info, null)
+            }
         }
     }
 }

@@ -2,7 +2,9 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import android.content.SharedPreferences
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
@@ -16,6 +18,7 @@ import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
+import com.boardgamegeek.ui.CollectionActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -327,6 +330,18 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID] = viewId
         } else if (viewId == defaultViewId) {
             prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
+        }
+    }
+
+    fun createShortcut() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val context = getApplication<BggApplication>().applicationContext
+            val viewId = _selectedViewId.value ?: BggContract.INVALID_ID.toLong()
+            val viewName = selectedViewName.value.orEmpty()
+            if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+                val info = CollectionActivity.createShortcutInfo(context, viewId, viewName)
+                ShortcutManagerCompat.requestPinShortcut(context, info, null)
+            }
         }
     }
 }

@@ -121,3 +121,7 @@ fun String.truncate(length: Int): String {
         else -> this.take(length)
     }
 }
+
+fun String.toShortLabel() = this.truncate(12)
+
+fun String.toLongLabel() = this.truncate(25)

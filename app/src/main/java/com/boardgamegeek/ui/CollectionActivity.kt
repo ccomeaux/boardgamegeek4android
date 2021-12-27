@@ -10,6 +10,8 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatSpinner
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
@@ -143,17 +145,23 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         private const val KEY_VIEW_ID = "VIEW_ID"
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
-        fun createIntentAsShortcut(context: Context, viewId: Long): Intent {
-            return context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
-                .clearTask()
-                .newTask()
-                .apply {
-                    action = Intent.ACTION_VIEW
-                }
-        }
-
         fun startForGameChange(context: Context, playId: Long) {
             context.startActivity<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
         }
+
+        fun createShortcutInfo(context: Context, viewId: Long, viewName: String): ShortcutInfoCompat {
+            val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
+                .clearTask()
+                .newTask()
+                .apply { action = Intent.ACTION_VIEW }
+            return ShortcutInfoCompat.Builder(context, createShortcutName(viewId))
+                .setShortLabel(viewName.toShortLabel())
+                .setLongLabel(viewName.toLongLabel())
+                .setIcon(IconCompat.createWithResource(context, R.drawable.ic_shortcut_ic_collection))
+                .setIntent(intent)
+                .build()
+        }
+
+        fun createShortcutName(viewId: Long) = "collection_view-$viewId"
     }
 }

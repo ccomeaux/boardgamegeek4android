@@ -1,29 +1,18 @@
 package com.boardgamegeek.repository
 
-import android.content.pm.ShortcutManager
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.core.content.getSystemService
+import androidx.core.content.pm.ShortcutManagerCompat
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.extensions.CollectionView
-import com.boardgamegeek.mappers.createShortcutName
-import com.boardgamegeek.mappers.map
 import com.boardgamegeek.sorter.CollectionSorterFactory
+import com.boardgamegeek.ui.CollectionActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class CollectionViewRepository(val application: BggApplication) {
     private val dao = CollectionViewDao(application)
-    private val shortcutManager: ShortcutManager? by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            application.getSystemService()
-        } else {
-            null
-        }
-    }
 
     private val defaultView = CollectionViewEntity(
         id = CollectionView.DEFAULT_DEFAULT_ID,
@@ -55,19 +44,13 @@ class CollectionViewRepository(val application: BggApplication) {
     suspend fun updateShortcuts(viewId: Long) = withContext(Dispatchers.Default) {
         if (viewId > 0) {
             dao.updateShortcutCount(viewId)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                shortcutManager?.reportShortcutUsed(createShortcutName(viewId))
-                setShortcuts()
-            }
+            ShortcutManagerCompat.reportShortcutUsed(application, CollectionActivity.createShortcutName(viewId))
+            val shortcuts = dao.loadShortcuts()
+                .filter { it.name.isNotBlank() }
+                .take(SHORTCUT_COUNT)
+                .map { entity -> CollectionActivity.createShortcutInfo(application, entity.viewId, entity.name) }
+            ShortcutManagerCompat.setDynamicShortcuts(application, shortcuts)
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
-    private suspend fun setShortcuts() {
-        shortcutManager?.dynamicShortcuts = dao.loadShortcuts()
-            .filter { it.name.isNotBlank() }
-            .take(SHORTCUT_COUNT)
-            .map { it.map(application) }
     }
 
     companion object {

@@ -4,20 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.ShortcutInfo
-import android.content.pm.ShortcutManager
-import android.graphics.BitmapFactory
-import android.graphics.drawable.Icon
-import android.os.Build
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.getSystemService
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
@@ -44,7 +37,6 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.HttpUtils
-import com.boardgamegeek.util.ShortcutUtils
 import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -188,7 +180,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
                 return@OnMenuItemClickListener true
             }
             R.id.menu_create_shortcut -> if (viewId > 0) {
-                ShortcutUtils.createCollectionShortcut(context, viewId, viewName)
+                viewModel.createShortcut()
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_view_save -> {
@@ -411,7 +403,13 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
                 itemView.isActivated = selectedItems[position, false]
                 itemView.setOnClickListener {
                     when {
-                        isCreatingShortcut -> createShortcut(item.gameId, item.gameName, item.thumbnailUrl)
+                        isCreatingShortcut -> {
+                            GameActivity.createShortcutInfo(requireContext(), item.gameId, item.gameName)?.let {
+                                val intent = ShortcutManagerCompat.createShortcutResultIntent(requireContext(), it)
+                                requireActivity().setResult(Activity.RESULT_OK, intent)
+                                requireActivity().finish()
+                            }
+                        }
                         changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
                             LogPlayActivity.changeGame(
                                 requireContext(),
@@ -454,41 +452,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
             val item = items.getOrNull(position) ?: return "-"
             return sorter?.getHeaderText(item) ?: return "-"
         }
-    }
-
-    fun createShortcut(id: Int, name: String, thumbnailUrl: String) {
-        val shortcutIntent = GameActivity.createIntentAsShortcut(requireContext(), id, name, thumbnailUrl)
-        if (shortcutIntent != null) {
-            val intent: Intent?
-            if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
-                intent = createShortcutForOreo(id, name, thumbnailUrl, shortcutIntent)
-            } else {
-                intent = ShortcutUtils.createShortcutIntent(context, name, shortcutIntent)
-                val file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl)
-                if (file != null && file.exists()) {
-                    @Suppress("DEPRECATION")
-                    intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.absolutePath))
-                }
-            }
-            intent?.let { requireActivity().setResult(Activity.RESULT_OK, it) }
-        }
-        requireActivity().finish()
-    }
-
-    @RequiresApi(api = VERSION_CODES.O)
-    private fun createShortcutForOreo(id: Int, name: String, thumbnailUrl: String, shortcutIntent: Intent): Intent? {
-        val shortcutManager = context?.getSystemService<ShortcutManager>() ?: return null
-        val builder = ShortcutInfo.Builder(context, ShortcutUtils.createGameShortcutId(id))
-            .setShortLabel(name.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
-            .setLongLabel(name.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
-            .setIntent(shortcutIntent)
-        val file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl)
-        if (file != null && file.exists()) {
-            builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.absolutePath)))
-        } else {
-            builder.setIcon(Icon.createWithResource(context, R.drawable.ic_adaptive_game))
-        }
-        return shortcutManager.createShortcutResultIntent(builder.build())
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -543,7 +506,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
                 if (items.size == 1) {
                     items.firstOrNull()?.let { requireActivity().shareGame(it.gameId, it.gameName, shareMethod, firebaseAnalytics) }
                 } else {
-                    requireActivity().shareGames(items.map{ it.gameId to it.gameName }, shareMethod, firebaseAnalytics)
+                    requireActivity().shareGames(items.map { it.gameId to it.gameName }, shareMethod, firebaseAnalytics)
                 }
             }
             R.id.menu_link -> {
@@ -559,7 +522,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))
-            text.append(filters.map { "\n\u2022 ${it.toLongDescription()}" } )
+            text.append(filters.map { "\n\u2022 ${it.toLongDescription()}" })
         }
         text.append("\n\n")
         sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }
