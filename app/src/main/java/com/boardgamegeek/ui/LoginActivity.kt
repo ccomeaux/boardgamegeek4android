@@ -5,32 +5,34 @@ import android.accounts.AccountAuthenticatorResponse
 import android.accounts.AccountManager
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.auth.BggCookieJar
-import com.boardgamegeek.auth.NetworkAuthenticator
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.ui.viewmodel.LoginViewModel
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.fragment_error.*
 import timber.log.Timber
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
 class LoginActivity : AppCompatActivity() {
+    private val viewModel by viewModels<LoginViewModel>()
     private var accountAuthenticatorResponse: AccountAuthenticatorResponse? = null
 
     private var username: String? = null
     private var password: String? = null
 
-    private var userLoginTask: UserLoginTask? = null
     private lateinit var accountManager: AccountManager
     private var isRequestingNewAccount = false
+    private var isAuthenticating = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,11 +63,25 @@ class LoginActivity : AppCompatActivity() {
         signInButton.setOnClickListener {
             attemptLogin()
         }
+
+        viewModel.isAuthenticating.observe(this) {
+            isAuthenticating = it ?: false
+            showProgress(isAuthenticating)
+        }
+
+        viewModel.authenticationResult.observe(this) {
+            if (it == null){
+                passwordContainer.error = getString(R.string.error_incorrect_password)
+                passwordView.requestFocus()
+            } else {
+                createAccount(it)
+            }
+        }
     }
 
     override fun onBackPressed() {
-        if (userLoginTask != null) {
-            userLoginTask?.cancel(true)
+        if (isAuthenticating) {
+            viewModel.cancel()
         } else {
             super.onBackPressed()
         }
@@ -76,7 +92,7 @@ class LoginActivity : AppCompatActivity() {
      * missing fields, etc.), the errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
-        if (userLoginTask != null) {
+        if (isAuthenticating) {
             return
         }
 
@@ -107,8 +123,7 @@ class LoginActivity : AppCompatActivity() {
             // Show a progress spinner, and kick off a background task to perform the user login attempt.
             loginStatusMessageView.setText(R.string.login_progress_signing_in)
             showProgress(true)
-            userLoginTask = UserLoginTask()
-            userLoginTask?.executeAsyncTask()
+            viewModel.login(username, password)
         }
     }
 
@@ -118,33 +133,6 @@ class LoginActivity : AppCompatActivity() {
     private fun showProgress(show: Boolean) {
         loginStatusView.fade(show)
         loginFormView.fade(!show)
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate the user.
-     */
-    inner class UserLoginTask : AsyncTask<Void?, Void?, BggCookieJar?>() {
-        override fun doInBackground(vararg params: Void?): BggCookieJar? {
-            return NetworkAuthenticator.authenticate(
-                username.orEmpty(), password.orEmpty(), "Dialog", applicationContext
-            )
-        }
-
-        override fun onPostExecute(bggCookieJar: BggCookieJar?) {
-            userLoginTask = null
-            showProgress(false)
-            if (bggCookieJar != null) {
-                createAccount(bggCookieJar)
-            } else {
-                passwordContainer.error = getString(R.string.error_incorrect_password)
-                passwordView.requestFocus()
-            }
-        }
-
-        override fun onCancelled() {
-            userLoginTask = null
-            showProgress(false)
-        }
     }
 
     private fun createAccount(bggCookieJar: BggCookieJar) {
@@ -205,8 +193,6 @@ class LoginActivity : AppCompatActivity() {
         } else {
             accountManager.setPassword(account, password)
         }
-        preferences()[AccountPreferences.KEY_USERNAME] = username
-
         val extras = bundleOf(
             AccountManager.KEY_ACCOUNT_NAME to username,
             AccountManager.KEY_ACCOUNT_TYPE to Authenticator.ACCOUNT_TYPE
@@ -217,6 +203,8 @@ class LoginActivity : AppCompatActivity() {
             it.onResult(extras)
             accountAuthenticatorResponse = null
         }
+        preferences()[AccountPreferences.KEY_USERNAME] = username
+
         finish()
     }
 

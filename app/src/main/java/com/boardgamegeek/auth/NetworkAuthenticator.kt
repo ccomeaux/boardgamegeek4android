@@ -1,15 +1,14 @@
 package com.boardgamegeek.auth
 
 import android.content.Context
-import com.boardgamegeek.auth.BggCookieJar.Companion.generateMock
-import com.google.firebase.analytics.FirebaseAnalytics
-import timber.log.Timber
-import kotlin.Throws
 import androidx.core.os.bundleOf
+import com.boardgamegeek.auth.BggCookieJar.Companion.generateMock
 import com.boardgamegeek.util.HttpUtils
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.JsonObject
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import timber.log.Timber
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -76,12 +75,12 @@ object NetworkAuthenticator {
     }
 
     private fun buildRequest(username: String, password: String): Request {
-        // TODO
-        val credentials = JsonObject()
-        credentials.addProperty("username", username)
-        credentials.addProperty("password", password)
-        val body = JsonObject()
-        body.add("credentials", credentials)
+        val body = JsonObject().apply {
+            add("credentials", JsonObject().apply {
+                addProperty("username", username)
+                addProperty("password", password)
+            })
+        }
         return Request.Builder()
             .url("https://boardgamegeek.com/login/api/v1")
             .post(body.toString().toByteArray(StandardCharsets.UTF_8).toRequestBody())
