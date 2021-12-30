@@ -20,6 +20,7 @@ import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
+import com.boardgamegeek.pref.clearPlaysTimestamps
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.service.SyncService
@@ -438,6 +439,14 @@ class PlayRepository(val application: BggApplication) {
         }
 
         return id
+    }
+
+    suspend fun resetPlays() {
+        // resets the sync timestamps, removes the plays' hashcode, and request a sync
+        SyncPrefs.getPrefs(application).clearPlaysTimestamps()
+        val count = playDao.updateAllPlays(contentValuesOf(Plays.SYNC_HASH_CODE to 0))
+        Timber.i("Cleared the hashcode from %,d plays.", count)
+        SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS)
     }
 
     suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {

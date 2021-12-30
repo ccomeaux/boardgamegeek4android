@@ -10,6 +10,7 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
@@ -43,7 +44,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
                 emit(RefreshableResource.success(refreshedList))
             } catch (e: Exception) {
                 playsRateLimiter.reset(0)
-                emit(RefreshableResource.error<List<PlayEntity>>(e, getApplication()))
+                emit(RefreshableResource.error(e, getApplication()))
             }
         }
     }
@@ -98,6 +99,12 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false
+    }
+
+    fun reset() {
+        viewModelScope.launch {
+            playRepository.resetPlays()
+        }
     }
 
     companion object {

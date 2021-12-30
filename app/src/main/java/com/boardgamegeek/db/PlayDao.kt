@@ -582,6 +582,10 @@ class PlayDao(private val context: BggApplication) {
         }
     }
 
+    suspend fun updateAllPlays(contentValues: ContentValues): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.update(Plays.CONTENT_URI, contentValues, null, null)
+    }
+
     private fun deletePlayerWithEmptyUserNameInBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>) {
         if (internalId == INVALID_ID.toLong()) return
         batch += ContentProviderOperation
