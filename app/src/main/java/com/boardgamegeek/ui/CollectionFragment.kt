@@ -36,7 +36,7 @@ import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListene
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.boardgamegeek.util.DialogUtils
-import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -233,12 +233,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
             .append(createViewDescription(sorter, filters))
             .append("\n")
             .append("\n")
-            .append(
-                getString(
-                    R.string.share_collection_complete_footer,
-                    "https://www.boardgamegeek.com/collection/user/${HttpUtils.encode(username)}"
-                )
-            )
+            .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${username.encodeForUrl()}"))
         val fullName = prefs[AccountPreferences.KEY_FULL_NAME, ""]
         requireActivity().share(getString(R.string.share_collection_subject, fullName, username), text, R.string.title_share_collection)
     }
