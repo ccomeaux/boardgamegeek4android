@@ -135,7 +135,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                 viewModel.startTimer()
                 showNotification = true
             } else {
-                DialogUtils.createThemedBuilder(this@LogPlayActivity)
+                this@LogPlayActivity.createThemedBuilder()
                     .setMessage(R.string.are_you_sure_timer_reset)
                     .setPositiveButton(R.string.continue_) { _, _ ->
                         viewModel.resumeTimer()
@@ -189,12 +189,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                         if (shouldCustomSortPlayers) {
                             logPlayerOrder("NotCustom")
                             if (playersHaveStartingPositions) {
-                                DialogUtils.createConfirmationDialog(
-                                    this@LogPlayActivity,
+                                this@LogPlayActivity.createConfirmationDialog(
                                     R.string.are_you_sure_player_sort_custom_off,
-                                    { _: DialogInterface?, _: Int -> viewModel.shouldCustomSort(false) },
                                     R.string.sort
-                                ).show()
+                                ) { _: DialogInterface?, _: Int ->
+                                    viewModel.shouldCustomSort(false)
+                                }.show()
                             } else {
                                 viewModel.shouldCustomSort(false)
                             }
@@ -660,12 +660,12 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
             if (shouldDeletePlayOnActivityCancel) {
-                DialogUtils.createDiscardDialog(this, R.string.play, true, true) {
+                createDiscardDialog(R.string.play, isNew = true, finishActivity = true) {
                     viewModel.deletePlay()
                     cancelPlayingNotification()
                 }.show()
             } else {
-                DialogUtils.createDiscardDialog(this, R.string.play, false).show()
+                createDiscardDialog(R.string.play, isNew = false).show()
             }
         } else {
             if (shouldDeletePlayOnActivityCancel) {
@@ -930,7 +930,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             player.color,
                             player.fullDescription
                         )
-                        DialogUtils.showFragment(this@LogPlayActivity, fragment, "rating_dialog")
+                        fragment.show(this@LogPlayActivity.supportFragmentManager, "rating_dialog")
                     }
                 }
                 row.setOnScoreListener {
@@ -941,7 +941,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
                             player.color,
                             player.fullDescription
                         )
-                        DialogUtils.showFragment(this@LogPlayActivity, fragment, "score_dialog")
+                        fragment.show(this@LogPlayActivity.supportFragmentManager, "score_dialog")
                     }
                 }
             }

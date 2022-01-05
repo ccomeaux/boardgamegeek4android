@@ -297,7 +297,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
             setResult(Activity.RESULT_CANCELED)
             finish()
         } else {
-            createDiscardDialog(this, R.string.player, isNew = isNewPlayer).show()
+            createDiscardDialog(R.string.player, isNew = isNewPlayer).show()
         }
     }
 

@@ -35,7 +35,6 @@ import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListener
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -186,11 +185,11 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
             R.id.menu_collection_view_save -> {
                 val name = if (viewId <= 0) "" else viewName
                 val dialog = SaveViewDialogFragment.newInstance(name, createViewDescription(sorter, filters))
-                DialogUtils.showAndSurvive(this@CollectionFragment, dialog)
+                dialog.show(this@CollectionFragment.parentFragmentManager, "view_save")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_view_delete -> {
-                DialogUtils.showAndSurvive(this@CollectionFragment, DeleteViewDialogFragment.newInstance())
+                DeleteViewDialogFragment.newInstance().show(this@CollectionFragment.parentFragmentManager, "view_delete")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_share -> {
@@ -198,14 +197,13 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_sort -> {
-                DialogUtils.showAndSurvive(
-                    this@CollectionFragment,
-                    CollectionSortDialogFragment.newInstance(sorter?.type ?: CollectionSorterFactory.TYPE_DEFAULT)
-                )
+                CollectionSortDialogFragment.newInstance(sorter?.type ?: CollectionSorterFactory.TYPE_DEFAULT)
+                    .show(this@CollectionFragment.parentFragmentManager, "collection_sort")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_filter -> {
-                DialogUtils.showAndSurvive(this@CollectionFragment, CollectionFilterDialogFragment.newInstance(filters.map { it.type }))
+                CollectionFilterDialogFragment.newInstance(filters.map { it.type })
+                    .show(this@CollectionFragment.parentFragmentManager, "collection_filter")
                 return@OnMenuItemClickListener true
             }
         }

@@ -5,6 +5,7 @@ package com.boardgamegeek.extensions
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -37,25 +38,37 @@ private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentMana
     }
 }
 
-fun createDiscardDialog(
-        activity: Activity,
-        @StringRes objectResId: Int,
-        @StringRes positiveButtonResId: Int = R.string.keep_editing,
-        isNew: Boolean,
-        finishActivity: Boolean = true,
-        discardListener: () -> Unit = {}): Dialog {
-    val messageFormat = activity.getString(if (isNew)
+fun Context.createConfirmationDialog(
+    messageId: Int,
+    @StringRes positiveButtonTextId: Int,
+    okListener: DialogInterface.OnClickListener?,
+): Dialog {
+    val builder = createThemedBuilder()
+        .setCancelable(true)
+        .setNegativeButton(R.string.cancel, null)
+        .setPositiveButton(positiveButtonTextId, okListener)
+    if (messageId > 0) builder.setMessage(messageId)
+    return builder.create()
+}
+
+fun Activity.createDiscardDialog(
+    @StringRes objectResId: Int,
+    @StringRes positiveButtonResId: Int = R.string.keep_editing,
+    isNew: Boolean,
+    finishActivity: Boolean = true,
+    discardListener: () -> Unit = {}): Dialog {
+    val messageFormat = getString(if (isNew)
         R.string.discard_new_message
     else
         R.string.discard_changes_message)
-    return activity.createThemedBuilder()
-            .setMessage(String.format(messageFormat, activity.getString(objectResId).lowercase(Locale.getDefault())))
+    return createThemedBuilder()
+            .setMessage(String.format(messageFormat, getString(objectResId).lowercase(Locale.getDefault())))
             .setPositiveButton(positiveButtonResId, null)
             .setNegativeButton(R.string.discard) { _, _ ->
                 discardListener()
                 if (finishActivity) {
-                    activity.setResult(Activity.RESULT_CANCELED)
-                    activity.finish()
+                    setResult(Activity.RESULT_CANCELED)
+                    finish()
                 }
             }
             .setCancelable(true)

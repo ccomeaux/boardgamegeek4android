@@ -18,7 +18,6 @@ import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.NewPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import com.boardgamegeek.util.DialogUtils
 import kotlinx.android.synthetic.main.fragment_new_play_player_win.*
 import kotlinx.android.synthetic.main.row_new_play_player_win.view.*
 import kotlin.properties.Delegates
@@ -46,8 +45,8 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
         }
     }
 
-    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel)
-        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
+    private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel) :
+        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, _, _ ->
             // using a DiffUtil causes too many crashes
@@ -122,12 +121,12 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
         }
 
         private fun score(player: NewPlayPlayerEntity) {
-            val fragment = NewPlayerScoreNumberPadDialogFragment.newInstance(
-                    player.id,
-                    player.score,
-                    player.color,
-                    player.description)
-            DialogUtils.showFragment(activity, fragment, "score_dialog")
+            NewPlayerScoreNumberPadDialogFragment.newInstance(
+                player.id,
+                player.score,
+                player.color,
+                player.description
+            ).show(activity.supportFragmentManager, "score_dialog")
         }
     }
 }

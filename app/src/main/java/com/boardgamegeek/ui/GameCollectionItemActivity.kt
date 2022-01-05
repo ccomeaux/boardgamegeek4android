@@ -96,8 +96,7 @@ class GameCollectionItemActivity : HeroActivity() {
     override fun onBackPressed() {
         if (isInEditMode) {
             if (isItemUpdated) {
-                createDiscardDialog(
-                    this@GameCollectionItemActivity,
+                this@GameCollectionItemActivity.createDiscardDialog(
                     R.string.collection_item,
                     R.string.keep,
                     isNew = false,

@@ -190,7 +190,7 @@ class NewPlayActivity : AppCompatActivity() {
             viewModel.addedPlayers.value.orEmpty().isNotEmpty() ||
             viewModel.comments.isNotBlank()
         ) {
-            createDiscardDialog(this, R.string.play, isNew = false).show()
+            createDiscardDialog(R.string.play, isNew = false).show()
             true
         } else false
     }

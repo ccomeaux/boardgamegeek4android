@@ -19,7 +19,6 @@ import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
-import com.boardgamegeek.util.DialogUtils
 import com.boardgamegeek.util.ImageUtils
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -212,7 +211,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_discard -> {
-                DialogUtils.createDiscardDialog(activity, R.string.play, false, false) {
+                requireActivity().createDiscardDialog(R.string.play, isNew = true, finishActivity = false) {
                     logDataManipulationAction("Discard")
                     viewModel.discard()
                 }.show()
