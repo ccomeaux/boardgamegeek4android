@@ -1,5 +1,3 @@
-@file:JvmName("SyncPrefUtils")
-
 package com.boardgamegeek.pref
 
 import android.accounts.AccountManager
@@ -27,7 +25,6 @@ class SyncPrefs {
         const val TIMESTAMP_PLAYS_NEWEST_DATE = "TIMESTAMP_PLAYS_NEWEST_DATE"
         const val TIMESTAMP_PLAYS_OLDEST_DATE = "TIMESTAMP_PLAYS_OLDEST_DATE"
 
-        @JvmStatic
         fun getPrefs(context: Context) = context.preferences(NAME)
 
         fun migrate(context: Context) {
