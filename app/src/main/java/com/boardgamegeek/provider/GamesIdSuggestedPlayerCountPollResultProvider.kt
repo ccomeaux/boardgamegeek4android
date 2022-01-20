@@ -1,9 +1,10 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollResultsColumns.PLAYER_COUNT
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS
+import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class GamesIdSuggestedPlayerCountPollResultProvider : BaseProvider() {
@@ -16,7 +17,7 @@ class GamesIdSuggestedPlayerCountPollResultProvider : BaseProvider() {
         val playerCount = Games.getPollPlayerCount(uri)
         return SelectionBuilder()
             .table(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
-            .whereEquals(GAME_ID, gameId)
-            .whereEquals(PLAYER_COUNT, playerCount)
+            .whereEquals(GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID, gameId)
+            .whereEquals(GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT, playerCount)
     }
 }

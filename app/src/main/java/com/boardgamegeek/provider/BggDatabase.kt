@@ -6,51 +6,48 @@ import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.pref.SyncPrefs.Companion.getPrefs
+import android.provider.BaseColumns
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearCollection
 import com.boardgamegeek.pref.clearPlaysTimestamps
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.service.SyncService.Companion.sync
-import com.boardgamegeek.tasks.ResetGamesTask
-import com.boardgamegeek.tasks.ResetPlaysTask
 import com.boardgamegeek.util.FileUtils.deleteContents
 import com.boardgamegeek.util.TableBuilder
-import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE
-import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION
+import com.boardgamegeek.util.TableBuilder.ColumnType
+import com.boardgamegeek.util.TableBuilder.ConflictResolution
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import java.util.*
 
 class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    var syncPrefs: SharedPreferences = getPrefs(context!!)
+    var syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context!!)
 
     object GamesDesigners {
-        const val GAME_ID = Games.GAME_ID
-        const val DESIGNER_ID = Designers.DESIGNER_ID
+        const val GAME_ID = Games.Columns.GAME_ID
+        const val DESIGNER_ID = Designers.Columns.DESIGNER_ID
     }
 
     object GamesArtists {
-        const val GAME_ID = Games.GAME_ID
-        const val ARTIST_ID = Artists.ARTIST_ID
+        const val GAME_ID = Games.Columns.GAME_ID
+        const val ARTIST_ID = Artists.Columns.ARTIST_ID
     }
 
     object GamesPublishers {
-        const val GAME_ID = Games.GAME_ID
-        const val PUBLISHER_ID = Publishers.PUBLISHER_ID
+        const val GAME_ID = Games.Columns.GAME_ID
+        const val PUBLISHER_ID = Publishers.Columns.PUBLISHER_ID
     }
 
     object GamesMechanics {
-        const val GAME_ID = Games.GAME_ID
-        const val MECHANIC_ID = Mechanics.MECHANIC_ID
+        const val GAME_ID = Games.Columns.GAME_ID
+        const val MECHANIC_ID = Mechanics.Columns.MECHANIC_ID
     }
 
     object GamesCategories {
-        const val GAME_ID = Games.GAME_ID
-        const val CATEGORY_ID = Categories.CATEGORY_ID
+        const val GAME_ID = Games.Columns.GAME_ID
+        const val CATEGORY_ID = Categories.Columns.CATEGORY_ID
     }
 
     object Tables {
@@ -80,54 +77,53 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val COLLECTION_VIEW_FILTERS = "collection_filters_details"
         const val PLAYER_COLORS = "player_colors"
 
-        val GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.GAME_ID)
-        val GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID)
-        val GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID)
-        val GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.PUBLISHER_ID)
-        val GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.MECHANIC_ID)
-        val GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.CATEGORY_ID)
-        val GAMES_EXPANSIONS_JOIN_EXPANSIONS = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.EXPANSION_ID, Games.GAME_ID)
-        val GAMES_RANKS_JOIN_GAMES = createJoin(GAME_RANKS, GAMES, GameRanks.GAME_ID, Games.GAME_ID)
-        val POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, GamePolls._ID, GamePollResults.POLL_ID)
-        val POLLS_JOIN_GAMES =
-            createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.GAME_ID, GameSuggestedPlayerCountPollPollResults.GAME_ID)
+        val GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.Columns.GAME_ID)
+        val GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.Columns.DESIGNER_ID)
+        val GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.Columns.ARTIST_ID)
+        val GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.Columns.PUBLISHER_ID)
+        val GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.Columns.MECHANIC_ID)
+        val GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.Columns.CATEGORY_ID)
+        val GAMES_EXPANSIONS_JOIN_EXPANSIONS = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.Columns.EXPANSION_ID, Games.Columns.GAME_ID)
+        val GAMES_RANKS_JOIN_GAMES = createJoin(GAME_RANKS, GAMES, GameRanks.Columns.GAME_ID, Games.Columns.GAME_ID)
+        val POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, BaseColumns._ID, GamePollResults.Columns.POLL_ID)
+        val POLLS_JOIN_GAMES = createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.Columns.GAME_ID, GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID)
         val POLL_RESULTS_JOIN_POLL_RESULTS_RESULT =
-            createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID)
-        val COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID)
-        val GAMES_JOIN_PLAYS = GAMES + createJoinSuffix(GAMES, PLAYS, Games.GAME_ID, Plays.OBJECT_ID)
-        val PLAYS_JOIN_GAMES = PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID)
-        val PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID)
+            createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, BaseColumns._ID, GamePollResultsResult.Columns.POLL_RESULTS_ID)
+        val COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Games.Columns.GAME_ID)
+        val GAMES_JOIN_PLAYS = GAMES + createJoinSuffix(GAMES, PLAYS, Games.Columns.GAME_ID, Plays.Columns.OBJECT_ID)
+        val PLAYS_JOIN_GAMES = PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
+        val PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID)
         val PLAY_PLAYERS_JOIN_PLAYS_JOIN_USERS = PLAY_PLAYERS +
-                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID) +
-                createJoinSuffix(PLAY_PLAYERS, BUDDIES, PlayPlayers.USER_NAME, Buddies.BUDDY_NAME)
+                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
+                createJoinSuffix(PLAY_PLAYERS, BUDDIES, PlayPlayers.Columns.USER_NAME, Buddies.Columns.BUDDY_NAME)
         val PLAY_PLAYERS_JOIN_PLAYS_JOIN_GAMES = PLAY_PLAYERS +
-                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers._PLAY_ID, Plays._ID) +
-                createJoinSuffix(PLAYS, GAMES, Plays.OBJECT_ID, Games.GAME_ID)
+                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
+                createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
         val COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS =
-            createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS, CollectionViews._ID, CollectionViewFilters.VIEW_ID)
+            createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS, BaseColumns._ID, CollectionViewFilters.Columns.VIEW_ID)
         val POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS =
-            createJoin(GAME_POLL_RESULTS_RESULT, GAME_POLL_RESULTS, GamePollResultsResult.POLL_RESULTS_ID, GamePollResults._ID) +
-                    createJoinSuffix(GAME_POLL_RESULTS, GAME_POLLS, GamePollResults.POLL_ID, GamePolls._ID)
+            createJoin(GAME_POLL_RESULTS_RESULT, GAME_POLL_RESULTS, GamePollResultsResult.Columns.POLL_RESULTS_ID, BaseColumns._ID) +
+                    createJoinSuffix(GAME_POLL_RESULTS, GAME_POLLS, GamePollResults.Columns.POLL_ID, BaseColumns._ID)
         val ARTIST_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_ARTISTS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID)
+            createJoin(GAMES_ARTISTS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
         val DESIGNER_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_DESIGNERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID)
+            createJoin(GAMES_DESIGNERS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
         val PUBLISHER_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_PUBLISHERS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID)
+            createJoin(GAMES_PUBLISHERS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
         val MECHANIC_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_MECHANICS, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID)
+            createJoin(GAMES_MECHANICS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
         val CATEGORY_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_CATEGORIES, GAMES, Games.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.GAME_ID, Collection.GAME_ID)
-        val ARTISTS_JOIN_COLLECTION = createJoin(ARTISTS, GAMES_ARTISTS, Artists.ARTIST_ID) +
-                createInnerJoinSuffix(GAMES_ARTISTS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID)
-        val DESIGNERS_JOIN_COLLECTION = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.DESIGNER_ID) +
-                createInnerJoinSuffix(GAMES_DESIGNERS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID)
-        val PUBLISHERS_JOIN_COLLECTION = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.PUBLISHER_ID) +
-                createInnerJoinSuffix(GAMES_PUBLISHERS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID)
-        val MECHANICS_JOIN_COLLECTION = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.MECHANIC_ID) +
-                createInnerJoinSuffix(GAMES_MECHANICS, COLLECTION, Collection.GAME_ID, Collection.GAME_ID)
-        val CATEGORIES_JOIN_COLLECTION = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.CATEGORY_ID) +
-                createInnerJoinSuffix(GAMES_CATEGORIES, COLLECTION, Collection.GAME_ID, Collection.GAME_ID)
+            createJoin(GAMES_CATEGORIES, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
+        val ARTISTS_JOIN_COLLECTION = createJoin(ARTISTS, GAMES_ARTISTS, Artists.Columns.ARTIST_ID) +
+                createInnerJoinSuffix(GAMES_ARTISTS, COLLECTION, GamesArtists.GAME_ID, Collection.Columns.GAME_ID)
+        val DESIGNERS_JOIN_COLLECTION = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.Columns.DESIGNER_ID) +
+                createInnerJoinSuffix(GAMES_DESIGNERS, COLLECTION, GamesDesigners.GAME_ID, Collection.Columns.GAME_ID)
+        val PUBLISHERS_JOIN_COLLECTION = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.Columns.PUBLISHER_ID) +
+                createInnerJoinSuffix(GAMES_PUBLISHERS, COLLECTION, GamesPublishers.GAME_ID, Collection.Columns.GAME_ID)
+        val MECHANICS_JOIN_COLLECTION = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.Columns.MECHANIC_ID) +
+                createInnerJoinSuffix(GAMES_MECHANICS, COLLECTION, GamesMechanics.GAME_ID, Collection.Columns.GAME_ID)
+        val CATEGORIES_JOIN_COLLECTION = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.Columns.CATEGORY_ID) +
+                createInnerJoinSuffix(GAMES_CATEGORIES, COLLECTION, GamesCategories.GAME_ID, Collection.Columns.GAME_ID)
 
         private fun createJoin(table1: String, table2: String, column: String) = table1 + createJoinSuffix(table1, table2, column, column)
 
@@ -183,28 +179,28 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                 db?.let {
                     when (version + 1) {
                         VER_INITIAL -> {}
-                        VER_WISHLIST_PRIORITY -> addColumn(it, Tables.COLLECTION, Collection.STATUS_WISHLIST_PRIORITY, COLUMN_TYPE.INTEGER)
+                        VER_WISHLIST_PRIORITY -> addColumn(it, Tables.COLLECTION, Collection.Columns.STATUS_WISHLIST_PRIORITY, ColumnType.INTEGER)
                         VER_GAME_COLORS -> buildGameColorsTable().create(it)
                         VER_EXPANSIONS -> buildGameExpansionsTable().create(it)
                         VER_VARIOUS -> {
-                            addColumn(it, Tables.COLLECTION, Collection.LAST_MODIFIED, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.STARRED, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.LAST_MODIFIED, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.LAST_VIEWED, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.STARRED, ColumnType.INTEGER)
                         }
                         VER_PLAYS -> {
                             buildPlaysTable().create(it)
                             buildPlayPlayersTable().create(it)
                         }
-                        VER_PLAY_NICKNAME -> addColumn(it, Tables.BUDDIES, Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT)
+                        VER_PLAY_NICKNAME -> addColumn(it, Tables.BUDDIES, Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
                         VER_PLAY_SYNC_STATUS -> {
-                            addColumn(it, Tables.PLAYS, "sync_status", COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.PLAYS, "updated", COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.PLAYS, "sync_status", ColumnType.INTEGER)
+                            addColumn(it, Tables.PLAYS, "updated", ColumnType.INTEGER)
                         }
                         VER_COLLECTION_VIEWS -> {
                             buildCollectionViewsTable().create(it)
                             buildCollectionViewFiltersTable().create(it)
                         }
-                        VER_COLLECTION_VIEWS_SORT -> addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER)
+                        VER_COLLECTION_VIEWS_SORT -> addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SORT_TYPE, ColumnType.INTEGER)
                         VER_CASCADING_DELETE -> {
                             buildGameRanksTable().replace(it)
                             buildGamesDesignersTable().replace(it)
@@ -223,176 +219,169 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         VER_IMAGE_CACHE -> {
                             try {
                                 @Suppress("DEPRECATION")
-                                val oldCacheDirectory = File(Environment.getExternalStorageDirectory(), CONTENT_AUTHORITY)
+                                val oldCacheDirectory = File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY)
                                 deleteContents(oldCacheDirectory)
                                 if (!oldCacheDirectory.delete()) Timber.i("Unable to delete old cache directory")
                             } catch (e: IOException) {
                                 Timber.e(e, "Error clearing the cache")
                             }
                         }
-                        VER_GAMES_UPDATED_PLAYS -> addColumn(it, Tables.GAMES, Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
+                        VER_GAMES_UPDATED_PLAYS -> addColumn(it, Tables.GAMES, Games.Columns.UPDATED_PLAYS, ColumnType.INTEGER)
                         VER_COLLECTION -> {
-                            addColumn(it, Tables.COLLECTION, Collection.CONDITION, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.HASPARTS_LIST, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.WANTPARTS_LIST, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.WISHLIST_COMMENT, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.COLLECTION_YEAR_PUBLISHED, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.RATING, COLUMN_TYPE.REAL)
-                            addColumn(it, Tables.COLLECTION, Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.CONDITION, ColumnType.TEXT)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.HASPARTS_LIST, ColumnType.TEXT)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.WANTPARTS_LIST, ColumnType.TEXT)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.WISHLIST_COMMENT, ColumnType.TEXT)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_YEAR_PUBLISHED, ColumnType.INTEGER)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.RATING, ColumnType.REAL)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_THUMBNAIL_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_IMAGE_URL, ColumnType.TEXT)
                             buildCollectionTable().replace(it)
                         }
                         VER_GAME_COLLECTION_CONFLICT -> {
-                            addColumn(it, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
+                            addColumn(it, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
                             buildGamesTable().replace(it)
                             it.dropTable(Tables.COLLECTION)
                             buildCollectionTable().create(it)
                             syncPrefs.clearCollection()
-                            sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                            SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
                         }
-                        VER_PLAYS_START_TIME -> addColumn(it, Tables.PLAYS, Plays.START_TIME, COLUMN_TYPE.INTEGER)
+                        VER_PLAYS_START_TIME -> addColumn(it, Tables.PLAYS, Plays.Columns.START_TIME, ColumnType.INTEGER)
                         VER_PLAYS_PLAYER_COUNT -> {
-                            addColumn(it, Tables.PLAYS, Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.PLAYS, Plays.Columns.PLAYER_COUNT, ColumnType.INTEGER)
                             it.execSQL(
-                                "UPDATE ${Tables.PLAYS} SET ${Plays.PLAYER_COUNT}=(SELECT COUNT(${PlayPlayers.USER_ID}) FROM ${Tables.PLAY_PLAYERS} WHERE ${Tables.PLAYS}.${Plays.PLAY_ID}=${Tables.PLAY_PLAYERS}.${PlayPlayers.PLAY_ID})"
+                                "UPDATE ${Tables.PLAYS} SET ${Plays.Columns.PLAYER_COUNT}=(SELECT COUNT(${PlayPlayers.Columns.USER_ID}) FROM ${Tables.PLAY_PLAYERS} WHERE ${Tables.PLAYS}.${Plays.Columns.PLAY_ID}=${Tables.PLAY_PLAYERS}.${Plays.Columns.PLAY_ID})"
                             )
                         }
-                        VER_GAMES_SUBTYPE -> addColumn(it, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT)
+                        VER_GAMES_SUBTYPE -> addColumn(it, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
                         VER_COLLECTION_ID_NULLABLE -> buildCollectionTable().replace(it)
-                        VER_GAME_CUSTOM_PLAYER_SORT -> addColumn(it, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER)
-                        VER_BUDDY_FLAG -> addColumn(it, Tables.BUDDIES, Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER)
-                        VER_GAME_RANK -> addColumn(it, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER)
-                        VER_BUDDY_SYNC_HASH_CODE -> addColumn(it, Tables.BUDDIES, Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
-                        VER_PLAY_SYNC_HASH_CODE -> addColumn(it, Tables.PLAYS, Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
+                        VER_GAME_CUSTOM_PLAYER_SORT -> addColumn(it, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
+                        VER_BUDDY_FLAG -> addColumn(it, Tables.BUDDIES, Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+                        VER_GAME_RANK -> addColumn(it, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
+                        VER_BUDDY_SYNC_HASH_CODE -> addColumn(it, Tables.BUDDIES, Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+                        VER_PLAY_SYNC_HASH_CODE -> addColumn(it, Tables.PLAYS, Plays.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
                         VER_PLAYER_COLORS -> buildPlayerColorsTable().create(it)
-                        VER_RATING_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                        VER_COMMENT_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                        VER_PRIVATE_INFO_DIRTY_TIMESTAMP -> addColumn(
-                            db,
-                            Tables.COLLECTION,
-                            Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
-                            COLUMN_TYPE.INTEGER
-                        )
-                        VER_STATUS_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.STATUS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                        VER_COLLECTION_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.COLLECTION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                        VER_COLLECTION_DELETE_TIMESTAMP -> addColumn(
-                            db,
-                            Tables.COLLECTION,
-                            Collection.COLLECTION_DELETE_TIMESTAMP,
-                            COLUMN_TYPE.INTEGER
-                        )
+                        VER_RATING_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.RATING_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        VER_COMMENT_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        VER_PRIVATE_INFO_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        VER_STATUS_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.STATUS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        VER_COLLECTION_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        VER_COLLECTION_DELETE_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_DELETE_TIMESTAMP, ColumnType.INTEGER)
                         VER_COLLECTION_TIMESTAMPS -> {
-                            addColumn(it, Tables.COLLECTION, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                            addColumn(it, Tables.COLLECTION, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
                         }
                         VER_PLAY_ITEMS_COLLAPSE -> {
-                            addColumn(it, Tables.PLAYS, Plays.ITEM_NAME, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.PLAYS, Plays.OBJECT_ID, COLUMN_TYPE.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.OBJECT_ID} = (SELECT play_items.object_id FROM play_items WHERE play_items.${Plays.PLAY_ID} = ${Tables.PLAYS}.${Plays.PLAY_ID}), ${Plays.ITEM_NAME} = (SELECT play_items.name FROM play_items WHERE play_items.${Plays.PLAY_ID} = ${Tables.PLAYS}.${Plays.PLAY_ID})")
+                            addColumn(it, Tables.PLAYS, Plays.Columns.ITEM_NAME, ColumnType.TEXT)
+                            addColumn(it, Tables.PLAYS, Plays.Columns.OBJECT_ID, ColumnType.INTEGER)
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.OBJECT_ID} = (SELECT play_items.object_id FROM play_items WHERE play_items.${Plays.Columns.PLAY_ID} = ${Tables.PLAYS}.${Plays.Columns.PLAY_ID}), ${Plays.Columns.ITEM_NAME} = (SELECT play_items.name FROM play_items WHERE play_items.${Plays.Columns.PLAY_ID} = ${Tables.PLAYS}.${Plays.Columns.PLAY_ID})")
                             it.dropTable("play_items")
                         }
                         VER_PLAY_PLAYERS_KEY -> {
                             val columnMap: MutableMap<String, String> = HashMap()
-                            columnMap[PlayPlayers._PLAY_ID] = String.format("%s.%s", Tables.PLAYS, Plays._ID)
-                            buildPlayPlayersTable().replace(it, columnMap, Tables.PLAYS, Plays.PLAY_ID)
+                            columnMap[PlayPlayers.Columns._PLAY_ID] = "${Tables.PLAYS}.${BaseColumns._ID}"
+                            buildPlayPlayersTable().replace(it, columnMap, Tables.PLAYS, Plays.Columns.PLAY_ID)
                         }
                         VER_PLAY_DELETE_TIMESTAMP -> {
-                            addColumn(it, Tables.PLAYS, Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.DELETE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=3") // 3 = deleted sync status
+                            addColumn(it, Tables.PLAYS, Plays.Columns.DELETE_TIMESTAMP, ColumnType.INTEGER)
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DELETE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=3") // 3 = deleted sync status
                         }
                         VER_PLAY_UPDATE_TIMESTAMP -> {
-                            addColumn(it, Tables.PLAYS, Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.UPDATE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=1") // 1 = update sync status
+                            addColumn(it, Tables.PLAYS, Plays.Columns.UPDATE_TIMESTAMP, ColumnType.INTEGER)
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.UPDATE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=1") // 1 = update sync status
                         }
                         VER_PLAY_DIRTY_TIMESTAMP -> {
-                            addColumn(it, Tables.PLAYS, Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=2") // 2 = in progress
+                            addColumn(it, Tables.PLAYS, Plays.Columns.DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=2") // 2 = in progress
                         }
                         VER_PLAY_PLAY_ID_NOT_REQUIRED -> {
                             buildPlaysTable().replace(it)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.PLAY_ID}=null WHERE ${Plays.PLAY_ID}>=100000000 AND (${Plays.DIRTY_TIMESTAMP}>0 OR ${Plays.UPDATE_TIMESTAMP}>0 OR ${Plays.DELETE_TIMESTAMP}>0)")
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, ${Plays.PLAY_ID}=null WHERE ${Plays.PLAY_ID}>=100000000")
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.PLAY_ID}=null WHERE ${Plays.Columns.PLAY_ID}>=100000000 AND (${Plays.Columns.DIRTY_TIMESTAMP}>0 OR ${Plays.Columns.UPDATE_TIMESTAMP}>0 OR ${Plays.Columns.DELETE_TIMESTAMP}>0)")
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, ${Plays.Columns.PLAY_ID}=null WHERE ${Plays.Columns.PLAY_ID}>=100000000")
                         }
-                        VER_PLAYS_RESET -> ResetPlaysTask(context).executeAsyncTask()
+                        VER_PLAYS_RESET -> {
+                            syncPrefs.clearPlaysTimestamps()
+                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.SYNC_HASH_CODE}=0")
+                            SyncService.sync(context!!, SyncService.FLAG_SYNC_PLAYS)
+                        }
                         VER_PLAYS_HARD_RESET -> {
                             it.dropTable(Tables.PLAYS)
                             it.dropTable(Tables.PLAY_PLAYERS)
                             buildPlaysTable().create(it)
                             buildPlayPlayersTable().create(it)
                             syncPrefs.clearPlaysTimestamps()
-                            sync(context, SyncService.FLAG_SYNC_PLAYS)
+                            SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
                         }
                         VER_COLLECTION_VIEWS_SELECTED_COUNT -> {
-                            addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.SELECTED_COUNT, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.SELECTED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
+                            addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_TIMESTAMP, ColumnType.INTEGER)
                         }
                         VER_SUGGESTED_PLAYER_COUNT_POLL -> {
-                            addColumn(it, Tables.GAMES, Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, ColumnType.INTEGER)
                             buildGameSuggestedPlayerCountPollResultsTable().create(it)
                         }
                         VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION -> addColumn(
                             db,
                             Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS,
-                            GameSuggestedPlayerCountPollPollResults.RECOMMENDATION,
-                            COLUMN_TYPE.INTEGER
+                            GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
+                            ColumnType.INTEGER
                         )
                         VER_MIN_MAX_PLAYING_TIME -> {
-                            addColumn(it, Tables.GAMES, Games.MIN_PLAYING_TIME, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.MIN_PLAYING_TIME, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.MAX_PLAYING_TIME, ColumnType.INTEGER)
                         }
-                        VER_SUGGESTED_PLAYER_COUNT_RESYNC -> ResetGamesTask(context).executeAsyncTask()
-                        VER_GAME_HERO_IMAGE_URL -> addColumn(it, Tables.GAMES, Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-                        VER_COLLECTION_HERO_IMAGE_URL -> addColumn(it, Tables.COLLECTION, Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
+                        VER_SUGGESTED_PLAYER_COUNT_RESYNC -> {
+                            it.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
+                            SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
+                        }
+                        VER_GAME_HERO_IMAGE_URL -> addColumn(it, Tables.GAMES, Games.Columns.HERO_IMAGE_URL, ColumnType.TEXT)
+                        VER_COLLECTION_HERO_IMAGE_URL -> addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_HERO_IMAGE_URL, ColumnType.TEXT)
                         VER_GAME_PALETTE_COLORS -> {
-                            addColumn(it, Tables.GAMES, Games.ICON_COLOR, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.DARK_COLOR, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.WINS_COLOR, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.ICON_COLOR, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.DARK_COLOR, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.WINS_COLOR, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.WINNABLE_PLAYS_COLOR, ColumnType.INTEGER)
+                            addColumn(it, Tables.GAMES, Games.Columns.ALL_PLAYS_COLOR, ColumnType.INTEGER)
                         }
-                        VER_PRIVATE_INFO_INVENTORY_LOCATION -> addColumn(
-                            db,
-                            Tables.COLLECTION,
-                            Collection.PRIVATE_INFO_INVENTORY_LOCATION,
-                            COLUMN_TYPE.TEXT
-                        )
+                        VER_PRIVATE_INFO_INVENTORY_LOCATION -> addColumn(db, Tables.COLLECTION, Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION, ColumnType.TEXT)
                         VER_ARTIST_IMAGES -> {
-                            addColumn(it, Tables.ARTISTS, Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.ARTISTS, Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.ARTISTS, Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.ARTISTS, Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_IMAGE_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_THUMBNAIL_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_HERO_IMAGE_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
                         }
                         VER_DESIGNER_IMAGES -> {
-                            addColumn(it, Tables.DESIGNERS, Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.DESIGNERS, Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.DESIGNERS, Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.DESIGNERS, Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_IMAGE_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_THUMBNAIL_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_HERO_IMAGE_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
                         }
                         VER_PUBLISHER_IMAGES -> {
-                            addColumn(it, Tables.PUBLISHERS, Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_IMAGE_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_THUMBNAIL_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_HERO_IMAGE_URL, ColumnType.TEXT)
+                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_SORT_NAME, ColumnType.INTEGER)
                         }
                         VER_WHITMORE_SCORE -> {
-                            addColumn(it, Tables.DESIGNERS, Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.ARTISTS, Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.DESIGNERS, Designers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+                            addColumn(it, Tables.ARTISTS, Artists.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
                         }
                         VER_DAP_STATS_UPDATED_TIMESTAMP -> {
-                            addColumn(it, Tables.DESIGNERS, Designers.DESIGNER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.ARTISTS, Artists.ARTIST_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
                         }
                         VER_RECOMMENDED_PLAYER_COUNTS -> {
-                            addColumn(it, Tables.GAMES, Games.PLAYER_COUNTS_BEST, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.GAMES, Games.PLAYER_COUNTS_RECOMMENDED, COLUMN_TYPE.TEXT)
-                            addColumn(it, Tables.GAMES, Games.PLAYER_COUNTS_NOT_RECOMMENDED, COLUMN_TYPE.TEXT)
-                            ResetGamesTask(context).executeAsyncTask()
+                            addColumn(it, Tables.GAMES, Games.Columns.PLAYER_COUNTS_BEST, ColumnType.TEXT)
+                            addColumn(it, Tables.GAMES, Games.Columns.PLAYER_COUNTS_RECOMMENDED, ColumnType.TEXT)
+                            addColumn(it, Tables.GAMES, Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
+                            it.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
+                            SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
                         }
                     }
                 }
@@ -413,429 +402,466 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
     private fun buildDesignersTable() = TableBuilder()
         .setTable(Tables.DESIGNERS)
         .useDefaultPrimaryKey()
-        .addColumn(Designers.UPDATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Designers.DESIGNER_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(Designers.DESIGNER_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT)
-        .addColumn(Designers.DESIGNER_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Designers.DESIGNER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Designers.DESIGNER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Designers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
-        .addColumn(Designers.DESIGNER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+        .addColumn(Designers.Columns.UPDATED, ColumnType.INTEGER)
+        .addColumn(Designers.Columns.DESIGNER_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(Designers.Columns.DESIGNER_NAME, ColumnType.TEXT, true)
+        .addColumn(Designers.Columns.DESIGNER_DESCRIPTION, ColumnType.TEXT)
+        .addColumn(Designers.Columns.DESIGNER_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Designers.Columns.DESIGNER_THUMBNAIL_URL, ColumnType.TEXT)
+        .addColumn(Designers.Columns.DESIGNER_HERO_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Designers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+        .addColumn(Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
 
     private fun buildArtistsTable() = TableBuilder()
         .setTable(Tables.ARTISTS)
         .useDefaultPrimaryKey()
-        .addColumn(Artists.UPDATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Artists.ARTIST_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(Artists.ARTIST_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT)
-        .addColumn(Artists.ARTIST_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Artists.ARTIST_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Artists.ARTIST_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Artists.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
-        .addColumn(Artists.ARTIST_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+        .addColumn(Artists.Columns.UPDATED, ColumnType.INTEGER)
+        .addColumn(Artists.Columns.ARTIST_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(Artists.Columns.ARTIST_NAME, ColumnType.TEXT, true)
+        .addColumn(Artists.Columns.ARTIST_DESCRIPTION, ColumnType.TEXT)
+        .addColumn(Artists.Columns.ARTIST_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Artists.Columns.ARTIST_THUMBNAIL_URL, ColumnType.TEXT)
+        .addColumn(Artists.Columns.ARTIST_HERO_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Artists.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+        .addColumn(Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
 
     private fun buildPublishersTable() = TableBuilder()
         .setTable(Tables.PUBLISHERS)
         .useDefaultPrimaryKey()
-        .addColumn(Publishers.UPDATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Publishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, unique = true)
-        .addColumn(Publishers.PUBLISHER_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT)
-        .addColumn(Publishers.PUBLISHER_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Publishers.PUBLISHER_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Publishers.PUBLISHER_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Publishers.PUBLISHER_SORT_NAME, COLUMN_TYPE.TEXT)
-        .addColumn(Publishers.WHITMORE_SCORE, COLUMN_TYPE.INTEGER)
-        .addColumn(Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+        .addColumn(Publishers.Columns.UPDATED, ColumnType.INTEGER)
+        .addColumn(Publishers.Columns.PUBLISHER_ID, ColumnType.INTEGER, true, unique = true)
+        .addColumn(Publishers.Columns.PUBLISHER_NAME, ColumnType.TEXT, true)
+        .addColumn(Publishers.Columns.PUBLISHER_DESCRIPTION, ColumnType.TEXT)
+        .addColumn(Publishers.Columns.PUBLISHER_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Publishers.Columns.PUBLISHER_THUMBNAIL_URL, ColumnType.TEXT)
+        .addColumn(Publishers.Columns.PUBLISHER_HERO_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Publishers.Columns.PUBLISHER_SORT_NAME, ColumnType.TEXT)
+        .addColumn(Publishers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+        .addColumn(Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
 
     private fun buildMechanicsTable() = TableBuilder()
         .setTable(Tables.MECHANICS)
         .useDefaultPrimaryKey()
-        .addColumn(Mechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(Mechanics.MECHANIC_NAME, COLUMN_TYPE.TEXT, true)
+        .addColumn(Mechanics.Columns.MECHANIC_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(Mechanics.Columns.MECHANIC_NAME, ColumnType.TEXT, true)
 
     private fun buildCategoriesTable() = TableBuilder()
         .setTable(Tables.CATEGORIES)
         .useDefaultPrimaryKey()
-        .addColumn(Categories.CATEGORY_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(Categories.CATEGORY_NAME, COLUMN_TYPE.TEXT, true)
+        .addColumn(Categories.Columns.CATEGORY_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(Categories.Columns.CATEGORY_NAME, ColumnType.TEXT, true)
 
     private fun buildGamesTable() = TableBuilder()
         .setTable(Tables.GAMES)
         .useDefaultPrimaryKey()
-        .addColumn(Games.UPDATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(Games.GAME_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Games.GAME_SORT_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Games.YEAR_PUBLISHED, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Games.THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Games.MIN_PLAYERS, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.MAX_PLAYERS, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.PLAYING_TIME, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.MIN_PLAYING_TIME, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.NUM_PLAYS, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Games.MINIMUM_AGE, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.DESCRIPTION, COLUMN_TYPE.TEXT)
-        .addColumn(Games.SUBTYPE, COLUMN_TYPE.TEXT)
-        .addColumn(Games.STATS_USERS_RATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_AVERAGE, COLUMN_TYPE.REAL)
-        .addColumn(Games.STATS_BAYES_AVERAGE, COLUMN_TYPE.REAL)
-        .addColumn(Games.STATS_STANDARD_DEVIATION, COLUMN_TYPE.REAL)
-        .addColumn(Games.STATS_MEDIAN, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_NUMBER_OWNED, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_NUMBER_TRADING, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_NUMBER_WANTING, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_NUMBER_WISHING, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_NUMBER_COMMENTS, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_NUMBER_WEIGHTS, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STATS_AVERAGE_WEIGHT, COLUMN_TYPE.REAL)
-        .addColumn(Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.STARRED, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Games.ICON_COLOR, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.DARK_COLOR, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.WINS_COLOR, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.WINNABLE_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.ALL_PLAYS_COLOR, COLUMN_TYPE.INTEGER)
-        .addColumn(Games.PLAYER_COUNTS_BEST, COLUMN_TYPE.TEXT)
-        .addColumn(Games.PLAYER_COUNTS_RECOMMENDED, COLUMN_TYPE.TEXT)
-        .addColumn(Games.PLAYER_COUNTS_NOT_RECOMMENDED, COLUMN_TYPE.TEXT)
-        .setConflictResolution(CONFLICT_RESOLUTION.ABORT)
+        .addColumn(Games.Columns.UPDATED, ColumnType.INTEGER)
+        .addColumn(Games.Columns.UPDATED_LIST, ColumnType.INTEGER, true)
+        .addColumn(Games.Columns.GAME_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(Games.Columns.GAME_NAME, ColumnType.TEXT, true)
+        .addColumn(Games.Columns.GAME_SORT_NAME, ColumnType.TEXT, true)
+        .addColumn(Games.Columns.YEAR_PUBLISHED, ColumnType.INTEGER)
+        .addColumn(Games.Columns.IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Games.Columns.THUMBNAIL_URL, ColumnType.TEXT)
+        .addColumn(Games.Columns.MIN_PLAYERS, ColumnType.INTEGER)
+        .addColumn(Games.Columns.MAX_PLAYERS, ColumnType.INTEGER)
+        .addColumn(Games.Columns.PLAYING_TIME, ColumnType.INTEGER)
+        .addColumn(Games.Columns.MIN_PLAYING_TIME, ColumnType.INTEGER)
+        .addColumn(Games.Columns.MAX_PLAYING_TIME, ColumnType.INTEGER)
+        .addColumn(Games.Columns.NUM_PLAYS, ColumnType.INTEGER, true, 0)
+        .addColumn(Games.Columns.MINIMUM_AGE, ColumnType.INTEGER)
+        .addColumn(Games.Columns.DESCRIPTION, ColumnType.TEXT)
+        .addColumn(Games.Columns.SUBTYPE, ColumnType.TEXT)
+        .addColumn(Games.Columns.STATS_USERS_RATED, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_AVERAGE, ColumnType.REAL)
+        .addColumn(Games.Columns.STATS_BAYES_AVERAGE, ColumnType.REAL)
+        .addColumn(Games.Columns.STATS_STANDARD_DEVIATION, ColumnType.REAL)
+        .addColumn(Games.Columns.STATS_MEDIAN, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_NUMBER_OWNED, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_NUMBER_TRADING, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_NUMBER_WANTING, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_NUMBER_WISHING, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_NUMBER_COMMENTS, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_NUMBER_WEIGHTS, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_AVERAGE_WEIGHT, ColumnType.REAL)
+        .addColumn(Games.Columns.LAST_VIEWED, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STARRED, ColumnType.INTEGER)
+        .addColumn(Games.Columns.UPDATED_PLAYS, ColumnType.INTEGER)
+        .addColumn(Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
+        .addColumn(Games.Columns.GAME_RANK, ColumnType.INTEGER)
+        .addColumn(Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, ColumnType.INTEGER)
+        .addColumn(Games.Columns.HERO_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Games.Columns.ICON_COLOR, ColumnType.INTEGER)
+        .addColumn(Games.Columns.DARK_COLOR, ColumnType.INTEGER)
+        .addColumn(Games.Columns.WINS_COLOR, ColumnType.INTEGER)
+        .addColumn(Games.Columns.WINNABLE_PLAYS_COLOR, ColumnType.INTEGER)
+        .addColumn(Games.Columns.ALL_PLAYS_COLOR, ColumnType.INTEGER)
+        .addColumn(Games.Columns.PLAYER_COUNTS_BEST, ColumnType.TEXT)
+        .addColumn(Games.Columns.PLAYER_COUNTS_RECOMMENDED, ColumnType.TEXT)
+        .addColumn(Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
+        .setConflictResolution(ConflictResolution.ABORT)
 
     private fun buildGameRanksTable() = TableBuilder()
         .setTable(Tables.GAME_RANKS)
         .useDefaultPrimaryKey()
-        .addColumn(GameRanks.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GameRanks.Columns.GAME_ID, ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GameRanks.GAME_RANK_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(GameRanks.GAME_RANK_TYPE, COLUMN_TYPE.TEXT, true)
-        .addColumn(GameRanks.GAME_RANK_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(GameRanks.GAME_RANK_FRIENDLY_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(GameRanks.GAME_RANK_VALUE, COLUMN_TYPE.INTEGER, true)
-        .addColumn(GameRanks.GAME_RANK_BAYES_AVERAGE, COLUMN_TYPE.REAL, true)
-        .setConflictResolution(CONFLICT_RESOLUTION.REPLACE)
+        .addColumn(GameRanks.Columns.GAME_RANK_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(GameRanks.Columns.GAME_RANK_TYPE, ColumnType.TEXT, true)
+        .addColumn(GameRanks.Columns.GAME_RANK_NAME, ColumnType.TEXT, true)
+        .addColumn(GameRanks.Columns.GAME_RANK_FRIENDLY_NAME, ColumnType.TEXT, true)
+        .addColumn(GameRanks.Columns.GAME_RANK_VALUE, ColumnType.INTEGER, true)
+        .addColumn(GameRanks.Columns.GAME_RANK_BAYES_AVERAGE, ColumnType.REAL, true)
+        .setConflictResolution(ConflictResolution.REPLACE)
 
     private fun buildGamesDesignersTable() = TableBuilder()
         .setTable(Tables.GAMES_DESIGNERS)
         .useDefaultPrimaryKey()
-        .addColumn(GamesDesigners.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesDesigners.GAME_ID, ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamesDesigners.DESIGNER_ID, COLUMN_TYPE.INTEGER, true,
+        .addColumn(
+            GamesDesigners.DESIGNER_ID, ColumnType.INTEGER, true,
             unique = true,
             referenceTable = Tables.DESIGNERS,
-            referenceColumn = Designers.DESIGNER_ID
+            referenceColumn = Designers.Columns.DESIGNER_ID
         )
 
     private fun buildGamesArtistsTable() = TableBuilder().setTable(Tables.GAMES_ARTISTS).useDefaultPrimaryKey()
-        .addColumn(GamesArtists.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesArtists.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamesArtists.ARTIST_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesArtists.ARTIST_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.ARTISTS,
-            referenceColumn = Artists.ARTIST_ID
+            referenceColumn = Artists.Columns.ARTIST_ID
         )
 
     private fun buildGamesPublishersTable() = TableBuilder()
         .setTable(Tables.GAMES_PUBLISHERS)
         .useDefaultPrimaryKey()
-        .addColumn(GamesPublishers.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesPublishers.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamesPublishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesPublishers.PUBLISHER_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.PUBLISHERS,
-            referenceColumn = Publishers.PUBLISHER_ID
+            referenceColumn = Publishers.Columns.PUBLISHER_ID
         )
 
     private fun buildGamesMechanicsTable() = TableBuilder()
         .setTable(Tables.GAMES_MECHANICS)
         .useDefaultPrimaryKey()
-        .addColumn(GamesMechanics.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesMechanics.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamesMechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesMechanics.MECHANIC_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.MECHANICS,
-            referenceColumn = Mechanics.MECHANIC_ID
+            referenceColumn = Mechanics.Columns.MECHANIC_ID
         )
 
     private fun buildGamesCategoriesTable() = TableBuilder()
         .setTable(Tables.GAMES_CATEGORIES)
         .useDefaultPrimaryKey()
-        .addColumn(GamesCategories.GAME_ID, COLUMN_TYPE.INTEGER, true,
+        .addColumn(
+            GamesCategories.GAME_ID,
+            ColumnType.INTEGER,
+            true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamesCategories.CATEGORY_ID, COLUMN_TYPE.INTEGER, true,
+        .addColumn(
+            GamesCategories.CATEGORY_ID,
+            ColumnType.INTEGER,
+            true,
             unique = true,
             referenceTable = Tables.CATEGORIES,
-            referenceColumn = Categories.CATEGORY_ID
+            referenceColumn = Categories.Columns.CATEGORY_ID
         )
 
     private fun buildGameExpansionsTable() = TableBuilder()
         .setTable(Tables.GAMES_EXPANSIONS)
         .useDefaultPrimaryKey()
-        .addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamesExpansions.Columns.GAME_ID, ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamesExpansions.EXPANSION_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(GamesExpansions.EXPANSION_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(GamesExpansions.INBOUND, COLUMN_TYPE.INTEGER)
+        .addColumn(GamesExpansions.Columns.EXPANSION_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(GamesExpansions.Columns.EXPANSION_NAME, ColumnType.TEXT, true)
+        .addColumn(GamesExpansions.Columns.INBOUND, ColumnType.INTEGER)
 
     private fun buildGamePollsTable() = TableBuilder()
         .setTable(Tables.GAME_POLLS)
         .useDefaultPrimaryKey()
-        .addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamePolls.Columns.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GamePolls.POLL_NAME, COLUMN_TYPE.TEXT, notNull = true, unique = true)
-        .addColumn(GamePolls.POLL_TITLE, COLUMN_TYPE.TEXT, true)
-        .addColumn(GamePolls.POLL_TOTAL_VOTES, COLUMN_TYPE.INTEGER, true)
+        .addColumn(GamePolls.Columns.POLL_NAME, ColumnType.TEXT, notNull = true, unique = true)
+        .addColumn(GamePolls.Columns.POLL_TITLE, ColumnType.TEXT, true)
+        .addColumn(GamePolls.Columns.POLL_TOTAL_VOTES, ColumnType.INTEGER, true)
 
     private fun buildGamePollResultsTable() = TableBuilder()
         .setTable(Tables.GAME_POLL_RESULTS)
         .useDefaultPrimaryKey()
-        .addColumn(GamePollResults.POLL_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamePollResults.Columns.POLL_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAME_POLLS,
-            referenceColumn = GamePolls._ID,
+            referenceColumn = BaseColumns._ID,
             onCascadeDelete = true
         )
-        .addColumn(GamePollResults.POLL_RESULTS_KEY, COLUMN_TYPE.TEXT, notNull = true, unique = true)
-        .addColumn(GamePollResults.POLL_RESULTS_PLAYERS, COLUMN_TYPE.TEXT)
-        .addColumn(GamePollResults.POLL_RESULTS_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
+        .addColumn(GamePollResults.Columns.POLL_RESULTS_KEY, ColumnType.TEXT, notNull = true, unique = true)
+        .addColumn(GamePollResults.Columns.POLL_RESULTS_PLAYERS, ColumnType.TEXT)
+        .addColumn(GamePollResults.Columns.POLL_RESULTS_SORT_INDEX, ColumnType.INTEGER, true)
 
     private fun buildGamePollResultsResultTable() = TableBuilder()
         .setTable(Tables.GAME_POLL_RESULTS_RESULT)
         .useDefaultPrimaryKey()
-        .addColumn(GamePollResultsResult.POLL_RESULTS_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GamePollResultsResult.Columns.POLL_RESULTS_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAME_POLL_RESULTS,
-            referenceColumn = GamePollResults._ID,
+            referenceColumn = BaseColumns._ID,
             onCascadeDelete = true
         )
-        .addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, COLUMN_TYPE.TEXT, notNull = true, unique = true)
-        .addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, COLUMN_TYPE.INTEGER)
-        .addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, COLUMN_TYPE.TEXT, true)
-        .addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, COLUMN_TYPE.INTEGER, true)
-        .addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
+        .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY, ColumnType.TEXT, notNull = true, unique = true)
+        .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL, ColumnType.INTEGER)
+        .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE, ColumnType.TEXT, true)
+        .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES, ColumnType.INTEGER, true)
+        .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_SORT_INDEX, ColumnType.INTEGER, true)
 
     private fun buildGameSuggestedPlayerCountPollResultsTable() = TableBuilder()
         .setTable(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
         .useDefaultPrimaryKey()
-        .addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(GameSuggestedPlayerCountPollPollResults.SORT_INDEX, COLUMN_TYPE.INTEGER)
-        .addColumn(GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT, COLUMN_TYPE.INTEGER)
-        .addColumn(GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER)
-        .addColumn(GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT, COLUMN_TYPE.INTEGER)
-        .addColumn(GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, COLUMN_TYPE.INTEGER)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX, ColumnType.INTEGER)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT, ColumnType.INTEGER)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT, ColumnType.INTEGER)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT, ColumnType.INTEGER)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION, ColumnType.INTEGER)
 
     private fun buildGameColorsTable() = TableBuilder()
         .setTable(Tables.GAME_COLORS)
         .useDefaultPrimaryKey()
-        .addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            GameColors.Columns.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = true,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GameColors.COLOR, COLUMN_TYPE.TEXT, notNull = true, unique = true)
+        .addColumn(GameColors.Columns.COLOR, ColumnType.TEXT, notNull = true, unique = true)
 
     private fun buildPlaysTable() = TableBuilder()
         .setTable(Tables.PLAYS)
         .useDefaultPrimaryKey()
-        .addColumn(Plays.SYNC_TIMESTAMP, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER)
-        .addColumn(Plays.DATE, COLUMN_TYPE.TEXT, true)
-        .addColumn(Plays.QUANTITY, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Plays.LENGTH, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Plays.INCOMPLETE, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Plays.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
-        .addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT)
-        .addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER)
-        .addColumn(Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
-        .addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
-        .addColumn(Plays.ITEM_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Plays.OBJECT_ID, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Plays.DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Plays.UPDATE_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Plays.DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
+        .addColumn(Plays.Columns.SYNC_TIMESTAMP, ColumnType.INTEGER, true)
+        .addColumn(Plays.Columns.PLAY_ID, ColumnType.INTEGER)
+        .addColumn(Plays.Columns.DATE, ColumnType.TEXT, true)
+        .addColumn(Plays.Columns.QUANTITY, ColumnType.INTEGER, true)
+        .addColumn(Plays.Columns.LENGTH, ColumnType.INTEGER, true)
+        .addColumn(Plays.Columns.INCOMPLETE, ColumnType.INTEGER, true)
+        .addColumn(Plays.Columns.NO_WIN_STATS, ColumnType.INTEGER, true)
+        .addColumn(Plays.Columns.LOCATION, ColumnType.TEXT)
+        .addColumn(Plays.Columns.COMMENTS, ColumnType.TEXT)
+        .addColumn(Plays.Columns.START_TIME, ColumnType.INTEGER)
+        .addColumn(Plays.Columns.PLAYER_COUNT, ColumnType.INTEGER)
+        .addColumn(Plays.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+        .addColumn(Plays.Columns.ITEM_NAME, ColumnType.TEXT, true)
+        .addColumn(Plays.Columns.OBJECT_ID, ColumnType.INTEGER, true)
+        .addColumn(Plays.Columns.DELETE_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Plays.Columns.UPDATE_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Plays.Columns.DIRTY_TIMESTAMP, ColumnType.INTEGER)
 
     private fun buildPlayPlayersTable() = TableBuilder()
         .setTable(Tables.PLAY_PLAYERS)
         .useDefaultPrimaryKey()
-        .addColumn(PlayPlayers._PLAY_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            PlayPlayers.Columns._PLAY_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = false,
             referenceTable = Tables.PLAYS,
-            referenceColumn = Plays._ID,
+            referenceColumn = BaseColumns._ID,
             onCascadeDelete = true
         )
-        .addColumn(PlayPlayers.USER_NAME, COLUMN_TYPE.TEXT)
-        .addColumn(PlayPlayers.USER_ID, COLUMN_TYPE.INTEGER)
-        .addColumn(PlayPlayers.NAME, COLUMN_TYPE.TEXT)
-        .addColumn(PlayPlayers.START_POSITION, COLUMN_TYPE.TEXT)
-        .addColumn(PlayPlayers.COLOR, COLUMN_TYPE.TEXT)
-        .addColumn(PlayPlayers.SCORE, COLUMN_TYPE.TEXT)
-        .addColumn(PlayPlayers.NEW, COLUMN_TYPE.INTEGER)
-        .addColumn(PlayPlayers.RATING, COLUMN_TYPE.REAL)
-        .addColumn(PlayPlayers.WIN, COLUMN_TYPE.INTEGER)
+        .addColumn(PlayPlayers.Columns.USER_NAME, ColumnType.TEXT)
+        .addColumn(PlayPlayers.Columns.USER_ID, ColumnType.INTEGER)
+        .addColumn(PlayPlayers.Columns.NAME, ColumnType.TEXT)
+        .addColumn(PlayPlayers.Columns.START_POSITION, ColumnType.TEXT)
+        .addColumn(PlayPlayers.Columns.COLOR, ColumnType.TEXT)
+        .addColumn(PlayPlayers.Columns.SCORE, ColumnType.TEXT)
+        .addColumn(PlayPlayers.Columns.NEW, ColumnType.INTEGER)
+        .addColumn(PlayPlayers.Columns.RATING, ColumnType.REAL)
+        .addColumn(PlayPlayers.Columns.WIN, ColumnType.INTEGER)
 
     private fun buildCollectionTable(): TableBuilder = TableBuilder()
         .setTable(Tables.COLLECTION)
         .useDefaultPrimaryKey()
-        .addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(Collection.Columns.UPDATED, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.UPDATED_LIST, ColumnType.INTEGER)
+        .addColumn(
+            Collection.Columns.GAME_ID,
+            ColumnType.INTEGER,
             notNull = true,
             unique = false,
             referenceTable = Tables.GAMES,
-            referenceColumn = Games.GAME_ID,
+            referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.COLLECTION_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Collection.COLLECTION_SORT_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Collection.STATUS_OWN, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_PREVIOUSLY_OWNED, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_FOR_TRADE, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_WANT, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_WANT_TO_PLAY, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_WANT_TO_BUY, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_WISHLIST_PRIORITY, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.STATUS_WISHLIST, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.STATUS_PREORDERED, COLUMN_TYPE.INTEGER, true, 0)
-        .addColumn(Collection.COMMENT, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.LAST_MODIFIED, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.PRIVATE_INFO_PRICE_PAID, COLUMN_TYPE.REAL)
-        .addColumn(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.PRIVATE_INFO_CURRENT_VALUE, COLUMN_TYPE.REAL)
-        .addColumn(Collection.PRIVATE_INFO_QUANTITY, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.PRIVATE_INFO_ACQUISITION_DATE, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.PRIVATE_INFO_ACQUIRED_FROM, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.PRIVATE_INFO_COMMENT, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.CONDITION, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.HASPARTS_LIST, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.WANTPARTS_LIST, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.WISHLIST_COMMENT, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.COLLECTION_YEAR_PUBLISHED, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.RATING, COLUMN_TYPE.REAL)
-        .addColumn(Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.STATUS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.RATING_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.COLLECTION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.COLLECTION_DELETE_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.TRADE_CONDITION_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.WANT_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.HAS_PARTS_DIRTY_TIMESTAMP, COLUMN_TYPE.INTEGER)
-        .addColumn(Collection.COLLECTION_HERO_IMAGE_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Collection.PRIVATE_INFO_INVENTORY_LOCATION, COLUMN_TYPE.TEXT)
-        .setConflictResolution(CONFLICT_RESOLUTION.ABORT)
+        .addColumn(Collection.Columns.COLLECTION_ID, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.COLLECTION_NAME, ColumnType.TEXT, true)
+        .addColumn(Collection.Columns.COLLECTION_SORT_NAME, ColumnType.TEXT, true)
+        .addColumn(Collection.Columns.STATUS_OWN, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_PREVIOUSLY_OWNED, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_FOR_TRADE, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_WANT, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_WANT_TO_PLAY, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_WANT_TO_BUY, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_WISHLIST_PRIORITY, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.STATUS_WISHLIST, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.STATUS_PREORDERED, ColumnType.INTEGER, true, 0)
+        .addColumn(Collection.Columns.COMMENT, ColumnType.TEXT)
+        .addColumn(Collection.Columns.LAST_MODIFIED, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY, ColumnType.TEXT)
+        .addColumn(Collection.Columns.PRIVATE_INFO_PRICE_PAID, ColumnType.REAL)
+        .addColumn(Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, ColumnType.TEXT)
+        .addColumn(Collection.Columns.PRIVATE_INFO_CURRENT_VALUE, ColumnType.REAL)
+        .addColumn(Collection.Columns.PRIVATE_INFO_QUANTITY, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE, ColumnType.TEXT)
+        .addColumn(Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM, ColumnType.TEXT)
+        .addColumn(Collection.Columns.PRIVATE_INFO_COMMENT, ColumnType.TEXT)
+        .addColumn(Collection.Columns.CONDITION, ColumnType.TEXT)
+        .addColumn(Collection.Columns.HASPARTS_LIST, ColumnType.TEXT)
+        .addColumn(Collection.Columns.WANTPARTS_LIST, ColumnType.TEXT)
+        .addColumn(Collection.Columns.WISHLIST_COMMENT, ColumnType.TEXT)
+        .addColumn(Collection.Columns.COLLECTION_YEAR_PUBLISHED, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.RATING, ColumnType.REAL)
+        .addColumn(Collection.Columns.COLLECTION_THUMBNAIL_URL, ColumnType.TEXT)
+        .addColumn(Collection.Columns.COLLECTION_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Collection.Columns.STATUS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.RATING_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.COLLECTION_DELETE_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Collection.Columns.COLLECTION_HERO_IMAGE_URL, ColumnType.TEXT)
+        .addColumn(Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION, ColumnType.TEXT)
+        .setConflictResolution(ConflictResolution.ABORT)
 
     private fun buildBuddiesTable() = TableBuilder().setTable(Tables.BUDDIES).useDefaultPrimaryKey()
-        .addColumn(Buddies.UPDATED, COLUMN_TYPE.INTEGER)
-        .addColumn(Buddies.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
-        .addColumn(Buddies.BUDDY_ID, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(Buddies.BUDDY_NAME, COLUMN_TYPE.TEXT, true)
-        .addColumn(Buddies.BUDDY_FIRSTNAME, COLUMN_TYPE.TEXT)
-        .addColumn(Buddies.BUDDY_LASTNAME, COLUMN_TYPE.TEXT)
-        .addColumn(Buddies.AVATAR_URL, COLUMN_TYPE.TEXT)
-        .addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT)
-        .addColumn(Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER)
-        .addColumn(Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER)
+        .addColumn(Buddies.Columns.UPDATED, ColumnType.INTEGER)
+        .addColumn(Buddies.Columns.UPDATED_LIST, ColumnType.INTEGER, true)
+        .addColumn(Buddies.Columns.BUDDY_ID, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(Buddies.Columns.BUDDY_NAME, ColumnType.TEXT, true)
+        .addColumn(Buddies.Columns.BUDDY_FIRSTNAME, ColumnType.TEXT)
+        .addColumn(Buddies.Columns.BUDDY_LASTNAME, ColumnType.TEXT)
+        .addColumn(Buddies.Columns.AVATAR_URL, ColumnType.TEXT)
+        .addColumn(Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
+        .addColumn(Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+        .addColumn(Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
 
     private fun buildPlayerColorsTable() = TableBuilder().setTable(Tables.PLAYER_COLORS)
-        .setConflictResolution(CONFLICT_RESOLUTION.REPLACE)
+        .setConflictResolution(ConflictResolution.REPLACE)
         .useDefaultPrimaryKey()
-        .addColumn(PlayerColors.PLAYER_TYPE, COLUMN_TYPE.INTEGER, notNull = true, unique = true)
-        .addColumn(PlayerColors.PLAYER_NAME, COLUMN_TYPE.TEXT, notNull = true, unique = true)
-        .addColumn(PlayerColors.PLAYER_COLOR, COLUMN_TYPE.TEXT, notNull = true, unique = true)
-        .addColumn(PlayerColors.PLAYER_COLOR_SORT_ORDER, COLUMN_TYPE.INTEGER, true)
+        .addColumn(PlayerColors.Columns.PLAYER_TYPE, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(PlayerColors.Columns.PLAYER_NAME, ColumnType.TEXT, notNull = true, unique = true)
+        .addColumn(PlayerColors.Columns.PLAYER_COLOR, ColumnType.TEXT, notNull = true, unique = true)
+        .addColumn(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, ColumnType.INTEGER, true)
 
     private fun buildCollectionViewsTable() = TableBuilder()
         .setTable(Tables.COLLECTION_VIEWS)
         .useDefaultPrimaryKey()
-        .addColumn(CollectionViews.NAME, COLUMN_TYPE.TEXT)
-        .addColumn(CollectionViews.STARRED, COLUMN_TYPE.INTEGER)
-        .addColumn(CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER)
-        .addColumn(CollectionViews.SELECTED_COUNT, COLUMN_TYPE.INTEGER)
-        .addColumn(CollectionViews.SELECTED_TIMESTAMP, COLUMN_TYPE.INTEGER)
+        .addColumn(CollectionViews.Columns.NAME, ColumnType.TEXT)
+        .addColumn(CollectionViews.Columns.STARRED, ColumnType.INTEGER)
+        .addColumn(CollectionViews.Columns.SORT_TYPE, ColumnType.INTEGER)
+        .addColumn(CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
+        .addColumn(CollectionViews.Columns.SELECTED_TIMESTAMP, ColumnType.INTEGER)
 
     private fun buildCollectionViewFiltersTable() = TableBuilder()
         .setTable(Tables.COLLECTION_VIEW_FILTERS)
         .useDefaultPrimaryKey()
-        .addColumn(CollectionViewFilters.VIEW_ID, COLUMN_TYPE.INTEGER,
+        .addColumn(
+            CollectionViewFilters.Columns.VIEW_ID, ColumnType.INTEGER,
             notNull = true,
             unique = false,
             referenceTable = Tables.COLLECTION_VIEWS,
-            referenceColumn = CollectionViews._ID,
+            referenceColumn = BaseColumns._ID,
             onCascadeDelete = true
         )
-        .addColumn(CollectionViewFilters.TYPE, COLUMN_TYPE.INTEGER)
-        .addColumn(CollectionViewFilters.DATA, COLUMN_TYPE.TEXT)
+        .addColumn(CollectionViewFilters.Columns.TYPE, ColumnType.INTEGER)
+        .addColumn(CollectionViewFilters.Columns.DATA, ColumnType.TEXT)
 
     private fun recreateDatabase(db: SQLiteDatabase?) {
         if (db == null) return
@@ -869,7 +895,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
 
     private fun SQLiteDatabase.dropTable(tableName: String) = this.execSQL("DROP TABLE IF EXISTS $tableName")
 
-    private fun addColumn(db: SQLiteDatabase, table: String, column: String, type: COLUMN_TYPE) {
+    private fun addColumn(db: SQLiteDatabase, table: String, column: String, type: ColumnType) {
         try {
             db.execSQL("ALTER TABLE $table ADD COLUMN $column $type")
         } catch (e: SQLException) {
@@ -879,7 +905,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
 
     companion object {
         private const val DATABASE_NAME = "bgg.db"
-        private const val VER_INITIAL: Int = 1
+        private const val VER_INITIAL = 1
         private const val VER_WISHLIST_PRIORITY = 2
         private const val VER_GAME_COLORS = 3
         private const val VER_EXPANSIONS = 4

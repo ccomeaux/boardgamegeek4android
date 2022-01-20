@@ -14,7 +14,7 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +65,7 @@ class GameCollectionRepository(val application: BggApplication) {
     suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image(item.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.update(item.internalId, contentValuesOf(Collection.COLLECTION_HERO_IMAGE_URL to url))
+        dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to url))
         item.copy(heroImageUrl = url)
     }
 
@@ -115,27 +115,27 @@ class GameCollectionRepository(val application: BggApplication) {
     ) {
         if (gameId != INVALID_ID) {
             val values = contentValuesOf(
-                Collection.GAME_ID to gameId,
-                Collection.STATUS_DIRTY_TIMESTAMP to timestamp
+                Collection.Columns.GAME_ID to gameId,
+                Collection.Columns.STATUS_DIRTY_TIMESTAMP to timestamp
             )
-            putValue(statuses, values, Collection.STATUS_OWN)
-            putValue(statuses, values, Collection.STATUS_PREORDERED)
-            putValue(statuses, values, Collection.STATUS_FOR_TRADE)
-            putValue(statuses, values, Collection.STATUS_WANT)
-            putValue(statuses, values, Collection.STATUS_WANT_TO_PLAY)
-            putValue(statuses, values, Collection.STATUS_WANT_TO_BUY)
-            putValue(statuses, values, Collection.STATUS_WISHLIST)
-            putValue(statuses, values, Collection.STATUS_PREVIOUSLY_OWNED)
+            putValue(statuses, values, Collection.Columns.STATUS_OWN)
+            putValue(statuses, values, Collection.Columns.STATUS_PREORDERED)
+            putValue(statuses, values, Collection.Columns.STATUS_FOR_TRADE)
+            putValue(statuses, values, Collection.Columns.STATUS_WANT)
+            putValue(statuses, values, Collection.Columns.STATUS_WANT_TO_PLAY)
+            putValue(statuses, values, Collection.Columns.STATUS_WANT_TO_BUY)
+            putValue(statuses, values, Collection.Columns.STATUS_WISHLIST)
+            putValue(statuses, values, Collection.Columns.STATUS_PREVIOUSLY_OWNED)
             putWishList(statuses, wishListPriority, values)
 
             val gameName = gameDao.load(gameId)?.let { game ->
-                values.put(Collection.COLLECTION_NAME, game.name)
-                values.put(Collection.COLLECTION_SORT_NAME, game.sortName)
-                values.put(Collection.COLLECTION_YEAR_PUBLISHED, game.yearPublished)
-                values.put(Collection.COLLECTION_IMAGE_URL, game.imageUrl)
-                values.put(Collection.COLLECTION_THUMBNAIL_URL, game.thumbnailUrl)
-                values.put(Collection.COLLECTION_HERO_IMAGE_URL, game.heroImageUrl)
-                values.put(Collection.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis())
+                values.put(Collection.Columns.COLLECTION_NAME, game.name)
+                values.put(Collection.Columns.COLLECTION_SORT_NAME, game.sortName)
+                values.put(Collection.Columns.COLLECTION_YEAR_PUBLISHED, game.yearPublished)
+                values.put(Collection.Columns.COLLECTION_IMAGE_URL, game.imageUrl)
+                values.put(Collection.Columns.COLLECTION_THUMBNAIL_URL, game.thumbnailUrl)
+                values.put(Collection.Columns.COLLECTION_HERO_IMAGE_URL, game.heroImageUrl)
+                values.put(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis())
                 game.name
             }
 
@@ -154,13 +154,13 @@ class GameCollectionRepository(val application: BggApplication) {
     }
 
     private fun putWishList(statuses: List<String>, wishListPriority: Int?, values: ContentValues) {
-        if (statuses.contains(Collection.STATUS_WISHLIST)) {
-            values.put(Collection.STATUS_WISHLIST, 1)
+        if (statuses.contains(Collection.Columns.STATUS_WISHLIST)) {
+            values.put(Collection.Columns.STATUS_WISHLIST, 1)
             values.put(
-                Collection.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3 // like to have
+                Collection.Columns.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3 // like to have
             )
         } else {
-            values.put(Collection.STATUS_WISHLIST, 0)
+            values.put(Collection.Columns.STATUS_WISHLIST, 0)
         }
     }
 
@@ -176,15 +176,15 @@ class GameCollectionRepository(val application: BggApplication) {
     ): Int = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
             val values = contentValuesOf(
-                Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to System.currentTimeMillis(),
-                Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY to priceCurrency,
-                Collection.PRIVATE_INFO_PRICE_PAID to price,
-                Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to currentValueCurrency,
-                Collection.PRIVATE_INFO_CURRENT_VALUE to currentValue,
-                Collection.PRIVATE_INFO_QUANTITY to quantity,
-                Collection.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate.asDateForApi(),
-                Collection.PRIVATE_INFO_ACQUIRED_FROM to acquiredFrom,
-                Collection.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
+                Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to System.currentTimeMillis(),
+                Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY to priceCurrency,
+                Collection.Columns.PRIVATE_INFO_PRICE_PAID to price,
+                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to currentValueCurrency,
+                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE to currentValue,
+                Collection.Columns.PRIVATE_INFO_QUANTITY to quantity,
+                Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate.asDateForApi(),
+                Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM to acquiredFrom,
+                Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
             )
             dao.update(internalId, values)
         } else 0
@@ -194,18 +194,18 @@ class GameCollectionRepository(val application: BggApplication) {
         withContext(Dispatchers.IO) {
             if (internalId != INVALID_ID.toLong()) {
                 val values = contentValuesOf(
-                    Collection.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis(),
-                    Collection.STATUS_OWN to statuses.contains(Collection.STATUS_OWN),
-                    Collection.STATUS_PREVIOUSLY_OWNED to statuses.contains(Collection.STATUS_PREVIOUSLY_OWNED),
-                    Collection.STATUS_PREORDERED to statuses.contains(Collection.STATUS_PREORDERED),
-                    Collection.STATUS_FOR_TRADE to statuses.contains(Collection.STATUS_FOR_TRADE),
-                    Collection.STATUS_WANT to statuses.contains(Collection.STATUS_WANT),
-                    Collection.STATUS_WANT_TO_BUY to statuses.contains(Collection.STATUS_WANT_TO_BUY),
-                    Collection.STATUS_WANT_TO_PLAY to statuses.contains(Collection.STATUS_WANT_TO_PLAY),
-                    Collection.STATUS_WISHLIST to statuses.contains(Collection.STATUS_WISHLIST)
+                    Collection.Columns.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis(),
+                    Collection.Columns.STATUS_OWN to statuses.contains(Collection.Columns.STATUS_OWN),
+                    Collection.Columns.STATUS_PREVIOUSLY_OWNED to statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED),
+                    Collection.Columns.STATUS_PREORDERED to statuses.contains(Collection.Columns.STATUS_PREORDERED),
+                    Collection.Columns.STATUS_FOR_TRADE to statuses.contains(Collection.Columns.STATUS_FOR_TRADE),
+                    Collection.Columns.STATUS_WANT to statuses.contains(Collection.Columns.STATUS_WANT),
+                    Collection.Columns.STATUS_WANT_TO_BUY to statuses.contains(Collection.Columns.STATUS_WANT_TO_BUY),
+                    Collection.Columns.STATUS_WANT_TO_PLAY to statuses.contains(Collection.Columns.STATUS_WANT_TO_PLAY),
+                    Collection.Columns.STATUS_WISHLIST to statuses.contains(Collection.Columns.STATUS_WISHLIST),
                 )
-                if (statuses.contains(Collection.STATUS_WISHLIST)) {
-                    values.put(Collection.STATUS_WISHLIST_PRIORITY, wishlistPriority.coerceIn(1..5))
+                if (statuses.contains(Collection.Columns.STATUS_WISHLIST)) {
+                    values.put(Collection.Columns.STATUS_WISHLIST_PRIORITY, wishlistPriority.coerceIn(1..5))
                 }
                 dao.update(internalId, values)
             } else 0
@@ -214,8 +214,8 @@ class GameCollectionRepository(val application: BggApplication) {
     suspend fun updateRating(internalId: Long, rating: Double): Int = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
             val values = contentValuesOf(
-                Collection.RATING to rating,
-                Collection.RATING_DIRTY_TIMESTAMP to System.currentTimeMillis()
+                Collection.Columns.RATING to rating,
+                Collection.Columns.RATING_DIRTY_TIMESTAMP to System.currentTimeMillis()
             )
             dao.update(internalId, values)
         } else 0
@@ -234,7 +234,7 @@ class GameCollectionRepository(val application: BggApplication) {
 
     suspend fun markAsDeleted(internalId: Long): Int = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
-            val values = contentValuesOf(Collection.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis())
+            val values = contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis())
             dao.update(internalId, values)
         } else 0
     }
@@ -243,15 +243,15 @@ class GameCollectionRepository(val application: BggApplication) {
         withContext(Dispatchers.IO) {
             if (internalId != INVALID_ID.toLong()) {
                 val values = contentValuesOf(
-                    Collection.COLLECTION_DIRTY_TIMESTAMP to 0,
-                    Collection.STATUS_DIRTY_TIMESTAMP to 0,
-                    Collection.COMMENT_DIRTY_TIMESTAMP to 0,
-                    Collection.RATING_DIRTY_TIMESTAMP to 0,
-                    Collection.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
-                    Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
-                    Collection.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
-                    Collection.WANT_PARTS_DIRTY_TIMESTAMP to 0,
-                    Collection.HAS_PARTS_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.STATUS_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.COMMENT_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.RATING_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP to 0,
+                    Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP to 0,
                 )
                 dao.update(internalId, values)
             } else 0

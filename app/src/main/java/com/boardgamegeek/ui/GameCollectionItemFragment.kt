@@ -16,7 +16,7 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
 import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
@@ -79,22 +79,22 @@ class GameCollectionItemFragment : Fragment() {
         }
         binding.wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
         binding.commentView.setOnClickListener {
-            onTextEditorClick(binding.commentView, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP)
+            onTextEditorClick(binding.commentView, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
         }
         binding.privateInfoCommentView.setOnClickListener {
-            onTextEditorClick(binding.privateInfoCommentView, Collection.PRIVATE_INFO_COMMENT, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP)
+            onTextEditorClick(binding.privateInfoCommentView, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
         }
         binding.wishlistCommentView.setOnClickListener {
-            onTextEditorClick(binding.wishlistCommentView, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+            onTextEditorClick(binding.wishlistCommentView, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
         }
         binding.conditionView.setOnClickListener {
-            onTextEditorClick(binding.conditionView, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP)
+            onTextEditorClick(binding.conditionView, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
         }
         binding.wantPartsView.setOnClickListener {
-            onTextEditorClick(binding.wantPartsView, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP)
+            onTextEditorClick(binding.wantPartsView, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
         }
         binding.hasPartsView.setOnClickListener {
-            onTextEditorClick(binding.hasPartsView, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP)
+            onTextEditorClick(binding.hasPartsView, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
         }
         binding.privateInfoEditContainer.setOnClickListener {
             val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
@@ -236,6 +236,7 @@ class GameCollectionItemFragment : Fragment() {
     }
 
     private fun onTextEditorClick(view: TextEditorView, textColumn: String, timestampColumn: String) {
+        // TODO refactor to use view model, not direct data access
         showAndSurvive(
             EditCollectionTextDialogFragment.newInstance(
                 view.headerText,

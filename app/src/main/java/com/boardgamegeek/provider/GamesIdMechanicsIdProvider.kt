@@ -3,6 +3,8 @@ package com.boardgamegeek.provider
 import android.content.ContentUris
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics
 import com.boardgamegeek.provider.BggDatabase.Tables
 

@@ -1,8 +1,12 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.PlayerColorsColumns.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLORS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_USERS
+import com.boardgamegeek.provider.BggContract.PlayerColors
+import com.boardgamegeek.provider.BggContract.PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER
+import com.boardgamegeek.provider.BggContract.PlayerColors.Columns.PLAYER_NAME
+import com.boardgamegeek.provider.BggContract.PlayerColors.Columns.PLAYER_TYPE
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class UsersNameColorsOrderProvider : BaseProvider() {

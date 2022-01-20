@@ -10,6 +10,7 @@ import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -110,10 +111,10 @@ class SyncCollectionUnupdated(
         val games = mutableMapOf<Int, String>()
         val cursor = context.contentResolver.query(
             Collection.CONTENT_URI,
-            arrayOf(Collection.GAME_ID, Collection.GAME_NAME),
-            "collection.${Collection.UPDATED}".whereZeroOrNull(),
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "collection.${Collection.Columns.UPDATED}".whereZeroOrNull(),
             null,
-            "collection.${Collection.UPDATED_LIST} DESC LIMIT $gamesPerFetch"
+            "collection.${Collection.Columns.UPDATED_LIST} DESC LIMIT $gamesPerFetch"
         )
         cursor?.use {
             while (it.moveToNext()) {

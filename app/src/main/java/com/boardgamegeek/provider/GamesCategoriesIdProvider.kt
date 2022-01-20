@@ -3,7 +3,9 @@ package com.boardgamegeek.provider
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.BaseColumns
-import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Categories
+import com.boardgamegeek.provider.BggContract.Companion.PATH_CATEGORIES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class GamesCategoriesIdProvider : BaseProvider() {

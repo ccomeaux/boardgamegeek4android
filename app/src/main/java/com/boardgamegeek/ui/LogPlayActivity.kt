@@ -28,6 +28,7 @@ import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.LocationAdapter
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel

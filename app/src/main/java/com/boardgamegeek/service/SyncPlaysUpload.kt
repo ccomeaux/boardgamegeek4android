@@ -16,7 +16,7 @@ import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
@@ -277,7 +277,12 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         if (play.gameId != INVALID_ID) {
             val gameCursor = context.contentResolver.query(
                 Games.buildGameUri(play.gameId),
-                arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL, Games.HERO_IMAGE_URL, Games.CUSTOM_PLAYER_SORT),
+                arrayOf(
+                    Games.Columns.IMAGE_URL,
+                    Games.Columns.THUMBNAIL_URL,
+                    Games.Columns.HERO_IMAGE_URL,
+                    Games.Columns.CUSTOM_PLAYER_SORT,
+                ),
                 null,
                 null,
                 null

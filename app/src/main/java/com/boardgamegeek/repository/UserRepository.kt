@@ -14,7 +14,8 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Buddies
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -65,7 +66,7 @@ class UserRepository(val application: BggApplication) {
         val upsertedCount = response.buddies?.buddies?.size ?: 0
         response.buddies?.buddies.orEmpty()
             .map { it.mapToEntity(timestamp) }
-            .filter { it.id != BggContract.INVALID_ID && it.userName.isNotBlank() }
+            .filter { it.id != INVALID_ID && it.userName.isNotBlank() }
             .forEach {
                 userDao.saveBuddy(it)
             }
@@ -78,12 +79,12 @@ class UserRepository(val application: BggApplication) {
 
     suspend fun updateNickName(username: String, nickName: String) {
         if (username.isNotBlank()) {
-            userDao.upsert(contentValuesOf(BggContract.Buddies.PLAY_NICKNAME to nickName), username)
+            userDao.upsert(contentValuesOf(Buddies.Columns.PLAY_NICKNAME to nickName), username)
         }
     }
 
     fun updateSelf(user: UserEntity?) {
-        Authenticator.putUserId(application, user?.id ?: BggContract.INVALID_ID)
+        Authenticator.putUserId(application, user?.id ?: INVALID_ID)
         if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
         prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()
         prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()

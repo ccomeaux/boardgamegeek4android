@@ -2,7 +2,8 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_RANKS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class GamesIdRankIdProvider : BaseProvider() {
@@ -14,7 +15,7 @@ class GamesIdRankIdProvider : BaseProvider() {
         val rankId = GameRanks.getRankId(uri)
         return SelectionBuilder()
             .table(Tables.GAME_RANKS)
-            .whereEquals("${Tables.GAME_RANKS}.$GAME_ID", Games.getGameId(uri))
-            .whereEquals(GameRanks.GAME_RANK_ID, rankId)
+            .whereEquals("${Tables.GAME_RANKS}.${GameRanks.Columns.GAME_ID}", Games.getGameId(uri))
+            .whereEquals(GameRanks.Columns.GAME_RANK_ID, rankId)
     }
 }

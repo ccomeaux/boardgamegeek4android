@@ -1,7 +1,10 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.CollectionViewFilters
+import com.boardgamegeek.provider.BggContract.CollectionViews
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLLECTION_VIEWS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_FILTERS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class CollectionViewIdFiltersIdProvider : BaseProvider() {
@@ -21,7 +24,7 @@ class CollectionViewIdFiltersIdProvider : BaseProvider() {
         val filterId = CollectionViews.getViewId(uri).toLong()
         val type = CollectionViewFilters.getFilterType(uri)
         return SelectionBuilder().table(table)
-            .where("${CollectionViewFilters.VIEW_ID}=?", filterId.toString())
-            .where("${CollectionViewFilters.TYPE}=?", type.toString())
+            .where("${CollectionViewFilters.Columns.VIEW_ID}=?", filterId.toString())
+            .where("${CollectionViewFilters.Columns.TYPE}=?", type.toString())
     }
 }

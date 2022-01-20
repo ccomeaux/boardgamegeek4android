@@ -2,14 +2,14 @@ package com.boardgamegeek.service
 
 import android.content.ContentValues
 import com.boardgamegeek.entities.CollectionItemForUploadEntity
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Collection
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 
 class CollectionRatingUploadTask(client: OkHttpClient) : CollectionUploadTask(client) {
     private var rating = INVALID_RATING
 
-    override val timestampColumn = BggContract.Collection.RATING_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.Columns.RATING_DIRTY_TIMESTAMP
 
     override val isDirty: Boolean
         get() = collectionItem.ratingTimestamp > 0
@@ -44,8 +44,8 @@ class CollectionRatingUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
     }
 
     override fun appendContentValues(contentValues: ContentValues) {
-        contentValues.put(BggContract.Collection.RATING, rating)
-        contentValues.put(BggContract.Collection.RATING_DIRTY_TIMESTAMP, 0)
+        contentValues.put(Collection.Columns.RATING, rating)
+        contentValues.put(Collection.Columns.RATING_DIRTY_TIMESTAMP, 0)
     }
 
     companion object {

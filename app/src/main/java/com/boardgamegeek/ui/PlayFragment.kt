@@ -15,7 +15,7 @@ import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel

@@ -1,6 +1,7 @@
 package com.boardgamegeek.db
 
 import android.net.Uri
+import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
@@ -26,10 +27,10 @@ class CollectionViewDao(private val context: BggApplication) {
     suspend fun load(includeFilters: Boolean = false): List<CollectionViewEntity> = withContext(Dispatchers.IO) {
         val uri = CollectionViews.CONTENT_URI
         val projection = arrayOf(
-            CollectionViews._ID,
-            CollectionViews.NAME,
-            CollectionViews.SORT_TYPE,
-            CollectionViews.STARRED,
+            BaseColumns._ID,
+            CollectionViews.Columns.NAME,
+            CollectionViews.Columns.SORT_TYPE,
+            CollectionViews.Columns.STARRED,
         )
         val list = mutableListOf<CollectionViewEntity>()
         context.contentResolver.load(uri, projection)?.use {
@@ -57,11 +58,11 @@ class CollectionViewDao(private val context: BggApplication) {
         if (viewId <= 0L) return@withContext null
         val uri = CollectionViews.buildViewFilterUri(viewId)
         val projection = arrayOf(
-            CollectionViewFilters.NAME,
-            CollectionViewFilters.SORT_TYPE,
-            CollectionViewFilters.STARRED,
-            CollectionViewFilters.TYPE,
-            CollectionViewFilters.DATA,
+            CollectionViews.Columns.NAME,
+            CollectionViews.Columns.SORT_TYPE,
+            CollectionViews.Columns.STARRED,
+            CollectionViewFilters.Columns.TYPE,
+            CollectionViewFilters.Columns.DATA,
         )
         context.contentResolver.load(
             uri,
@@ -93,8 +94,8 @@ class CollectionViewDao(private val context: BggApplication) {
         val shortcuts = mutableListOf<CollectionViewShortcutEntity>()
         context.contentResolver.load(
             CollectionViews.CONTENT_URI,
-            arrayOf(CollectionViews._ID, CollectionViews.NAME),
-            sortOrder = "${CollectionViews.SELECTED_COUNT} DESC, ${CollectionViews.SELECTED_TIMESTAMP} DESC"
+            arrayOf(BaseColumns._ID, CollectionViews.Columns.NAME),
+            sortOrder = "${CollectionViews.Columns.SELECTED_COUNT} DESC, ${CollectionViews.Columns.SELECTED_TIMESTAMP} DESC"
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
                 do {
@@ -111,12 +112,12 @@ class CollectionViewDao(private val context: BggApplication) {
     suspend fun updateShortcutCount(viewId: Long) = withContext(Dispatchers.IO) {
         if (viewId <= 0) return@withContext
         val uri = CollectionViews.buildViewUri(viewId)
-        context.contentResolver.load(uri, arrayOf(CollectionViews.SELECTED_COUNT))?.use {
+        context.contentResolver.load(uri, arrayOf(CollectionViews.Columns.SELECTED_COUNT))?.use {
             if (it.moveToFirst()) {
                 val currentCount = it.getIntOrNull(0) ?: 0
                 val values = contentValuesOf(
-                    CollectionViews.SELECTED_COUNT to currentCount + 1,
-                    CollectionViews.SELECTED_TIMESTAMP to System.currentTimeMillis(),
+                    CollectionViews.Columns.SELECTED_COUNT to currentCount + 1,
+                    CollectionViews.Columns.SELECTED_TIMESTAMP to System.currentTimeMillis(),
                 )
                 context.contentResolver.update(uri, values, null, null)
             }
@@ -125,9 +126,9 @@ class CollectionViewDao(private val context: BggApplication) {
 
     suspend fun insert(view: CollectionViewEntity): Long = withContext(Dispatchers.IO) {
         val values = contentValuesOf(
-            CollectionViews.NAME to view.name,
-            CollectionViews.STARRED to false,
-            CollectionViews.SORT_TYPE to view.sortType,
+            CollectionViews.Columns.NAME to view.name,
+            CollectionViews.Columns.STARRED to false,
+            CollectionViews.Columns.SORT_TYPE to view.sortType,
         )
         val filterUri = context.contentResolver.insert(CollectionViews.CONTENT_URI, values)
 
@@ -140,8 +141,8 @@ class CollectionViewDao(private val context: BggApplication) {
     suspend fun update(view: CollectionViewEntity) = withContext(Dispatchers.IO) {
         val uri = CollectionViews.buildViewUri(view.id)
         val values = contentValuesOf(
-            CollectionViews.NAME to view.name,
-            CollectionViews.SORT_TYPE to view.sortType,
+            CollectionViews.Columns.NAME to view.name,
+            CollectionViews.Columns.SORT_TYPE to view.sortType,
         )
         context.contentResolver.update(uri, values, null, null)
 
@@ -158,8 +159,8 @@ class CollectionViewDao(private val context: BggApplication) {
         filters?.let {
             val values = it.map { filter ->
                 contentValuesOf(
-                    CollectionViewFilters.TYPE to filter.type,
-                    CollectionViewFilters.DATA to filter.data,
+                    CollectionViewFilters.Columns.TYPE to filter.type,
+                    CollectionViewFilters.Columns.DATA to filter.data,
                 )
             }
             if (values.isNotEmpty()) {

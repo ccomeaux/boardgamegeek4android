@@ -3,7 +3,7 @@ package com.boardgamegeek.provider
 import android.net.Uri
 import android.provider.BaseColumns._ID
 import com.boardgamegeek.provider.BggContract.CollectionViews
-import com.boardgamegeek.provider.BggContract.PATH_COLLECTION_VIEWS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLLECTION_VIEWS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class CollectionViewIdProvider : BaseProvider() {

@@ -9,7 +9,7 @@ import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.PlayerColorAssigner

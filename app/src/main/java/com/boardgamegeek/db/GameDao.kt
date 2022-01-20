@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Color
 import android.net.Uri
+import android.provider.BaseColumns
 import android.text.format.DateUtils
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getDoubleOrNull
@@ -18,6 +19,15 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_ARTISTS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_CATEGORIES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_DESIGNERS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_EXPANSIONS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
+import com.boardgamegeek.provider.BggContract.Companion.POLL_TYPE_LANGUAGE_DEPENDENCE
+import com.boardgamegeek.provider.BggContract.Companion.POLL_TYPE_SUGGESTED_PLAYER_AGE
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
 import kotlinx.coroutines.Dispatchers
@@ -30,44 +40,44 @@ class GameDao(private val context: BggApplication) {
     suspend fun load(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
             val projection = arrayOf(
-                Games.GAME_ID,
-                Games.GAME_NAME,
-                Games.DESCRIPTION,
-                Games.SUBTYPE,
-                Games.THUMBNAIL_URL,
-                Games.IMAGE_URL, // 5
-                Games.YEAR_PUBLISHED,
-                Games.MIN_PLAYERS,
-                Games.MAX_PLAYERS,
-                Games.PLAYING_TIME,
-                Games.MIN_PLAYING_TIME, // 10
-                Games.MAX_PLAYING_TIME,
-                Games.MINIMUM_AGE,
-                Games.HERO_IMAGE_URL,
-                Games.STATS_AVERAGE,
-                Games.STATS_USERS_RATED, // 15
-                Games.STATS_NUMBER_COMMENTS,
-                Games.UPDATED,
-                Games.UPDATED_PLAYS,
-                Games.GAME_RANK,
-                Games.STATS_STANDARD_DEVIATION, // 20
-                Games.STATS_BAYES_AVERAGE,
-                Games.STATS_AVERAGE_WEIGHT,
-                Games.STATS_NUMBER_WEIGHTS,
-                Games.STATS_NUMBER_OWNED,
-                Games.STATS_NUMBER_TRADING, // 25
-                Games.STATS_NUMBER_WANTING,
-                Games.STATS_NUMBER_WISHING,
-                Games.CUSTOM_PLAYER_SORT,
-                Games.STARRED,
-                Games.POLLS_COUNT, // 30
-                Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                Games.ICON_COLOR,
-                Games.DARK_COLOR,
-                Games.WINS_COLOR,
-                Games.WINNABLE_PLAYS_COLOR, // 35
-                Games.ALL_PLAYS_COLOR,
-                Games.GAME_SORT_NAME,
+                Games.Columns.GAME_ID,
+                Games.Columns.GAME_NAME,
+                Games.Columns.DESCRIPTION,
+                Games.Columns.SUBTYPE,
+                Games.Columns.THUMBNAIL_URL,
+                Games.Columns.IMAGE_URL, // 5
+                Games.Columns.YEAR_PUBLISHED,
+                Games.Columns.MIN_PLAYERS,
+                Games.Columns.MAX_PLAYERS,
+                Games.Columns.PLAYING_TIME,
+                Games.Columns.MIN_PLAYING_TIME, // 10
+                Games.Columns.MAX_PLAYING_TIME,
+                Games.Columns.MINIMUM_AGE,
+                Games.Columns.HERO_IMAGE_URL,
+                Games.Columns.STATS_AVERAGE,
+                Games.Columns.STATS_USERS_RATED, // 15
+                Games.Columns.STATS_NUMBER_COMMENTS,
+                Games.Columns.UPDATED,
+                Games.Columns.UPDATED_PLAYS,
+                Games.Columns.GAME_RANK,
+                Games.Columns.STATS_STANDARD_DEVIATION, // 20
+                Games.Columns.STATS_BAYES_AVERAGE,
+                Games.Columns.STATS_AVERAGE_WEIGHT,
+                Games.Columns.STATS_NUMBER_WEIGHTS,
+                Games.Columns.STATS_NUMBER_OWNED,
+                Games.Columns.STATS_NUMBER_TRADING, // 25
+                Games.Columns.STATS_NUMBER_WANTING,
+                Games.Columns.STATS_NUMBER_WISHING,
+                Games.Columns.CUSTOM_PLAYER_SORT,
+                Games.Columns.STARRED,
+                Games.Columns.POLLS_COUNT, // 30
+                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                Games.Columns.ICON_COLOR,
+                Games.Columns.DARK_COLOR,
+                Games.Columns.WINS_COLOR,
+                Games.Columns.WINNABLE_PLAYS_COLOR, // 35
+                Games.Columns.ALL_PLAYS_COLOR,
+                Games.Columns.GAME_SORT_NAME,
             )
             context.contentResolver.load(Games.buildGameUri(gameId), projection)?.use {
                 if (it.moveToFirst()) {
@@ -123,12 +133,12 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(
                 uri,
                 arrayOf(
-                    GameRanks.GAME_RANK_ID,
-                    GameRanks.GAME_RANK_TYPE,
-                    GameRanks.GAME_RANK_NAME,
-                    GameRanks.GAME_RANK_FRIENDLY_NAME,
-                    GameRanks.GAME_RANK_VALUE,
-                    GameRanks.GAME_RANK_BAYES_AVERAGE,
+                    GameRanks.Columns.GAME_RANK_ID,
+                    GameRanks.Columns.GAME_RANK_TYPE,
+                    GameRanks.Columns.GAME_RANK_NAME,
+                    GameRanks.Columns.GAME_RANK_FRIENDLY_NAME,
+                    GameRanks.Columns.GAME_RANK_VALUE,
+                    GameRanks.Columns.GAME_RANK_BAYES_AVERAGE,
                 )
             )?.use {
                 if (it.moveToFirst()) {
@@ -157,9 +167,9 @@ class GameDao(private val context: BggApplication) {
             val uri = Games.buildPollResultsResultUri(gameId, pollType)
             val results = arrayListOf<GamePollResultEntity>()
             val projection = arrayOf(
-                GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL,
-                GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
-                GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
+                GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
+                GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
+                GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES,
             )
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
@@ -181,12 +191,12 @@ class GameDao(private val context: BggApplication) {
             val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
             val results = arrayListOf<GamePlayerPollResultsEntity>()
             val projection = arrayOf(
-                GameSuggestedPlayerCountPollPollResults.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT,
-                GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.RECOMMENDATION, // why is this not loading into the entity
+                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT,
+                GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
+                GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
+                GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
+                GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION, // TODO why is this not loading into the entity
             )
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
@@ -211,8 +221,8 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(
                 Games.buildDesignersUri(gameId),
                 arrayOf(
-                    Designers.DESIGNER_ID,
-                    Designers.DESIGNER_NAME,
+                    Designers.Columns.DESIGNER_ID,
+                    Designers.Columns.DESIGNER_NAME,
                 )
             )?.use {
                 if (it.moveToFirst()) {
@@ -234,8 +244,8 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(
                 Games.buildArtistsUri(gameId),
                 arrayOf(
-                    Artists.ARTIST_ID,
-                    Artists.ARTIST_NAME,
+                    Artists.Columns.ARTIST_ID,
+                    Artists.Columns.ARTIST_NAME,
                 )
             )?.use {
                 if (it.moveToFirst()) {
@@ -257,8 +267,8 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(
                 Games.buildPublishersUri(gameId),
                 arrayOf(
-                    Publishers.PUBLISHER_ID,
-                    Publishers.PUBLISHER_NAME,
+                    Publishers.Columns.PUBLISHER_ID,
+                    Publishers.Columns.PUBLISHER_NAME,
                 )
             )?.use {
                 if (it.moveToFirst()) {
@@ -280,8 +290,8 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(
                 Games.buildCategoriesUri(gameId),
                 arrayOf(
-                    Categories.CATEGORY_ID,
-                    Categories.CATEGORY_NAME,
+                    Categories.Columns.CATEGORY_ID,
+                    Categories.Columns.CATEGORY_NAME,
                 ),
             )?.use {
                 if (it.moveToFirst()) {
@@ -303,8 +313,8 @@ class GameDao(private val context: BggApplication) {
             context.contentResolver.load(
                 Games.buildMechanicsUri(gameId),
                 arrayOf(
-                    Mechanics.MECHANIC_ID,
-                    Mechanics.MECHANIC_NAME,
+                    Mechanics.Columns.MECHANIC_ID,
+                    Mechanics.Columns.MECHANIC_NAME,
                 ),
             )?.use {
                 if (it.moveToFirst()) {
@@ -328,10 +338,10 @@ class GameDao(private val context: BggApplication) {
                 context.contentResolver.load(
                     Games.buildExpansionsUri(gameId),
                     arrayOf(
-                        GamesExpansions.EXPANSION_ID,
-                        GamesExpansions.EXPANSION_NAME,
+                        GamesExpansions.Columns.EXPANSION_ID,
+                        GamesExpansions.Columns.EXPANSION_NAME,
                     ),
-                    selection = "${GamesExpansions.INBOUND}=?",
+                    selection = "${GamesExpansions.Columns.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0")
                 )?.use {
                     if (it.moveToFirst()) {
@@ -347,20 +357,20 @@ class GameDao(private val context: BggApplication) {
                     context.contentResolver.load(
                         Collection.CONTENT_URI,
                         projection = arrayOf(
-                            Collection.STATUS_OWN,
-                            Collection.STATUS_PREVIOUSLY_OWNED,
-                            Collection.STATUS_PREORDERED,
-                            Collection.STATUS_FOR_TRADE,
-                            Collection.STATUS_WANT,
-                            Collection.STATUS_WANT_TO_PLAY,
-                            Collection.STATUS_WANT_TO_BUY,
-                            Collection.STATUS_WISHLIST,
-                            Collection.STATUS_WISHLIST_PRIORITY,
-                            Collection.NUM_PLAYS,
-                            Collection.RATING,
-                            Collection.COMMENT
+                            Collection.Columns.STATUS_OWN,
+                            Collection.Columns.STATUS_PREVIOUSLY_OWNED,
+                            Collection.Columns.STATUS_PREORDERED,
+                            Collection.Columns.STATUS_FOR_TRADE,
+                            Collection.Columns.STATUS_WANT,
+                            Collection.Columns.STATUS_WANT_TO_PLAY,
+                            Collection.Columns.STATUS_WANT_TO_BUY,
+                            Collection.Columns.STATUS_WISHLIST,
+                            Collection.Columns.STATUS_WISHLIST_PRIORITY,
+                            Games.Columns.NUM_PLAYS,
+                            Collection.Columns.RATING,
+                            Collection.Columns.COMMENT
                         ),
-                        selection = "collection.${Collection.GAME_ID}=?",
+                        selection = "collection.${Collection.Columns.GAME_ID}=?",
                         selectionArgs = arrayOf(result.id.toString())
                     )?.use {
                         if (it.moveToFirst()) {
@@ -390,14 +400,14 @@ class GameDao(private val context: BggApplication) {
         }
 
     suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.COLOR)
+        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR)
     }
 
     suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
         val colors = mutableListOf<Pair<Int, String>>()
         context.contentResolver.load(
             GameColors.CONTENT_URI,
-            arrayOf(GameColors.GAME_ID, GameColors.COLOR),
+            arrayOf(GameColors.Columns.GAME_ID, GameColors.Columns.COLOR),
         )?.use {
             if (it.moveToFirst()) {
                 do {
@@ -417,20 +427,20 @@ class GameDao(private val context: BggApplication) {
         context.contentResolver.load(
             Games.CONTENT_PLAYS_URI,
             arrayOf(
-                Plays.SUM_QUANTITY,
-                Plays.ITEM_NAME,
-                Games.GAME_RANK,
-                Games.GAME_ID
+                Plays.Columns.SUM_QUANTITY,
+                Plays.Columns.ITEM_NAME,
+                Games.Columns.GAME_RANK,
+                Games.Columns.GAME_ID
             ),
             selection = arrayListOf<String>().apply {
-                add(Plays.DELETE_TIMESTAMP.whereZeroOrNull())
+                add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
                 if (!includeIncompletePlays) {
-                    add(Plays.INCOMPLETE.whereZeroOrNull())
+                    add(Plays.Columns.INCOMPLETE.whereZeroOrNull())
                 }
                 if (!includeExpansions && !includeAccessories) {
-                    add(Games.SUBTYPE.whereEqualsOrNull())
+                    add(Games.Columns.SUBTYPE.whereEqualsOrNull())
                 } else if (!includeExpansions || !includeAccessories) {
-                    add(Games.SUBTYPE.whereNotEqualsOrNull())
+                    add(Games.Columns.SUBTYPE.whereNotEqualsOrNull())
                 }
             }.joinTo(" AND ").toString(),
             selectionArgs = arrayListOf<String>().apply {
@@ -442,7 +452,7 @@ class GameDao(private val context: BggApplication) {
                     add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
                 }
             }.toTypedArray(),
-            sortOrder = "${Plays.SUM_QUANTITY} DESC, ${Games.GAME_SORT_NAME} ASC"
+            sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
         )?.use {
             if (it.moveToFirst()) {
                 do {
@@ -464,7 +474,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     suspend fun insertColor(gameId: Int, color: String) = withContext(Dispatchers.IO) {
-        resolver.insert(Games.buildColorsUri(gameId), contentValuesOf(GameColors.COLOR to color))
+        resolver.insert(Games.buildColorsUri(gameId), contentValuesOf(GameColors.Columns.COLOR to color))
     }
 
     suspend fun deleteColor(gameId: Int, color: String): Int = withContext(Dispatchers.IO) {
@@ -474,7 +484,7 @@ class GameDao(private val context: BggApplication) {
     suspend fun insertColors(gameId: Int, colors: List<String>): Int = withContext(Dispatchers.IO) {
         if (colors.isEmpty()) 0
         else {
-            val values = colors.map { contentValuesOf(GameColors.COLOR to it) }
+            val values = colors.map { contentValuesOf(GameColors.Columns.COLOR to it) }
             resolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
         }
     }
@@ -493,11 +503,11 @@ class GameDao(private val context: BggApplication) {
 
             val cpoBuilder: Builder
             val values = toValues(game, updateTime)
-            val internalId = resolver.queryLong(Games.buildGameUri(game.id), Games._ID, INVALID_ID.toLong())
+            val internalId = resolver.queryLong(Games.buildGameUri(game.id), BaseColumns._ID, INVALID_ID.toLong())
             cpoBuilder = if (internalId != INVALID_ID.toLong()) {
-                values.remove(Games.GAME_ID)
+                values.remove(Games.Columns.GAME_ID)
                 if (shouldClearHeroImageUrl(game)) {
-                    values.put(Games.HERO_IMAGE_URL, "")
+                    values.put(Games.Columns.HERO_IMAGE_URL, "")
                 }
                 ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
             } else {
@@ -510,11 +520,11 @@ class GameDao(private val context: BggApplication) {
             batch += createPlayerPollBatch(game.id, game.playerPoll)
             batch += createExpansionsBatch(game.id, game.expansions)
 
-            saveReference(game.designers, Designers.CONTENT_URI, Designers.DESIGNER_ID, Designers.DESIGNER_NAME)
-            saveReference(game.artists, Artists.CONTENT_URI, Artists.ARTIST_ID, Artists.ARTIST_NAME)
-            saveReference(game.publishers, Publishers.CONTENT_URI, Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME)
-            saveReference(game.categories, Categories.CONTENT_URI, Categories.CATEGORY_ID, Categories.CATEGORY_NAME)
-            saveReference(game.mechanics, Mechanics.CONTENT_URI, Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME)
+            saveReference(game.designers, Designers.CONTENT_URI, Designers.Columns.DESIGNER_ID, Designers.Columns.DESIGNER_NAME)
+            saveReference(game.artists, Artists.CONTENT_URI, Artists.Columns.ARTIST_ID, Artists.Columns.ARTIST_NAME)
+            saveReference(game.publishers, Publishers.CONTENT_URI, Publishers.Columns.PUBLISHER_ID, Publishers.Columns.PUBLISHER_NAME)
+            saveReference(game.categories, Categories.CONTENT_URI, Categories.Columns.CATEGORY_ID, Categories.Columns.CATEGORY_NAME)
+            saveReference(game.mechanics, Mechanics.CONTENT_URI, Mechanics.Columns.MECHANIC_ID, Mechanics.Columns.MECHANIC_NAME)
 
             batch += createAssociationBatch(game.id, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
             batch += createAssociationBatch(game.id, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
@@ -548,7 +558,7 @@ class GameDao(private val context: BggApplication) {
             Timber.d("Updated %,d game rows at %s", count, uri)
             count
         } else {
-            values.put(Games.GAME_ID, gameId)
+            values.put(Games.Columns.GAME_ID, gameId)
             val insertedUri = resolver.insert(Artists.CONTENT_URI, values)
             Timber.d("Inserted game at %s", insertedUri)
             1
@@ -557,46 +567,46 @@ class GameDao(private val context: BggApplication) {
 
     private fun toValues(game: GameEntity, updateTime: Long): ContentValues {
         val values = contentValuesOf(
-            Games.UPDATED to updateTime,
-            Games.UPDATED_LIST to updateTime,
-            Games.GAME_ID to game.id,
-            Games.GAME_NAME to game.name,
-            Games.GAME_SORT_NAME to game.sortName,
-            Games.THUMBNAIL_URL to game.thumbnailUrl,
-            Games.IMAGE_URL to game.imageUrl,
-            Games.DESCRIPTION to game.description,
-            Games.SUBTYPE to game.subtype,
-            Games.YEAR_PUBLISHED to game.yearPublished,
-            Games.MIN_PLAYERS to game.minPlayers,
-            Games.MAX_PLAYERS to game.maxPlayers,
-            Games.PLAYING_TIME to game.playingTime,
-            Games.MIN_PLAYING_TIME to game.minPlayingTime,
-            Games.MAX_PLAYING_TIME to game.maxPlayingTime,
-            Games.MINIMUM_AGE to game.minimumAge,
-            Games.GAME_RANK to game.overallRank,
+            Games.Columns.UPDATED to updateTime,
+            Games.Columns.UPDATED_LIST to updateTime,
+            Games.Columns.GAME_ID to game.id,
+            Games.Columns.GAME_NAME to game.name,
+            Games.Columns.GAME_SORT_NAME to game.sortName,
+            Games.Columns.THUMBNAIL_URL to game.thumbnailUrl,
+            Games.Columns.IMAGE_URL to game.imageUrl,
+            Games.Columns.DESCRIPTION to game.description,
+            Games.Columns.SUBTYPE to game.subtype,
+            Games.Columns.YEAR_PUBLISHED to game.yearPublished,
+            Games.Columns.MIN_PLAYERS to game.minPlayers,
+            Games.Columns.MAX_PLAYERS to game.maxPlayers,
+            Games.Columns.PLAYING_TIME to game.playingTime,
+            Games.Columns.MIN_PLAYING_TIME to game.minPlayingTime,
+            Games.Columns.MAX_PLAYING_TIME to game.maxPlayingTime,
+            Games.Columns.MINIMUM_AGE to game.minimumAge,
+            Games.Columns.GAME_RANK to game.overallRank,
         )
         val statsValues = if (game.hasStatistics) {
             contentValuesOf(
-                Games.STATS_AVERAGE to game.rating,
-                Games.STATS_BAYES_AVERAGE to game.bayesAverage,
-                Games.STATS_STANDARD_DEVIATION to game.standardDeviation,
-                Games.STATS_MEDIAN to game.median,
-                Games.STATS_USERS_RATED to game.numberOfRatings,
-                Games.STATS_NUMBER_OWNED to game.numberOfUsersOwned,
-                Games.STATS_NUMBER_TRADING to game.numberOfUsersTrading,
-                Games.STATS_NUMBER_WANTING to game.numberOfUsersWanting,
-                Games.STATS_NUMBER_WISHING to game.numberOfUsersWishListing,
-                Games.STATS_NUMBER_COMMENTS to game.numberOfComments,
-                Games.STATS_NUMBER_WEIGHTS to game.numberOfUsersWeighting,
-                Games.STATS_AVERAGE_WEIGHT to game.averageWeight,
+                Games.Columns.STATS_AVERAGE to game.rating,
+                Games.Columns.STATS_BAYES_AVERAGE to game.bayesAverage,
+                Games.Columns.STATS_STANDARD_DEVIATION to game.standardDeviation,
+                Games.Columns.STATS_MEDIAN to game.median,
+                Games.Columns.STATS_USERS_RATED to game.numberOfRatings,
+                Games.Columns.STATS_NUMBER_OWNED to game.numberOfUsersOwned,
+                Games.Columns.STATS_NUMBER_TRADING to game.numberOfUsersTrading,
+                Games.Columns.STATS_NUMBER_WANTING to game.numberOfUsersWanting,
+                Games.Columns.STATS_NUMBER_WISHING to game.numberOfUsersWishListing,
+                Games.Columns.STATS_NUMBER_COMMENTS to game.numberOfComments,
+                Games.Columns.STATS_NUMBER_WEIGHTS to game.numberOfUsersWeighting,
+                Games.Columns.STATS_AVERAGE_WEIGHT to game.averageWeight,
             )
         } else contentValuesOf()
         val pollValues = game.playerPoll?.let {
             contentValuesOf(
-                Games.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL to it.totalVotes,
-                Games.PLAYER_COUNTS_BEST to it.bestCounts.forDatabase(GamePlayerPollEntity.separator),
-                Games.PLAYER_COUNTS_RECOMMENDED to it.recommendedAndBestCounts.forDatabase(GamePlayerPollEntity.separator),
-                Games.PLAYER_COUNTS_NOT_RECOMMENDED to it.notRecommendedCounts.forDatabase(GamePlayerPollEntity.separator),
+                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL to it.totalVotes,
+                Games.Columns.PLAYER_COUNTS_BEST to it.bestCounts.forDatabase(GamePlayerPollEntity.separator),
+                Games.Columns.PLAYER_COUNTS_RECOMMENDED to it.recommendedAndBestCounts.forDatabase(GamePlayerPollEntity.separator),
+                Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED to it.notRecommendedCounts.forDatabase(GamePlayerPollEntity.separator),
             )
         } ?: contentValuesOf()
         values.putAll(statsValues)
@@ -605,7 +615,7 @@ class GameDao(private val context: BggApplication) {
     }
 
     private suspend fun shouldClearHeroImageUrl(game: GameEntity): Boolean = withContext(Dispatchers.IO) {
-        val cursor = resolver.query(Games.buildGameUri(game.id), arrayOf(Games.IMAGE_URL, Games.THUMBNAIL_URL), null, null, null)
+        val cursor = resolver.query(Games.buildGameUri(game.id), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL), null, null, null)
         cursor?.use { c ->
             if (c.moveToFirst()) {
                 val imageUrl = c.getStringOrNull(0).orEmpty()
@@ -617,47 +627,47 @@ class GameDao(private val context: BggApplication) {
 
     private suspend fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
-        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.POLL_NAME).toMutableList()
+        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.Columns.POLL_NAME).toMutableList()
         for (poll in game.polls) {
             val values = contentValuesOf(
-                GamePolls.POLL_TITLE to poll.title,
-                GamePolls.POLL_TOTAL_VOTES to poll.totalVotes,
+                GamePolls.Columns.POLL_TITLE to poll.title,
+                GamePolls.Columns.POLL_TOTAL_VOTES to poll.totalVotes,
             )
 
             val existingResultKeys = mutableListOf<String>()
             batch += if (existingPollNames.remove(poll.name)) {
                 existingResultKeys += resolver.queryStrings(
                     Games.buildPollResultsUri(game.id, poll.name),
-                    GamePollResults.POLL_RESULTS_PLAYERS
+                    GamePollResults.Columns.POLL_RESULTS_PLAYERS
                 )
                 ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name))
             } else {
-                values.put(GamePolls.POLL_NAME, poll.name)
+                values.put(GamePolls.Columns.POLL_NAME, poll.name)
                 ContentProviderOperation.newInsert(Games.buildPollsUri(game.id))
             }.withValues(values).build()
 
             for ((resultsIndex, results) in poll.results.withIndex()) {
-                val resultsValues = contentValuesOf(GamePollResults.POLL_RESULTS_SORT_INDEX to resultsIndex + 1)
+                val resultsValues = contentValuesOf(GamePollResults.Columns.POLL_RESULTS_SORT_INDEX to resultsIndex + 1)
 
                 val existingResultsResultKeys = mutableListOf<String>()
                 batch += if (existingResultKeys.remove(results.key)) {
                     existingResultsResultKeys += resolver.queryStrings(
                         Games.buildPollResultsResultUri(game.id, poll.name, results.key),
-                        GamePollResultsResult.POLL_RESULTS_RESULT_KEY
+                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY
                     )
                     ContentProviderOperation.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.key))
                 } else {
-                    resultsValues.put(GamePollResults.POLL_RESULTS_PLAYERS, results.key)
+                    resultsValues.put(GamePollResults.Columns.POLL_RESULTS_PLAYERS, results.key)
                     ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name))
                 }.withValues(resultsValues).build()
 
                 for ((resultSortIndex, result) in results.result.withIndex()) {
                     val resultsResultValues = contentValuesOf(
-                        GamePollResultsResult.POLL_RESULTS_RESULT_VALUE to result.value,
-                        GamePollResultsResult.POLL_RESULTS_RESULT_VOTES to result.numberOfVotes,
-                        GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX to resultSortIndex + 1,
+                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE to result.value,
+                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES to result.numberOfVotes,
+                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_SORT_INDEX to resultSortIndex + 1,
                     )
-                    if (result.level > 0) resultsResultValues.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, result.level)
+                    if (result.level > 0) resultsResultValues.put(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL, result.level)
 
                     val key = DataUtils.generatePollResultsKey(result.level, result.value)
                     batch += if (existingResultsResultKeys.remove(key)) {
@@ -685,21 +695,21 @@ class GameDao(private val context: BggApplication) {
             else {
                 val existingResults = resolver.queryStrings(
                     Games.buildSuggestedPlayerCountPollResultsUri(gameId),
-                    GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT
+                    GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT
                 ).toMutableList()
                 for ((sortIndex, results) in poll.results.withIndex()) {
                     val values = contentValuesOf(
-                        GameSuggestedPlayerCountPollPollResults.SORT_INDEX to sortIndex + 1,
-                        GameSuggestedPlayerCountPollPollResults.BEST_VOTE_COUNT to results.bestVoteCount,
-                        GameSuggestedPlayerCountPollPollResults.RECOMMENDED_VOTE_COUNT to results.recommendedVoteCount,
-                        GameSuggestedPlayerCountPollPollResults.NOT_RECOMMENDED_VOTE_COUNT to results.notRecommendedVoteCount,
-                        GameSuggestedPlayerCountPollPollResults.RECOMMENDATION to results.calculatedRecommendation,
+                        GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX to sortIndex + 1,
+                        GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT to results.bestVoteCount,
+                        GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT to results.recommendedVoteCount,
+                        GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT to results.notRecommendedVoteCount,
+                        GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION to results.calculatedRecommendation,
                     )
                     batch += if (existingResults.remove(results.playerCount)) {
                         val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId, results.playerCount)
                         ContentProviderOperation.newUpdate(uri).withValues(values).build()
                     } else {
-                        values.put(GameSuggestedPlayerCountPollPollResults.PLAYER_COUNT, results.playerCount)
+                        values.put(GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT, results.playerCount)
                         val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
                         ContentProviderOperation.newInsert(uri).withValues(values).build()
                     }
@@ -712,22 +722,22 @@ class GameDao(private val context: BggApplication) {
         val batch = arrayListOf<ContentProviderOperation>()
         val existingRankIds = resolver.queryInts(
             GameRanks.CONTENT_URI,
-            GameRanks.GAME_RANK_ID,
-            "${GameRanks.GAME_RANK_ID}=?",
+            GameRanks.Columns.GAME_RANK_ID,
+            "${GameRanks.Columns.GAME_RANK_ID}=?",
             arrayOf(game.id.toString())
         ).toMutableList()
         for ((id, type, name, friendlyName, value, bayesAverage) in game.ranks) {
             val values = contentValuesOf(
-                GameRanks.GAME_RANK_TYPE to type,
-                GameRanks.GAME_RANK_NAME to name,
-                GameRanks.GAME_RANK_FRIENDLY_NAME to friendlyName,
-                GameRanks.GAME_RANK_VALUE to value,
-                GameRanks.GAME_RANK_BAYES_AVERAGE to bayesAverage,
+                GameRanks.Columns.GAME_RANK_TYPE to type,
+                GameRanks.Columns.GAME_RANK_NAME to name,
+                GameRanks.Columns.GAME_RANK_FRIENDLY_NAME to friendlyName,
+                GameRanks.Columns.GAME_RANK_VALUE to value,
+                GameRanks.Columns.GAME_RANK_BAYES_AVERAGE to bayesAverage,
             )
             batch += if (existingRankIds.remove(id)) {
                 ContentProviderOperation.newUpdate(Games.buildRanksUri(game.id, id)).withValues(values).build()
             } else {
-                values.put(GameRanks.GAME_RANK_ID, id)
+                values.put(GameRanks.Columns.GAME_RANK_ID, id)
                 ContentProviderOperation.newInsert(Games.buildRanksUri(game.id)).withValues(values).build()
             }
         }
@@ -740,7 +750,7 @@ class GameDao(private val context: BggApplication) {
     ): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
         val pathUri = Games.buildPathUri(gameId, PATH_EXPANSIONS)
-        val existingIds = resolver.queryInts(pathUri, GamesExpansions.EXPANSION_ID).toMutableList()
+        val existingIds = resolver.queryInts(pathUri, GamesExpansions.Columns.EXPANSION_ID).toMutableList()
 
         for ((id, name, inbound) in newLinks) {
             if (!existingIds.remove(id)) {
@@ -748,9 +758,9 @@ class GameDao(private val context: BggApplication) {
                 batch.add(
                     ContentProviderOperation.newInsert(pathUri).withValues(
                         contentValuesOf(
-                            GamesExpansions.EXPANSION_ID to id,
-                            GamesExpansions.EXPANSION_NAME to name,
-                            GamesExpansions.INBOUND to inbound,
+                            GamesExpansions.Columns.EXPANSION_ID to id,
+                            GamesExpansions.Columns.EXPANSION_NAME to name,
+                            GamesExpansions.Columns.INBOUND to inbound,
                         )
                     ).build()
                 )

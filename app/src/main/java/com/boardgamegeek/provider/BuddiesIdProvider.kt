@@ -2,7 +2,7 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.provider.BggContract.PATH_BUDDIES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_BUDDIES
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class BuddiesIdProvider : BaseProvider() {
@@ -14,6 +14,6 @@ class BuddiesIdProvider : BaseProvider() {
         val buddyName = Buddies.getBuddyName(uri)
         return SelectionBuilder()
             .table(Tables.BUDDIES)
-            .whereEquals(Buddies.BUDDY_NAME, buddyName)
+            .whereEquals(Buddies.Columns.BUDDY_NAME, buddyName)
     }
 }

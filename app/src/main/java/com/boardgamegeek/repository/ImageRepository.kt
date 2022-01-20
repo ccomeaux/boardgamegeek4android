@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory
 import androidx.annotation.WorkerThread
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
 import com.boardgamegeek.util.FileUtils
 import com.squareup.picasso.Picasso
 import timber.log.Timber
@@ -53,7 +53,7 @@ class ImageRepository(val application: BggApplication) {
         if (url.isNotBlank()) {
             val filename = FileUtils.getFileNameFromUrl(url)
             return if (filename.isNotBlank())
-                File(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS), filename)
+                File(FileUtils.generateContentPath(context, PATH_THUMBNAILS), filename)
             else null
         }
         return null

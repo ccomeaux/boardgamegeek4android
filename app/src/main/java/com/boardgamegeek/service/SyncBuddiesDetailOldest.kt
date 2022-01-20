@@ -31,8 +31,8 @@ class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, 
         val limit = (count / days).coerceIn(1, max)
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
-                Buddies.BUDDY_NAME,
-                sortOrder = "${Buddies.UPDATED} LIMIT $limit"
+                Buddies.Columns.BUDDY_NAME,
+                sortOrder = "${Buddies.Columns.UPDATED} LIMIT $limit"
         )
     }
 }

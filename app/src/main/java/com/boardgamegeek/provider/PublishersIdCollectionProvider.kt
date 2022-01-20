@@ -3,7 +3,8 @@ package com.boardgamegeek.provider
 import android.net.Uri
 import android.provider.BaseColumns._ID
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLLECTION
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class PublishersIdCollectionProvider : BaseProvider() {
@@ -13,8 +14,8 @@ class PublishersIdCollectionProvider : BaseProvider() {
         val publisherId = Publishers.getPublisherId(uri)
         return SelectionBuilder()
             .mapToTable(_ID, Tables.COLLECTION)
-            .mapToTable(GAME_ID, Tables.GAMES)
+            .mapToTable(Games.Columns.GAME_ID, Tables.GAMES)
             .table(Tables.PUBLISHER_JOIN_GAMES_JOIN_COLLECTION)
-            .whereEquals(Publishers.PUBLISHER_ID, publisherId)
+            .whereEquals(Publishers.Columns.PUBLISHER_ID, publisherId)
     }
 }

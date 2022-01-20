@@ -13,6 +13,8 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,7 +41,7 @@ class GameRepository(val application: BggApplication) {
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image(game.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.upsert(game.id, contentValuesOf(BggContract.Games.HERO_IMAGE_URL to url))
+        dao.upsert(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
         game.copy(heroImageUrl = url)
     }
 
@@ -76,7 +78,7 @@ class GameRepository(val application: BggApplication) {
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
     suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.IO) {
-        if (gameId != BggContract.INVALID_ID || username.isNullOrBlank()) {
+        if (gameId != INVALID_ID || username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             var page = 1
             do {
@@ -86,7 +88,7 @@ class GameRepository(val application: BggApplication) {
             } while (response.hasMorePages())
 
             playDao.deleteUnupdatedPlays(gameId, timestamp)
-            dao.update(gameId, contentValuesOf(BggContract.Games.UPDATED_PLAYS to System.currentTimeMillis()))
+            dao.update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to System.currentTimeMillis()))
 
             playRepository.calculatePlayStats()
         }
@@ -110,13 +112,13 @@ class GameRepository(val application: BggApplication) {
     suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
 
     suspend fun addPlayColor(gameId: Int, color: String?) {
-        if (gameId != BggContract.INVALID_ID && !color.isNullOrBlank()) {
+        if (gameId != INVALID_ID && !color.isNullOrBlank()) {
             dao.insertColor(gameId, color)
         }
     }
 
     suspend fun deletePlayColor(gameId: Int, color: String): Int {
-        return if (gameId != BggContract.INVALID_ID && color.isNotBlank()) {
+        return if (gameId != INVALID_ID && color.isNotBlank()) {
             dao.deleteColor(gameId, color)
         } else 0
     }
@@ -127,8 +129,8 @@ class GameRepository(val application: BggApplication) {
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
-        if (gameId != BggContract.INVALID_ID) {
-            dao.update(gameId, contentValuesOf(BggContract.Games.LAST_VIEWED to lastViewed))
+        if (gameId != INVALID_ID) {
+            dao.update(gameId, contentValuesOf(Games.Columns.LAST_VIEWED to lastViewed))
         }
     }
 
@@ -140,13 +142,13 @@ class GameRepository(val application: BggApplication) {
         winnablePlaysColor: Int,
         allPlaysColor: Int
     ) {
-        if (gameId != BggContract.INVALID_ID) {
+        if (gameId != INVALID_ID) {
             val values = contentValuesOf(
-                BggContract.Games.ICON_COLOR to iconColor,
-                BggContract.Games.DARK_COLOR to darkColor,
-                BggContract.Games.WINS_COLOR to winsColor,
-                BggContract.Games.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
-                BggContract.Games.ALL_PLAYS_COLOR to allPlaysColor,
+                Games.Columns.ICON_COLOR to iconColor,
+                Games.Columns.DARK_COLOR to darkColor,
+                Games.Columns.WINS_COLOR to winsColor,
+                Games.Columns.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
+                Games.Columns.ALL_PLAYS_COLOR to allPlaysColor,
             )
             val numberOfRowsModified = dao.update(gameId, values)
             Timber.d(numberOfRowsModified.toString())
@@ -154,8 +156,8 @@ class GameRepository(val application: BggApplication) {
     }
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
-        if (gameId != BggContract.INVALID_ID) {
-            dao.update(gameId, contentValuesOf(BggContract.Games.STARRED to if (isFavorite) 1 else 0))
+        if (gameId != INVALID_ID) {
+            dao.update(gameId, contentValuesOf(Games.Columns.STARRED to if (isFavorite) 1 else 0))
         }
     }
 }

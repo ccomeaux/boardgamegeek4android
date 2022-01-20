@@ -4,8 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLORS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.GameColors
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 /**
@@ -22,7 +24,7 @@ class GamesIdColorsProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
             .table(Tables.GAME_COLORS)
-            .whereEquals(GAME_ID, gameId)
+            .whereEquals(GameColors.Columns.GAME_ID, gameId)
     }
 
     /**
@@ -30,10 +32,10 @@ class GamesIdColorsProvider : BaseProvider() {
      */
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         val gameId = Games.getGameId(uri)
-        values.put(GameColors.GAME_ID, gameId)
+        values.put(GameColors.Columns.GAME_ID, gameId)
         val rowId = db.insertOrThrow(Tables.GAME_COLORS, null, values)
         return if (rowId != -1L) {
-            Games.buildColorsUri(gameId, values.getAsString(GameColors.COLOR))
+            Games.buildColorsUri(gameId, values.getAsString(GameColors.Columns.COLOR))
         } else null
     }
 }

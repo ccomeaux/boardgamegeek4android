@@ -21,8 +21,8 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.pref.clearPlaysTimestamps
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.util.NotificationUtils
@@ -249,7 +249,7 @@ class PlayRepository(val application: BggApplication) {
     suspend fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
         return playDao.loadPlayerDetail(
             Plays.buildPlayerUri(),
-            "${PlayPlayers.USER_NAME}=?",
+            "${PlayPlayers.Columns.USER_NAME}=?",
             arrayOf(username)
         )
     }
@@ -257,7 +257,7 @@ class PlayRepository(val application: BggApplication) {
     suspend fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
         return playDao.loadPlayerDetail(
             Plays.buildPlayerUri(),
-            "${PlayPlayers.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.NAME}=?",
+            "${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=?",
             arrayOf("", playerName)
         )
     }
@@ -310,10 +310,10 @@ class PlayRepository(val application: BggApplication) {
         playDao.update(
             internalId,
             contentValuesOf(
-                Plays.PLAY_ID to playId,
-                Plays.DIRTY_TIMESTAMP to 0,
-                Plays.UPDATE_TIMESTAMP to 0,
-                Plays.DELETE_TIMESTAMP to 0,
+                Plays.Columns.PLAY_ID to playId,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
+                Plays.Columns.UPDATE_TIMESTAMP to 0,
+                Plays.Columns.DELETE_TIMESTAMP to 0,
             )
         )
     }
@@ -322,9 +322,9 @@ class PlayRepository(val application: BggApplication) {
         playDao.update(
             internalId,
             contentValuesOf(
-                Plays.DELETE_TIMESTAMP to 0,
-                Plays.UPDATE_TIMESTAMP to 0,
-                Plays.DIRTY_TIMESTAMP to 0,
+                Plays.Columns.DELETE_TIMESTAMP to 0,
+                Plays.Columns.UPDATE_TIMESTAMP to 0,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
     }
@@ -333,9 +333,9 @@ class PlayRepository(val application: BggApplication) {
         playDao.update(
             internalId,
             contentValuesOf(
-                Plays.UPDATE_TIMESTAMP to System.currentTimeMillis(),
-                Plays.DELETE_TIMESTAMP to 0,
-                Plays.DIRTY_TIMESTAMP to 0,
+                Plays.Columns.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+                Plays.Columns.DELETE_TIMESTAMP to 0,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
     }
@@ -344,9 +344,9 @@ class PlayRepository(val application: BggApplication) {
         playDao.update(
             internalId,
             contentValuesOf(
-                Plays.DELETE_TIMESTAMP to System.currentTimeMillis(),
-                Plays.UPDATE_TIMESTAMP to 0,
-                Plays.DIRTY_TIMESTAMP to 0,
+                Plays.Columns.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                Plays.Columns.UPDATE_TIMESTAMP to 0,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
     }
@@ -356,7 +356,7 @@ class PlayRepository(val application: BggApplication) {
         val playCount = allPlays
             .filter { it.deleteTimestamp == 0L }
             .sumOf { it.quantity }
-        gameDao.update(gameId, contentValuesOf(BggContract.Collection.NUM_PLAYS to playCount))
+        gameDao.update(gameId, contentValuesOf(Games.Columns.NUM_PLAYS to playCount))
     }
 
     suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
@@ -389,24 +389,24 @@ class PlayRepository(val application: BggApplication) {
     ): RenameLocationResults = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
 
-        val values = contentValuesOf(Plays.LOCATION to newLocationName)
+        val values = contentValuesOf(Plays.Columns.LOCATION to newLocationName)
         batch.add(
             ContentProviderOperation
                 .newUpdate(Plays.CONTENT_URI)
                 .withValues(values)
                 .withSelection(
-                    "${Plays.LOCATION}=? AND (${Plays.UPDATE_TIMESTAMP.greaterThanZero()} OR ${Plays.DIRTY_TIMESTAMP.greaterThanZero()})",
+                    "${Plays.Columns.LOCATION}=? AND (${Plays.Columns.UPDATE_TIMESTAMP.greaterThanZero()} OR ${Plays.Columns.DIRTY_TIMESTAMP.greaterThanZero()})",
                     arrayOf(oldLocationName)
                 ).build()
         )
 
-        values.put(Plays.UPDATE_TIMESTAMP, System.currentTimeMillis())
+        values.put(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
         batch.add(
             ContentProviderOperation
                 .newUpdate(Plays.CONTENT_URI)
                 .withValues(values)
                 .withSelection(
-                    "${Plays.LOCATION}=? AND ${Plays.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.DIRTY_TIMESTAMP.whereZeroOrNull()}",
+                    "${Plays.Columns.LOCATION}=? AND ${Plays.Columns.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.Columns.DIRTY_TIMESTAMP.whereZeroOrNull()}",
                     arrayOf(oldLocationName)
                 ).build()
         )
@@ -444,7 +444,7 @@ class PlayRepository(val application: BggApplication) {
     suspend fun resetPlays() {
         // resets the sync timestamps, removes the plays' hashcode, and request a sync
         SyncPrefs.getPrefs(application).clearPlaysTimestamps()
-        val count = playDao.updateAllPlays(contentValuesOf(Plays.SYNC_HASH_CODE to 0))
+        val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
         Timber.i("Cleared the hashcode from %,d plays.", count)
         SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS)
     }

@@ -41,9 +41,9 @@ class ArtistRepository(val application: BggApplication) {
             val missingArtistMessage = "This page does not exist. You can edit this page to create it."
             dao.upsert(
                 artistId, contentValuesOf(
-                    Artists.ARTIST_NAME to response.name,
-                    Artists.ARTIST_DESCRIPTION to (if (response.description == missingArtistMessage) "" else response.description),
-                    Artists.UPDATED to System.currentTimeMillis(),
+                    Artists.Columns.ARTIST_NAME to response.name,
+                    Artists.Columns.ARTIST_DESCRIPTION to (if (response.description == missingArtistMessage) "" else response.description),
+                    Artists.Columns.UPDATED to System.currentTimeMillis(),
                 )
             )
         }
@@ -55,9 +55,9 @@ class ArtistRepository(val application: BggApplication) {
         response.items.firstOrNull()?.let {
             dao.upsert(
                 artist.id, contentValuesOf(
-                    Artists.ARTIST_THUMBNAIL_URL to it.thumbnail,
-                    Artists.ARTIST_IMAGE_URL to it.image,
-                    Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
+                    Artists.Columns.ARTIST_THUMBNAIL_URL to it.thumbnail,
+                    Artists.Columns.ARTIST_IMAGE_URL to it.image,
+                    Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
                 )
             )
             artist.copy(thumbnailUrl = it.thumbnail.orEmpty(), imageUrl = it.image.orEmpty())
@@ -67,7 +67,7 @@ class ArtistRepository(val application: BggApplication) {
     suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image(artist.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.upsert(artist.id, contentValuesOf(Artists.ARTIST_HERO_IMAGE_URL to url))
+        dao.upsert(artist.id, contentValuesOf(Artists.Columns.ARTIST_HERO_IMAGE_URL to url))
         artist.copy(heroImageUrl = url)
     }
 
@@ -95,8 +95,8 @@ class ArtistRepository(val application: BggApplication) {
         val realOldScore = if (oldScore == -1) dao.loadArtist(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
             dao.upsert(id, ContentValues().apply {
-                put(Artists.WHITMORE_SCORE, newScore)
-                put(Artists.ARTIST_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
+                put(Artists.Columns.WHITMORE_SCORE, newScore)
+                put(Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
             })
         }
     }

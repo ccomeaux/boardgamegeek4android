@@ -4,7 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.buildBasicUri
+import com.boardgamegeek.provider.BggContract.Companion.buildBasicUri
 
 abstract class BasicProvider : BaseProvider() {
     protected abstract val table: String?

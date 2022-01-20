@@ -39,9 +39,9 @@ class DesignerRepository(val application: BggApplication) {
         val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
         dao.upsert(
             designerId, contentValuesOf(
-                Designers.DESIGNER_NAME to response.name,
-                Designers.DESIGNER_DESCRIPTION to (if (response.description == missingDesignerMessage) "" else response.description),
-                Designers.UPDATED to System.currentTimeMillis()
+                Designers.Columns.DESIGNER_NAME to response.name,
+                Designers.Columns.DESIGNER_DESCRIPTION to (if (response.description == missingDesignerMessage) "" else response.description),
+                Designers.Columns.UPDATED to System.currentTimeMillis()
             )
         )
         response.mapToEntity(designerId)
@@ -52,9 +52,9 @@ class DesignerRepository(val application: BggApplication) {
         response.items.firstOrNull()?.let {
             dao.upsert(
                 designer.id, contentValuesOf(
-                    Designers.DESIGNER_THUMBNAIL_URL to it.thumbnail,
-                    Designers.DESIGNER_IMAGE_URL to it.image,
-                    Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
+                    Designers.Columns.DESIGNER_THUMBNAIL_URL to it.thumbnail,
+                    Designers.Columns.DESIGNER_IMAGE_URL to it.image,
+                    Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
                 )
             )
             designer.copy(thumbnailUrl = it.thumbnail.orEmpty(), imageUrl = it.image.orEmpty())
@@ -64,7 +64,7 @@ class DesignerRepository(val application: BggApplication) {
     suspend fun refreshHeroImage(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image(designer.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.upsert(designer.id, contentValuesOf(Designers.DESIGNER_HERO_IMAGE_URL to url))
+        dao.upsert(designer.id, contentValuesOf(Designers.Columns.DESIGNER_HERO_IMAGE_URL to url))
         designer.copy(heroImageUrl = url)
     }
 
@@ -93,8 +93,8 @@ class DesignerRepository(val application: BggApplication) {
         if (newScore != realOldScore) {
             dao.upsert(
                 id, contentValuesOf(
-                    Designers.WHITMORE_SCORE to newScore,
-                    Designers.DESIGNER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
+                    Designers.Columns.WHITMORE_SCORE to newScore,
+                    Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
                 )
             )
         }

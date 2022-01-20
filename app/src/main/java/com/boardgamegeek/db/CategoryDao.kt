@@ -20,17 +20,17 @@ class CategoryDao(private val context: BggApplication) {
 
     suspend fun loadCategories(sortBy: SortType): List<CategoryEntity> = withContext(Dispatchers.IO) {
         val results = mutableListOf<CategoryEntity>()
-        val sortByName = Categories.CATEGORY_NAME.collateNoCase().ascending()
+        val sortByName = Categories.Columns.CATEGORY_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Categories.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Categories.Columns.ITEM_COUNT.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
             Categories.CONTENT_URI,
             arrayOf(
-                Categories.CATEGORY_ID,
-                Categories.CATEGORY_NAME,
-                Categories.ITEM_COUNT
+                Categories.Columns.CATEGORY_ID,
+                Categories.Columns.CATEGORY_NAME,
+                Categories.Columns.ITEM_COUNT
             ),
             sortOrder = sortOrder
         )?.use {

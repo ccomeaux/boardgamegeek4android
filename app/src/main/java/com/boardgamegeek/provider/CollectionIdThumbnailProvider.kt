@@ -1,17 +1,16 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLLECTION
+import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
 
 class CollectionIdThumbnailProvider : IndirectFileProvider() {
     override val path = "$PATH_COLLECTION/#/$PATH_THUMBNAILS"
 
     override val contentPath = PATH_THUMBNAILS
 
-    override val columnName = Collection.COLLECTION_THUMBNAIL_URL
+    override val columnName = Collection.Columns.COLLECTION_THUMBNAIL_URL
 
-    override fun getFileUri(uri: Uri): Uri? {
-        return Collection.buildUri(Collection.getId(uri))
-    }
+    override fun getFileUri(uri: Uri) = Collection.buildUri(Collection.getId(uri))
 }

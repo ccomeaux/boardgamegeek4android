@@ -2,6 +2,8 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PLAYS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class GamesIdPlaysProvider : BaseProvider() {
@@ -15,6 +17,6 @@ class GamesIdPlaysProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
             .table(Tables.PLAYS)
-            .whereEquals(Plays.OBJECT_ID, gameId)
+            .whereEquals(Plays.Columns.OBJECT_ID, gameId)
     }
 }

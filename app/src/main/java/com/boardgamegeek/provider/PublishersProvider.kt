@@ -1,8 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.PATH_PUBLISHERS
-
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
 import com.boardgamegeek.provider.BggContract.Publishers
 import com.boardgamegeek.provider.BggDatabase.Tables
 
@@ -15,17 +14,17 @@ class PublishersProvider : BasicProvider() {
 
     override val defaultSortOrder = Publishers.DEFAULT_SORT
 
-    override val insertedIdColumn = Publishers.PUBLISHER_ID
+    override val insertedIdColumn = Publishers.Columns.PUBLISHER_ID
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
-            .mapToTable(Publishers.PUBLISHER_ID, table)
-            .mapToTable(Publishers.UPDATED, table)
-        if (projection.orEmpty().contains(Publishers.ITEM_COUNT)) {
+            .mapToTable(Publishers.Columns.PUBLISHER_ID, table)
+            .mapToTable(Publishers.Columns.UPDATED, table)
+        if (projection.orEmpty().contains(Publishers.Columns.ITEM_COUNT)) {
             builder
                 .table(Tables.PUBLISHERS_JOIN_COLLECTION)
-                .groupBy("$table.${Publishers.PUBLISHER_ID}")
-                .mapAsCount(Publishers.ITEM_COUNT)
+                .groupBy("$table.${Publishers.Columns.PUBLISHER_ID}")
+                .mapAsCount(Publishers.Columns.ITEM_COUNT)
         } else {
             builder.table(table)
         }

@@ -13,15 +13,15 @@ class TableBuilder {
     private var primaryKey: Column? = null
     private var columns = mutableListOf<Column>()
     private var uniqueColumnNames = mutableListOf<String>()
-    private var resolution = CONFLICT_RESOLUTION.IGNORE
+    private var resolution = ConflictResolution.IGNORE
     private var isFtsTable = false
 
     fun reset(): TableBuilder {
         tableName = null
         primaryKey = null
-        columns = ArrayList()
-        uniqueColumnNames = ArrayList()
-        resolution = CONFLICT_RESOLUTION.IGNORE
+        columns = mutableListOf()
+        uniqueColumnNames = mutableListOf()
+        resolution = ConflictResolution.IGNORE
         return this
     }
 
@@ -35,7 +35,7 @@ class TableBuilder {
             sb.append("CREATE TABLE $tableName")
         }
         sb.append(" (").append(primaryKey!!.build()).append(" PRIMARY KEY AUTOINCREMENT,")
-        columns.joinToString(",")
+        sb.append(columns.joinToString(", ") { it.build() })
         if (uniqueColumnNames.isNotEmpty()) {
             sb.append(", UNIQUE (")
             sb.append(uniqueColumnNames.joinTo(","))
@@ -63,19 +63,12 @@ class TableBuilder {
     private fun tempTable() = tableName + "_tmp"
 
     private fun copy(db: SQLiteDatabase, columnMap: Map<String, String>?, joinTable: String?, joinColumn: String?) {
-        val sourceColumns = StringBuilder()
-        val destinationColumns = StringBuilder()
-        for (column in columns) {
-            if (destinationColumns.isNotEmpty()) destinationColumns.append(",")
-            destinationColumns.append(column.name)
-            if (sourceColumns.isNotEmpty()) sourceColumns.append(",")
-            val c = columnMap?.get(column.name)
-            if (c?.isNotBlank() == true) {
-                sourceColumns.append(c)
-            } else {
-                sourceColumns.append(column.name)
-            }
-        }
+        val destinationColumns = columns.joinToString(",")
+        val sourceColumns = columns.map {
+            columnMap?.get(it.name)?.let { mappedColumn ->
+                if (mappedColumn.isNotBlank()) mappedColumn else it.name
+            } ?: it.name
+        }.joinToString(",")
         var destinationTable = tempTable()
         if (joinTable?.isNotEmpty() == true && joinColumn?.isNotEmpty() == true) destinationTable += " INNER JOIN $joinTable ON $joinTable.$joinColumn=${tempTable()}.$joinColumn"
         val sql = "INSERT INTO $tableName($destinationColumns) SELECT $sourceColumns FROM $destinationTable"
@@ -88,16 +81,18 @@ class TableBuilder {
         isFtsTable = false
     }
 
+    @Suppress("unused")
     fun setFtsTable(table: String?) = apply {
         tableName = table
         isFtsTable = true
     }
 
-    fun setConflictResolution(resolution: CONFLICT_RESOLUTION) = apply {
+    fun setConflictResolution(resolution: ConflictResolution) = apply {
         this.resolution = resolution
     }
 
-    fun setPrimaryKey(columnName: String, type: COLUMN_TYPE) = apply {
+    @Suppress("unused")
+    fun setPrimaryKey(columnName: String, type: ColumnType) = apply {
         primaryKey = Column(columnName, type)
     }
 
@@ -105,14 +100,14 @@ class TableBuilder {
      * Add an _ID column and sets it as the primary key.
      */
     fun useDefaultPrimaryKey() = apply {
-        primaryKey = Column(BaseColumns._ID, COLUMN_TYPE.INTEGER)
+        primaryKey = Column(BaseColumns._ID, ColumnType.INTEGER)
     }
 
-    fun addColumn(name: String, type: COLUMN_TYPE?, notNull: Boolean, defaultValue: Int) =
+    fun addColumn(name: String, type: ColumnType?, notNull: Boolean, defaultValue: Int) =
         addColumn(name, type, notNull, defaultValue = defaultValue.toString())
 
     fun addColumn(
-        name: String, type: COLUMN_TYPE?, notNull: Boolean = false, unique: Boolean = false,
+        name: String, type: ColumnType?, notNull: Boolean = false, unique: Boolean = false,
         referenceTable: String? = null, referenceColumn: String? = null, onCascadeDelete: Boolean = false, defaultValue: String? = null
     ) = apply {
         val column = Column(name, type, notNull, onCascadeDelete, defaultValue)
@@ -124,17 +119,18 @@ class TableBuilder {
         }
     }
 
-    enum class COLUMN_TYPE {
+    enum class ColumnType {
         INTEGER, TEXT, REAL
     }
 
-    enum class CONFLICT_RESOLUTION {
+    @Suppress("unused")
+    enum class ConflictResolution {
         ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
     }
 
     private inner class Column(
         val name: String? = null,
-        val type: COLUMN_TYPE? = null,
+        val type: ColumnType? = null,
         val notNull: Boolean = false,
         val onCascadeDelete: Boolean = false,
         val defaultValue: String? = null,

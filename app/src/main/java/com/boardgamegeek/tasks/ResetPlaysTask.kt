@@ -18,13 +18,13 @@ class ResetPlaysTask(context: Context?) : ToastingAsyncTask(context) {
     override val failureMessageResource = R.string.pref_sync_reset_failure
 
     override fun doInBackground(vararg params: Void?): Boolean {
-        context?.applicationContext?.let {
+        return context?.applicationContext?.let {
             SyncPrefs.getPrefs(it).clearPlaysTimestamps()
-            val values = contentValuesOf(Plays.SYNC_HASH_CODE to 0)
+            val values = contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0)
             val count = it.contentResolver.update(Plays.CONTENT_URI, values, null, null)
             Timber.i("Cleared the hashcode from %,d plays.", count)
             SyncService.sync(it, SyncService.FLAG_SYNC_PLAYS)
-            return true
-        } ?: return false
+            true
+        } ?: false
     }
 }

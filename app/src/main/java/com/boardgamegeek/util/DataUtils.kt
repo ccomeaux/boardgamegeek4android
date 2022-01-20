@@ -9,8 +9,8 @@ object DataUtils {
         }
     }
 
-    fun generatePollResultsKey(level: String, value: String): String {
-        return if (level.isEmpty()) {
+    fun generatePollResultsKey(level: String?, value: String): String {
+        return if (level.isNullOrBlank()) {
             value.substringBefore(" ")
         } else {
             level

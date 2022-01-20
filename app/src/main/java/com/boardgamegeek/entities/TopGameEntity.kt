@@ -5,5 +5,5 @@ data class TopGameEntity(
     val name: String,
     val rank: Int,
     val yearPublished: Int,
-    val thumbnailUrl: String
+    val thumbnailUrl: String,
 )

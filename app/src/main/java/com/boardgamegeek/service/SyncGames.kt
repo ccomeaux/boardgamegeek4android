@@ -168,10 +168,10 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
         val games = mutableMapOf<Int, String>()
         val cursor = context.contentResolver.query(
             Games.CONTENT_URI,
-            arrayOf(Games.GAME_ID, Games.GAME_NAME),
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
             selection,
             null,
-            "games.${Games.UPDATED_LIST} LIMIT $gamesPerFetch"
+            "games.${Games.Columns.UPDATED_LIST} LIMIT $gamesPerFetch"
         )
         cursor?.use {
             while (it.moveToNext()) {

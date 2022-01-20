@@ -38,12 +38,12 @@ class PublisherRepository(val application: BggApplication) {
         response.items.firstOrNull()?.mapToEntity()?.let {
             dao.upsert(
                 publisherId, contentValuesOf(
-                    Publishers.PUBLISHER_NAME to it.name,
-                    Publishers.PUBLISHER_SORT_NAME to it.sortName,
-                    Publishers.PUBLISHER_DESCRIPTION to it.description,
-                    Publishers.PUBLISHER_IMAGE_URL to it.imageUrl,
-                    Publishers.PUBLISHER_THUMBNAIL_URL to it.thumbnailUrl,
-                    Publishers.UPDATED to System.currentTimeMillis(),
+                    Publishers.Columns.PUBLISHER_NAME to it.name,
+                    Publishers.Columns.PUBLISHER_SORT_NAME to it.sortName,
+                    Publishers.Columns.PUBLISHER_DESCRIPTION to it.description,
+                    Publishers.Columns.PUBLISHER_IMAGE_URL to it.imageUrl,
+                    Publishers.Columns.PUBLISHER_THUMBNAIL_URL to it.thumbnailUrl,
+                    Publishers.Columns.UPDATED to System.currentTimeMillis(),
                 )
             )
             it
@@ -53,7 +53,7 @@ class PublisherRepository(val application: BggApplication) {
     suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image(publisher.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.upsert(publisher.id, contentValuesOf(Publishers.PUBLISHER_HERO_IMAGE_URL to url))
+        dao.upsert(publisher.id, contentValuesOf(Publishers.Columns.PUBLISHER_HERO_IMAGE_URL to url))
         publisher.copy(heroImageUrl = url)
     }
 
@@ -83,8 +83,8 @@ class PublisherRepository(val application: BggApplication) {
         if (newScore != realOldScore) {
             dao.upsert(
                 id, contentValuesOf(
-                    Publishers.WHITMORE_SCORE to newScore,
-                    Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis()
+                    Publishers.Columns.WHITMORE_SCORE to newScore,
+                    Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
                 )
             )
         }

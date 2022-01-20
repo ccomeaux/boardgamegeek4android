@@ -5,9 +5,11 @@ import android.content.Context
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GamePollsColumns.POLL_NAME
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_POLLS
+import com.boardgamegeek.provider.BggContract.GamePolls
+import com.boardgamegeek.provider.BggContract.GamePolls.Columns.POLL_NAME
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggDatabase.Tables
 import timber.log.Timber
 
@@ -20,12 +22,14 @@ class GamesIdPollsProvider : BaseProvider() {
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
-        return SelectionBuilder().table(Tables.GAME_POLLS).whereEquals(GAME_ID, gameId)
+        return SelectionBuilder()
+            .table(Tables.GAME_POLLS)
+            .whereEquals(GamePolls.Columns.GAME_ID, gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         val gameId = Games.getGameId(uri)
-        values.put(GAME_ID, gameId)
+        values.put(GamePolls.Columns.GAME_ID, gameId)
         try {
             if (db.insertOrThrow(Tables.GAME_POLLS, null, values) != -1L) {
                 return Games.buildPollsUri(gameId, values.getAsString(POLL_NAME))

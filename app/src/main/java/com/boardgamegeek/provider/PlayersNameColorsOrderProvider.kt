@@ -1,7 +1,9 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLORS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PLAYERS
+import com.boardgamegeek.provider.BggContract.PlayerColors
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class PlayersNameColorsOrderProvider : BaseProvider() {
@@ -13,8 +15,8 @@ class PlayersNameColorsOrderProvider : BaseProvider() {
         val playerName = PlayerColors.getPlayerName(uri)
         val sortOrder = PlayerColors.getSortOrder(uri)
         return SelectionBuilder().table(Tables.PLAYER_COLORS)
-            .where("${PlayerColors.PLAYER_TYPE}=?", PlayerColors.TYPE_PLAYER.toString())
-            .where("${PlayerColors.PLAYER_NAME}=?", playerName)
-            .where("${PlayerColors.PLAYER_COLOR_SORT_ORDER}=?", sortOrder.toString())
+            .where("${PlayerColors.Columns.PLAYER_TYPE}=?", PlayerColors.TYPE_PLAYER.toString())
+            .where("${PlayerColors.Columns.PLAYER_NAME}=?", playerName)
+            .where("${PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER}=?", sortOrder.toString())
     }
 }

@@ -4,7 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
 
@@ -19,9 +22,9 @@ class GamesIdMechanicsProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
             .table(Tables.GAMES_MECHANICS_JOIN_MECHANICS)
-            .mapToTable(Mechanics._ID, Tables.MECHANICS)
-            .mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
-            .mapToTable(SyncColumns.UPDATED, Tables.MECHANICS)
+            .mapToTable(BaseColumns._ID, Tables.MECHANICS)
+            .mapToTable(Mechanics.Columns.MECHANIC_ID, Tables.MECHANICS)
+            .mapToTable(Mechanics.Columns.UPDATED, Tables.MECHANICS)
             .whereEquals("${Tables.GAMES_MECHANICS}.$GAME_ID", gameId)
     }
 

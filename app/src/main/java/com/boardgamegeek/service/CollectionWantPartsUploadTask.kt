@@ -4,7 +4,7 @@ import com.boardgamegeek.provider.BggContract.Collection
 import okhttp3.OkHttpClient
 
 class CollectionWantPartsUploadTask(client: OkHttpClient) : CollectionTextUploadTask(client) {
-    override val timestampColumn = Collection.WANT_PARTS_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP
 
     @Suppress("SpellCheckingInspection")
     override val fieldName = "wantpartslist"

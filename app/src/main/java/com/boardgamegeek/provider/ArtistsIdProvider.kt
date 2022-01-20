@@ -2,7 +2,7 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Artists
-import com.boardgamegeek.provider.BggContract.PATH_ARTISTS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_ARTISTS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class ArtistsIdProvider : BaseProvider() {
@@ -14,6 +14,6 @@ class ArtistsIdProvider : BaseProvider() {
         val artistId = Artists.getArtistId(uri)
         return SelectionBuilder()
             .table(Tables.ARTISTS)
-            .whereEquals(Artists.ARTIST_ID, artistId)
+            .whereEquals(Artists.Columns.ARTIST_ID, artistId)
     }
 }

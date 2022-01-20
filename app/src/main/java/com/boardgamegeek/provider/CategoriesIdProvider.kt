@@ -2,7 +2,7 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.Categories
-import com.boardgamegeek.provider.BggContract.PATH_CATEGORIES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_CATEGORIES
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class CategoriesIdProvider : BaseProvider() {
@@ -14,6 +14,6 @@ class CategoriesIdProvider : BaseProvider() {
         val categoryId = Categories.getCategoryId(uri)
         return SelectionBuilder()
             .table(Tables.CATEGORIES)
-            .whereEquals(Categories.CATEGORY_ID, categoryId)
+            .whereEquals(Categories.Columns.CATEGORY_ID, categoryId)
     }
 }

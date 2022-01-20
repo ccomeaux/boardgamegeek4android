@@ -1,8 +1,10 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import android.provider.BaseColumns._ID
-import com.boardgamegeek.provider.BggContract.*
+import android.provider.BaseColumns
+import com.boardgamegeek.provider.BggContract.Artists
+import com.boardgamegeek.provider.BggContract.Companion.PATH_ARTISTS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLLECTION
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class ArtistsIdCollectionProvider : BaseProvider() {
@@ -11,9 +13,9 @@ class ArtistsIdCollectionProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val artistId = Artists.getArtistId(uri)
         return SelectionBuilder()
-            .mapToTable(_ID, Tables.COLLECTION)
-            .mapToTable(GamesColumns.GAME_ID, Tables.GAMES)
+            .mapToTable(BaseColumns._ID, Tables.COLLECTION)
+            .mapToTable(Artists.Columns.GAME_ID, Tables.GAMES)
             .table(Tables.ARTIST_JOIN_GAMES_JOIN_COLLECTION)
-            .whereEquals(Artists.ARTIST_ID, artistId)
+            .whereEquals(Artists.Columns.ARTIST_ID, artistId)
     }
 }

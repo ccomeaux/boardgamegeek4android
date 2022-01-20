@@ -142,15 +142,15 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
 
     fun updateStatuses(statuses: List<String>, wishlistPriority: Int) {
         val itemModified = item.value?.data?.let {
-            statuses.contains(Collection.STATUS_OWN) != it.own ||
-                    statuses.contains(Collection.STATUS_OWN) != it.own ||
-                    statuses.contains(Collection.STATUS_PREVIOUSLY_OWNED) != it.previouslyOwned ||
-                    statuses.contains(Collection.STATUS_PREORDERED) != it.preOrdered ||
-                    statuses.contains(Collection.STATUS_FOR_TRADE) != it.forTrade ||
-                    statuses.contains(Collection.STATUS_WANT) != it.wantInTrade ||
-                    statuses.contains(Collection.STATUS_WANT_TO_BUY) != it.wantToBuy ||
-                    statuses.contains(Collection.STATUS_WANT_TO_PLAY) != it.wantToPlay ||
-                    statuses.contains(Collection.STATUS_WISHLIST) != it.wishList
+            statuses.contains(Collection.Columns.STATUS_OWN) != it.own ||
+                    statuses.contains(Collection.Columns.STATUS_OWN) != it.own ||
+                    statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED) != it.previouslyOwned ||
+                    statuses.contains(Collection.Columns.STATUS_PREORDERED) != it.preOrdered ||
+                    statuses.contains(Collection.Columns.STATUS_FOR_TRADE) != it.forTrade ||
+                    statuses.contains(Collection.Columns.STATUS_WANT) != it.wantInTrade ||
+                    statuses.contains(Collection.Columns.STATUS_WANT_TO_BUY) != it.wantToBuy ||
+                    statuses.contains(Collection.Columns.STATUS_WANT_TO_PLAY) != it.wantToPlay ||
+                    statuses.contains(Collection.Columns.STATUS_WISHLIST) != it.wishList
         } ?: false
         if (itemModified) {
             setEdited(true)

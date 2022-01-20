@@ -17,13 +17,13 @@ class ResetBuddiesTask(context: Context?) : ToastingAsyncTask(context) {
     override val failureMessageResource = R.string.pref_sync_reset_failure
 
     override fun doInBackground(vararg params: Void?): Boolean {
-        context?.applicationContext?.let {
+        return context?.applicationContext?.let {
             SyncPrefs.getPrefs(it).clearBuddyListTimestamps()
             val count = it.contentResolver.delete(BggContract.Buddies.CONTENT_URI, null, null)
             //TODO remove buddy colors
             Timber.i("Removed %d GeekBuddies", count)
             SyncService.sync(it, SyncService.FLAG_SYNC_BUDDIES)
-            return true
-        } ?: return false
+            true
+        } ?: false
     }
 }

@@ -1,8 +1,8 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import com.boardgamegeek.provider.BggContract.Companion.PATH_DESIGNERS
 import com.boardgamegeek.provider.BggContract.Designers
-import com.boardgamegeek.provider.BggContract.PATH_DESIGNERS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class DesignersIdProvider : BaseProvider() {
@@ -12,6 +12,6 @@ class DesignersIdProvider : BaseProvider() {
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val designerId = Designers.getDesignerId(uri)
-        return SelectionBuilder().table(Tables.DESIGNERS).whereEquals(Designers.DESIGNER_ID, designerId)
+        return SelectionBuilder().table(Tables.DESIGNERS).whereEquals(Designers.Columns.DESIGNER_ID, designerId)
     }
 }

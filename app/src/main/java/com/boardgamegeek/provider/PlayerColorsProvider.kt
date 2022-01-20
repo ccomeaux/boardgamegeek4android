@@ -1,7 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.PATH_PLAYER_COLORS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PLAYER_COLORS
 import com.boardgamegeek.provider.BggContract.PlayerColors
 import com.boardgamegeek.provider.BggDatabase.Tables
 

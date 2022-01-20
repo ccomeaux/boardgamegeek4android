@@ -15,10 +15,10 @@ class ResetCollectionTask(context: Context?) : ToastingAsyncTask(context) {
     override val failureMessageResource = R.string.pref_sync_reset_failure
 
     override fun doInBackground(vararg params: Void?): Boolean {
-        context?.applicationContext?.let {
+        return context?.applicationContext?.let {
             getPrefs(it).clearCollection()
             SyncService.sync(it, SyncService.FLAG_SYNC_COLLECTION)
-            return true
-        } ?: return false
+            true
+        } ?: false
     }
 }

@@ -4,7 +4,7 @@ import com.boardgamegeek.provider.BggContract.Collection
 import okhttp3.OkHttpClient
 
 class CollectionCommentUploadTask(client: OkHttpClient) : CollectionTextUploadTask(client) {
-    override val timestampColumn = Collection.COMMENT_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.Columns.COMMENT_DIRTY_TIMESTAMP
 
     override val fieldName = "comment"
 

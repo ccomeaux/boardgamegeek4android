@@ -12,7 +12,7 @@ import androidx.core.view.isVisible
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView

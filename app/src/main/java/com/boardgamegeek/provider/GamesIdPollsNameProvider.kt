@@ -2,6 +2,8 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_POLLS
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class GamesIdPollsNameProvider : BaseProvider() {
@@ -14,7 +16,7 @@ class GamesIdPollsNameProvider : BaseProvider() {
         val pollName = Games.getPollName(uri)
         return SelectionBuilder()
             .table(Tables.GAME_POLLS)
-            .whereEquals(GamePolls.GAME_ID, gameId)
-            .whereEquals(GamePolls.POLL_NAME, pollName)
+            .whereEquals(GamePolls.Columns.GAME_ID, gameId)
+            .whereEquals(GamePolls.Columns.POLL_NAME, pollName)
     }
 }

@@ -22,5 +22,4 @@ abstract class ToastingAsyncTask(protected val context: Context?) : AsyncTask<Vo
             Toast.makeText(context?.applicationContext, resId, Toast.LENGTH_LONG).show()
         }
     }
-
 }

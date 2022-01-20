@@ -3,7 +3,7 @@ package com.boardgamegeek.provider
 import android.net.Uri
 
 import com.boardgamegeek.provider.BggContract.Categories
-import com.boardgamegeek.provider.BggContract.PATH_CATEGORIES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_CATEGORIES
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class CategoriesProvider : BasicProvider() {
@@ -15,16 +15,16 @@ class CategoriesProvider : BasicProvider() {
 
     override val defaultSortOrder = Categories.DEFAULT_SORT
 
-    override val insertedIdColumn = Categories.CATEGORY_ID
+    override val insertedIdColumn = Categories.Columns.CATEGORY_ID
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
-            .mapToTable(Categories.CATEGORY_ID, table)
-        if (projection.orEmpty().contains(Categories.ITEM_COUNT)) {
+            .mapToTable(Categories.Columns.CATEGORY_ID, table)
+        if (projection.orEmpty().contains(Categories.Columns.ITEM_COUNT)) {
             builder
                 .table(Tables.CATEGORIES_JOIN_COLLECTION)
-                .groupBy("$table.${Categories.CATEGORY_ID}")
-                .mapAsCount(Categories.ITEM_COUNT)
+                .groupBy("$table.${Categories.Columns.CATEGORY_ID}")
+                .mapAsCount(Categories.Columns.ITEM_COUNT)
         } else {
             builder.table(table)
         }

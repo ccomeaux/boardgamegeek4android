@@ -21,24 +21,24 @@ class DesignerDao(private val context: BggApplication) {
 
     suspend fun loadDesigners(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<PersonEntity>()
-        val sortByName = Designers.DESIGNER_NAME.collateNoCase().ascending()
+        val sortByName = Designers.Columns.DESIGNER_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Designers.ITEM_COUNT.descending().plus(", $sortByName")
-            SortType.WHITMORE_SCORE -> Designers.WHITMORE_SCORE.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Designers.Columns.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.WHITMORE_SCORE -> Designers.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
             Designers.CONTENT_URI,
             arrayOf(
-                Designers.DESIGNER_ID,
-                Designers.DESIGNER_NAME,
-                Designers.DESIGNER_DESCRIPTION,
-                Designers.UPDATED,
-                Designers.DESIGNER_THUMBNAIL_URL,
-                Designers.DESIGNER_HERO_IMAGE_URL,
-                Designers.ITEM_COUNT,
-                Designers.WHITMORE_SCORE,
-                Designers.DESIGNER_STATS_UPDATED_TIMESTAMP
+                Designers.Columns.DESIGNER_ID,
+                Designers.Columns.DESIGNER_NAME,
+                Designers.Columns.DESIGNER_DESCRIPTION,
+                Designers.Columns.UPDATED,
+                Designers.Columns.DESIGNER_THUMBNAIL_URL,
+                Designers.Columns.DESIGNER_HERO_IMAGE_URL,
+                Designers.Columns.ITEM_COUNT,
+                Designers.Columns.WHITMORE_SCORE,
+                Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP
             ),
             sortOrder = sortOrder
         )?.use {
@@ -65,16 +65,16 @@ class DesignerDao(private val context: BggApplication) {
         context.contentResolver.load(
             Designers.buildDesignerUri(id),
             arrayOf(
-                Designers.DESIGNER_ID,
-                Designers.DESIGNER_NAME,
-                Designers.DESIGNER_DESCRIPTION,
-                Designers.UPDATED,
-                Designers.WHITMORE_SCORE,
-                Designers.DESIGNER_THUMBNAIL_URL,
-                Designers.DESIGNER_IMAGE_URL,
-                Designers.DESIGNER_HERO_IMAGE_URL,
-                Designers.DESIGNER_STATS_UPDATED_TIMESTAMP,
-                Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP,
+                Designers.Columns.DESIGNER_ID,
+                Designers.Columns.DESIGNER_NAME,
+                Designers.Columns.DESIGNER_DESCRIPTION,
+                Designers.Columns.UPDATED,
+                Designers.Columns.WHITMORE_SCORE,
+                Designers.Columns.DESIGNER_THUMBNAIL_URL,
+                Designers.Columns.DESIGNER_IMAGE_URL,
+                Designers.Columns.DESIGNER_HERO_IMAGE_URL,
+                Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP,
+                Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP,
             )
         )?.use {
             if (it.moveToFirst()) {
@@ -105,7 +105,7 @@ class DesignerDao(private val context: BggApplication) {
             Timber.d("Updated %,d designer rows at %s", count, uri)
             count
         } else {
-            values.put(Designers.DESIGNER_ID, designerId)
+            values.put(Designers.Columns.DESIGNER_ID, designerId)
             val insertedUri = resolver.insert(Designers.CONTENT_URI, values)
             Timber.d("Inserted designer at %s", insertedUri)
             1

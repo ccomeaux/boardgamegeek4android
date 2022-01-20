@@ -21,24 +21,24 @@ class ArtistDao(private val context: BggApplication) {
 
     suspend fun loadArtists(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
         val results = mutableListOf<PersonEntity>()
-        val sortByName = Artists.ARTIST_NAME.collateNoCase().ascending()
+        val sortByName = Artists.Columns.ARTIST_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Artists.ITEM_COUNT.descending().plus(", $sortByName")
-            SortType.WHITMORE_SCORE -> Artists.WHITMORE_SCORE.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Artists.Columns.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.WHITMORE_SCORE -> Artists.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
             Artists.CONTENT_URI,
             arrayOf(
-                Artists.ARTIST_ID,
-                Artists.ARTIST_NAME,
-                Artists.ARTIST_DESCRIPTION,
-                Artists.UPDATED,
-                Artists.ARTIST_THUMBNAIL_URL,
-                Artists.ARTIST_HERO_IMAGE_URL,
-                Artists.ITEM_COUNT,
-                Artists.WHITMORE_SCORE,
-                Artists.ARTIST_STATS_UPDATED_TIMESTAMP
+                Artists.Columns.ARTIST_ID,
+                Artists.Columns.ARTIST_NAME,
+                Artists.Columns.ARTIST_DESCRIPTION,
+                Artists.Columns.UPDATED,
+                Artists.Columns.ARTIST_THUMBNAIL_URL,
+                Artists.Columns.ARTIST_HERO_IMAGE_URL,
+                Artists.Columns.ITEM_COUNT,
+                Artists.Columns.WHITMORE_SCORE,
+                Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
             ),
             sortOrder = sortOrder
         )?.use {
@@ -65,16 +65,16 @@ class ArtistDao(private val context: BggApplication) {
         context.contentResolver.load(
             Artists.buildArtistUri(id),
             arrayOf(
-                Artists.ARTIST_ID,
-                Artists.ARTIST_NAME,
-                Artists.ARTIST_DESCRIPTION,
-                Artists.UPDATED,
-                Artists.WHITMORE_SCORE,
-                Artists.ARTIST_THUMBNAIL_URL,
-                Artists.ARTIST_IMAGE_URL,
-                Artists.ARTIST_HERO_IMAGE_URL,
-                Artists.ARTIST_STATS_UPDATED_TIMESTAMP,
-                Artists.ARTIST_IMAGES_UPDATED_TIMESTAMP,
+                Artists.Columns.ARTIST_ID,
+                Artists.Columns.ARTIST_NAME,
+                Artists.Columns.ARTIST_DESCRIPTION,
+                Artists.Columns.UPDATED,
+                Artists.Columns.WHITMORE_SCORE,
+                Artists.Columns.ARTIST_THUMBNAIL_URL,
+                Artists.Columns.ARTIST_IMAGE_URL,
+                Artists.Columns.ARTIST_HERO_IMAGE_URL,
+                Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
+                Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP,
             )
         )?.use {
             if (it.moveToFirst()) {
@@ -105,7 +105,7 @@ class ArtistDao(private val context: BggApplication) {
             Timber.d("Updated %,d artist rows at %s", count, uri)
             count
         } else {
-            values.put(Artists.ARTIST_ID, artistId)
+            values.put(Artists.Columns.ARTIST_ID, artistId)
             val insertedUri = resolver.insert(Artists.CONTENT_URI, values)
             Timber.d("Inserted artist at %s", insertedUri)
             1

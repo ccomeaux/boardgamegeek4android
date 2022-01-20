@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_POLLS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_POLL_RESULTS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_POLL_RESULTS_RESULT
 import com.boardgamegeek.provider.BggDatabase.Tables
 import com.boardgamegeek.util.DataUtils
 import timber.log.Timber
@@ -25,7 +29,7 @@ class GamesIdPollsNameResultsKeyResultProvider : BaseProvider() {
         return SelectionBuilder()
             .table(Tables.GAME_POLL_RESULTS_RESULT)
             .mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-            .whereEquals(GamePollResults.POLL_RESULTS_KEY, key)
+            .whereEquals(GamePollResults.Columns.POLL_RESULTS_KEY, key)
             .where(
                 "game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
                 gameId.toString(),
@@ -40,7 +44,7 @@ class GamesIdPollsNameResultsKeyResultProvider : BaseProvider() {
         return SelectionBuilder()
             .table(Tables.POLL_RESULTS_JOIN_POLL_RESULTS_RESULT)
             .mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS_RESULT)
-            .whereEquals(GamePollResults.POLL_RESULTS_PLAYERS, players)
+            .whereEquals(GamePollResults.Columns.POLL_RESULTS_PLAYERS, players)
             .where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", gameId.toString(), pollName)
     }
 
@@ -52,17 +56,17 @@ class GamesIdPollsNameResultsKeyResultProvider : BaseProvider() {
             Games
                 .buildPollResultsUri(gameId, pollName, players)
         )
-        val id = queryInt(db, builder, GamePollResultsResult._ID)
-        values.put(GamePollResultsResult.POLL_RESULTS_ID, id)
+        val id = queryInt(db, builder, BaseColumns._ID)
+        values.put(GamePollResultsResult.Columns.POLL_RESULTS_ID, id)
         val key = DataUtils.generatePollResultsKey(
-            values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL),
-            values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE)
+            values.getAsString(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL),
+            values.getAsString(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE)
         )
-        values.put(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key)
+        values.put(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY, key)
         try {
             val rowId = db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values)
             if (rowId != -1L) {
-                val key2 = values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS)
+                val key2 = values.getAsString(GamePollResults.Columns.POLL_RESULTS_PLAYERS)
                 return Games.buildPollResultsResultUri(gameId, pollName, players, key2)
             }
         } catch (e: SQLException) {

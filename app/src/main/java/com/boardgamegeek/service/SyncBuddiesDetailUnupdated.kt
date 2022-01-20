@@ -22,7 +22,7 @@ class SyncBuddiesDetailUnupdated(application: BggApplication, service: BggServic
     override fun fetchBuddyNames(): List<String> {
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
-                Buddies.BUDDY_NAME,
-                Buddies.UPDATED.whereZeroOrNull())
+                Buddies.Columns.BUDDY_NAME,
+                Buddies.Columns.UPDATED.whereZeroOrNull())
     }
 }

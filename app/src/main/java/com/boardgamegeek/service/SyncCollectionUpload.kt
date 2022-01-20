@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.SyncResult
 import android.database.Cursor
+import android.provider.BaseColumns
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.core.database.getDoubleOrNull
@@ -17,7 +18,8 @@ import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
@@ -157,14 +159,14 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     private fun fetchDeletedCollectionItems(): Cursor? {
         return getCollectionItems(
-            isGreaterThanZero(Collection.COLLECTION_DELETE_TIMESTAMP),
+            isGreaterThanZero(Collection.Columns.COLLECTION_DELETE_TIMESTAMP),
             R.plurals.sync_notification_collection_deleting
         )
     }
 
     private fun fetchNewCollectionItems(): Cursor? {
         val selection =
-            "(${getDirtyColumnSelection(isGreaterThanZero(Collection.COLLECTION_DIRTY_TIMESTAMP))}) AND ${Collection.COLLECTION_ID.whereNullOrBlank()}"
+            "(${getDirtyColumnSelection(isGreaterThanZero(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP))}) AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}"
         return getCollectionItems(selection, R.plurals.sync_notification_collection_adding)
     }
 
@@ -290,48 +292,48 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     companion object {
         val PROJECTION = arrayOf(
-            Collection._ID,
-            Collection.COLLECTION_ID,
-            Collection.GAME_ID,
-            Collection.COLLECTION_NAME,
-            Collection.COLLECTION_IMAGE_URL,
-            Collection.COLLECTION_THUMBNAIL_URL, // 5
-            Collection.COLLECTION_HERO_IMAGE_URL,
-            Collection.IMAGE_URL,
-            Collection.THUMBNAIL_URL,
-            Collection.HERO_IMAGE_URL,
-            Collection.RATING, // 10
-            Collection.RATING_DIRTY_TIMESTAMP,
-            Collection.COMMENT,
-            Collection.COMMENT_DIRTY_TIMESTAMP,
-            Collection.PRIVATE_INFO_ACQUIRED_FROM,
-            Collection.PRIVATE_INFO_ACQUISITION_DATE, // 15
-            Collection.PRIVATE_INFO_COMMENT,
-            Collection.PRIVATE_INFO_CURRENT_VALUE,
-            Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-            Collection.PRIVATE_INFO_PRICE_PAID,
-            Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, // 20
-            Collection.PRIVATE_INFO_QUANTITY,
-            Collection.PRIVATE_INFO_INVENTORY_LOCATION,
-            Collection.PRIVATE_INFO_DIRTY_TIMESTAMP,
-            Collection.STATUS_OWN,
-            Collection.STATUS_PREVIOUSLY_OWNED, // 25
-            Collection.STATUS_FOR_TRADE,
-            Collection.STATUS_WANT,
-            Collection.STATUS_WANT_TO_BUY,
-            Collection.STATUS_WANT_TO_PLAY,
-            Collection.STATUS_PREORDERED, // 30
-            Collection.STATUS_WISHLIST,
-            Collection.STATUS_WISHLIST_PRIORITY,
-            Collection.STATUS_DIRTY_TIMESTAMP,
-            Collection.WISHLIST_COMMENT,
-            Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP, // 35
-            Collection.CONDITION,
-            Collection.TRADE_CONDITION_DIRTY_TIMESTAMP,
-            Collection.WANTPARTS_LIST,
-            Collection.WANT_PARTS_DIRTY_TIMESTAMP,
-            Collection.HASPARTS_LIST, // 40
-            Collection.HAS_PARTS_DIRTY_TIMESTAMP,
+            BaseColumns._ID,
+            Collection.Columns.COLLECTION_ID,
+            Games.Columns.GAME_ID,
+            Collection.Columns.COLLECTION_NAME,
+            Collection.Columns.COLLECTION_IMAGE_URL,
+            Collection.Columns.COLLECTION_THUMBNAIL_URL, // 5
+            Collection.Columns.COLLECTION_HERO_IMAGE_URL,
+            Games.Columns.IMAGE_URL,
+            Games.Columns.THUMBNAIL_URL,
+            Games.Columns.HERO_IMAGE_URL,
+            Collection.Columns.RATING, // 10
+            Collection.Columns.RATING_DIRTY_TIMESTAMP,
+            Collection.Columns.COMMENT,
+            Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
+            Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM,
+            Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE, // 15
+            Collection.Columns.PRIVATE_INFO_COMMENT,
+            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE,
+            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+            Collection.Columns.PRIVATE_INFO_PRICE_PAID,
+            Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY, // 20
+            Collection.Columns.PRIVATE_INFO_QUANTITY,
+            Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION,
+            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
+            Collection.Columns.STATUS_OWN,
+            Collection.Columns.STATUS_PREVIOUSLY_OWNED, // 25
+            Collection.Columns.STATUS_FOR_TRADE,
+            Collection.Columns.STATUS_WANT,
+            Collection.Columns.STATUS_WANT_TO_BUY,
+            Collection.Columns.STATUS_WANT_TO_PLAY,
+            Collection.Columns.STATUS_PREORDERED, // 30
+            Collection.Columns.STATUS_WISHLIST,
+            Collection.Columns.STATUS_WISHLIST_PRIORITY,
+            Collection.Columns.STATUS_DIRTY_TIMESTAMP,
+            Collection.Columns.WISHLIST_COMMENT,
+            Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP, // 35
+            Collection.Columns.CONDITION,
+            Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
+            Collection.Columns.WANTPARTS_LIST,
+            Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
+            Collection.Columns.HASPARTS_LIST, // 40
+            Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
         )
     }
 }

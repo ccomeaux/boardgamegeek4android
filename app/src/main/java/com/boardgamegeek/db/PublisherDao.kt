@@ -21,26 +21,26 @@ class PublisherDao(private val context: BggApplication) {
 
     suspend fun loadPublishers(sortBy: SortType): List<CompanyEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<CompanyEntity>()
-        val sortByName = Publishers.PUBLISHER_NAME.collateNoCase().ascending()
+        val sortByName = Publishers.Columns.PUBLISHER_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Publishers.ITEM_COUNT.descending().plus(", $sortByName")
-            SortType.WHITMORE_SCORE -> Publishers.WHITMORE_SCORE.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Publishers.Columns.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.WHITMORE_SCORE -> Publishers.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
             Publishers.CONTENT_URI,
             arrayOf(
-                Publishers.PUBLISHER_ID,
-                Publishers.PUBLISHER_NAME,
-                Publishers.PUBLISHER_DESCRIPTION,
-                Publishers.PUBLISHER_IMAGE_URL,
-                Publishers.PUBLISHER_THUMBNAIL_URL,
-                Publishers.PUBLISHER_HERO_IMAGE_URL,
-                Publishers.UPDATED,
-                Publishers.ITEM_COUNT,
-                Publishers.WHITMORE_SCORE,
-                Publishers.PUBLISHER_STATS_UPDATED_TIMESTAMP,
-                Publishers.PUBLISHER_SORT_NAME,
+                Publishers.Columns.PUBLISHER_ID,
+                Publishers.Columns.PUBLISHER_NAME,
+                Publishers.Columns.PUBLISHER_DESCRIPTION,
+                Publishers.Columns.PUBLISHER_IMAGE_URL,
+                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
+                Publishers.Columns.PUBLISHER_HERO_IMAGE_URL,
+                Publishers.Columns.UPDATED,
+                Publishers.Columns.ITEM_COUNT,
+                Publishers.Columns.WHITMORE_SCORE,
+                Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP,
+                Publishers.Columns.PUBLISHER_SORT_NAME,
             ),
             sortOrder = sortOrder
         )?.use {
@@ -69,15 +69,15 @@ class PublisherDao(private val context: BggApplication) {
         context.contentResolver.load(
             Publishers.buildPublisherUri(id),
             arrayOf(
-                Publishers.PUBLISHER_ID,
-                Publishers.PUBLISHER_NAME,
-                Publishers.PUBLISHER_DESCRIPTION,
-                Publishers.PUBLISHER_IMAGE_URL,
-                Publishers.PUBLISHER_THUMBNAIL_URL,
-                Publishers.PUBLISHER_HERO_IMAGE_URL,
-                Publishers.UPDATED,
-                Publishers.WHITMORE_SCORE,
-                Publishers.PUBLISHER_SORT_NAME,
+                Publishers.Columns.PUBLISHER_ID,
+                Publishers.Columns.PUBLISHER_NAME,
+                Publishers.Columns.PUBLISHER_DESCRIPTION,
+                Publishers.Columns.PUBLISHER_IMAGE_URL,
+                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
+                Publishers.Columns.PUBLISHER_HERO_IMAGE_URL,
+                Publishers.Columns.UPDATED,
+                Publishers.Columns.WHITMORE_SCORE,
+                Publishers.Columns.PUBLISHER_SORT_NAME,
             )
         )?.use {
             if (it.moveToFirst()) {
@@ -107,7 +107,7 @@ class PublisherDao(private val context: BggApplication) {
             Timber.d("Updated %,d publisher rows at %s", count, uri)
             count
         } else {
-            values.put(Publishers.PUBLISHER_ID, publisherId)
+            values.put(Publishers.Columns.PUBLISHER_ID, publisherId)
             val insertedUri = resolver.insert(Publishers.CONTENT_URI, values)
             Timber.d("Inserted publisher at %s", insertedUri)
             1

@@ -180,7 +180,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
                 Collection.CONTENT_URI,
-                "${Collection.UPDATED_LIST}<?",
+                "${Collection.Columns.UPDATED_LIST}<?",
                 arrayOf(timestamp.toString()))
         Timber.i("Deleted $count old collection items")
         // TODO: delete thumbnail images associated with this list (both collection and game)

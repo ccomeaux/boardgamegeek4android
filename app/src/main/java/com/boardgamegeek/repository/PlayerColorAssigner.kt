@@ -4,7 +4,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.extensions.queryStrings
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -19,7 +19,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
     suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
         colorsAvailable.clear()
-        val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(gameId), BggContract.GameColors.COLOR).orEmpty())
+        val gameColors = (application.contentResolver?.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR).orEmpty())
         val takenColors = players.filter { it.color.isNotEmpty() }.map { it.color }
         colorsAvailable.addAll(gameColors - takenColors.toSet())
 
