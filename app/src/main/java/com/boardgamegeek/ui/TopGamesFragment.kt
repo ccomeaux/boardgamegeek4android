@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentTopGamesBinding
 import com.boardgamegeek.entities.TopGameEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.TopGamesAdapter
-import kotlinx.android.synthetic.main.fragment_top_games.*
 import org.jsoup.Jsoup
 import rx.Single
 import rx.SingleSubscriber
@@ -21,19 +20,26 @@ import timber.log.Timber
 import java.io.IOException
 
 class TopGamesFragment : Fragment() {
-    private val adapter: TopGamesAdapter by lazy {
-        TopGamesAdapter()
-    }
+    private var _binding: FragmentTopGamesBinding? = null
+    private val binding get() = _binding!!
+    private val adapter: TopGamesAdapter by lazy { TopGamesAdapter() }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_top_games, container, false)
+        _binding = FragmentTopGamesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
         loadTopGames()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun loadTopGames() {
@@ -52,24 +58,24 @@ class TopGamesFragment : Fragment() {
                 override fun onSuccess(topGames: List<TopGameEntity>) {
                     if (!isAdded) return
                     if (topGames.isEmpty()) {
-                        emptyView.setText(R.string.empty_top_games)
-                        emptyView.fadeIn()
-                        recyclerView.fadeOut()
+                        binding.emptyView.setText(R.string.empty_top_games)
+                        binding.emptyView.isVisible = true
+                        binding.recyclerView.isVisible = false
                     } else {
                         adapter.results = topGames
-                        recyclerView.fadeIn()
-                        emptyView.fadeOut()
+                        binding.recyclerView.isVisible = true
+                        binding.emptyView.isVisible = false
                     }
-                    progressView.hide()
+                    binding.progressView.hide()
                 }
 
                 override fun onError(error: Throwable) {
                     Timber.w(error, "Error loading top games")
                     if (!isAdded) return
-                    emptyView.text = getString(R.string.empty_http_error, error.localizedMessage)
-                    recyclerView.fadeOut()
-                    emptyView.fadeIn()
-                    progressView.hide()
+                    binding.emptyView.text = getString(R.string.empty_http_error, error.localizedMessage)
+                    binding.recyclerView.isVisible = false
+                    binding.emptyView.isVisible = true
+                    binding.progressView.hide()
                 }
             })
     }
@@ -89,15 +95,14 @@ class TopGamesFragment : Fragment() {
             val gameNameElement = element.parent()?.select(".collection_objectname")?.getOrNull(0)?.child(1)
             val yearPublishedText = gameNameElement?.child(1)?.text().orEmpty()
 
-            val game = TopGameEntity(
+            topGames += TopGameEntity(
                 getGameIdFromLink(link?.attr("href")),
                 gameNameElement?.child(0)?.text().orEmpty(),
                 rank,
-                Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length - 1)),
-                link?.child(0)?.attr("src").orEmpty()
+                yearPublishedText.substring(1, yearPublishedText.length - 1).toInt(),
+                link?.child(0)?.attr("src").orEmpty(),
             )
 
-            topGames.add(game)
             rank++
         }
         return topGames
