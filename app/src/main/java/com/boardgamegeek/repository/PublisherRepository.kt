@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -21,17 +20,13 @@ class PublisherRepository(val application: BggApplication) {
     private val dao = PublisherDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    suspend fun loadPublishers(sortBy: PublisherDao.SortType): List<CompanyEntity> {
-        return dao.loadPublishers(sortBy)
-    }
+    suspend fun loadPublishers(sortBy: PublisherDao.SortType) = dao.loadPublishers(sortBy)
 
-    suspend fun loadPublisher(publisherId: Int): CompanyEntity? {
-        return dao.loadPublisher(publisherId)
-    }
+    suspend fun loadPublisher(publisherId: Int) = dao.loadPublisher(publisherId)
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return dao.loadCollection(id, sortBy)
-    }
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+
+    suspend fun delete() = dao.delete()
 
     suspend fun refreshPublisher(publisherId: Int): CompanyEntity? = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().company(publisherId)

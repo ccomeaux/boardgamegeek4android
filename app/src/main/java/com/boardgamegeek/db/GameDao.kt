@@ -473,6 +473,10 @@ class GameDao(private val context: BggApplication) {
         else resolver.delete(Games.buildGameUri(gameId), null, null)
     }
 
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        resolver.delete(Games.CONTENT_URI, null, null)
+    }
+
     suspend fun insertColor(gameId: Int, color: String) = withContext(Dispatchers.IO) {
         resolver.insert(Games.buildColorsUri(gameId), contentValuesOf(GameColors.Columns.COLOR to color))
     }
@@ -563,6 +567,10 @@ class GameDao(private val context: BggApplication) {
             Timber.d("Inserted game at %s", insertedUri)
             1
         }
+    }
+
+    suspend fun resetPlaySync(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.update(Games.CONTENT_URI, contentValuesOf(Games.Columns.UPDATED_PLAYS to 0), null, null)
     }
 
     private fun toValues(game: GameEntity, updateTime: Long): ContentValues {

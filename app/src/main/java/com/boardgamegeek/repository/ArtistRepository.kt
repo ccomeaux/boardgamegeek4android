@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -23,17 +22,13 @@ class ArtistRepository(val application: BggApplication) {
     private val dao = ArtistDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    suspend fun loadArtists(sortBy: ArtistDao.SortType): List<PersonEntity> {
-        return dao.loadArtists(sortBy)
-    }
+    suspend fun loadArtists(sortBy: ArtistDao.SortType) = dao.loadArtists(sortBy)
 
-    suspend fun loadArtist(artistId: Int): PersonEntity? {
-        return dao.loadArtist(artistId)
-    }
+    suspend fun loadArtist(artistId: Int) = dao.loadArtist(artistId)
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return dao.loadCollection(id, sortBy)
-    }
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+
+    suspend fun delete() = dao.delete()
 
     suspend fun refreshArtist(artistId: Int): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().person(BggService.PERSON_TYPE_ARTIST, artistId)

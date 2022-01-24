@@ -9,7 +9,8 @@ import com.boardgamegeek.extensions.collateNoCase
 import com.boardgamegeek.extensions.descending
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.provider.BggContract.Categories
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class CategoryDao(private val context: BggApplication) {
     private val collectionDao = CollectionDao(context)
@@ -49,4 +50,8 @@ class CategoryDao(private val context: BggApplication) {
 
     suspend fun loadCollection(categoryId: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadLinkedCollection(Categories.buildCollectionUri(categoryId), sortBy)
+
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Categories.CONTENT_URI, null, null)
+    }
 }

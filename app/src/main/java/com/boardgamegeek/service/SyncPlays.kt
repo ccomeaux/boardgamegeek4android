@@ -8,7 +8,6 @@ import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
-import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
@@ -65,7 +64,9 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 }
                 syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
             }
-            CalculatePlayStatsTask(application).executeAsyncTask()
+            runBlocking {
+                playRepository.calculatePlayStats()
+            }
         } finally {
             Timber.i("...complete!")
         }

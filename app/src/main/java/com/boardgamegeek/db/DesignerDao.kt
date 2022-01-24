@@ -111,4 +111,8 @@ class DesignerDao(private val context: BggApplication) {
             1
         }
     }
+
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Designers.CONTENT_URI, null, null)
+    }
 }

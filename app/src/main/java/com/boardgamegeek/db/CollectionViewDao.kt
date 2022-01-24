@@ -151,6 +151,10 @@ class CollectionViewDao(private val context: BggApplication) {
         insertDetails(viewFiltersUri, view.filters)
     }
 
+    suspend fun delete(): Boolean = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(CollectionViews.CONTENT_URI, null, null) > 0
+    }
+
     suspend fun delete(viewId: Long): Boolean = withContext(Dispatchers.IO) {
         context.contentResolver.delete(CollectionViews.buildViewUri(viewId), null, null) > 0
     }

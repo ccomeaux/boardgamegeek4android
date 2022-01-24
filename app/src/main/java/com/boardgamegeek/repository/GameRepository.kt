@@ -160,4 +160,6 @@ class GameRepository(val application: BggApplication) {
             dao.update(gameId, contentValuesOf(Games.Columns.STARRED to if (isFavorite) 1 else 0))
         }
     }
+
+    suspend fun delete() = dao.delete()
 }

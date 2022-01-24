@@ -804,6 +804,10 @@ class PlayDao(private val context: BggApplication) {
         context.contentResolver.applyBatch(batch)
     }
 
+    suspend fun deletePlays(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Plays.CONTENT_URI, null, null)
+    }
+
     suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
         val selection = createDeleteSelectionAndArgs(syncTimestamp)
         context.contentResolver.delete(

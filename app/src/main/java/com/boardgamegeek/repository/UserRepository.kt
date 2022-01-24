@@ -14,8 +14,11 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.clearBuddyListTimestamps
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.service.SyncService
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,6 +27,7 @@ import timber.log.Timber
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
 
     suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
         userDao.loadUser(username)
@@ -89,5 +93,18 @@ class UserRepository(val application: BggApplication) {
         prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()
         prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()
         prefs[AccountPreferences.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
+    }
+
+    suspend fun deleteUsers(): Int {
+        syncPrefs.clearBuddyListTimestamps()
+        val count = userDao.deleteUsers()
+        Timber.i("Removed %d users", count)
+        return count
+    }
+
+    suspend fun resetUsers() {
+        deleteUsers()
+        //TODO remove buddy colors
+        SyncService.sync(application, SyncService.FLAG_SYNC_BUDDIES)
     }
 }

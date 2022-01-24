@@ -173,6 +173,10 @@ class UserDao(private val context: BggApplication) {
         }
     }
 
+    suspend fun deleteUsers(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Buddies.CONTENT_URI, null, null)
+    }
+
     suspend fun deleteUsersAsOf(updateTimestamp: Long): Int = withContext(Dispatchers.IO) {
         context.contentResolver.delete(
             Buddies.CONTENT_URI,

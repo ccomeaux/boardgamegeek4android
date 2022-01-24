@@ -16,4 +16,6 @@ class CategoryRepository(val application: BggApplication) {
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
         return categoryDao.loadCollection(id, sortBy)
     }
+
+    suspend fun delete() = categoryDao.delete()
 }

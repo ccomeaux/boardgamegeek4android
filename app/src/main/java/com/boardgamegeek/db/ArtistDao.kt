@@ -111,4 +111,8 @@ class ArtistDao(private val context: BggApplication) {
             1
         }
     }
+
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Artists.CONTENT_URI, null, null)
+    }
 }

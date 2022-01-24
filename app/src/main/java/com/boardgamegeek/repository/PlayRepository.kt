@@ -443,10 +443,16 @@ class PlayRepository(val application: BggApplication) {
 
     suspend fun resetPlays() {
         // resets the sync timestamps, removes the plays' hashcode, and request a sync
-        SyncPrefs.getPrefs(application).clearPlaysTimestamps()
+        syncPrefs.clearPlaysTimestamps()
         val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
         Timber.i("Cleared the hashcode from %,d plays.", count)
         SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS)
+    }
+
+    suspend fun deletePlays() {
+        syncPrefs.clearPlaysTimestamps()
+        playDao.deletePlays()
+        gameDao.resetPlaySync()
     }
 
     suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {

@@ -16,4 +16,6 @@ class MechanicRepository(val application: BggApplication) {
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
         return mechanicDao.loadCollection(id, sortBy)
     }
+
+    suspend fun delete() = mechanicDao.delete()
 }

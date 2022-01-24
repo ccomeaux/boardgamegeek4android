@@ -37,9 +37,9 @@ class CollectionViewRepository(val application: BggApplication) {
         dao.update(view)
     }
 
-    suspend fun deleteView(viewId: Long) {
-        dao.delete(viewId)
-    }
+    suspend fun delete() = dao.delete()
+
+    suspend fun deleteView(viewId: Long) = dao.delete(viewId)
 
     suspend fun updateShortcuts(viewId: Long) = withContext(Dispatchers.Default) {
         if (viewId > 0) {

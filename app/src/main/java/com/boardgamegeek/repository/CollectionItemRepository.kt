@@ -8,11 +8,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.getCurrentCollectionSyncTimestamp
-import com.boardgamegeek.pref.getPartialCollectionSyncLastCompletedAt
-import com.boardgamegeek.pref.setPartialCollectionSyncLastCompletedAt
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.service.SyncService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -42,6 +40,11 @@ class CollectionItemRepository(val application: BggApplication) {
             }
             syncPrefs.setPartialCollectionSyncLastCompletedAt()
         }
+    }
+
+    suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
+        syncPrefs.clearCollection()
+        SyncService.sync(application, SyncService.FLAG_SYNC_COLLECTION)
     }
 
     private suspend fun refreshSubtype(subtype: String, timestamp: Long = System.currentTimeMillis()) {

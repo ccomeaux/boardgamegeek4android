@@ -50,4 +50,8 @@ class MechanicDao(private val context: BggApplication) {
 
     suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadLinkedCollection(Mechanics.buildCollectionUri(mechanicId), sortBy)
+
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Mechanics.CONTENT_URI, null, null)
+    }
 }

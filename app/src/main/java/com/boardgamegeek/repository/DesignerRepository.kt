@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -22,17 +21,13 @@ class DesignerRepository(val application: BggApplication) {
     private val dao = DesignerDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    suspend fun loadDesigners(sortBy: DesignerDao.SortType): List<PersonEntity> {
-        return dao.loadDesigners(sortBy)
-    }
+    suspend fun loadDesigners(sortBy: DesignerDao.SortType) = dao.loadDesigners(sortBy)
 
-    suspend fun loadDesigner(designerId: Int): PersonEntity? {
-        return dao.loadDesigner(designerId)
-    }
+    suspend fun loadDesigner(designerId: Int) = dao.loadDesigner(designerId)
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType): List<BriefGameEntity> {
-        return dao.loadCollection(id, sortBy)
-    }
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+
+    suspend fun delete() = dao.delete()
 
     suspend fun refreshDesigner(designerId: Int): PersonEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().person(BggService.PERSON_TYPE_DESIGNER, designerId)

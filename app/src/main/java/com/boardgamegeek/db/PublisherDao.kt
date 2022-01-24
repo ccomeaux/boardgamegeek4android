@@ -113,4 +113,8 @@ class PublisherDao(private val context: BggApplication) {
             1
         }
     }
+
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Publishers.CONTENT_URI, null, null)
+    }
 }

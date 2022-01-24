@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import androidx.annotation.WorkerThread
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
+import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
 import com.boardgamegeek.util.FileUtils
 import com.squareup.picasso.Picasso
@@ -16,6 +17,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class ImageRepository(val application: BggApplication) {
+    private val imageDao = ImageDao(application)
+
     /** Get a bitmap for the given URL, either from disk or from the network. */
     @WorkerThread
     fun fetchThumbnail(thumbnailUrl: String?): Bitmap? {
@@ -47,6 +50,11 @@ class ImageRepository(val application: BggApplication) {
             }
         }
         return bitmap
+    }
+
+    suspend fun delete() {
+        imageDao.deleteThumbnails()
+        imageDao.deleteAvatars()
     }
 
     private fun getThumbnailFile(context: Context, url: String): File? {
