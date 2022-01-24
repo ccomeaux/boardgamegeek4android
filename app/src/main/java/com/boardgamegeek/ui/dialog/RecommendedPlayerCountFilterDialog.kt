@@ -16,15 +16,14 @@ class RecommendedPlayerCountFilterDialog : CollectionFilterDialog {
         @SuppressLint("InflateParams")
         val layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter_recommended_player_count, null)
 
-        val f = filter as RecommendedPlayerCountFilterer?
-        val playerCount = f?.playerCount?.coerceIn(layout.rangeBar.tickStart.toInt(), layout.rangeBar.tickEnd.toInt())
-                ?: 4
-        val recommendation = f?.recommendation ?: RecommendedPlayerCountFilterer.RECOMMENDED
+        val recommendedPlayerCountFilterer = filter as? RecommendedPlayerCountFilterer
 
-        when (recommendation) {
+        when (recommendedPlayerCountFilterer?.recommendation ?: RecommendedPlayerCountFilterer.RECOMMENDED) {
             RecommendedPlayerCountFilterer.BEST -> layout.bestButton.toggle()
             else -> layout.recommendedButton.toggle()
         }
+
+        val playerCount = recommendedPlayerCountFilterer?.playerCount?.coerceIn(layout.rangeBar.tickStart.toInt(), layout.rangeBar.tickEnd.toInt()) ?: 4
         layout.rangeBar.setSeekPinByIndex(playerCount - 1)
 
         val alertDialog = createAlertDialog(context, listener, layout)
