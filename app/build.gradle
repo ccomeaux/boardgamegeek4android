@@ -175,7 +175,7 @@ dependencies {
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
-    implementation('com.mikepenz:aboutlibraries:7.0.3@aar') {
+    implementation('com.mikepenz:aboutlibraries:7.1.0@aar') {
         transitive = true
     }
 
