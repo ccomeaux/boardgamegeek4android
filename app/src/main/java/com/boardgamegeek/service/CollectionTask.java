@@ -17,7 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public abstract class CollectionTask {
-	private static final String GEEK_COLLECTION_URL = "https://www.boardgamegeek.com/geekcollection.php";
+	private static final String GEEK_COLLECTION_URL = "https://boardgamegeek.com/geekcollection.php";
 	private static final String ERROR_DIV = "<div class='messagebox error'>";
 	private static final String AUTH_ERROR_TEXT = "login";
 	protected final OkHttpClient client;
