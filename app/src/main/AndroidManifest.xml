@@ -409,7 +409,8 @@
 			android:name=".provider.BggProvider"
 			android:authorities="com.boardgamegeek"
 			android:exported="true"
-			android:label="@string/provider_label" />
+			android:label="@string/provider_label"
+			tools:ignore="ExportedContentProvider" />
 
 		<receiver
 			android:name=".service.CancelReceiver"
