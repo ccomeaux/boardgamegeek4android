@@ -13,7 +13,7 @@ const val LINK_AMAZON_COM = "www.amazon.com"
 const val LINK_AMAZON_UK = "www.amazon.co.uk"
 const val LINK_AMAZON_DE = "www.amazon.de"
 
-private val BGG_URI = Uri.parse("https://www.boardgamegeek.com/")
+private val BGG_URI = Uri.parse("https://boardgamegeek.com/")
 
 fun Context?.linkBgg(gameId: Int) {
     if (gameId == BggContract.INVALID_ID) return

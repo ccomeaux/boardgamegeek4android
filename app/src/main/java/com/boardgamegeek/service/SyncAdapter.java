@@ -199,7 +199,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 		OkHttpClient httpClient = HttpUtils.getHttpClientWithAuth(getContext());
-		final String url = "https://www.boardgamegeek.com";
+		final String url = "https://boardgamegeek.com";
 		Request request = new Request.Builder().url(url).build();
 		try {
 			Response response = httpClient.newCall(request).execute();

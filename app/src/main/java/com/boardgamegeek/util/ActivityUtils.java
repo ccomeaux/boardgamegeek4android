@@ -25,7 +25,7 @@ import timber.log.Timber;
 
 public class ActivityUtils {
 	private static final String BOARDGAME_PATH = "boardgame";
-	private static final Uri BGG_URI = Uri.parse("https://www.boardgamegeek.com/");
+	private static final Uri BGG_URI = Uri.parse("https://boardgamegeek.com/");
 
 	public static void share(Activity activity, String subject, CharSequence text, @StringRes int titleResId) {
 		Intent intent = ShareCompat.IntentBuilder.from(activity)
