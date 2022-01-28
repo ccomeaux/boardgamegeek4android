@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create google-services.json file
-        run: cat /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json | base64
+        run: touch /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
       - name: Fill google-services.json file
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
