@@ -4,13 +4,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
       - name: Create google-services.json file
         run: touch /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
       - name: Fill google-services.json file
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: echo $DATA > /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
-      - name: Checkout the code
-        uses: actions/checkout@v2
       - name: Build the app
         run: ./gradlew build
