@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.5.2'
     }
 }
 
@@ -45,15 +45,7 @@ def gitBranchName = { ->
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.2'
 
-    lintOptions {
-        baseline file("lint-baseline.xml")
-        checkAllWarnings true
-        warningsAsErrors true
-        abortOnError true
-        checkReleaseBuilds false
-    }
 
     dexOptions {
         jumboMode true
@@ -115,6 +107,13 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+    lint {
+        abortOnError true
+        baseline file('lint-baseline.xml')
+        checkAllWarnings true
+        checkReleaseBuilds false
+        warningsAsErrors true
     }
 }
 
