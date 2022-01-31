@@ -22,7 +22,6 @@ import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.SelectionBuilder
 import okhttp3.FormBody
 import okhttp3.Request.Builder
 import org.jetbrains.anko.intentFor
@@ -306,7 +305,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     currentPlay.imageUrl,
                     currentPlay.thumbnailUrl,
                     currentPlay.heroImageUrl,
-                    currentPlay.customPlayerSort,
+                    currentPlay.customPlayerSort
             )
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val builder = Action.Builder(
@@ -319,7 +318,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     }
 
     companion object {
-        const val GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php"
+        const val GEEK_PLAY_URL = "https://boardgamegeek.com/geekplay.php"
 
         private fun getMapKey(index: Int, key: String) = "players[$index][$key]"
     }

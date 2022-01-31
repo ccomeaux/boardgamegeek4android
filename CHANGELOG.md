@@ -11,6 +11,10 @@ Coming Soon...
  * Click on your username in the nav drawer to link to your BGG profile
  * Improve UI in some input forms
 
+Version 6.8.2
+-------------
+* Correct error 307 received when attempting to upload data to BGG
+
 Version 6.8.1
 -------------
 * Correct problem logging into BGG
