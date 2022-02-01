@@ -32,8 +32,6 @@ object FileUtils {
     /**
      * Recursively delete everything in `dir`.
      */
-    @JvmStatic
-    @Throws(IOException::class)
     fun deleteContents(directory: File?): Int {
         // TODO: this should specify paths as Strings rather than as Files
         if (directory == null || !directory.exists()) {

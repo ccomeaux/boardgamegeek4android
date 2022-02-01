@@ -1,5 +1,3 @@
-@file:JvmName("FloatingActionButtonUtils")
-
 package com.boardgamegeek.extensions
 
 import android.annotation.TargetApi

@@ -1,5 +1,3 @@
-@file:JvmName("NetworkUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context

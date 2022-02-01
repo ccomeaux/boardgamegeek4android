@@ -1,5 +1,3 @@
-@file:JvmName("DoubleUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context

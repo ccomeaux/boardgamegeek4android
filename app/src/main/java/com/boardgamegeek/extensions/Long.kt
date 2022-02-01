@@ -1,5 +1,3 @@
-@file:JvmName("LongUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context

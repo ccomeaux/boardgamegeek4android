@@ -1,5 +1,3 @@
-@file:JvmName("IntUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context

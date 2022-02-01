@@ -1,5 +1,3 @@
-@file:JvmName("PreferenceUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context

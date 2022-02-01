@@ -1,5 +1,3 @@
-@file:JvmName("DialogUtils")
-
 package com.boardgamegeek.extensions
 
 import android.app.Activity

@@ -1,5 +1,3 @@
-@file:JvmName("ActivityUtils")
-
 package com.boardgamegeek.extensions
 
 import android.app.Activity

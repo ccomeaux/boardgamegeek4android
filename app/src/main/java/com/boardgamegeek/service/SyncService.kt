@@ -41,7 +41,6 @@ class SyncService : Service() {
         private val SYNC_ADAPTER_LOCK = Any()
         private var syncAdapter: SyncAdapter? = null
 
-        @JvmStatic
         fun sync(context: Context?, syncType: Int) {
             Authenticator.getAccount(context)?.let { account ->
                 val extras = bundleOf(

@@ -21,14 +21,12 @@ object HttpUtils {
      */
     fun String?.encodeForUrl(): String? = Uri.encode(this, "UTF-8")
 
-    @JvmStatic
     fun getHttpClient(retry202Response: Boolean) = createBuilder()
         .addInterceptor(UserAgentInterceptor(null))
         .addInterceptor(RetryInterceptor(retry202Response))
         .addLoggingInterceptor()
         .build()
 
-    @JvmStatic
     fun getHttpClientWithAuth(context: Context?) = createBuilder()
         .addInterceptor(UserAgentInterceptor(context))
         .addInterceptor(AuthInterceptor(context))
