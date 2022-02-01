@@ -6,6 +6,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
 import androidx.palette.graphics.Target
+import androidx.palette.graphics.get
 import com.boardgamegeek.R
 
 /**
@@ -28,6 +29,16 @@ fun Palette?.getDarkSwatch(): Palette.Swatch {
             ?: Palette.Swatch(Color.BLACK, 0)
 }
 
+/**
+ * Gets a swatch from the palette best suited for header text.
+ */
+fun Palette?.getHeaderSwatch(): Palette.Swatch {
+    return this?.vibrantSwatch
+            ?: this?.darkMutedSwatch
+            ?: this?.swatches?.getOrNull(0)
+            ?: Palette.Swatch(Color.BLACK, 0)
+}
+
 private val winsTargets = arrayOf(Target.VIBRANT, Target.LIGHT_VIBRANT, Target.DARK_VIBRANT, Target.LIGHT_MUTED, Target.MUTED, Target.DARK_MUTED)
 
 private val winnablePlaysTargets = arrayOf(Target.DARK_VIBRANT, Target.DARK_MUTED, Target.MUTED, Target.VIBRANT, Target.LIGHT_VIBRANT, Target.LIGHT_MUTED)
@@ -43,11 +54,7 @@ fun Palette.getPlayCountColors(context: Context): IntArray {
 }
 
 private fun Palette.getColor(targets: Array<Target>, context: Context, @ColorRes defaultColorResId: Int, vararg usedTargets: Target): Pair<Int, Target> {
-    for (target in targets) {
-        if (!usedTargets.contains(target)) {
-            val swatch = getSwatchForTarget(target)
-            if (swatch != null) return swatch.rgb to target
-        }
-    }
-    return ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build()
+    return targets.find { !usedTargets.contains(it) && this[it] != null }?.let {
+        this[it]!!.rgb to it
+    } ?: ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build()
 }

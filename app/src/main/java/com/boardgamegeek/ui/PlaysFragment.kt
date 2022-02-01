@@ -5,35 +5,26 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
-import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.events.SyncCompleteEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.tasks.sync.SyncPlaysByDateTask
-import com.boardgamegeek.tasks.sync.SyncPlaysByGameTask
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import com.boardgamegeek.util.DateTimeUtils
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.android.synthetic.main.fragment_plays.*
 import kotlinx.android.synthetic.main.row_play.view.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.withArguments
 import java.text.SimpleDateFormat
@@ -41,13 +32,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
-open class PlaysFragment : Fragment(), ActionMode.Callback {
+open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callback {
     private val viewModel by activityViewModels<PlaysViewModel>()
     private val markupConverter by lazy { XmlApiMarkupConverter(requireContext()) }
 
-    private val adapter: PlayAdapter by lazy {
-        PlayAdapter()
-    }
+    private val adapter: PlayAdapter by lazy { PlayAdapter() }
 
     private var gameId: Int = INVALID_ID
     private var gameName: String? = null
@@ -57,22 +46,22 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var arePlayersCustomSorted: Boolean = false
     private var emptyStringResId: Int = 0
     private var showGameName = true
-    private var isSyncing = false
     private var actionMode: ActionMode? = null
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_plays, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
+        viewModel.syncingStatus.observe(viewLifecycleOwner) {
+            showSyncingState(it)
+        }
+
         viewModel.plays.observe(viewLifecycleOwner) {
-            progressBar.isVisible = it.status == Status.REFRESHING
+            showSyncingState(it.status == Status.REFRESHING)
             adapter.items = it.data.orEmpty()
             recyclerView.addHeader(adapter)
+            progressBar.hide()
             if (it.data.isNullOrEmpty()) {
                 emptyContainer.fadeIn()
                 recyclerView.fadeOut()
@@ -84,6 +73,12 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
         viewModel.filterType.observe(viewLifecycleOwner) {
             updateEmptyText()
+        }
+    }
+
+    private fun showSyncingState(it: Boolean?) {
+        swipeRefreshLayout?.post {
+            swipeRefreshLayout?.isRefreshing = it ?: false
         }
     }
 
@@ -101,35 +96,23 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         )
     }
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        emptyStringResId = arguments?.getInt(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
-                ?: R.string.empty_plays
-        showGameName = arguments?.getBoolean(KEY_SHOW_GAME_NAME, true) ?: true
-        gameId = arguments?.getInt(KEY_GAME_ID, INVALID_ID) ?: INVALID_ID
+        emptyStringResId = arguments.getIntOrElse(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
+        showGameName = arguments.getBooleanOrElse(KEY_SHOW_GAME_NAME, true)
+        gameId = arguments.getIntOrElse(KEY_GAME_ID, INVALID_ID)
         gameName = arguments?.getString(KEY_GAME_NAME)
         thumbnailUrl = arguments?.getString(KEY_THUMBNAIL_URL)
         imageUrl = arguments?.getString(KEY_IMAGE_URL)
         heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
-        arePlayersCustomSorted = arguments?.getBoolean(KEY_CUSTOM_PLAYER_SORT) ?: false
-        @ColorInt val iconColor = arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
-                ?: Color.TRANSPARENT
+        arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
+        @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
 
         if (gameId != INVALID_ID) {
             fabView.colorize(iconColor)
             fabView.setOnClickListener {
-                LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+                LogPlayActivity.logPlay(requireContext(), gameId, gameName.orEmpty(), thumbnailUrl.orEmpty(), imageUrl.orEmpty(), heroImageUrl.orEmpty(), arePlayersCustomSorted)
             }
             fabView.show()
         } else {
@@ -139,38 +122,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         updateEmptyText()
 
         swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { triggerRefresh() }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    fun onEvent(event: SyncCompleteEvent) {
-        isSyncing(false)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncPlaysByDateTask.CompletedEvent) {
-        isSyncing(false)
-    }
-
-    fun isSyncing(value: Boolean) {
-        isSyncing = value
-        swipeRefreshLayout?.post {
-            swipeRefreshLayout?.isRefreshing = isSyncing
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncPlaysByGameTask.CompletedEvent) {
-        if (!showGameName && event.gameId == gameId) {
-            isSyncing(false)
-            if (!event.errorMessage.isNullOrBlank()) {
-                Toast.makeText(context, event.errorMessage, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun triggerRefresh() {
-        viewModel.refresh()
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
@@ -249,7 +201,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete
                     play.updateTimestamp > 0 -> R.string.sync_pending_update
-                    play.dirtyTimestamp > 0 -> if (play.playId > 0) R.string.sync_editing else R.string.sync_draft
+                    play.dirtyTimestamp > 0 -> if (play.isSynced) R.string.sync_editing else R.string.sync_draft
                     else -> 0
                 }
                 itemView.statusView.setTextOrHide(statusMessageId)
@@ -293,7 +245,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             val play = items.getOrNull(position) ?: return "-"
             return when (viewModel.sortType.value ?: PlaysViewModel.SortType.DATE) {
                 PlaysViewModel.SortType.DATE -> {
-                    if (play.dateInMillis == DateTimeUtils.UNKNOWN_DATE)
+                    if (play.dateInMillis == PlayEntity.UNKNOWN_DATE)
                         getString(R.string.text_unknown)
                     else
                         dateFormat.format(play.dateInMillis)
@@ -357,7 +309,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             R.id.menu_edit -> {
                 val play = adapter.getItem(adapter.selectedItemPositions.iterator().next())
                 if (play != null)
-                    LogPlayActivity.editPlay(activity, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
+                    LogPlayActivity.editPlay(requireContext(), play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
                 mode.finish()
                 return true
             }

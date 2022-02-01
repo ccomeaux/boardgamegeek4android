@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:app="http://schemas.android.com/apk/res-auto"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
 	<LinearLayout
 		android:id="@+id/byline_container"
@@ -26,7 +26,7 @@
 				android:layout_gravity="center_vertical"
 				android:minWidth="32dp"
 				android:textAppearance="@style/Text.Headline"
-				tools:text="1"/>
+				tools:text="1" />
 
 			<TextView
 				android:id="@+id/geekListTitleView"
@@ -38,9 +38,9 @@
 				android:gravity="center_vertical"
 				android:maxLines="2"
 				android:minHeight="40dp"
-				android:paddingBottom="@dimen/padding_standard"
 				android:paddingTop="@dimen/padding_standard"
-				tools:text="This is a GeekList title"/>
+				android:paddingBottom="@dimen/padding_standard"
+				tools:text="This is a GeekList title" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -54,25 +54,25 @@
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_user_small"
 				android:drawableStart="@drawable/ic_user_small"
-				tools:text="ccomeaux"/>
+				android:drawableLeft="@drawable/ic_user_small"
+				tools:text="ccomeaux" />
 
 			<View
 				android:layout_width="1dp"
 				android:layout_height="match_parent"
 				android:layout_marginLeft="@dimen/padding_standard"
 				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider"/>
+				android:background="@color/list_divider" />
 
 			<TextView
 				android:id="@+id/typeView"
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_type_small"
 				android:drawableStart="@drawable/ic_type_small"
-				tools:text="Board Game"/>
+				android:drawableLeft="@drawable/ic_type_small"
+				tools:text="Board Game" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -86,25 +86,25 @@
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_thumbs_small"
 				android:drawableStart="@drawable/ic_thumbs_small"
-				tools:text="13"/>
+				android:drawableLeft="@drawable/ic_thumbs_small"
+				tools:text="13" />
 
 			<View
 				android:layout_width="1dp"
 				android:layout_height="match_parent"
 				android:layout_marginLeft="@dimen/padding_standard"
 				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider"/>
+				android:background="@color/list_divider" />
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/postedDateView"
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_clock_small"
 				android:drawableStart="@drawable/ic_clock_small"
-				tools:text="Yesterday"/>
+				android:drawableLeft="@drawable/ic_clock_small"
+				tools:text="Yesterday" />
 
 			<View
 				android:id="@+id/datetimeDividerView"
@@ -112,26 +112,26 @@
 				android:layout_height="match_parent"
 				android:layout_marginLeft="@dimen/padding_standard"
 				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider"/>
+				android:background="@color/list_divider" />
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/editedDateView"
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_edit_small"
 				android:drawableStart="@drawable/ic_edit_small"
-				tools:text="2 hours ago"/>
+				android:drawableLeft="@drawable/ic_edit_small"
+				tools:text="2 hours ago" />
 		</LinearLayout>
 	</LinearLayout>
 
 	<FrameLayout style="@style/WebViewContainer">
 
 		<com.boardgamegeek.ui.widget.NestedScrollWebView
-			android:id="@+id/bodyView"
+			android:id="@+id/body"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+			app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 	</FrameLayout>
 
 </LinearLayout>

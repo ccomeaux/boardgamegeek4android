@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameDetailEntity
@@ -27,7 +28,9 @@ import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 class GameDetailRow @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+        defStyleAttr: Int = 0,
+        defStyleRes: Int = 0
+) : LinearLayout(context, attrs, defStyleAttr) {
 
     private val oneMore: String by lazy {
         context.getString(R.string.one_more)
@@ -45,11 +48,8 @@ class GameDetailRow @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true)
 
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        val sa = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground))
-        try {
-            setBackgroundResource(sa.getResourceId(0, 0))
-        } finally {
-            sa.recycle()
+        context.withStyledAttributes(0, intArrayOf(android.R.attr.selectableItemBackground)) {
+            setBackgroundResource(getResourceId(0, 0))
         }
 
         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
@@ -57,15 +57,10 @@ class GameDetailRow @JvmOverloads constructor(
         minimumHeight = resources.getDimensionPixelSize(R.dimen.game_detail_row_height)
         orientation = HORIZONTAL
 
-        attrs?.let {
-            val a = context.obtainStyledAttributes(it, R.styleable.GameDetailRow)
-            try {
-                label = a.getString(R.styleable.GameDetailRow_label) ?: ""
-                icon = a.getDrawable(R.styleable.GameDetailRow_icon_res)
-                queryToken = a.getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID)
-            } finally {
-                a.recycle()
-            }
+        context.withStyledAttributes(attrs, R.styleable.GameDetailRow, defStyleAttr, defStyleRes) {
+            label = getString(R.styleable.GameDetailRow_label).orEmpty()
+            icon = getDrawable(R.styleable.GameDetailRow_icon_res)
+            queryToken = getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID)
         }
         iconView.isVisible = (icon != null)
         iconView.setImageDrawable(icon)

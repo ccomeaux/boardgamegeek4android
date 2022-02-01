@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -21,10 +20,6 @@ import com.boardgamegeek.extensions.set
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
-import com.boardgamegeek.ui.widget.SafeViewTarget
-import com.boardgamegeek.util.HelpUtils
-import com.github.amlcurran.showcaseview.ShowcaseView
-import com.github.amlcurran.showcaseview.targets.Target
 import kotlinx.android.synthetic.main.fragment_thread.*
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import org.jetbrains.anko.support.v4.withArguments
@@ -38,7 +33,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
     private var objectName = ""
     private var objectType = ForumEntity.ForumType.REGION
 
-    private var showcaseView: ShowcaseView? = null
     private var currentAdapterPosition = 0
     private var latestArticleId: Int = INVALID_ARTICLE_ID
 
@@ -99,7 +93,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
                         emptyView.fadeOut()
                         adapter.articles = data.articles
                         recyclerView.fadeIn(isResumed)
-                        maybeShowHelp()
                     }
                     progressView.hide()
                 }
@@ -149,10 +142,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_help -> {
-                showHelp()
-                return true
-            }
             R.id.menu_scroll_last -> {
                 scrollToLatestArticle()
                 return true
@@ -186,30 +175,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         }
     }
 
-    private fun showHelp() {
-        val builder = HelpUtils.getShowcaseBuilder(activity)
-        if (builder != null) {
-            showcaseView = builder.setContentText(R.string.help_thread)
-                    .setTarget(findTarget() ?: Target.NONE)
-                    .setOnClickListener {
-                        showcaseView?.hide()
-                        HelpUtils.updateHelp(context, HelpUtils.HELP_THREAD_KEY, HELP_VERSION)
-                    }.build()
-            showcaseView?.show()
-        }
-    }
-
-    private fun findTarget(): Target? {
-        val child = HelpUtils.getRecyclerViewVisibleChild(recyclerView)
-        return if (child == null) null else SafeViewTarget(child.findViewById(R.id.viewButton))
-    }
-
-    private fun maybeShowHelp() {
-        if (HelpUtils.shouldShowHelp(context, HelpUtils.HELP_THREAD_KEY, HELP_VERSION)) {
-            Handler().postDelayed({ showHelp() }, 100)
-        }
-    }
-
     companion object {
         private const val KEY_FORUM_ID = "FORUM_ID"
         private const val KEY_FORUM_TITLE = "FORUM_TITLE"
@@ -217,7 +182,6 @@ class ThreadFragment : Fragment(R.layout.fragment_thread) {
         private const val KEY_OBJECT_NAME = "OBJECT_NAME"
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
         private const val KEY_THREAD_ID = "THREAD_ID"
-        private const val HELP_VERSION = 2
         private const val SMOOTH_SCROLL_THRESHOLD = 10
         private const val INVALID_ARTICLE_ID = -1
 

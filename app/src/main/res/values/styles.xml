@@ -548,24 +548,6 @@
 		<item name="android:minWidth">132dp</item>
 	</style>
 
-	<style name="BggShowcaseTheme" parent="ShowcaseView.Light">
-		<item name="sv_backgroundColor">#f5405898</item>
-		<item name="sv_showcaseColor">@color/dark_blue</item>
-		<item name="sv_buttonText">@string/ok</item>
-		<item name="sv_titleTextAppearance">@style/BggShowcaseTitle</item>
-		<item name="sv_detailTextAppearance">@style/BggShowcaseText</item>
-		<item name="sv_tintButtonColor">true</item>
-	</style>
-
-	<style name="BggShowcaseTitle" parent="TextAppearance.ShowcaseView.Title">
-		<item name="android:textSize">24sp</item>
-		<item name="android:textColor">#aaffffff</item>
-	</style>
-
-	<style name="BggShowcaseText" parent="TextAppearance.ShowcaseView.Detail">
-		<item name="android:textSize">14sp</item>
-	</style>
-
 	<style name="EmptyMessage">
 		<item name="android:gravity">center</item>
 		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>

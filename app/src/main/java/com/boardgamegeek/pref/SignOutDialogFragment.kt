@@ -3,12 +3,12 @@ package com.boardgamegeek.pref
 import android.os.Bundle
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.extensions.cancelSync
 
 class SignOutDialogFragment : PreferenceDialogFragmentCompat() {
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
-            SyncService.cancelSync(context)
+            context.cancelSync()
             Authenticator.signOut(context)
         }
     }

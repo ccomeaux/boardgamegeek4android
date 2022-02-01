@@ -4,6 +4,7 @@ import android.content.ContentValues
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -212,7 +213,7 @@ class GameCollectionRepository(val application: BggApplication) {
         }
     }
 
-    fun resetTimestamps(internalId: Long, gameId: Int) {
+    fun resetTimestamps(internalId: Long, gameId: Int, errorMessage: MutableLiveData<String>) {
         if (internalId == BggContract.INVALID_ID.toLong()) return
         application.appExecutors.diskIO.execute {
             val values = contentValuesOf(
@@ -228,8 +229,9 @@ class GameCollectionRepository(val application: BggApplication) {
             )
 
             val success = dao.update(internalId, values) > 0
-            if (success && gameId != BggContract.INVALID_ID)
-                SyncCollectionByGameTask(application, gameId).executeAsyncTask()
+            if (success && gameId != BggContract.INVALID_ID) {
+                SyncCollectionByGameTask(application, gameId, errorMessage).executeAsyncTask()
+            }
         }
     }
 }

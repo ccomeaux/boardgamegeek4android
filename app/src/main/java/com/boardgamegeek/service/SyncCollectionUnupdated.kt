@@ -7,11 +7,11 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.use
+import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.CollectionItemMapper
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 import java.io.IOException
 
@@ -101,7 +101,7 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
         val games = mutableMapOf<Int, String>()
         val cursor = context.contentResolver.query(Collection.CONTENT_URI,
                 arrayOf(Collection.GAME_ID, Collection.GAME_NAME),
-                SelectionBuilder.whereZeroOrNull("collection.${Collection.UPDATED}"),
+                "collection.${Collection.UPDATED}".whereZeroOrNull(),
                 null,
                 "collection.${Collection.UPDATED_LIST} DESC LIMIT $gamesPerFetch")
         cursor?.use {

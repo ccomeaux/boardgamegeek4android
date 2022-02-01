@@ -2,12 +2,11 @@ package com.boardgamegeek.ui
 
 import android.graphics.Point
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -46,22 +45,14 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        filterEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                if (s.isNullOrBlank()) {
-                    nextOrAddButton.setImageResource(R.drawable.ic_check_circle)
-                } else {
-                    nextOrAddButton.setImageResource(R.drawable.ic_add_circle_outline)
-                }
-                viewModel.filterPlayers(s.toString())
+        filterEditText.doAfterTextChanged { s ->
+            if (s.isNullOrBlank()) {
+                nextOrAddButton.setImageResource(R.drawable.ic_check_circle)
+            } else {
+                nextOrAddButton.setImageResource(R.drawable.ic_add_circle_outline)
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-        })
+            viewModel.filterPlayers(s.toString())
+        }
 
         nextOrAddButton.setOnClickListener {
             if (filterEditText.text?.isNotBlank() == true) {

@@ -29,13 +29,15 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.LinearLayout
+import androidx.core.content.withStyledAttributes
 import com.boardgamegeek.R
 
 open class ForegroundLinearLayout @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0)
-    : LinearLayout(context, attrs, defStyleAttr) {
+        defStyleAttr: Int = 0,
+        defStyleRes: Int = 0
+) : LinearLayout(context, attrs, defStyleAttr) {
     private var foregroundDrawable: Drawable? = null
     private val selfBounds = Rect()
     private val overlayBounds = Rect()
@@ -44,19 +46,10 @@ open class ForegroundLinearLayout @JvmOverloads constructor(
     private var foregroundBoundsChanged = false
 
     init {
-
-        val a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundLinearLayout, defStyleAttr, 0)
-        try {
-            foregroundGravity = a.getInt(R.styleable.BggForegroundLinearLayout_android_foregroundGravity, foregroundGravity)
-
-            val drawable = a.getDrawable(R.styleable.BggForegroundLinearLayout_android_foreground)
-            if (drawable != null) {
-                foreground = drawable
-            }
-
-            isForegroundInPadding = a.getBoolean(R.styleable.BggForegroundLinearLayout_foregroundInsidePadding, true)
-        } finally {
-            a.recycle()
+        context.withStyledAttributes(attrs, R.styleable.ForegroundLinearLayout, defStyleAttr, defStyleRes) {
+            foregroundGravity = getInt(R.styleable.BggForegroundLinearLayout_android_foregroundGravity, foregroundGravity)
+            getDrawable(R.styleable.BggForegroundLinearLayout_android_foreground)?.let { foreground = it }
+            isForegroundInPadding = getBoolean(R.styleable.BggForegroundLinearLayout_foregroundInsidePadding, true)
         }
     }
 

@@ -14,17 +14,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
-import com.boardgamegeek.events.SyncCompleteEvent
-import com.boardgamegeek.events.SyncEvent
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
+import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -42,6 +40,7 @@ abstract class DrawerActivity : BaseActivity() {
     var rootContainer: ViewGroup? = null
 
     private val viewModel by viewModels<SelfUserViewModel>()
+    private val syncViewModel by viewModels<SyncViewModel>()
 
     protected open val navigationItemId: Int
         get() = 0
@@ -69,8 +68,15 @@ abstract class DrawerActivity : BaseActivity() {
             true
         }
 
-        viewModel.user.observe(this, Observer {
+        val signInButton = navigationView.getHeaderView(0).findViewById<Button>(R.id.singInButton)
+        signInButton.setOnClickListener { startActivity<LoginActivity>() }
+
+        viewModel.user.observe(this, {
             refreshDrawer()
+        })
+
+        syncViewModel.currentSyncTimestamp.observe(this, {
+            invalidateOptionsMenu()
         })
     }
 
@@ -101,16 +107,6 @@ abstract class DrawerActivity : BaseActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: SignOutEvent) {
         viewModel.setUsername("")
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncEvent) {
-        invalidateOptionsMenu()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SyncCompleteEvent) {
-        invalidateOptionsMenu()
     }
 
     override fun onBackPressed() {
@@ -187,7 +183,6 @@ abstract class DrawerActivity : BaseActivity() {
         } else {
             signedInGroup.isVisible = false
             signInButton.isVisible = true
-            signInButton.setOnClickListener { startActivity<LoginActivity>() }
         }
     }
 }

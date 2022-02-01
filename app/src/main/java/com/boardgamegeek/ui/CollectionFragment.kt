@@ -107,7 +107,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
 
         swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        swipeRefreshLayout.setOnRefreshListener {
+            swipeRefreshLayout.isRefreshing = viewModel.refresh()
+        }
 
         progressBar.show()
         viewModel.selectedViewId.observe(viewLifecycleOwner) {
@@ -128,7 +130,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             bindFilterButtons()
         }
         viewModel.items.observe(viewLifecycleOwner) {
-                it?.let { showData(it) }
+            it?.let { showData(it) }
         }
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
             swipeRefreshLayout.post { swipeRefreshLayout?.isRefreshing = it }
@@ -410,7 +412,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                     when {
                         isCreatingShortcut -> createShortcut(item.gameId, item.gameName, item.thumbnailUrl)
                         changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
-                            LogPlayActivity.changeGame(context, changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl)
+                            LogPlayActivity.changeGame(requireContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl)
                             requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
                         }
                         actionMode == null -> GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
@@ -506,7 +508,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         val ci = adapter.getItem(adapter.selectedItemPositions.iterator().next())
         when (item.itemId) {
             R.id.menu_log_play_form -> {
-                ci?.let { LogPlayActivity.logPlay(context, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted) }
+                ci?.let { LogPlayActivity.logPlay(requireContext(), it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted) }
                 mode.finish()
                 return true
             }

@@ -1,15 +1,12 @@
 package com.boardgamegeek.ui
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.AsyncQueryHandler
-import android.content.ContentResolver
 import android.content.Intent
-import android.database.Cursor
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -19,34 +16,28 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.GameColors
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter
 import com.boardgamegeek.ui.adapter.GameColorAdapter
 import com.boardgamegeek.ui.adapter.PlayerNameAdapter
 import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
-import com.boardgamegeek.util.HelpUtils
+import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
 import com.boardgamegeek.util.ImageUtils.safelyLoadImage
-import com.boardgamegeek.util.ShowcaseViewWizard
-import com.boardgamegeek.util.ToolbarUtils
-import com.boardgamegeek.util.UIUtils
-import com.github.amlcurran.showcaseview.targets.Target
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.android.synthetic.main.activity_logplayer.*
 import org.jetbrains.anko.defaultSharedPreferences
-import java.util.*
+import kotlin.collections.ArrayList
 
-class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
+class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private val viewModel by viewModels<LogPlayerViewModel>()
 
     private var gameName = ""
     private var position = 0
     private var player = Player()
     private var originalPlayer: Player? = null
 
-    private var showcaseWizard: ShowcaseViewWizard? = null
     private var userHasShownTeamColor = false
     private var userHasShownPosition = false
     private var userHasShownScore = false
@@ -56,32 +47,10 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     private var autoPosition = Player.SEAT_UNKNOWN
     private var isNewPlayer = false
     private var usedColors: ArrayList<String>? = null
-    private var colors = arrayListOf<String>()
-
-    @SuppressLint("HandlerLeak")
-    private inner class QueryHandler(cr: ContentResolver?) : AsyncQueryHandler(cr) {
-        override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor?) {
-            if (cursor == null) {
-                return
-            }
-            if (isFinishing) {
-                cursor.close()
-                return
-            }
-            cursor.use { c ->
-                if (c.moveToFirst()) {
-                    colors = ArrayList()
-                    do {
-                        colors.add(cursor.getString(0))
-                    } while (c.moveToNext())
-                }
-            }
-        }
-    }
+    private val colors = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_logplayer)
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
@@ -105,7 +74,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         }
         fab.setOnClickListener { addField() }
 
-        ToolbarUtils.setDoneCancelActionBarView(this) { v: View ->
+        setDoneCancelActionBarView { v: View ->
             when (v.id) {
                 R.id.menu_done -> save()
                 R.id.menu_cancel -> cancel()
@@ -115,11 +84,16 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         val gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
-        val imageUrl = intent.getStringExtra(KEY_IMAGE_URL) ?: ""
-        val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL) ?: ""
-        val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL) ?: ""
+        val imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
+        val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
+        val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
+
+        viewModel.colors.observe(this, {
+            colors.clear()
+            colors.addAll(it)
+        })
 
         if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
             userHasShownScore = true
@@ -131,9 +105,9 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         if (savedInstanceState == null) {
             player = intent.getParcelableExtra(KEY_PLAYER) ?: Player()
             if (hasAutoPosition()) {
-                player.seat = autoPosition
+                player.seat = autoPosition // TODO
             }
-            originalPlayer = Player(player)
+            originalPlayer = player.copy()
         } else {
             player = savedInstanceState.getParcelable(KEY_PLAYER) ?: Player()
             userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR)
@@ -144,17 +118,15 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             userHasShownWin = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_WIN)
         }
 
-        this.usedColors = if (usedColors == null) ArrayList() else ArrayList(listOf(*usedColors))
+        this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
         thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
         bindUi()
-        QueryHandler(contentResolver).startQuery(0, null, Games.buildColorsUri(gameId), arrayOf(GameColors.COLOR), null, null, null)
         nameView.setAdapter(PlayerNameAdapter(this))
         usernameView.setAdapter(BuddyNameAdapter(this))
         teamColorView.setAdapter(GameColorAdapter(this, gameId))
-        setUpShowcaseViewWizard()
-        showcaseWizard?.maybeShowHelp()
+        viewModel.setGameId(gameId)
     }
 
     override fun onResume() {
@@ -193,12 +165,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             }
             til.setEndIconDrawable(R.drawable.ic_keyboard)
         }
-        UIUtils.focusWithKeyboard(editText)
-    }
-
-    private fun setUpShowcaseViewWizard() {
-        showcaseWizard = ShowcaseViewWizard(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION)
-        showcaseWizard?.addTarget(R.string.help_logplayer, Target.NONE)
+        editText.focusWithKeyboard()
     }
 
     private fun bindUi() {
@@ -214,9 +181,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         nameView.setTextKeepState(player.name)
         usernameView.setTextKeepState(player.username)
         teamColorView.setTextKeepState(player.color)
-        if (player.startingPosition != null) {
-            positionView.setTextKeepState(player.startingPosition)
-        }
+        positionView.setTextKeepState(player.startingPosition)
         scoreView.setTextKeepState(player.score)
         ratingView.setTextKeepState(if (player.rating == Player.DEFAULT_RATING) "" else player.rating.toString())
         newView.isChecked = player.isNew
@@ -224,44 +189,16 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     }
 
     private fun setViewVisibility() {
-        teamColorContainer.isVisible = !shouldHideTeamColor()
-        positionContainer.isVisible = !hasAutoPosition() && !shouldHidePosition()
-        scoreContainer.isVisible = !shouldHideScore()
-        ratingContainer.isVisible = !shouldHideRating()
-        newView.isVisible = !shouldHideNew()
-        winView.isVisible = !shouldHideWin()
+        teamColorContainer.isVisible = defaultSharedPreferences.showLogPlayerTeamColor() || userHasShownTeamColor || player.color.isNotEmpty()
+        positionContainer.isVisible = !hasAutoPosition() && (defaultSharedPreferences.showLogPlayerPosition() || userHasShownPosition || player.startingPosition.isNotEmpty())
+        scoreContainer.isVisible = defaultSharedPreferences.showLogPlayerScore() || userHasShownScore || player.score.isNotEmpty()
+        ratingContainer.isVisible = defaultSharedPreferences.showLogPlayerRating() || userHasShownRating || player.rating > 0
+        newView.isVisible = defaultSharedPreferences.showLogPlayerNew() || userHasShownNew || player.isNew
+        winView.isVisible = defaultSharedPreferences.showLogPlayerWin() || userHasShownWin || player.isWin
 
         val enableButton = createAddFieldArray().isNotEmpty()
-        if (enableButton) {
-            fab.show()
-        } else {
-            fab.hide()
-        }
+        if (enableButton) fab.show() else fab.hide()
         fabBuffer.isVisible = enableButton
-    }
-
-    private fun shouldHideTeamColor(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerTeamColor() && !userHasShownTeamColor && player.color.isNullOrEmpty()
-    }
-
-    private fun shouldHidePosition(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerPosition() && !userHasShownPosition && player.startingPosition.isNullOrEmpty()
-    }
-
-    private fun shouldHideScore(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerScore() && !userHasShownScore && player.score.isNullOrEmpty()
-    }
-
-    private fun shouldHideRating(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerRating() && !userHasShownRating && player.rating <= 0
-    }
-
-    private fun shouldHideNew(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerNew() && !userHasShownNew && !player.isNew
-    }
-
-    private fun shouldHideWin(): Boolean {
-        return !defaultSharedPreferences.showLogPlayerWin() && !userHasShownWin && !player.isWin
     }
 
     private fun hasAutoPosition(): Boolean {
@@ -317,24 +254,12 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
     private fun createAddFieldArray(): Array<CharSequence> {
         val list = mutableListOf<CharSequence>()
-        if (shouldHideTeamColor()) {
-            list.add(resources.getString(R.string.team_color))
-        }
-        if (!hasAutoPosition() && shouldHidePosition()) {
-            list.add(resources.getString(R.string.starting_position))
-        }
-        if (shouldHideScore()) {
-            list.add(resources.getString(R.string.score))
-        }
-        if (shouldHideRating()) {
-            list.add(resources.getString(R.string.rating))
-        }
-        if (shouldHideNew()) {
-            list.add(resources.getString(R.string.new_label))
-        }
-        if (shouldHideWin()) {
-            list.add(resources.getString(R.string.win))
-        }
+        if (!teamColorContainer.isVisible) list.add(resources.getString(R.string.team_color))
+        if (!hasAutoPosition() && !positionContainer.isVisible) list.add(resources.getString(R.string.starting_position))
+        if (!scoreContainer.isVisible) list.add(resources.getString(R.string.score))
+        if (!ratingContainer.isVisible) list.add(resources.getString(R.string.rating))
+        if (!newView.isVisible) list.add(resources.getString(R.string.new_label))
+        if (!winView.isVisible) list.add(resources.getString(R.string.win))
         return list.toTypedArray()
     }
 
@@ -390,6 +315,5 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         const val KEY_USER_HAS_SHOWN_RATING = "USER_HAS_SHOWN_RATING"
         const val KEY_USER_HAS_SHOWN_NEW = "USER_HAS_SHOWN_NEW"
         const val KEY_USER_HAS_SHOWN_WIN = "USER_HAS_SHOWN_WIN"
-        private const val HELP_VERSION = 2
     }
 }

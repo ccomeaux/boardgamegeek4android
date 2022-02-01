@@ -22,41 +22,35 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
-import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.withStyledAttributes
 import com.boardgamegeek.R
 
 class ForegroundImageView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyle: Int = 0)
-    : AppCompatImageView(context, attrs, defStyle) {
+        defStyleAttr: Int = 0,
+        defStyleRes: Int = 0
+) : AppCompatImageView(context, attrs, defStyleAttr) {
     private var foreground: Drawable? = null
     private val rectPadding = Rect()
     private var foregroundPadding = false
     private var foregroundBoundsChanged = false
 
     init {
-
-        val a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundImageView, defStyle, 0)
-        try {
-            val d = a.getDrawable(R.styleable.ForegroundImageView_android_foreground)
-            foregroundPadding = a.getBoolean(R.styleable.ForegroundImageView_foregroundInsidePadding, false)
-
+        context.withStyledAttributes(attrs, R.styleable.ForegroundImageView, defStyleAttr, defStyleRes) {
+            foregroundPadding = getBoolean(R.styleable.ForegroundImageView_foregroundInsidePadding, false)
             // Apply foreground padding for nine patches automatically
             if (!foregroundPadding) {
-                val npd = background as? NinePatchDrawable
-                if (npd?.getPadding(rectPadding) == true) {
+                if ((background as? NinePatchDrawable)?.getPadding(rectPadding) == true) {
                     foregroundPadding = true
                 }
             }
-            setForeground(d)
-        } finally {
-            a.recycle()
+            setForeground(getDrawable(R.styleable.ForegroundImageView_android_foreground))
         }
     }
 

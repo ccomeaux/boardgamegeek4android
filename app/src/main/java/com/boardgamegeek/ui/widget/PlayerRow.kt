@@ -100,7 +100,7 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             scoreButton.visibility = View.GONE
         } else {
             seatView.setTextOrHide(player.startingPosition)
-            if (player.name.isNullOrEmpty() && player.username.isNullOrEmpty()) {
+            if (player.name.isEmpty() && player.username.isEmpty()) {
                 val name = if (player.seat == Player.SEAT_UNKNOWN)
                     resources.getString(R.string.title_player)
                 else
@@ -115,8 +115,9 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 setText(usernameView, player.username, usernameTypeface, player.isNew, player.isWin)
             }
 
-            setText(scoreView, player.scoreDescription, scoreTypeface, false, player.isWin)
-            scoreButton.visibility = if (player.score.isNullOrEmpty()) View.GONE else View.VISIBLE
+            val scoreDescription = player.score?.toDoubleOrNull()?.asScore() ?: player.score.orEmpty()
+            setText(scoreView, scoreDescription, scoreTypeface, false, player.isWin)
+            scoreButton.visibility = if (player.score.isNullOrBlank()) View.GONE else View.VISIBLE
 
             if (player.rating == 0.0) {
                 ratingView.isVisible = false

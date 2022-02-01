@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.annotation.IdRes
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -319,8 +319,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
     }
 
     private fun setVisibilityByChildren(view: ViewGroup) {
-        for (i in 0 until view.childCount) {
-            val child = view.getChildAt(i)
+        view.children.forEach { child ->
             if (setVisibilityByChild(view, child)) return
         }
         view.visibility = View.GONE
@@ -358,8 +357,7 @@ class GameCollectionItemFragment : Fragment(R.layout.fragment_game_collection_it
             if (child is ViewGroup) {
                 val tag = child.getTag() as? String?
                 if (tag != null && tag == "container") {
-                    for (j in 0 until child.childCount) {
-                        val grandchild = child.getChildAt(j)
+                    child.children.forEach { grandchild ->
                         if (setVisibilityByChild(view, grandchild)) return true
                     }
                 } else {

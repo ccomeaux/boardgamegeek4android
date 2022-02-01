@@ -23,7 +23,7 @@ abstract class SyncBuddiesDetail(application: BggApplication, service: BggServic
     /**
      * Get a list of usernames to sync.
      */
-    protected abstract fun fetchBuddyNames(): List<String>
+    protected abstract fun fetchBuddyNames(): List<String?>
 
     private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_BUDDIES_FETCH_PAUSE_MILLIS)
 
@@ -37,7 +37,7 @@ abstract class SyncBuddiesDetail(application: BggApplication, service: BggServic
 
             val userDao = UserDao(application)
             var count = 0
-            val names = fetchBuddyNames()
+            val names = fetchBuddyNames().filterNotNull()
             Timber.i("...found %,d buddies to update", names.size)
             if (names.isNotEmpty()) {
                 for (name in names) {

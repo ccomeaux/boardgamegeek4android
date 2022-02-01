@@ -1,6 +1,5 @@
 package com.boardgamegeek.io.model;
 
-import com.boardgamegeek.model.Buddies;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 

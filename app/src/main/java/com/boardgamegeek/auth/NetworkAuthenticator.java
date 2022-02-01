@@ -7,14 +7,17 @@ import com.boardgamegeek.util.HttpUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.analytics.FirebaseAnalytics.Event;
 import com.google.firebase.analytics.FirebaseAnalytics.Param;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Request.Builder;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import timber.log.Timber;
 
@@ -53,7 +56,7 @@ public class NetworkAuthenticator {
 	@Nullable
 	private static BggCookieJar performAuthenticate(@NonNull String username, @NonNull String password, @NonNull String method, FirebaseAnalytics firebaseAnalytics) throws IOException {
 		final BggCookieJar cookieJar = new BggCookieJar();
-		final OkHttpClient client = HttpUtils.getHttpClient().newBuilder()
+		final OkHttpClient client = HttpUtils.getHttpClient(false).newBuilder()
 			.cookieJar(cookieJar)
 			.build();
 		Request post = buildRequest(username, password);
@@ -85,13 +88,15 @@ public class NetworkAuthenticator {
 
 	@NonNull
 	private static Request buildRequest(@NonNull String username, @NonNull String password) {
-		FormBody formBody = new FormBody.Builder()
-			.add("username", username)
-			.add("password", password)
-			.build();
-		return new Request.Builder()
-			.url("https://www.boardgamegeek.com/login")
-			.post(formBody)
+		JsonObject credentials = new JsonObject();
+		credentials.addProperty("username", username);
+		credentials.addProperty("password", password);
+		JsonObject body = new JsonObject();
+		body.add("credentials", credentials);
+		return new Builder()
+			.url("https://boardgamegeek.com/login/api/v1")
+			.post(RequestBody.create(body.toString().getBytes(StandardCharsets.UTF_8)))
+			.addHeader("Content-Type", "application/json")
 			.build();
 	}
 }

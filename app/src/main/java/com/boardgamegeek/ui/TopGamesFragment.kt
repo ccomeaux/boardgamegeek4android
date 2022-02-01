@@ -9,6 +9,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.TopGameEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.TopGamesAdapter
 import kotlinx.android.synthetic.main.fragment_top_games.*
 import org.jsoup.Jsoup
@@ -37,40 +38,40 @@ class TopGamesFragment : Fragment() {
 
     private fun loadTopGames() {
         Single
-                .create<List<TopGameEntity>> { singleSubscriber ->
-                    try {
-                        val topGames = findTopGames()
-                        singleSubscriber.onSuccess(topGames)
-                    } catch (t: Throwable) {
-                        singleSubscriber.onError(t)
-                    }
+            .create<List<TopGameEntity>> { singleSubscriber ->
+                try {
+                    val topGames = findTopGames()
+                    singleSubscriber.onSuccess(topGames)
+                } catch (t: Throwable) {
+                    singleSubscriber.onError(t)
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : SingleSubscriber<List<TopGameEntity>>() {
-                    override fun onSuccess(topGames: List<TopGameEntity>) {
-                        if (!isAdded) return
-                        if (topGames.isEmpty()) {
-                            emptyView.setText(R.string.empty_top_games)
-                            emptyView.fadeIn()
-                            recyclerView.fadeOut()
-                        } else {
-                            adapter.results = topGames
-                            recyclerView.fadeIn()
-                            emptyView.fadeOut()
-                        }
-                        progressView.hide()
-                    }
-
-                    override fun onError(error: Throwable) {
-                        Timber.w(error, "Error loading top games")
-                        if (!isAdded) return
-                        emptyView.text = getString(R.string.empty_http_error, error.localizedMessage)
-                        recyclerView.fadeOut()
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : SingleSubscriber<List<TopGameEntity>>() {
+                override fun onSuccess(topGames: List<TopGameEntity>) {
+                    if (!isAdded) return
+                    if (topGames.isEmpty()) {
+                        emptyView.setText(R.string.empty_top_games)
                         emptyView.fadeIn()
-                        progressView.hide()
+                        recyclerView.fadeOut()
+                    } else {
+                        adapter.results = topGames
+                        recyclerView.fadeIn()
+                        emptyView.fadeOut()
                     }
-                })
+                    progressView.hide()
+                }
+
+                override fun onError(error: Throwable) {
+                    Timber.w(error, "Error loading top games")
+                    if (!isAdded) return
+                    emptyView.text = getString(R.string.empty_http_error, error.localizedMessage)
+                    recyclerView.fadeOut()
+                    emptyView.fadeIn()
+                    progressView.hide()
+                }
+            })
     }
 
     @Throws(IOException::class)
@@ -79,21 +80,21 @@ class TopGamesFragment : Fragment() {
 
         var rank = 1
         val doc = Jsoup
-                .connect("https://www.boardgamegeek.com/browse/boardgame")
-                .timeout(10_000)
-                .get()
+            .connect("https://www.boardgamegeek.com/browse/boardgame")
+            .timeout(10_000)
+            .get()
         val gameElements = doc.select("td.collection_thumbnail")
         for (element in gameElements) {
             val link = element.getElementsByTag("a").first()
-            val gameNameElement = element.parent().select(".collection_objectname")[0].child(1)
-            val yearPublishedText = gameNameElement.child(1).text()
+            val gameNameElement = element.parent()?.select(".collection_objectname")?.getOrNull(0)?.child(1)
+            val yearPublishedText = gameNameElement?.child(1)?.text().orEmpty()
 
             val game = TopGameEntity(
-                    getGameIdFromLink(link.attr("href")),
-                    gameNameElement.child(0).text(),
-                    rank,
-                    Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length - 1)),
-                    link.child(0).attr("src") ?: ""
+                getGameIdFromLink(link?.attr("href")),
+                gameNameElement?.child(0)?.text().orEmpty(),
+                rank,
+                Integer.parseInt(yearPublishedText.substring(1, yearPublishedText.length - 1)),
+                link?.child(0)?.attr("src").orEmpty()
             )
 
             topGames.add(game)
@@ -102,7 +103,8 @@ class TopGamesFragment : Fragment() {
         return topGames
     }
 
-    private fun getGameIdFromLink(href: String): Int {
+    private fun getGameIdFromLink(href: String?): Int {
+        if (href == null) return BggContract.INVALID_ID
         val boardGameIndex = href.indexOf("/boardgame/")
         val afterBoardGameString = if (boardGameIndex != -1) {
             href.substring(boardGameIndex + 11)

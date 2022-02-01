@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
@@ -32,16 +31,12 @@ class GameDetailFragment : Fragment() {
         recyclerView?.layoutManager = LinearLayoutManager(context)
         recyclerView?.setHasFixedSize(true)
         recyclerView?.adapter = adapter
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        viewModel.producerType.observe(viewLifecycleOwner, Observer {
+        viewModel.producerType.observe(viewLifecycleOwner, {
             adapter.type = it ?: ProducerType.UNKNOWN
         })
 
-        viewModel.producers.observe(viewLifecycleOwner, Observer {
+        viewModel.producers.observe(viewLifecycleOwner, {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()

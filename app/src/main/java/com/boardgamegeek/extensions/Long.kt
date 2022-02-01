@@ -1,3 +1,5 @@
+@file:JvmName("LongUtils")
+
 package com.boardgamegeek.extensions
 
 import android.content.Context
@@ -34,7 +36,15 @@ fun Long.asDate(context: Context, @StringRes zeroResId: Int = R.string.never, in
 }
 
 fun Long.howManyMinutesOld(): Int {
-    return ((System.currentTimeMillis() - this + 30_000) / 60_000).toInt()
+    return ((System.currentTimeMillis() - this + 30_000) / MINUTE_IN_MILLIS).toInt()
+}
+
+fun Long.howManyHoursOld(): Int {
+    return ((System.currentTimeMillis() - this) / HOUR_IN_MILLIS).toInt()
+}
+
+fun Long.howManyWeeksOld(): Int {
+    return ((System.currentTimeMillis() - this) / WEEK_IN_MILLIS).toInt()
 }
 
 fun Long.asPastMinuteSpan(context: Context): CharSequence {

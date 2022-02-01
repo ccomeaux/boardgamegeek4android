@@ -2,18 +2,28 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
 import androidx.lifecycle.*
 import com.boardgamegeek.R
+import com.boardgamegeek.db.CollectionViewDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
+import com.boardgamegeek.mappers.createShortcutName
+import com.boardgamegeek.mappers.map
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
-import com.boardgamegeek.tasks.SelectCollectionViewTask
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
@@ -38,7 +48,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val effectiveFilters = MediatorLiveData<List<CollectionFilterer>>()
     val items = MediatorLiveData<List<CollectionItemEntity>>()
     private val syncTimestamp = MutableLiveData<Long>()
-    private val _items: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(syncTimestamp){
+    private val _items: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(syncTimestamp) {
         itemRepository.loadCollection()
     }
     val isRefreshing: LiveData<Boolean> = Transformations.map(_items) {
@@ -129,9 +139,43 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
 
     fun selectView(viewId: Long) {
         if (_selectedViewId.value != viewId) {
-            SelectCollectionViewTask(getApplication(), viewId).execute()
+            updateShortcuts(viewId)
             _selectedViewId.value = viewId
         }
+    }
+
+    private val shortcutManager: ShortcutManager? by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            application.getSystemService()
+        } else {
+            null
+        }
+    }
+
+    val dao = CollectionViewDao(getApplication())
+
+    private fun updateShortcuts(viewId: Long) {
+        if (viewId <= 0) return
+        CoroutineScope(Dispatchers.Default).launch {
+            dao.updateShortcutCount(viewId)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                shortcutManager?.reportShortcutUsed(createShortcutName(viewId))
+                setShortcuts()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    private suspend fun setShortcuts() {
+        val shortcuts = mutableListOf<ShortcutInfo>()
+        dao.loadShortcuts().filter { it.name.isNotBlank() }.take(SHORTCUT_COUNT).forEach {
+            shortcuts += it.map(getApplication())
+        }
+        shortcutManager?.dynamicShortcuts = shortcuts
+    }
+
+    companion object {
+        private const val SHORTCUT_COUNT = 3
     }
 
     fun setSort(sortType: Int) {
@@ -245,7 +289,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         val view = CollectionViewEntity(
                 _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
                 selectedViewName.value ?: "",
-                _sortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
                 filterEntities
         )
         viewRepository.updateView(view)

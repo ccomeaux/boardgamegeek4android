@@ -11,7 +11,7 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 public class Adapter {
 	public static GeekdoApi createGeekdoApi() {
 		return new Retrofit.Builder()
-			.client(HttpUtils.getHttpClient())
+			.client(HttpUtils.getHttpClient(true))
 			.baseUrl("https://api.geekdo.com")
 			.addConverterFactory(GsonConverterFactory.create())
 			.build()
@@ -39,12 +39,12 @@ public class Adapter {
 	private static Retrofit.Builder createBuilderWithoutConverterFactory(Context context) {
 		okhttp3.OkHttpClient httpClient;
 		if (context == null) {
-			httpClient = HttpUtils.getHttpClient();
+			httpClient = HttpUtils.getHttpClient(true);
 		} else {
 			httpClient = HttpUtils.getHttpClientWithAuth(context);
 		}
 		return new Retrofit.Builder()
-			.baseUrl("https://www.boardgamegeek.com/")
+			.baseUrl("https://boardgamegeek.com/")
 			.client(httpClient);
 	}
 }

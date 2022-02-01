@@ -2,7 +2,6 @@ package com.boardgamegeek.provider
 
 import android.content.ContentProvider
 import android.content.ContentValues
-import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
@@ -13,11 +12,6 @@ import java.io.FileNotFoundException
 
 class BggProvider : ContentProvider() {
     private lateinit var openHelper: BggDatabase
-
-    private fun requireContext(): Context {
-        return this.context
-                ?: throw IllegalStateException("ContentProvider $this not attached to a context.")
-    }
 
     override fun onCreate(): Boolean {
         openHelper = BggDatabase(context)
@@ -30,25 +24,25 @@ class BggProvider : ContentProvider() {
     }
 
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        return getProvider(uri)?.query(requireContext().contentResolver, openHelper.readableDatabase, uri, projection, selection, selectionArgs, sortOrder)?.also {
-            it.setNotificationUri(requireContext().contentResolver, uri)
+        return getProvider(uri)?.query(context!!.contentResolver, openHelper.readableDatabase, uri, projection, selection, selectionArgs, sortOrder)?.also {
+            it.setNotificationUri(context!!.contentResolver, uri)
         }
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        return getProvider(uri)?.insert(requireContext(), openHelper.writableDatabase, uri,
+        return getProvider(uri)?.insert(context!!, openHelper.writableDatabase, uri,
                 values ?: contentValuesOf())?.also {
             context?.contentResolver?.notifyChange(it, null)
         }
     }
 
     override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int {
-        return getProvider(uri)?.update(requireContext(), openHelper.writableDatabase, uri, values, selection, selectionArgs)
+        return getProvider(uri)?.update(context!!, openHelper.writableDatabase, uri, values, selection, selectionArgs)
                 ?: 0
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
-        return getProvider(uri)?.delete(requireContext(),
+        return getProvider(uri)?.delete(context!!,
                 openHelper.writableDatabase,
                 uri, selection, selectionArgs)
                 ?: 0
@@ -56,7 +50,7 @@ class BggProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return getProvider(uri)?.openFile(requireContext(), uri, mode)
+        return getProvider(uri)?.openFile(context!!, uri, mode)
     }
 
     private fun getProvider(uri: Uri): BaseProvider? {

@@ -4,7 +4,10 @@ package com.boardgamegeek.extensions
 
 import android.app.Activity
 import android.util.Pair
+import android.view.View
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ShareCompat
 import com.boardgamegeek.R
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -55,3 +58,11 @@ fun Activity.share(subject: String, text: CharSequence, @StringRes titleResId: I
 }
 
 fun formatGameLink(id: Int, name: String) = "$name (${createBggUri(BOARDGAME_PATH, id)})\n"
+
+fun AppCompatActivity.setDoneCancelActionBarView(listener: View.OnClickListener?) {
+    val toolbar = findViewById<Toolbar>(R.id.toolbar_done_cancel) ?: return
+    toolbar.setContentInsetsAbsolute(0, 0)
+    toolbar.findViewById<View>(R.id.menu_cancel).setOnClickListener(listener)
+    toolbar.findViewById<View>(R.id.menu_done).setOnClickListener(listener)
+    setSupportActionBar(toolbar)
+}

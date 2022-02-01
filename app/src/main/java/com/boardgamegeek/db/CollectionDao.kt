@@ -14,10 +14,14 @@ import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.FileUtils
-import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.List
+import kotlin.collections.arrayListOf
+import kotlin.collections.forEach
+import kotlin.collections.plusAssign
+import kotlin.collections.toMutableList
 
 class CollectionDao(private val context: BggApplication) {
     private val resolver = context.contentResolver
@@ -105,17 +109,17 @@ class CollectionDao(private val context: BggApplication) {
                 wantPartsDirtyTimestamp = cursor.getLongOrZero(COLUMN_WANT_PARTS_DIRTY_TIMESTAMP),
                 quantity = cursor.getIntOrZero(COLUMN_PRIVATE_INFO_QUANTITY),
                 pricePaid = cursor.getDoubleOrZero(COLUMN_PRIVATE_INFO_PRICE_PAID),
-                pricePaidCurrency = cursor.getString(COLUMN_PRIVATE_INFO_PRICE_PAID_CURRENCY),
+                pricePaidCurrency = cursor.getString(COLUMN_PRIVATE_INFO_PRICE_PAID_CURRENCY).orEmpty(),
                 currentValue = cursor.getDoubleOrZero(COLUMN_PRIVATE_INFO_CURRENT_VALUE),
-                currentValueCurrency = cursor.getString(COLUMN_PRIVATE_INFO_CURRENT_VALUE_CURRENCY),
+                currentValueCurrency = cursor.getString(COLUMN_PRIVATE_INFO_CURRENT_VALUE_CURRENCY).orEmpty(),
                 acquisitionDate = cursor.getString(COLUMN_PRIVATE_INFO_ACQUISITION_DATE).orEmpty().toMillis(playDateFormat),
-                acquiredFrom = cursor.getString(COLUMN_PRIVATE_INFO_ACQUIRED_FROM),
-                inventoryLocation = cursor.getString(COLUMN_PRIVATE_INFO_INVENTORY_LOCATION),
-                privateComment = cursor.getString(COLUMN_PRIVATE_INFO_COMMENT),
-                wishListComment = cursor.getString(COLUMN_WISHLIST_COMMENT),
-                wantPartsList = cursor.getString(COLUMN_WANT_PARTS_LIST),
-                hasPartsList = cursor.getString(COLUMN_HAS_PARTS_LIST),
-                conditionText = cursor.getString(COLUMN_CONDITION),
+                acquiredFrom = cursor.getString(COLUMN_PRIVATE_INFO_ACQUIRED_FROM).orEmpty(),
+                inventoryLocation = cursor.getString(COLUMN_PRIVATE_INFO_INVENTORY_LOCATION).orEmpty(),
+                privateComment = cursor.getString(COLUMN_PRIVATE_INFO_COMMENT).orEmpty(),
+                wishListComment = cursor.getString(COLUMN_WISHLIST_COMMENT).orEmpty(),
+                wantPartsList = cursor.getString(COLUMN_WANT_PARTS_LIST).orEmpty(),
+                hasPartsList = cursor.getString(COLUMN_HAS_PARTS_LIST).orEmpty(),
+                conditionText = cursor.getString(COLUMN_CONDITION).orEmpty(),
                 playingTime = cursor.getIntOrZero(COLUMN_PLAYING_TIME),
                 minimumAge = cursor.getIntOrZero(COLUMN_MINIMUM_AGE),
                 rank = cursor.getIntOrNull(COLUMN_GAME_RANK) ?: RANK_UNKNOWN,
@@ -553,7 +557,7 @@ class CollectionDao(private val context: BggApplication) {
                 }
                 resolver.query(Collection.CONTENT_URI,
                         PROJECTION,
-                        "collection.${Collection.GAME_ID}=? AND ${SelectionBuilder.whereNullOrEmpty(Collection.COLLECTION_ID)}",
+                        "collection.${Collection.GAME_ID}=? AND ${Collection.COLLECTION_ID.whereNullOrBlank()}",
                         arrayOf(gameId.toString()),
                         null)?.use {
                     if (it.moveToFirst()) return fromCursor(it)

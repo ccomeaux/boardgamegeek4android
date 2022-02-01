@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	style="@style/RowContainer.Tall"
@@ -16,7 +15,7 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:text="42"/>
+		tools:text="42" />
 
 	<ImageView
 		android:id="@+id/thumbnailView"
@@ -27,7 +26,7 @@
 		android:src="@drawable/thumbnail_image_empty"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toEndOf="@id/rankView"
-		app:layout_constraintTop_toTopOf="parent"/>
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<TextView
 		android:id="@+id/nameView"
@@ -45,8 +44,8 @@
 		app:layout_constraintStart_toEndOf="@id/thumbnailView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		app:layout_constraintWidth_default="wrap"
-		tools:text="Princes of Florence"/>
+		app:layout_constraintWidth="true"
+		tools:text="Princes of Florence" />
 
 	<TextView
 		android:id="@+id/yearView"
@@ -59,5 +58,5 @@
 		app:layout_constraintStart_toEndOf="@id/thumbnailView"
 		app:layout_constraintTop_toBottomOf="@id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="2001"/>
+		tools:text="2001" />
 </androidx.constraintlayout.widget.ConstraintLayout>

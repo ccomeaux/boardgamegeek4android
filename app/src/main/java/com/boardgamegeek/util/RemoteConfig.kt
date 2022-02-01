@@ -54,7 +54,6 @@ class RemoteConfig {
             firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
         }
 
-        @JvmStatic
         fun fetch() {
             val firebaseRemoteConfig = Firebase.remoteConfig
             firebaseRemoteConfig.fetch().addOnCompleteListener { task ->
@@ -70,7 +69,6 @@ class RemoteConfig {
         @JvmStatic
         fun getBoolean(key: String) = Firebase.remoteConfig.getBoolean(key)
 
-        @JvmStatic
         fun getInt(key: String) = Firebase.remoteConfig.getLong(key).toInt()
 
         fun getLong(key: String) = Firebase.remoteConfig.getLong(key)

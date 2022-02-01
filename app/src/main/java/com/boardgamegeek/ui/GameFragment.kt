@@ -16,10 +16,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.GameRanksFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
-import com.boardgamegeek.ui.widget.SafeViewTarget
-import com.boardgamegeek.util.HelpUtils
-import com.boardgamegeek.util.ShowcaseViewWizard
-import com.github.amlcurran.showcaseview.targets.Target
 import kotlinx.android.synthetic.main.fragment_game.*
 import kotlinx.android.synthetic.main.include_game_ages.*
 import kotlinx.android.synthetic.main.include_game_footer.*
@@ -34,17 +30,11 @@ import kotlinx.android.synthetic.main.include_game_year_published.*
 class GameFragment : Fragment() {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
-    private var showcaseViewWizard: ShowcaseViewWizard? = null
 
     @Suppress("DEPRECATION")
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
     private val viewModel by activityViewModels<GameViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_game, container, false)
@@ -88,30 +78,6 @@ class GameFragment : Fragment() {
 
             viewModel.baseGames.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_base_games) })
         })
-
-        showcaseViewWizard = setUpShowcaseViewWizard()
-        showcaseViewWizard?.maybeShowHelp()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.help, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_help) {
-            showcaseViewWizard?.showHelp()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun setUpShowcaseViewWizard(): ShowcaseViewWizard {
-        val wizard = ShowcaseViewWizard(activity, HelpUtils.HELP_GAME_KEY, HELP_VERSION)
-        wizard.addTarget(R.string.help_game_menu, Target.NONE)
-        wizard.addTarget(R.string.help_game_poll, SafeViewTarget(R.id.playerCountContainer, requireActivity()))
-        wizard.addTarget(0, SafeViewTarget(R.id.playerAgeContainer, requireActivity()))
-        return wizard
     }
 
     private fun showError(message: String?) {
@@ -238,9 +204,5 @@ class GameFragment : Fragment() {
                 viewModel.gameId.value ?: BggContract.INVALID_ID,
                 viewModel.game.value?.data?.name ?: "",
                 list)
-    }
-
-    companion object {
-        private const val HELP_VERSION = 2
     }
 }

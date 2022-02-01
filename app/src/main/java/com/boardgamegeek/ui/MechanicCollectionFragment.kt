@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -31,15 +30,12 @@ class MechanicCollectionFragment : Fragment() {
         recyclerView?.setHasFixedSize(true)
         recyclerView?.adapter = adapter
         setHasOptionsMenu(true)
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).toLowerCase(Locale.getDefault()))
-        viewModel.sort.observe(viewLifecycleOwner, Observer {
+        viewModel.sort.observe(viewLifecycleOwner, {
             sortType = it
         })
-        viewModel.collection.observe(viewLifecycleOwner, Observer {
+        viewModel.collection.observe(viewLifecycleOwner, {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage?.fadeOut()

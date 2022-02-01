@@ -8,7 +8,6 @@ import androidx.annotation.ColorInt
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -20,11 +19,11 @@ class GameUsersDialogFragment : DialogFragment() {
         return inflater.inflate(R.layout.dialog_game_users, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val viewModel by activityViewModels<GameViewModel>()
-        viewModel.game.observe(this, Observer { gameEntityRefreshableResource ->
+        viewModel.game.observe(this, { gameEntityRefreshableResource ->
             gameEntityRefreshableResource?.data?.let {
                 val game = gameEntityRefreshableResource.data
                 colorize(game.darkColor)

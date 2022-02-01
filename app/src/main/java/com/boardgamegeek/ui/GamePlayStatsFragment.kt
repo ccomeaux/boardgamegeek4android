@@ -21,7 +21,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.HIndexEntity
@@ -121,18 +120,8 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                     .setMessage(R.string.player_skill_info)
                     .show()
         }
-    }
 
-    private fun setInterpolator(context: Context?, transition: Transition?) {
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            transition?.interpolator = android.view.animation.AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in)
-        }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        viewModel.game.observe(viewLifecycleOwner, Observer { (_, data, _) ->
+        viewModel.game.observe(viewLifecycleOwner, { (_, data, _) ->
             data?.first()?.let {
                 playCountColors = intArrayOf(
                         if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
@@ -145,14 +134,14 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             personalRating = data?.filter { it.rating > 0.0 }?.map { it.rating }?.average() ?: 0.0
             gameOwned = data?.any { it.own } ?: false
 
-            viewModel.plays.observe(viewLifecycleOwner, Observer { (_, data, _) ->
+            viewModel.plays.observe(viewLifecycleOwner, { (_, data, _) ->
                 if (data == null || data.isEmpty()) {
                     progressView.hide()
                     dataView.fadeOut()
                     emptyView.fadeIn()
                 } else {
                     playEntities = data
-                    viewModel.players.observe(viewLifecycleOwner, Observer {
+                    viewModel.players.observe(viewLifecycleOwner, {
                         playerEntities = it
 
                         val stats = Stats()
@@ -169,22 +158,24 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         viewModel.setGameId(gameId)
     }
 
+    private fun setInterpolator(context: Context?, transition: Transition?) {
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+            transition?.interpolator = android.view.animation.AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in)
+        }
+    }
+
     private fun bindUi(stats: Stats) {
         // region PLAY COUNT
 
         playCountTable.removeAllViews()
 
         val playStatRow = PlayStatRow(requireContext())
-        if (stats.dollarDate.isNotEmpty()) {
-            playStatRow.setValue(getString(R.string.play_stat_dollar))
-        } else if (stats.halfDollarDate.isNotEmpty()) {
-            playStatRow.setValue(getString(R.string.play_stat_half_dollar))
-        } else if (stats.quarterDate.isNotEmpty()) {
-            playStatRow.setValue(getString(R.string.play_stat_quarter))
-        } else if (stats.dimeDate.isNotEmpty()) {
-            playStatRow.setValue(getString(R.string.play_stat_dime))
-        } else if (stats.nickelDate.isNotEmpty()) {
-            playStatRow.setValue(getString(R.string.play_stat_nickel))
+        when {
+            stats.dollarDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dollar))
+            stats.halfDollarDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_half_dollar))
+            stats.quarterDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_quarter))
+            stats.dimeDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dime))
+            stats.nickelDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_nickel))
         }
         playCountTable.addView(playStatRow)
 
@@ -637,7 +628,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         fun calculateWhitmoreScore(): Int {
             // A score that ranges from 0 for a completely neutral game (6.5) to 7 for a perfect 10.
-            // http://www.boardgamegeek.com/geeklist/37832/my-favorite-designers
+            // https://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23
             return (personalRating * 2 - 13).toInt().coerceAtLeast(0)
         }
 

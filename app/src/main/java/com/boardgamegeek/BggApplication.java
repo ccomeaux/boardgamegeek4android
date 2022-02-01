@@ -9,7 +9,6 @@ import android.os.StrictMode.VmPolicy;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.AccountUtils;
-import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
@@ -18,7 +17,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -65,7 +64,6 @@ public class BggApplication extends MultiDexApplication {
 		EventBus.builder()
 			.logNoSubscriberMessages(BuildConfig.DEBUG)
 			.throwSubscriberException(BuildConfig.DEBUG)
-			.addIndex(new BggEventBusIndex())
 			.installDefaultEventBus();
 
 		Picasso.setSingletonInstance(new Picasso.Builder(this)
@@ -78,9 +76,12 @@ public class BggApplication extends MultiDexApplication {
 		migrateCollectionStatusSettings();
 		SyncPrefs.migrate(this);
 
-		FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
-			String deviceToken = instanceIdResult.getToken();
-			Timber.i("Firebase token is %s", deviceToken);
+		FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+			if (task.isSuccessful()) {
+				Timber.i("Firebase token is %s", task.getResult());
+			} else {
+				Timber.w(task.getException(), "Fetching FCM registration token failed");
+			}
 		});
 	}
 
@@ -90,9 +91,7 @@ public class BggApplication extends MultiDexApplication {
 			.detectLeakedClosableObjects()
 			.detectLeakedSqlLiteObjects()
 			.penaltyLog();
-		if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
-			builder.detectFileUriExposure().detectLeakedRegistrationObjects();
-		}
+		builder.detectFileUriExposure().detectLeakedRegistrationObjects();
 		if (VERSION.SDK_INT >= VERSION_CODES.M) {
 			builder.detectCleartextNetwork();
 		}

@@ -5,6 +5,7 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
+import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.executeAsyncTask
@@ -12,8 +13,6 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.mappers.PlayMapper
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.pref.getPlaysNewestTimestamp
 import com.boardgamegeek.pref.getPlaysOldestTimestamp
 import com.boardgamegeek.pref.setPlaysNewestTimestamp
@@ -25,7 +24,6 @@ import timber.log.Timber
 
 class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
-    private val persister: PlayPersister = PlayPersister(context)
     private val playDao: PlayDao = PlayDao(application)
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
@@ -108,7 +106,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
             response = r.body()
             val mapper = PlayMapper()
-            val plays = mapper.map(response?.plays)
+            val plays = mapper.map(response?.plays, startTime)
             persist(plays)
             updateTimestamps(plays)
             page++
@@ -129,9 +127,9 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
         }
     }
 
-    private fun persist(plays: List<Play>?) {
-        if (plays != null && plays.isNotEmpty()) {
-            persister.save(plays, startTime)
+    private fun persist(plays: List<PlayEntity>) {
+        if (plays.isNotEmpty()) {
+            playDao.save(plays, startTime)
             syncResult.stats.numEntries += plays.size.toLong()
             Timber.i("...saved ${plays.size} plays")
         } else {
@@ -139,8 +137,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
         }
     }
 
-    private fun updateTimestamps(plays: List<Play>?) {
-        if (plays == null) return
+    private fun updateTimestamps(plays: List<PlayEntity>) {
         val newestDate = newestDate(plays)
         if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
             syncPrefs.setPlaysNewestTimestamp(newestDate)
@@ -151,7 +148,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
         }
     }
 
-    private fun newestDate(plays: List<Play>) = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
+    private fun newestDate(plays: List<PlayEntity>) = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
 
-    private fun oldestDate(plays: List<Play>) = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+    private fun oldestDate(plays: List<PlayEntity>) = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
 }

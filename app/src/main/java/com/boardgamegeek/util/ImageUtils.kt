@@ -64,8 +64,6 @@ object ImageUtils {
      * Loads an image into the [android.widget.ImageView] by attempting various sizes. Applies fit/center crop and
      * will load a [androidx.palette.graphics.Palette].
      */
-    @JvmStatic
-    @JvmOverloads
     fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String, heroImageUrl: String? = "", callback: Callback? = null) {
         RemoteConfig.fetch()
         if (heroImageUrl?.isNotEmpty() == true) {
