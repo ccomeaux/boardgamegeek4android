@@ -37,6 +37,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
                 SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
                 val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
                     emit(RefreshableResource.refreshing(list))
+                    // TODO - while refreshing, the plays aren't updated in the UI. Figure out how to do that. Maybe listen to the play sync dates
                     playRepository.refreshPlays()
                     playRepository.getPlays()
 
