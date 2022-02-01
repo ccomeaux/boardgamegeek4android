@@ -21,7 +21,8 @@ public class BggCookieJar implements CookieJar {
 		Timber.w(url.toString());
 		Timber.w(cookies.toString());
 		for (Cookie cookie : cookies) {
-			if ("bggpassword".equalsIgnoreCase(cookie.name())) {
+			if ("bggpassword".equalsIgnoreCase(cookie.name()) &&
+				!"deleted".equalsIgnoreCase(cookie.value())) {
 				authToken = cookie.value();
 				authTokenExpiry = cookie.expiresAt();
 			}
