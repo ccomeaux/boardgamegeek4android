@@ -13,6 +13,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameBinding
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.GamePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameRanksDialogFragment
@@ -109,7 +110,7 @@ class GameFragment : Fragment() {
         binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
 
         binding.ratingsInclude.ratingView.text = game.rating.asRating(context)
-        binding.ratingsInclude.ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
+        binding.ratingsInclude.ratingView.setTextViewBackground(game.rating.toColor(BggColors.ratingColors))
         val numberOfRatings = requireContext().getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
         val numberOfComments = requireContext().getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
         binding.ratingsInclude.ratingVotesView.text = getString(R.string.ampersand, numberOfRatings, numberOfComments)
@@ -133,7 +134,7 @@ class GameFragment : Fragment() {
         } else {
             binding.weightInclude.weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
         }
-        val textColor = binding.weightInclude.weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
+        val textColor = binding.weightInclude.weightColorView.setTextViewBackground(game.averageWeight.toColor(BggColors.fiveStageColors))
         binding.weightInclude.weightView.setTextColor(textColor)
         binding.weightInclude.weightScoreView.setTextColor(textColor)
         binding.weightInclude.weightVotesView.setTextOrHide(
@@ -170,7 +171,7 @@ class GameFragment : Fragment() {
         }
         binding.languageInclude.languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
 
-        val textColor = binding.languageInclude.languageColorView.setTextViewBackground(score.toColor(fiveStageColors))
+        val textColor = binding.languageInclude.languageColorView.setTextViewBackground(score.toColor(BggColors.fiveStageColors))
         binding.languageInclude.languageView.setTextColor(textColor)
         binding.languageInclude.languageScoreView.setTextColor(textColor)
 

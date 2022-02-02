@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.boardgamegeek.entities.PlayerColorEntity
+import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.util.ColorUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,7 +60,7 @@ class PlayerColorsViewModel(application: Application) : AndroidViewModel(applica
 
             var order = 1
 
-            val availableColors = ColorUtils.limitedColorList
+            val availableColors = BggColors.standardColorList.toMutableList()
 
             val playerDetail = user.value?.let {
                 val name = it.first

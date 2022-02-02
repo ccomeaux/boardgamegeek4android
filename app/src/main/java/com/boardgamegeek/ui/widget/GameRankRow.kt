@@ -39,7 +39,7 @@ class GameRankRow(context: Context, isFamily: Boolean) : LinearLayout(context) {
     fun setRatingView(rating: Double) {
         findViewById<TextView>(R.id.ratingView).apply {
             text = rating.asScore(context, format = AVERAGE_RATING_FORMAT)
-            setTextViewBackground(rating.toColor(ratingColors))
+            setTextViewBackground(rating.toColor(BggColors.ratingColors))
         }
     }
 

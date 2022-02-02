@@ -48,7 +48,7 @@ fun Double.toDescription(context: Context, @ArrayRes arrayResId: Int, @StringRes
 }
 
 @ColorInt
-fun Double.toColor(colors: IntArray): Int {
+fun Double.toColor(colors: List<Int>): Int {
     return if (this < 1 || this > colors.size) Color.TRANSPARENT
     else {
         val index = this.toInt()

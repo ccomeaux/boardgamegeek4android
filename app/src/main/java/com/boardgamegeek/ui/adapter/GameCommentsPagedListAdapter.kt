@@ -34,7 +34,7 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCo
             binding.usernameView.text = comment?.username.orEmpty()
             binding.ratingView.text = comment?.rating?.asRating(itemView.context).orEmpty()
             binding.ratingView.setTextViewBackground(
-                (comment?.rating ?: 0.0).toColor(ratingColors)
+                (comment?.rating ?: 0.0).toColor(BggColors.ratingColors)
             )
             binding.commentView.setTextOrHide(comment?.comment)
         }

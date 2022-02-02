@@ -13,9 +13,8 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPollBinding
 import com.boardgamegeek.entities.GamePollEntity
-import com.boardgamegeek.extensions.fiveStageColors
+import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
-import com.boardgamegeek.extensions.twelveStageColors
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.IntegerValueFormatter
 import com.github.mikephil.charting.animation.Easing
@@ -91,13 +90,13 @@ class GamePollDialogFragment : DialogFragment() {
             LANGUAGE_DEPENDENCE -> {
                 dialog?.setTitle(R.string.language_dependence)
                 viewModel.languagePoll.observe(viewLifecycleOwner) {
-                    it?.let { showData(it, fiveStageColors) }
+                    it?.let { showData(it, BggColors.fiveStageColors) }
                 }
             }
             SUGGESTED_PLAYER_AGE -> {
                 dialog?.setTitle(R.string.suggested_playerage)
                 viewModel.agePoll.observe(viewLifecycleOwner) {
-                    it?.let { showData(it, twelveStageColors) }
+                    it?.let { showData(it, BggColors.twelveStageColors) }
                 }
             }
         }
@@ -108,7 +107,7 @@ class GamePollDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    private fun showData(gamePollEntity: GamePollEntity, chartColors: IntArray) {
+    private fun showData(gamePollEntity: GamePollEntity, chartColors: List<Int>) {
         val totalVoteCount = gamePollEntity.totalVotes
         if (totalVoteCount > 0) {
             val entries = mutableListOf<PieEntry>()
@@ -117,7 +116,7 @@ class GamePollDialogFragment : DialogFragment() {
             }
             val dataSet = PieDataSet(entries, "").apply {
                 valueFormatter = IntegerValueFormatter(true)
-                setColors(*chartColors)
+                setColors(*chartColors.toIntArray())
             }
 
             binding.chartView.data = PieData(dataSet)

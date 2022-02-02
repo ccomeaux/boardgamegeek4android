@@ -57,7 +57,7 @@ class RatingView @JvmOverloads constructor(
             findViewById<TextView>(R.id.ratingView).apply {
                 text = constrainedRating.asPersonalRating(context)
                 tag = constrainedRating
-                setTextViewBackground(constrainedRating.toColor(ratingColors))
+                setTextViewBackground(constrainedRating.toColor(BggColors.ratingColors))
             }
         }
 

@@ -70,7 +70,7 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
     private fun showData(stats: PersonStatsEntity) {
         if (stats.averageRating > 0.0) {
             averageRating.text = stats.averageRating.asRating(context)
-            averageRating.setTextViewBackground(stats.averageRating.toColor(ratingColors))
+            averageRating.setTextViewBackground(stats.averageRating.toColor(BggColors.ratingColors))
             averageRatingGroup.isVisible = true
         } else {
             averageRatingGroup.isVisible = false

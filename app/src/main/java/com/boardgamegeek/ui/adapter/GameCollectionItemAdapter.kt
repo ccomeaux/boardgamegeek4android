@@ -64,7 +64,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
 
             if (item.rating in 1.0..10.0) {
                 binding.rating.text = item.rating.asPersonalRating(itemView.context)
-                binding.rating.setTextViewBackground(item.rating.toColor(ratingColors))
+                binding.rating.setTextViewBackground(item.rating.toColor(BggColors.ratingColors))
                 binding.rating.isVisible = true
             } else {
                 binding.rating.isVisible = false

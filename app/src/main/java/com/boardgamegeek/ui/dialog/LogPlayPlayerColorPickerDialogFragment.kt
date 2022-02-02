@@ -2,9 +2,9 @@ package com.boardgamegeek.ui.dialog
 
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
+import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
-import com.boardgamegeek.util.ColorUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 
@@ -27,7 +27,7 @@ class LogPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
             val df = LogPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
                         title = playerDescription,
-                        ColorUtils.colorList,
+                        BggColors.colorList,
                         ArrayList(featuredColors),
                         selectedColor,
                         ArrayList(disabledColors),

@@ -2,16 +2,17 @@ package com.boardgamegeek.extensions
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import com.boardgamegeek.util.ColorUtils
+import java.util.*
 
 @ColorInt
 fun @receiver:ColorInt Int.darkenColor(): Int {
     return if (this == Color.TRANSPARENT) {
         Color.argb(127, 127, 127, 127)
     } else Color.rgb(
-            Color.red(this) * 192 / 256,
-            Color.green(this) * 192 / 256,
-            Color.blue(this) * 192 / 256)
+        Color.red(this) * 192 / 256,
+        Color.green(this) * 192 / 256,
+        Color.blue(this) * 192 / 256
+    )
 }
 
 @ColorInt
@@ -43,7 +44,7 @@ fun Int.blendWith(color: Int, ratio: Double): Int {
 }
 
 fun String?.isKnownColor(): Boolean {
-    return if (this == null) false else ColorUtils.colorNameMap.containsKey(ColorUtils.formatKey(this))
+    return if (this == null) false else BggColors.colorNameMap.containsKey(this.formatColorKey())
 }
 
 fun String?.asColorRgb(): Int {
@@ -61,11 +62,47 @@ fun String?.asColorRgb(): Int {
         } else {
             Color.TRANSPARENT
         }
-        else -> ColorUtils.colorNameMap[ColorUtils.formatKey(this)] ?: Color.TRANSPARENT
+        else -> BggColors.colorNameMap[this.formatColorKey()] ?: Color.TRANSPARENT
     }
 }
 
-val ratingColors = intArrayOf(
+internal fun String.formatColorKey() = lowercase(Locale.US)
+
+/**
+ * Static methods for modifying and applying colors to views.
+ */
+object BggColors {
+    val standardColorList = listOf(
+        "Red" to 0xFF_FF_00_00.toInt(),
+        "Yellow" to 0xFF_FF_FF_00.toInt(),
+        "Blue" to 0xFF_00_00_FF.toInt(),
+        "Green" to 0xFF_00_80_00.toInt(),
+        "Purple" to 0xFF_80_00_80.toInt(),
+        "Orange" to 0xFF_E5_94_00.toInt(),
+        "White" to 0xFF_FF_FF_FF.toInt(),
+        "Black" to 0xFF_00_00_00.toInt(),
+        "Natural" to 0xFF_E9_C2_A6.toInt(),
+        "Brown" to 0xFF_A5_2A_2A.toInt(),
+    )
+
+    val colorList = standardColorList + listOf(
+        "Tan" to 0xFF_DB_93_70.toInt(),
+        "Gray" to 0xFF_88_88_88.toInt(),
+        "Gold" to 0xFF_FF_D7_00.toInt(),
+        "Silver" to 0xFF_C0_C0_C0.toInt(),
+        "Bronze" to 0xFF_8C_78_53.toInt(),
+        "Ivory" to 0xFF_FF_FF_F0.toInt(),
+        "Rose" to 0xFF_FF_00_7F.toInt(),
+        "Pink" to 0xFF_CD_91_9E.toInt(),
+        "Teal" to 0xFF_00_80_80.toInt(),
+        // "Light Gray" to 0xFF_CC_CC_CC,
+        // "Dark Gray" to 0xFF_44_44_44,
+        // "Cyan" = 0xFF_00_FF_FF,
+        // "Magenta"" = 0xFF_FF_00_FF,
+        // "Aqua" to 0xFF_66_CC_CC,
+    )
+
+    val ratingColors = listOf(
         -0x10000, // 1
         -0xcc9a, // 2
         -0x9967, // 3
@@ -75,8 +112,33 @@ val ratingColors = intArrayOf(
         -0x660001, // 7
         -0x990067, // 8
         -0xcc3367, // 9
-        -0xff3400 // 10
-)
+        -0xff3400, // 10
+    )
 
-val fiveStageColors = intArrayOf(-0xdb6a9d, -0xd03b7e, -0xe27533, -0xac965e, -0x20b8af)// 0xFFDB303B - alternate red color
-val twelveStageColors = intArrayOf(-0x201434, -0x442333, -0x673433, -0x874331, -0x9f5736, -0xad6f46, -0xba8957, -0xc7a167, -0xd4bb77, -0xe1d386, -0xe7de9f, -0xede7b8)
+    val fiveStageColors = listOf(
+        -0xdb6a9d, // 0xFFDB303B - alternate red color
+        -0xd03b7e,
+        -0xe27533,
+        -0xac965e,
+        -0x20b8af,
+    )
+
+    /** 12 contrasting colors useful in charts showing up to 12 data points */
+    val twelveStageColors = listOf(
+        -0x201434,
+        -0x442333,
+        -0x673433,
+        -0x874331,
+        -0x9f5736,
+        -0xad6f46,
+        -0xba8957,
+        -0xc7a167,
+        -0xd4bb77,
+        -0xe1d386,
+        -0xe7de9f,
+        -0xede7b8,
+    )
+
+    internal val colorNameMap
+        get() = colorList.map { it.first.formatColorKey() to it.second }.toMap()
+}

@@ -387,7 +387,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
                 val ratingText = sorter?.getRatingText(item).orEmpty()
                 binding.ratingView.setTextOrHide(ratingText)
                 if (ratingText.isNotEmpty()) {
-                    sorter?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(ratingColors)) }
+                    sorter?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(BggColors.ratingColors)) }
                     binding.infoView.isVisible = false
                 } else {
                     binding.infoView.setTextOrHide(sorter?.getDisplayInfo(item))

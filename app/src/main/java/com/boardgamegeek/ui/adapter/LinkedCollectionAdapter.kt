@@ -52,7 +52,7 @@ class LinkedCollectionAdapter :
                 val personalRating = entity.personalRating.asPersonalRating(itemView.context, 0)
                 if (personalRating.isNotBlank()) {
                     binding.ratingView.text = personalRating
-                    binding.ratingView.setTextViewBackground(entity.personalRating.toColor(ratingColors))
+                    binding.ratingView.setTextViewBackground(entity.personalRating.toColor(BggColors.ratingColors))
                     binding.ratingView.isVisible = true
                 } else {
                     binding.ratingView.isVisible = false
