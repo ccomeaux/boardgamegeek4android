@@ -10,10 +10,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.KEY_SYNC_NOTIFICATIONS
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.util.NotificationUtils
+import com.boardgamegeek.extensions.*
 import java.io.FileNotFoundException
 
 abstract class BaseProvider {
@@ -93,12 +90,12 @@ abstract class BaseProvider {
     protected fun notifyException(context: Context?, e: SQLException) {
         val prefs = context?.preferences()
         if (prefs != null && prefs[KEY_SYNC_NOTIFICATIONS, false] == true) {
-            val builder = NotificationUtils
-                .createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
+            val builder = context
+                .createNotificationBuilder(R.string.title_error, NotificationChannels.ERROR)
                 .setContentText(e.localizedMessage)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
-            builder.setStyle(NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.localizedMessage))
-            NotificationUtils.notify(context, NotificationUtils.TAG_PROVIDER_ERROR, 0, builder)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(e.toString())                    .setSummaryText(e.localizedMessage))
+            context.notify(builder, NotificationTags.PROVIDER_ERROR)
         }
     }
 }

@@ -25,7 +25,6 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
-import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -505,12 +504,10 @@ class PlayRepository(val application: BggApplication) {
                 prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX] = hIndex.n
                 @StringRes val messageId =
                     if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
-                NotificationUtils.notify(
-                    context, NotificationUtils.TAG_PLAY_STATS, notificationId,
-                    NotificationUtils.createNotificationBuilder(
-                        context,
+                context.notify(
+                    context.createNotificationBuilder(
                         R.string.title_play_stats,
-                        NotificationUtils.CHANNEL_ID_STATS,
+                        NotificationChannels.STATS,
                         PlayStatsActivity::class.java
                     )
                         .setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description))
@@ -521,7 +518,9 @@ class PlayRepository(val application: BggApplication) {
                                 Intent(context, PlayStatsActivity::class.java),
                                 PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
                             )
-                        )
+                        ),
+                    NotificationTags.PLAY_STATS,
+                    notificationId
                 )
             }
         }

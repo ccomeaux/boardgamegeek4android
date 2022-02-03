@@ -41,7 +41,7 @@ class NewPlayActivity : AppCompatActivity() {
 
         viewModel.insertedId.observe(this, {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
-                this.cancel(TAG_PLAY_TIMER, it)
+                this.cancelNotification(TAG_PLAY_TIMER, it)
                 SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
             } else {
                 launchPlayingNotification(

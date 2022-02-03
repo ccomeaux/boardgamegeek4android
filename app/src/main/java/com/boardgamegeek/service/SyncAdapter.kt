@@ -17,7 +17,6 @@ import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
 import com.boardgamegeek.util.HttpUtils
-import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import okhttp3.Request
@@ -35,7 +34,9 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
 
     init {
         if (!BuildConfig.DEBUG) {
-            Thread.setDefaultUncaughtExceptionHandler { _: Thread?, throwable: Throwable? -> Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build.") }
+            Thread.setDefaultUncaughtExceptionHandler { _: Thread?, throwable: Throwable? ->
+                Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build.")
+            }
         }
         application.registerReceiver(cancelReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
     }
@@ -111,7 +112,7 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
     }
 
     private fun finishSync() {
-        NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
+        context.cancelNotification(NotificationTags.SYNC_PROGRESS)
         toggleCancelReceiver(false)
         syncPrefs.setCurrentTimestamp(0L)
         try {
@@ -178,20 +179,21 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
             val content = body?.string()?.trim().orEmpty()
             if (content.contains("Please update your privacy and marketing preferences")) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                val pendingIntent = PendingIntent.getActivity(context,
-                        0,
-                        intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                val pendingIntent = PendingIntent.getActivity(
+                    context,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
                 )
                 val message = context.getString(R.string.sync_notification_message_privacy_error)
-                val builder = NotificationUtils
-                        .createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
-                        .setContentText(message)
-                        .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                        .setContentIntent(pendingIntent)
-                        .setCategory(NotificationCompat.CATEGORY_ERROR)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, Int.MAX_VALUE, builder)
+                val builder = context
+                    .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
+                    .setContentText(message)
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                    .setContentIntent(pendingIntent)
+                    .setCategory(NotificationCompat.CATEGORY_ERROR)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                context.notify(builder, NotificationTags.SYNC_ERROR, Int.MAX_VALUE)
                 true
             } else {
                 prefs.setLastPrivacyCheckTimestamp()
@@ -206,7 +208,13 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
     /**
      * Create a list of sync tasks based on the specified type.
      */
-    private fun createTasks(application: BggApplication, typeList: Int, uploadOnly: Boolean, syncResult: SyncResult, account: Account): List<SyncTask> {
+    private fun createTasks(
+        application: BggApplication,
+        typeList: Int,
+        uploadOnly: Boolean,
+        syncResult: SyncResult,
+        account: Account
+    ): List<SyncTask> {
         val service = Adapter.createForXmlWithAuth(application)
         val tasks: MutableList<SyncTask> = ArrayList()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
@@ -245,9 +253,11 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
      */
     private fun toggleCancelReceiver(enable: Boolean) {
         val receiver = ComponentName(context, CancelReceiver::class.java)
-        context.packageManager.setComponentEnabledSetting(receiver,
-                if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP)
+        context.packageManager.setComponentEnabledSetting(
+            receiver,
+            if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 
     /**
@@ -262,15 +272,15 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
         val messageId = task.notificationSummaryMessageId
         if (messageId != SyncTask.NO_NOTIFICATION) {
             val text = context.getText(messageId)
-            val builder = NotificationUtils
-                    .createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
-                    .setContentText(text)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
+            val builder = context
+                .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
             if (!message.isNullOrBlank()) {
                 builder.setStyle(NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text))
             }
-            NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder)
+            context.notify(builder, NotificationTags.SYNC_ERROR)
         }
     }
 
@@ -281,10 +291,10 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
     private fun notifySyncIsCancelled(messageId: Int) {
         if (!prefs.getSyncShowNotifications()) return
         val contextText = if (messageId == SyncTask.NO_NOTIFICATION) "" else context.getText(messageId)
-        val builder = NotificationUtils
-                .createNotificationBuilder(context, R.string.sync_notification_title_cancel, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
-                .setContentText(contextText)
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
-        NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder)
+        val builder = context
+            .createNotificationBuilder(R.string.sync_notification_title_cancel, NotificationChannels.SYNC_PROGRESS)
+            .setContentText(contextText)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+        context.notify(builder, NotificationTags.SYNC_PROGRESS)
     }
 }

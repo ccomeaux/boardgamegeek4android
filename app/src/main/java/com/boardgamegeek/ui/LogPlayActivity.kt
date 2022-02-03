@@ -798,7 +798,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     )
 
     private fun cancelPlayingNotification() {
-        cancel(TAG_PLAY_TIMER, internalId)
+        cancelNotification(TAG_PLAY_TIMER, internalId)
     }
 
     inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {

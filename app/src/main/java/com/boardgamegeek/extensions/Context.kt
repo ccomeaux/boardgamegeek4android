@@ -17,7 +17,6 @@ import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.NotificationUtils
 
 fun Context.preferences(name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
     PreferenceManager.getDefaultSharedPreferences(this)
@@ -59,7 +58,7 @@ fun Context.versionName(): String {
 }
 
 fun Context.cancelSync() {
-    NotificationUtils.cancel(this, NotificationUtils.TAG_SYNC_PROGRESS)
+    this.cancelNotification(NotificationTags.SYNC_PROGRESS)
     Authenticator.getAccount(this)?.let { account ->
         ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY)
     }

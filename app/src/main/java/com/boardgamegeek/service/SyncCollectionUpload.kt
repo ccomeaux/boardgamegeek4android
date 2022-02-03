@@ -24,7 +24,6 @@ import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.HttpUtils
-import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import timber.log.Timber
@@ -60,9 +59,9 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
             )
         } else super.notificationIntent
 
-    override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_COLLECTION
+    override val notificationMessageTag = NotificationTags.UPLOAD_COLLECTION
 
-    override val notificationErrorTag = NotificationUtils.TAG_UPLOAD_COLLECTION_ERROR
+    override val notificationErrorTag = NotificationTags.UPLOAD_COLLECTION_ERROR
 
     init {
         uploadTasks = createUploadTasks()

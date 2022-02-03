@@ -10,20 +10,16 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.getText
-import com.boardgamegeek.extensions.intentFor
-import com.boardgamegeek.extensions.toOrdinal
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
-import com.boardgamegeek.util.NotificationUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
 import okhttp3.Request.Builder
@@ -44,6 +40,8 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         var thumbnailUrl: String = ""
         var heroImageUrl: String = ""
         var customPlayerSort: Boolean = false
+
+        val internalIdAsInt = if (internalId < Int.MAX_VALUE) internalId.toInt() else (internalId % Int.MAX_VALUE).toInt()
     }
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_UPLOAD
@@ -67,9 +65,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         else
             PlayActivity.createIntent(context, currentPlay.internalId)
 
-    override val notificationMessageTag = NotificationUtils.TAG_UPLOAD_PLAY
+    override val notificationMessageTag = NotificationTags.UPLOAD_PLAY
 
-    override val notificationErrorTag = NotificationUtils.TAG_UPLOAD_PLAY_ERROR
+    override val notificationErrorTag = NotificationTags.UPLOAD_PLAY_ERROR
 
     override val notificationSummaryMessageId = R.string.sync_notification_plays_upload
 
@@ -264,11 +262,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     }
 
     private fun notifyUserOfDelete(@StringRes messageId: Int, play: PlayEntity) {
-        NotificationUtils.cancel(
-            context,
-            notificationMessageTag,
-            NotificationUtils.getIntegerId(currentPlay.internalId).toLong()
-        )
+        context.cancelNotification(notificationMessageTag, currentPlay.internalIdAsInt.toLong())
         currentPlay.internalId = INVALID_ID.toLong()
         notifyUser(play, context.getText(messageId, play.gameName))
     }
@@ -299,7 +293,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         notifyUser(
             play.gameName,
             message,
-            NotificationUtils.getIntegerId(currentPlay.internalId),
+            currentPlay.internalIdAsInt,
             currentPlay.imageUrl,
             currentPlay.thumbnailUrl,
             currentPlay.heroImageUrl

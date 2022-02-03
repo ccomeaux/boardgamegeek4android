@@ -7,14 +7,10 @@ import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
-import com.boardgamegeek.extensions.AccountPreferences
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
-import com.boardgamegeek.extensions.getOldSyncStatuses
-import com.boardgamegeek.extensions.setSyncStatuses
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.HttpUtils
-import com.boardgamegeek.util.NotificationUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
@@ -109,7 +105,7 @@ class BggApplication : MultiDexApplication() {
     }
 
     private fun migrateData() {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) NotificationUtils.createNotificationChannels(applicationContext)
+        if (VERSION.SDK_INT >= VERSION_CODES.O) NotificationChannels.create(applicationContext)
         migrateCollectionStatusSettings()
         SyncPrefs.migrate(this)
     }

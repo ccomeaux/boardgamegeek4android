@@ -235,7 +235,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                     .setMessage(R.string.are_you_sure_delete_play)
                     .setPositiveButton(R.string.delete) { _, _ ->
                         play?.let {
-                            if (it.hasStarted()) requireContext().cancel(TAG_PLAY_TIMER, it.internalId)
+                            if (it.hasStarted()) requireContext().cancelNotification(TAG_PLAY_TIMER, it.internalId)
                             logDataManipulationAction("Delete")
                             viewModel.delete()
                             requireActivity().finish() // don't want to show an empty screen upon return
