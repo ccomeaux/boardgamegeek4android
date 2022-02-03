@@ -55,7 +55,7 @@ abstract class CollectionTask(protected val client: OkHttpClient, var collection
     val errorMessage = exception?.message?.ifEmpty { exception.toString() } ?: error
 
     companion object {
-        private const val GEEK_COLLECTION_URL = "https://www.boardgamegeek.com/geekcollection.php"
+        private const val GEEK_COLLECTION_URL = "https://boardgamegeek.com/geekcollection.php"
 
         @Suppress("SpellCheckingInspection")
         private const val ERROR_DIV = "<div class='messagebox error'>"

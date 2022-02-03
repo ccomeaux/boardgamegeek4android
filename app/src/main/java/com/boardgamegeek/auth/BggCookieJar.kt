@@ -1,8 +1,8 @@
 package com.boardgamegeek.auth
 
+import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
-import okhttp3.Cookie
 import timber.log.Timber
 import java.util.*
 
@@ -14,7 +14,9 @@ class BggCookieJar : CookieJar {
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         Timber.w("%s\n%s", url, cookies)
-        cookies.find { "bggpassword".equals(it.name, ignoreCase = true) }?.let { cookie ->
+        cookies.find {
+            "bggpassword".equals(it.name, ignoreCase = true) && !"deleted".equals(it.value, ignoreCase = true)
+        }?.let { cookie ->
             authToken = cookie.value
             authTokenExpiry = cookie.expiresAt
         }

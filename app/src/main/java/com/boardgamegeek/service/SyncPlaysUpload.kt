@@ -329,7 +329,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     }
 
     companion object {
-        const val GEEK_PLAY_URL = "https://www.boardgamegeek.com/geekplay.php"
+        const val GEEK_PLAY_URL = "https://boardgamegeek.com/geekplay.php"
 
         private fun getMapKey(index: Int, key: String) = "players[$index][$key]"
     }
