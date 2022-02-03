@@ -6,10 +6,10 @@ import androidx.palette.graphics.Palette
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.ImageLoadCallback
 import com.boardgamegeek.extensions.applyDarkScrim
 import com.boardgamegeek.extensions.loadUrl
-import com.boardgamegeek.util.ImageUtils
-import com.boardgamegeek.util.ImageUtils.safelyLoadImage
+import com.boardgamegeek.extensions.safelyLoadImage
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_hero_tab.*
 import kotlinx.coroutines.launch
@@ -48,7 +48,7 @@ abstract class HeroTabActivity : DrawerActivity() {
     }
 
     protected fun loadToolbarImage(url: String) {
-        toolbarImage.loadUrl(url, object : ImageUtils.Callback {
+        toolbarImage.loadUrl(url, object : ImageLoadCallback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 onPaletteLoaded(palette)
                 scrimView.applyDarkScrim()
@@ -60,15 +60,13 @@ abstract class HeroTabActivity : DrawerActivity() {
 
     protected fun loadToolbarImage(imageId: Int) {
         lifecycleScope.launch {
-            toolbarImage.safelyLoadImage(imageId, object : ImageUtils.Callback {
+            toolbarImage.safelyLoadImage(imageId, object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     onPaletteLoaded(palette)
                     scrimView.applyDarkScrim()
                 }
 
-                override fun onFailedImageLoad() {
-
-                }
+                override fun onFailedImageLoad() {}
             })
         }
     }

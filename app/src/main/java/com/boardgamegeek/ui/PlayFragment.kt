@@ -19,8 +19,6 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
-import com.boardgamegeek.util.ImageUtils
-import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -102,7 +100,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
 
     private fun showData(play: PlayEntity) {
         lifecycleScope.launch {
-            thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageUtils.Callback {
+            thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     if (isAdded) gameNameView?.setBackgroundResource(R.color.black_overlay_light)
                 }

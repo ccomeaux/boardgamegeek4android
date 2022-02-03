@@ -16,7 +16,6 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlin.properties.Delegates
 
 class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback {

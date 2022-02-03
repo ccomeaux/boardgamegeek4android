@@ -16,7 +16,6 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
-import com.boardgamegeek.util.ImageUtils
 import kotlinx.android.synthetic.main.activity_new_play.*
 
 class NewPlayActivity : AppCompatActivity() {
@@ -69,7 +68,7 @@ class NewPlayActivity : AppCompatActivity() {
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-                thumbnailView.loadUrl(entity.heroImageUrl, object : ImageUtils.Callback {
+                thumbnailView.loadUrl(entity.heroImageUrl, object : ImageLoadCallback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
                         summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }

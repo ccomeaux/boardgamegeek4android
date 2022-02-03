@@ -22,6 +22,20 @@ fun String?.sortName(sortIndex: Int): String {
     return "${substring(i)}, ${substring(0, i).trim()}"
 }
 
+fun String.getImageId(): Int {
+    val invalidImageId = 0
+    if (isBlank()) return invalidImageId
+    "/pic\\d+.".toRegex().find(this)?.let {
+        return it.value.findFirstNumber() ?: invalidImageId
+    }
+    "/avatar_\\d+.".toRegex().find(this)?.let {
+        return it.value.findFirstNumber() ?: invalidImageId
+    }
+    return invalidImageId
+}
+
+fun String.findFirstNumber() = "\\d+".toRegex().find(this)?.value?.toIntOrNull()
+
 /**
  * Describes the rank with either the subtype or the family name.
  */

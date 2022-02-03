@@ -3,20 +3,22 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
-import com.boardgamegeek.util.ImageUtils.getImageId
 import java.util.concurrent.TimeUnit
 
 class PersonViewModel(application: Application) : AndroidViewModel(application) {
     data class Person(
-            val type: PersonType,
-            val id: Int,
-            val sort: CollectionSort = CollectionSort.RATING
+        val type: PersonType,
+        val id: Int,
+        val sort: CollectionSort = CollectionSort.RATING
     )
 
     enum class PersonType {
@@ -52,9 +54,10 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     fun sort(sortType: CollectionSort) {
         if (_person.value?.sort != sortType) {
             _person.value = Person(
-                    _person.value?.type ?: PersonType.DESIGNER,
-                    _person.value?.id ?: BggContract.INVALID_ID,
-                    sortType)
+                _person.value?.type ?: PersonType.DESIGNER,
+                _person.value?.id ?: BggContract.INVALID_ID,
+                sortType
+            )
         }
     }
 
@@ -141,12 +144,12 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     private fun CompanyEntity?.toPersonEntity(): PersonEntity? {
         return this?.let {
             PersonEntity(
-                    it.id,
-                    it.name,
-                    it.description,
-                    it.updatedTimestamp,
-                    it.thumbnailUrl,
-                    it.heroImageUrl,
+                it.id,
+                it.name,
+                it.description,
+                it.updatedTimestamp,
+                it.thumbnailUrl,
+                it.heroImageUrl,
             )
         }
     }
@@ -164,11 +167,13 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                         CollectionSort.NAME -> CollectionDao.SortType.NAME
                         CollectionSort.RATING -> CollectionDao.SortType.RATING
                     }
-                    emit(when (person.type) {
-                        PersonType.ARTIST -> artistRepository.loadCollection(person.id, sortBy)
-                        PersonType.DESIGNER -> designerRepository.loadCollection(person.id, sortBy)
-                        PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, sortBy)
-                    })
+                    emit(
+                        when (person.type) {
+                            PersonType.ARTIST -> artistRepository.loadCollection(person.id, sortBy)
+                            PersonType.DESIGNER -> designerRepository.loadCollection(person.id, sortBy)
+                            PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, sortBy)
+                        }
+                    )
                 }
             }
         }
@@ -179,11 +184,13 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
             when (person.id) {
                 BggContract.INVALID_ID -> emit(null)
                 else -> {
-                    emit(when (person.type) {
-                        PersonType.ARTIST -> artistRepository.calculateStats(person.id)
-                        PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
-                        PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
-                    })
+                    emit(
+                        when (person.type) {
+                            PersonType.ARTIST -> artistRepository.calculateStats(person.id)
+                            PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
+                            PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
+                        }
+                    )
                 }
             }
         }

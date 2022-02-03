@@ -24,7 +24,6 @@ import com.boardgamegeek.ui.adapter.GameColorAdapter
 import com.boardgamegeek.ui.adapter.PlayerNameAdapter
 import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
 import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
-import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent

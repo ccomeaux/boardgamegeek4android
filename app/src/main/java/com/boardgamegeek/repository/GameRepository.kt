@@ -8,6 +8,7 @@ import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
@@ -15,7 +16,6 @@ import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
-import com.boardgamegeek.util.ImageUtils.getImageId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber

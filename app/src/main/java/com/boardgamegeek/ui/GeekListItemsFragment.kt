@@ -17,10 +17,10 @@ import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
@@ -43,23 +43,24 @@ class GeekListItemsFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         viewModel.geekList.observe(viewLifecycleOwner) {
-            it?.let { (status, data, message)->
-            when (status) {
-                Status.REFRESHING -> binding.progressView.show()
-                Status.ERROR -> setError(message)
-                Status.SUCCESS -> {
-                    val geekListItems = data?.items
-                    if (geekListItems == null || geekListItems.isEmpty()) {
-                        setError(getString(R.string.empty_geeklist))
-                        binding.recyclerView.isVisible = false
-                    } else {
-                        adapter.geekList = data
-                        adapter.geekListItems = geekListItems.orEmpty()
-                        binding.recyclerView.isVisible = true
-                        binding.progressView.hide()
+            it?.let { (status, data, message) ->
+                when (status) {
+                    Status.REFRESHING -> binding.progressView.show()
+                    Status.ERROR -> setError(message)
+                    Status.SUCCESS -> {
+                        val geekListItems = data?.items
+                        if (geekListItems == null || geekListItems.isEmpty()) {
+                            setError(getString(R.string.empty_geeklist))
+                            binding.recyclerView.isVisible = false
+                        } else {
+                            adapter.geekList = data
+                            adapter.geekListItems = geekListItems.orEmpty()
+                            binding.recyclerView.isVisible = true
+                            binding.progressView.hide()
+                        }
                     }
                 }
-            }}
+            }
         }
     }
 

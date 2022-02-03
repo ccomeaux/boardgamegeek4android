@@ -35,7 +35,6 @@ import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import com.boardgamegeek.ui.widget.PlayerRow
 import com.boardgamegeek.util.*
-import com.boardgamegeek.util.ImageUtils.safelyLoadImage
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -283,7 +282,7 @@ class LogPlayActivity : AppCompatActivity(R.layout.activity_logplay) {
     private fun bindHeader() {
         headerView.text = gameName
         lifecycleScope.launch {
-            thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageUtils.Callback {
+            thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     // no image for Andor?
                     headerView.setBackgroundResource(R.color.black_overlay_light)

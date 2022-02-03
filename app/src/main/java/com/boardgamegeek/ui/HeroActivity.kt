@@ -9,7 +9,6 @@ import androidx.palette.graphics.Palette
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.util.ImageUtils.Callback
 import kotlinx.android.synthetic.main.activity_hero.*
 
 /**
@@ -81,7 +80,7 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
     }
 
     protected fun loadToolbarImage(url: String) {
-        toolbarImage.loadUrl(url, object : Callback {
+        toolbarImage.loadUrl(url, object : ImageLoadCallback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 scrimView.applyDarkScrim()
                 if (palette != null) {
