@@ -10,13 +10,22 @@
 	android:paddingTop="@dimen/material_margin_vertical"
 	android:paddingRight="@dimen/material_margin_horizontal"
 	android:paddingBottom="@dimen/material_margin_vertical"
-	tools:context=".ui.dialog.SliderFilterDialog">
+	tools:context=".ui.dialog.SliderFilterDialog"
+	tools:ignore="ContentDescription">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
 		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/displayTextView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:textAppearance="@style/Text.DialogHeader"
+			tools:text="1.0 - 10.0" />
 
 		<RadioGroup
 			android:layout_width="wrap_content"
@@ -54,17 +63,13 @@
 				android:text="@string/none" />
 		</RadioGroup>
 
-		<com.appyvet.materialrangebar.RangeBar
-			android:id="@+id/rangeBar"
+		<com.google.android.material.slider.RangeSlider
+			android:id="@+id/rangeSlider"
 			android:layout_width="match_parent"
 			android:layout_height="72dp"
-			app:mrb_barWeight="1dp"
-			app:mrb_pinMaxFont="14sp"
-			app:mrb_pinRadius="16dp"
-			app:mrb_temporaryPins="false"
-			app:mrb_tickEnd="100000000"
-			app:mrb_tickInterval="1"
-			app:mrb_tickStart="1" />
+			android:stepSize="1"
+			android:valueFrom="1"
+			android:valueTo="100000000" />
 
 		<LinearLayout
 			android:id="@+id/rangeButtonContainer"
@@ -81,7 +86,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_remove_circle_outline"
-				android:tint="@color/dark_blue" />
+				app:tint="@color/dark_blue" />
 
 			<ImageView
 				android:id="@+id/minUpButton"
@@ -90,7 +95,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_add_circle_outline"
-				android:tint="@color/dark_blue" />
+				app:tint="@color/dark_blue" />
 
 			<Space
 				android:id="@+id/buttonSpace"
@@ -105,7 +110,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_remove_circle_outline"
-				android:tint="@color/dark_blue" />
+				app:tint="@color/dark_blue" />
 
 			<ImageView
 				android:id="@+id/maxUpButton"
@@ -114,7 +119,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_add_circle_outline"
-				android:tint="@color/dark_blue" />
+				app:tint="@color/dark_blue" />
 		</LinearLayout>
 	</LinearLayout>
 

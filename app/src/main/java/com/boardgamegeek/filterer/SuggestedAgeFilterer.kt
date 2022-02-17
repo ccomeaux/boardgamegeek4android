@@ -27,19 +27,24 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun toLongDescription() = describe(R.string.and_up_suffix, R.string.unknown)
 
-    private fun describe(@StringRes andUpResId: Int, @StringRes unknownResId: Int): String {
+    private fun describe(@StringRes andUpResId: Int = R.string.and_up_suffix_abbr, @StringRes unknownResId: Int = R.string.unknown_abbr): String {
+        val range = describeRange(andUpResId)
+        val unknown = if (includeUndefined) " (+${context.getString(unknownResId)})" else ""
+        return "${context.getString(R.string.ages)} $range$unknown"
+    }
+
+    fun describeRange(@StringRes andUpResId: Int = R.string.and_up_suffix_abbr, rangeSeparator: String = "-"): String {
         val range = when {
             max == upperBound -> context.getString(andUpResId, min)
             min == max -> String.format(Locale.getDefault(), "%,d", max)
-            else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
+            else -> String.format(Locale.getDefault(), "%,d$rangeSeparator%,d", min, max)
         }
-        val unknown = if (includeUndefined) " (+${context.getString(unknownResId)})" else ""
-        return context.getString(R.string.ages) + " " + range + unknown
+        return range
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            includeUndefined -> item.minimumAge == 0
+            includeUndefined -> item.minimumAge == 0 // TODO also return the else branch
             max == upperBound -> item.minimumAge >= min
             else -> item.minimumAge in min..max
         }

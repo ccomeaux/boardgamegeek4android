@@ -29,14 +29,15 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
     override fun toLongDescription() = context.getString(R.string.ranked) + " " + describe(R.string.unranked)
 
     private fun describe(@StringRes unrankedResId: Int): String {
-        val range: String = when {
-            max == upperBound -> String.format(Locale.getDefault(), "%,d+", min)
-            min == max -> String.format(Locale.getDefault(), "%,d", max)
-            min == lowerBound -> String.format(Locale.getDefault(), "<%,d", max)
-            else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
-        }
         val unranked = if (includeUnranked) " (+${context.getString(unrankedResId)})" else ""
-        return "#$range$unranked"
+        return "#${describeRange()}$unranked"
+    }
+
+    fun describeRange() = when {
+        max == upperBound -> String.format(Locale.getDefault(), "%,d+", min)
+        min == max -> String.format(Locale.getDefault(), "%,d", max)
+        min == lowerBound -> String.format(Locale.getDefault(), "<%,d", max)
+        else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {

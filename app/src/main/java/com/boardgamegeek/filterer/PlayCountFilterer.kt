@@ -21,13 +21,14 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max"
 
     override fun toShortDescription(): String {
-        val text = when {
-            max >= upperBound -> String.format(Locale.getDefault(), "%,d+", min)
-            min == max -> String.format(Locale.getDefault(), "%,d", max)
-            min <= lowerBound -> String.format(Locale.getDefault(), "<%,d", max)
-            else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
-        }
-        return text + " " + context.getString(R.string.plays)
+        return "${describeRange()} ${context.getString(R.string.plays)}"
+    }
+
+    fun describeRange(rangeDelimiter: String = "-") = when {
+        max >= upperBound -> String.format(Locale.getDefault(), "%,d+", min)
+        min == max -> String.format(Locale.getDefault(), "%,d", max)
+        min <= lowerBound -> String.format(Locale.getDefault(), "<%,d", max)
+        else -> String.format(Locale.getDefault(), "%,d$rangeDelimiter%,d", min, max)
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {

@@ -24,11 +24,12 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun toShortDescription(): String {
         val prefix = if (isExact) context.getString(R.string.exactly) + " " else ""
-        val range = when (min) {
-            max -> String.format(Locale.getDefault(), "%,d", max)
-            else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
-        }
-        return prefix + range + " " + context.getString(R.string.players)
+        return "$prefix${describeRange()} ${context.getString(R.string.players)}"
+    }
+
+    fun describeRange(rangeDelimiter: String = "-") = when (min) {
+        max -> String.format(Locale.getDefault(), "%,d", max)
+        else -> String.format(Locale.getDefault(), "%,d$rangeDelimiter%,d", min, max)
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {

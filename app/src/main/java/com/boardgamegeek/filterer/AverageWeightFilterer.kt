@@ -29,13 +29,15 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     override fun toLongDescription() = describe(R.string.average_weight, R.string.undefined)
 
     private fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
-        var text = when {
-            ignoreRange -> ""
-            min == max -> String.format(Locale.getDefault(), "%.1f", max)
-            else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
-        }
+        var text = describeRange()
         if (includeUndefined) text += " (+${context.getString(unratedResId)})"
-        return context.getString(prefixResId) + " " + text
+        return "${context.getString(prefixResId)} $text"
+    }
+
+    fun describeRange(rangeDelimiter: String = "-") = when {
+        ignoreRange -> ""
+        min == max -> String.format(Locale.getDefault(), "%.1f", max)
+        else -> String.format(Locale.getDefault(), "%.1f$rangeDelimiter%.1f", min, max)
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {
