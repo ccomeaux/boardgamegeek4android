@@ -25,7 +25,6 @@ apply plugin: 'com.github.ben-manes.versions'
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
 }

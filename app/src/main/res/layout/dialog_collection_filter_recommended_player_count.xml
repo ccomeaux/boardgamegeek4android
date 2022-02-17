@@ -1,75 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:paddingBottom="@dimen/material_margin_vertical"
 	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical"
 	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical">
+	android:paddingBottom="@dimen/material_margin_vertical">
 
-	<RadioGroup
-		android:id="@+id/radio_group"
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/autocompleteViewLayout"
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal"
+		android:labelFor="@+id/autocompleteView"
+		android:minWidth="100dp"
+		app:layout_constraintBaseline_toBaselineOf="@+id/with"
 		app:layout_constraintEnd_toStartOf="@+id/with"
 		app:layout_constraintHorizontal_chainStyle="packed"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent">
 
-		<RadioButton
-			android:id="@+id/bestButton"
+		<AutoCompleteTextView
+			android:id="@+id/autocompleteView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginEnd="@dimen/padding_standard"
-			android:layout_marginRight="@dimen/padding_standard"
-			android:text="@string/best"/>
-
-		<RadioButton
-			android:id="@+id/recommendedButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginEnd="@dimen/padding_standard"
-			android:layout_marginRight="@dimen/padding_standard"
-			android:text="@string/good"/>
-	</RadioGroup>
+			android:inputType="none"
+			tools:text="Good" />
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<TextView
 		android:id="@+id/with"
 		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/_with_"
-		app:layout_constraintBottom_toBottomOf="@id/radio_group"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@id/radio_group"
-		app:layout_constraintTop_toTopOf="@id/radio_group"/>
+		android:text="@string/with"
+		app:layout_constraintBottom_toBottomOf="@id/autocompleteViewLayout"
+		app:layout_constraintEnd_toStartOf="@+id/playerCountDisplay"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toEndOf="@id/autocompleteViewLayout"
+		app:layout_constraintTop_toTopOf="@id/autocompleteViewLayout" />
 
-	<com.appyvet.materialrangebar.RangeBar
+	<TextView
+		android:id="@+id/playerCountDisplay"
+		style="@style/Text.DialogHeader"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center_horizontal"
+		android:minWidth="24dp"
+		app:layout_constraintBaseline_toBaselineOf="@+id/with"
+		app:layout_constraintEnd_toStartOf="@id/players"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toEndOf="@id/with"
+		app:layout_constraintTop_toTopOf="@id/autocompleteViewLayout"
+		tools:text="10" />
+
+	<TextView
+		android:id="@+id/players"
+		style="@style/Text.Dialog"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/players"
+		app:layout_constraintBaseline_toBaselineOf="@+id/with"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toEndOf="@id/playerCountDisplay"
+		app:layout_constraintTop_toTopOf="@id/autocompleteViewLayout" />
+
+	<com.google.android.material.slider.Slider
 		android:id="@+id/rangeBar"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/padding_standard"
+		android:stepSize="1"
+		android:valueFrom="1"
+		android:valueTo="10"
+		app:labelBehavior="floating"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/radio_group"
-		app:mrb_barWeight="1dp"
-		app:mrb_pinMaxFont="14sp"
-		app:mrb_pinRadius="16dp"
-		app:mrb_rangeBar="false"
-		app:mrb_temporaryPins="false"
-		app:mrb_tickEnd="10"
-		app:mrb_tickInterval="1"
-		app:mrb_tickStart="1"/>
+		app:layout_constraintTop_toBottomOf="@id/autocompleteViewLayout" />
 
-	<TextView
-		style="@style/Text.Dialog"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/_players"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/rangeBar"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -101,10 +101,6 @@ class SettingsActivity : DrawerActivity() {
                     findPreference<Preference>("open_source_licenses")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                         LibsBuilder()
                             .withFields(R.string::class.java.fields)
-                            .withLibraries(
-                                "AndroidIcons",
-                                "MaterialRangeBar"
-                            )
                             .withAutoDetect(true)
                             .withLicenseShown(true)
                             .withActivityTitle(getString(R.string.pref_about_licenses))
