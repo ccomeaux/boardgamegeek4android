@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.os.Bundle
@@ -278,6 +279,7 @@ class PlayerColorsActivity : BaseActivity() {
         }
 
         class ColorViewHolder(itemView: View, private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.ViewHolder(itemView) {
+            @SuppressLint("ClickableViewAccessibility")
             fun bind(color: PlayerColorEntity) {
                 itemView.titleView.text = color.description
                 itemView.colorView.setColorViewValue(color.rgb)

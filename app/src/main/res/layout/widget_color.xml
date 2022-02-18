@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			 xmlns:tools="http://schemas.android.com/tools"
-			 android:layout_width="match_parent"
-			 android:layout_height="match_parent"
-			 android:padding="@dimen/padding_half">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:padding="@dimen/padding_half">
 
 	<LinearLayout
 		android:id="@+id/color_frame"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
-		android:padding="@dimen/padding_half">
+		android:padding="@dimen/padding_half"
+		tools:ignore="UselessParent">
 
 		<FrameLayout
 			android:layout_width="wrap_content"
@@ -23,7 +24,7 @@
 				android:layout_height="48dp"
 				android:layout_gravity="center"
 				android:scaleType="fitXY"
-				tools:background="#0f0"/>
+				tools:background="#0f0" />
 
 			<ImageView
 				android:id="@+id/color_picker_selected"
@@ -33,8 +34,8 @@
 				android:scaleType="fitXY"
 				android:src="@drawable/ic_color_picker_selected"
 				android:visibility="gone"
-				tools:visibility="visible"
-				tools:ignore="ContentDescription"/>
+				tools:ignore="ContentDescription"
+				tools:visibility="visible" />
 		</FrameLayout>
 
 		<TextView
@@ -43,7 +44,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
-			tools:text="Blue"/>
+			tools:text="Blue" />
 
 	</LinearLayout>
 </FrameLayout>

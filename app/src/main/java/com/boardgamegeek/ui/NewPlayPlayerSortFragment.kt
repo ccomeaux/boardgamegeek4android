@@ -161,6 +161,7 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
         }
 
         inner class PlayersViewHolder(view: View, private val itemTouchHelper: ItemTouchHelper) : RecyclerView.ViewHolder(view) {
+            @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
                 val entity = players.getOrNull(position)
                 entity?.let { player ->
