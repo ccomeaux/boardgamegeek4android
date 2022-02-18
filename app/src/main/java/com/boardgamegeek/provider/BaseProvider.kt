@@ -53,6 +53,7 @@ abstract class BaseProvider {
         throw UnsupportedOperationException("Unknown uri: $uri")
     }
 
+    @Suppress("RedundantNullableReturnType")
     open fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         throw UnsupportedOperationException("Unknown uri inserting: $uri")
     }

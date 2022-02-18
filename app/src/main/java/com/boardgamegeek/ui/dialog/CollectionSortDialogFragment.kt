@@ -33,6 +33,7 @@ class CollectionSortDialogFragment : DialogFragment() {
         return AlertDialog.Builder(requireContext()).setView(layout).setTitle(R.string.title_sort_by).create()
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layout
     }

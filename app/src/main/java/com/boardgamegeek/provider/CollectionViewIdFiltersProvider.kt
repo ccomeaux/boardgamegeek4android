@@ -30,6 +30,7 @@ class CollectionViewIdFiltersProvider : BaseProvider() {
         )
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         val filterId = CollectionViews.getViewId(uri).toLong()
         values.put(CollectionViewFilters.Columns.VIEW_ID, filterId)

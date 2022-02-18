@@ -35,6 +35,7 @@ class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
             .create()
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layout
     }

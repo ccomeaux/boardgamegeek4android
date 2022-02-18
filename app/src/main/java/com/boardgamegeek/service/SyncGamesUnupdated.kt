@@ -17,6 +17,7 @@ class SyncGamesUnupdated(application: BggApplication, service: BggService, syncR
 
     override val exitLogMessage = "...no more unupdated games"
 
+    @Suppress("RedundantNullableReturnType")
     override val selection: String? = "games.${Games.Columns.UPDATED}".whereZeroOrNull()
 
     override val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED)

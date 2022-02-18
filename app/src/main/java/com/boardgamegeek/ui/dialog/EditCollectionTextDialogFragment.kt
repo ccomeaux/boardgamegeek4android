@@ -42,6 +42,7 @@ class EditCollectionTextDialogFragment : DialogFragment() {
         }
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layout
     }
