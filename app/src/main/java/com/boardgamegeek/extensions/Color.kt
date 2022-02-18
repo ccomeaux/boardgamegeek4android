@@ -140,5 +140,5 @@ object BggColors {
     )
 
     internal val colorNameMap
-        get() = colorList.map { it.first.formatColorKey() to it.second }.toMap()
+        get() = colorList.associate { it.first.formatColorKey() to it.second }
 }
