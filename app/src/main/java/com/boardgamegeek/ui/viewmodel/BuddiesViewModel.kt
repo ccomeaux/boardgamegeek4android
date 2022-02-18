@@ -57,7 +57,7 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
                 emit(RefreshableResource.success(refreshedBuddies))
             } catch (e: Exception) {
                 isRefreshing.set(false)
-                emit(RefreshableResource.error<List<UserEntity>>(e, application))
+                emit(RefreshableResource.error(e, application))
             }
         }
     }

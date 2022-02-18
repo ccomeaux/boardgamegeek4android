@@ -84,7 +84,7 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
                 emit(RefreshableResource.success(refreshedList))
             } catch (e: Exception) {
                 playsRateLimiter.reset(0)
-                emit(RefreshableResource.error<List<PlayEntity>>(e, getApplication()))
+                emit(RefreshableResource.error(e, getApplication()))
             }
         }
     }

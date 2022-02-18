@@ -40,7 +40,7 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
                             emit(RefreshableResource.success(entity))
                         }
                     } catch (e: Exception) {
-                        emit(RefreshableResource.error<UserEntity>(e, application))
+                        emit(RefreshableResource.error(e, application))
                     }
                 }
                 else -> {

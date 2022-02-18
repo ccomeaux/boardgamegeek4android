@@ -13,8 +13,8 @@ import com.boardgamegeek.filterer.FavoriteFilterer
 
 class FavoriteFilterDialog : CollectionFilterDialog {
     lateinit var layout: View
-    private val favoriteButton: RadioButton by lazy { layout.findViewById<RadioButton>(R.id.favorite) }
-    private val notFavoriteButton: RadioButton by lazy { layout.findViewById<RadioButton>(R.id.not_favorite) }
+    private val favoriteButton: RadioButton by lazy { layout.findViewById(R.id.favorite) }
+    private val notFavoriteButton: RadioButton by lazy { layout.findViewById(R.id.not_favorite) }
 
     @SuppressLint("InflateParams")
     override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {

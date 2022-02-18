@@ -16,8 +16,8 @@ import com.boardgamegeek.filterer.CollectionNameFilter
 
 class CollectionNameFilterDialog : CollectionFilterDialog {
     lateinit var layout: View
-    private val filterTextView: EditText by lazy { layout.findViewById<EditText>(R.id.filterTextView) }
-    private val startsWithCheckBox: CheckBox by lazy { layout.findViewById<CheckBox>(R.id.startsWithCheckBox) }
+    private val filterTextView: EditText by lazy { layout.findViewById(R.id.filterTextView) }
+    private val startsWithCheckBox: CheckBox by lazy { layout.findViewById(R.id.startsWithCheckBox) }
 
     @SuppressLint("InflateParams")
     override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {

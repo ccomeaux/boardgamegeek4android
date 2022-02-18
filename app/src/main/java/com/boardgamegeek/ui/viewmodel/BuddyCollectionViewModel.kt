@@ -32,7 +32,7 @@ class BuddyCollectionViewModel(application: Application) : AndroidViewModel(appl
                 try {
                     emit(RefreshableResource.success(userRepository.refreshCollection(it.first, it.second)))
                 } catch (e: Exception) {
-                    emit(RefreshableResource.error<List<CollectionItemEntity>>(e, application))
+                    emit(RefreshableResource.error(e, application))
                 }
             }
         }

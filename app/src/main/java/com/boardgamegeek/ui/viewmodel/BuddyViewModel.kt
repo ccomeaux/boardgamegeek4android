@@ -70,7 +70,7 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
                 }
             } catch (e: Exception) {
                 isRefreshing.set(false)
-                emit(RefreshableResource.error<UserEntity>(e, application))
+                emit(RefreshableResource.error(e, application))
             }
         }
     }

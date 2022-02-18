@@ -37,7 +37,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             emit(RefreshableResource.success(results))
                         }
                     } catch (e: Exception) {
-                        emit(RefreshableResource.error<List<SearchResultEntity>>(e, application))
+                        emit(RefreshableResource.error(e, application))
                     }
                 else -> emit(RefreshableResource.success(null))
             }
