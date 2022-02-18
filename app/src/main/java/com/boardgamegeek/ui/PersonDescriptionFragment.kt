@@ -29,7 +29,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
         emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
         lastUpdated.timestamp = 0L
 
-        viewModel.person.observe(viewLifecycleOwner, {
+        viewModel.person.observe(viewLifecycleOwner) {
             idView.text = it.id.toString()
             val resourceId = when (it.type) {
                 PersonViewModel.PersonType.ARTIST -> R.string.title_artist
@@ -37,9 +37,9 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
                 PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
             }
             emptyMessageDescription = getString(resourceId).lowercase(Locale.getDefault())
-        })
+        }
 
-        viewModel.details.observe(viewLifecycleOwner, {
+        viewModel.details.observe(viewLifecycleOwner) {
             swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
             when {
                 it == null -> showError(getString(R.string.empty_person, emptyMessageDescription))
@@ -48,7 +48,7 @@ class PersonDescriptionFragment : Fragment(R.layout.fragment_person_description)
                 else -> showData(it.data)
             }
             progress.hide()
-        })
+        }
     }
 
     private fun showError(message: String?) {

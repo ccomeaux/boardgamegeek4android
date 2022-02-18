@@ -39,7 +39,7 @@ class LocationsFragment : Fragment(R.layout.fragment_locations) {
 
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.locations.observe(viewLifecycleOwner, {
+        viewModel.locations.observe(viewLifecycleOwner) {
             adapter.locations = it
             if (adapter.itemCount == 0) {
                 recyclerView.fadeOut()
@@ -50,7 +50,7 @@ class LocationsFragment : Fragment(R.layout.fragment_locations) {
             }
             progressBar?.hide()
             swipeRefresh.isRefreshing = false
-        })
+        }
     }
 
     private class LocationsAdapter(val viewModel: LocationsViewModel) :

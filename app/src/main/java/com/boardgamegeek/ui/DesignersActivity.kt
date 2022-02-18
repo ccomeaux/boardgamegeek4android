@@ -19,14 +19,14 @@ class DesignersActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.designers.observe(this, {
+        viewModel.designers.observe(this) {
             numberOfDesigners = it?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortBy = it.sortType
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(intent: Intent): Fragment = DesignersFragment()

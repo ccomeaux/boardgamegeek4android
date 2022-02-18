@@ -253,7 +253,7 @@ open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callbac
                         dateFormat.format(play.dateInMillis)
                 }
                 PlaysViewModel.SortType.LOCATION -> {
-                    if (play.location.isBlank()) getString(R.string.no_location) else play.location
+                    play.location.ifBlank { getString(R.string.no_location) }
                 }
                 PlaysViewModel.SortType.GAME -> {
                     play.gameName

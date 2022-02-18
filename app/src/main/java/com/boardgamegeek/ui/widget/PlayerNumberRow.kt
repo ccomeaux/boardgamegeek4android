@@ -67,12 +67,13 @@ class PlayerNumberRow @JvmOverloads constructor(
         this.recommendedVoteCount = recommendedVoteCount
         this.notRecommendedVoteCount = notRecommendedVoteCount
         this.totalVoteCount = totalVoteCount
+        val actualVotes = bestVoteCount + recommendedVoteCount + notRecommendedVoteCount
 
         adjustSegment(findViewById(R.id.bestSegment), bestVoteCount)
         adjustSegment(findViewById(R.id.recommendedSegment), recommendedVoteCount)
         adjustSegment(findViewById(R.id.missingVotesSegment), totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
         adjustSegment(findViewById(R.id.notRecommendedSegment), notRecommendedVoteCount)
-        findViewById<TextView>(R.id.votesView).text = (bestVoteCount + recommendedVoteCount + notRecommendedVoteCount).toString()
+        findViewById<TextView>(R.id.votesView).text = actualVotes.toString()
     }
 
     fun showNoVotes(show: Boolean) {
@@ -118,6 +119,7 @@ class PlayerNumberRow @JvmOverloads constructor(
 
         companion object {
             @JvmField
+            @Suppress("unused")
             val CREATOR = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
                     return SavedState(source)

@@ -38,7 +38,7 @@ class NewPlayActivity : AppCompatActivity() {
         supportActionBar?.setHomeAsUpIndicator(R.drawable.menu_cancel)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        viewModel.insertedId.observe(this, {
+        viewModel.insertedId.observe(this) {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
                 this.cancelNotification(TAG_PLAY_TIMER, it)
                 SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
@@ -56,9 +56,9 @@ class NewPlayActivity : AppCompatActivity() {
             }
             setResult(Activity.RESULT_OK)
             finish()
-        })
+        }
 
-        viewModel.game.observe(this, {
+        viewModel.game.observe(this) {
             it?.let { entity ->
                 gameName = entity.name
                 thumbnailUrl = entity.thumbnailUrl
@@ -78,7 +78,7 @@ class NewPlayActivity : AppCompatActivity() {
                     }
                 })
             }
-        })
+        }
 
         viewModel.startTime.observe(this) {
             startTime = viewModel.startTime.value ?: 0L

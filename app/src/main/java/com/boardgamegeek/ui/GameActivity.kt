@@ -66,7 +66,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
 
         viewModel.game.observe(this) {
             it?.let { (status, data, message) ->
-                if (status == Status.ERROR) toast(if (message.isBlank()) getString(R.string.empty_game) else message)
+                if (status == Status.ERROR) toast(message.ifBlank { getString(R.string.empty_game) })
                 data?.let { game ->
                     changeName(game.name)
                     changeImage(game.heroImageUrl, game.thumbnailUrl)
@@ -152,7 +152,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     private fun changeImage(heroImageUrl: String, thumbnailUrl: String) {
-        val url = if (heroImageUrl.isBlank()) thumbnailUrl else heroImageUrl
+        val url = heroImageUrl.ifBlank { thumbnailUrl }
         if (this.heroImageUrl != url) {
             this.heroImageUrl = url
             loadToolbarImage(url)

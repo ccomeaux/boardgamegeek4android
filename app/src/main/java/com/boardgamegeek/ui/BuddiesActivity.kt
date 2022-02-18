@@ -20,14 +20,14 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.buddies.observe(this, {
+        viewModel.buddies.observe(this) {
             numberOfBuddies = it?.data?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortBy = it.sortType
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(): Fragment = BuddiesFragment()

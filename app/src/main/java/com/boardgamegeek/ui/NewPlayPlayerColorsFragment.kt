@@ -38,14 +38,14 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
 
         recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner, {
+        viewModel.addedPlayers.observe(viewLifecycleOwner) {
             adapter.players = it
-        })
-        viewModel.gameColors.observe(viewLifecycleOwner, { colors ->
+        }
+        viewModel.gameColors.observe(viewLifecycleOwner) { colors ->
             colors?.let {
                 adapter.useColorPicker = it.all { color -> color.isKnownColor() }
             }
-        })
+        }
 
         nextButton.setOnClickListener {
             viewModel.finishPlayerColors()
@@ -76,12 +76,12 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
         private var selectedColors = emptyList<String>()
 
         init {
-            viewModel.gameColors.observe(activity, {
+            viewModel.gameColors.observe(activity) {
                 it?.let { featuredColors = it }
-            })
-            viewModel.selectedColors.observe(activity, {
+            }
+            viewModel.selectedColors.observe(activity) {
                 selectedColors = it
-            })
+            }
         }
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->

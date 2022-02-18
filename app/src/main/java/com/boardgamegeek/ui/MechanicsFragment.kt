@@ -29,11 +29,11 @@ class MechanicsFragment : Fragment(R.layout.fragment_mechanics) {
 
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.mechanics.observe(viewLifecycleOwner, {
+        viewModel.mechanics.observe(viewLifecycleOwner) {
             showData(it)
             progressBar.hide()
             swipeRefresh.isRefreshing = false
-        })
+        }
     }
 
     private fun showData(mechanics: List<MechanicEntity>) {

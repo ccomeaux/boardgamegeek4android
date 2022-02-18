@@ -59,9 +59,9 @@ class PersonActivity : HeroTabActivity() {
             }
         }
 
-        viewModel.details.observe(this, {
+        viewModel.details.observe(this) {
             if (it?.status == Status.ERROR) {
-                toast(if (it.message.isBlank()) getString(R.string.empty_person, emptyMessageDescription) else it.message)
+                toast(it.message.ifBlank { getString(R.string.empty_person, emptyMessageDescription) })
             }
             it?.data?.let { person ->
                 safelySetTitle(person.name)
@@ -71,7 +71,7 @@ class PersonActivity : HeroTabActivity() {
                     loadToolbarImage(person.thumbnailUrl)
                 }
             }
-        })
+        }
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {

@@ -40,10 +40,10 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
         }
 
         viewModel.setGame(gameId)
-        viewModel.plays.observe(this, {
+        viewModel.plays.observe(this) {
             playCount = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun readIntent(intent: Intent) {

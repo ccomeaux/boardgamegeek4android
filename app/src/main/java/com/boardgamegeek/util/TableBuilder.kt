@@ -66,7 +66,7 @@ class TableBuilder {
         val destinationColumns = columns.joinToString(",")
         val sourceColumns = columns.map {
             columnMap?.get(it.name)?.let { mappedColumn ->
-                if (mappedColumn.isNotBlank()) mappedColumn else it.name
+                mappedColumn.ifBlank { it.name }
             } ?: it.name
         }.joinToString(",")
         var destinationTable = tempTable()

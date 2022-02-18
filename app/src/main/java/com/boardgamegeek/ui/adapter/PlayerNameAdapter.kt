@@ -81,7 +81,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                 usernames.contains(it.userName)
             }.map {
                 Result(
-                    if (it.playNickname.isBlank()) it.fullName else it.playNickname,
+                    it.playNickname.ifBlank { it.fullName },
                     if (it.playNickname.isBlank()) it.userName else "${it.fullName} (${it.userName})",
                     it.userName,
                     it.avatarUrl,

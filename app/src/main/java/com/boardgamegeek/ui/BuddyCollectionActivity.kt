@@ -38,7 +38,7 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
         val statuses = statusValues.zip(statusEntries).toMap()
 
         viewModel.setUsername(buddyName)
-        viewModel.status.observe(this, {
+        viewModel.status.observe(this) {
             val status = statuses[it.orEmpty()]
             supportActionBar?.subtitle = buddyName + if (status != null && status.isNotEmpty()) {
                 " - $status"
@@ -46,7 +46,7 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
                 ""
             }
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun readIntent(intent: Intent) {

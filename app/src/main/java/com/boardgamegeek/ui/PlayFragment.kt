@@ -74,7 +74,7 @@ class PlayFragment : Fragment(R.layout.fragment_play) {
                 it?.data == null -> showError(message)
                 it.status == Status.ERROR -> {
                     showData(it.data)
-                    longToast(if (it.message.isNotBlank()) it.message else message)
+                    longToast(it.message.ifBlank { message })
                 }
                 else -> {
                     showData(it.data)

@@ -40,9 +40,9 @@ class GameCollectionFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(false)
         binding.recyclerView.adapter = adapter
 
-        viewModel.game.observe(viewLifecycleOwner, {
+        viewModel.game.observe(viewLifecycleOwner) {
             adapter.gameYearPublished = it?.data?.yearPublished ?: GameEntity.YEAR_UNKNOWN
-        })
+        }
 
         viewModel.collectionItems.observe(viewLifecycleOwner) {
             it?.let { (status, data, message) ->

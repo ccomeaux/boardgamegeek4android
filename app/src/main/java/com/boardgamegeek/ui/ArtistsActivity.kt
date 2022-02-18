@@ -19,14 +19,14 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.artists.observe(this, {
+        viewModel.artists.observe(this) {
             numberOfArtists = it?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortBy = it.sortType
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(intent: Intent): Fragment = ArtistsFragment()
@@ -35,11 +35,13 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(when (sortBy) {
-            SortType.NAME -> R.id.menu_sort_name
-            SortType.ITEM_COUNT -> R.id.menu_sort_item_count
-            SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
-        })?.isChecked = true
+        menu.findItem(
+            when (sortBy) {
+                SortType.NAME -> R.id.menu_sort_name
+                SortType.ITEM_COUNT -> R.id.menu_sort_item_count
+                SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
+            }
+        )?.isChecked = true
         menu.setActionBarCount(R.id.menu_list_count, numberOfArtists, getString(R.string.by_prefix, title))
         return true
     }

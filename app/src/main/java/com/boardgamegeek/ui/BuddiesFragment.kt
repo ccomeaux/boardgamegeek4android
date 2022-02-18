@@ -41,7 +41,7 @@ class BuddiesFragment : Fragment(R.layout.fragment_buddies) {
         )
         recyclerView.addItemDecoration(sectionItemDecoration)
 
-        viewModel.buddies.observe(viewLifecycleOwner, {
+        viewModel.buddies.observe(viewLifecycleOwner) {
             swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
 
             when (it.status) {
@@ -50,7 +50,7 @@ class BuddiesFragment : Fragment(R.layout.fragment_buddies) {
             }
 
             progressBar.hide()
-        })
+        }
     }
 
     private fun showError(message: String?) {

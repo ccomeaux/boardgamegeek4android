@@ -52,20 +52,20 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             showAndSurvive(PlayStatsIncludeSettingsDialogFragment())
         }
 
-        viewModel.includeIncomplete.observe(viewLifecycleOwner, {
+        viewModel.includeIncomplete.observe(viewLifecycleOwner) {
             includeIncompletePlays = it ?: false
             bindAccuracyMessage()
-        })
-        viewModel.includeExpansions.observe(viewLifecycleOwner, {
+        }
+        viewModel.includeExpansions.observe(viewLifecycleOwner) {
             includeExpansions = it ?: false
             bindAccuracyMessage()
-        })
-        viewModel.includeAccessories.observe(viewLifecycleOwner, {
+        }
+        viewModel.includeAccessories.observe(viewLifecycleOwner) {
             includeAccessories = it ?: false
             bindAccuracyMessage()
-        })
+        }
 
-        viewModel.plays.observe(viewLifecycleOwner, { entity ->
+        viewModel.plays.observe(viewLifecycleOwner) { entity ->
             if (entity == null) {
                 showEmpty()
             } else {
@@ -79,7 +79,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
                     )
                 }
             }
-        })
+        }
         viewModel.players.observe(viewLifecycleOwner, Observer { entity ->
             if (entity == null) return@Observer
             bindPlayerUi(entity)

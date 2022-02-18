@@ -64,10 +64,10 @@ abstract class DrawerActivity : BaseActivity() {
             it.setOnClickListener { startActivity<LoginActivity>() }
         }
 
-        viewModel.user.observe(this, {
+        viewModel.user.observe(this) {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
             refreshHeader(it?.data)
-        })
+        }
 
         syncViewModel.currentSyncTimestamp.observe(this) {
             invalidateOptionsMenu()

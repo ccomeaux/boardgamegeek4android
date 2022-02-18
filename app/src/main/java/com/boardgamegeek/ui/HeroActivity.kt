@@ -17,7 +17,6 @@ import kotlinx.android.synthetic.main.activity_hero.*
 abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
     protected var fragment: Fragment? = null
         private set
-    private var isRefreshing: Boolean = false
     protected var fabOnClickListener: OnClickListener? = null
 
     private val isRefreshable: Boolean
@@ -55,9 +54,9 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
         fragment = onCreatePane()
         fragment?.let {
             supportFragmentManager
-                    .beginTransaction()
-                    .add(R.id.root_container, it, TAG_SINGLE_PANE)
-                    .commit()
+                .beginTransaction()
+                .add(R.id.root_container, it, TAG_SINGLE_PANE)
+                .commit()
         }
     }
 
@@ -104,11 +103,6 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
 
     override fun onRefresh() {
         //No-op; just here for the children
-    }
-
-    protected fun updateRefreshStatus(refreshing: Boolean) {
-        this.isRefreshing = refreshing
-        swipeRefreshLayout?.post { swipeRefreshLayout?.isRefreshing = isRefreshing }
     }
 
     companion object {

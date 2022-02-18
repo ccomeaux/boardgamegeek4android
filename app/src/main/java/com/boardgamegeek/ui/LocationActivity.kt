@@ -40,16 +40,16 @@ class LocationActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.location.observe(this, {
+        viewModel.location.observe(this) {
             locationName = it
             intent.putExtra(KEY_LOCATION_NAME, locationName)
             setSubtitle()
-        })
-        viewModel.plays.observe(this, {
+        }
+        viewModel.plays.observe(this) {
             playCount = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.updateMessage.observe(this, {
+        }
+        viewModel.updateMessage.observe(this) {
             it.getContentIfNotHandled()?.let { content ->
                 if (content.isBlank()) {
                     snackbar?.dismiss()
@@ -57,7 +57,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
                     snackbar = rootContainer?.longSnackbar(content)
                 }
             }
-        })
+        }
         viewModel.setLocation(locationName)
     }
 
@@ -66,7 +66,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
     }
 
     private fun setSubtitle() {
-        supportActionBar?.subtitle = if (locationName.isBlank()) getString(R.string.no_location) else locationName
+        supportActionBar?.subtitle = locationName.ifBlank { getString(R.string.no_location) }
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

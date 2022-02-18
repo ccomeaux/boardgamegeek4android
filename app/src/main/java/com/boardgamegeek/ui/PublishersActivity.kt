@@ -19,14 +19,14 @@ class PublishersActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.publishers.observe(this, {
+        viewModel.publishers.observe(this) {
             numberOfPublishers = it?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortBy = it.sortType
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(intent: Intent): Fragment = PublishersFragment()

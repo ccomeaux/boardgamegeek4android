@@ -29,14 +29,14 @@ class LocationsActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.locations.observe(this, {
+        viewModel.locations.observe(this) {
             locationCount = it?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortType = it?.sortType ?: LocationsViewModel.SortType.NAME
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

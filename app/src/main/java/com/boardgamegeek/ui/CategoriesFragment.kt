@@ -29,11 +29,11 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
 
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.categories.observe(viewLifecycleOwner, {
+        viewModel.categories.observe(viewLifecycleOwner) {
             showData(it)
             progressBar.hide()
             swipeRefresh.isRefreshing = false
-        })
+        }
     }
 
     private fun showData(categories: List<CategoryEntity>) {

@@ -39,6 +39,7 @@ class RateLimiter<in KEY>(timeout: Int, timeUnit: TimeUnit) {
     }
 
     @Synchronized
+    @Suppress("unused")
     fun willProcessAt(key: KEY): Long {
         val lastFetched = timestamps[key]
         val now = SystemClock.uptimeMillis()

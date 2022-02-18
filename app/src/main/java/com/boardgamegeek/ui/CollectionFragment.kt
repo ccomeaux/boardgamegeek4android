@@ -124,7 +124,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
         viewModel.selectedViewName.observe(viewLifecycleOwner) {
             viewName = it
         }
-        viewModel.views.observe(this) {
+        viewModel.views.observe(viewLifecycleOwner) {
             binding.footerToolbar.menu.findItem(R.id.menu_collection_view_delete)?.isEnabled = it?.isNotEmpty() == true
         }
         viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->

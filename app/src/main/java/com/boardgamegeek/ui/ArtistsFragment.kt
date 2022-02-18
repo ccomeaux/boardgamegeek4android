@@ -39,13 +39,13 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
 
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.artists.observe(viewLifecycleOwner, {
+        viewModel.artists.observe(viewLifecycleOwner) {
             showData(it)
             progressBar.hide()
             swipeRefresh.isRefreshing = false
-        })
+        }
 
-        viewModel.progress.observe(viewLifecycleOwner, {
+        viewModel.progress.observe(viewLifecycleOwner) {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {
@@ -53,7 +53,7 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
                 progressView.max = it.second
                 progressView.progress = it.first
             }
-        })
+        }
     }
 
     private fun showData(artists: List<PersonEntity>) {

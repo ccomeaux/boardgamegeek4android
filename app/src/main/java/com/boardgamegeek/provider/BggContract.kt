@@ -69,12 +69,6 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game"
         const val DEFAULT_SORT = Columns.GAME_SORT_NAME + COLLATE_NOCASE + " ASC"
 
-        fun isGameUri(uri: Uri?): Boolean {
-            return uri?.pathSegments?.let {
-                it.getOrNull(0) == PATH_GAMES
-            } ?: false
-        }
-
         fun buildGameUri(gameId: Int): Uri {
             return getUriBuilder(gameId).build()
         }
@@ -407,6 +401,7 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.mechanic"
         const val DEFAULT_SORT = "${Columns.MECHANIC_NAME}$COLLATE_NOCASE ASC"
 
+        @Suppress("unused")
         fun buildMechanicUri(mechanicId: Int): Uri {
             return createMechanicUri(mechanicId).build()
         }
@@ -437,6 +432,7 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.category"
         const val DEFAULT_SORT = "${Columns.CATEGORY_NAME}$COLLATE_NOCASE ASC"
 
+        @Suppress("unused")
         fun buildCategoryUri(categoryId: Int): Uri {
             return createCategoryUri(categoryId).build()
         }
@@ -530,11 +526,6 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(id.toString()).build()
         }
 
-        fun buildUri(having: String?): Uri {
-            // TODO
-            return if (having.isNullOrBlank()) CONTENT_URI else CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_HAVING, having).build()
-        }
-
         fun buildAcquiredFromUri(): Uri {
             return CONTENT_URI.buildUpon().appendPath(PATH_ACQUIRED_FROM).build()
         }
@@ -568,7 +559,6 @@ class BggContract {
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.buddy"
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy"
         const val DEFAULT_SORT = "${Columns.BUDDY_LASTNAME}$COLLATE_NOCASE ASC, ${Columns.BUDDY_FIRSTNAME}$COLLATE_NOCASE ASC"
-        const val NAME_SORT = "${Columns.BUDDY_NAME}$COLLATE_NOCASE ASC"
 
         fun buildBuddyUri(buddyName: String?): Uri {
             return CONTENT_URI.buildUpon().appendPath(buddyName).build()
@@ -604,14 +594,6 @@ class BggContract {
 
         fun buildUserUri(username: String?, sortOrder: Int): Uri {
             return buildUserUri(username).buildUpon().appendPath(sortOrder.toString()).build()
-        }
-
-        fun buildPlayerUri(playerName: String?, sortOrder: Int): Uri {
-            return buildPlayerUri(playerName).buildUpon().appendPath(sortOrder.toString()).build()
-        }
-
-        fun addSortUri(uri: Uri, sortOrder: Int): Uri {
-            return uri.buildUpon().appendPath(sortOrder.toString()).build()
         }
 
         fun getUsername(uri: Uri?) = uri.getSegmentAfterPath(PATH_USERS)
@@ -815,7 +797,6 @@ class BggContract {
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playplayer"
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playplayer"
         const val DEFAULT_SORT = "${Columns.START_POSITION} ASC, play_players.${Columns.NAME}$COLLATE_NOCASE ASC"
-        const val SORT_BY_COUNT = "${Columns.COUNT} DESC, $DEFAULT_SORT"
         const val SORT_BY_SUM_QUANTITY = "${Plays.Columns.SUM_QUANTITY} DESC, $DEFAULT_SORT"
 
         fun getPlayPlayerId(uri: Uri?) = uri?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
@@ -823,7 +804,6 @@ class BggContract {
 
     object PlayLocations {
         const val DEFAULT_SORT = "${Plays.Columns.LOCATION}$COLLATE_NOCASE ASC"
-        const val SORT_BY_SUM_QUANTITY = "${Plays.Columns.SUM_QUANTITY} DESC, $DEFAULT_SORT"
     }
 
     object CollectionViews {

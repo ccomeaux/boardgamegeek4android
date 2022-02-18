@@ -35,14 +35,16 @@ class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
 
         setEmptyMessage(R.string.title_person)
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        viewModel.person.observe(viewLifecycleOwner, {
-            setEmptyMessage(when (it.type) {
-                PersonType.ARTIST -> R.string.title_artist
-                PersonType.DESIGNER -> R.string.title_designer
-                PersonType.PUBLISHER -> R.string.title_publisher
-            })
-        })
-        viewModel.collection.observe(viewLifecycleOwner, {
+        viewModel.person.observe(viewLifecycleOwner) {
+            setEmptyMessage(
+                when (it.type) {
+                    PersonType.ARTIST -> R.string.title_artist
+                    PersonType.DESIGNER -> R.string.title_designer
+                    PersonType.PUBLISHER -> R.string.title_publisher
+                }
+            )
+        }
+        viewModel.collection.observe(viewLifecycleOwner) {
             it?.let { list ->
                 if (list.isNotEmpty()) {
                     adapter.items = it
@@ -56,11 +58,11 @@ class PersonCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
                 progressView.hide()
                 swipeRefresh.isRefreshing = false
             }
-        })
-        viewModel.collectionSort.observe(viewLifecycleOwner, {
+        }
+        viewModel.collectionSort.observe(viewLifecycleOwner) {
             sortType = it ?: CollectionSort.RATING
             activity?.invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

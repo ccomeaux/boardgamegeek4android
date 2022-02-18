@@ -60,12 +60,12 @@ class TeamPickerDialogFragment : DialogFragment() {
             dismiss()
         }
 
-        viewModel.gameColors.observe(this, {
+        viewModel.gameColors.observe(this) {
             it?.let { adapter.teams = it }
-        })
-        viewModel.selectedColors.observe(this, {
+        }
+        viewModel.selectedColors.observe(this) {
             adapter.selectedColors = it
-        })
+        }
     }
 
     companion object {

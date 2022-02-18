@@ -31,7 +31,7 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
         defaultTextColor = nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
-        viewModel.buddy.observe(viewLifecycleOwner, {
+        viewModel.buddy.observe(viewLifecycleOwner) {
             swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
 
             if (it?.data == null) {
@@ -45,11 +45,7 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
                 avatarView.loadThumbnail(it.data.avatarUrl, R.drawable.person_image_empty)
                 fullNameView.text = it.data.fullName
                 usernameView.text = buddyName
-                playerName = if (it.data.playNickname.isBlank()) {
-                    it.data.firstName
-                } else {
-                    it.data.playNickname
-                }
+                playerName = it.data.playNickname.ifBlank { it.data.firstName }
                 nicknameView.text = playerName
                 nicknameView.setOnClickListener {
                     requireActivity().showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(playerName))
@@ -66,9 +62,9 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
 
                 swipeRefresh.isEnabled = true
             }
-        })
+        }
 
-        viewModel.player.observe(viewLifecycleOwner, { player ->
+        viewModel.player.observe(viewLifecycleOwner) { player ->
             if (playerName == null) {
                 playerName = player?.name
                 nicknameView.text = playerName
@@ -94,9 +90,9 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
             } else {
                 playsCard.fadeOut()
             }
-        })
+        }
 
-        viewModel.colors.observe(viewLifecycleOwner, { colors ->
+        viewModel.colors.observe(viewLifecycleOwner) { colors ->
             colorContainer.removeAllViews()
             colorContainer.isVisible = (colors?.size ?: 0) > 0
             colors?.take(3)?.forEach { color ->
@@ -108,6 +104,6 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
             colorsRoot.setOnClickListener {
                 PlayerColorsActivity.start(requireContext(), buddyName, playerName)
             }
-        })
+        }
     }
 }

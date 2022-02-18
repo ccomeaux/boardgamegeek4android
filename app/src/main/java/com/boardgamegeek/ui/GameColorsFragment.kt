@@ -52,7 +52,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             requireActivity().showAndSurvive(AddColorToGameDialogFragment())
         }
 
-        viewModel.colors.observe(viewLifecycleOwner, {
+        viewModel.colors.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.colors = it
                 emptyView.fade(it.isEmpty())
@@ -60,7 +60,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                 fab.show()
                 progressView.fadeOut()
             }
-        })
+        }
     }
 
     private fun setUpRecyclerView() {

@@ -38,7 +38,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        viewModel.locations.observe(viewLifecycleOwner, {
+        viewModel.locations.observe(viewLifecycleOwner) {
             adapter.locations = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
@@ -51,7 +51,7 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
             } else {
                 emptyView.fadeOut()
             }
-        })
+        }
 
         filterEditText.doAfterTextChanged { viewModel.filterLocations(it.toString()) }
 

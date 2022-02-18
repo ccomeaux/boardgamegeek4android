@@ -195,7 +195,7 @@ class PlayerColorsActivity : BaseActivity() {
         } else {
             viewModel.setUsername(buddyName)
         }
-        viewModel.colors.observe(this, { playerColorEntities ->
+        viewModel.colors.observe(this) { playerColorEntities ->
             usedColors.clear()
             if (playerColorEntities != null) {
                 usedColors.addAll(playerColorEntities.map { it.description })
@@ -210,7 +210,7 @@ class PlayerColorsActivity : BaseActivity() {
                 emptyView.fadeOut()
                 recyclerView.fadeIn()
             }
-        })
+        }
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {

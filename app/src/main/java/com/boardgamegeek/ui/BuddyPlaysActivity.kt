@@ -36,10 +36,10 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
         }
 
         viewModel.setUsername(buddyName)
-        viewModel.plays.observe(this, {
+        viewModel.plays.observe(this) {
             numberOfPlays = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun readIntent(intent: Intent) {

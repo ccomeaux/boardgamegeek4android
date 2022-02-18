@@ -18,14 +18,14 @@ class CategoriesActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.categories.observe(this, {
+        viewModel.categories.observe(this) {
             numberOfCategories = it?.size ?: 0
             invalidateOptionsMenu()
-        })
-        viewModel.sort.observe(this, {
+        }
+        viewModel.sort.observe(this) {
             sortBy = it.sortType
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun onCreatePane(intent: Intent): Fragment = CategoriesFragment()

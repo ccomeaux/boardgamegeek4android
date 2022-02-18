@@ -78,7 +78,7 @@ class SearchResultsFragment : Fragment(R.layout.fragment_search_results), Action
         binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = searchResultsAdapter
 
-        viewModel.searchResults.observe(this) { resource ->
+        viewModel.searchResults.observe(viewLifecycleOwner) { resource ->
             resource?.let { (status, data, message) ->
                 when (status) {
                     Status.REFRESHING -> binding.progress.progressContainer.isVisible = true

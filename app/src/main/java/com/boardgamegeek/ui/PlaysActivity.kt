@@ -34,7 +34,7 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
             }
         }
 
-        viewModel.errorMessage.observe(this, {
+        viewModel.errorMessage.observe(this) {
             it.getContentIfNotHandled()?.let { message ->
                 if (message.isBlank()) {
                     snackbar?.dismiss()
@@ -42,24 +42,24 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
                     snackbar = rootContainer?.longSnackbar(message)
                 }
             }
-        })
+        }
 
-        viewModel.plays.observe(this, {
+        viewModel.plays.observe(this) {
             invalidateOptionsMenu()
-        })
+        }
 
-        viewModel.filterType.observe(this, { type ->
+        viewModel.filterType.observe(this) { type ->
             supportActionBar?.subtitle = when (type) {
                 PlaysViewModel.FilterType.PENDING -> getString(R.string.menu_plays_filter_pending)
                 PlaysViewModel.FilterType.DIRTY -> getString(R.string.menu_plays_filter_in_progress)
                 else -> ""
             }
             invalidateOptionsMenu()
-        })
+        }
 
-        viewModel.sortType.observe(this, {
+        viewModel.sortType.observe(this) {
             invalidateOptionsMenu()
-        })
+        }
 
         viewModel.setFilter(PlaysViewModel.FilterType.ALL)
     }

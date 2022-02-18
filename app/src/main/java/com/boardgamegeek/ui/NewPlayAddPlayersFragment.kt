@@ -60,7 +60,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
             }
         }
 
-        viewModel.availablePlayers.observe(viewLifecycleOwner, {
+        viewModel.availablePlayers.observe(viewLifecycleOwner) {
             adapter.players = it
             recyclerView.fadeIn()
             if (it.isEmpty()) {
@@ -75,8 +75,8 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
             } else {
                 emptyView.fadeOut()
             }
-        })
-        viewModel.addedPlayers.observe(viewLifecycleOwner, {
+        }
+        viewModel.addedPlayers.observe(viewLifecycleOwner) {
             // TODO don't delete and recreate
             chipGroup.removeAllViews()
             it?.let { list ->
@@ -98,7 +98,7 @@ class NewPlayAddPlayersFragment : Fragment(R.layout.fragment_new_play_add_player
                     })
                 }
             }
-        })
+        }
         viewModel.filterPlayers("")
     }
 

@@ -28,11 +28,11 @@ class MechanicCollectionFragment : Fragment(R.layout.fragment_linked_collection)
         emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).lowercase(Locale.getDefault()))
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.sort.observe(viewLifecycleOwner, {
+        viewModel.sort.observe(viewLifecycleOwner) {
             sortType = it
             activity?.invalidateOptionsMenu()
-        })
-        viewModel.collection.observe(viewLifecycleOwner, {
+        }
+        viewModel.collection.observe(viewLifecycleOwner) {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
                 emptyMessage.fadeOut()
@@ -44,7 +44,7 @@ class MechanicCollectionFragment : Fragment(R.layout.fragment_linked_collection)
             }
             swipeRefresh.isRefreshing = false
             progressView.hide()
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

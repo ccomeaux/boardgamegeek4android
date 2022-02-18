@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -36,15 +37,16 @@ class NewPlayPlayerWinFragment : Fragment(R.layout.fragment_new_play_player_win)
 
         recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner, { entity ->
+        viewModel.addedPlayers.observe(viewLifecycleOwner) { entity ->
             adapter.players = entity.sortedBy { it.seat }
-        })
+        }
 
         nextButton.setOnClickListener {
             viewModel.finishPlayerWin()
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel) :
         RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 

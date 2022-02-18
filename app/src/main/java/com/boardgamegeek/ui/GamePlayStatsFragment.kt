@@ -49,7 +49,10 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.math.*
+import kotlin.math.ln
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
 
 class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
     private var gameId = BggContract.INVALID_ID
@@ -126,43 +129,47 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                 .show()
         }
 
-        viewModel.game.observe(viewLifecycleOwner, { (_, data, _) ->
-            data?.first()?.let {
-                playCountColors = intArrayOf(
-                    if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
-                    if (it.winnablePlaysColor == Color.TRANSPARENT) ContextCompat.getColor(
-                        requireContext(),
-                        R.color.dark_blue
-                    ) else it.winnablePlaysColor,
-                    if (it.allPlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.light_blue) else it.allPlaysColor
-                )
-            }
-
-            playingTime = data?.first()?.playingTime ?: 0
-            personalRating = data?.filter { it.rating > 0.0 }?.map { it.rating }?.average() ?: 0.0
-            gameOwned = data?.any { it.own } ?: false
-
-            viewModel.plays.observe(viewLifecycleOwner, { (_, data, _) ->
-                if (data == null || data.isEmpty()) {
-                    progressView.hide()
-                    dataView.fadeOut()
-                    emptyView.fadeIn()
-                } else {
-                    playEntities = data
-                    viewModel.players.observe(viewLifecycleOwner, {
-                        playerEntities = it
-
-                        val stats = Stats()
-                        stats.calculate()
-                        bindUi(stats)
-
-                        progressView.hide()
-                        emptyView.fadeOut()
-                        dataView.fadeIn()
-                    })
+        viewModel.game.observe(viewLifecycleOwner) { resource ->
+            resource?.let { (_, data, _) ->
+                data?.first()?.let {
+                    playCountColors = intArrayOf(
+                        if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
+                        if (it.winnablePlaysColor == Color.TRANSPARENT) ContextCompat.getColor(
+                            requireContext(),
+                            R.color.dark_blue
+                        ) else it.winnablePlaysColor,
+                        if (it.allPlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.light_blue) else it.allPlaysColor
+                    )
                 }
-            })
-        })
+
+                playingTime = data?.first()?.playingTime ?: 0
+                personalRating = data?.filter { it.rating > 0.0 }?.map { it.rating }?.average() ?: 0.0
+                gameOwned = data?.any { it.own } ?: false
+
+                viewModel.plays.observe(viewLifecycleOwner) { playList ->
+                    playList?.let { (_, data, _) ->
+                        if (data == null || data.isEmpty()) {
+                            progressView.hide()
+                            dataView.fadeOut()
+                            emptyView.fadeIn()
+                        } else {
+                            playEntities = data
+                            viewModel.players.observe(viewLifecycleOwner) {
+                                playerEntities = it
+
+                                val stats = Stats()
+                                stats.calculate()
+                                bindUi(stats)
+
+                                progressView.hide()
+                                emptyView.fadeOut()
+                                dataView.fadeIn()
+                            }
+                        }
+                    }
+                }
+            }
+        }
         viewModel.setGameId(gameId)
     }
 
@@ -623,11 +630,11 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                 }
             }
 
-        fun getMonthsPerPlay(): Int {
-            val days = calculateSpan()
-            val months = (days / 365.25 * 12).toInt()
-            return months / playCount
-        }
+//        fun getMonthsPerPlay(): Int {
+//            val days = calculateSpan()
+//            val months = (days / 365.25 * 12).toInt()
+//            return months / playCount
+//        }
 
         fun calculateHuberHeat(): Double {
             val lastYear = Calendar.getInstance().apply {
@@ -643,26 +650,26 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             return s * s * sqrt(intervalPlayCount.toDouble()) * calculateHhmSince(sinceDateInMillis)
         }
 
-        fun calculateWhitmoreScore(): Int {
-            // A score that ranges from 0 for a completely neutral game (6.5) to 7 for a perfect 10.
-            // https://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23
-            return (personalRating * 2 - 13).toInt().coerceAtLeast(0)
-        }
+//        fun calculateWhitmoreScore(): Int {
+//            // A score that ranges from 0 for a completely neutral game (6.5) to 7 for a perfect 10.
+//            // https://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23
+//            return (personalRating * 2 - 13).toInt().coerceAtLeast(0)
+//        }
 
-        fun calculateZefquaaviusScore(): Double {
-            // A score that ranges from -10 to 10, with more weight given to the ends than the middle
-            // modified Whitmore score, see: http://boardgamegeek.com/user/zefquaavius
-            val neutralRating = 5.5
-            var squared = (personalRating - neutralRating).pow(2)
-            if (personalRating < neutralRating) {
-                squared *= -1.0
-            }
-            return squared / 2.025
-        }
+//        fun calculateZefquaaviusScore(): Double {
+//            // A score that ranges from -10 to 10, with more weight given to the ends than the middle
+//            // modified Whitmore score, see: http://boardgamegeek.com/user/zefquaavius
+//            val neutralRating = 5.5
+//            var squared = (personalRating - neutralRating).pow(2)
+//            if (personalRating < neutralRating) {
+//                squared *= -1.0
+//            }
+//            return squared / 2.025
+//        }
 
-        fun calculateZefquaaviusHotness(sinceDateInMillis: Long): Double {
-            return calculateGrayHotness(sinceDateInMillis) * calculateZefquaaviusScore()
-        }
+//        fun calculateZefquaaviusHotness(sinceDateInMillis: Long): Double {
+//            return calculateGrayHotness(sinceDateInMillis) * calculateZefquaaviusScore()
+//        }
 
         private fun calculateFlash(): Long {
             return daysBetweenDates(firstPlayDateInMillis, lastPlayDateInMillis)
@@ -672,9 +679,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             return daysBetweenDates(lastPlayDateInMillis)
         }
 
-        private fun calculateSpan(): Long {
-            return daysBetweenDates(firstPlayDateInMillis)
-        }
+//        private fun calculateSpan(): Long {
+//            return daysBetweenDates(firstPlayDateInMillis)
+//        }
 
         private fun daysBetweenDates(from: Long, to: Long = System.currentTimeMillis()): Long {
             return TimeUnit.DAYS.convert(to - from, TimeUnit.MILLISECONDS).coerceAtLeast(1)
@@ -745,9 +752,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             return winnablePlaysByPlayerCount[playerCount]
         }
 
-        fun getPlayCountByPlayerCount(playerCount: Int): Int {
-            return playsByPlayerCount[playerCount]
-        }
+//        fun getPlayCountByPlayerCount(playerCount: Int): Int {
+//            return playsByPlayerCount[playerCount]
+//        }
 
         val winSkill: Int
             get() = ((winsTimesPlayers.toDouble() / numberOfWinnablePlays.toDouble()) * 100).toInt()

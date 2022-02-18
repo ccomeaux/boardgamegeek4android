@@ -164,7 +164,7 @@ class GameCollectionItemActivity : HeroActivity() {
     }
 
     private fun changeImage() {
-        val url = if (heroImageUrl.isBlank()) thumbnailUrl else heroImageUrl
+        val url = heroImageUrl.ifBlank { thumbnailUrl }
         if (url != imageUrl) {
             imageUrl = url
             loadToolbarImage(url)

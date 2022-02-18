@@ -39,13 +39,13 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
 
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.designers.observe(viewLifecycleOwner, {
+        viewModel.designers.observe(viewLifecycleOwner) {
             showData(it)
             progressBar.hide()
             swipeRefresh.isRefreshing = false
-        })
+        }
 
-        viewModel.progress.observe(viewLifecycleOwner, {
+        viewModel.progress.observe(viewLifecycleOwner) {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {
@@ -53,7 +53,7 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
                 progressView.max = it.second
                 progressView.progress = it.first
             }
-        })
+        }
     }
 
     private fun showData(designers: List<PersonEntity>) {

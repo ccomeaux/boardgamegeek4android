@@ -42,31 +42,35 @@ class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
 
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter))
+        recyclerView.addItemDecoration(
+            RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
+        )
 
-        viewModel.status.observe(viewLifecycleOwner, {
+        viewModel.status.observe(viewLifecycleOwner) {
             currentStatus = it ?: BuddyCollectionViewModel.DEFAULT_STATUS
-        })
-        viewModel.collection.observe(viewLifecycleOwner, { (status, data, message) ->
-            when (status) {
-                Status.REFRESHING -> progressView.show()
-                Status.ERROR -> {
-                    showError(message)
-                    progressView.hide()
-                }
-                Status.SUCCESS -> {
-                    activity?.invalidateOptionsMenu()
-                    if (data == null || data.isEmpty()) {
-                        showError(R.string.empty_buddy_collection)
-                    } else {
-                        adapter.items = data
-                        emptyView.fadeOut()
-                        recyclerView.fadeIn(isResumed)
+        }
+        viewModel.collection.observe(viewLifecycleOwner) { resource ->
+            resource?.let { (status, data, message) ->
+                when (status) {
+                    Status.REFRESHING -> progressView.show()
+                    Status.ERROR -> {
+                        showError(message)
+                        progressView.hide()
                     }
-                    progressView.hide()
+                    Status.SUCCESS -> {
+                        activity?.invalidateOptionsMenu()
+                        if (data == null || data.isEmpty()) {
+                            showError(R.string.empty_buddy_collection)
+                        } else {
+                            adapter.items = data
+                            emptyView.fadeOut()
+                            recyclerView.fadeIn(isResumed)
+                        }
+                        progressView.hide()
+                    }
                 }
             }
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -38,10 +38,10 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
         }
 
         viewModel.setPlayerName(name)
-        viewModel.plays.observe(this, {
+        viewModel.plays.observe(this) {
             playCount = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun readIntent(intent: Intent) {

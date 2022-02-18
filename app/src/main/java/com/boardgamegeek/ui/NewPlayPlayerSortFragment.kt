@@ -60,13 +60,13 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
 
         recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner, { entity ->
+        viewModel.addedPlayers.observe(viewLifecycleOwner) { entity ->
             if (entity.all { it.seat != null }) {
                 adapter.players = entity.sortedBy { it.seat }
             } else {
                 adapter.players = entity
             }
-        })
+        }
 
         randomizeAllButton.setOnClickListener {
             viewModel.randomizePlayers()

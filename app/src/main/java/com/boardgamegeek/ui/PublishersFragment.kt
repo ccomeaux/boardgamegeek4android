@@ -39,13 +39,13 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
 
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.publishers.observe(viewLifecycleOwner, {
+        viewModel.publishers.observe(viewLifecycleOwner) {
             showData(it)
             progressBar.hide()
             swipeRefresh.isRefreshing = false
-        })
+        }
 
-        viewModel.progress.observe(viewLifecycleOwner, {
+        viewModel.progress.observe(viewLifecycleOwner) {
             if (it == null) {
                 progressContainer.isVisible = false
             } else {
@@ -53,7 +53,7 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
                 progressView.max = it.second
                 progressView.progress = it.first
             }
-        })
+        }
     }
 
     private fun showData(publishers: List<CompanyEntity>) {

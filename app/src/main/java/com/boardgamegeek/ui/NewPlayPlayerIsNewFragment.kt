@@ -33,9 +33,9 @@ class NewPlayPlayerIsNewFragment : Fragment(R.layout.fragment_new_play_player_is
 
         recyclerView.adapter = adapter
 
-        viewModel.mightBeNewPlayers.observe(viewLifecycleOwner, { entity ->
+        viewModel.mightBeNewPlayers.observe(viewLifecycleOwner) { entity ->
             adapter.players = entity.sortedBy { it.seat }
-        })
+        }
 
         nextButton.setOnClickListener {
             viewModel.finishPlayerIsNew()
