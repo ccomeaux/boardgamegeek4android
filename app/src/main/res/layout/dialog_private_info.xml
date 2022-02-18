@@ -21,13 +21,13 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_extra"
 			android:background="@drawable/warning"
-			android:drawableStart="@drawable/ic_action_warning"
-			android:drawableLeft="@drawable/ic_action_warning"
 			android:gravity="center"
 			android:padding="@dimen/padding_standard"
 			android:text="@string/msg_warning_private_info"
 			android:textAppearance="@style/Text"
-			android:textColor="@color/inverse_text" />
+			android:textColor="@color/inverse_text"
+			app:drawableLeftCompat="@drawable/ic_action_warning"
+			app:drawableStartCompat="@drawable/ic_action_warning" />
 
 		<LinearLayout
 			android:layout_width="match_parent"

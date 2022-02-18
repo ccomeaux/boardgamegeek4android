@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	   xmlns:tools="http://schemas.android.com/tools">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -15,7 +16,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="3"
 			android:textAppearance="@style/Text"
-			tools:text="Chris (ccomeaux)"/>
+			tools:text="Chris (ccomeaux)" />
 
 		<TextView
 			android:id="@+id/winCountView"
@@ -23,7 +24,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="2"
 			android:gravity="center_horizontal"
-			android:textAppearance="@style/Text"/>
+			android:textAppearance="@style/Text" />
 
 		<TextView
 			android:id="@+id/playCountView"
@@ -31,7 +32,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:gravity="right"
-			android:textAppearance="@style/Text"/>
+			android:textAppearance="@style/Text" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -49,7 +50,7 @@
 			android:paddingTop="@dimen/padding_standard"
 			android:text="@string/title_scores"
 			android:textAppearance="@style/Text"
-			android:textColor="@color/secondary_text"/>
+			android:textColor="@color/secondary_text" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -60,62 +61,62 @@
 				android:id="@+id/lowScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_score_low"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_low"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text"
+				app:drawableLeftCompat="@drawable/ic_score_low"
+				app:drawableTint="@color/score_low" />
 
 			<android.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<TextView
 				android:id="@+id/averageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_score_average"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_average"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text"
+				app:drawableLeftCompat="@drawable/ic_score_average"
+				app:drawableTint="@color/score_average" />
 
 			<android.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<TextView
 				android:id="@+id/averageWinScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_score_average_win"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_average_win"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text"
+				app:drawableLeftCompat="@drawable/ic_score_average_win"
+				app:drawableTint="@color/score_average_win" />
 
 			<android.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<TextView
 				android:id="@+id/highScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_score_high"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_high"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text"
+				app:drawableLeftCompat="@drawable/ic_score_high"
+				app:drawableTint="@color/score_high" />
 		</LinearLayout>
 
 		<com.boardgamegeek.ui.widget.ScoreGraphView
 			android:id="@+id/graphView"
 			android:layout_width="match_parent"
-			android:layout_height="40dp"/>
+			android:layout_height="40dp" />
 
 	</LinearLayout>
 </merge>

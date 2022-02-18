@@ -53,8 +53,8 @@
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableStart="@drawable/ic_user_small"
-				android:drawableLeft="@drawable/ic_user_small"
+				app:drawableLeftCompat="@drawable/ic_user_small"
+				app:drawableStartCompat="@drawable/ic_user_small"
 				tools:text="ccomeaux" />
 
 			<View
@@ -69,8 +69,8 @@
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableStart="@drawable/ic_type_small"
-				android:drawableLeft="@drawable/ic_type_small"
+				app:drawableLeftCompat="@drawable/ic_type_small"
+				app:drawableStartCompat="@drawable/ic_type_small"
 				tools:text="Board Game" />
 
 			<View
@@ -85,8 +85,8 @@
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableStart="@drawable/ic_thumbs_small"
-				android:drawableLeft="@drawable/ic_thumbs_small"
+				app:drawableLeftCompat="@drawable/ic_thumbs_small"
+				app:drawableStartCompat="@drawable/ic_thumbs_small"
 				tools:text="13" />
 
 			<View

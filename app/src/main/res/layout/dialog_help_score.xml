@@ -1,56 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/material_margin_vertical"
-			  android:paddingLeft="@dimen/material_margin_horizontal_dialog"
-			  android:paddingRight="@dimen/material_margin_horizontal_dialog"
-			  android:paddingTop="@dimen/material_margin_vertical">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal_dialog"
+	android:paddingTop="@dimen/material_margin_vertical"
+	android:paddingRight="@dimen/material_margin_horizontal_dialog"
+	android:paddingBottom="@dimen/material_margin_vertical">
 
 	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:drawableLeft="@drawable/ic_score_low"
 		android:drawablePadding="@dimen/padding_standard"
-		android:drawableTint="@color/score_low"
 		android:gravity="center_vertical"
 		android:text="@string/low_score"
-		android:textAppearance="@style/Text"/>
+		android:textAppearance="@style/Text"
+		app:drawableLeftCompat="@drawable/ic_score_low"
+		app:drawableTint="@color/score_low" />
 
 	<TextView
 		android:id="@+id/average_score"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
-		android:drawableLeft="@drawable/ic_score_average"
 		android:drawablePadding="@dimen/padding_standard"
-		android:drawableTint="@color/score_average"
 		android:gravity="center_vertical"
 		android:text="@string/average_score"
-		android:textAppearance="@style/Text"/>
+		android:textAppearance="@style/Text"
+		app:drawableLeftCompat="@drawable/ic_score_average"
+		app:drawableTint="@color/score_average" />
 
 	<TextView
 		android:id="@+id/average_win_score"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
-		android:drawableLeft="@drawable/ic_score_average_win"
 		android:drawablePadding="@dimen/padding_standard"
-		android:drawableTint="@color/score_average_win"
 		android:gravity="center_vertical"
 		android:text="@string/average_winning_score"
-		android:textAppearance="@style/Text"/>
+		android:textAppearance="@style/Text"
+		app:drawableLeftCompat="@drawable/ic_score_average_win"
+		app:drawableTint="@color/score_average_win" />
 
 	<TextView
 		android:id="@+id/high_score"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:drawableLeft="@drawable/ic_score_high"
 		android:drawablePadding="@dimen/padding_standard"
-		android:drawableTint="@color/score_high"
 		android:gravity="center_vertical"
 		android:text="@string/high_score"
-		android:textAppearance="@style/Text"/>
+		android:textAppearance="@style/Text"
+		app:drawableLeftCompat="@drawable/ic_score_high"
+		app:drawableTint="@color/score_high" />
 
 </LinearLayout>

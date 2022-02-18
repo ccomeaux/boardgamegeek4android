@@ -29,9 +29,9 @@
 				style="@style/TextWithImage"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_user_small"
 				android:ellipsize="end"
-				tools:text="ccomeaux"/>
+				tools:text="ccomeaux"
+				app:drawableLeftCompat="@drawable/ic_user_small" />
 
 			<HorizontalScrollView
 				android:layout_width="wrap_content"

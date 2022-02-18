@@ -23,8 +23,8 @@
 			style="@style/TextWithImage"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_user_small"
 			android:ellipsize="end"
+			app:drawableLeftCompat="@drawable/ic_user_small"
 			tools:text="ccomeaux" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
