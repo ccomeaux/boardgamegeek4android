@@ -19,7 +19,6 @@ import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import java.util.*
 
 class SearchResultsFragment : Fragment(R.layout.fragment_search_results), ActionMode.Callback {
     private var _binding: FragmentSearchResultsBinding? = null

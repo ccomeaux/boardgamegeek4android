@@ -42,7 +42,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import timber.log.Timber
 import java.text.NumberFormat
-import java.util.*
 
 class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListener {
     private var _binding: FragmentCollectionBinding? = null

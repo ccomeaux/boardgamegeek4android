@@ -27,14 +27,12 @@ import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.LocationAdapter
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import com.boardgamegeek.ui.widget.PlayerRow
-import com.boardgamegeek.util.*
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -42,7 +40,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_logplay.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 

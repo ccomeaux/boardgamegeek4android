@@ -18,7 +18,6 @@ import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.*
 
 class CollectionViewDao(private val context: BggApplication) {
     /**

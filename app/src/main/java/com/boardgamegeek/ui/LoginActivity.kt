@@ -17,7 +17,6 @@ import com.boardgamegeek.auth.BggCookieJar
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.LoginViewModel
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.fragment_error.*
 import timber.log.Timber
 
 /**
