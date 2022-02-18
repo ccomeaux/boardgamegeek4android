@@ -50,13 +50,6 @@ android {
         viewBinding true
     }
 
-    lintOptions {
-        baseline file("lint-baseline.xml")
-        checkAllWarnings true
-        warningsAsErrors true
-        abortOnError true
-        checkReleaseBuilds false
-    }
 
     defaultConfig {
         applicationId "com.boardgamegeek"
@@ -114,6 +107,13 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+    lint {
+        abortOnError true
+        baseline file('lint-baseline.xml')
+        checkAllWarnings true
+        checkReleaseBuilds false
+        warningsAsErrors true
     }
 }
 
