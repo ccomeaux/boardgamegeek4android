@@ -14,14 +14,13 @@ import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.adapter.ColorGridAdapter
 import kotlinx.android.synthetic.main.dialog_colors.*
-import java.util.*
 
 abstract class ColorPickerDialogFragment : DialogFragment() {
     private lateinit var layout: View
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_colors, null)
+        layout = layoutInflater.inflate(R.layout.dialog_colors, null)
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
         @StringRes val titleResId = arguments?.getInt(KEY_TITLE_ID) ?: 0
@@ -152,15 +151,16 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
          * @param columns        number of columns
          * @return new ColorPickerDialog
          */
-        fun createBundle(@StringRes titleResId: Int,
-                         colors: List<Pair<String, Int>>,
-                         featuredColors: ArrayList<String>? = null,
-                         selectedColor: String? = null,
-                         disabledColors: ArrayList<String>? = null,
-                         columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
-                         requestCode: Int = 0,
-                         hiddenColors: ArrayList<String>? = null,
-                         showAddButton: Boolean = false
+        fun createBundle(
+            @StringRes titleResId: Int,
+            colors: List<Pair<String, Int>>,
+            featuredColors: ArrayList<String>? = null,
+            selectedColor: String? = null,
+            disabledColors: ArrayList<String>? = null,
+            columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
+            requestCode: Int = 0,
+            hiddenColors: ArrayList<String>? = null,
+            showAddButton: Boolean = false
         ): Bundle {
             return Bundle().apply {
                 putInt(KEY_TITLE_ID, titleResId)
@@ -180,15 +180,16 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
          * @param columns        number of columns
          * @return new ColorPickerDialog
          */
-        fun createBundle(title: String,
-                         colors: List<Pair<String, Int>>,
-                         featuredColors: ArrayList<String>?,
-                         selectedColor: String?,
-                         disabledColors: ArrayList<String>?,
-                         columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
-                         requestCode: Int = 0,
-                         hiddenColors: ArrayList<String>? = null,
-                         showAddButton: Boolean = false
+        fun createBundle(
+            title: String,
+            colors: List<Pair<String, Int>>,
+            featuredColors: ArrayList<String>?,
+            selectedColor: String?,
+            disabledColors: ArrayList<String>?,
+            columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
+            requestCode: Int = 0,
+            hiddenColors: ArrayList<String>? = null,
+            showAddButton: Boolean = false
         ): Bundle {
             return Bundle().apply {
                 putString(KEY_TITLE, title)
@@ -197,14 +198,14 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
         }
 
         private fun Bundle.buildBundle(
-                colors: List<Pair<String, Int>>,
-                featuredColors: ArrayList<String>?,
-                selectedColor: String?,
-                disabledColors: ArrayList<String>?,
-                hiddenColors: ArrayList<String>?,
-                columns: Int,
-                requestCode: Int,
-                showAddButton: Boolean = false
+            colors: List<Pair<String, Int>>,
+            featuredColors: ArrayList<String>?,
+            selectedColor: String?,
+            disabledColors: ArrayList<String>?,
+            hiddenColors: ArrayList<String>?,
+            columns: Int,
+            requestCode: Int,
+            showAddButton: Boolean = false
         ) {
             putInt(KEY_COLOR_COUNT, colors.size)
             for (i in colors.indices) {

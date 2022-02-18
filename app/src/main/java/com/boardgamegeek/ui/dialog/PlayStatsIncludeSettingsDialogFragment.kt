@@ -22,7 +22,7 @@ class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_play_stats_settings_include, null)
+        layout = layoutInflater.inflate(R.layout.dialog_play_stats_settings_include, null)
         val prefs = requireContext().preferences()
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
             .setTitle(R.string.title_settings)

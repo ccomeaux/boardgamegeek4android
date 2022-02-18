@@ -24,7 +24,7 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_nickname, null)
+        layout = layoutInflater.inflate(R.layout.dialog_edit_nickname, null)
 
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
             .setView(layout)

@@ -88,7 +88,7 @@ class GameSuggestedPlayerCountPollDialogFragment : DialogFragment() {
     }
 
     private fun addKeyRow(@ColorRes colorResId: Int, @StringRes textResId: Int) {
-        val row = (LayoutInflater.from(context).inflate(R.layout.row_poll_key, binding.keyContainer, false) as ViewGroup).apply {
+        val row = (layoutInflater.inflate(R.layout.row_poll_key, binding.keyContainer, false) as ViewGroup).apply {
             findViewById<TextView>(R.id.textView).setText(textResId)
             findViewById<View>(R.id.colorView).setViewBackground(ContextCompat.getColor(requireContext(), colorResId))
         }

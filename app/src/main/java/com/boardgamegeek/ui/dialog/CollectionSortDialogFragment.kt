@@ -29,7 +29,7 @@ class CollectionSortDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_sort, null)
+        layout = layoutInflater.inflate(R.layout.dialog_collection_sort, null)
         return AlertDialog.Builder(requireContext()).setView(layout).setTitle(R.string.title_sort_by).create()
     }
 

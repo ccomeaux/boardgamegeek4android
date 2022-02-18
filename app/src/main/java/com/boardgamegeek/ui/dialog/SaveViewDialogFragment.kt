@@ -27,7 +27,7 @@ class SaveViewDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _binding = DialogSaveViewBinding.inflate(LayoutInflater.from(context), null, false)
+        _binding = DialogSaveViewBinding.inflate(layoutInflater, null, false)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

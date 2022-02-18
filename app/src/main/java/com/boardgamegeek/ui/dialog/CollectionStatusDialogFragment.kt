@@ -31,21 +31,21 @@ class CollectionStatusDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_status, null)
+        layout = layoutInflater.inflate(R.layout.dialog_collection_status, null)
 
         val builder = Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setTitle(R.string.title_add_a_copy)
-                .setView(layout)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    if (listener != null) {
-                        val statuses = container.children.filterIsInstance<CheckBox>().filter {
-                            it.isChecked
-                        }.map { it.tag as String }.toList()
-                        val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0
-                        listener?.onSelectStatuses(statuses, wishlistPriority)
-                    }
+            .setTitle(R.string.title_add_a_copy)
+            .setView(layout)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                if (listener != null) {
+                    val statuses = container.children.filterIsInstance<CheckBox>().filter {
+                        it.isChecked
+                    }.map { it.tag as String }.toList()
+                    val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0
+                    listener?.onSelectStatuses(statuses, wishlistPriority)
                 }
-                .setNegativeButton(R.string.cancel, null)
+            }
+            .setNegativeButton(R.string.cancel, null)
         return builder.create()
     }
 
@@ -62,10 +62,11 @@ class CollectionStatusDialogFragment : DialogFragment() {
         }
     }
 
-    private class WishlistPriorityAdapter(context: Context)
-        : ArrayAdapter<String>(context,
-            R.layout.spinner_textview,
-            context.resources.getStringArray(R.array.wishlist_priority_finite)) {
+    private class WishlistPriorityAdapter(context: Context) : ArrayAdapter<String>(
+        context,
+        R.layout.spinner_textview,
+        context.resources.getStringArray(R.array.wishlist_priority_finite)
+    ) {
         init {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }

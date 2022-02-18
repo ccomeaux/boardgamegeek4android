@@ -34,7 +34,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_private_info, null)
+        layout = layoutInflater.inflate(R.layout.dialog_private_info, null)
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
             .setTitle(R.string.title_private_info)
             .setView(layout)
@@ -73,14 +73,21 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
         setUpCurrencyView(priceCurrencyView, savedInstanceState?.getString(KEY_PRICE_CURRENCY) ?: arguments?.getString(KEY_PRICE_CURRENCY))
         setUpValue(priceView, savedInstanceState?.getDouble(KEY_PRICE) ?: arguments?.getDouble(KEY_PRICE))
-        setUpCurrencyView(currentValueCurrencyView, savedInstanceState?.getString(KEY_CURRENT_VALUE_CURRENCY) ?: arguments?.getString(KEY_CURRENT_VALUE_CURRENCY))
+        setUpCurrencyView(
+            currentValueCurrencyView,
+            savedInstanceState?.getString(KEY_CURRENT_VALUE_CURRENCY) ?: arguments?.getString(KEY_CURRENT_VALUE_CURRENCY)
+        )
         setUpValue(currentValueView, savedInstanceState?.getDouble(KEY_CURRENT_VALUE) ?: arguments?.getDouble(KEY_CURRENT_VALUE))
         quantityView.setAndSelectExistingText((savedInstanceState?.getInt(KEY_QUANTITY) ?: arguments?.getInt(KEY_QUANTITY)).toString())
         acquisitionDate = savedInstanceState?.getLong(KEY_ACQUISITION_DATE) ?: arguments?.getLong(KEY_ACQUISITION_DATE) ?: 0L
         acquisitionDateView.text = if (acquisitionDate == 0L) "" else DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
         showOrHideAcquisitionDateLabel()
         acquiredFromView.setAndSelectExistingText(savedInstanceState?.getString(KEY_ACQUIRED_FROM) ?: arguments?.getString(KEY_ACQUIRED_FROM))
-        inventoryLocationView.setAndSelectExistingText(savedInstanceState?.getString(KEY_INVENTORY_LOCATION) ?: arguments?.getString(KEY_INVENTORY_LOCATION))
+        inventoryLocationView.setAndSelectExistingText(
+            savedInstanceState?.getString(KEY_INVENTORY_LOCATION) ?: arguments?.getString(
+                KEY_INVENTORY_LOCATION
+            )
+        )
 
         acquisitionDateView.setOnClickListener {
             val datePickerDialogFragment = createDatePickerDialogFragment()
