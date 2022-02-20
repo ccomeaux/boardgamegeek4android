@@ -345,7 +345,7 @@ class CollectionDao(private val context: BggApplication) {
     }
 
     suspend fun loadInventoryLocation(): List<String> = withContext(Dispatchers.IO) {
-        resolver.queryStrings(Collection.buildInventoryLocationUri(), Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION)
+        resolver.queryStrings(Collection.buildInventoryLocationUri(), Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION).filterNot { it.isBlank() }
     }
 
     suspend fun update(internalId: Long, values: ContentValues): Int = withContext(Dispatchers.IO) {

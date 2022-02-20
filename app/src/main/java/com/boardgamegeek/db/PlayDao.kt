@@ -603,7 +603,7 @@ class PlayDao(private val context: BggApplication) {
         if (internalId == INVALID_ID.toLong()) return emptyList()
         val playerUri = Plays.buildPlayerUri(internalId)
 
-        val userNames = context.contentResolver.queryStrings(playerUri, PlayPlayers.Columns.USER_NAME)
+        val userNames = context.contentResolver.queryStrings(playerUri, PlayPlayers.Columns.USER_NAME).filterNot { it.isBlank() }
         if (userNames.isEmpty()) return emptyList()
 
         val uniqueUserNames = mutableListOf<String>()

@@ -400,7 +400,7 @@ class GameDao(private val context: BggApplication) {
         }
 
     suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR)
+        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR).filterNot { it.isBlank() }
     }
 
     suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
@@ -635,7 +635,7 @@ class GameDao(private val context: BggApplication) {
 
     private suspend fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
-        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.Columns.POLL_NAME).toMutableList()
+        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.Columns.POLL_NAME).filterNot { it.isBlank() }.toMutableList()
         for (poll in game.polls) {
             val values = contentValuesOf(
                 GamePolls.Columns.POLL_TITLE to poll.title,
@@ -647,7 +647,7 @@ class GameDao(private val context: BggApplication) {
                 existingResultKeys += resolver.queryStrings(
                     Games.buildPollResultsUri(game.id, poll.name),
                     GamePollResults.Columns.POLL_RESULTS_PLAYERS
-                )
+                ).filterNot { it.isBlank() }
                 ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name))
             } else {
                 values.put(GamePolls.Columns.POLL_NAME, poll.name)
@@ -662,7 +662,7 @@ class GameDao(private val context: BggApplication) {
                     existingResultsResultKeys += resolver.queryStrings(
                         Games.buildPollResultsResultUri(game.id, poll.name, results.key),
                         GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY
-                    )
+                    ).filterNot { it.isBlank() }
                     ContentProviderOperation.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.key))
                 } else {
                     resultsValues.put(GamePollResults.Columns.POLL_RESULTS_PLAYERS, results.key)
@@ -704,7 +704,7 @@ class GameDao(private val context: BggApplication) {
                 val existingResults = resolver.queryStrings(
                     Games.buildSuggestedPlayerCountPollResultsUri(gameId),
                     GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT
-                ).toMutableList()
+                ).filterNot { it.isBlank() }.toMutableList()
                 for ((sortIndex, results) in poll.results.withIndex()) {
                     val values = contentValuesOf(
                         GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX to sortIndex + 1,
