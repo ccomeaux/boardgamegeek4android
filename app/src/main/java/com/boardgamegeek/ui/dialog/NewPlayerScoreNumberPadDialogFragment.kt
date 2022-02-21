@@ -13,14 +13,12 @@ class NewPlayerScoreNumberPadDialogFragment : NumberPadDialogFragment() {
 
     companion object {
         fun newInstance(
-                playerId: String,
-                initialValue: String,
-                colorDescription: String? = null,
-                subtitle: String? = null
-        ): NumberPadDialogFragment {
-            return NewPlayerScoreNumberPadDialogFragment().apply {
-                arguments = createBundle(0, R.string.score, initialValue, colorDescription, subtitle, requestKey = playerId)
-            }
+            playerId: String,
+            initialValue: String,
+            colorDescription: String? = null,
+            subtitle: String? = null,
+        ) = NewPlayerScoreNumberPadDialogFragment().apply {
+            arguments = createBundle(0, R.string.score, initialValue, colorDescription, subtitle, requestKey = playerId)
         }
     }
 }

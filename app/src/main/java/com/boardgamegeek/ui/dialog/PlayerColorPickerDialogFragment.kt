@@ -8,7 +8,6 @@ import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import java.util.*
 
 class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     private val viewModel by activityViewModels<PlayerColorsViewModel>()
@@ -28,10 +27,10 @@ class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
         fun launch(activity: FragmentActivity, hiddenColors: ArrayList<String>) {
             val dialogFragment = PlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
-                        R.string.title_add_color,
-                        BggColors.colorList,
-                        hiddenColors = hiddenColors)
-
+                    R.string.title_add_color,
+                    BggColors.colorList,
+                    hiddenColors = hiddenColors,
+                )
             }
             activity.showAndSurvive(dialogFragment)
         }

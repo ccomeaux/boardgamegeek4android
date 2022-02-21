@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Typeface
 import android.os.Bundle
@@ -15,22 +14,22 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogTeamsBinding
+import com.boardgamegeek.databinding.RowTeamBinding
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import kotlinx.android.synthetic.main.dialog_teams.view.*
-import kotlinx.android.synthetic.main.row_team.view.*
 import kotlin.properties.Delegates
 
 class TeamPickerDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogTeamsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = layoutInflater.inflate(R.layout.dialog_teams, null)
+        _binding = DialogTeamsBinding.inflate(layoutInflater)
 
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
+        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(binding.root)
         val playerName = arguments?.getString(KEY_PLAYER_NAME).orEmpty()
         if (playerName.isBlank()) {
             builder.setTitle(R.string.team_color)
@@ -42,7 +41,7 @@ class TeamPickerDialogFragment : DialogFragment() {
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,9 +52,9 @@ class TeamPickerDialogFragment : DialogFragment() {
 
         val viewModel by activityViewModels<NewPlayViewModel>()
         val adapter = TeamAdapter(this, viewModel, requestCode, playerTeam)
-        layout.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
+        binding.recyclerView.adapter = adapter
 
-        layout.addButton.setOnClickListener {
+        binding.addButton.setOnClickListener {
             NewPlayAddTeamColorDialogFragment.newInstance(requestCode).show(parentFragmentManager, "")
             dismiss()
         }
@@ -111,25 +110,27 @@ class TeamPickerDialogFragment : DialogFragment() {
         }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            private val binding = RowTeamBinding.bind(itemView)
+
             fun bind(team: String?) {
                 team?.let {
-                    itemView.nameView.text = it
+                    binding.nameView.text = it
                     itemView.setOnClickListener { _ ->
                         viewModel.addColorToPlayer(playerIndex, it)
                         df.dismiss()
                     }
                     when {
                         it == playerTeam -> {
-                            itemView.nameView.setTypeface(itemView.nameView.typeface, Typeface.BOLD)
-                            itemView.nameView.setTextColor(textColor)
+                            binding.nameView.setTypeface(binding.nameView.typeface, Typeface.BOLD)
+                            binding.nameView.setTextColor(textColor)
                         }
                         selectedColors?.contains(it) == true -> {
-                            itemView.nameView.setTypeface(itemView.nameView.typeface, Typeface.NORMAL)
-                            itemView.nameView.setTextColor(disabledTextColor)
+                            binding.nameView.setTypeface(binding.nameView.typeface, Typeface.NORMAL)
+                            binding.nameView.setTextColor(disabledTextColor)
                         }
                         else -> {
-                            itemView.nameView.setTypeface(itemView.nameView.typeface, Typeface.NORMAL)
-                            itemView.nameView.setTextColor(textColor)
+                            binding.nameView.setTypeface(binding.nameView.typeface, Typeface.NORMAL)
+                            binding.nameView.setTextColor(textColor)
                         }
                     }
                 }

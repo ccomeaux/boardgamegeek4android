@@ -28,16 +28,24 @@ class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     }
 
     companion object {
-        fun launch(activity: FragmentActivity, playerDescription: String, featuredColors: List<String>, selectedColor: String?, disabledColors: List<String>, playerIndex: Int) {
+        fun launch(
+            activity: FragmentActivity,
+            playerDescription: String,
+            featuredColors: List<String>,
+            selectedColor: String?,
+            disabledColors: List<String>,
+            playerIndex: Int,
+        ) {
             val df = NewPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
-                        title = playerDescription,
-                        BggColors.colorList,
-                        ArrayList(featuredColors),
-                        selectedColor,
-                        ArrayList(disabledColors),
-                        requestCode = playerIndex,
-                        showAddButton = true)
+                    title = playerDescription,
+                    BggColors.colorList,
+                    ArrayList(featuredColors),
+                    selectedColor,
+                    ArrayList(disabledColors),
+                    requestCode = playerIndex,
+                    showAddButton = true
+                )
             }
             activity.showAndSurvive(df)
         }

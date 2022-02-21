@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
@@ -12,13 +11,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogCollectionFilterBinding
 import com.boardgamegeek.filterer.CollectionFiltererFactory
-import kotlinx.android.synthetic.main.dialog_collection_filter.*
 import timber.log.Timber
-import kotlin.collections.ArrayList
 
 class CollectionFilterDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogCollectionFilterBinding? = null
+    private val binding get() = _binding!!
     private var listener: Listener? = null
 
     interface Listener {
@@ -32,30 +31,29 @@ class CollectionFilterDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = layoutInflater.inflate(R.layout.dialog_collection_filter, null)
+        _binding = DialogCollectionFilterBinding.inflate(layoutInflater)
 
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setView(layout)
-                .setTitle(R.string.title_filter).create()
+            .setView(binding.root)
+            .setTitle(R.string.title_filter).create()
     }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         for (filterType in arguments?.getIntegerArrayList(KEY_FILTER_TYPES) ?: arrayListOf<Int>()) {
-            statusContainer.children
-                    .filterIsInstance<CheckBox>()
-                    .find { filterType == getTypeFromViewTag(it) }
-                    ?.let {
-                        it.isChecked = true
-                    }
+            binding.statusContainer.children
+                .filterIsInstance<CheckBox>()
+                .find { filterType == getTypeFromViewTag(it) }
+                ?.let {
+                    it.isChecked = true
+                }
         }
 
-        statusContainer.children.filterIsInstance<CheckBox>().forEach {
+        binding.statusContainer.children.filterIsInstance<CheckBox>().forEach {
             it.setOnClickListener { view ->
                 val type = getTypeFromViewTag(view)
                 if (type != CollectionFiltererFactory.TYPE_UNKNOWN) {
@@ -69,17 +67,20 @@ class CollectionFilterDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun getTypeFromViewTag(it: View) =
-            it.tag.toString().toIntOrNull() ?: CollectionFiltererFactory.TYPE_UNKNOWN
+        it.tag.toString().toIntOrNull() ?: CollectionFiltererFactory.TYPE_UNKNOWN
 
     companion object {
         private const val KEY_FILTER_TYPES = "filter_types"
 
-        fun newInstance(filterTypes: List<Int>): CollectionFilterDialogFragment {
-            return CollectionFilterDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putIntegerArrayList(KEY_FILTER_TYPES, ArrayList(filterTypes))
-                }
+        fun newInstance(filterTypes: List<Int>) = CollectionFilterDialogFragment().apply {
+            arguments = Bundle().apply {
+                putIntegerArrayList(KEY_FILTER_TYPES, ArrayList(filterTypes))
             }
         }
     }

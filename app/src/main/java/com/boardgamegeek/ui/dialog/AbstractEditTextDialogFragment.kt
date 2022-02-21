@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import android.text.InputType
@@ -10,39 +9,44 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogEditTextBinding
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
-import kotlinx.android.synthetic.main.dialog_edit_text.*
 
 abstract class AbstractEditTextDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogEditTextBinding? = null
+    protected val binding get() = _binding!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = layoutInflater.inflate(R.layout.dialog_edit_text, null)
+        _binding = DialogEditTextBinding.inflate(layoutInflater)
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setView(layout)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    onPositiveButton()
-                }
+            .setView(binding.root)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                onPositiveButton()
+            }
         if (titleResId != 0) builder.setTitle(titleResId)
         return builder.create().apply {
-            requestFocus(editText)
+            requestFocus(binding.editText)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (hintResId != 0) editTextContainer.hint = getString(hintResId)
-        editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        if (hintResId != 0) binding.editTextContainer.hint = getString(hintResId)
+        binding.editText.inputType = binding.editText.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
         if (savedInstanceState == null) {
-            editText.setAndSelectExistingText(originalText)
+            binding.editText.setAndSelectExistingText(originalText)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     open val titleResId

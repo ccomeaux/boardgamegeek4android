@@ -12,10 +12,8 @@ class CollectionRatingNumberPadDialogFragment : NumberPadDialogFragment() {
     }
 
     companion object {
-        fun newInstance(initialValue: String): CollectionRatingNumberPadDialogFragment {
-            return CollectionRatingNumberPadDialogFragment().apply {
-                arguments = createBundle(0, R.string.rating, initialValue, null, null, 1.0, 10.0, 6)
-            }
+        fun newInstance(initialValue: String) = CollectionRatingNumberPadDialogFragment().apply {
+            arguments = createBundle(0, R.string.rating, initialValue, null, null, 1.0, 10.0, 6)
         }
     }
 }

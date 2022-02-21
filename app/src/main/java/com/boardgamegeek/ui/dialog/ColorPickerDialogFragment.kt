@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
@@ -12,17 +11,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogColorsBinding
 import com.boardgamegeek.ui.adapter.ColorGridAdapter
-import kotlinx.android.synthetic.main.dialog_colors.*
 
 abstract class ColorPickerDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogColorsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = layoutInflater.inflate(R.layout.dialog_colors, null)
+        _binding = DialogColorsBinding.inflate(layoutInflater)
 
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(layout)
+        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(binding.root)
         @StringRes val titleResId = arguments?.getInt(KEY_TITLE_ID) ?: 0
         if (titleResId != 0) {
             builder.setTitle(titleResId)
@@ -34,7 +33,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -51,10 +50,10 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: 0
 
         val numColumns = arguments?.getInt(KEY_COLUMNS) ?: DEFAULT_NUMBER_Of_COLUMNS
-        colorGrid.numColumns = numColumns
-        featuredColorGrid.numColumns = numColumns
+        binding.colorGrid.numColumns = numColumns
+        binding.featuredColorGrid.numColumns = numColumns
 
-        addButton.isVisible = arguments?.getBoolean(KEY_SHOW_ADD_BUTTON) ?: false
+        binding.addButton.isVisible = arguments?.getBoolean(KEY_SHOW_ADD_BUTTON) ?: false
 
         // remove the hidden colors from the choices list
         val choices = ArrayList(colorChoices)
@@ -84,28 +83,28 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
 
         val colorGridAdapter = ColorGridAdapter(choices, disabledColors)
         colorGridAdapter.selectedColor = selectedColor
-        colorGrid.adapter = colorGridAdapter
+        binding.colorGrid.adapter = colorGridAdapter
 
         if (featuredColorGridAdapter != null) {
             featuredColorGridAdapter.selectedColor = selectedColor
-            featuredColorGrid.adapter = featuredColorGridAdapter
-            featuredColorGrid.visibility = View.VISIBLE
+            binding.featuredColorGrid.adapter = featuredColorGridAdapter
+            binding.featuredColorGrid.visibility = View.VISIBLE
 
-            moreView.visibility = View.VISIBLE
-            moreView.setOnClickListener {
-                moreView.visibility = View.GONE
-                dividerView.visibility = View.VISIBLE
-                colorGrid.visibility = View.VISIBLE
+            binding.moreView.visibility = View.VISIBLE
+            binding.moreView.setOnClickListener {
+                binding.moreView.visibility = View.GONE
+                binding.dividerView.visibility = View.VISIBLE
+                binding.colorGrid.visibility = View.VISIBLE
             }
 
-            colorGrid.visibility = View.GONE
+            binding.colorGrid.visibility = View.GONE
         } else {
-            featuredColorGrid.visibility = View.GONE
-            moreView.visibility = View.GONE
-            colorGrid.visibility = View.VISIBLE
+            binding.featuredColorGrid.visibility = View.GONE
+            binding.moreView.visibility = View.GONE
+            binding.colorGrid.visibility = View.VISIBLE
         }
 
-        listOf(colorGrid, featuredColorGrid).forEach {
+        listOf(binding.colorGrid, binding.featuredColorGrid).forEach {
             it.setOnItemClickListener { parent, _, position, _ ->
                 val adapter = parent.adapter as? ColorGridAdapter
                 val item = adapter?.getItem(position)
@@ -114,9 +113,14 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
             }
         }
 
-        addButton.setOnClickListener {
+        binding.addButton.setOnClickListener {
             onAddClicked(requestCode)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     abstract fun onColorClicked(item: Pair<String, Int>?, requestCode: Int)

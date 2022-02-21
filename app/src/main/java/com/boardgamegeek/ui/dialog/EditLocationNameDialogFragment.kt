@@ -6,7 +6,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.dialog_edit_text.*
 
 class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<PlaysViewModel>()
@@ -19,7 +18,7 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
         get() = arguments?.getString(KEY_TEXT)
 
     override fun onPositiveButton() {
-        val text = editText?.text?.toString()
+        val text = binding.editText.text?.toString()
         if (text != null && text.isNotBlank()) {
             FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
@@ -32,10 +31,8 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
     companion object {
         private const val KEY_TEXT = "text"
 
-        fun newInstance(text: String?): EditLocationNameDialogFragment {
-            return EditLocationNameDialogFragment().apply {
-                arguments = bundleOf(KEY_TEXT to text)
-            }
+        fun newInstance(text: String?) = EditLocationNameDialogFragment().apply {
+            arguments = bundleOf(KEY_TEXT to text)
         }
     }
 }

@@ -20,17 +20,13 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 
 class SaveViewDialogFragment : DialogFragment() {
-    private var name: String = ""
-    private var description: String? = null
     private var _binding: DialogSaveViewBinding? = null
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        _binding = DialogSaveViewBinding.inflate(layoutInflater, null, false)
-    }
+    private var name: String = ""
+    private var description: String? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        _binding = DialogSaveViewBinding.inflate(layoutInflater)
         val viewModel = ViewModelProvider(requireActivity())[CollectionViewViewModel::class.java]
 
         arguments?.let {
@@ -86,6 +82,11 @@ class SaveViewDialogFragment : DialogFragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun logAction(firebaseAnalytics: FirebaseAnalytics, action: String, name: String) {
         firebaseAnalytics.logEvent("DataManipulation") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
@@ -106,12 +107,10 @@ class SaveViewDialogFragment : DialogFragment() {
         private const val KEY_NAME = "title_id"
         private const val KEY_DESCRIPTION = "color_count"
 
-        fun newInstance(name: String, description: String): SaveViewDialogFragment {
-            return SaveViewDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putString(KEY_NAME, name)
-                    putString(KEY_DESCRIPTION, description)
-                }
+        fun newInstance(name: String, description: String) = SaveViewDialogFragment().apply {
+            arguments = Bundle().apply {
+                putString(KEY_NAME, name)
+                putString(KEY_DESCRIPTION, description)
             }
         }
     }
