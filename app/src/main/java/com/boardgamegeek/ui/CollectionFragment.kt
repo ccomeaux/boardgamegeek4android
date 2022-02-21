@@ -514,7 +514,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))
-            text.append(filters.map { "\n\u2022 ${it.toLongDescription()}" })
+            filters.map { "\n\u2022 ${it.toLongDescription()}" }.forEach { text.append(it) }
         }
         text.append("\n\n")
         sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }
