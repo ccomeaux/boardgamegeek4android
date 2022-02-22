@@ -18,7 +18,7 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel
 import kotlin.properties.Delegates
 
-class HotnessFragment : Fragment(R.layout.fragment_hotness), ActionMode.Callback {
+class HotnessFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentHotnessBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<HotnessViewModel>()

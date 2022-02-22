@@ -11,16 +11,19 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentColorsBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter
 import com.boardgamegeek.ui.dialog.AddColorToGameDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_colors.*
 import kotlin.math.max
 import kotlin.math.min
 
-class GameColorsFragment : Fragment(R.layout.fragment_colors) {
+class GameColorsFragment : Fragment() {
+    private var _binding: FragmentColorsBinding? = null
+    private val binding get() = _binding!!
+
     @ColorInt
     private var iconColor = 0
     private var actionMode: ActionMode? = null
@@ -38,33 +41,44 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
         setHasOptionsMenu(true)
     }
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentColorsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fab.colorize(iconColor)
+        binding.fab.colorize(iconColor)
         setUpRecyclerView()
 
         arguments?.let {
             iconColor = it.getInt(KEY_ICON_COLOR, Color.TRANSPARENT)
         }
 
-        fab.colorize(iconColor)
-        fab.setOnClickListener {
+        binding.fab.colorize(iconColor)
+        binding.fab.setOnClickListener {
             requireActivity().showAndSurvive(AddColorToGameDialogFragment())
         }
 
         viewModel.colors.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.colors = it
-                emptyView.fade(it.isEmpty())
-                recyclerView.fade(it.isNotEmpty(), isResumed)
-                fab.show()
-                progressView.fadeOut()
+                binding.emptyView.fade(it.isEmpty())
+                binding.recyclerView.fade(it.isNotEmpty(), isResumed)
+                binding.fab.show()
+                binding.progressView.fadeOut()
             }
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun setUpRecyclerView() {
-        recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
         swipePaint.color = ContextCompat.getColor(requireContext(), R.color.delete)
         deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -75,7 +89,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
                 adapter.getColorName(viewHolder.bindingAdapterPosition)?.let { color ->
                     viewModel.removeColor(color)
-                    Snackbar.make(containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
+                    Snackbar.make(binding.containerView, getString(R.string.msg_color_deleted, color), Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.undo) { viewModel.addColor(color) }
                         .show()
                 }
@@ -130,7 +144,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
         })
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -141,7 +155,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_colors_generate) {
             viewModel.computeColors()
-            containerView.snackbar(R.string.msg_colors_generated)
+            binding.containerView.snackbar(R.string.msg_colors_generated)
             true
         } else super.onOptionsItemSelected(item)
     }
@@ -160,7 +174,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
                         mode.menuInflater.inflate(R.menu.colors_context, menu)
                         adapter.clearSelections()
-                        fab.hide()
+                        binding.fab.hide()
                         return true
                     }
 
@@ -174,7 +188,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                                 val colors = adapter.getSelectedColors()
                                 val count = colors.size
                                 colors.forEach { viewModel.removeColor(it) }
-                                containerView.snackbar(resources.getQuantityString(R.plurals.msg_colors_deleted, count, count))
+                                binding.containerView.snackbar(resources.getQuantityString(R.plurals.msg_colors_deleted, count, count))
                                 mode.finish()
                                 return true
                             }
@@ -186,7 +200,7 @@ class GameColorsFragment : Fragment(R.layout.fragment_colors) {
                     override fun onDestroyActionMode(mode: ActionMode) {
                         actionMode = null
                         adapter.clearSelections()
-                        fab.show()
+                        binding.fab.show()
                     }
                 })
                 if (actionMode == null) return false

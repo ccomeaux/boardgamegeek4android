@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -9,22 +10,54 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentNewPlayLocationsBinding
+import com.boardgamegeek.databinding.RowNewPlayLocationBinding
 import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import kotlinx.android.synthetic.main.fragment_forums.recyclerView
-import kotlinx.android.synthetic.main.fragment_new_play_locations.*
-import kotlinx.android.synthetic.main.row_new_play_location.view.*
 import kotlin.properties.Delegates
 
-class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) {
+class NewPlayLocationsFragment : Fragment() {
+    private var _binding: FragmentNewPlayLocationsBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
+    private val adapter: LocationsAdapter by lazy { LocationsAdapter(viewModel) }
 
-    private val adapter: LocationsAdapter by lazy {
-        LocationsAdapter(viewModel)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentNewPlayLocationsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+
+        viewModel.locations.observe(viewLifecycleOwner) {
+            adapter.locations = it
+            binding.recyclerView.fadeIn()
+            if (it.isEmpty()) {
+                if (binding.filterEditText.text.isNullOrBlank()) {
+                    binding.emptyView.setText(R.string.empty_new_play_locations)
+                } else {
+                    binding.emptyView.setText(R.string.empty_new_play_locations_filter)
+                }
+                binding.emptyView.fadeIn()
+            } else {
+                binding.emptyView.fadeOut()
+            }
+        }
+
+        binding.filterEditText.doAfterTextChanged { viewModel.filterLocations(it.toString()) }
+
+        binding.next.setOnClickListener {
+            viewModel.setLocation(binding.filterEditText.text.toString())
+        }
     }
 
     override fun onResume() {
@@ -32,35 +65,13 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
         (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_location)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-
-        viewModel.locations.observe(viewLifecycleOwner) {
-            adapter.locations = it
-            recyclerView.fadeIn()
-            if (it.isEmpty()) {
-                if (filterEditText.text.isNullOrBlank()) {
-                    emptyView.setText(R.string.empty_new_play_locations)
-                } else {
-                    emptyView.setText(R.string.empty_new_play_locations_filter)
-                }
-                emptyView.fadeIn()
-            } else {
-                emptyView.fadeOut()
-            }
-        }
-
-        filterEditText.doAfterTextChanged { viewModel.filterLocations(it.toString()) }
-
-        next.setOnClickListener {
-            viewModel.setLocation(filterEditText.text.toString())
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
-    private class LocationsAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter {
+    private class LocationsAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(),
+        AutoUpdatableAdapter {
         var locations: List<LocationEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name
@@ -77,10 +88,12 @@ class NewPlayLocationsFragment : Fragment(R.layout.fragment_new_play_locations) 
             holder.bind(locations.getOrNull(position))
         }
 
-        inner class LocationsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class LocationsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowNewPlayLocationBinding.bind(itemView)
+
             fun bind(location: LocationEntity?) {
                 location?.let { l ->
-                    itemView.nameView.text = l.name
+                    binding.nameView.text = l.name
                     itemView.setOnClickListener { viewModel.setLocation(l.name) }
                 }
             }

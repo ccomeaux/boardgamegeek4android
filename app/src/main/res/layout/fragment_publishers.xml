@@ -4,7 +4,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/swipeRefresh"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	tools:keep="@layout/fragment_publishers">
 
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
 		android:id="@+id/coordinatorLayout"
@@ -43,6 +44,8 @@
 			android:text="@string/empty_publishers"
 			android:visibility="gone" />
 
-		<include layout="@layout/include_horizontal_progress" />
+		<include
+			android:id="@+id/horizontalProgressBar"
+			layout="@layout/include_horizontal_progress" />
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -7,11 +7,14 @@ import android.os.Bundle
 import android.view.*
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityPlayerColorsBinding
+import com.boardgamegeek.databinding.RowPlayerColorBinding
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -20,8 +23,6 @@ import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.activity_player_colors.*
-import kotlinx.android.synthetic.main.row_player_color.view.*
 import timber.log.Timber
 import kotlin.math.abs
 import kotlin.math.max
@@ -29,6 +30,7 @@ import kotlin.math.min
 import kotlin.properties.Delegates
 
 class PlayerColorsActivity : BaseActivity() {
+    private lateinit var binding: ActivityPlayerColorsBinding
     private var buddyName: String? = null
     private var playerName: String? = null
 
@@ -69,7 +71,7 @@ class PlayerColorsActivity : BaseActivity() {
 
             override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
                 val color = adapter.getItem(viewHolder.bindingAdapterPosition) ?: return
-                Snackbar.make(coordinator, getString(R.string.removed_suffix, color.description), Snackbar.LENGTH_LONG)
+                Snackbar.make(binding.coordinator, getString(R.string.removed_suffix, color.description), Snackbar.LENGTH_LONG)
                     .setAction(R.string.undo) {
                         viewModel.add(color)
                         firebaseAnalytics.logEvent("DataManipulation") {
@@ -158,7 +160,8 @@ class PlayerColorsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_player_colors)
+        binding = ActivityPlayerColorsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         buddyName = intent.getStringExtra(KEY_BUDDY_NAME)
         playerName = intent.getStringExtra(KEY_PLAYER_NAME)
@@ -168,16 +171,16 @@ class PlayerColorsActivity : BaseActivity() {
             finish()
         }
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.subtitle = if (buddyName.isNullOrBlank()) playerName else buddyName
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.setHasFixedSize(true)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-        recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.setHasFixedSize(true)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        binding.recyclerView.adapter = adapter
 
-        emptyButton.setOnClickListener {
+        binding.emptyButton.setOnClickListener {
             firebaseAnalytics.logEvent("DataManipulation") {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
                 param("Action", "Generate")
@@ -185,7 +188,7 @@ class PlayerColorsActivity : BaseActivity() {
             viewModel.generate()
         }
 
-        fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             PlayerColorPickerDialogFragment.launch(this, usedColors)
         }
 
@@ -201,15 +204,10 @@ class PlayerColorsActivity : BaseActivity() {
                 usedColors.addAll(playerColorEntities.map { it.description })
             }
 
-            adapter.colors = playerColorEntities ?: emptyList()
-            progressView.hide()
-            if (playerColorEntities == null || playerColorEntities.isEmpty()) {
-                emptyView.fadeIn()
-                recyclerView.fadeOut()
-            } else {
-                emptyView.fadeOut()
-                recyclerView.fadeIn()
-            }
+            adapter.colors = playerColorEntities.orEmpty()
+            binding.progressView.hide()
+            binding.emptyView.isVisible = adapter.colors.isEmpty()
+            binding.recyclerView.isVisible = adapter.colors.isNotEmpty()
         }
 
         if (savedInstanceState == null) {
@@ -279,11 +277,13 @@ class PlayerColorsActivity : BaseActivity() {
         }
 
         class ColorViewHolder(itemView: View, private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowPlayerColorBinding.bind(itemView)
+
             @SuppressLint("ClickableViewAccessibility")
             fun bind(color: PlayerColorEntity) {
-                itemView.titleView.text = color.description
-                itemView.colorView.setColorViewValue(color.rgb)
-                itemView.dragHandle.setOnTouchListener { v, event ->
+                binding.titleView.text = color.description
+                binding.colorView.setColorViewValue(color.rgb)
+                binding.dragHandle.setOnTouchListener { v, event ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         itemTouchHelper?.startDrag(this@ColorViewHolder)
                     } else if (event.action == MotionEvent.ACTION_UP) {

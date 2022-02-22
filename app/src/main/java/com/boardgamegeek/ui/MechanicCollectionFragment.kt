@@ -2,49 +2,55 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
+import com.boardgamegeek.databinding.FragmentLinkedCollectionBinding
 import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel.CollectionSort
-import kotlinx.android.synthetic.main.fragment_linked_collection.*
 import java.util.*
 
-class MechanicCollectionFragment : Fragment(R.layout.fragment_linked_collection) {
+class MechanicCollectionFragment : Fragment() {
+    private var _binding: FragmentLinkedCollectionBinding? = null
+    private val binding get() = _binding!!
     private var sortType = CollectionSort.RATING
     private val adapter: LinkedCollectionAdapter by lazy { LinkedCollectionAdapter() }
     private val viewModel by activityViewModels<MechanicViewModel>()
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentLinkedCollectionBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).lowercase(Locale.getDefault()))
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_mechanic).lowercase(Locale.getDefault()))
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
         viewModel.sort.observe(viewLifecycleOwner) {
             sortType = it
             activity?.invalidateOptionsMenu()
         }
         viewModel.collection.observe(viewLifecycleOwner) {
-            if (it?.isNotEmpty() == true) {
-                adapter.items = it
-                emptyMessage.fadeOut()
-                recyclerView.fadeIn()
-            } else {
-                adapter.items = emptyList()
-                emptyMessage.fadeIn()
-                recyclerView.fadeOut()
-            }
-            swipeRefresh.isRefreshing = false
-            progressView.hide()
+            adapter.items = it.orEmpty()
+            binding.emptyMessage.isVisible = adapter.items.isEmpty()
+            binding.recyclerView.isVisible = adapter.items.isNotEmpty()
+            binding.swipeRefresh.isRefreshing = false
+            binding.progressView.hide()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -52,10 +58,12 @@ class MechanicCollectionFragment : Fragment(R.layout.fragment_linked_collection)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(when (sortType) {
-            CollectionSort.NAME -> R.id.menu_sort_name
-            CollectionSort.RATING -> R.id.menu_sort_rating
-        })?.isChecked = true
+        menu.findItem(
+            when (sortType) {
+                CollectionSort.NAME -> R.id.menu_sort_name
+                CollectionSort.RATING -> R.id.menu_sort_rating
+            }
+        )?.isChecked = true
         super.onPrepareOptionsMenu(menu)
     }
 

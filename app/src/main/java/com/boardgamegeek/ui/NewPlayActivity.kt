@@ -11,14 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityNewPlayBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
-import kotlinx.android.synthetic.main.activity_new_play.*
 
 class NewPlayActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityNewPlayBinding
     private var startTime = 0L
     private var gameName = ""
     private val viewModel by viewModels<NewPlayViewModel>()
@@ -32,9 +33,10 @@ class NewPlayActivity : AppCompatActivity() {
         val gameId = intent.getIntExtra(KEY_GAME_ID, INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
 
-        setContentView(R.layout.activity_new_play)
+        binding = ActivityNewPlayBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.menu_cancel)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -68,7 +70,7 @@ class NewPlayActivity : AppCompatActivity() {
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-                thumbnailView.loadUrl(entity.heroImageUrl, object : ImageLoadCallback {
+                binding.thumbnailView.loadUrl(entity.heroImageUrl, object : ImageLoadCallback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
                         summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }

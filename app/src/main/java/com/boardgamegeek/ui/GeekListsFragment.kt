@@ -15,7 +15,7 @@ import com.boardgamegeek.ui.viewmodel.GeekListsViewModel
 import com.boardgamegeek.ui.viewmodel.GeekListsViewModel.SortType
 import kotlinx.coroutines.launch
 
-class GeekListsFragment : Fragment(R.layout.fragment_geeklists) {
+class GeekListsFragment : Fragment() {
     private var _binding: FragmentGeeklistsBinding? = null
     private val binding get() = _binding!!
     private var sortType = SortType.HOT

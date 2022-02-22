@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPlayStatsBinding
 import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
@@ -18,10 +20,11 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
-import kotlinx.android.synthetic.main.fragment_play_stats.*
 import java.util.*
 
-class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
+class PlayStatsFragment : Fragment() {
+    private var _binding: FragmentPlayStatsBinding? = null
+    private val binding get() = _binding!!
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
     private var includeIncompletePlays = false
@@ -29,10 +32,16 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     private var includeAccessories = false
     private val viewModel by activityViewModels<PlayStatsViewModel>()
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentPlayStatsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        collectionStatusSettingsButton.setOnClickListener {
+        binding.collectionStatusSettingsButton.setOnClickListener {
             val prefs = requireContext().preferences()
             requireActivity().createThemedBuilder()
                 .setTitle(R.string.title_modify_collection_status)
@@ -48,7 +57,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
                 .show()
         }
 
-        includeSettingsButton.setOnClickListener {
+        binding.includeSettingsButton.setOnClickListener {
             showAndSurvive(PlayStatsIncludeSettingsDialogFragment())
         }
 
@@ -67,10 +76,12 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
 
         viewModel.plays.observe(viewLifecycleOwner) { entity ->
             if (entity == null) {
-                showEmpty()
+                binding.progressView.hide()
+                binding.emptyView.isVisible = true
+                binding.scrollContainer.isVisible = false
             } else {
                 bindUi(entity)
-                gameHIndexInfoView.setOnClickListener {
+                binding.gameHIndexInfoView.setOnClickListener {
                     context?.showClickableAlertDialog(
                         R.string.play_stat_game_h_index,
                         R.string.play_stat_game_h_index_info,
@@ -83,7 +94,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         viewModel.players.observe(viewLifecycleOwner, Observer { entity ->
             if (entity == null) return@Observer
             bindPlayerUi(entity)
-            playerHIndexInfoView.setOnClickListener {
+            binding.playerHIndexInfoView.setOnClickListener {
                 context?.showClickableAlertDialog(
                     R.string.play_stat_player_h_index,
                     R.string.play_stat_player_h_index_info,
@@ -96,11 +107,16 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
         bindCollectionStatusMessage()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun bindCollectionStatusMessage() {
         val prefs = requireContext().preferences()
         isOwnedSynced = prefs.isStatusSetToSync(COLLECTION_STATUS_OWN)
         isPlayedSynced = prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
-        collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
+        binding.collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 
     private fun bindAccuracyMessage() {
@@ -115,10 +131,10 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             messages.add(getString(R.string.accessories).lowercase(Locale.getDefault()))
         }
         if (messages.isEmpty()) {
-            accuracyContainer.visibility = View.GONE
+            binding.accuracyContainer.visibility = View.GONE
         } else {
-            accuracyContainer.visibility = View.VISIBLE
-            accuracyMessage.text = getString(
+            binding.accuracyContainer.visibility = View.VISIBLE
+            binding.accuracyMessage.text = getString(
                 R.string.play_stat_accuracy, messages.formatList(
                     getString(R.string.or).lowercase(
                         Locale.getDefault()
@@ -129,7 +145,7 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     }
 
     private fun bindUi(stats: PlayStatsEntity) {
-        playCountTable.removeAllViews()
+        binding.playCountTable.removeAllViews()
         maybeAddPlayCountStat(R.string.play_stat_play_count, stats.numberOfPlays)
         maybeAddPlayCountStat(R.string.play_stat_distinct_games, stats.numberOfPlayedGames)
         maybeAddPlayCountStat(R.string.play_stat_dollars, stats.numberOfDollars)
@@ -140,53 +156,55 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
 
         if (isPlayedSynced) {
             PlayStatRow(requireContext()).apply {
-                playCountTable.addView(this)
+                binding.playCountTable.addView(this)
                 setLabel(R.string.play_stat_top_100)
                 setValue("${stats.top100Count}%")
             }
         }
 
-        gameHIndexView.text = stats.hIndex.description
-        bindHIndexTable(gameHIndexTable, stats.hIndex, stats.getHIndexGames())
+        binding.gameHIndexView.text = stats.hIndex.description
+        bindHIndexTable(binding.gameHIndexTable, stats.hIndex, stats.getHIndexGames())
 
-        advancedTable.removeAllViews()
+        binding.advancedTable.removeAllViews()
         if (stats.friendless != PlayStatsEntity.INVALID_FRIENDLESS) {
-            advancedHeader.visibility = View.VISIBLE
-            advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.visibility = View.VISIBLE
+            binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_friendless)
                 setValue(stats.friendless)
                 setInfoText(R.string.play_stat_friendless_info)
-                advancedTable.addView(this)
+                binding.advancedTable.addView(this)
             }
         }
         if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
-            advancedHeader.visibility = View.VISIBLE
-            advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.visibility = View.VISIBLE
+            binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_utilization)
                 setInfoText(R.string.play_stat_utilization_info)
                 setValue(stats.utilization.asPercentage())
-                advancedTable.addView(this)
+                binding.advancedTable.addView(this)
             }
         }
         if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
-            advancedHeader.visibility = View.VISIBLE
-            advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.visibility = View.VISIBLE
+            binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_cfm)
                 setInfoText(R.string.play_stat_cfm_info)
                 setValue(stats.cfm)
-                advancedTable.addView(this)
+                binding.advancedTable.addView(this)
             }
         }
-        showData()
+        binding.progressView.hide()
+        binding.emptyView.isVisible = false
+        binding.scrollContainer.isVisible = true
     }
 
     private fun maybeAddPlayCountStat(@StringRes labelResId: Int, value: Int) {
         if (value > 0) {
             PlayStatRow(requireContext()).apply {
-                playCountTable.addView(this)
+                binding.playCountTable.addView(this)
                 setLabel(labelResId)
                 setValue(value)
             }
@@ -194,9 +212,9 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
     }
 
     private fun bindPlayerUi(stats: PlayerStatsEntity) {
-        playerHIndexView.text = stats.hIndex.description
-        bindHIndexTable(playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
-        playerHIndexTable.setOnClickListener {
+        binding.playerHIndexView.text = stats.hIndex.description
+        bindHIndexTable(binding.playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
+        binding.playerHIndexTable.setOnClickListener {
             PlayersActivity.startByPlayCount(requireContext())
         }
     }
@@ -246,18 +264,6 @@ class PlayStatsFragment : Fragment(R.layout.fragment_play_stats) {
             }
             table.visibility = View.VISIBLE
         }
-    }
-
-    private fun showEmpty() {
-        progressView.fadeOut()
-        emptyView.fadeIn()
-        scrollContainer.fadeOut()
-    }
-
-    private fun showData() {
-        progressView.fadeOut()
-        emptyView.fadeOut()
-        scrollContainer.fadeIn()
     }
 
     private fun addDivider(container: ViewGroup) {

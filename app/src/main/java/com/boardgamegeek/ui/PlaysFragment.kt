@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
 
-open class PlaysFragment : Fragment(R.layout.fragment_plays), ActionMode.Callback {
+open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentPlaysBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<PlaysViewModel>()

@@ -1,50 +1,54 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentCategoriesBinding
+import com.boardgamegeek.databinding.RowCategoryBinding
 import com.boardgamegeek.entities.CategoryEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
-import kotlinx.android.synthetic.main.fragment_categories.*
-import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
-class CategoriesFragment : Fragment(R.layout.fragment_categories) {
+class CategoriesFragment : Fragment() {
+    private var _binding: FragmentCategoriesBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<CategoriesViewModel>()
     private val adapter: CategoriesAdapter by lazy { CategoriesAdapter() }
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentCategoriesBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
         viewModel.categories.observe(viewLifecycleOwner) {
-            showData(it)
-            progressBar.hide()
-            swipeRefresh.isRefreshing = false
+            adapter.categories = it
+            binding.recyclerView.isVisible = adapter.itemCount > 0
+            binding.emptyTextView.isVisible = adapter.itemCount == 0
+            binding.progressBar.hide()
+            binding.swipeRefresh.isRefreshing = false
         }
     }
 
-    private fun showData(categories: List<CategoryEntity>) {
-        adapter.categories = categories
-        if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
-        } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoryViewHolder>(), AutoUpdatableAdapter {
@@ -70,11 +74,13 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
             holder.bind(categories.getOrNull(position))
         }
 
-        inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowCategoryBinding.bind(itemView)
+
             fun bind(category: CategoryEntity?) {
                 category?.let { c ->
-                    itemView.nameView.text = c.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)
+                    binding.nameView.text = c.name
+                    binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)
                     itemView.setOnClickListener {
                         CategoryActivity.start(itemView.context, c.id, c.name)
                     }

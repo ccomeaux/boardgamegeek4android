@@ -1,74 +1,83 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.Nullable
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentBuddyBinding
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import kotlinx.android.synthetic.main.fragment_buddy.*
 
-class BuddyFragment : Fragment(R.layout.fragment_buddy) {
+class BuddyFragment : Fragment() {
+    private var _binding: FragmentBuddyBinding? = null
+    private val binding get() = _binding!!
     private var buddyName: String? = null
     private var playerName: String? = null
     private var defaultTextColor: Int = 0
     private var lightTextColor: Int = 0
-
     private val viewModel by activityViewModels<BuddyViewModel>()
 
-    override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {
-        swipeRefresh.isEnabled = false
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh.setBggColors()
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentBuddyBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        defaultTextColor = nicknameView.textColors.defaultColor
+    override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {
+        binding.swipeRefresh.isEnabled = false
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setBggColors()
+
+        defaultTextColor = binding.nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
         viewModel.buddy.observe(viewLifecycleOwner) {
-            swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
+            binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
 
             if (it?.data == null) {
-                buddyInfoView.isVisible = false
-                collectionCard.isVisible = false
-                updatedView.isVisible = false
+                binding.buddyInfoView.isVisible = false
+                binding.collectionCard.isVisible = false
+                binding.updatedView.isVisible = false
 
-                swipeRefresh.isEnabled = false
+                binding.swipeRefresh.isEnabled = false
             } else {
                 buddyName = it.data.userName
-                avatarView.loadThumbnail(it.data.avatarUrl, R.drawable.person_image_empty)
-                fullNameView.text = it.data.fullName
-                usernameView.text = buddyName
+                binding.avatarView.loadThumbnail(it.data.avatarUrl, R.drawable.person_image_empty)
+                binding.fullNameView.text = it.data.fullName
+                binding.usernameView.text = buddyName
                 playerName = it.data.playNickname.ifBlank { it.data.firstName }
-                nicknameView.text = playerName
-                nicknameView.setOnClickListener {
+                binding.nicknameView.text = playerName
+                binding.nicknameView.setOnClickListener {
                     requireActivity().showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(playerName))
                 }
-                buddyInfoView.isVisible = true
+                binding.buddyInfoView.isVisible = true
 
-                collectionRoot.setOnClickListener {
+                binding.collectionRoot.setOnClickListener {
                     BuddyCollectionActivity.start(requireContext(), buddyName)
                 }
-                collectionCard.isVisible = true
+                binding.collectionCard.isVisible = true
 
-                updatedView.timestamp = it.data.updatedTimestamp
-                updatedView.isVisible = true
+                binding.updatedView.timestamp = it.data.updatedTimestamp
+                binding.updatedView.isVisible = true
 
-                swipeRefresh.isEnabled = true
+                binding.swipeRefresh.isEnabled = true
             }
         }
 
         viewModel.player.observe(viewLifecycleOwner) { player ->
             if (playerName == null) {
                 playerName = player?.name
-                nicknameView.text = playerName
-                nicknameView.setOnClickListener {
+                binding.nicknameView.text = playerName
+                binding.nicknameView.setOnClickListener {
                     requireActivity().showAndSurvive(RenamePlayerDialogFragment.newInstance(playerName))
                 }
             }
@@ -76,34 +85,39 @@ class BuddyFragment : Fragment(R.layout.fragment_buddy) {
             val playCount = player?.playCount ?: 0
             val winCount = player?.winCount ?: 0
             if (playCount > 0 || winCount > 0) {
-                playsView.text = requireContext().getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
-                winsView.text = requireContext().getQuantityText(R.plurals.wins_suffix, winCount, winCount)
-                winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
-                playsRoot.setOnClickListener {
+                binding.playsView.text = requireContext().getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
+                binding.winsView.text = requireContext().getQuantityText(R.plurals.wins_suffix, winCount, winCount)
+                binding.winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
+                binding.playsRoot.setOnClickListener {
                     if (buddyName.isNullOrBlank()) {
                         PlayerPlaysActivity.start(requireContext(), playerName)
                     } else {
                         BuddyPlaysActivity.start(requireContext(), buddyName)
                     }
                 }
-                playsCard.fadeIn()
+                binding.playsCard.fadeIn()
             } else {
-                playsCard.fadeOut()
+                binding.playsCard.fadeOut()
             }
         }
 
         viewModel.colors.observe(viewLifecycleOwner) { colors ->
-            colorContainer.removeAllViews()
-            colorContainer.isVisible = (colors?.size ?: 0) > 0
+            binding.colorContainer.removeAllViews()
+            binding.colorContainer.isVisible = (colors?.size ?: 0) > 0
             colors?.take(3)?.forEach { color ->
                 requireContext().createSmallCircle().also { view ->
                     view.setColorViewValue(color.rgb)
-                    colorContainer.addView(view)
+                    binding.colorContainer.addView(view)
                 }
             }
-            colorsRoot.setOnClickListener {
+            binding.colorsRoot.setOnClickListener {
                 PlayerColorsActivity.start(requireContext(), buddyName, playerName)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

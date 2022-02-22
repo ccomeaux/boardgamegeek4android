@@ -18,7 +18,7 @@ import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
 import kotlin.math.abs
 
-class ThreadFragment : Fragment(R.layout.fragment_thread) {
+class ThreadFragment : Fragment() {
     private var _binding: FragmentThreadBinding? = null
     private val binding get() = _binding!!
     private var threadId = BggContract.INVALID_ID

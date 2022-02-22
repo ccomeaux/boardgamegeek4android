@@ -20,7 +20,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 
-class SearchResultsFragment : Fragment(R.layout.fragment_search_results), ActionMode.Callback {
+class SearchResultsFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentSearchResultsBinding? = null
     private val binding get() = _binding!!
     private var actionMode: ActionMode? = null

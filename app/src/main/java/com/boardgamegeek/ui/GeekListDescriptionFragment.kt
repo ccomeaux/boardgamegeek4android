@@ -14,7 +14,7 @@ import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
 
-class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_description) {
+class GeekListDescriptionFragment : Fragment() {
     private var _binding: FragmentGeeklistDescriptionBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GeekListViewModel>()

@@ -18,7 +18,6 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.activity_hero.*
 
 class GameCollectionItemActivity : HeroActivity() {
     private var internalId = BggContract.INVALID_ID.toLong()
@@ -57,11 +56,11 @@ class GameCollectionItemActivity : HeroActivity() {
             }
             viewModel.toggleEditMode()
         }
-        if (collectionId == BggContract.INVALID_ID) fab.hide() else fab.ensureShown()
+        if (collectionId == BggContract.INVALID_ID) binding.fab.hide() else binding.fab.ensureShown()
 
         viewModel.setId(collectionId)
         viewModel.item.observe(this) { resource ->
-            swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
+            binding.swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
             if (resource?.status == Status.SUCCESS) {
                 resource.data?.let { entity ->
                     collectionName = entity.collectionName

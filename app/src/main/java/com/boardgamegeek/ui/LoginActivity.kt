@@ -14,15 +14,16 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.auth.BggCookieJar
+import com.boardgamegeek.databinding.ActivityLoginBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.LoginViewModel
-import kotlinx.android.synthetic.main.activity_login.*
 import timber.log.Timber
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
 class LoginActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
     private val viewModel by viewModels<LoginViewModel>()
     private var accountAuthenticatorResponse: AccountAuthenticatorResponse? = null
 
@@ -39,27 +40,28 @@ class LoginActivity : AppCompatActivity() {
         accountAuthenticatorResponse = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
         accountAuthenticatorResponse?.onRequestContinued()
 
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         accountManager = AccountManager.get(this)
         username = intent.getStringExtra(KEY_USERNAME)
         isRequestingNewAccount = username == null
 
-        usernameView.setText(username)
-        usernameView.isEnabled = isRequestingNewAccount
+        binding.usernameView.setText(username)
+        binding.usernameView.isEnabled = isRequestingNewAccount
         if (isRequestingNewAccount) {
-            usernameView.requestFocus()
+            binding.usernameView.requestFocus()
         } else {
-            passwordView.requestFocus()
+            binding.passwordView.requestFocus()
         }
-        passwordView.setOnEditorActionListener { _, actionId, _ ->
+        binding.passwordView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == R.integer.login_action_id || actionId == EditorInfo.IME_NULL) {
                 attemptLogin()
                 return@setOnEditorActionListener true
             }
             false
         }
-        signInButton.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             attemptLogin()
         }
 
@@ -69,9 +71,9 @@ class LoginActivity : AppCompatActivity() {
         }
 
         viewModel.authenticationResult.observe(this) {
-            if (it == null){
-                passwordContainer.error = getString(R.string.error_incorrect_password)
-                passwordView.requestFocus()
+            if (it == null) {
+                binding.passwordContainer.error = getString(R.string.error_incorrect_password)
+                binding.passwordView.requestFocus()
             } else {
                 createAccount(it)
             }
@@ -96,22 +98,22 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Reset errors.
-        usernameContainer.error = null
-        passwordContainer.error = null
+        binding.usernameContainer.error = null
+        binding.passwordContainer.error = null
 
         // Store values at the time of the login attempt.
         if (isRequestingNewAccount) {
-            username = usernameView.text.toString().trim()
+            username = binding.usernameView.text.toString().trim()
         }
-        password = passwordView.text.toString()
+        password = binding.passwordView.text.toString()
         val focusView = when {
             username.isNullOrBlank() -> {
-                usernameContainer.error = getString(R.string.error_field_required)
-                usernameView
+                binding.usernameContainer.error = getString(R.string.error_field_required)
+                binding.usernameView
             }
             password.isNullOrEmpty() -> {
-                passwordContainer.error = getString(R.string.error_field_required)
-                passwordView
+                binding.passwordContainer.error = getString(R.string.error_field_required)
+                binding.passwordView
             }
             else -> null
         }
@@ -120,7 +122,7 @@ class LoginActivity : AppCompatActivity() {
             focusView.requestFocus()
         } else {
             // Show a progress spinner, and kick off a background task to perform the user login attempt.
-            loginStatusMessageView.setText(R.string.login_progress_signing_in)
+            binding.loginStatusMessageView.setText(R.string.login_progress_signing_in)
             showProgress(true)
             viewModel.login(username, password)
         }
@@ -130,8 +132,8 @@ class LoginActivity : AppCompatActivity() {
      * Shows the progress UI and hides the login form.
      */
     private fun showProgress(show: Boolean) {
-        loginStatusView.fade(show)
-        loginFormView.fade(!show)
+        binding.loginStatusView.fade(show)
+        binding.loginFormView.fade(!show)
     }
 
     private fun createAccount(bggCookieJar: BggCookieJar) {
@@ -159,23 +161,24 @@ class LoginActivity : AppCompatActivity() {
                     when {
                         accounts.isEmpty() -> {
                             Timber.v("no account!")
-                            passwordContainer.error = getString(R.string.error_account_list_zero)
+                            binding.passwordContainer.error = getString(R.string.error_account_list_zero)
                             return
                         }
                         accounts.size != 1 -> {
                             Timber.w("multiple accounts!")
-                            passwordContainer.error = getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE)
+                            binding.passwordContainer.error = getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE)
                             return
                         }
                         else -> {
                             val existingAccount = accounts[0]
                             when {
                                 existingAccount == null -> {
-                                    passwordContainer.error = getString(R.string.error_account_list_zero)
+                                    binding.passwordContainer.error = getString(R.string.error_account_list_zero)
                                     return
                                 }
                                 existingAccount.name != account.name -> {
-                                    passwordContainer.error = getString(R.string.error_account_name_mismatch, existingAccount.name, account.name)
+                                    binding.passwordContainer.error =
+                                        getString(R.string.error_account_name_mismatch, existingAccount.name, account.name)
                                     return
                                 }
                                 else -> {
@@ -186,7 +189,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                passwordContainer.error = e.localizedMessage
+                binding.passwordContainer.error = e.localizedMessage
                 return
             }
         } else {

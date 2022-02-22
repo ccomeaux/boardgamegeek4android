@@ -1,27 +1,36 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPersonStatsBinding
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
-import kotlinx.android.synthetic.main.fragment_person_stats.*
 import java.util.*
 
-class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
+class PersonStatsFragment : Fragment() {
+    private var _binding: FragmentPersonStatsBinding? = null
+    private val binding get() = _binding!!
     private var objectDescription = ""
-
     private val viewModel by activityViewModels<PersonViewModel>()
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentPersonStatsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        collectionStatusButton.setOnClickListener {
+        binding.collectionStatusButton.setOnClickListener {
             val prefs = requireContext().preferences()
             requireActivity().createThemedBuilder()
                 .setTitle(R.string.title_modify_collection_status)
@@ -51,39 +60,42 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
 
         viewModel.stats.observe(viewLifecycleOwner) {
             when (it) {
-                null -> showEmpty()
+                null -> {
+                    binding.statsView.isVisible = false
+                    binding.emptyMessageView.isVisible = true
+                }
                 else -> showData(it)
             }
-            progress.hide()
+            binding.progress.hide()
         }
     }
 
-    private fun bindCollectionStatusMessage() {
-        collectionStatusGroup.isVisible = !requireContext().preferences().isStatusSetToSync(COLLECTION_STATUS_RATED)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
-    private fun showEmpty() {
-        statsView.fadeOut()
-        emptyMessageView.fadeIn()
+    private fun bindCollectionStatusMessage() {
+        binding.collectionStatusGroup.isVisible = !requireContext().preferences().isStatusSetToSync(COLLECTION_STATUS_RATED)
     }
 
     private fun showData(stats: PersonStatsEntity) {
         if (stats.averageRating > 0.0) {
-            averageRating.text = stats.averageRating.asRating(context)
-            averageRating.setTextViewBackground(stats.averageRating.toColor(BggColors.ratingColors))
-            averageRatingGroup.isVisible = true
+            binding.averageRating.text = stats.averageRating.asRating(context)
+            binding.averageRating.setTextViewBackground(stats.averageRating.toColor(BggColors.ratingColors))
+            binding.averageRatingGroup.isVisible = true
         } else {
-            averageRatingGroup.isVisible = false
+            binding.averageRatingGroup.isVisible = false
         }
 
-        whitmoreScore.text = stats.whitmoreScore.toString()
+        binding.whitmoreScore.text = stats.whitmoreScore.toString()
         if (stats.whitmoreScore != stats.whitmoreScoreWithExpansions) {
-            whitmoreScoreWithExpansions.text = stats.whitmoreScoreWithExpansions.toString()
-            whitmoreScoreWithExpansionsGroup.isVisible = true
+            binding.whitmoreScoreWithExpansions.text = stats.whitmoreScoreWithExpansions.toString()
+            binding.whitmoreScoreWithExpansionsGroup.isVisible = true
         } else {
-            whitmoreScoreWithExpansionsGroup.isVisible = false
+            binding.whitmoreScoreWithExpansionsGroup.isVisible = false
         }
-        whitmoreScoreLabel.setOnClickListener {
+        binding.whitmoreScoreLabel.setOnClickListener {
             context?.showClickableAlertDialog(
                 R.string.whitmore_score,
                 R.string.whitmore_score_info,
@@ -91,9 +103,9 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
             )
         }
 
-        playCount.text = stats.playCount.toString()
-        hIndex.text = stats.hIndex.description
-        hIndexLabel.setOnClickListener {
+        binding.playCount.text = stats.playCount.toString()
+        binding.hIndex.text = stats.hIndex.description
+        binding.hIndexLabel.setOnClickListener {
             context?.showClickableAlertDialogPlural(
                 R.string.h_index,
                 R.plurals.person_game_h_index_info,
@@ -103,7 +115,7 @@ class PersonStatsFragment : Fragment(R.layout.fragment_person_stats) {
             )
         }
 
-        statsView.fadeIn()
-        emptyMessageView.fadeOut()
+        binding.statsView.isVisible = true
+        binding.emptyMessageView.isVisible = false
     }
 }

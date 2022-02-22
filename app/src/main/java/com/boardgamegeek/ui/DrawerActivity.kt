@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
 import androidx.core.content.ContextCompat
@@ -15,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.databinding.ActivityDrawerBaseBinding
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
@@ -26,6 +26,7 @@ import com.google.android.material.navigation.NavigationView
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
  */
 abstract class DrawerActivity : BaseActivity() {
+    private lateinit var binding: ActivityDrawerBaseBinding
     lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
@@ -37,13 +38,14 @@ abstract class DrawerActivity : BaseActivity() {
     protected open val navigationItemId: Int
         get() = 0
 
-    protected open val layoutResId: Int
-        @LayoutRes
-        get() = R.layout.activity_drawer_base
+    protected open fun bindLayout() {
+        binding = ActivityDrawerBaseBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutResId)
+        bindLayout()
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation)

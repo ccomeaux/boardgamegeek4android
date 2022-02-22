@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -13,30 +14,31 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentNewPlayPlayerColorsBinding
+import com.boardgamegeek.databinding.RowNewPlayPlayerColorBinding
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.NewPlayPlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.dialog.TeamPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import kotlinx.android.synthetic.main.fragment_new_play_player_colors.*
-import kotlinx.android.synthetic.main.row_new_play_player_color.view.*
 import kotlin.properties.Delegates
 
-class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_colors) {
+class NewPlayPlayerColorsFragment : Fragment() {
+    private var _binding: FragmentNewPlayPlayerColorsBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
-    private val adapter: PlayersAdapter by lazy {
-        PlayersAdapter(requireActivity(), viewModel)
-    }
+    private val adapter: PlayersAdapter by lazy {        PlayersAdapter(requireActivity(), viewModel)    }
 
-    override fun onResume() {
-        super.onResume()
-        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_team_colors)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentNewPlayPlayerColorsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
 
         viewModel.addedPlayers.observe(viewLifecycleOwner) {
             adapter.players = it
@@ -47,9 +49,19 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
             }
         }
 
-        nextButton.setOnClickListener {
+        binding.nextButton.setOnClickListener {
             viewModel.finishPlayerColors()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_team_colors)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
@@ -100,54 +112,56 @@ class NewPlayPlayerColorsFragment : Fragment(R.layout.fragment_new_play_player_c
             holder.bind(players.getOrNull(position))
         }
 
-        inner class PlayersViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class PlayersViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowNewPlayPlayerColorBinding.bind(itemView)
+
             fun bind(entity: NewPlayPlayerEntity?) {
                 entity?.let { player ->
-                    itemView.nameView.text = player.name
-                    itemView.usernameView.setTextOrHide(player.username)
+                    binding.nameView.text = player.name
+                    binding.usernameView.setTextOrHide(player.username)
 
                     if (player.color.isBlank()) {
-                        itemView.colorView.isInvisible = true
-                        itemView.teamView.isVisible = false
-                        itemView.removeTeamView.isInvisible = true
+                        binding.colorView.isInvisible = true
+                        binding.teamView.isVisible = false
+                        binding.removeTeamView.isInvisible = true
                     } else {
                         val color = player.color.asColorRgb()
                         if (color == Color.TRANSPARENT) {
-                            itemView.colorView.isInvisible = true
-                            itemView.teamView.setTextOrHide(player.color)
-                            itemView.removeTeamView.isVisible = true
-                            itemView.removeTeamView.setOnClickListener {
+                            binding.colorView.isInvisible = true
+                            binding.teamView.setTextOrHide(player.color)
+                            binding.removeTeamView.isVisible = true
+                            binding.removeTeamView.setOnClickListener {
                                 viewModel.addColorToPlayer(bindingAdapterPosition, "")
                             }
                         } else {
-                            itemView.colorView.setColorViewValue(color)
-                            itemView.colorView.setOnClickListener {
+                            binding.colorView.setColorViewValue(color)
+                            binding.colorView.setOnClickListener {
                                 viewModel.addColorToPlayer(bindingAdapterPosition, "")
                             }
-                            itemView.colorView.isVisible = true
-                            itemView.teamView.isVisible = false
-                            itemView.removeTeamView.isInvisible = true
+                            binding.colorView.isVisible = true
+                            binding.teamView.isVisible = false
+                            binding.removeTeamView.isInvisible = true
                         }
                     }
                     if (useColorPicker) {
-                        itemView.colorPickerButton.setImageResource(R.drawable.ic_colors)
+                        binding.colorPickerButton.setImageResource(R.drawable.ic_colors)
                     } else {
-                        itemView.colorPickerButton.setImageResource(R.drawable.ic_people)
+                        binding.colorPickerButton.setImageResource(R.drawable.ic_people)
                     }
 
                     val favoriteColor = player.favoriteColors.firstOrNull() ?: ""
                     val favoriteColorRgb = favoriteColor.asColorRgb()
                     if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
-                        itemView.favoriteColorView.setColorViewValue(favoriteColorRgb)
-                        itemView.favoriteColorView.setOnClickListener {
+                        binding.favoriteColorView.setColorViewValue(favoriteColorRgb)
+                        binding.favoriteColorView.setOnClickListener {
                             viewModel.addColorToPlayer(bindingAdapterPosition, favoriteColor)
                         }
-                        itemView.favoriteColorView.isVisible = true
+                        binding.favoriteColorView.isVisible = true
                     } else {
-                        itemView.favoriteColorView.isVisible = false
+                        binding.favoriteColorView.isVisible = false
                     }
 
-                    itemView.colorPickerButton.setOnClickListener {
+                    binding.colorPickerButton.setOnClickListener {
                         pickTeamOrColor(player)
                     }
                     itemView.setOnClickListener {

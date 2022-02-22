@@ -5,28 +5,34 @@ import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityHeroTabBinding
 import com.boardgamegeek.extensions.ImageLoadCallback
 import com.boardgamegeek.extensions.applyDarkScrim
 import com.boardgamegeek.extensions.loadUrl
 import com.boardgamegeek.extensions.safelyLoadImage
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_hero_tab.*
 import kotlinx.coroutines.launch
 
 /**
  * A navigation drawer activity that displays a hero image over a view pager.
  */
 abstract class HeroTabActivity : DrawerActivity() {
+    private lateinit var binding: ActivityHeroTabBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun bindLayout() {
+        binding = ActivityHeroTabBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
     protected fun initializeViewPager() {
-        viewPager.adapter = createAdapter()
-        createOnPageChangeListener()?.let { viewPager.registerOnPageChangeCallback(it) }
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+        binding.viewPager.adapter = createAdapter()
+        createOnPageChangeListener()?.let { binding.viewPager.registerOnPageChangeCallback(it) }
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = getPageTitle(position)
         }.attach()
     }
@@ -39,19 +45,17 @@ abstract class HeroTabActivity : DrawerActivity() {
         return null
     }
 
-    override val layoutResId = R.layout.activity_hero_tab
-
     protected fun safelySetTitle(title: String?) {
         if (!title.isNullOrBlank()) {
-            collapsingToolbar.title = title
+            binding.collapsingToolbar.title = title
         }
     }
 
     protected fun loadToolbarImage(url: String) {
-        toolbarImage.loadUrl(url, object : ImageLoadCallback {
+        binding.toolbarImage.loadUrl(url, object : ImageLoadCallback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 onPaletteLoaded(palette)
-                scrimView.applyDarkScrim()
+                binding.scrimView.applyDarkScrim()
             }
 
             override fun onFailedImageLoad() {}
@@ -60,10 +64,10 @@ abstract class HeroTabActivity : DrawerActivity() {
 
     protected fun loadToolbarImage(imageId: Int) {
         lifecycleScope.launch {
-            toolbarImage.safelyLoadImage(imageId, object : ImageLoadCallback {
+            binding.toolbarImage.safelyLoadImage(imageId, object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     onPaletteLoaded(palette)
-                    scrimView.applyDarkScrim()
+                    binding.scrimView.applyDarkScrim()
                 }
 
                 override fun onFailedImageLoad() {}
@@ -73,6 +77,4 @@ abstract class HeroTabActivity : DrawerActivity() {
 
     protected open fun onPaletteLoaded(palette: Palette?) {
     }
-
-    protected fun getCoordinatorLayout() = coordinatorLayout!!
 }

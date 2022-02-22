@@ -126,7 +126,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
             R.id.menu_shortcut -> viewModel.createShortcut()
             R.id.menu_log_play_quick -> {
-                getCoordinatorLayout().snackbar(R.string.msg_logging_play)
+                binding.coordinatorLayout.snackbar(R.string.msg_logging_play)
                 viewModel.logQuickPlay(gameId, gameName)
             }
             R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)

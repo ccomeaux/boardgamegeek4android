@@ -11,6 +11,7 @@ import android.transition.Transition
 import android.transition.TransitionManager
 import android.util.SparseBooleanArray
 import android.util.SparseIntArray
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
@@ -23,6 +24,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
 import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
@@ -36,14 +38,6 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import kotlinx.android.synthetic.main.fragment_game_play_stats.*
-import kotlinx.android.synthetic.main.include_game_play_stats_advanced.*
-import kotlinx.android.synthetic.main.include_game_play_stats_counts.*
-import kotlinx.android.synthetic.main.include_game_play_stats_dates.*
-import kotlinx.android.synthetic.main.include_game_play_stats_locations.*
-import kotlinx.android.synthetic.main.include_game_play_stats_players.*
-import kotlinx.android.synthetic.main.include_game_play_stats_scores.*
-import kotlinx.android.synthetic.main.include_game_play_stats_time.*
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -54,7 +48,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
+class GamePlayStatsFragment : Fragment() {
+    private var _binding: FragmentGamePlayStatsBinding? = null
+    private val binding get() = _binding!!
     private var gameId = BggContract.INVALID_ID
 
     @ColorInt
@@ -75,6 +71,12 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
     private var playEntities = listOf<PlayEntity>()
     private var playerEntities = listOf<PlayPlayerEntity>()
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentGamePlayStatsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
@@ -84,17 +86,17 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
 
         if (headerColor != Color.TRANSPARENT) {
             listOf(
-                playCountHeaderView,
-                scoreHeaderView,
-                playersHeaderView,
-                datesHeaderView,
-                playTimeHeaderView,
-                locationsHeaderView,
-                advancedHeaderView
+                binding.counts.playCountHeaderView,
+                binding.scores.scoreHeaderView,
+                binding.players.playersHeaderView,
+                binding.dates.datesHeaderView,
+                binding.time.playTimeHeaderView,
+                binding.locations.locationsHeaderView,
+                binding.advanced.advancedHeaderView
             )
-                .forEach { it?.setTextColor(headerColor) }
-            listOf(scoreHelpView, playersSkillHelpView)
-                .forEach { it?.setColorFilter(headerColor) }
+                .forEach { it.setTextColor(headerColor) }
+            listOf(binding.scores.scoreHelpView, binding.players.playersSkillHelpView)
+                .forEach { it.setColorFilter(headerColor) }
         }
         playCountColors = intArrayOf(
             ContextCompat.getColor(requireContext(), R.color.orange),
@@ -102,7 +104,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             ContextCompat.getColor(requireContext(), R.color.light_blue)
         )
 
-        playCountChart.apply {
+        binding.counts.playCountChart.apply {
             description = null
             setDrawGridBackground(false)
             axisLeft.isEnabled = false
@@ -115,14 +117,14 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         playerTransition?.duration = 150
         setInterpolator(context, playerTransition)
 
-        scoreHelpView.setOnClickListener {
+        binding.scores.scoreHelpView.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle(R.string.title_scores)
                 .setView(R.layout.dialog_help_score)
                 .show()
         }
 
-        playersSkillHelpView.setOnClickListener {
+        binding.players.playersSkillHelpView.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle(R.string.title_players_skill)
                 .setMessage(R.string.player_skill_info)
@@ -149,9 +151,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                 viewModel.plays.observe(viewLifecycleOwner) { playList ->
                     playList?.let { (_, data, _) ->
                         if (data == null || data.isEmpty()) {
-                            progressView.hide()
-                            dataView.fadeOut()
-                            emptyView.fadeIn()
+                            binding.progressView.hide()
+                            binding.dataView.fadeOut()
+                            binding.emptyView.fadeIn()
                         } else {
                             playEntities = data
                             viewModel.players.observe(viewLifecycleOwner) {
@@ -161,9 +163,9 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                                 stats.calculate()
                                 bindUi(stats)
 
-                                progressView.hide()
-                                emptyView.fadeOut()
-                                dataView.fadeIn()
+                                binding.progressView.hide()
+                                binding.emptyView.fadeOut()
+                                binding.dataView.fadeIn()
                             }
                         }
                     }
@@ -171,6 +173,11 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             }
         }
         viewModel.setGameId(gameId)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setInterpolator(context: Context?, transition: Transition?) {
@@ -182,7 +189,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
     private fun bindUi(stats: Stats) {
         // region PLAY COUNT
 
-        playCountTable.removeAllViews()
+        binding.counts.playCountTable.removeAllViews()
 
         val playStatRow = PlayStatRow(requireContext())
         when {
@@ -192,15 +199,15 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             stats.dimeDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dime))
             stats.nickelDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_nickel))
         }
-        playCountTable.addView(playStatRow)
+        binding.counts.playCountTable.addView(playStatRow)
 
-        addPlayStat(playCountTable, stats.playCount.toString(), R.string.play_stat_play_count)
+        addPlayStat(binding.counts.playCountTable, stats.playCount.toString(), R.string.play_stat_play_count)
         if (stats.playCountIncomplete > 0 && stats.playCountIncomplete != stats.playCount) {
-            addPlayStat(playCountTable, stats.playCountIncomplete.toString(), R.string.play_stat_play_count_incomplete)
+            addPlayStat(binding.counts.playCountTable, stats.playCountIncomplete.toString(), R.string.play_stat_play_count_incomplete)
         }
-        addPlayStat(playCountTable, stats.getMonthsPlayed().toString(), R.string.play_stat_months_played)
+        addPlayStat(binding.counts.playCountTable, stats.getMonthsPlayed().toString(), R.string.play_stat_months_played)
         if (stats.playRate > 0.0) {
-            addPlayStat(playCountTable, DOUBLE_FORMAT.format(stats.playRate), R.string.play_stat_play_rate)
+            addPlayStat(binding.counts.playCountTable, DOUBLE_FORMAT.format(stats.playRate), R.string.play_stat_play_rate)
         }
 
         val playCountValues = ArrayList<BarEntry>()
@@ -227,11 +234,11 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
             }
             val dataSets = mutableListOf<IBarDataSet>()
             dataSets.add(playCountDataSet)
-            playCountChart.data = BarData(dataSets)
-            playCountChart.animateY(1000, Easing.EaseInOutBack)
-            playCountChart.visibility = View.VISIBLE
+            binding.counts.playCountChart.data = BarData(dataSets)
+            binding.counts.playCountChart.animateY(1000, Easing.EaseInOutBack)
+            binding.counts.playCountChart.visibility = View.VISIBLE
         } else {
-            playCountChart.visibility = View.GONE
+            binding.counts.playCountChart.visibility = View.GONE
         }
 
         // endregion PLAY COUNT
@@ -239,41 +246,41 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
         // region SCORES
 
         if (stats.hasScores()) {
-            lowScoreView.text = SCORE_FORMAT.format(stats.lowScore)
-            averageScoreView.text = SCORE_FORMAT.format(stats.averageScore)
-            averageWinScoreView.text = SCORE_FORMAT.format(stats.averageWinningScore)
-            highScoreView.text = SCORE_FORMAT.format(stats.highScore)
+            binding.scores.lowScoreView.text = SCORE_FORMAT.format(stats.lowScore)
+            binding.scores.averageScoreView.text = SCORE_FORMAT.format(stats.averageScore)
+            binding.scores.averageWinScoreView.text = SCORE_FORMAT.format(stats.averageWinningScore)
+            binding.scores.highScoreView.text = SCORE_FORMAT.format(stats.highScore)
             if (stats.highScore > stats.lowScore) {
-                scoreGraphView.lowScore = stats.lowScore
-                scoreGraphView.averageScore = stats.averageScore
-                scoreGraphView.averageWinScore = stats.averageWinningScore
-                scoreGraphView.highScore = stats.highScore
-                scoreGraphView.visibility = View.VISIBLE
+                binding.scores.scoreGraphView.lowScore = stats.lowScore
+                binding.scores.scoreGraphView.averageScore = stats.averageScore
+                binding.scores.scoreGraphView.averageWinScore = stats.averageWinningScore
+                binding.scores.scoreGraphView.highScore = stats.highScore
+                binding.scores.scoreGraphView.visibility = View.VISIBLE
             }
 
-            lowScoreView.setOnClickListener {
+            binding.scores.lowScoreView.setOnClickListener {
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.title_low_scorers)
                     .setMessage(stats.lowScorers)
                     .show()
             }
 
-            highScoreView.setOnClickListener {
+            binding.scores.highScoreView.setOnClickListener {
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.title_high_scorers)
                     .setMessage(stats.highScorers)
                     .show()
             }
 
-            scoresCard.visibility = View.VISIBLE
+            binding.scores.scoresCard.visibility = View.VISIBLE
         } else {
-            scoresCard.visibility = View.GONE
+            binding.scores.scoresCard.visibility = View.GONE
         }
 
         // endregion
 
         // region PLAYERS
-        playersList.removeAllViews()
+        binding.players.playersList.removeAllViews()
         for ((position, playerStats) in stats.getPlayerStats().withIndex()) {
             val stat = playerStats.value
             val view = PlayerStatView(requireActivity()).apply {
@@ -291,7 +298,7 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                 showScores(selectedItems[position, false])
                 if (stats.hasScores()) {
                     setOnClickListener {
-                        TransitionManager.beginDelayedTransition(playersList, playerTransition)
+                        TransitionManager.beginDelayedTransition(binding.players.playersList, playerTransition)
                         if (selectedItems.get(position, false)) {
                             selectedItems.delete(position)
                             showScores(false)
@@ -302,82 +309,94 @@ class GamePlayStatsFragment : Fragment(R.layout.fragment_game_play_stats) {
                     }
                 }
             }
-            playersList.addView(view)
+            binding.players.playersList.addView(view)
         }
-        playersCard.isVisible = playerEntities.isNotEmpty()
+        binding.players.playersCard.isVisible = playerEntities.isNotEmpty()
 
         // endregion PLAYERS
 
         // region DATES
 
-        datesTable.removeAllViews()
-        addStatRowMaybe(datesTable, stats.firstPlayDate).setLabel(R.string.play_stat_first_play)
-        addStatRowMaybe(datesTable, stats.nickelDate).setLabel(R.string.play_stat_nickel)
-        addStatRowMaybe(datesTable, stats.dimeDate).setLabel(R.string.play_stat_dime)
-        addStatRowMaybe(datesTable, stats.quarterDate).setLabel(R.string.play_stat_quarter)
-        addStatRowMaybe(datesTable, stats.halfDollarDate).setLabel(R.string.play_stat_half_dollar)
-        addStatRowMaybe(datesTable, stats.dollarDate).setLabel(R.string.play_stat_dollar)
-        addStatRowMaybe(datesTable, stats.lastPlayDate).setLabel(R.string.play_stat_last_play)
+        binding.dates.datesTable.removeAllViews()
+        addStatRowMaybe(binding.dates.datesTable, stats.firstPlayDate).setLabel(R.string.play_stat_first_play)
+        addStatRowMaybe(binding.dates.datesTable, stats.nickelDate).setLabel(R.string.play_stat_nickel)
+        addStatRowMaybe(binding.dates.datesTable, stats.dimeDate).setLabel(R.string.play_stat_dime)
+        addStatRowMaybe(binding.dates.datesTable, stats.quarterDate).setLabel(R.string.play_stat_quarter)
+        addStatRowMaybe(binding.dates.datesTable, stats.halfDollarDate).setLabel(R.string.play_stat_half_dollar)
+        addStatRowMaybe(binding.dates.datesTable, stats.dollarDate).setLabel(R.string.play_stat_dollar)
+        addStatRowMaybe(binding.dates.datesTable, stats.lastPlayDate).setLabel(R.string.play_stat_last_play)
 
         // endregion DATES
 
         // region PLAY TIME
 
-        playTimeTable.removeAllViews()
+        binding.time.playTimeTable.removeAllViews()
 
-        addPlayStat(playTimeTable, stats.hoursPlayed.toInt().toString(), R.string.play_stat_hours_played)
+        addPlayStat(binding.time.playTimeTable, stats.hoursPlayed.toInt().toString(), R.string.play_stat_hours_played)
         val average = stats.averagePlayTime
         if (average > 0) {
-            addPlayStat(playTimeTable, average.asTime(), R.string.play_stat_average_play_time)
+            addPlayStat(binding.time.playTimeTable, average.asTime(), R.string.play_stat_average_play_time)
             if (playingTime > 0) {
                 if (average > playingTime) {
-                    addPlayStat(playTimeTable, (average - playingTime).asTime(), R.string.play_stat_average_play_time_slower)
+                    addPlayStat(binding.time.playTimeTable, (average - playingTime).asTime(), R.string.play_stat_average_play_time_slower)
                 } else if (playingTime > average) {
-                    addPlayStat(playTimeTable, (playingTime - average).asTime(), R.string.play_stat_average_play_time_faster)
+                    addPlayStat(binding.time.playTimeTable, (playingTime - average).asTime(), R.string.play_stat_average_play_time_faster)
                 }
             } // don't display anything if the average is exactly as expected
         }
         if (stats.averagePlayTimePerPlayer > 0) {
-            addPlayStat(playTimeTable, stats.averagePlayTimePerPlayer.asTime(), R.string.play_stat_average_play_time_per_player)
+            addPlayStat(binding.time.playTimeTable, stats.averagePlayTimePerPlayer.asTime(), R.string.play_stat_average_play_time_per_player)
         }
 
         // endregion PLAY TIME
 
         // region LOCATIONS
 
-        locationsTable.removeAllViews()
-        locationsCard.isVisible = stats.playsPerLocation.isNotEmpty()
+        binding.locations.locationsTable.removeAllViews()
+        binding.locations.locationsCard.isVisible = stats.playsPerLocation.isNotEmpty()
         for (location in stats.playsPerLocation) {
-            addPlayStat(locationsTable, location.value.toString(), location.key)
+            addPlayStat(binding.locations.locationsTable, location.value.toString(), location.key)
         }
 
         // endregion LOCATIONS
 
         // region ADVANCED
 
-        advancedTable.removeAllViews()
+        binding.advanced.advancedTable.removeAllViews()
         if (personalRating > 0.0) {
-            addPlayStat(advancedTable, stats.calculateFhm().toString(), R.string.play_stat_fhm).setInfoText(R.string.play_stat_fhm_info)
-            addPlayStat(advancedTable, stats.calculateHhm().toString(), R.string.play_stat_hhm).setInfoText(R.string.play_stat_hhm_info)
             addPlayStat(
-                advancedTable,
+                binding.advanced.advancedTable,
+                stats.calculateFhm().toString(),
+                R.string.play_stat_fhm
+            ).setInfoText(R.string.play_stat_fhm_info)
+            addPlayStat(
+                binding.advanced.advancedTable,
+                stats.calculateHhm().toString(),
+                R.string.play_stat_hhm
+            ).setInfoText(R.string.play_stat_hhm_info)
+            addPlayStat(
+                binding.advanced.advancedTable,
                 DOUBLE_FORMAT.format(stats.calculateHuberHeat()),
                 R.string.play_stat_huber_heat
             ).setInfoText(R.string.play_stat_huber_heat_info)
-            addPlayStat(advancedTable, DOUBLE_FORMAT.format(stats.calculateRuhm()), R.string.play_stat_ruhm).setInfoText(R.string.play_stat_ruhm_info)
+            addPlayStat(
+                binding.advanced.advancedTable,
+                DOUBLE_FORMAT.format(stats.calculateRuhm()),
+                R.string.play_stat_ruhm
+            ).setInfoText(R.string.play_stat_ruhm_info)
         }
         if (gameOwned) {
             addPlayStat(
-                advancedTable,
+                binding.advanced.advancedTable,
                 stats.calculateUtilization().asPercentage(),
                 R.string.play_stat_utilization
             ).setInfoText(R.string.play_stat_utilization_info)
         }
         val hIndexOffset = stats.hIndexOffset
         if (hIndexOffset == HIndexEntity.INVALID_H_INDEX) {
-            addPlayStat(advancedTable, "", R.string.play_stat_game_h_index_offset_in)
+            addPlayStat(binding.advanced.advancedTable, "", R.string.play_stat_game_h_index_offset_in)
         } else {
-            addPlayStat(advancedTable, hIndexOffset.toString(), R.string.play_stat_game_h_index_offset_out)
+            addPlayStat(binding.advanced.advancedTable, hIndexOffset.toString(), R.string.play_stat_game_h_index_offset_out)
         }
 
         // endregion ADVANCED

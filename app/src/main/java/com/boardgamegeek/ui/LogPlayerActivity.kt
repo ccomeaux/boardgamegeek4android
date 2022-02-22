@@ -16,6 +16,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityLogplayerBinding
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -27,10 +28,10 @@ import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.activity_logplayer.*
 import kotlinx.coroutines.launch
 
-class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorPickerWithListenerDialogFragment.Listener {
+class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
+    private lateinit var binding: ActivityLogplayerBinding
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val viewModel by viewModels<LogPlayerViewModel>()
     private val playerNameAdapter: PlayerNameAdapter by lazy { PlayerNameAdapter(this) }
@@ -56,27 +57,30 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        binding = ActivityLogplayerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
-        nameView.setOnItemClickListener { _, view, _, _ ->
-            usernameView.setText(view.tag as String)
+        binding.nameView.setOnItemClickListener { _, view, _, _ ->
+            binding.usernameView.setText(view.tag as String)
         }
-        usernameView.setOnItemClickListener { _, view, _, _ ->
-            nameView.setText(view.tag as String)
+        binding.usernameView.setOnItemClickListener { _, view, _, _ ->
+            binding.nameView.setText(view.tag as String)
         }
-        teamColorView.doAfterTextChanged {
-            colorView.setColorViewValue(it?.toString().asColorRgb())
+        binding.teamColorView.doAfterTextChanged {
+            binding.colorView.setColorViewValue(it?.toString().asColorRgb())
         }
-        colorView.setOnClickListener {
-            showAndSurvive(ColorPickerWithListenerDialogFragment.newInstance(colors, teamColorView.text.toString(), usedColors))
+        binding.colorView.setOnClickListener {
+            showAndSurvive(ColorPickerWithListenerDialogFragment.newInstance(colors, binding.teamColorView.text.toString(), usedColors))
         }
-        positionContainer.setEndIconOnClickListener {
-            onNumberToTextClick(positionContainer, positionView, false)
+        binding.positionContainer.setEndIconOnClickListener {
+            onNumberToTextClick(binding.positionContainer, binding.positionView, false)
         }
-        scoreContainer.setEndIconOnClickListener {
-            onNumberToTextClick(scoreContainer, scoreView, true)
+        binding.scoreContainer.setEndIconOnClickListener {
+            onNumberToTextClick(binding.scoreContainer, binding.scoreView, true)
         }
-        fab.setOnClickListener { addField() }
+        binding.fab.setOnClickListener { addField() }
 
         setDoneCancelActionBarView { v: View ->
             when (v.id) {
@@ -112,11 +116,11 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
 
         if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
             userHasShownScore = true
-            scoreView.requestFocus()
+            binding.scoreView.requestFocus()
         }
         isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false)
 
-        fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
+        binding.fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
             position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
             player = intent.getParcelableExtra(KEY_PLAYER) ?: PlayPlayerEntity()
@@ -136,13 +140,13 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
         this.usedColors?.remove(player.color)
 
         lifecycleScope.launch {
-            thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
+            binding.thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
         }
 
         bindUi()
-        nameView.setAdapter(playerNameAdapter)
-        usernameView.setAdapter(buddyNameAdapter)
-        teamColorView.setAdapter(colorAdapter)
+        binding.nameView.setAdapter(playerNameAdapter)
+        binding.usernameView.setAdapter(buddyNameAdapter)
+        binding.teamColorView.setAdapter(colorAdapter)
         viewModel.setGameId(gameId)
     }
 
@@ -167,7 +171,7 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
     }
 
     override fun onColorSelected(description: String, color: Int, requestCode: Int) {
-        teamColorView.setText(description)
+        binding.teamColorView.setText(description)
     }
 
     private fun onNumberToTextClick(til: TextInputLayout, editText: EditText, includeSign: Boolean) {
@@ -187,36 +191,37 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
 
     private fun bindUi() {
         if (hasAutoPosition()) {
-            titleView.text = gameName
-            subtitleView.text = getString(R.string.generic_player, autoPosition)
+            binding.titleView.text = gameName
+            binding.subtitleView.text = getString(R.string.generic_player, autoPosition)
         } else {
-            headerView.text = gameName
+            binding.headerView.text = gameName
         }
-        headerView.isVisible = !hasAutoPosition()
-        twoLineContainer.isVisible = hasAutoPosition()
+        binding.headerView.isVisible = !hasAutoPosition()
+        binding.twoLineContainer.isVisible = hasAutoPosition()
 
-        nameView.setTextKeepState(player.name)
-        usernameView.setTextKeepState(player.username)
-        teamColorView.setTextKeepState(player.color)
-        positionView.setTextKeepState(player.startingPosition)
-        scoreView.setTextKeepState(player.score)
-        ratingView.setTextKeepState(if (player.rating == PlayPlayerEntity.DEFAULT_RATING) "" else player.rating.toString())
-        newView.isChecked = player.isNew
-        winView.isChecked = player.isWin
+        binding.nameView.setTextKeepState(player.name)
+        binding.usernameView.setTextKeepState(player.username)
+        binding.teamColorView.setTextKeepState(player.color)
+        binding.positionView.setTextKeepState(player.startingPosition)
+        binding.scoreView.setTextKeepState(player.score)
+        binding.ratingView.setTextKeepState(if (player.rating == PlayPlayerEntity.DEFAULT_RATING) "" else player.rating.toString())
+        binding.newView.isChecked = player.isNew
+        binding.winView.isChecked = player.isWin
     }
 
     private fun setViewVisibility() {
         val prefs = preferences()
-        teamColorContainer.isVisible = prefs.showLogPlayerTeamColor() || userHasShownTeamColor || player.color.isNotEmpty()
-        positionContainer.isVisible = !hasAutoPosition() && (prefs.showLogPlayerPosition() || userHasShownPosition || player.startingPosition.isNotEmpty())
-        scoreContainer.isVisible = prefs.showLogPlayerScore() || userHasShownScore || player.score.isNotEmpty()
-        ratingContainer.isVisible = prefs.showLogPlayerRating() || userHasShownRating || player.rating > 0
-        newView.isVisible = prefs.showLogPlayerNew() || userHasShownNew || player.isNew
-        winView.isVisible = prefs.showLogPlayerWin() || userHasShownWin || player.isWin
+        binding.teamColorContainer.isVisible = prefs.showLogPlayerTeamColor() || userHasShownTeamColor || player.color.isNotEmpty()
+        binding.positionContainer.isVisible =
+            !hasAutoPosition() && (prefs.showLogPlayerPosition() || userHasShownPosition || player.startingPosition.isNotEmpty())
+        binding.scoreContainer.isVisible = prefs.showLogPlayerScore() || userHasShownScore || player.score.isNotEmpty()
+        binding.ratingContainer.isVisible = prefs.showLogPlayerRating() || userHasShownRating || player.rating > 0
+        binding.newView.isVisible = prefs.showLogPlayerNew() || userHasShownNew || player.isNew
+        binding.winView.isVisible = prefs.showLogPlayerWin() || userHasShownWin || player.isWin
 
         val enableButton = createAddFieldArray().isNotEmpty()
-        if (enableButton) fab.show() else fab.hide()
-        fabBuffer.isVisible = enableButton
+        if (enableButton) binding.fab.show() else binding.fab.hide()
+        binding.fabBuffer.isVisible = enableButton
     }
 
     private fun hasAutoPosition(): Boolean {
@@ -232,29 +237,29 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
                 val views = when (selection) {
                     resources.getString(R.string.team_color) -> {
                         userHasShownTeamColor = true
-                        teamColorView to teamColorContainer
+                        binding.teamColorView to binding.teamColorContainer
                     }
                     resources.getString(R.string.starting_position) -> {
                         userHasShownPosition = true
-                        positionView to positionContainer
+                        binding.positionView to binding.positionContainer
                     }
                     resources.getString(R.string.score) -> {
                         userHasShownScore = true
-                        scoreView to scoreContainer
+                        binding.scoreView to binding.scoreContainer
                     }
                     resources.getString(R.string.rating) -> {
                         userHasShownRating = true
-                        ratingView to ratingContainer
+                        binding.ratingView to binding.ratingContainer
                     }
                     resources.getString(R.string.new_label) -> {
                         userHasShownNew = true
-                        newView.isChecked = true
-                        newView to newView
+                        binding.newView.isChecked = true
+                        binding.newView to binding.newView
                     }
                     resources.getString(R.string.win) -> {
                         userHasShownWin = true
-                        winView.isChecked = true
-                        winView to winView
+                        binding.winView.isChecked = true
+                        binding.winView to binding.winView
                     }
                     else -> null to null
                 }
@@ -265,19 +270,19 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
                 setViewVisibility()
                 views.first?.requestFocus()
                 views.second?.let {
-                    scrollContainer.post { scrollContainer.smoothScrollTo(0, it.bottom) }
+                    binding.scrollContainer.post { binding.scrollContainer.smoothScrollTo(0, it.bottom) }
                 }
             }.show()
     }
 
     private fun createAddFieldArray(): Array<CharSequence> {
         val list = mutableListOf<CharSequence>()
-        if (!teamColorContainer.isVisible) list.add(resources.getString(R.string.team_color))
-        if (!hasAutoPosition() && !positionContainer.isVisible) list.add(resources.getString(R.string.starting_position))
-        if (!scoreContainer.isVisible) list.add(resources.getString(R.string.score))
-        if (!ratingContainer.isVisible) list.add(resources.getString(R.string.rating))
-        if (!newView.isVisible) list.add(resources.getString(R.string.new_label))
-        if (!winView.isVisible) list.add(resources.getString(R.string.win))
+        if (!binding.teamColorContainer.isVisible) list.add(resources.getString(R.string.team_color))
+        if (!hasAutoPosition() && !binding.positionContainer.isVisible) list.add(resources.getString(R.string.starting_position))
+        if (!binding.scoreContainer.isVisible) list.add(resources.getString(R.string.score))
+        if (!binding.ratingContainer.isVisible) list.add(resources.getString(R.string.rating))
+        if (!binding.newView.isVisible) list.add(resources.getString(R.string.new_label))
+        if (!binding.winView.isVisible) list.add(resources.getString(R.string.win))
         return list.toTypedArray()
     }
 
@@ -302,14 +307,14 @@ class LogPlayerActivity : AppCompatActivity(R.layout.activity_logplayer), ColorP
 
     private fun captureForm() {
         player = player.copy(
-            name = nameView.text.toString().trim(),
-            username = usernameView.text.toString().trim(),
-            color = teamColorView.text.toString().trim(),
-            startingPosition = positionView.text.toString().trim(),
-            score = scoreView.text.toString().trim(),
-            rating = ratingView.text.toString().toDoubleOrNull() ?: 0.0,
-            isNew = newView.isChecked,
-            isWin = winView.isChecked,
+            name = binding.nameView.text.toString().trim(),
+            username = binding.usernameView.text.toString().trim(),
+            color = binding.teamColorView.text.toString().trim(),
+            startingPosition = binding.positionView.text.toString().trim(),
+            score = binding.scoreView.text.toString().trim(),
+            rating = binding.ratingView.text.toString().toDoubleOrNull() ?: 0.0,
+            isNew = binding.newView.isChecked,
+            isWin = binding.winView.isChecked,
         )
     }
 
