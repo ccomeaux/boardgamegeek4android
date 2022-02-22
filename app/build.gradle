@@ -15,8 +15,8 @@ def versionBuild = 1
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'kotlin-parcelize'
 
 repositories {
     maven { url "https://jitpack.io" }
