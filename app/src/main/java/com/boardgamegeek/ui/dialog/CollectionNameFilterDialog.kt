@@ -2,17 +2,19 @@ package com.boardgamegeek.ui.dialog
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AlertDialog.Builder
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionNameFilter
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 
 class CollectionNameFilterDialog : CollectionFilterDialog {
     lateinit var layout: View
@@ -20,38 +22,30 @@ class CollectionNameFilterDialog : CollectionFilterDialog {
     private val startsWithCheckBox: CheckBox by lazy { layout.findViewById(R.id.startsWithCheckBox) }
 
     @SuppressLint("InflateParams")
-    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_filter_name, null)
-        initializeUi(filter)
-        createAlertDialog(context, listener, layout).apply {
-            requestFocus(filterTextView)
-            show()
+    override fun createDialog(activity: FragmentActivity, filter: CollectionFilterer?) {
+        val viewModel by lazy { ViewModelProvider(activity)[CollectionViewViewModel::class.java] }
+        layout = LayoutInflater.from(activity).inflate(R.layout.dialog_collection_filter_name, null)
+        (filter as? CollectionNameFilter)?.let {
+            filterTextView.setAndSelectExistingText(it.filterText)
+            startsWithCheckBox.isChecked = it.startsWith
         }
-    }
-
-    private fun createAlertDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, layout: View): AlertDialog {
-        return Builder(context, R.style.Theme_bgglight_Dialog_Alert)
-                .setTitle(R.string.menu_collection_name)
-                .setPositiveButton(R.string.set) { _, _ ->
-                    if (listener != null) {
-                        CollectionNameFilter(context).apply {
-                            filterText = filterTextView.text.toString()
-                            startsWith = startsWithCheckBox.isChecked
-                            listener.addFilter(this)
-                        }
-                    }
-                }
-                .setNegativeButton(R.string.clear) { _, _ -> listener?.removeFilter(CollectionNameFilter(context).type) }
-                .setView(layout)
-                .create()
-    }
-
-    private fun initializeUi(filter: CollectionFilterer?) {
-        val collectionNameFilter = filter as CollectionNameFilter?
-        if (collectionNameFilter != null) {
-            filterTextView.setAndSelectExistingText(collectionNameFilter.filterText)
-            startsWithCheckBox.isChecked = collectionNameFilter.startsWith
-        }
+        activity.createThemedBuilder()
+            .setTitle(R.string.menu_collection_name)
+            .setPositiveButton(R.string.set) { _, _ ->
+                viewModel.addFilter(CollectionNameFilter(activity).apply {
+                    filterText = filterTextView.text.toString()
+                    startsWith = startsWithCheckBox.isChecked
+                })
+            }
+            .setNegativeButton(R.string.clear) { _, _ ->
+                viewModel.removeFilter(getType(activity))
+            }
+            .setView(layout)
+            .create()
+            .apply {
+                requestFocus(filterTextView)
+                show()
+            }
     }
 
     override fun getType(context: Context): Int {

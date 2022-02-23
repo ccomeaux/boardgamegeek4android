@@ -32,7 +32,6 @@ import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
 import com.boardgamegeek.ui.dialog.*
-import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListener
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.boardgamegeek.util.HttpUtils.encodeForUrl
@@ -43,7 +42,7 @@ import com.google.firebase.ktx.Firebase
 import timber.log.Timber
 import java.text.NumberFormat
 
-class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListener {
+class CollectionFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
     private var viewId = CollectionView.DEFAULT_DEFAULT_ID
@@ -147,8 +146,11 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
         viewModel.items.observe(viewLifecycleOwner) {
             it?.let { showData(it) }
         }
+        viewModel.isFiltering.observe(viewLifecycleOwner) {
+            it?.let { if (it) binding.progressBar.show() else binding.progressBar.hide() }
+        }
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
-            binding.swipeRefreshLayout.isRefreshing = it
+            it?.let { binding.swipeRefreshLayout.isRefreshing = it }
         }
         viewModel.refresh()
     }
@@ -235,23 +237,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
         requireActivity().share(getString(R.string.share_collection_subject, fullName, username), text, R.string.title_share_collection)
     }
 
-    override fun removeFilter(type: Int) {
-        binding.progressBar.show()
-        viewModel.removeFilter(type)
-    }
-
-    override fun addFilter(filter: CollectionFilterer) {
-        binding.progressBar.show()
-        viewModel.addFilter(filter)
-        firebaseAnalytics.logEvent(
-            "Filter",
-            bundleOf(
-                FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
-                "FilterBy" to filter.type.toString()
-            )
-        )
-    }
-
     private fun setEmptyText() {
         val syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty()
         if (syncedStatuses.isEmpty()) {
@@ -291,7 +276,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
                     text = filter.toShortDescription()
                     setOnClickListener { launchFilterDialog(filter.type) }
                     setOnLongClickListener {
-                        removeFilter(filter.type)
+                        viewModel.removeFilter(filter.type)
                         true
                     }
                 })
@@ -311,7 +296,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback, OnFilterChangedListe
     fun launchFilterDialog(filterType: Int): Boolean {
         val dialog = CollectionFilterDialogFactory().create(requireContext(), filterType)
         return if (dialog != null) {
-            dialog.createDialog(requireContext(), this, filters.firstOrNull { it.type == filterType })
+            dialog.createDialog(requireActivity(), filters.firstOrNull { it.type == filterType })
             true
         } else {
             Timber.w("Couldn't find a filter dialog of type %s", filterType)

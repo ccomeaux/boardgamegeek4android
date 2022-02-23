@@ -4,11 +4,14 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogSliderFilterBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.filterer.CollectionFilterer
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.slider.RangeSlider
 import kotlin.math.roundToInt
 
@@ -44,8 +47,9 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
     protected abstract val valueTo: Float
     protected open val stepSize = 1.0f
 
-    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {
-        _binding = DialogSliderFilterBinding.inflate(LayoutInflater.from(context), null, false)
+    override fun createDialog(activity: FragmentActivity, filter: CollectionFilterer?) {
+        val viewModel by lazy { ViewModelProvider(activity)[CollectionViewViewModel::class.java] }
+        _binding = DialogSliderFilterBinding.inflate(LayoutInflater.from(activity), null, false)
 
         initValues(filter).apply {
             low = min.coerceIn(valueFrom, valueTo)
@@ -61,13 +65,13 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             values = if (low == high && supportsSlider) listOf(low) else listOf(low, high)
 
             setLabelFormatter { value ->
-                return@setLabelFormatter formatSliderLabel(context, value)
+                return@setLabelFormatter formatSliderLabel(activity, value)
             }
 
             addOnChangeListener(RangeSlider.OnChangeListener { slider, _, _ ->
                 low = slider.values.first()
                 high = slider.values.last()
-                binding.displayTextView.text = describeRange(context)
+                binding.displayTextView.text = describeRange(activity)
             })
         }
 
@@ -171,21 +175,23 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             }
         }
 
-        binding.displayTextView.text = describeRange(context)
+        binding.displayTextView.text = describeRange(activity)
 
-        val builder = AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
+        activity.createThemedBuilder()
             .setTitle(titleResId)
-            .setNegativeButton(R.string.clear) { _, _ -> listener?.removeFilter(getType(context)) }
+            .setNegativeButton(R.string.clear) { _, _ ->
+                viewModel.removeFilter(getType(activity))
+            }
             .setPositiveButton(R.string.set) { _, _ ->
                 if (binding.rangeRadioButton.isChecked && low == valueFrom && high == valueTo && !binding.checkBox.isChecked) {
-                    listener?.removeFilter(getType(context))
+                    viewModel.removeFilter(getType(activity))
                 } else {
-                    listener?.addFilter(createFilterer(context))
+                    viewModel.addFilter(createFilterer(activity))
                 }
             }
             .setView(binding.root)
-
-        builder.create().show()
+            .create()
+            .show()
     }
 
     enum class RangeType {

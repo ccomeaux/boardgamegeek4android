@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
@@ -19,12 +20,14 @@ import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionActivity
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
+    private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val viewRepository = CollectionViewRepository(getApplication())
     private val itemRepository = CollectionItemRepository(getApplication())
     private val playRepository = PlayRepository(getApplication())
@@ -72,6 +75,10 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     private val _errorMessage = MediatorLiveData<Event<String>>()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
+
+    private val _isFiltering = MediatorLiveData<Boolean>()
+    val isFiltering: LiveData<Boolean>
+        get() = _isFiltering
 
     private val _isRefreshing = MediatorLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean>
@@ -147,6 +154,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
 
     fun selectView(viewId: Long) {
         if (_selectedViewId.value != viewId) {
+            _isFiltering.postValue(true)
             viewModelScope.launch { viewRepository.updateShortcuts(viewId) }
             _selectedViewId.value = viewId
         }
@@ -159,11 +167,15 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             CollectionSorterFactory.TYPE_UNKNOWN -> CollectionSorterFactory.TYPE_DEFAULT
             else -> sortType
         }
-        if (_sortType.value != type) _sortType.value = type
+        if (_sortType.value != type) {
+            _isFiltering.postValue(true)
+            _sortType.value = type
+        }
     }
 
     fun addFilter(filter: CollectionFilterer) {
         viewModelScope.launch(Dispatchers.Default) {
+            _isFiltering.postValue(true)
             if (filter.isValid) {
                 val removedFilters = _removedFilterTypes.value.orEmpty().toMutableList()
                 if (removedFilters.remove(filter.type)) {
@@ -175,6 +187,13 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                     remove(filter)
                     add(filter)
                 }
+                firebaseAnalytics.logEvent(
+                    "Filter",
+                    bundleOf(
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
+                        "FilterBy" to filter.type.toString()
+                    )
+                )
                 _addedFilters.postValue(filters)
             }
         }
@@ -182,6 +201,8 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
 
     fun removeFilter(type: Int) {
         viewModelScope.launch(Dispatchers.Default) {
+            _isFiltering.postValue(true)
+
             val filters = _addedFilters.value.orEmpty().toMutableList()
             filters.find { it.type == type }?.let {
                 if (filters.remove(it)) {
