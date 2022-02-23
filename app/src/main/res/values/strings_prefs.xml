@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--suppress CheckTagEmptyBody -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
 	<string name="pref_log">Logging plays</string>
 	<string name="pref_log_summary">Options to record plays</string>
@@ -36,7 +36,7 @@
 	<string name="pref_sync_group_how">How</string>
 	<string name="pref_sync_group_tasks">Tasks</string>
 	<string name="pref_sync_statuses">Collection</string>
-	<string name="pref_sync_buddies">GeekBuddies</string>
+	<string name="pref_sync_buddies" tools:ignore="MissingTranslation">GeekBuddies</string>
 	<string name="pref_sync_plays">Plays</string>
 	<string name="pref_sync_upload">Show upload notifications</string>
 	<string name="pref_sync_notifications">Show progress notifications</string>

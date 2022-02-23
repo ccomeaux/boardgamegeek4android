@@ -510,6 +510,7 @@ public class XmlApiMarkupConverter {
 			this.displayPrefix = displayPrefix;
 		}
 
+		@SuppressWarnings("SameParameterValue")
 		static GeekLinkReplacer createAlpha(String path) {
 			return new GeekLinkReplacer("\\[" + path + "=(.*?)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path + "/", path);
 		}

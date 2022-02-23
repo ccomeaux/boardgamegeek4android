@@ -12,7 +12,7 @@
 		android:layout_margin="@dimen/padding_extra"
 		android:hint="@string/comments"
 		android:minHeight="@dimen/edit_row_height"
-		app:layout_constraintBottom_toTopOf="@+id/nextButton"
+		app:layout_constraintBottom_toTopOf="@+id/doneButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"

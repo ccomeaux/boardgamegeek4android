@@ -113,11 +113,6 @@
 	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Wyczyścić kolory?</string>
 	<string name="msg_clear_colors">Chcesz wyczyścić bieżące kolory przed przypisaniem nowych?</string>
-	<string name="msg_color_error_no_players">Nie ma graczy, którzy potrzebują koloru.</string>
-	<string name="msg_color_error_duplicate_player">Nie można przypisac koloru jeśli gracz jest wypisany dwukrotnie.</string>
-	<string name="msg_color_error_missing_player_name">Nie można przypisać kolorów jeśli gracz nie ma nazwy użytkownika ani innej unikatowej nazwy.</string>
-	<string name="msg_color_error_something_changed">Coś poszło okropnie, okropnie źle.</string>
-	<string name="msg_color_error_too_few_colors">Nie ma wystarczająco dużo kolorów.</string>
 	<string name="msg_color_success">Ty masz kolor i ty masz kolor. Każdy ma kolor!</string>
 	<string name="msg_fragment_error">Nie powinieneś zobaczyć tego komunikatu. Jeśli go widzisz wyślij proszę zrzut ekranu na bgg4android@gmail.com. Dzięki!</string>
 	<string name="are_you_sure_title">Na pewno?</string>
@@ -438,7 +433,6 @@
 	<string name="msg_play_location_change">Zmieniono lokalizację z \"%1$s\" na \"%2$s\"</string>
 	<string name="msg_play_sync">Obecnie nie synchronizujesz swoich rozgrywek. Włączyć tę funkcję?</string>
 	<string name="msg_collection_view_deleted">Pomyślnie usunięto widok kolekcji \"%1$s\"</string>
-	<string name="msg_saved">Zapisano!</string>
 	<string name="msg_sign_out_success">Pomyślnie wylogowano!</string>
 	<string name="msg_warning_private_info">Uwaga! Jakiekolwiek zmiany tutaj spowodują usunięcie daty inwentarza.</string>
 	<string name="title_share">Udostępnij</string>
@@ -538,7 +532,6 @@
 	<string name="help_collection_save">- Zapisać jako widok wybranego sposobu sortowania i filtrowania</string>
 	<string name="help_collection_random">- Wybrać losowej gry spośród widocznych po przefiltorwaniu</string>
 	<string name="help_collection_long_click">- Możesz również dotknąć i przytrzymać grę, aby uzyskać więcej opcji</string>
-	<string name="help_searchresults">Dotknij i przytrzymaj grę, aby uzyskać więcej opcji.</string>
 	<string name="help_logplayer">Podczas dodawania gracza zostanie automatycznie dodany kolejny gracz dopóki nie wyjdziesz z tego ekranu.\n\nZa dużo pól? Sprawdź w ustawienich jak skofigurować ten formularz.</string>
 	<string name="help_thread">Brakuje obrazów? Kliknij ikonę w nagłówku artykułu, aby zobaczyć cały artykuł.</string>
 	<string name="last_modified_prefix">Ostatnia modyfikacja %s</string>
