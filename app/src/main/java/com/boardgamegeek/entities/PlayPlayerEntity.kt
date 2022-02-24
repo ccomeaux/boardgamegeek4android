@@ -2,8 +2,8 @@ package com.boardgamegeek.entities
 
 import android.os.Parcelable
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util.*
