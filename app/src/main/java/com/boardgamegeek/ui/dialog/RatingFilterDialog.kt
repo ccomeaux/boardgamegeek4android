@@ -21,6 +21,7 @@ abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
             ((f?.min ?: RatingFilterer.lowerBound)).toFloat(),
             ((f?.max ?: RatingFilterer.upperBound)).toFloat(),
             f?.includeUndefined ?: false,
+            f?.ignoreRange ?: false
         )
     }
 
@@ -29,6 +30,7 @@ abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
             min = low.round()
             max = high.round()
             includeUndefined = checkboxIsChecked
+            ignoreRange = rangeIsIgnored
         }
     }
 

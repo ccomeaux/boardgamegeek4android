@@ -21,6 +21,7 @@ class AverageWeightFilterDialog : SliderFilterDialog() {
             (f?.min ?: AverageWeightFilterer.lowerBound).toFloat(),
             (f?.max ?: AverageWeightFilterer.upperBound).toFloat(),
             f?.includeUndefined ?: false,
+            f?.ignoreRange ?: false,
         )
     }
 

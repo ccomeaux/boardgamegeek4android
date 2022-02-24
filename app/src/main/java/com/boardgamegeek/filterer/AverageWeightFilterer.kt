@@ -11,27 +11,31 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     var min by DoubleIntervalDelegate(lowerBound, lowerBound, upperBound)
     var max by DoubleIntervalDelegate(upperBound, lowerBound, upperBound)
     var includeUndefined = false
-    var ignoreRange = false // deprecated
+    var ignoreRange = false
 
     override val typeResourceId = R.string.collection_filter_type_average_weight
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER)
-        min = d.getOrNull(0)?.toDoubleOrNull() ?: lowerBound
-        max = d.getOrNull(1)?.toDoubleOrNull() ?: upperBound
-        includeUndefined = d.getOrNull(2) == "1"
+        data.split(DELIMITER).run {
+            min = getOrNull(0)?.toDoubleOrNull() ?: lowerBound
+            max = getOrNull(1)?.toDoubleOrNull() ?: upperBound
+            includeUndefined = getOrNull(2) == "1"
+            ignoreRange = getOrNull(3) == "1"
+        }
     }
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
-    override fun toShortDescription() = describe(R.string.weight, R.string.undefined_abbr)
+    override fun toShortDescription() = describe(R.string.weight, R.string.undefined_weight_abbr)
 
     override fun toLongDescription() = describe(R.string.average_weight, R.string.undefined)
 
     private fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
-        var text = describeRange()
-        if (includeUndefined) text += " (+${context.getString(unratedResId)})"
-        return "${context.getString(prefixResId)} $text"
+        return "${context.getString(prefixResId)} " + when {
+            ignoreRange && includeUndefined -> context.getString(unratedResId)
+            includeUndefined -> "${describeRange()} (+${context.getString(unratedResId)})"
+            else -> describeRange()
+        }
     }
 
     fun describeRange(rangeDelimiter: String = "-") = when {

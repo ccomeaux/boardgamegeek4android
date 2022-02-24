@@ -16,9 +16,10 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_year_published
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER)
-        min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
-        max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
+        data.split(DELIMITER).run {
+            min = getOrNull(0)?.toIntOrNull() ?: lowerBound
+            max = getOrNull(1)?.toIntOrNull() ?: upperBound
+        }
     }
 
     override fun deflate() = "$min$DELIMITER$max"

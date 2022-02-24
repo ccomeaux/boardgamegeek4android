@@ -20,6 +20,7 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
             (f?.min ?: SuggestedAgeFilterer.lowerBound).toFloat(),
             (f?.max ?: SuggestedAgeFilterer.upperBound).toFloat(),
             f?.includeUndefined ?: false,
+            f?.ignoreRange ?: false,
         )
     }
 
@@ -28,6 +29,7 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
             min = low.roundToInt()
             max = high.roundToInt()
             includeUndefined = checkboxIsChecked
+            ignoreRange = rangeIsIgnored
         }
     }
 

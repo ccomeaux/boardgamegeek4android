@@ -11,17 +11,20 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
     var min by IntervalDelegate(lowerBound, lowerBound, upperBound)
     var max by IntervalDelegate(upperBound, lowerBound, upperBound)
     var includeUndefined = false
+    var ignoreRange = false
 
     override val typeResourceId = R.string.collection_filter_type_suggested_age
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER)
-        min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
-        max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
-        includeUndefined = d.getOrNull(2) == "1"
+        data.split(DELIMITER).run {
+            min = getOrNull(0)?.toIntOrNull() ?: lowerBound
+            max = getOrNull(1)?.toIntOrNull() ?: upperBound
+            includeUndefined = getOrNull(2) == "1"
+            ignoreRange = getOrNull(3) == "1"
+        }
     }
 
-    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
+    override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
     override fun toShortDescription() = describe(R.string.and_up_suffix_abbr, R.string.unknown_abbr)
 
@@ -29,12 +32,16 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
 
     private fun describe(@StringRes andUpResId: Int = R.string.and_up_suffix_abbr, @StringRes unknownResId: Int = R.string.unknown_abbr): String {
         val range = describeRange(andUpResId)
-        val unknown = if (includeUndefined) " (+${context.getString(unknownResId)})" else ""
-        return "${context.getString(R.string.ages)} $range$unknown"
+        return "${context.getString(R.string.ages)} " + when {
+            ignoreRange && includeUndefined -> context.getString(unknownResId)
+            includeUndefined -> "$range (+${context.getString(unknownResId)})"
+            else -> range
+        }
     }
 
     fun describeRange(@StringRes andUpResId: Int = R.string.and_up_suffix_abbr, rangeSeparator: String = "-"): String {
         val range = when {
+            ignoreRange -> ""
             max == upperBound -> context.getString(andUpResId, min)
             min == max -> String.format(Locale.getDefault(), "%,d", max)
             else -> String.format(Locale.getDefault(), "%,d$rangeSeparator%,d", min, max)
@@ -44,10 +51,10 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun filter(item: CollectionItemEntity): Boolean {
         return when {
-            includeUndefined -> item.minimumAge == 0 // TODO also return the else branch
+            ignoreRange -> false
             max == upperBound -> item.minimumAge >= min
             else -> item.minimumAge in min..max
-        }
+        } || if (includeUndefined) item.minimumAge == 0 else false
     }
 
     companion object {

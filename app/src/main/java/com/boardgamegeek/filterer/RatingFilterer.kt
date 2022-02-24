@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.extensions.DoubleIntervalDelegate
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
+import com.boardgamegeek.extensions.asPersonalRating
 import java.util.*
 
 abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
@@ -16,17 +17,18 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
     abstract val columnName: String
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER)
-        min = d.getOrNull(0)?.toDoubleOrNull() ?: lowerBound
-        max = d.getOrNull(1)?.toDoubleOrNull() ?: upperBound
-        includeUndefined = d.getOrNull(2) == "1"
-        ignoreRange = d.getOrNull(3) == "1"
+        data.split(DELIMITER).run {
+            min = getOrNull(0)?.toDoubleOrNull() ?: lowerBound
+            max = getOrNull(1)?.toDoubleOrNull() ?: upperBound
+            includeUndefined = getOrNull(2) == "1"
+            ignoreRange = getOrNull(3) == "1"
+        }
     }
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
     protected fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
-        var text = when {
+        val range = when {
             ignoreRange -> ""
             max == lowerBound -> formatRating(max)
             min == upperBound -> formatRating(min)
@@ -35,11 +37,14 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
             min == max -> formatRating(max)
             else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
         }
-        if (includeUndefined) text += " (+${context.getString(unratedResId)})"
-        return context.getString(prefixResId) + " " + text
+        return "${context.getString(prefixResId)} " + when {
+            ignoreRange && includeUndefined -> context.getString(unratedResId)
+            includeUndefined -> "$range (+${context.getString(unratedResId)})"
+            else -> range
+        }
     }
 
-    private fun formatRating(rating: Double) = String.format(Locale.getDefault(), "%.1f", rating) // TODO .asRating()
+    private fun formatRating(rating: Double) = rating.asPersonalRating(context)
 
     fun filter(rating: Double): Boolean {
         return when {

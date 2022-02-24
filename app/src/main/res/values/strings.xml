@@ -544,9 +544,9 @@
 	<string name="generic_player">Player #%,d</string>
 	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
-	<string name="unrated_abbr">\?</string>
+	<string name="unrated_abbr" translatable="false">\?.\?</string>
 	<string name="undefined">Undefined</string>
-	<string name="undefined_abbr">\?</string>
+	<string name="undefined_weight_abbr" translatable="false">\?.\?</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…and %,d more</string>

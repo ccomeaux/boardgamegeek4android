@@ -270,7 +270,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private fun bindFilterButtons() {
         binding.chipGroup.removeAllViews()
         for (filter in filters) {
-            if (filter.toShortDescription().isNotEmpty()) {
+            if (filter.isValid) {
                 binding.chipGroup.addView(Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter).apply {
                     layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     text = filter.toShortDescription()
