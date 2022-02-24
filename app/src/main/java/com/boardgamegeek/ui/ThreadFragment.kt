@@ -81,7 +81,7 @@ class ThreadFragment : Fragment() {
                 when (status) {
                     Status.REFRESHING -> binding.progressView.show()
                     Status.ERROR -> {
-                        binding.emptyView.text = it.message.ifEmpty { getString(R.string.empty_thread) }
+                        binding.emptyView.text = message.ifEmpty { getString(R.string.empty_thread) }
                         binding.emptyView.isVisible = true
                         binding.recyclerView.isVisible = false
                         binding.progressView.hide()
