@@ -18,7 +18,7 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$filterText$DELIMITER${if (startsWith) "1" else "0"}"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_action_info_light // TODO find a better icon
+        get() = R.drawable.ic_baseline_format_quote_24
 
     override fun chipText() = if (startsWith) "$filterText*" else "*$filterText*"
 

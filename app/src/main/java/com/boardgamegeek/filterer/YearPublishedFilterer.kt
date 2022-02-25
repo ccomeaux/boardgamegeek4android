@@ -16,7 +16,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_year_published
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_calendar
+        get() = R.drawable.ic_baseline_calendar_today_24
 
     override fun inflate(data: String) {
         data.split(DELIMITER).run {

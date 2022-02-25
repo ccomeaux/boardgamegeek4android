@@ -26,7 +26,7 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_time
+        get() = R.drawable.ic_baseline_schedule_24
 
     override fun chipText() = describe(R.string.unknown_abbr)
 

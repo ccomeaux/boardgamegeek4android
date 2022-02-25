@@ -11,11 +11,11 @@ class MyRatingFilterer(context: Context) : RatingFilterer(context) {
     override val columnName = Collection.Columns.RATING
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_rating
+        get() = R.drawable.ic_baseline_star_rate_24
 
-    override fun chipText() = describe(R.string.my_rating_abbr, R.string.unrated_abbr)
+    override fun chipText() = describe(R.string.unrated_abbr)
 
-    override fun description() = describe(R.string.my_rating, R.string.unrated)
+    override fun description() = describe(R.string.unrated, R.string.my_rating)
 
     override fun filter(item: CollectionItemEntity) = filter(item.rating)
 }

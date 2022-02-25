@@ -23,7 +23,7 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_collection
+        get() = R.drawable.ic_baseline_library_books_24
 
     override fun chipText(): String {
         val entries = context.resources.getStringArray(R.array.collection_status_filter_entries)

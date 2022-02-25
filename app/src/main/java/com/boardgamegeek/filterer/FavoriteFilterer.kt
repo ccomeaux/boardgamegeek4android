@@ -16,7 +16,7 @@ class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = if (isFavorite) FAVORITE else NOT_FAVORITE
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_favorite
+        get() = R.drawable.ic_baseline_favorite_24
 
     override fun chipText() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)
 

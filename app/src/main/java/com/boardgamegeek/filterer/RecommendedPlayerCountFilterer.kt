@@ -20,7 +20,7 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
     override fun deflate() = "$playerCount$DELIMITER$recommendation"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_users
+        get() = R.drawable.ic_baseline_group_24
 
     override fun chipText(): String {
         return context.getString(R.string.recommended_player_count_description_abbr,

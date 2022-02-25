@@ -27,7 +27,7 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_ages
+        get() = R.drawable.ic_baseline_supervisor_account_24
 
     override fun chipText(): String {
         val range = describeRange(R.string.and_up_suffix_abbr)

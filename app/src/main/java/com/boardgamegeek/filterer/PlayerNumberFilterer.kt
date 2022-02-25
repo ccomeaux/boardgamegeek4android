@@ -23,7 +23,7 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (isExact) "1" else "0"}"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_users
+        get() = R.drawable.ic_baseline_group_24
 
     override fun chipText(): String {
         return "${if (isExact) "${context.getString(R.string.exactly)} " else ""}${describeRange()}"

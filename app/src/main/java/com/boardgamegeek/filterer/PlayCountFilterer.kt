@@ -22,7 +22,7 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_log_play
+        get() = R.drawable.ic_baseline_event_available_24
 
     override fun chipText(): String {
         return describeRange()

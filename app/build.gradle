@@ -66,11 +66,7 @@ android {
         buildConfigField 'String', 'GIT_SHA', "\"${gitSha()}\""
         buildConfigField 'String', 'GIT_BRANCH', "\"${gitBranchName()}\""
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [eventBusIndex: 'com.boardgamegeek.events.BggEventBusIndex']
-            }
-        }
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {

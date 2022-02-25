@@ -16,7 +16,7 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = selectedSubtype.toString()
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_expansions
+        get() = R.drawable.ic_baseline_flip_to_back_24
 
     override fun chipText() = getFromArray(R.array.expansion_status_filter)
 

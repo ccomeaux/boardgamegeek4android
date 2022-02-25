@@ -26,7 +26,7 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_weight
+        get() = R.drawable.ic_baseline_scale_24
 
     override fun chipText(): String {
         return when {

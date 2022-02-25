@@ -27,7 +27,7 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
-    protected fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
+    protected fun describe(@StringRes unratedResId: Int, @StringRes prefixResId: Int = -1): String {
         val range = when {
             ignoreRange -> ""
             max == lowerBound -> formatRating(max)
@@ -37,7 +37,8 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
             min == max -> formatRating(max)
             else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
         }
-        return "${context.getString(prefixResId)} " + when {
+        val prefix = if (prefixResId == -1) "" else "${context.getString(prefixResId)} "
+        return prefix + when {
             ignoreRange && includeUndefined -> context.getString(unratedResId)
             includeUndefined -> "$range (+${context.getString(unratedResId)})"
             else -> range

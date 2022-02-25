@@ -25,7 +25,7 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUnranked) "1" else "0"}"
 
     override val iconResourceId: Int
-        get() = R.drawable.ic_score
+        get() = R.drawable.ic_baseline_emoji_events_24
 
     override fun chipText() = describe(R.string.unranked_abbr)
 
