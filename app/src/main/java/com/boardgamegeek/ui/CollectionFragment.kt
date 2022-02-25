@@ -4,12 +4,15 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
 import android.widget.LinearLayout
 import androidx.annotation.StringRes
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -273,7 +276,11 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             if (filter.isValid) {
                 binding.chipGroup.addView(Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter).apply {
                     layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    text = filter.toShortDescription()
+                    text = filter.chipText()
+                    if (filter.iconResourceId != CollectionFilterer.INVALID_ICON) {
+                        chipIcon = AppCompatResources.getDrawable(requireContext(), filter.iconResourceId)
+                        chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+                    }
                     setOnClickListener { launchFilterDialog(filter.type) }
                     setOnLongClickListener {
                         viewModel.removeFilter(filter.type)
@@ -499,7 +506,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))
-            filters.map { "\n\u2022 ${it.toLongDescription()}" }.forEach { text.append(it) }
+            filters.map { "\n\u2022 ${it.description()}" }.forEach { text.append(it) }
         }
         text.append("\n\n")
         sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }

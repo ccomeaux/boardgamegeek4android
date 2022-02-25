@@ -10,9 +10,12 @@ class AverageRatingFilterer(context: Context) : RatingFilterer(context) {
 
     override val columnName = Games.Columns.STATS_AVERAGE
 
-    override fun toShortDescription() = describe(R.string.average_rating_abbr, R.string.unrated_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_rating // TODO use a half-star
 
-    override fun toLongDescription() = describe(R.string.average_rating, R.string.unrated)
+    override fun chipText() = describe(R.string.average_rating_abbr, R.string.unrated_abbr)
+
+    override fun description() = describe(R.string.average_rating, R.string.unrated)
 
     override fun filter(item: CollectionItemEntity) = filter(item.averageRating)
 }

@@ -26,15 +26,23 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
-    override fun toShortDescription() = describe(R.string.and_up_suffix_abbr, R.string.unknown_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_ages
 
-    override fun toLongDescription() = describe(R.string.and_up_suffix, R.string.unknown)
+    override fun chipText(): String {
+        val range = describeRange(R.string.and_up_suffix_abbr)
+        return when {
+            ignoreRange && includeUndefined -> context.getString(R.string.unknown_abbr)
+            includeUndefined -> "$range (+${context.getString(R.string.unknown_abbr)})"
+            else -> range
+        }
+    }
 
-    private fun describe(@StringRes andUpResId: Int = R.string.and_up_suffix_abbr, @StringRes unknownResId: Int = R.string.unknown_abbr): String {
-        val range = describeRange(andUpResId)
+    override fun description(): String {
+        val range = describeRange(R.string.and_up_suffix_abbr)
         return "${context.getString(R.string.ages)} " + when {
-            ignoreRange && includeUndefined -> context.getString(unknownResId)
-            includeUndefined -> "$range (+${context.getString(unknownResId)})"
+            ignoreRange && includeUndefined -> context.getString(R.string.unknown_abbr)
+            includeUndefined -> "$range (+${context.getString(R.string.unknown_abbr)})"
             else -> range
         }
     }

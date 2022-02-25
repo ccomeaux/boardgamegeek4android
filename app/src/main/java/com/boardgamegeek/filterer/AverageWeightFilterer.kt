@@ -1,7 +1,6 @@
 package com.boardgamegeek.filterer
 
 import android.content.Context
-import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.DoubleIntervalDelegate
@@ -26,16 +25,21 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}$DELIMITER${if (ignoreRange) "1" else "0"}"
 
-    override fun toShortDescription() = describe(R.string.weight, R.string.undefined_weight_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_weight
 
-    override fun toLongDescription() = describe(R.string.average_weight, R.string.undefined)
-
-    private fun describe(@StringRes prefixResId: Int, @StringRes unratedResId: Int): String {
-        return "${context.getString(prefixResId)} " + when {
-            ignoreRange && includeUndefined -> context.getString(unratedResId)
-            includeUndefined -> "${describeRange()} (+${context.getString(unratedResId)})"
+    override fun chipText(): String {
+        return when {
+            ignoreRange && includeUndefined -> context.getString(R.string.undefined_weight_abbr)
+            includeUndefined -> "${describeRange()} (+${context.getString(R.string.undefined_weight_abbr)})"
             else -> describeRange()
         }
+    }
+
+    override fun description() = "${context.getString(R.string.average_weight)} " + when {
+        ignoreRange && includeUndefined -> context.getString(R.string.undefined)
+        includeUndefined -> "${describeRange()} (+${context.getString(R.string.undefined)})"
+        else -> describeRange()
     }
 
     fun describeRange(rangeDelimiter: String = "-") = when {

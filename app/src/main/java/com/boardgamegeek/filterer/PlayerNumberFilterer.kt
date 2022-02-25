@@ -22,9 +22,15 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (isExact) "1" else "0"}"
 
-    override fun toShortDescription(): String {
-        val prefix = if (isExact) context.getString(R.string.exactly) + " " else ""
-        return "$prefix${describeRange()} ${context.getString(R.string.players)}"
+    override val iconResourceId: Int
+        get() = R.drawable.ic_users
+
+    override fun chipText(): String {
+        return "${if (isExact) "${context.getString(R.string.exactly)} " else ""}${describeRange()}"
+    }
+
+    override fun description(): String {
+        return "${chipText()} ${context.getString(R.string.players)}"
     }
 
     fun describeRange(rangeDelimiter: String = "-") = when (min) {

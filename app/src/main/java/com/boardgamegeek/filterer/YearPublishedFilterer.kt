@@ -15,6 +15,9 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
 
     override val typeResourceId = R.string.collection_filter_type_year_published
 
+    override val iconResourceId: Int
+        get() = R.drawable.ic_calendar
+
     override fun inflate(data: String) {
         data.split(DELIMITER).run {
             min = getOrNull(0)?.toIntOrNull() ?: lowerBound
@@ -24,7 +27,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max"
 
-    override fun toShortDescription(): String {
+    override fun chipText(): String {
         return when {
             min == lowerBound && max == upperBound -> ""
             min == lowerBound -> max.toString().andLess()
@@ -34,18 +37,18 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
         }
     }
 
-    override fun toLongDescription(): String {
+    override fun description(): String {
         @StringRes val prepositionResId: Int
         val year: String
         when {
             min == lowerBound && max == upperBound -> return ""
             min == lowerBound -> {
                 prepositionResId = R.string.before
-                year = (max + 1).toString()
+                year = max.toString()
             }
             max == upperBound -> {
                 prepositionResId = R.string.after
-                year = (min - 1).toString()
+                year = min.toString()
             }
             min == max -> {
                 prepositionResId = R.string.`in`
@@ -53,7 +56,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
             }
             else -> {
                 prepositionResId = R.string.`in`
-                year = "$min-$max"
+                year = "$min - $max"
             }
         }
         return context.getString(R.string.published_prefix, context.getString(prepositionResId), year)

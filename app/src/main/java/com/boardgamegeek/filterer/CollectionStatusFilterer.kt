@@ -6,46 +6,42 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.joinTo
 
 class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
-    var selectedStatuses: BooleanArray = BooleanArray(0)
-    var shouldJoinWithOr: Boolean = false
+    var shouldJoinWithOr = false
+    var selectedStatuses = BooleanArray(0)
 
     override val typeResourceId = R.string.collection_filter_type_collection_status
 
     override fun inflate(data: String) {
-        val d = data.split(DELIMITER)
-        shouldJoinWithOr = d.getOrNull(0) == "1"
-        val ss = BooleanArray(d.size - 1)
-        for (i in 0 until d.size - 1) {
-            ss[i] = d[i + 1] == "1"
-        }
-        selectedStatuses = ss
+        shouldJoinWithOr = data.substringBefore(DELIMITER, "0") == "1"
+        selectedStatuses = data.substringAfter(DELIMITER).split(DELIMITER).map { it == "1" }.toBooleanArray()
     }
 
     override fun deflate(): String {
-        val sb = StringBuilder(if (shouldJoinWithOr) "1" else "0")
-        selectedStatuses.forEach { selected ->
-            sb.append(DELIMITER).append(if (selected) "1" else "0")
-        }
-        return sb.toString()
+        return if (shouldJoinWithOr) "1" else "0" +
+                DELIMITER +
+                selectedStatuses.map { if (it) "1" else "0" }.joinTo(DELIMITER)
     }
 
-    override fun toShortDescription(): String {
+    override val iconResourceId: Int
+        get() = R.drawable.ic_collection
+
+    override fun chipText(): String {
         val entries = context.resources.getStringArray(R.array.collection_status_filter_entries)
-        val selectedEntries = mutableListOf<String>()
-        selectedStatuses.indices
-                .filter { selectedStatuses[it] }
-                .mapTo(selectedEntries) { entries[it] }
-        return selectedEntries.joinTo(if (shouldJoinWithOr) " | " else " & ").toString()
+        return selectedStatuses.indices
+            .filter { selectedStatuses[it] }
+            .map { entries[it] }
+            .joinTo(if (shouldJoinWithOr) " | " else " & ")
+            .toString()
     }
 
-    override fun toLongDescription(): String {
-        return context.getString(R.string.status_of_prefix, toShortDescription())
+    override fun description(): String {
+        return context.getString(R.string.status_of_prefix, chipText())
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {
         val statuses = selectedStatuses.indices.filter { selectedStatuses[it] }
 
-         if (shouldJoinWithOr) {
+        if (shouldJoinWithOr) {
             statuses.forEach {
                 when (it) {
                     own -> if (item.own) return true
@@ -83,8 +79,8 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         val selectedStatusesSet = hashSetOf<String>()
         val values = context.resources.getStringArray(R.array.pref_sync_status_values)
         selectedStatuses.indices
-                .filter { selectedStatuses[it] }
-                .mapTo(selectedStatusesSet) { values[it] }
+            .filter { selectedStatuses[it] }
+            .mapTo(selectedStatusesSet) { values[it] }
         return selectedStatusesSet
     }
 

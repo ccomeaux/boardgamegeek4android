@@ -15,7 +15,10 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = selectedSubtype.toString()
 
-    override fun toShortDescription() = getFromArray(R.array.expansion_status_filter)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_expansions
+
+    override fun chipText() = getFromArray(R.array.expansion_status_filter)
 
     override fun filter(item: CollectionItemEntity): Boolean {
         val value = getFromArray(R.array.expansion_status_filter_values)
@@ -23,7 +26,7 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     private fun getFromArray(resId: Int): String {
-        return context.resources.getStringArray(resId).getOrNull(selectedSubtype) ?: ""
+        return context.resources.getStringArray(resId).getOrNull(selectedSubtype).orEmpty()
     }
 
     companion object {

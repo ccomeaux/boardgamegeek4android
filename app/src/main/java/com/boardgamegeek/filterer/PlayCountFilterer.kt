@@ -21,8 +21,15 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max"
 
-    override fun toShortDescription(): String {
-        return "${describeRange()} ${context.getString(R.string.plays)}"
+    override val iconResourceId: Int
+        get() = R.drawable.ic_log_play
+
+    override fun chipText(): String {
+        return describeRange()
+    }
+
+    override fun description(): String {
+        return "${describeRange(" - ")} ${context.getString(R.string.plays)}"
     }
 
     fun describeRange(rangeDelimiter: String = "-") = when {

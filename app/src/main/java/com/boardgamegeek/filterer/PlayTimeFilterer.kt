@@ -25,9 +25,12 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
-    override fun toShortDescription() = describe(R.string.unknown_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_time
 
-    override fun toLongDescription() = describe(R.string.unknown)
+    override fun chipText() = describe(R.string.unknown_abbr)
+
+    override fun description() = "${context.getString(R.string.title_play_time)} ${describe(R.string.unknown)}"
 
     private fun describe(@StringRes unknownResId: Int): String {
         val range = describeRange()

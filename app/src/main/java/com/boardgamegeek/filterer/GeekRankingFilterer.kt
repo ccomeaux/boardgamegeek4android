@@ -24,9 +24,12 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUnranked) "1" else "0"}"
 
-    override fun toShortDescription() = describe(R.string.unranked_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_score
 
-    override fun toLongDescription() = context.getString(R.string.ranked) + " " + describe(R.string.unranked)
+    override fun chipText() = describe(R.string.unranked_abbr)
+
+    override fun description() = "${context.getString(R.string.ranked)} ${describe(R.string.unranked)}"
 
     private fun describe(@StringRes unrankedResId: Int): String {
         val unranked = if (includeUnranked) " (+${context.getString(unrankedResId)})" else ""

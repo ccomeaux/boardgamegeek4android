@@ -10,9 +10,12 @@ class GeekRatingFilterer(context: Context) : RatingFilterer(context) {
 
     override val columnName = Games.Columns.STATS_BAYES_AVERAGE
 
-    override fun toShortDescription() = describe(R.string.rating, R.string.unrated_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_rating // TODO use multiple stars
 
-    override fun toLongDescription() = describe(R.string.geek_rating, R.string.unrated)
+    override fun chipText() = describe(R.string.rating, R.string.unrated_abbr)
+
+    override fun description() = describe(R.string.geek_rating, R.string.unrated)
 
     override fun filter(item: CollectionItemEntity) = filter(item.geekRating)
 }
