@@ -27,7 +27,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:drawableStartCompat="@drawable/ic_user_small"
+			app:drawableStartCompat="@drawable/ic_outline_account_circle_18"
 			tools:text="ccomeaux" />
 
 		<View
@@ -42,7 +42,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:drawableStartCompat="@drawable/ic_thumbs_small"
+			app:drawableStartCompat="@drawable/ic_outline_thumb_up_18"
 			tools:text="13" />
 
 		<View
@@ -57,7 +57,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:drawableStartCompat="@drawable/ic_items_small"
+			app:drawableStartCompat="@drawable/ic_baseline_format_list_bulleted_18"
 			tools:text="42" />
 	</LinearLayout>
 </LinearLayout>

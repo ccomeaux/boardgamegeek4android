@@ -13,7 +13,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/padding_standard"
-		app:drawableLeftCompat="@drawable/ic_user_small"
+		app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
 		tools:text="ccomeaux" />
 
 	<TextView
@@ -39,7 +39,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:drawableLeftCompat="@drawable/ic_items_small"
+			app:drawableLeftCompat="@drawable/ic_baseline_format_list_bulleted_18"
 			tools:text="42" />
 
 		<View
@@ -54,7 +54,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:drawableLeftCompat="@drawable/ic_thumbs_small"
+			app:drawableLeftCompat="@drawable/ic_outline_thumb_up_18"
 			tools:text="13" />
 	</LinearLayout>
 
@@ -69,7 +69,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_clock_small"
+			android:drawableLeft="@drawable/ic_outline_schedule_18"
 			tools:text="Yesterday" />
 
 		<View
@@ -84,7 +84,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_edit_small"
+			android:drawableLeft="@drawable/ic_outline_edit_18"
 			tools:text="2 hours ago" />
 	</LinearLayout>
 </LinearLayout>
