@@ -114,7 +114,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:minHeight="@dimen/card_row_height"
-					bgg:icon_res="@drawable/ic_expansions"
+					bgg:icon_res="@drawable/ic_baseline_flip_to_back_24"
 					bgg:label="@string/expansions"
 					bgg:query_token="@integer/query_token_expansions" />
 
@@ -123,7 +123,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:minHeight="@dimen/card_row_height"
-					bgg:icon_res="@drawable/ic_basegames"
+					bgg:icon_res="@drawable/ic_baseline_flip_to_front_24"
 					bgg:label="@string/base_games"
 					bgg:query_token="@integer/query_token_base_games" />
 
