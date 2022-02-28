@@ -5,7 +5,7 @@
 	<string name="trading_meter_text">%s Trading</string>
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
-	<string name="id_list_text">ID: %s</string>
+	<string name="id_list_text" tools:ignore="MissingTranslation">ID: %s</string>
 	<string name="play_id_prefix">Play ID: %s</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
@@ -16,6 +16,8 @@
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
 	<string name="collection_item">Collection Item</string>
+	<string name="play_time">Play Time</string>
+	<string name="year_published">Year Published</string>
 	<string name="published_prefix">Published %1$s %2$s</string>
 	<string name="weight">Weight</string>
 	<string name="average_weight">Weight</string>
@@ -506,8 +508,9 @@
 	<string name="mins_unknown">\? mins</string>
 	<string name="hrs_suffix">%,d hrs</string>
 	<string name="hrs_mins">%1$,dh %2$dm</string>
-	<string name="rank_description"><b>#%,d</b> %s</string>
-	<string name="rank_prefix">#%,d</string>
+	<string name="rank">Rank</string>
+	<string name="rank_description" tools:ignore="MissingTranslation"><b>#%,d</b> %s</string>
+	<string name="rank_prefix" tools:ignore="MissingTranslation">#%,d</string>
 	<string name="play_description_game_segment">Played %s</string>
 	<string name="play_description_length_segment">\u0020for %s</string>
 	<string name="play_description_date_segment">\u0020on %s</string>

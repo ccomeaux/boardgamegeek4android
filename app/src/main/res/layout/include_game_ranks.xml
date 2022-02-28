@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/CardRow"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/CardRow"
 	android:layout_width="0dp"
 	android:layout_height="wrap_content"
 	android:layout_weight="1"
@@ -14,8 +13,9 @@
 		style="@style/Icon"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:clickable="true"
+		android:contentDescription="@string/rank"
 		android:focusable="true"
-		android:src="@drawable/ic_score"/>
+		android:src="@drawable/ic_baseline_emoji_events_24" />
 
 	<LinearLayout
 		android:id="@+id/rankContainer"
@@ -34,7 +34,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textAppearance="@style/Text.Primary"
-			tools:text="#42 Board Game"/>
+			tools:text="#42 Board Game" />
 
 		<TextView
 			android:id="@+id/subtypeView"
@@ -43,8 +43,7 @@
 			android:textAppearance="@style/Text.Secondary"
 			android:visibility="gone"
 			tools:text="#34 Strategy"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 	</LinearLayout>
 </LinearLayout>
 
-			

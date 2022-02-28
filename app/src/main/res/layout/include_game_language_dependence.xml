@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/languageContainer"
 	style="@style/CardRow.Clickable"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="0dp"
 	android:layout_height="match_parent"
 	android:layout_weight="1"
@@ -13,7 +12,8 @@
 	<ImageView
 		android:id="@+id/languageIcon"
 		style="@style/Icon"
-		android:src="@drawable/ic_language"/>
+		android:contentDescription="@string/language_dependence"
+		android:src="@drawable/ic_baseline_language_24" />
 
 	<LinearLayout
 		style="@style/CardRowContent"
@@ -36,19 +36,19 @@
 				android:layout_height="wrap_content"
 				android:maxLines="1"
 				android:textAppearance="@style/Text.Primary"
-				tools:text="Unplayable in another language"/>
+				tools:text="Unplayable in another language" />
 
 			<TextView
 				android:id="@+id/languageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
-				android:paddingLeft="@dimen/padding_extra"
 				android:paddingStart="@dimen/padding_extra"
+				android:paddingLeft="@dimen/padding_extra"
 				android:textAppearance="@style/Text.Secondary.Small"
 				android:visibility="gone"
 				tools:text="4.81"
-				tools:visibility="visible"/>
+				tools:visibility="visible" />
 		</LinearLayout>
 
 		<TextView
@@ -59,6 +59,6 @@
 			android:textAppearance="@style/Text.Secondary.Small"
 			android:visibility="gone"
 			tools:text="42,000 votes"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 	</LinearLayout>
 </LinearLayout>

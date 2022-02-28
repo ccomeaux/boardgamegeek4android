@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/playerCountContainer"
 	style="@style/CardRow.Clickable"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="0dp"
 	android:layout_height="match_parent"
 	android:layout_weight="1"
@@ -14,7 +14,7 @@
 		android:id="@+id/playerCountIcon"
 		style="@style/Icon"
 		android:contentDescription="@string/player_range"
-		android:src="@drawable/ic_users"/>
+		app:srcCompat="@drawable/ic_baseline_group_24" />
 
 	<LinearLayout
 		style="@style/CardRowContent"
@@ -27,7 +27,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:textAppearance="@style/Text.Primary"
-			tools:text="3 - 5 players"/>
+			tools:text="3 - 5 players" />
 
 		<TextView
 			android:id="@+id/playerCountCommunityView"
@@ -37,8 +37,7 @@
 			android:textAppearance="@style/Text.Secondary"
 			android:visibility="gone"
 			tools:text="Best w/ 3 &amp; Good w/ 3 - 4"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 	</LinearLayout>
 </LinearLayout>
 
-				
