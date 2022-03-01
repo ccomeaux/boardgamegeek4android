@@ -29,7 +29,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:drawableLeftCompat="@drawable/ic_forums_small"
+			app:drawableLeftCompat="@drawable/ic_outline_forum_18"
 			tools:text="42" />
 
 		<View
@@ -45,7 +45,7 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_clock_small"
+			android:drawableLeft="@drawable/ic_outline_schedule_18"
 			app:emptyMessage="@string/never"
 			app:isForumTimestamp="true"
 			tools:text="@tools:sample/date/mmddyy" />
