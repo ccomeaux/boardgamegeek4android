@@ -96,7 +96,7 @@
 					android:minHeight="56dp"
 					android:paddingStart="12dp"
 					android:textAppearance="?attr/textAppearanceSubtitle1"
-					app:drawableStartCompat="@drawable/ic_today"
+					app:drawableStartCompat="@drawable/ic_baseline_event_24"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/thumbnailView"
@@ -115,7 +115,7 @@
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/dateButton"
-					app:startIconDrawable="@drawable/ic_location"
+					app:startIconDrawable="@drawable/ic_baseline_location_on_24"
 					tools:visibility="visible">
 
 					<androidx.appcompat.widget.AppCompatAutoCompleteTextView
@@ -139,7 +139,7 @@
 					app:layout_constraintEnd_toStartOf="@+id/timerButton"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/locationFrame"
-					app:startIconDrawable="@drawable/ic_time">
+					app:startIconDrawable="@drawable/ic_baseline_schedule_24">
 
 					<com.google.android.material.textfield.TextInputEditText
 						android:id="@+id/lengthView"
@@ -172,7 +172,7 @@
 					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
 					android:background="?attr/selectableItemBackgroundBorderless"
 					android:contentDescription="@string/timer"
-					android:src="@drawable/ic_timer"
+					android:src="@drawable/ic_outline_timer_24"
 					app:layout_constraintBottom_toBottomOf="@id/lengthFrame"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="@id/lengthFrame" />
@@ -185,7 +185,7 @@
 					android:layout_marginHorizontal="@dimen/material_margin_horizontal"
 					android:background="?attr/selectableItemBackgroundBorderless"
 					android:contentDescription="@string/timer"
-					android:src="@drawable/ic_timer_off"
+					android:src="@drawable/ic_outline_timer_off_24"
 					app:layout_constraintBottom_toBottomOf="@id/timer"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="@id/timer" />
@@ -217,7 +217,7 @@
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/lengthFrame"
-					app:startIconDrawable="@drawable/ic_quantity"
+					app:startIconDrawable="@drawable/ic_baseline_repeat_24"
 					tools:visibility="visible">
 
 					<com.google.android.material.textfield.TextInputEditText
@@ -296,7 +296,7 @@
 						android:layout_height="wrap_content"
 						android:background="?attr/selectableItemBackgroundBorderless"
 						android:contentDescription="@string/colors"
-						android:src="@drawable/ic_colors" />
+						android:src="@drawable/ic_baseline_color_lens_24" />
 
 					<TextView
 						android:id="@+id/playersLabel"
@@ -315,7 +315,7 @@
 						android:layout_height="wrap_content"
 						android:background="?attr/selectableItemBackgroundBorderless"
 						android:contentDescription="@string/sort"
-						android:src="@drawable/ic_sort" />
+						android:src="@drawable/ic_baseline_sort_24" />
 				</LinearLayout>
 
 				<androidx.recyclerview.widget.RecyclerView
@@ -365,7 +365,7 @@
 				android:layout_gravity="bottom|right"
 				android:layout_margin="@dimen/padding_fab"
 				android:contentDescription="@string/add_field"
-				android:src="@drawable/ic_action_add"
+				android:src="@drawable/ic_baseline_add_24"
 				android:visibility="gone"
 				app:elevation="@dimen/fab_elevation"
 				app:pressedTranslationZ="@dimen/fab_translation"
