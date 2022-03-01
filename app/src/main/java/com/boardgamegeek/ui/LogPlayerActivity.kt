@@ -177,14 +177,14 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     private fun onNumberToTextClick(til: TextInputLayout, editText: EditText, includeSign: Boolean) {
         if (editText.inputType and InputType.TYPE_CLASS_NUMBER == InputType.TYPE_CLASS_NUMBER) {
             editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            til.setEndIconDrawable(R.drawable.ic_dialpad)
+            til.setEndIconDrawable(R.drawable.ic_baseline_dialpad_24)
         } else {
             editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or if (includeSign) {
                 editText.inputType or InputType.TYPE_NUMBER_FLAG_SIGNED
             } else {
                 editText.inputType and InputType.TYPE_NUMBER_FLAG_SIGNED.inv()
             }
-            til.setEndIconDrawable(R.drawable.ic_keyboard)
+            til.setEndIconDrawable(R.drawable.ic_baseline_keyboard_24)
         }
         editText.focusWithKeyboard()
     }
