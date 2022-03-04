@@ -44,9 +44,9 @@ class NewPlayAddPlayersFragment : Fragment() {
 
         binding.filterEditText.doAfterTextChanged { s ->
             if (s.isNullOrBlank()) {
-                binding.nextOrAddButton.setImageResource(R.drawable.ic_check_circle)
+                binding.nextOrAddButton.setImageResource(R.drawable.ic_baseline_check_circle_24)
             } else {
-                binding.nextOrAddButton.setImageResource(R.drawable.ic_add_circle_outline)
+                binding.nextOrAddButton.setImageResource(R.drawable.ic_baseline_add_circle_outline_24)
             }
             viewModel.filterPlayers(s.toString())
         }
@@ -85,11 +85,11 @@ class NewPlayAddPlayersFragment : Fragment() {
                         text = player.description
                         isCloseIconVisible = true
                         if (player.avatarUrl.isBlank()) {
-                            setChipIconResource(R.drawable.ic_account_circle_black_24dp)
+                            setChipIconResource(R.drawable.ic_baseline_account_circle_24)
                             // TODO use non-user's favorite color if available
                             setChipIconTintResource(R.color.dark_blue)
                         } else {
-                            loadIcon(player.avatarUrl, R.drawable.ic_account_circle_black_24dp)
+                            loadIcon(player.avatarUrl, R.drawable.ic_baseline_account_circle_24)
                         }
                         isClickable = false
                         setOnCloseIconClickListener {

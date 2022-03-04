@@ -509,6 +509,7 @@
 	<string name="hrs_suffix">%,d hrs</string>
 	<string name="hrs_mins">%1$,dh %2$dm</string>
 	<string name="rank">Rank</string>
+	<string name="remove">Remove</string>
 	<string name="rank_description" tools:ignore="MissingTranslation"><b>#%,d</b> %s</string>
 	<string name="rank_prefix" tools:ignore="MissingTranslation">#%,d</string>
 	<string name="play_description_game_segment">Played %s</string>

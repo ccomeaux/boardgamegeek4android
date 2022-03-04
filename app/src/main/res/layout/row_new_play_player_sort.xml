@@ -18,7 +18,8 @@
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:background="#0f0" />
+		tools:background="#0f0"
+		tools:ignore="ContentDescription" />
 
 	<TextView
 		android:id="@+id/seatView"
@@ -96,7 +97,7 @@
 		android:layout_height="@dimen/color_circle_diameter"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:scaleType="centerInside"
-		android:src="@drawable/ic_drag_handle"
+		android:src="@drawable/ic_baseline_drag_handle_24"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintRight_toRightOf="parent"

@@ -25,7 +25,8 @@
 		android:layout_width="@dimen/color_circle_diameter"
 		android:layout_height="@dimen/color_circle_diameter"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:src="@drawable/ic_remove_circle_outline"
+		android:contentDescription="@string/remove"
+		android:src="@drawable/ic_baseline_remove_circle_outline_24"
 		android:visibility="invisible"
 		app:layout_constraintLeft_toLeftOf="@id/colorView"
 		app:layout_constraintTop_toTopOf="@id/colorView"
@@ -92,7 +93,7 @@
 		android:layout_height="@dimen/color_circle_diameter"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:scaleType="centerInside"
-		android:src="@drawable/ic_colors"
+		android:src="@drawable/ic_baseline_color_lens_24"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />

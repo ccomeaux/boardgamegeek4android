@@ -33,7 +33,7 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_extra"
 		android:text="@string/done"
-		app:icon="@drawable/fab_done"
+		app:icon="@drawable/ic_baseline_check_24"
 		app:iconGravity="textStart"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"

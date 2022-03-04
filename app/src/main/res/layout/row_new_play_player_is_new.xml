@@ -96,7 +96,7 @@
 		android:layout_height="@dimen/color_circle_diameter"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:scaleType="centerInside"
-		android:src="@drawable/ic_drag_handle"
+		android:src="@drawable/ic_baseline_drag_handle_24"
 		android:text="@string/new_label"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintHorizontal_bias="0.0"

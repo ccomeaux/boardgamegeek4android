@@ -27,7 +27,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
     private var _binding: FragmentNewPlayPlayerColorsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
-    private val adapter: PlayersAdapter by lazy {        PlayersAdapter(requireActivity(), viewModel)    }
+    private val adapter: PlayersAdapter by lazy { PlayersAdapter(requireActivity(), viewModel) }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -144,9 +144,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
                         }
                     }
                     if (useColorPicker) {
-                        binding.colorPickerButton.setImageResource(R.drawable.ic_colors)
+                        binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_color_lens_24)
                     } else {
-                        binding.colorPickerButton.setImageResource(R.drawable.ic_people)
+                        binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_group_24)
                     }
 
                     val favoriteColor = player.favoriteColors.firstOrNull() ?: ""
