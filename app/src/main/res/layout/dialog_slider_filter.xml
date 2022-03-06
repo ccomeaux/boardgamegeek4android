@@ -85,7 +85,7 @@
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
-				android:src="@drawable/ic_remove_circle_outline"
+				android:src="@drawable/ic_baseline_remove_circle_outline_24"
 				app:tint="@color/dark_blue" />
 
 			<ImageView
@@ -94,7 +94,7 @@
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
-				android:src="@drawable/ic_add_circle_outline"
+				android:src="@drawable/ic_baseline_add_circle_outline_24"
 				app:tint="@color/dark_blue" />
 
 			<Space
@@ -109,7 +109,7 @@
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
-				android:src="@drawable/ic_remove_circle_outline"
+				android:src="@drawable/ic_baseline_remove_circle_outline_24"
 				app:tint="@color/dark_blue" />
 
 			<ImageView
@@ -118,7 +118,7 @@
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
-				android:src="@drawable/ic_add_circle_outline"
+				android:src="@drawable/ic_baseline_add_circle_outline_24"
 				app:tint="@color/dark_blue" />
 		</LinearLayout>
 	</LinearLayout>
