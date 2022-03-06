@@ -6,7 +6,6 @@
 	android:padding="@dimen/padding_half">
 
 	<LinearLayout
-		android:id="@+id/color_frame"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
@@ -19,17 +18,18 @@
 			android:layout_gravity="center">
 
 			<ImageView
-				android:id="@+id/color_view"
+				android:id="@+id/colorView"
 				android:layout_width="48dp"
 				android:layout_height="48dp"
 				android:layout_gravity="center"
 				android:scaleType="fitXY"
-				tools:background="#0f0" />
+				tools:background="#0f0"
+				tools:ignore="ContentDescription" />
 
 			<ImageView
-				android:id="@+id/color_picker_selected"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
+				android:id="@+id/colorSelectedView"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
 				android:layout_gravity="center"
 				android:scaleType="fitXY"
 				android:src="@drawable/ic_color_picker_selected"
@@ -39,7 +39,7 @@
 		</FrameLayout>
 
 		<TextView
-			android:id="@+id/color_description"
+			android:id="@+id/colorDescriptionView"
 			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

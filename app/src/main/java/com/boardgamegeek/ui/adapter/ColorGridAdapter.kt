@@ -31,9 +31,9 @@ internal class ColorGridAdapter(private val choices: List<Pair<String, Int>>, pr
 
         val isSelected = color?.first == selectedColor
         val isDisabled = !isSelected && disabledColors?.contains(color?.first) == true
-        view.findViewById<TextView>(R.id.color_description)?.text = color?.first
-        view.findViewById<ImageView>(R.id.color_view)?.setColorViewValue(color?.second ?: Color.TRANSPARENT, isDisabled)
-        view.findViewById<ImageView>(R.id.color_picker_selected).isVisible = isSelected
+        view.findViewById<TextView>(R.id.colorDescriptionView)?.text = color?.first
+        view.findViewById<ImageView>(R.id.colorView)?.setColorViewValue(color?.second ?: Color.TRANSPARENT, isDisabled)
+        view.findViewById<ImageView>(R.id.colorSelectedView).isVisible = isSelected
 
         return view
     }
