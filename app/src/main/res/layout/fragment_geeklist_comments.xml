@@ -33,7 +33,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="108dp"
 				android:scaleType="fitCenter"
-				android:src="@drawable/ic_comment_large"
+				android:src="@drawable/ic_twotone_comment_48"
 				app:tint="@color/empty_tint"
 				tools:ignore="ContentDescription" />
 
