@@ -91,6 +91,7 @@
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
+			android:contentDescription="@string/rating"
 			android:scaleType="center"
 			android:src="@drawable/ic_baseline_star_rate_24"
 			tools:tint="#2000"

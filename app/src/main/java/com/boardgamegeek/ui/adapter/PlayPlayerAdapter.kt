@@ -106,7 +106,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                 val color = player.color.asColorRgb()
                 binding.colorView.setColorViewValue(color)
                 binding.teamColorView.setTextOrHide(player.color)
-                binding.teamColorView.isVisible = color == Color.TRANSPARENT
+                binding.teamColorView.isVisible = color == Color.TRANSPARENT && player.color.isNotBlank()
 
                 // starting position, team/color
                 if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN) {
