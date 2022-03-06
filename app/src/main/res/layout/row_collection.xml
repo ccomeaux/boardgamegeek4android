@@ -48,7 +48,7 @@
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
 			android:contentDescription="@string/menu_favorite"
-			android:src="@drawable/ic_favorite"
+			android:src="@drawable/ic_baseline_favorite_24"
 			android:visibility="gone"
 			tools:visibility="visible" />
 

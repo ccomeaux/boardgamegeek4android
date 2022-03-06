@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			 xmlns:tools="http://schemas.android.com/tools"
-			 android:layout_width="match_parent"
-			 android:layout_height="match_parent"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
 	tools:keep="@layout/fragment_play_stats">
 
 	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
@@ -11,7 +11,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		tools:visibility="gone"/>
+		tools:visibility="gone" />
 
 	<TextView
 		android:id="@+id/emptyView"
@@ -19,7 +19,7 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:text="@string/empty_play_stats"
-		android:visibility="gone"/>
+		android:visibility="gone" />
 
 	<ScrollView
 		android:id="@+id/scrollContainer"
@@ -32,8 +32,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingBottom="@dimen/padding_standard"
-			android:paddingTop="@dimen/padding_standard">
+			android:paddingTop="@dimen/padding_standard"
+			android:paddingBottom="@dimen/padding_standard">
 
 			<TextView
 				android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
 				android:paddingLeft="@dimen/material_margin_horizontal"
 				android:paddingRight="@dimen/material_margin_horizontal"
 				android:text="@string/title_play_count"
-				android:textAppearance="@style/TextAppearance.Title"/>
+				android:textAppearance="@style/TextAppearance.Title" />
 
 			<androidx.cardview.widget.CardView
 				style="@style/Card"
@@ -53,7 +53,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:stretchColumns="0,1"/>
+					android:stretchColumns="0,1" />
 			</androidx.cardview.widget.CardView>
 
 			<LinearLayout
@@ -71,7 +71,7 @@
 					android:layout_weight="1"
 					android:minHeight="@dimen/icon_width"
 					android:text="@string/play_stat_game_h_index"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<TextView
 					android:id="@+id/gameHIndexView"
@@ -80,7 +80,7 @@
 					android:layout_gravity="end|bottom"
 					android:minHeight="@dimen/icon_width"
 					android:textAppearance="@style/TextAppearance.Title"
-					tools:text="42"/>
+					tools:text="42" />
 
 				<ImageView
 					android:id="@+id/gameHIndexInfoView"
@@ -88,7 +88,7 @@
 					android:layout_height="@dimen/icon_width"
 					android:contentDescription="@string/information"
 					android:scaleType="center"
-					android:src="@drawable/ic_action_info_light"/>
+					android:src="@drawable/ic_outline_info_24" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -101,7 +101,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:stretchColumns="0,1"/>
+					android:stretchColumns="0,1" />
 			</androidx.cardview.widget.CardView>
 
 			<LinearLayout
@@ -119,7 +119,7 @@
 					android:layout_weight="1"
 					android:minHeight="@dimen/icon_width"
 					android:text="@string/play_stat_player_h_index"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<TextView
 					android:id="@+id/playerHIndexView"
@@ -128,7 +128,7 @@
 					android:layout_gravity="end|bottom"
 					android:minHeight="@dimen/icon_width"
 					android:textAppearance="@style/TextAppearance.Title"
-					tools:text="42"/>
+					tools:text="42" />
 
 				<ImageView
 					android:id="@+id/playerHIndexInfoView"
@@ -136,7 +136,7 @@
 					android:layout_height="@dimen/icon_width"
 					android:contentDescription="@string/information"
 					android:scaleType="center"
-					android:src="@drawable/ic_action_info_light"/>
+					android:src="@drawable/ic_outline_info_24" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -149,7 +149,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:stretchColumns="0,1"/>
+					android:stretchColumns="0,1" />
 			</androidx.cardview.widget.CardView>
 
 			<TextView
@@ -163,7 +163,7 @@
 				android:text="@string/title_advanced"
 				android:textAppearance="@style/TextAppearance.Title"
 				android:visibility="gone"
-				tools:visibility="visible"/>
+				tools:visibility="visible" />
 
 			<androidx.cardview.widget.CardView
 				android:id="@+id/advancedCard"
@@ -178,17 +178,17 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:stretchColumns="0,1"/>
+					android:stretchColumns="0,1" />
 			</androidx.cardview.widget.CardView>
 
 			<LinearLayout
 				android:id="@+id/collectionStatusContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="@dimen/material_margin_vertical"
 				android:layout_marginLeft="@dimen/material_margin_horizontal"
-				android:layout_marginRight="@dimen/material_margin_horizontal"
 				android:layout_marginTop="@dimen/material_margin_vertical"
+				android:layout_marginRight="@dimen/material_margin_horizontal"
+				android:layout_marginBottom="@dimen/material_margin_vertical"
 				android:gravity="center_vertical"
 				android:orientation="horizontal"
 				android:visibility="gone"
@@ -201,7 +201,7 @@
 					android:paddingEnd="@dimen/padding_standard"
 					android:paddingRight="@dimen/padding_standard"
 					android:text="@string/play_stat_collection_status"
-					tools:ignore="RtlSymmetry"/>
+					tools:ignore="RtlSymmetry" />
 
 				<Button
 					android:id="@+id/collectionStatusSettingsButton"
@@ -209,17 +209,17 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|center_vertical"
-					android:text="@string/modify"/>
+					android:text="@string/modify" />
 			</LinearLayout>
 
 			<LinearLayout
 				android:id="@+id/accuracyContainer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="@dimen/material_margin_vertical"
 				android:layout_marginLeft="@dimen/material_margin_horizontal"
-				android:layout_marginRight="@dimen/material_margin_horizontal"
 				android:layout_marginTop="@dimen/material_margin_vertical"
+				android:layout_marginRight="@dimen/material_margin_horizontal"
+				android:layout_marginBottom="@dimen/material_margin_vertical"
 				android:gravity="center_vertical"
 				android:orientation="horizontal"
 				android:visibility="gone"
@@ -233,7 +233,7 @@
 					android:paddingEnd="@dimen/padding_standard"
 					android:paddingRight="@dimen/padding_standard"
 					android:text="@string/play_stat_accuracy"
-					tools:ignore="RtlSymmetry"/>
+					tools:ignore="RtlSymmetry" />
 
 				<Button
 					android:id="@+id/includeSettingsButton"
@@ -241,7 +241,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|center_vertical"
-					android:text="@string/edit"/>
+					android:text="@string/edit" />
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -21,7 +20,7 @@
 			style="@style/Text.Header.Card"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			tools:text="This Thing"/>
+			tools:text="This Thing" />
 
 		<TextView
 			android:id="@+id/contentView"
@@ -30,7 +29,7 @@
 			android:textAppearance="@style/Text"
 			android:visibility="gone"
 			tools:text="This thing is awesome. I love it. You should check it out."
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/timestampView"
@@ -39,7 +38,7 @@
 			android:textAppearance="@style/Text.Footnote2"
 			app:hideWhenEmpty="true"
 			tools:text="Yesterday"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 	</LinearLayout>
 
 	<ImageView
@@ -47,5 +46,5 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/edit"
-		android:src="@drawable/ic_action_edit_light"/>
+		android:src="@drawable/ic_baseline_edit_24" />
 </merge>

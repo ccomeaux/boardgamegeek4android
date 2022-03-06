@@ -651,8 +651,8 @@
 
 	<style name="InfoText">
 		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:drawableEnd">@drawable/ic_action_info_light</item>
+		<item name="android:drawableEnd">@drawable/ic_outline_info_24</item>
 		<item name="android:drawablePadding">@dimen/padding_standard</item>
-		<item name="android:drawableRight">@drawable/ic_action_info_light</item>
+		<item name="android:drawableRight">@drawable/ic_outline_info_24</item>
 	</style>
 </resources>

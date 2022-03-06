@@ -12,7 +12,9 @@ import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -69,7 +71,7 @@ class LogPlayActivity : AppCompatActivity() {
     @ColorInt
     private var fabColor = Color.TRANSPARENT
     private val swipePaint = Paint()
-    private val deleteIcon: Bitmap by lazy { BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white) }
+    private val deleteIcon: Bitmap by lazy { this.getBitmap(R.drawable.ic_baseline_delete_24, Color.WHITE) }
     private var horizontalPadding = 0f
     private var itemTouchHelper: ItemTouchHelper? = null
     private var isUserShowingLocation = false

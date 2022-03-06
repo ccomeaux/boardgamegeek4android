@@ -42,7 +42,7 @@ class PlayerColorsActivity : BaseActivity() {
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             val horizontalPadding = resources.getDimensionPixelSize(R.dimen.material_margin_horizontal).toFloat()
-            val deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
+            val deleteIcon = this@PlayerColorsActivity.getBitmap(R.drawable.ic_baseline_delete_24, Color.WHITE)
             val swipePaint: Paint by lazy {
                 val swipePaint = Paint()
                 swipePaint.color = ContextCompat.getColor(this@PlayerColorsActivity, R.color.medium_blue)

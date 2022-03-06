@@ -80,7 +80,7 @@ class GameColorsFragment : Fragment() {
     private fun setUpRecyclerView() {
         binding.recyclerView.adapter = adapter
         swipePaint.color = ContextCompat.getColor(requireContext(), R.color.delete)
-        deleteIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_delete_white)
+        deleteIcon = requireContext().getBitmap(R.drawable.ic_baseline_delete_24, Color.WHITE)
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false

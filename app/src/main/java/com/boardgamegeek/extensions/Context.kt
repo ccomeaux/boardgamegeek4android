@@ -5,13 +5,18 @@ package com.boardgamegeek.extensions
 import android.app.Activity
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.os.Build
 import android.text.Html
 import android.text.SpannedString
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
@@ -104,4 +109,12 @@ fun Context.showDialog(message: String, okButtonResId: Int = R.string.ok, okList
         .setNegativeButton(R.string.cancel, null)
         .setPositiveButton(okButtonResId, okListener)
         .show()
+}
+
+fun Context.getBitmap(@DrawableRes resId: Int, tintColor: Int? = null): Bitmap {
+    return AppCompatResources.getDrawable(this, resId)!!.apply {
+        if (tintColor != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setTint(tintColor)
+        }
+    }.toBitmap()
 }
