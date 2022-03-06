@@ -17,7 +17,7 @@
 		android:gravity="center_vertical"
 		android:text="@string/low_score"
 		android:textAppearance="@style/Text"
-		app:drawableLeftCompat="@drawable/ic_score_low"
+		app:drawableLeftCompat="@drawable/ic_baseline_thumb_down_18"
 		app:drawableTint="@color/score_low" />
 
 	<TextView
@@ -28,7 +28,7 @@
 		android:gravity="center_vertical"
 		android:text="@string/average_score"
 		android:textAppearance="@style/Text"
-		app:drawableLeftCompat="@drawable/ic_score_average"
+		app:drawableLeftCompat="@drawable/ic_baseline_thumbs_up_down_18"
 		app:drawableTint="@color/score_average" />
 
 	<TextView
@@ -39,7 +39,7 @@
 		android:gravity="center_vertical"
 		android:text="@string/average_winning_score"
 		android:textAppearance="@style/Text"
-		app:drawableLeftCompat="@drawable/ic_score_average_win"
+		app:drawableLeftCompat="@drawable/ic_baseline_star_18"
 		app:drawableTint="@color/score_average_win" />
 
 	<TextView
@@ -51,7 +51,6 @@
 		android:gravity="center_vertical"
 		android:text="@string/high_score"
 		android:textAppearance="@style/Text"
-		app:drawableLeftCompat="@drawable/ic_score_high"
+		app:drawableLeftCompat="@drawable/ic_baseline_thumb_up_18"
 		app:drawableTint="@color/score_high" />
-
 </LinearLayout>

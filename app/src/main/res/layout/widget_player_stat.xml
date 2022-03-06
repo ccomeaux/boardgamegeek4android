@@ -64,7 +64,7 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"
-				app:drawableLeftCompat="@drawable/ic_score_low"
+				app:drawableLeftCompat="@drawable/ic_baseline_thumb_down_18"
 				app:drawableTint="@color/score_low" />
 
 			<android.widget.Space
@@ -79,7 +79,7 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"
-				app:drawableLeftCompat="@drawable/ic_score_average"
+				app:drawableLeftCompat="@drawable/ic_baseline_thumbs_up_down_18"
 				app:drawableTint="@color/score_average" />
 
 			<android.widget.Space
@@ -94,7 +94,7 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"
-				app:drawableLeftCompat="@drawable/ic_score_average_win"
+				app:drawableLeftCompat="@drawable/ic_baseline_star_18"
 				app:drawableTint="@color/score_average_win" />
 
 			<android.widget.Space
@@ -109,7 +109,7 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/Text"
-				app:drawableLeftCompat="@drawable/ic_score_high"
+				app:drawableLeftCompat="@drawable/ic_baseline_thumb_up_18"
 				app:drawableTint="@color/score_high" />
 		</LinearLayout>
 

@@ -35,7 +35,7 @@
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:contentDescription="@string/help_title"
 				android:scaleType="center"
-				android:src="@drawable/ic_help"
+				android:src="@drawable/ic_baseline_help_outline_18"
 				app:tint="@color/accent" />
 		</LinearLayout>
 
