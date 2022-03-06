@@ -131,8 +131,8 @@ class PlayDao(private val context: BggApplication) {
         else loadPlays(Plays.CONTENT_URI, createGamePlaySelectionAndArgs(gameId), sortBy)
     }
 
-    suspend fun loadPlaysByLocation(locationName: String): List<PlayEntity> {
-        return if (locationName.isBlank()) emptyList()
+    suspend fun loadPlaysByLocation(locationName: String?): List<PlayEntity> {
+        return if (locationName == null) emptyList()
         else loadPlays(Plays.CONTENT_URI, createLocationPlaySelectionAndArgs(locationName))
     }
 
