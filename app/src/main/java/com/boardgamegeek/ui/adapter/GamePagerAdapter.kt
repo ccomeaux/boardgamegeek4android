@@ -69,13 +69,13 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     private fun updateTabs() {
         tabs.clear()
-        tabs += Tab(R.string.title_info, R.drawable.fab_log_play) { logPlay() }
-        tabs += Tab(R.string.title_credits, R.drawable.fab_favorite_off) { viewModel.updateFavorite(!isFavorite) }
-        tabs += Tab(R.string.title_descr, R.drawable.fab_favorite_off) { viewModel.updateFavorite(!isFavorite) }
+        tabs += Tab(R.string.title_info, R.drawable.ic_baseline_event_available_24) { logPlay() }
+        tabs += Tab(R.string.title_credits, R.drawable.ic_baseline_favorite_border_24) { viewModel.updateFavorite(!isFavorite) }
+        tabs += Tab(R.string.title_descr, R.drawable.ic_baseline_favorite_border_24) { viewModel.updateFavorite(!isFavorite) }
         if (shouldShowCollection())
-            tabs += Tab(R.string.title_my_games, R.drawable.fab_add) { activity.showAndSurvive(CollectionStatusDialogFragment()) }
+            tabs += Tab(R.string.title_my_games, R.drawable.ic_baseline_add_24) { activity.showAndSurvive(CollectionStatusDialogFragment()) }
         if (shouldShowPlays())
-            tabs += Tab(R.string.title_plays, R.drawable.fab_log_play) { logPlay() }
+            tabs += Tab(R.string.title_plays, R.drawable.ic_baseline_event_available_24) { logPlay() }
         tabs += Tab(R.string.title_forums)
         tabs += Tab(R.string.links)
 
@@ -106,7 +106,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     private fun updateFavIcon(isFavorite: Boolean) {
         tabs.find { it.titleResId == R.string.title_credits || it.titleResId == R.string.title_descr }?.let {
-            it.imageResId = if (isFavorite) R.drawable.fab_favorite_on else R.drawable.fab_favorite_off
+            it.imageResId = if (isFavorite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24
         }
     }
 

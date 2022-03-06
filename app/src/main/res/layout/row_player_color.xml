@@ -26,7 +26,7 @@
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="match_parent"
 			android:scaleType="center"
-			android:src="@drawable/drag_grip"
+			android:src="@drawable/ic_baseline_drag_handle_24"
 			tools:ignore="ContentDescription" />
 	</FrameLayout>
 

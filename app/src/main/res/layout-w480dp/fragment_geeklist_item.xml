@@ -85,8 +85,8 @@
 				style="@style/TextWithImage.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				app:drawableLeftCompat="@drawable/ic_thumbs_small"
-				app:drawableStartCompat="@drawable/ic_thumbs_small"
+				app:drawableLeftCompat="@drawable/ic_outline_thumb_up_18"
+				app:drawableStartCompat="@drawable/ic_outline_thumb_up_18"
 				tools:text="13" />
 
 			<View

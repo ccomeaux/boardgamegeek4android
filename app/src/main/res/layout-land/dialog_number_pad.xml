@@ -72,7 +72,7 @@
 			android:contentDescription="@string/delete"
 			android:paddingRight="@dimen/padding_extra"
 			android:scaleType="center"
-			android:src="@drawable/ic_action_backspace" />
+			android:src="@drawable/ic_baseline_backspace_18" />
 	</LinearLayout>
 
 	<LinearLayout

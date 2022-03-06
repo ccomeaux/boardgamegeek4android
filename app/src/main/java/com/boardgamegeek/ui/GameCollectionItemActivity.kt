@@ -75,7 +75,7 @@ class GameCollectionItemActivity : HeroActivity() {
         viewModel.isEditMode.observe(this) {
             isInEditMode = it
             enableSwipeRefreshLayout(!it)
-            setFabImageResource(if (it) R.drawable.fab_done else R.drawable.fab_edit)
+            setFabImageResource(if (it) R.drawable.ic_baseline_check_24 else R.drawable.ic_baseline_edit_24)
         }
         viewModel.isEdited.observe(this) { isItemUpdated = it }
     }
