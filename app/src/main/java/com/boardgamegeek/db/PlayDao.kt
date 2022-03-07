@@ -792,13 +792,15 @@ class PlayDao(private val context: BggApplication) {
         results
     }
 
-    suspend fun saveColorsForPlayer(uri: Uri, colors: List<PlayerColorEntity>?) = withContext(Dispatchers.IO) {
+    suspend fun saveColorsForPlayer(uri: Uri, colors: List<String>?) = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
         batch += ContentProviderOperation.newDelete(uri).build()
-        colors?.filter { it.description.isNotBlank() }?.forEach {
+        var sortOrder = 1
+        colors?.filter { it.isNotBlank() }?.forEach {
             batch += ContentProviderOperation
-                .newInsert(uri).withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR, it.description)
+                .newInsert(uri)
+                .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, sortOrder++)
+                .withValue(PlayerColors.Columns.PLAYER_COLOR, it)
                 .build()
         }
         context.contentResolver.applyBatch(batch)

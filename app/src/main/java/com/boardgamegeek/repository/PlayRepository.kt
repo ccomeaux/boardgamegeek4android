@@ -237,11 +237,11 @@ class PlayRepository(val application: BggApplication) {
         return playDao.loadColors(PlayerColors.buildPlayerUri(playerName))
     }
 
-    suspend fun savePlayerColors(playerName: String, colors: List<PlayerColorEntity>?) {
+    suspend fun savePlayerColors(playerName: String, colors: List<String>?) {
         playDao.saveColorsForPlayer(PlayerColors.buildPlayerUri(playerName), colors)
     }
 
-    suspend fun saveUserColors(username: String, colors: List<PlayerColorEntity>?) {
+    suspend fun saveUserColors(username: String, colors: List<String>?) {
         playDao.saveColorsForPlayer(PlayerColors.buildUserUri(username), colors)
     }
 

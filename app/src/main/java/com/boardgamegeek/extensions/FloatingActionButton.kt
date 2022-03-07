@@ -20,11 +20,11 @@ fun FloatingActionButton.colorize(color: Int): Boolean {
 private fun FloatingActionButton.colorImageTint(backgroundColor: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         imageTintList = ColorStateList.valueOf(
-                if (backgroundColor.isColorDark()) {
-                    Color.WHITE
-                } else {
-                    Color.BLACK
-                }
+            if (backgroundColor.isColorDark()) {
+                Color.WHITE
+            } else {
+                Color.BLACK
+            }
         )
     }
 }

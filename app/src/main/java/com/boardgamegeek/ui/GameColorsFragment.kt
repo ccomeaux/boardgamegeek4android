@@ -25,7 +25,7 @@ class GameColorsFragment : Fragment() {
     private val binding get() = _binding!!
 
     @ColorInt
-    private var iconColor = 0
+    private var iconColor = Color.TRANSPARENT
     private var actionMode: ActionMode? = null
     private val swipePaint = Paint()
     private var deleteIcon: Bitmap? = null

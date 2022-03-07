@@ -30,7 +30,8 @@
 			style="@style/RecyclerViewVerticalList"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:paddingBottom="@dimen/fab_buffer" />
+			android:paddingBottom="@dimen/fab_buffer"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 		<LinearLayout
 			android:id="@+id/emptyView"
