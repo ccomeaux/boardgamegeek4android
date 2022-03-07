@@ -20,7 +20,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_extra"
-			android:background="@drawable/warning"
+			android:background="@drawable/bg_warning"
 			android:gravity="center"
 			android:padding="@dimen/padding_standard"
 			android:text="@string/msg_warning_private_info"

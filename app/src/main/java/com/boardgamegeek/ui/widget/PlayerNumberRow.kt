@@ -82,7 +82,7 @@ class PlayerNumberRow @JvmOverloads constructor(
     }
 
     fun setHighlight() {
-        findViewById<TextView>(R.id.labelView).setBackgroundResource(R.drawable.highlight)
+        findViewById<TextView>(R.id.labelView).setBackgroundResource(R.drawable.bg_highlight)
     }
 
     fun clearHighlight() {
