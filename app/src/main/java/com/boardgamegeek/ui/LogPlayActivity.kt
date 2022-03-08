@@ -1,20 +1,24 @@
 package com.boardgamegeek.ui
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Bundle
 import android.text.format.DateUtils
-import android.view.*
-import android.widget.*
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -32,7 +36,9 @@ import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.LocationAdapter
-import com.boardgamegeek.ui.dialog.*
+import com.boardgamegeek.ui.dialog.LogPlayPlayerColorPickerDialogFragment
+import com.boardgamegeek.ui.dialog.LogPlayPlayerRatingNumberPadDialogFragment
+import com.boardgamegeek.ui.dialog.LogPlayPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import com.boardgamegeek.ui.widget.PlayerRow
@@ -42,7 +48,6 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class LogPlayActivity : AppCompatActivity() {
@@ -876,7 +881,6 @@ class LogPlayActivity : AppCompatActivity() {
             fun onItemClear() {
                 isDragging = false
                 itemView.setBackgroundColor(Color.TRANSPARENT)
-                notifyDataSetChanged() // force UI to update the seat numbers
             }
 
             @SuppressLint("ClickableViewAccessibility")
