@@ -319,7 +319,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                 PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
             )
             val builder = Action.Builder(
-                R.drawable.ic_replay_black_24dp,
+                R.drawable.ic_baseline_replay_24,
                 context.getString(R.string.rematch),
                 pendingIntent
             )

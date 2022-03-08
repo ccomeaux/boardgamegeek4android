@@ -83,7 +83,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setOngoing(true)
             .setProgress(1, 0, true)
-            .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), cancelIntent)
+            .addAction(R.drawable.ic_baseline_clear_24, context.getString(R.string.cancel), cancelIntent)
         if (!detail.isNullOrBlank()) {
             builder.setStyle(BigTextStyle().bigText(detail))
         }
