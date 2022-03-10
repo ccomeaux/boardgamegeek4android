@@ -57,6 +57,7 @@
 	<dimen name="material_progress_bar_unclipped_height">24dp</dimen>
 	<dimen name="recycler_section_header_height">32dp</dimen>
 	<dimen name="chip_group_height">48dp</dimen>
+	<dimen name="colored_background_corner_radius">4dp</dimen>
 	<string name="hero_aspect_ratio" translatable="false">H,16:9</string>
 
 </resources>

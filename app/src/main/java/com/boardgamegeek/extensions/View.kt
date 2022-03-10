@@ -187,6 +187,7 @@ fun View.setViewBackground(@ColorInt color: Int) {
     }
 
     backgroundDrawable.setColor(color)
+    backgroundDrawable.cornerRadius = resources.getDimensionPixelSize(R.dimen.colored_background_corner_radius).toFloat()
     backgroundDrawable.setStroke(
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(),
         color.darkenColor()
