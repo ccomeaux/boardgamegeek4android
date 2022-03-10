@@ -31,7 +31,8 @@
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="center"
 			android:scaleType="fitXY"
-			tools:background="#0f0" />
+			tools:background="#0f0"
+			tools:ignore="ContentDescription" />
 
 		<TextView
 			android:id="@+id/seatView"
