@@ -37,7 +37,7 @@ class NewPlayActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.menu_cancel)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_clear_24)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         viewModel.insertedId.observe(this) {
@@ -156,7 +156,7 @@ class NewPlayActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.timer)?.setIcon(if (startTime > 0L) R.drawable.menu_timer_off else R.drawable.menu_timer)
+        menu?.findItem(R.id.timer)?.setIcon(if (startTime > 0L) R.drawable.ic_outline_timer_off_24 else R.drawable.ic_outline_timer_24)
         return true
     }
 

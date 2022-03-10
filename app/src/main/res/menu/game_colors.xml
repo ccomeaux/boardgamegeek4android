@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_colors_generate"
-		android:icon="@drawable/menu_colors"
+		android:icon="@drawable/ic_baseline_color_lens_24"
 		android:title="@string/menu_colors_generate"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 
 </menu>

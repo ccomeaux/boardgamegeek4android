@@ -21,7 +21,7 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
     private var playCount = -1
 
     override val optionsMenuId: Int
-        get() = R.menu.player
+        get() = R.menu.text_only
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +54,7 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.setActionBarCount(R.id.menu_list_count, playCount)
+        menu.setActionBarCount(R.id.menu_text, playCount)
         return true
     }
 

@@ -137,7 +137,7 @@ class ThreadFragment : Fragment() {
         when (item.itemId) {
             R.id.menu_scroll_last -> scrollToLatestArticle()
             R.id.menu_scroll_bottom -> scrollToBottom()
-            else -> super.onOptionsItemSelected(item)
+            else -> return super.onOptionsItemSelected(item)
         }
         return true
     }

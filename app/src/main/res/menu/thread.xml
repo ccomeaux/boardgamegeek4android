@@ -4,13 +4,13 @@
 
 	<item
 		android:id="@+id/menu_scroll_last"
-		android:icon="@drawable/menu_scroll_down"
+		android:icon="@drawable/ic_baseline_south_24"
 		android:title="@string/menu_scroll_to_last_read"
 		app:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/menu_scroll_bottom"
-		android:icon="@drawable/menu_scroll_bottom"
+		android:icon="@drawable/ic_baseline_vertical_align_bottom_24"
 		android:title="@string/menu_scroll_to_bottom"
 		app:showAsAction="ifRoom" />
 

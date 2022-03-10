@@ -4,5 +4,5 @@
 		android:id="@+id/menu_custom_player_order"
 		android:checkable="true"
 		android:checked="true"
-		android:title="@string/menu_custom_player_order"/>
+		android:title="@string/menu_custom_player_order" />
 </menu>
