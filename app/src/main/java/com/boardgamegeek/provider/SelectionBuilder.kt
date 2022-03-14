@@ -28,7 +28,7 @@ import timber.log.Timber
 class SelectionBuilder {
     private var tableName: String? = null
     private val projectionMap = mutableMapOf<String, String>()
-    private val selection = StringBuilder()
+    private var selection = ""
     private val selectionArgs = mutableListOf<String>()
     private val groupBy = mutableListOf<String>()
     private var having: String? = null
@@ -40,7 +40,7 @@ class SelectionBuilder {
     fun reset(): SelectionBuilder {
         tableName = null
         projectionMap.clear()
-        selection.clear()
+        selection = ""
         selectionArgs.clear()
         groupBy.clear()
         having = null
@@ -68,10 +68,10 @@ class SelectionBuilder {
         }
 
         // TODO: map selection similar to projection
-        if (this.selection.isNotEmpty()) {
-            this.selection.append(" AND ")
+        if (this.selection.isNotBlank()) {
+            this.selection += " AND "
         }
-        this.selection.append("($selection)")
+        this.selection += "($selection)"
         this.selectionArgs.addAll(selectionArgs.asList().filterNotNull())
         return this
     }
@@ -144,14 +144,6 @@ class SelectionBuilder {
     }
 
     /**
-     * Return selection string for current internal state.
-     *
-     */
-    private fun getSelection(): String {
-        return selection.toString()
-    }
-
-    /**
      * Return selection arguments for current internal state.
      *
      * @see .getSelection
@@ -177,7 +169,7 @@ class SelectionBuilder {
     }
 
     override fun toString(): String {
-        return ("table=[$tableName], selection=[${getSelection()}], selectionArgs=${getSelectionArgs().contentToString()}, groupBy=[${getGroupByClause()}], having=[$having]")
+        return ("table=[$tableName], selection=[$selection], selectionArgs=${getSelectionArgs().contentToString()}, groupBy=[${getGroupByClause()}], having=[$having]")
     }
 
     /**
@@ -195,7 +187,7 @@ class SelectionBuilder {
         assertTable()
         val mappedColumns = mapColumns(columns)
         Timber.v("QUERY: columns=${mappedColumns.contentToString()}, $this")
-        val cursor = db.query(tableName, mappedColumns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit)
+        val cursor = db.query(tableName, mappedColumns, selection, getSelectionArgs(), groupBy, having, orderBy, limit)
         Timber.v("queried %,d rows", cursor.count)
         return cursor
     }
@@ -206,7 +198,7 @@ class SelectionBuilder {
     fun update(db: SQLiteDatabase, values: ContentValues?): Int {
         assertTable()
         Timber.v("UPDATE: %s", this)
-        val count = db.update(tableName, values, getSelection(), getSelectionArgs())
+        val count = db.update(tableName, values, selection, getSelectionArgs())
         Timber.v("updated %,d rows", count)
         return count
     }
@@ -217,7 +209,7 @@ class SelectionBuilder {
     fun delete(db: SQLiteDatabase): Int {
         assertTable()
         Timber.v("DELETE: %s", this)
-        val selection = getSelection().ifEmpty { "1" } // this forces delete to return the count
+        val selection = selection.orEmpty().ifEmpty { "1" } // this forces delete to return the count
         val count = db.delete(tableName, selection, getSelectionArgs())
         Timber.v("deleted %,d rows", count)
         return count
