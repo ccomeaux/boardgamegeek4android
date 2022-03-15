@@ -35,6 +35,7 @@ class GameCollectionFragment : Fragment() {
 
         binding.swipeRefresh.isEnabled = false
         binding.swipeRefresh.setBggColors()
+
         binding.syncTimestamp.timestamp = 0L
 
         binding.recyclerView.setHasFixedSize(false)
@@ -73,7 +74,7 @@ class GameCollectionFragment : Fragment() {
         } else {
             binding.syncTimestamp.timestamp = System.currentTimeMillis()
             binding.recyclerView.isVisible = false
-            showError()
+            showError(hasData = false)
         }
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.isEnabled = true
@@ -82,6 +83,7 @@ class GameCollectionFragment : Fragment() {
     private fun showError(message: String = getString(R.string.empty_game_collection), hasData: Boolean = false) {
         if (hasData) {
             toast(message)
+            binding.emptyMessage.isVisible = false
         } else {
             binding.emptyMessage.setTextOrHide(message)
         }

@@ -29,24 +29,23 @@ class RateLimiter<in KEY>(timeout: Int, timeUnit: TimeUnit) {
     private val timeout = timeUnit.toMillis(timeout.toLong())
 
     @Synchronized
-    fun shouldProcess(key: KEY): Boolean {
+    fun shouldProcess(key: KEY, now: Long = SystemClock.uptimeMillis()): Boolean {
         val lastFetched = timestamps[key]
-        val now = SystemClock.uptimeMillis()
         return if ((lastFetched == null) || (now - lastFetched > timeout)) {
             timestamps[key] = now
             true
         } else false
     }
 
-    @Synchronized
-    @Suppress("unused")
-    fun willProcessAt(key: KEY): Long {
-        val lastFetched = timestamps[key]
-        val now = SystemClock.uptimeMillis()
-        return if ((lastFetched == null) || (now - lastFetched > timeout)) {
-            now
-        } else lastFetched + timeout
-    }
+    //    @Synchronized
+    //    @Suppress("unused")
+    //    fun willProcessAt(key: KEY): Long {
+    //        val lastFetched = timestamps[key]
+    //        val now = SystemClock.uptimeMillis()
+    //        return if ((lastFetched == null) || (now - lastFetched > timeout)) {
+    //            now
+    //        } else lastFetched + timeout
+    //    }
 
     @Synchronized
     fun reset(key: KEY) {

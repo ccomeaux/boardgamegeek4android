@@ -68,14 +68,20 @@ class GamePlaysFragment : Fragment() {
         }
 
         viewModel.plays.observe(viewLifecycleOwner) {
-            binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
-            onPlaysQueryComplete(it?.data.orEmpty())
-            binding.progressView.hide()
+            it?.let { (status, data, message) ->
+                binding.swipeRefresh.isRefreshing = status == Status.REFRESHING
+                data.orEmpty().run {
+                    bindTotalPlays(this)
+                    bindPlaysInProgress(this)
+                    bindLastPlay(this)
+                    bindStats(this)
+                }
+                if (status == Status.ERROR) toast(message)
+            }
         }
 
         viewModel.playColors.observe(viewLifecycleOwner) {
-            it?.let { updateColors(it) }
-            binding.progressView.hide()
+            it?.let { bindColors(it) }
         }
     }
 
@@ -84,54 +90,7 @@ class GamePlaysFragment : Fragment() {
         _binding = null
     }
 
-    private fun updateColors(colors: List<String>) {
-        binding.colorsList.removeAllViews()
-        if (colors.isNotEmpty() && colors.all { it.isKnownColor() }) {
-            colors.forEach {
-                requireContext().createSmallCircle().apply {
-                    setColorViewValue(it.asColorRgb())
-                    binding.colorsList.addView(this)
-                }
-            }
-            binding.colorsList.isVisible = true
-            binding.colorsLabel.isVisible = false
-        } else {
-            binding.colorsLabel.text = requireContext().getQuantityText(R.plurals.colors_suffix, colors.size, colors.size)
-            binding.colorsLabel.isVisible = true
-            binding.colorsList.isVisible = false
-        }
-        binding.colorsContainer.isVisible = true
-        binding.colorsContainer.setOnClickListener {
-            if (gameId != BggContract.INVALID_ID)
-                GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
-        }
-    }
-
-    private fun onPlaysQueryComplete(plays: List<PlayEntity>) {
-        if (plays.isNotEmpty()) {
-            val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
-            if (inProgressPlays.isNotEmpty()) {
-                binding.inProgressPlaysList.removeAllViews()
-                inProgressPlays.take(3).forEach { play ->
-                    val row = binding.inProgressPlaysList.inflate(R.layout.row_play_summary_updating)
-                    row.findViewById<InProgressPlay>(R.id.line1)?.let {
-                        it.play = play
-                        it.timeHintUpdateInterval = 1_000L
-                    }
-                    row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
-                    row.setOnClickListener {
-                        PlayActivity.start(requireContext(), play.internalId)
-                    }
-                    binding.inProgressPlaysList.addView(row)
-                }
-                binding.inProgressPlaysContainer.isVisible = true
-            } else {
-                binding.inProgressPlaysContainer.isVisible = false
-            }
-        } else {
-            binding.inProgressPlaysContainer.isVisible = false
-        }
-
+    private fun bindTotalPlays(plays: List<PlayEntity>) {
         val playCount = plays.sumOf { it.quantity }
         val (count, description, color) = playCount.asPlayCount(requireContext())
         binding.playCountIcon.text = count.toString()
@@ -151,29 +110,70 @@ class GamePlaysFragment : Fragment() {
                     iconColor,
                 )
         }
-        binding.playCountContainer.isVisible = true
+    }
 
-        if (plays.isNotEmpty()) {
-            val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
-            if (lastPlay != null) {
-                binding.lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
-                binding.lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
-                binding.lastPlayContainer.setOnClickListener {
-                    PlayActivity.start(requireContext(), lastPlay.internalId)
+    private fun bindPlaysInProgress(plays: List<PlayEntity>) {
+        val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
+        if (inProgressPlays.isNotEmpty()) {
+            binding.inProgressPlaysList.removeAllViews()
+            inProgressPlays.take(3).forEach { play ->
+                // we assume the plays are sorted by most recent
+                val row = binding.inProgressPlaysList.inflate(R.layout.row_play_summary_updating)
+                row.findViewById<InProgressPlay>(R.id.line1)?.let {
+                    it.play = play
+                    it.timeHintUpdateInterval = 1_000L
                 }
-                binding.lastPlayContainer.isVisible = true
-            } else {
-                binding.lastPlayContainer.isVisible = false
+                row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
+                row.setOnClickListener {
+                    PlayActivity.start(requireContext(), play.internalId)
+                }
+                binding.inProgressPlaysList.addView(row)
             }
-
-            binding.playStatsContainer.setOnClickListener {
-                if (gameId != BggContract.INVALID_ID)
-                    GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
-            }
-            binding.playStatsContainer.isVisible = true
+            binding.inProgressPlaysContainer.isVisible = true
         } else {
-            binding.playStatsContainer.isVisible = false
+            binding.inProgressPlaysContainer.isVisible = false
+        }
+    }
+
+    private fun bindLastPlay(plays: List<PlayEntity>) {
+        val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
+        if (lastPlay != null) {
+            binding.lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
+            binding.lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
+            binding.lastPlayContainer.setOnClickListener {
+                PlayActivity.start(requireContext(), lastPlay.internalId)
+            }
+            binding.lastPlayContainer.isVisible = true
+        } else {
             binding.lastPlayContainer.isVisible = false
+        }
+    }
+
+    private fun bindStats(plays: List<PlayEntity>) {
+        binding.playStatsContainer.isVisible = plays.isNotEmpty()
+        binding.playStatsContainer.setOnClickListener {
+            if (gameId != BggContract.INVALID_ID)
+                GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
+        }
+    }
+
+    private fun bindColors(colors: List<String>) {
+        binding.colorsLabel.text = requireContext().getQuantityText(R.plurals.colors_suffix, colors.size, colors.size)
+        binding.colorsList.removeAllViews()
+        if (colors.isNotEmpty() && colors.all { it.isKnownColor() }) {
+            colors.forEach {
+                requireContext().createSmallCircle().apply {
+                    setColorViewValue(it.asColorRgb())
+                    binding.colorsList.addView(this)
+                }
+            }
+            binding.colorsList.isVisible = true
+        } else {
+            binding.colorsList.isVisible = false
+        }
+        binding.colorsContainer.setOnClickListener {
+            if (gameId != BggContract.INVALID_ID)
+                GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
         }
     }
 
@@ -191,7 +191,7 @@ class GamePlaysFragment : Fragment() {
                         R.string.playing_for_prefix,
                         DateUtils.formatElapsedTime((System.currentTimeMillis() - it.startTime) / 1000)
                     )
-                    DateUtils.isToday(it.dateInMillis) -> context.getText(
+                    it.dateInMillis.isToday() -> context.getText(
                         R.string.playing_prefix,
                         it.dateForDisplay(context)
                     )
