@@ -51,7 +51,7 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     override fun filter(item: CollectionItemEntity): Boolean {
         return when {
             item.averageWeight == 0.0 -> includeUndefined
-            ignoreRange -> true
+            ignoreRange -> false
             min == max -> item.averageWeight == min
             else -> item.averageWeight in min..max
         }

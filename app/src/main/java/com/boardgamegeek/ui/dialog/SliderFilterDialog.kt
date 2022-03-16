@@ -58,6 +58,13 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             rangeIsIgnored = ignoreRange
         }
 
+        val type = when {
+            rangeIsIgnored && supportsNone -> RangeType.NONE
+            low == high && supportsSlider -> RangeType.SINGLE
+            else -> RangeType.RANGE
+        }
+        configRange(type)
+
         binding.rangeSlider.apply {
             valueFrom = this@SliderFilterDialog.valueFrom
             valueTo = this@SliderFilterDialog.valueTo
@@ -121,40 +128,33 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
 
         binding.rangeRadioButton.apply {
             isVisible = supportsSlider || supportsNone
-            isChecked = (low != high)
+            isChecked = (low != high) && !rangeIsIgnored
             setOnClickListener {
                 binding.checkBox.isEnabled = true
+                rangeIsIgnored = false
                 configRange(RangeType.RANGE)
             }
         }
 
         binding.singleValueRadioButton.apply {
             isVisible = supportsSlider
-            isChecked = (low == high)
+            isChecked = (low == high) && !rangeIsIgnored
             setOnClickListener {
                 binding.checkBox.isEnabled = true
+                rangeIsIgnored = false
                 configRange(RangeType.SINGLE)
             }
         }
 
         binding.noneRadioButton.apply {
             isVisible = supportsNone
-            isChecked = false
+            isChecked = rangeIsIgnored
             setOnClickListener {
                 binding.checkBox.isChecked = true
                 binding.checkBox.isEnabled = false
                 rangeIsIgnored = isChecked
                 configRange(RangeType.NONE)
             }
-        }
-
-        if (supportsSlider) {
-            val type = when {
-                rangeIsIgnored -> RangeType.NONE
-                (low == high) -> RangeType.SINGLE
-                else -> RangeType.RANGE
-            }
-            configRange(type)
         }
 
         binding.checkBox.apply {

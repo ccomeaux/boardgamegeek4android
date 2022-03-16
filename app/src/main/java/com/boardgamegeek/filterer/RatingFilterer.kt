@@ -50,7 +50,7 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
     fun filter(rating: Double): Boolean {
         return when {
             rating == 0.0 -> includeUndefined
-            ignoreRange -> true
+            ignoreRange -> false
             min == max -> rating == min
             else -> rating in min..max
         }
