@@ -90,3 +90,9 @@ fun Long?.asDateForApi(): String {
     c.timeInMillis = this
     return FORMAT_API.format(c.time)
 }
+
+fun Long.fromLocalToUtc(): Long {
+    val timeZone = TimeZone.getDefault()
+    val standardTime = this - timeZone.rawOffset
+    return standardTime - if (timeZone.inDaylightTime(Date(standardTime))) timeZone.dstSavings else 0
+}

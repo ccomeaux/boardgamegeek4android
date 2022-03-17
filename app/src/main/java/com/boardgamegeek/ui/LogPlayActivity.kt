@@ -40,14 +40,15 @@ import com.boardgamegeek.ui.dialog.LogPlayPlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.dialog.LogPlayPlayerRatingNumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.LogPlayPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
-import com.boardgamegeek.ui.widget.DatePickerDialogFragment
 import com.boardgamegeek.ui.widget.PlayerRow
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import kotlin.math.abs
 
 class LogPlayActivity : AppCompatActivity() {
@@ -116,17 +117,12 @@ class LogPlayActivity : AppCompatActivity() {
     }
 
     private fun wireUi() {
-        val datePickerDialogTag = "DATE_PICKER_DIALOG"
         binding.dateButton.setOnClickListener {
-            (supportFragmentManager.findFragmentByTag(datePickerDialogTag) as DatePickerDialogFragment?
-                ?: DatePickerDialogFragment()).apply {
-                setOnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                    viewModel.updateDate(year, monthOfYear, dayOfMonth)
-                }
-                setCurrentDateInMillis(dateInMillis ?: System.currentTimeMillis())
-                supportFragmentManager.executePendingTransactions()
-                this@LogPlayActivity.showAndSurvive(this, datePickerDialogTag)
+            val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(dateInMillis).build()
+            datePicker.addOnPositiveButtonClickListener {
+                viewModel.updateDate(it.fromLocalToUtc())
             }
+            datePicker.show(supportFragmentManager, "DATE_PICKER_DIALOG")
         }
 
         if (binding.locationView.adapter == null) binding.locationView.setAdapter(locationAdapter)

@@ -173,13 +173,9 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun updateDate(year: Int, month: Int, day: Int) {
-        val c = Calendar.getInstance()
-        c[Calendar.DAY_OF_MONTH] = day
-        c[Calendar.MONTH] = month
-        c[Calendar.YEAR] = year
-        if (play.value?.dateInMillis != c.timeInMillis) {
-            _play.value = play.value?.copy(rawDate = PlayEntity.millisToRawDate(c.timeInMillis))
+    fun updateDate(dateInMillis: Long) {
+        if (play.value?.dateInMillis != dateInMillis) {
+            _play.value = play.value?.copy(rawDate = PlayEntity.millisToRawDate(dateInMillis))
         }
     }
 

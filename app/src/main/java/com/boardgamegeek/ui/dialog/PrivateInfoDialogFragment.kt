@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
+import androidx.core.view.isInvisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -19,9 +20,8 @@ import com.boardgamegeek.databinding.DialogPrivateInfoBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
-import com.boardgamegeek.ui.widget.DatePickerDialogFragment
+import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.DecimalFormat
-import java.util.*
 
 class PrivateInfoDialogFragment : DialogFragment() {
     private var _binding: DialogPrivateInfoBinding? = null
@@ -78,10 +78,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
         )
         setUpValue(binding.currentValueView, savedInstanceState?.getDouble(KEY_CURRENT_VALUE) ?: arguments?.getDouble(KEY_CURRENT_VALUE))
         binding.quantityView.setAndSelectExistingText((savedInstanceState?.getInt(KEY_QUANTITY) ?: arguments?.getInt(KEY_QUANTITY)).toString())
-        acquisitionDate = savedInstanceState?.getLong(KEY_ACQUISITION_DATE) ?: arguments?.getLong(KEY_ACQUISITION_DATE) ?: 0L
-        binding.acquisitionDateView.text =
-            if (acquisitionDate == 0L) "" else DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
-        showOrHideAcquisitionDateLabel()
+        setAndDisplayAcquisitionDate(savedInstanceState?.getLong(KEY_ACQUISITION_DATE) ?: arguments?.getLong(KEY_ACQUISITION_DATE) ?: 0L)
         binding.acquiredFromView.setAndSelectExistingText(savedInstanceState?.getString(KEY_ACQUIRED_FROM) ?: arguments?.getString(KEY_ACQUIRED_FROM))
         binding.inventoryLocationView.setAndSelectExistingText(
             savedInstanceState?.getString(KEY_INVENTORY_LOCATION) ?: arguments?.getString(
@@ -90,23 +87,15 @@ class PrivateInfoDialogFragment : DialogFragment() {
         )
 
         binding.acquisitionDateView.setOnClickListener {
-            val datePickerDialogFragment = createDatePickerDialogFragment()
-            parentFragmentManager.executePendingTransactions()
-            datePickerDialogFragment.setOnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val calendar = Calendar.getInstance()
-                calendar.set(year, monthOfYear, dayOfMonth)
-                binding.acquisitionDateView.text = DateUtils.formatDateTime(context, calendar.timeInMillis, DateUtils.FORMAT_SHOW_DATE)
-                acquisitionDate = calendar.timeInMillis
-                showOrHideAcquisitionDateLabel()
+            val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(acquisitionDate).build()
+            datePicker.addOnPositiveButtonClickListener {
+                setAndDisplayAcquisitionDate(it.fromLocalToUtc())
             }
-            datePickerDialogFragment.setCurrentDateInMillis(if (acquisitionDate == 0L) System.currentTimeMillis() else acquisitionDate)
-            showAndSurvive(datePickerDialogFragment, DATE_PICKER_DIALOG_TAG)
+            datePicker.show(parentFragmentManager, DATE_PICKER_DIALOG_TAG)
         }
 
         binding.clearDateView.setOnClickListener {
-            acquisitionDate = 0L
-            binding.acquisitionDateView.text = ""
-            showOrHideAcquisitionDateLabel()
+            setAndDisplayAcquisitionDate(0L)
         }
     }
 
@@ -120,11 +109,6 @@ class PrivateInfoDialogFragment : DialogFragment() {
         outState.putLong(KEY_ACQUISITION_DATE, acquisitionDate)
         outState.putString(KEY_ACQUIRED_FROM, binding.acquiredFromView.text.trim().toString())
         outState.putString(KEY_INVENTORY_LOCATION, binding.inventoryLocationView.text.trim().toString())
-    }
-
-    private fun createDatePickerDialogFragment(): DatePickerDialogFragment {
-        return parentFragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG) as DatePickerDialogFragment?
-            ?: DatePickerDialogFragment()
     }
 
     override fun onResume() {
@@ -149,8 +133,11 @@ class PrivateInfoDialogFragment : DialogFragment() {
         editText.setAndSelectExistingText(if (value == null || value == 0.0) "" else CURRENCY_FORMAT.format(value))
     }
 
-    private fun showOrHideAcquisitionDateLabel() {
-        binding.acquisitionDateLabelView.visibility = if (binding.acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE // TODO
+    private fun setAndDisplayAcquisitionDate(new: Long) {
+        acquisitionDate = new
+        binding.acquisitionDateView.text =
+            if (acquisitionDate == 0L) "" else DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
+        binding.acquisitionDateLabelView.isInvisible = binding.acquisitionDateView.text.isEmpty()
     }
 
     companion object {
