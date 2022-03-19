@@ -46,12 +46,16 @@ class SaveViewDialogFragment : DialogFragment() {
                         .setTitle(R.string.title_collection_view_name_in_use)
                         .setMessage(R.string.msg_collection_view_name_in_use)
                         .setPositiveButton(R.string.update) { _, _ ->
-                            requireContext().toast(getString(R.string.msg_collection_view_updated, name))
+                            context?.let {
+                                toast(it.getString(R.string.msg_collection_view_updated, name))
+                            }
                             logAction(firebaseAnalytics, "Update", name)
                             viewModel.update(isDefault)
                         }
                         .setNegativeButton(R.string.create) { _, _ ->
-                            requireContext().toast(getString(R.string.msg_collection_view_inserted, name))
+                            context?.let {
+                                toast(it.getString(R.string.msg_collection_view_inserted, name))
+                            }
                             logAction(firebaseAnalytics, "Insert", name)
                             viewModel.insert(name, isDefault)
                         }
