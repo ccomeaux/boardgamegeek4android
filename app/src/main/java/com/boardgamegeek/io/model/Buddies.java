@@ -6,15 +6,10 @@ import org.simpleframework.xml.Root;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 @Root(name = "buddies")
 public class Buddies {
-
-	@Attribute(name = "total")
-	private int buddyTotal;
-
-	@Attribute(name = "page")
-	private int buddyPage;
-
-	@ElementList(inline = true, required = false)
-	public List<Buddy> buddies;
+	@Attribute(name = "total") private int buddyTotal;
+	@Attribute(name = "page") private int buddyPage;
+	@ElementList(inline = true, required = false) public List<Buddy> buddies;
 }

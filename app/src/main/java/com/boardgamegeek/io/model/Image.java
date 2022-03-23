@@ -2,6 +2,7 @@ package com.boardgamegeek.io.model;
 
 import java.util.List;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class Image {
 	String type;
 	String id;

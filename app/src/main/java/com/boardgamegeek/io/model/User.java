@@ -4,12 +4,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class User {
-	@Attribute
-	public String id;
-
-	@Attribute
-	public String name;
+	@Attribute public String id;
+	@Attribute public String name;
 
 	@Path(value = "firstname")
 	@Attribute(name = "value")

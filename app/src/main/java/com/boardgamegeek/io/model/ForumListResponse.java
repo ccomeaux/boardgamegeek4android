@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementList;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ForumListResponse {
 	@Attribute public String type;
 	@Attribute public int id;

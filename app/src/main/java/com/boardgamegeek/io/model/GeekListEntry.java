@@ -1,5 +1,6 @@
 package com.boardgamegeek.io.model;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class GeekListEntry {
 	public String href;
 	public int numpositive;

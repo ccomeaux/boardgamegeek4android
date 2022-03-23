@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementList;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class PlaysResponse {
 	private static final int PAGE_SIZE = 100;
 

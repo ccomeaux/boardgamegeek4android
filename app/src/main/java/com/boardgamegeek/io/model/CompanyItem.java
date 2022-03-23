@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
 public class CompanyItem {
 	@Attribute public String type;

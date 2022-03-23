@@ -3,7 +3,9 @@ package com.boardgamegeek.io.model;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
-@SuppressWarnings("unused")
+import androidx.annotation.NonNull;
+
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "forum")
 public class Forum {
 	@Attribute public int id;
@@ -15,6 +17,7 @@ public class Forum {
 	@Attribute public int numposts;
 	@Attribute public String lastpostdate;
 
+	@NonNull
 	@Override
 	public String toString() {
 		return "" + id + ": " + title + " - " + description;
