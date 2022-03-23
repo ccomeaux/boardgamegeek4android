@@ -19,7 +19,6 @@ import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.util.*
 
 class LogPlayViewModel(application: Application) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())

@@ -48,7 +48,6 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
 import kotlin.math.abs
 
 class LogPlayActivity : AppCompatActivity() {

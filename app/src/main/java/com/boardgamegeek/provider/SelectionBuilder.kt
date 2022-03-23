@@ -209,7 +209,7 @@ class SelectionBuilder {
     fun delete(db: SQLiteDatabase): Int {
         assertTable()
         Timber.v("DELETE: %s", this)
-        val selection = selection.orEmpty().ifEmpty { "1" } // this forces delete to return the count
+        val selection = selection.ifEmpty { "1" } // this forces delete to return the count
         val count = db.delete(tableName, selection, getSelectionArgs())
         Timber.v("deleted %,d rows", count)
         return count

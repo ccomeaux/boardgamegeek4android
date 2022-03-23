@@ -788,8 +788,8 @@ class GamePlayStatsFragment : Fragment() {
     val PlayEntity.date: String
         get() = FORMAT.format(this.dateInMillis)
 
-    val PlayEntity.year: String
-        get() = this.date.substring(0, 4)
+//    val PlayEntity.year: String
+//        get() = this.date.substring(0, 4)
 
     val PlayEntity.yearAndMonth: String
         get() = this.date.substring(0, 7)
