@@ -26,6 +26,7 @@
 			android:id="@+id/infoImageView"
 			android:layout_width="@dimen/icon_width"
 			android:layout_height="@dimen/icon_width"
+			android:contentDescription="@string/information"
 			android:scaleType="center"
 			android:src="@drawable/ic_outline_info_24"
 			android:visibility="invisible" />

@@ -31,6 +31,7 @@
 				android:layout_height="@dimen/icon_width"
 				android:layout_gravity="right"
 				android:background="?attr/selectableItemBackgroundBorderless"
+				android:contentDescription="@string/help_title"
 				android:scaleType="center"
 				android:src="@drawable/ic_baseline_help_outline_18"
 				app:tint="@color/accent" />
