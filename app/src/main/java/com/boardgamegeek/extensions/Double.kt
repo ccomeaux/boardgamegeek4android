@@ -18,7 +18,7 @@ fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.
 }
 
 fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
-    return asScore(context, defaultResId)
+    return asScore(context, defaultResId, DecimalFormat("#0.0"))
 }
 
 fun Double.asBoundedRating(context: Context): String {
