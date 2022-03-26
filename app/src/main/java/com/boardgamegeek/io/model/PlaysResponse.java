@@ -15,6 +15,7 @@ public class PlaysResponse {
 	@Attribute(required = false) private int page;
 	@ElementList(inline = true, required = false) public List<Play> plays;
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean hasMorePages() {
 		return page * PAGE_SIZE < total;
 	}
