@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.ProgressBar
 
+@Suppress("SpellCheckingInspection")
 /**
  * ContentLoadingProgressBar implements a ProgressBar that waits a minimum time to be
  * dismissed before showing. Once visible, the progress bar will be visible for

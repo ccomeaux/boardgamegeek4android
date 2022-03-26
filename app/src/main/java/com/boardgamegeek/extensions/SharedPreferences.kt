@@ -122,6 +122,7 @@ fun SharedPreferences.getSyncOnlyWifi(): Boolean {
 }
 
 private const val KEY_SYNC_STATUSES_OLD = "syncStatuses"
+@Suppress("SpellCheckingInspection")
 private const val SEPARATOR = "OV=I=XseparatorX=I=VO"
 
 fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String> {
@@ -234,7 +235,9 @@ const val KEY_ADVANCED_DATES = "advancedForumDates"
 const val KEY_LAST_PLAY_TIME = "last_play_time"
 const val KEY_LAST_PLAY_LOCATION = "last_play_location"
 const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
+@Suppress("SpellCheckingInspection")
 private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
+@Suppress("SpellCheckingInspection")
 private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
 
 fun SharedPreferences.putLastPlayTime(millis: Long) {

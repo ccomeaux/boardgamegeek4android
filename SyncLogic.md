@@ -40,7 +40,7 @@ A sync is requested every 8 hours. The OS controls when the sync actually occurs
 
 ## Buddies
 ### List
-  * Fetches the users's entire list of buddies - both adding and removing buddies
+  * Fetches the user's entire list of buddies - both adding and removing buddies
   * Only syncs every 3 days (not every 8 hours)
 ### Stale
   * Updates the oldest user (the user that hasn't been updated in the longest)

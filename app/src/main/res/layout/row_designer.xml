@@ -35,7 +35,7 @@
 		app:layout_constraintStart_toEndOf="@id/avatarView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="Klemenz Franz"/>
+		tools:text="John Smith"/>
 
 	<TextView
 		android:id="@+id/countView"

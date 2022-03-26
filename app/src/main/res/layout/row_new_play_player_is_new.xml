@@ -47,7 +47,7 @@
 		app:layout_constraintStart_toEndOf="@+id/colorView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="Bilbo Baggins" />
+		tools:text="@tools:sample/full_names" />
 
 	<TextView
 		android:id="@+id/usernameView"
@@ -61,7 +61,7 @@
 		app:layout_constraintStart_toEndOf="@+id/colorView"
 		app:layout_constraintTop_toBottomOf="@+id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="underhill" />
+		tools:text="username" />
 
 	<TextView
 		android:id="@+id/teamView"

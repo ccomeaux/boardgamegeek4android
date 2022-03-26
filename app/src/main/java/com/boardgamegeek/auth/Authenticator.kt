@@ -122,6 +122,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
     companion object {
         const val ACCOUNT_TYPE = "com.boardgamegeek"
         const val AUTH_TOKEN_TYPE = "com.boardgamegeek"
+        @Suppress("SpellCheckingInspection")
         const val KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY"
         private const val INVALID_USER_ID = "0"
         private const val KEY_USER_ID = "com.boardgamegeek.USER_ID"

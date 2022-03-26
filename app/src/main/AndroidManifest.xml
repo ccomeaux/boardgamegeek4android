@@ -381,7 +381,7 @@
 
 			<meta-data
 				android:name="android.content.SyncAdapter"
-				android:resource="@xml/syncadapter" />
+				android:resource="@xml/sync_adapter" />
 		</service>
 		<service
 			android:name=".auth.AuthenticationService"

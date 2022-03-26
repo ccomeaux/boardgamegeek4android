@@ -92,6 +92,7 @@ class TopGamesFragment : Fragment() {
         val gameElements = doc.select("td.collection_thumbnail")
         for (element in gameElements) {
             val link = element.getElementsByTag("a").first()
+            @Suppress("SpellCheckingInspection")
             val gameNameElement = element.parent()?.select(".collection_objectname")?.getOrNull(0)?.child(1)
             val yearPublishedText = gameNameElement?.child(1)?.text().orEmpty()
 

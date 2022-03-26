@@ -28,7 +28,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textAppearance="@style/TextAppearance.RowTitle"
-			tools:text="Terra Mystica" />
+			tools:text="Gaia Project" />
 
 		<TextView
 			android:id="@+id/yearView"

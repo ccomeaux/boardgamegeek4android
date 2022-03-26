@@ -334,7 +334,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                             addColumn(it, Tables.GAMES, Games.Columns.MIN_PLAYING_TIME, ColumnType.INTEGER)
                             addColumn(it, Tables.GAMES, Games.Columns.MAX_PLAYING_TIME, ColumnType.INTEGER)
                         }
-                        VER_SUGGESTED_PLAYER_COUNT_RESYNC -> {
+                        VER_SUGGESTED_PLAYER_COUNT_RE_SYNC -> {
                             it.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
                             SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
                         }
@@ -949,7 +949,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         private const val VER_SUGGESTED_PLAYER_COUNT_POLL = 44
         private const val VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION = 45
         private const val VER_MIN_MAX_PLAYING_TIME = 46
-        private const val VER_SUGGESTED_PLAYER_COUNT_RESYNC = 47
+        private const val VER_SUGGESTED_PLAYER_COUNT_RE_SYNC = 47
         private const val VER_GAME_HERO_IMAGE_URL = 48
         private const val VER_COLLECTION_HERO_IMAGE_URL = 49
         private const val VER_GAME_PALETTE_COLORS = 50

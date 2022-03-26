@@ -95,6 +95,7 @@ fun View.slideDownOut() {
     this.startAnimation(animation)
 }
 
+@Suppress("SpellCheckingInspection")
 /**
  * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
  * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't

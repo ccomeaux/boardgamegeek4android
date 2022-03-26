@@ -15,7 +15,7 @@ import java.util.*
 
 /**
  * Called from the search widget to populate the drop down list.
- * content://com.boardgamegeek/search_suggest_query/catan?limit=50
+ * content://com.boardgamegeek/search_suggest_query/keyword?limit=50
  */
 open class SearchSuggestProvider : BaseProvider() {
     override fun getType(uri: Uri) = SearchManager.SUGGEST_MIME_TYPE
@@ -48,6 +48,7 @@ open class SearchSuggestProvider : BaseProvider() {
     companion object {
         private const val GROUP_BY = "${Collection.Columns.COLLECTION_NAME}, ${Collection.Columns.COLLECTION_YEAR_PUBLISHED}"
 
+        @Suppress("SpellCheckingInspection")
         val suggestionProjectionMap = mutableMapOf(
             BaseColumns._ID to "${Tables.GAMES}.${BaseColumns._ID}",
             SearchManager.SUGGEST_COLUMN_TEXT_1 to "${Collection.Columns.COLLECTION_NAME} AS ${SearchManager.SUGGEST_COLUMN_TEXT_1}",

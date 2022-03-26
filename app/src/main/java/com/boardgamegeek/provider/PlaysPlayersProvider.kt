@@ -63,6 +63,7 @@ class PlaysPlayersProvider : BaseProvider() {
                 .mapToTable(BaseColumns._ID, Tables.PLAY_PLAYERS)
                 .mapToTable(PlayPlayers.Columns.NAME, Tables.PLAY_PLAYERS)
         }
+        @Suppress("SpellCheckingInspection")
         builder
             .mapAsCount(PlayPlayers.Columns.COUNT)
             .mapToTable(Plays.Columns.SYNC_TIMESTAMP, Tables.PLAYS)

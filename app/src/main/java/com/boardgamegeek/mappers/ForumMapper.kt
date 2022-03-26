@@ -49,4 +49,5 @@ fun ThreadResponse.mapToEntity(converter: XmlApi2MarkupConverter) = ThreadArticl
 )
 
 private val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
+@Suppress("SpellCheckingInspection")
 private val dateFormat2 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US)

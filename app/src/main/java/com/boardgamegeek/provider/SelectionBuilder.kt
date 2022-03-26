@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import timber.log.Timber
 
+@Suppress("SpellCheckingInspection")
 /**
  * Helper for building selection clauses for [SQLiteDatabase]. Each appended clause is combined using `AND`.
  * This class is *not* thread safe. Borrowed, then expanded, from com.google.android.apps.iosched.util.
@@ -116,21 +117,16 @@ class SelectionBuilder {
         return this
     }
 
-    fun mapIfNull(column: String, nullDefault: String, table: String? = null): SelectionBuilder {
-        return map(column, "IFNULL(${column.withTable(table)},$nullDefault)")
-    }
+    @Suppress("SpellCheckingInspection")
+    fun mapIfNull(column: String, nullDefault: String, table: String? = null) = map(column, "IFNULL(${column.withTable(table)},$nullDefault)")
 
-    fun mapAsSum(aliasColumn: String, sumColumn: String, table: String? = null): SelectionBuilder {
-        return map(aliasColumn, "SUM(${sumColumn.withTable(table)})")
-    }
+    fun mapAsSum(aliasColumn: String, sumColumn: String, table: String? = null) = map(aliasColumn, "SUM(${sumColumn.withTable(table)})")
 
     fun mapAsMax(aliasColumn: String, maxColumn: String) = map(aliasColumn, "MAX($maxColumn)")
 
     fun mapAsCount(fromColumn: String) = map(fromColumn, "COUNT(*)")
 
-    private fun String.withTable(table: String?): String {
-        return if (table == null) this else "$table.$this"
-    }
+    private fun String.withTable(table: String?): String = if (table == null) this else "$table.$this"
 
     fun groupBy(vararg groupArgs: String?): SelectionBuilder {
         groupBy.clear()

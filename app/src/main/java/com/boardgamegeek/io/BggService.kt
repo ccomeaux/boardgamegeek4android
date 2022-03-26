@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.boardgamegeek.io
 
 import com.boardgamegeek.io.model.*

@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.boardgamegeek.provider
 
 import android.net.Uri

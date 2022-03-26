@@ -48,14 +48,14 @@ class CollectionPrivateInfoUploadTask(client: OkHttpClient) : CollectionUploadTa
     }
 
     // Example response body
-    //	<table cellspacing=1 cellpadding=1 width='100%' class='collectiontable_ownership'>
+    //	<table>
     //	<tr>
     //	<td nowrap width='100'>Quantity:</td>
     //	<td nowrap>1</td>
     //	</tr>
     //	<tr>
     //	<td width='100'>Comments:</td>
-    //	<td>Privenn</td>
+    //	<td>Private</td>
     //	</tr>
     //	</table>
 }
