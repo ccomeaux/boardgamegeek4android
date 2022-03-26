@@ -132,12 +132,12 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-    def paging_version = "3.1.0"
+    def paging_version = "3.1.1"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    def arch_lifecycle_version = '2.4.0'
+    def arch_lifecycle_version = '2.4.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$arch_lifecycle_version"
 
