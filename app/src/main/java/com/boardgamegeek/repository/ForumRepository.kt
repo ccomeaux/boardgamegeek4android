@@ -7,12 +7,12 @@ import com.boardgamegeek.entities.ForumThreadsEntity
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.util.XmlApi2MarkupConverter
+import com.boardgamegeek.util.ForumXmlApiMarkupConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ForumRepository(application: Application) {
-    private val converter: XmlApi2MarkupConverter = XmlApi2MarkupConverter(application.getString(R.string.spoiler))
+    private val converter: ForumXmlApiMarkupConverter = ForumXmlApiMarkupConverter(application.getString(R.string.spoiler))
 
     suspend fun loadForGame(gameId: Int): List<ForumEntity> = withContext(Dispatchers.IO) {
         val response = Adapter.createForXml().forumList(BggService.FORUM_TYPE_THING, gameId)

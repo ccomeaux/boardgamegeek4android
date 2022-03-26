@@ -5,26 +5,25 @@ import java.util.regex.Pattern
 /**
  * Converts XML returned from the BGG API into HTML.
  */
-class XmlApi2MarkupConverter(spoilerTag: String) {
-
-    private val replacers = mutableListOf<Replaceable>()
+class ForumXmlApiMarkupConverter(spoilerTag: String) {
+    private val replacerList = mutableListOf<Replaceable>()
 
     init {
-        replacers.add(SimpleReplacer("\\[o\\]", "<details><summary>$spoilerTag</summary>"))
-        replacers.add(SimpleReplacer("\\[/o\\]", "</details>"))
+        replacerList.add(SimpleReplacer("\\[o\\]", "<details><summary>$spoilerTag</summary>"))
+        replacerList.add(SimpleReplacer("\\[/o\\]", "</details>"))
         createPair("heading", "h3")
-        replacers.add(SimpleReplacer("\\[hr\\]", "<hr/>"))
+        replacerList.add(SimpleReplacer("\\[hr\\]", "<hr/>"))
     }
 
     private fun createPair(tag: String, replacementTag: String) {
-        replacers.add(SimpleReplacer.createStart(tag, replacementTag))
-        replacers.add(SimpleReplacer.createEnd(tag, replacementTag))
+        replacerList.add(SimpleReplacer.createStart(tag, replacementTag))
+        replacerList.add(SimpleReplacer.createEnd(tag, replacementTag))
     }
 
     fun toHtml(text: String?): String {
         var html = text.orEmpty()
         if (html.isEmpty()) return ""
-        for (replacer in replacers) {
+        for (replacer in replacerList) {
             html = replacer.replace(html)
         }
         return html
