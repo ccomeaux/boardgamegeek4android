@@ -12,7 +12,7 @@ class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
 
     override val optionsMenuId = R.menu.plays_summary
 
-    override val answersContentType = "PlaysSummary"
+    override val firebaseContentType = "PlaysSummary"
 
     override fun onCreatePane(): Fragment = PlaysSummaryFragment()
 

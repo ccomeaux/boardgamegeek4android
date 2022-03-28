@@ -12,7 +12,7 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
     var fragment: Fragment? = null
         private set
 
-    open val answersContentType: String = ""
+    open val firebaseContentType: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,9 +21,9 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
 
         if (savedInstanceState == null) {
             createFragment()
-            if (answersContentType.isNotBlank()) {
+            if (firebaseContentType.isNotBlank()) {
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
-                    param(FirebaseAnalytics.Param.CONTENT_TYPE, answersContentType)
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, firebaseContentType)
                 }
             }
         } else {

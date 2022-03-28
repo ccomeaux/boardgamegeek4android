@@ -5,7 +5,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
 
 class HotnessActivity : TopLevelSinglePaneActivity() {
-    override val answersContentType = "Hotness"
+    override val firebaseContentType = "Hotness"
 
     override fun onCreatePane() = HotnessFragment()
 

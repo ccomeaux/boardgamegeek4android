@@ -7,7 +7,7 @@ import com.boardgamegeek.extensions.clearTop
 import com.boardgamegeek.extensions.intentFor
 
 class ForumsActivity : TopLevelSinglePaneActivity() {
-    override val answersContentType = "Forums"
+    override val firebaseContentType = "Forums"
 
     override fun onCreatePane(): Fragment = ForumsFragment.newInstance()
 

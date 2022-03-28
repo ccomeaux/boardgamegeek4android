@@ -16,7 +16,7 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
 
     private val viewModel by viewModels<BuddiesViewModel>()
 
-    override val answersContentType = "Buddies"
+    override val firebaseContentType = "Buddies"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
