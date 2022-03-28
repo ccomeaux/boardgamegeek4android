@@ -52,8 +52,8 @@ class NewPlayActivity : AppCompatActivity() {
                     viewModel.addedPlayers.value?.size ?: 0,
                     startTime,
                     thumbnailUrl.orEmpty(),
+                    heroImageUrl.orEmpty(),
                     imageUrl.orEmpty(),
-                    heroImageUrl.orEmpty()
                 )
             }
             setResult(Activity.RESULT_OK)

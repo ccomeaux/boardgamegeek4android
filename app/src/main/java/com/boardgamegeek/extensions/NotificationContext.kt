@@ -74,11 +74,9 @@ fun Context.launchPlayingNotification(
     location: String,
     playerCount: Int,
     startTime: Long,
-    thumbnailUrl: String = "",
-    imageUrl: String = "",
-    heroImageUrl: String = "",
+    vararg imageUrl: String,
 ) {
-    val loader = LargeIconLoader(this, imageUrl, thumbnailUrl, heroImageUrl, object : LargeIconLoader.Callback {
+    val loader = LargeIconLoader(this, *imageUrl, callback = object : LargeIconLoader.Callback {
         override fun onSuccessfulIconLoad(bitmap: Bitmap) {
             buildAndNotifyPlaying(internalId, gameName, location, playerCount, startTime, largeIcon = bitmap)
         }

@@ -14,7 +14,6 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
 import com.boardgamegeek.util.LargeIconLoader.Callback
 import timber.log.Timber
-import java.util.*
 
 abstract class SyncUploadTask(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val notificationMessages = ArrayList<CharSequence>()
@@ -34,12 +33,12 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     @get:PluralsRes
     protected abstract val summarySuffixResId: Int
 
-    protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
+    protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, vararg imageUrl: String) {
         if (prefs[KEY_SYNC_UPLOADS, true] != true) return
 
         notificationMessages.add(context.getText(R.string.msg_play_upload, title, message))
 
-        val loader = LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, object : Callback {
+        val loader = LargeIconLoader(context, *imageUrl, callback = object : Callback {
             override fun onSuccessfulIconLoad(bitmap: Bitmap) {
                 buildAndNotify(title, message, id, bitmap)
             }

@@ -15,11 +15,14 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.CollectionItemForUploadEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.NotificationTags
+import com.boardgamegeek.extensions.getBoolean
+import com.boardgamegeek.extensions.intentFor
+import com.boardgamegeek.extensions.whereNullOrBlank
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
@@ -27,7 +30,6 @@ import com.boardgamegeek.util.HttpUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import timber.log.Timber
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) :
@@ -266,9 +268,9 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
             item.collectionName,
             context.getString(messageResId),
             id,
-            item.imageUrl,
+            item.heroImageUrl,
             item.thumbnailUrl,
-            item.heroImageUrl
+            item.imageUrl,
         )
     }
 

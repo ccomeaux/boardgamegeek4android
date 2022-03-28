@@ -294,9 +294,9 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
             play.gameName,
             message,
             currentPlay.internalIdAsInt,
-            currentPlay.imageUrl,
+            currentPlay.heroImageUrl,
             currentPlay.thumbnailUrl,
-            currentPlay.heroImageUrl
+            currentPlay.imageUrl,
         )
     }
 
