@@ -7,7 +7,7 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
       - name: Create google-services.json file
-        run: touch /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
+        run: cat /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json | base64
       - name: Fill google-services.json file
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
