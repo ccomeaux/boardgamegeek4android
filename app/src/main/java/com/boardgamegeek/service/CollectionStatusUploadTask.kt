@@ -1,7 +1,7 @@
 package com.boardgamegeek.service
 
 import android.content.ContentValues
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Collection
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import timber.log.Timber
@@ -11,7 +11,7 @@ class CollectionStatusUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
     //	<div class='wishlist'>Wishlist(3)
     //	<br>&nbsp;(Like&nbsp;to&nbsp;have)
     //	</div>
-    override val timestampColumn = BggContract.Collection.STATUS_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.Columns.STATUS_DIRTY_TIMESTAMP
 
     override val isDirty: Boolean
         get() = collectionItem.statusTimestamp > 0L
@@ -19,17 +19,17 @@ class CollectionStatusUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
     override fun createForm(): FormBody {
         @Suppress("SpellCheckingInspection")
         return createFormBuilder()
-                .add("fieldname", "status")
-                .add("own", if (collectionItem.owned) "1" else "0")
-                .add("prevowned", if (collectionItem.previouslyOwned) "1" else "0")
-                .add("fortrade", if (collectionItem.forTrade) "1" else "0")
-                .add("want", if (collectionItem.wantInTrade) "1" else "0")
-                .add("wanttobuy", if (collectionItem.wantToBuy) "1" else "0")
-                .add("wanttoplay", if (collectionItem.wantToPlay) "1" else "0")
-                .add("preordered", if (collectionItem.preordered) "1" else "0")
-                .add("wishlist", if (collectionItem.wishlist) "1" else "0")
-                .add("wishlistpriority", collectionItem.wishlistPriority.toString())
-                .build()
+            .add("fieldname", "status")
+            .add("own", if (collectionItem.owned) "1" else "0")
+            .add("prevowned", if (collectionItem.previouslyOwned) "1" else "0")
+            .add("fortrade", if (collectionItem.forTrade) "1" else "0")
+            .add("want", if (collectionItem.wantInTrade) "1" else "0")
+            .add("wanttobuy", if (collectionItem.wantToBuy) "1" else "0")
+            .add("wanttoplay", if (collectionItem.wantToPlay) "1" else "0")
+            .add("preordered", if (collectionItem.preordered) "1" else "0")
+            .add("wishlist", if (collectionItem.wishlist) "1" else "0")
+            .add("wishlistpriority", collectionItem.wishlistPriority.toString())
+            .build()
     }
 
     override fun saveContent(content: String) {
@@ -37,6 +37,6 @@ class CollectionStatusUploadTask(client: OkHttpClient) : CollectionUploadTask(cl
     }
 
     override fun appendContentValues(contentValues: ContentValues) {
-        contentValues.put(BggContract.Collection.STATUS_DIRTY_TIMESTAMP, 0)
+        contentValues.put(Collection.Columns.STATUS_DIRTY_TIMESTAMP, 0)
     }
 }

@@ -1,22 +1,27 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentForumBinding
 import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
-import kotlinx.android.synthetic.main.fragment_forum.*
-import org.jetbrains.anko.support.v4.withArguments
+import kotlinx.coroutines.launch
 
-class ForumFragment : Fragment(R.layout.fragment_forum) {
+class ForumFragment : Fragment() {
+    private var _binding: FragmentForumBinding? = null
+    private val binding get() = _binding!!
     private var forumId = BggContract.INVALID_ID
     private var forumTitle = ""
     private var objectId = BggContract.INVALID_ID
@@ -29,35 +34,55 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
         ForumPagedListAdapter(forumId, forumTitle, objectId, objectName, objectType)
     }
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentForumBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        readBundle(arguments)
+        arguments?.let {
+            forumId = it.getInt(KEY_FORUM_ID, BggContract.INVALID_ID)
+            forumTitle = it.getString(KEY_FORUM_TITLE).orEmpty()
+            objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
+            objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
+            objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+        }
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.recyclerView.adapter = adapter
 
-        viewModel.threads.observe(viewLifecycleOwner, Observer { threads ->
-            adapter.submitList(threads)
-            if (threads.size == 0) {
-                recyclerView.fadeOut()
-                emptyView.fadeIn(isResumed)
-            } else {
-                emptyView.fadeOut()
-                recyclerView.fadeIn(isResumed)
+        adapter.addLoadStateListener { loadStates ->
+            when (val state = loadStates.refresh) {
+                is LoadState.Loading -> {
+                    binding.progressView.show()
+                }
+                is LoadState.NotLoading -> {
+                    binding.emptyView.setText(R.string.empty_forum)
+                    binding.emptyView.isVisible = adapter.itemCount == 0
+                    binding.recyclerView.isVisible = adapter.itemCount > 0
+                    binding.progressView.hide()
+                }
+                is LoadState.Error -> {
+                    binding.emptyView.text = state.error.localizedMessage
+                    binding.emptyView.isVisible = true
+                    binding.recyclerView.isVisible = false
+                    binding.progressView.hide()
+                }
             }
-            progressView.hide()
-        })
+        }
+
+        viewModel.threads.observe(viewLifecycleOwner) { threads ->
+            lifecycleScope.launch { adapter.submitData(threads) }
+            binding.recyclerView.isVisible = true
+        }
         viewModel.setForumId(forumId)
     }
 
-    private fun readBundle(bundle: Bundle?) {
-        bundle?.let {
-            forumId = it.getInt(KEY_FORUM_ID, BggContract.INVALID_ID)
-            forumTitle = it.getString(KEY_FORUM_TITLE) ?: ""
-            objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
-            objectName = it.getString(KEY_OBJECT_NAME) ?: ""
-            objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {
@@ -68,13 +93,15 @@ class ForumFragment : Fragment(R.layout.fragment_forum) {
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
 
         fun newInstance(forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType?): ForumFragment {
-            return ForumFragment().withArguments(
+            return ForumFragment().apply {
+                arguments = bundleOf(
                     KEY_FORUM_ID to forumId,
                     KEY_FORUM_TITLE to forumTitle,
                     KEY_OBJECT_ID to objectId,
                     KEY_OBJECT_NAME to objectName,
-                    KEY_OBJECT_TYPE to objectType
-            )
+                    KEY_OBJECT_TYPE to objectType,
+                )
+            }
         }
     }
 }

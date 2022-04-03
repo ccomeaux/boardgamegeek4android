@@ -1,28 +1,50 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.livedata.AbsentLiveData
+import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class PlayViewModel(application: Application) : AndroidViewModel(application) {
-    val repository = PlayRepository(getApplication())
+    private val repository = PlayRepository(getApplication())
+    private val arePlaysRefreshing = AtomicBoolean()
+    private val forceRefresh = AtomicBoolean()
 
     private val internalId = MutableLiveData<Long>()
     private val _updatedId = MutableLiveData<Long>()
     val updatedId: LiveData<Long>
         get() = _updatedId
 
-    val play: LiveData<RefreshableResource<PlayEntity>> = Transformations.switchMap(internalId) { id ->
-        when (id) {
-            null -> AbsentLiveData.create()
-            else -> repository.getPlay(id)
+    val play: LiveData<RefreshableResource<PlayEntity>> = internalId.switchMap { id ->
+        liveData {
+            try {
+                latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
+                val play = repository.loadPlay(id)
+                emit(RefreshableResource.success(play))
+                if (arePlaysRefreshing.compareAndSet(false, true)) {
+                    play?.let {
+                        val canRefresh = it.playId != BggContract.INVALID_ID && it.gameId != BggContract.INVALID_ID
+                        val shouldRefresh = it.syncTimestamp.isOlderThan(2, TimeUnit.HOURS)
+                        if (canRefresh && (shouldRefresh || forceRefresh.compareAndSet(true, false))) {
+                            emit(RefreshableResource.refreshing(it))
+                            repository.refreshPlay(id, it.playId, it.gameId)
+                            val refreshedPlay = repository.loadPlay(id)
+                            emit(RefreshableResource.success(refreshedPlay))
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                emit(RefreshableResource.error(e, application))
+            } finally {
+                arePlaysRefreshing.set(false)
+            }
         }
     }
 
@@ -31,28 +53,45 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refresh() {
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        play.value?.data?.let {
+            if (it.updateTimestamp > 0 || it.deleteTimestamp > 0)
+                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        }
+        forceRefresh.set(true)
+        reload()
+    }
+
+    fun reload() {
         internalId.value = internalId.value
     }
 
     fun discard() {
-        play.value?.data?.let {
-            repository.markAsDiscarded(it.internalId, _updatedId)
+        viewModelScope.launch {
+            play.value?.data?.let {
+                repository.markAsDiscarded(it.internalId)
+                _updatedId.postValue(it.internalId)
+            }
+            refresh() // pull down the data from BGG
         }
-        refresh() // pull down the data from BGG
     }
 
     fun send() {
-        play.value?.data?.let {
-            repository.markAsUpdated(it.internalId, _updatedId)
+        viewModelScope.launch {
+            play.value?.data?.let {
+                repository.markAsUpdated(it.internalId)
+                _updatedId.postValue(it.internalId)
+            }
+            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         }
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 
     fun delete() {
-        play.value?.data?.let {
-            repository.markAsDeleted(it.internalId, _updatedId)
+        viewModelScope.launch {
+            play.value?.data?.let {
+                repository.markAsDeleted(it.internalId)
+                _updatedId.postValue(it.internalId)
+            }
+            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         }
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 }

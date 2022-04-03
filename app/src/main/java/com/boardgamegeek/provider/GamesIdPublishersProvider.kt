@@ -4,10 +4,12 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers.GAME_ID
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdPublishersProvider : BaseProvider() {
     override fun getType(uri: Uri) = Publishers.CONTENT_TYPE
@@ -24,11 +26,11 @@ class GamesIdPublishersProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_PUBLISHERS_JOIN_PUBLISHERS)
-                .mapToTable(Publishers._ID, Tables.PUBLISHERS)
-                .mapToTable(Publishers.PUBLISHER_ID, Tables.PUBLISHERS)
-                .mapToTable(SyncColumns.UPDATED, Tables.PUBLISHERS)
-                .whereEquals("${Tables.GAMES_PUBLISHERS}.$GAME_ID", gameId)
+            .table(Tables.GAMES_PUBLISHERS_JOIN_PUBLISHERS)
+            .mapToTable(BaseColumns._ID, Tables.PUBLISHERS)
+            .mapToTable(Publishers.Columns.PUBLISHER_ID, Tables.PUBLISHERS)
+            .mapToTable(Publishers.Columns.UPDATED, Tables.PUBLISHERS)
+            .whereEquals("${Tables.GAMES_PUBLISHERS}.$GAME_ID", gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {

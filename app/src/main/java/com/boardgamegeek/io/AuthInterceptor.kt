@@ -5,7 +5,7 @@ import android.accounts.AuthenticatorException
 import android.accounts.OperationCanceledException
 import android.content.Context
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber
@@ -24,8 +24,7 @@ class AuthInterceptor(private val context: Context?) : Interceptor {
                     val password = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true)
                     if (account.name != null && account.name.isNotBlank() &&
                             password != null && password.isNotBlank()) {
-                        val username = HttpUtils.encode(account.name)
-                        val cookieValue = "bggusername=$username; bggpassword=$password"
+                        val cookieValue = "bggusername=${account.name.encodeForUrl()}; bggpassword=$password"
                         val request = originalRequest.newBuilder().addHeader("Cookie", cookieValue).build()
                         return chain.proceed(request)
                     }

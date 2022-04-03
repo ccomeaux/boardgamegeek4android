@@ -146,7 +146,7 @@
 					android:textAppearance="@style/Text.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/locationView"
-					tools:text="1 hrs 26 mins" />
+					tools:text="1 hrs 26 mins"/>
 
 				<Chronometer
 					android:id="@+id/timerView"
@@ -166,7 +166,7 @@
 					android:background="?attr/selectableItemBackgroundBorderless"
 					android:contentDescription="@string/timer"
 					android:scaleType="center"
-					android:src="@drawable/ic_timer_off"
+					android:src="@drawable/ic_outline_timer_off_24"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
 					app:layout_constraintTop_toBottomOf="@id/locationView" />
 

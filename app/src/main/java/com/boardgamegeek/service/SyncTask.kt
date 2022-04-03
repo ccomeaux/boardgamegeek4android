@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SyncResult
+import android.os.Build
 import androidx.annotation.PluralsRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
@@ -12,7 +13,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.util.NotificationUtils
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -66,26 +66,28 @@ abstract class SyncTask(protected val application: BggApplication, protected val
         FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_DETAIL, detail ?: "")
         if (prefs[KEY_SYNC_NOTIFICATIONS, false] != true) return
 
-        val message = if (notificationSummaryMessageId == NO_NOTIFICATION)
-            ""
-        else
-            context.getString(notificationSummaryMessageId)
+        val message = if (notificationSummaryMessageId == NO_NOTIFICATION) "" else context.getString(notificationSummaryMessageId)
 
         val intent = Intent(context, CancelReceiver::class.java)
         intent.action = SyncService.ACTION_CANCEL_SYNC
-        val pi = PendingIntent.getBroadcast(context, 0, intent, 0)
-        val builder = NotificationUtils
-                .createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setOngoing(true)
-                .setProgress(1, 0, true)
-                .addAction(R.drawable.ic_stat_cancel, context.getString(R.string.cancel), pi)
+        val cancelIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+        val builder = context
+            .createNotificationBuilder(R.string.sync_notification_title, NotificationChannels.SYNC_PROGRESS)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setOngoing(true)
+            .setProgress(1, 0, true)
+            .addAction(R.drawable.ic_baseline_clear_24, context.getString(R.string.cancel), cancelIntent)
         if (!detail.isNullOrBlank()) {
             builder.setStyle(BigTextStyle().bigText(detail))
         }
-        NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_PROGRESS, 0, builder)
+        context.notify(builder, NotificationTags.SYNC_PROGRESS)
     }
 
     /**
@@ -119,16 +121,16 @@ abstract class SyncTask(protected val application: BggApplication, protected val
         val bigText = if (notificationSummaryMessageId == NO_NOTIFICATION) errorMessage
         else (detailMessage + "\n" + errorMessage).trim()
 
-        val builder = NotificationUtils
-                .createNotificationBuilder(context, R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
-                .setContentText(contentMessage)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
+        val builder = context
+            .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
+            .setContentText(contentMessage)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_ERROR)
         if (bigText.isNotBlank()) {
             builder.setStyle(BigTextStyle().bigText(bigText))
         }
 
-        NotificationUtils.notify(context, NotificationUtils.TAG_SYNC_ERROR, 0, builder)
+        context.notify(builder, NotificationTags.SYNC_ERROR)
     }
 
     /**
@@ -140,12 +142,18 @@ abstract class SyncTask(protected val application: BggApplication, protected val
             Timber.d("Sleeping for %,d millis", timeUnit.toMillis(duration))
             if (showNotification) {
                 val durationSeconds = timeUnit.toSeconds(duration).toInt()
-                updateProgressNotification(context.resources.getQuantityString(R.plurals.sync_notification_collection_sleeping, durationSeconds, durationSeconds))
+                updateProgressNotification(
+                    context.resources.getQuantityString(
+                        R.plurals.sync_notification_collection_sleeping,
+                        durationSeconds,
+                        durationSeconds
+                    )
+                )
             }
             timeUnit.sleep(duration)
         } catch (e: InterruptedException) {
             Timber.w(e, "Sleeping interrupted during sync.")
-            NotificationUtils.cancel(context, NotificationUtils.TAG_SYNC_PROGRESS)
+            context.cancelNotification(NotificationTags.SYNC_PROGRESS)
             return true
         }
 

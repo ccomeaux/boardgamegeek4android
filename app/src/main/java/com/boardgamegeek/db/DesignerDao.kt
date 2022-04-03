@@ -1,17 +1,15 @@
 package com.boardgamegeek.db
 
 import android.content.ContentValues
-import androidx.core.content.contentValuesOf
-import androidx.lifecycle.LiveData
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonImagesEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.model.Person
-import com.boardgamegeek.io.model.PersonResponse2
-import com.boardgamegeek.livedata.RegisteredLiveData
 import com.boardgamegeek.provider.BggContract.Designers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class DesignerDao(private val context: BggApplication) {
@@ -21,162 +19,100 @@ class DesignerDao(private val context: BggApplication) {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    fun loadDesignersAsLiveData(sortBy: SortType): LiveData<List<PersonEntity>> {
-        return RegisteredLiveData(context, Designers.CONTENT_URI, true) {
-            return@RegisteredLiveData loadDesigners(sortBy)
-        }
-    }
-
-    private fun loadDesigners(sortBy: SortType): List<PersonEntity> {
+    suspend fun loadDesigners(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
         val results = arrayListOf<PersonEntity>()
-        val sortByName = Designers.DESIGNER_NAME.collateNoCase().ascending()
+        val sortByName = Designers.Columns.DESIGNER_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Designers.ITEM_COUNT.descending().plus(", $sortByName")
-            SortType.WHITMORE_SCORE -> Designers.WHITMORE_SCORE.descending().plus(", $sortByName")
+            SortType.ITEM_COUNT -> Designers.Columns.ITEM_COUNT.descending().plus(", $sortByName")
+            SortType.WHITMORE_SCORE -> Designers.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
         context.contentResolver.load(
-                Designers.CONTENT_URI,
-                arrayOf(
-                        Designers.DESIGNER_ID,
-                        Designers.DESIGNER_NAME,
-                        Designers.DESIGNER_DESCRIPTION,
-                        Designers.UPDATED,
-                        Designers.DESIGNER_THUMBNAIL_URL,
-                        Designers.ITEM_COUNT,
-                        Designers.WHITMORE_SCORE,
-                        Designers.DESIGNER_STATS_UPDATED_TIMESTAMP
-                ),
-                sortOrder = sortOrder
+            Designers.CONTENT_URI,
+            arrayOf(
+                Designers.Columns.DESIGNER_ID,
+                Designers.Columns.DESIGNER_NAME,
+                Designers.Columns.DESIGNER_DESCRIPTION,
+                Designers.Columns.UPDATED,
+                Designers.Columns.DESIGNER_THUMBNAIL_URL,
+                Designers.Columns.DESIGNER_HERO_IMAGE_URL,
+                Designers.Columns.ITEM_COUNT,
+                Designers.Columns.WHITMORE_SCORE,
+                Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP
+            ),
+            sortOrder = sortOrder
         )?.use {
             if (it.moveToFirst()) {
                 do {
                     results += PersonEntity(
-                            it.getInt(Designers.DESIGNER_ID),
-                            it.getStringOrEmpty(Designers.DESIGNER_NAME),
-                            it.getStringOrEmpty(Designers.DESIGNER_DESCRIPTION),
-                            it.getLongOrZero(Designers.UPDATED),
-                            it.getStringOrEmpty(Designers.DESIGNER_THUMBNAIL_URL),
-                            it.getIntOrZero(Designers.ITEM_COUNT),
-                            it.getIntOrZero(Designers.WHITMORE_SCORE),
-                            it.getLongOrZero(Designers.DESIGNER_STATS_UPDATED_TIMESTAMP)
+                        id = it.getInt(0),
+                        name = it.getStringOrNull(1).orEmpty(),
+                        description = it.getStringOrNull(2).orEmpty(),
+                        updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                        heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                        itemCount = it.getIntOrNull(6) ?: 0,
+                        whitmoreScore = it.getIntOrNull(7) ?: 0,
+                        statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
                     )
                 } while (it.moveToNext())
             }
         }
-        return results
+        results
     }
 
-    fun loadDesignerAsLiveData(id: Int): LiveData<PersonEntity> {
-        return RegisteredLiveData(context, Designers.buildDesignerUri(id), true) {
-            return@RegisteredLiveData loadDesigner(id)
-        }
-    }
-
-    fun loadDesigner(id: Int): PersonEntity? {
-        return context.contentResolver.load(
-                Designers.buildDesignerUri(id),
-                arrayOf(
-                        Designers.DESIGNER_ID,
-                        Designers.DESIGNER_NAME,
-                        Designers.DESIGNER_DESCRIPTION,
-                        Designers.UPDATED,
-                        Designers.WHITMORE_SCORE
-                )
+    suspend fun loadDesigner(id: Int): PersonEntity? = withContext(Dispatchers.IO) {
+        context.contentResolver.load(
+            Designers.buildDesignerUri(id),
+            arrayOf(
+                Designers.Columns.DESIGNER_ID,
+                Designers.Columns.DESIGNER_NAME,
+                Designers.Columns.DESIGNER_DESCRIPTION,
+                Designers.Columns.UPDATED,
+                Designers.Columns.WHITMORE_SCORE,
+                Designers.Columns.DESIGNER_THUMBNAIL_URL,
+                Designers.Columns.DESIGNER_IMAGE_URL,
+                Designers.Columns.DESIGNER_HERO_IMAGE_URL,
+                Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP,
+                Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP,
+            )
         )?.use {
             if (it.moveToFirst()) {
                 PersonEntity(
-                        it.getInt(Designers.DESIGNER_ID),
-                        it.getStringOrEmpty(Designers.DESIGNER_NAME),
-                        it.getStringOrEmpty(Designers.DESIGNER_DESCRIPTION),
-                        it.getLongOrZero(Designers.UPDATED),
-                        whitmoreScore = it.getIntOrZero(Designers.WHITMORE_SCORE)
+                    id = it.getInt(0),
+                    name = it.getStringOrNull(1).orEmpty(),
+                    description = it.getStringOrNull(2).orEmpty(),
+                    updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                    whitmoreScore = it.getIntOrNull(4) ?: 0,
+                    thumbnailUrl = it.getStringOrNull(5).orEmpty(),
+                    imageUrl = it.getStringOrNull(6).orEmpty(),
+                    heroImageUrl = it.getStringOrNull(7).orEmpty(),
+                    statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
+                    imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
                 )
             } else null
         }
     }
 
-    fun saveDesigner(id: Int, designer: Person?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (designer != null && !designer.name.isNullOrBlank()) {
-            val values = contentValuesOf(
-                    Designers.DESIGNER_NAME to designer.name,
-                    Designers.DESIGNER_DESCRIPTION to (if (designer.description == "This page does not exist. You can edit this page to create it.") "" else designer.description),
-                    Designers.UPDATED to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
-    }
+    suspend fun loadCollection(designerId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
+        collectionDao.loadLinkedCollection(Designers.buildDesignerCollectionUri(designerId), sortBy)
 
-    fun loadDesignerImagesAsLiveData(id: Int): LiveData<PersonImagesEntity> {
-        return RegisteredLiveData(context, Designers.buildDesignerUri(id), true) {
-            return@RegisteredLiveData loadDesignerImages(id)
-        }
-    }
-
-    private fun loadDesignerImages(id: Int): PersonImagesEntity? {
-        return context.contentResolver.load(
-                Designers.buildDesignerUri(id),
-                arrayOf(
-                        Designers.DESIGNER_ID,
-                        Designers.DESIGNER_IMAGE_URL,
-                        Designers.DESIGNER_THUMBNAIL_URL,
-                        Designers.DESIGNER_HERO_IMAGE_URL,
-                        Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP
-                )
-        )?.use {
-            if (it.moveToFirst()) {
-                PersonImagesEntity(
-                        it.getInt(Designers.DESIGNER_ID),
-                        it.getStringOrEmpty(Designers.DESIGNER_IMAGE_URL),
-                        it.getStringOrEmpty(Designers.DESIGNER_THUMBNAIL_URL),
-                        it.getStringOrEmpty(Designers.DESIGNER_HERO_IMAGE_URL),
-                        it.getLongOrZero(Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP)
-                )
-            } else null
-        }
-    }
-
-    fun saveDesignerImage(id: Int, designer: PersonResponse2?, updateTime: Long = System.currentTimeMillis()): Int {
-        if (designer != null) {
-            val values = contentValuesOf(
-                    Designers.DESIGNER_IMAGE_URL to designer.items[0].image,
-                    Designers.DESIGNER_THUMBNAIL_URL to designer.items[0].thumbnail,
-                    Designers.DESIGNER_IMAGES_UPDATED_TIMESTAMP to updateTime
-            )
-            return upsert(values, id)
-        }
-        return 0
-    }
-
-    fun loadCollectionAsLiveData(id: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING): LiveData<List<BriefGameEntity>> {
-        val uri = Designers.buildDesignerCollectionUri(id)
-        return RegisteredLiveData(context, uri, true) {
-            return@RegisteredLiveData collectionDao.loadLinkedCollection(uri, sortBy)
-        }
-    }
-
-    fun loadCollection(id: Int): List<BriefGameEntity> {
-        val uri = Designers.buildDesignerCollectionUri(id)
-        return collectionDao.loadLinkedCollection(uri)
-    }
-
-    fun update(designerId: Int, values: ContentValues): Int {
-        return context.contentResolver.update(Designers.buildDesignerUri(designerId), values, null, null)
-    }
-
-    private fun upsert(values: ContentValues, designerId: Int): Int {
+    suspend fun upsert(designerId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
         val uri = Designers.buildDesignerUri(designerId)
-        return if (resolver.rowExists(uri)) {
+        if (resolver.rowExists(uri)) {
             val count = resolver.update(uri, values, null, null)
             Timber.d("Updated %,d designer rows at %s", count, uri)
             count
         } else {
-            values.put(Designers.DESIGNER_ID, designerId)
+            values.put(Designers.Columns.DESIGNER_ID, designerId)
             val insertedUri = resolver.insert(Designers.CONTENT_URI, values)
             Timber.d("Inserted designer at %s", insertedUri)
             1
         }
+    }
+
+    suspend fun delete(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Designers.CONTENT_URI, null, null)
     }
 }

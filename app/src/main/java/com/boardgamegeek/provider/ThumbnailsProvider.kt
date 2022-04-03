@@ -3,7 +3,7 @@ package com.boardgamegeek.provider
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.PATH_THUMBNAILS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
 import com.boardgamegeek.util.FileUtils
 import timber.log.Timber
 import java.io.IOException

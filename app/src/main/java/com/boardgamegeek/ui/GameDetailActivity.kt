@@ -6,16 +6,16 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class GameDetailActivity : SimpleSinglePaneActivity() {
     private var title: String = ""
-    private var gameId: Int = 0
+    private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
     private var type: ProducerType = ProducerType.UNKNOWN
 
@@ -42,7 +42,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
     override fun readIntent(intent: Intent) {
         title = intent.getStringExtra(KEY_TITLE).orEmpty()
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         type = intent.getSerializableExtra(KEY_TYPE) as ProducerType
     }
 
@@ -72,10 +72,11 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, title: String, gameId: Int, gameName: String, type: ProducerType) {
             context.startActivity<GameDetailActivity>(
-                    KEY_TITLE to title,
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_TYPE to type)
+                KEY_TITLE to title,
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
+                KEY_TYPE to type,
+            )
         }
     }
 }

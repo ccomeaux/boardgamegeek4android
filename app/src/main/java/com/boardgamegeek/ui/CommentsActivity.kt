@@ -6,13 +6,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameCommentsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class CommentsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
@@ -23,13 +22,6 @@ class CommentsActivity : SimpleSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.setGameId(gameId)
-        viewModel.setSort(if (sortType == SORT_TYPE_USER) GameCommentsViewModel.SortType.USER else GameCommentsViewModel.SortType.RATING)
-        viewModel.sort.observe(this, Observer {
-            sortType = if (it == GameCommentsViewModel.SortType.RATING) SORT_TYPE_RATING else SORT_TYPE_USER
-            invalidateOptionsMenu()
-        })
-
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "GameComments")
@@ -37,11 +29,18 @@ class CommentsActivity : SimpleSinglePaneActivity() {
                 param(FirebaseAnalytics.Param.ITEM_NAME, gameName)
             }
         }
+
+        viewModel.setGameId(gameId)
+        viewModel.setSort(if (sortType == SORT_TYPE_USER) GameCommentsViewModel.SortType.USER else GameCommentsViewModel.SortType.RATING)
+        viewModel.sort.observe(this) {
+            sortType = if (it == GameCommentsViewModel.SortType.RATING) SORT_TYPE_RATING else SORT_TYPE_USER
+            invalidateOptionsMenu()
+        }
     }
 
     override fun readIntent(intent: Intent) {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         sortType = intent.getIntExtra(KEY_SORT_TYPE, SORT_TYPE_USER)
     }
 
@@ -70,24 +69,22 @@ class CommentsActivity : SimpleSinglePaneActivity() {
             android.R.id.home -> {
                 GameActivity.startUp(this, gameId, gameName)
                 finish()
-                return true
             }
             R.id.menu_sort_comments -> {
                 sortType = SORT_TYPE_USER
                 invalidateOptionsMenu()
                 (fragment as? CommentsFragment)?.clear()
                 viewModel.setSort(GameCommentsViewModel.SortType.USER)
-                return true
             }
             R.id.menu_sort_rating -> {
                 sortType = SORT_TYPE_RATING
                 invalidateOptionsMenu()
                 (fragment as? CommentsFragment)?.clear()
                 viewModel.setSort(GameCommentsViewModel.SortType.RATING)
-                return true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     companion object {
@@ -99,9 +96,9 @@ class CommentsActivity : SimpleSinglePaneActivity() {
 
         fun startRating(context: Context, gameId: Int, gameName: String) {
             context.startActivity<CommentsActivity>(
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_SORT_TYPE to SORT_TYPE_RATING
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
+                KEY_SORT_TYPE to SORT_TYPE_RATING,
             )
         }
     }

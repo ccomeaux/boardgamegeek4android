@@ -1,5 +1,3 @@
-@file:JvmName("RemoteConfig")
-
 package com.boardgamegeek.util
 
 import com.boardgamegeek.BuildConfig
@@ -8,7 +6,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import timber.log.Timber
-
 
 class RemoteConfig {
     companion object {
@@ -44,7 +41,6 @@ class RemoteConfig {
 
         const val KEY_PRIVACY_CHECK_WEEKS = "privacy_check_weeks"
 
-        @JvmStatic
         fun init() {
             val firebaseRemoteConfig = Firebase.remoteConfig
             val configSettings = remoteConfigSettings {
@@ -66,7 +62,6 @@ class RemoteConfig {
             }
         }
 
-        @JvmStatic
         fun getBoolean(key: String) = Firebase.remoteConfig.getBoolean(key)
 
         fun getInt(key: String) = Firebase.remoteConfig.getLong(key).toInt()

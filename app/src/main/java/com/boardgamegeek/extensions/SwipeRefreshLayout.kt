@@ -1,5 +1,3 @@
-@file:JvmName("SwipeRefreshLayoutUtils")
-
 package com.boardgamegeek.extensions
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout

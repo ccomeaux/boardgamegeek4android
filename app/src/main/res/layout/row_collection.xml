@@ -5,7 +5,7 @@
 	style="@style/RowContainer.WithThumbnail"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/activatable_background"
+	android:background="@drawable/bg_activatable"
 	android:foreground="?android:attr/selectableItemBackground"
 	android:orientation="horizontal">
 
@@ -28,7 +28,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textAppearance="@style/TextAppearance.RowTitle"
-			tools:text="Terra Mystica" />
+			tools:text="Gaia Project" />
 
 		<TextView
 			android:id="@+id/yearView"
@@ -48,7 +48,7 @@
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
 			android:contentDescription="@string/menu_favorite"
-			android:src="@drawable/ic_favorite"
+			android:src="@drawable/ic_baseline_favorite_24"
 			android:visibility="gone"
 			tools:visibility="visible" />
 

@@ -1,6 +1,7 @@
 package com.boardgamegeek.filterer
 
 import android.content.Context
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.boardgamegeek.entities.CollectionItemEntity
 
@@ -13,14 +14,18 @@ abstract class CollectionFilterer(protected val context: Context) {
         get() = context.getString(typeResourceId, CollectionFiltererFactory.TYPE_UNKNOWN).toIntOrNull()
                 ?: CollectionFiltererFactory.TYPE_UNKNOWN
 
-    abstract fun toShortDescription(): String
+    @get:DrawableRes
+    open val iconResourceId: Int
+        get() = INVALID_ICON
 
-    open fun toLongDescription(): String = toShortDescription()
+    abstract fun chipText(): String
+
+    open fun description(): String = chipText()
 
     open fun filter(item: CollectionItemEntity): Boolean = true
 
     val isValid: Boolean
-        get() = toShortDescription().isNotEmpty()
+        get() = chipText().isNotEmpty()
 
     abstract fun inflate(data: String)
 
@@ -37,5 +42,6 @@ abstract class CollectionFilterer(protected val context: Context) {
 
     companion object {
         const val DELIMITER = ":"
+        const val INVALID_ICON = -1
     }
 }

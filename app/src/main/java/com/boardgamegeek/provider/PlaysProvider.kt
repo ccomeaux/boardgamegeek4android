@@ -1,9 +1,12 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
+import android.provider.BaseColumns
+import com.boardgamegeek.provider.BggContract.Companion.FRAGMENT_SIMPLE
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PLAYS
+import com.boardgamegeek.provider.BggContract.Companion.QUERY_KEY_GROUP_BY
+import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class PlaysProvider : BasicProvider() {
     override fun getType(uri: Uri) = Plays.CONTENT_TYPE
@@ -16,12 +19,12 @@ class PlaysProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val builder = SelectionBuilder()
-                .table(if (FRAGMENT_SIMPLE == uri.fragment) Tables.PLAYS else Tables.PLAYS_JOIN_GAMES)
-                .mapToTable(Plays._ID, Tables.PLAYS)
-                .mapToTable(Plays.PLAY_ID, Tables.PLAYS)
-                .mapToTable(Plays.SYNC_TIMESTAMP, Tables.PLAYS)
-                .mapAsSum(Plays.SUM_QUANTITY, Plays.QUANTITY)
-                .mapAsMax(Plays.MAX_DATE, Plays.DATE)
+            .table(if (FRAGMENT_SIMPLE == uri.fragment) Tables.PLAYS else Tables.PLAYS_JOIN_GAMES)
+            .mapToTable(BaseColumns._ID, Tables.PLAYS)
+            .mapToTable(Plays.Columns.PLAY_ID, Tables.PLAYS)
+            .mapToTable(Plays.Columns.SYNC_TIMESTAMP, Tables.PLAYS)
+            .mapAsSum(Plays.Columns.SUM_QUANTITY, Plays.Columns.QUANTITY)
+            .mapAsMax(Plays.Columns.MAX_DATE, Plays.Columns.DATE)
         val groupBy = uri.getQueryParameter(QUERY_KEY_GROUP_BY).orEmpty()
         if (groupBy.isNotEmpty()) builder.groupBy(groupBy)
         return builder

@@ -11,21 +11,18 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_collection_name
 
     override fun inflate(data: String) {
-        val lastIndex = data.lastIndexOf(DELIMITER)
-        if (lastIndex == -1) {
-            filterText = data
-            startsWith = false
-        } else {
-            filterText = data.substring(0, lastIndex)
-            startsWith = data.substring(lastIndex + 1) == "1"
-        }
+        filterText = data.substringBeforeLast(DELIMITER)
+        startsWith = data.substringAfterLast(DELIMITER) == "1"
     }
 
     override fun deflate() = "$filterText$DELIMITER${if (startsWith) "1" else "0"}"
 
-    override fun toShortDescription() = if (startsWith) "$filterText*" else "*$filterText*"
+    override val iconResourceId: Int
+        get() = R.drawable.ic_baseline_format_quote_24
 
-    override fun toLongDescription() = context.getString(if (startsWith) R.string.starts_with_prefix else R.string.named_prefix, filterText)
+    override fun chipText() = if (startsWith) "$filterText*" else "*$filterText*"
+
+    override fun description() = context.getString(if (startsWith) R.string.starts_with_prefix else R.string.named_prefix, filterText)
 
     override fun filter(item: CollectionItemEntity): Boolean {
         return if (startsWith) {

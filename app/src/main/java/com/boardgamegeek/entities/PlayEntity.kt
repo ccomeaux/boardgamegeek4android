@@ -3,36 +3,37 @@ package com.boardgamegeek.entities
 import android.content.Context
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.provider.BggContract
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class PlayEntity(
-        val internalId: Long,
-        val playId: Int,
-        private val rawDate: String,
-        val gameId: Int,
-        val gameName: String,
-        val quantity: Int,
-        val length: Int,
-        val location: String,
-        val incomplete: Boolean,
-        val noWinStats: Boolean,
-        val comments: String,
-        val syncTimestamp: Long,
-        private val initialPlayerCount: Int,
-        val dirtyTimestamp: Long = 0L,
-        val updateTimestamp: Long = 0L,
-        val deleteTimestamp: Long = 0L,
-        val startTime: Long = 0L,
-        val imageUrl: String = "",
-        val thumbnailUrl: String = "",
-        val heroImageUrl: String = "",
-        val updatedPlaysTimestamp: Long = 0L,
-        val subtypes: List<String> = emptyList(),
+    val internalId: Long = BggContract.INVALID_ID.toLong(),
+    val playId: Int = BggContract.INVALID_ID,
+    private val rawDate: String,
+    val gameId: Int,
+    val gameName: String,
+    val quantity: Int = 1,
+    val length: Int = 0,
+    val location: String = "",
+    val incomplete: Boolean = false,
+    val noWinStats: Boolean = false,
+    val comments: String = "",
+    val syncTimestamp: Long = 0L,
+    private val initialPlayerCount: Int = 0,
+    val dirtyTimestamp: Long = 0L,
+    val updateTimestamp: Long = 0L,
+    val deleteTimestamp: Long = 0L,
+    val startTime: Long = 0L,
+    val imageUrl: String = "",
+    val thumbnailUrl: String = "",
+    val heroImageUrl: String = "",
+    val updatedPlaysTimestamp: Long = 0L,
+    val subtypes: List<String> = emptyList(),
+    private val _players: List<PlayPlayerEntity>? = null,
 ) {
-    private val _players = mutableListOf<PlayPlayerEntity>()
-    val players: List<PlayPlayerEntity>
-        get() = _players
+    val players
+        get() = _players.orEmpty()
 
     val isSynced
         get() = playId > 0
@@ -53,35 +54,18 @@ data class PlayEntity(
         return length == 0 && startTime > 0
     }
 
-    private var playersAdded = false
-
-    fun addPlayer(player: PlayPlayerEntity) {
-        playersAdded = true
-        _players.add(player)
-    }
-
     val playerCount: Int
-        get() = if (playersAdded) {
-            _players.size
-        } else {
-            initialPlayerCount
-        }
+        get() = _players?.size ?: initialPlayerCount
 
     /**
      * Determine if the starting positions indicate the players are custom sorted.
      */
     fun arePlayersCustomSorted(): Boolean {
-        if (_players.size == 0) return false
-        if (!hasStartingPositions()) return true
-        for (i in 1.._players.size) {
-            val foundSeat = (getPlayerAtSeat(i) != null)
-            if (!foundSeat) return true
+        if (players.isEmpty()) return false
+        for (seat in 1..players.size) {
+            if (players.count { it.seat == seat } != 1) return true
         }
-        return true
-    }
-
-    private fun hasStartingPositions(): Boolean {
-        return _players.all { !it.startingPosition.isNullOrBlank() }
+        return false
     }
 
     fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
@@ -128,8 +112,11 @@ data class PlayEntity(
         const val UNKNOWN_DATE: Long = -1L
 
         fun currentDate(): String {
-            val c = Calendar.getInstance()
-            return FORMAT.format(c.timeInMillis)
+            return millisToRawDate(Calendar.getInstance().timeInMillis)
+        }
+
+        fun millisToRawDate(millis: Long): String {
+            return FORMAT.format(millis)
         }
     }
 }

@@ -13,16 +13,25 @@ class SearchRefreshProvider : BaseProvider() {
 
     override val path = "${SearchManager.SUGGEST_URI_PATH_SHORTCUT}/#"
 
-    override fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    override fun query(
+        resolver: ContentResolver,
+        db: SQLiteDatabase,
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
+    ): Cursor? {
         val shortcutId = uri.lastPathSegment
         return if (shortcutId.isNullOrBlank()) {
             null
         } else {
-            val qb = SQLiteQueryBuilder()
-            qb.tables = Tables.GAMES
-            qb.setProjectionMap(SearchSuggestProvider.suggestionProjectionMap)
-            qb.appendWhere(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID + "=" + shortcutId)
-            qb.query(db, projection, selection, selectionArgs, null, null, sortOrder).apply {
+            val queryBuilder = SQLiteQueryBuilder().apply {
+                tables = Tables.GAMES
+                projectionMap = SearchSuggestProvider.suggestionProjectionMap
+                appendWhere("${SearchManager.SUGGEST_COLUMN_SHORTCUT_ID}=$shortcutId")
+            }
+            queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder).apply {
                 setNotificationUri(resolver, uri)
             }
         }

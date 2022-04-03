@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_search"
-		android:icon="@drawable/menu_search"
+		android:icon="@drawable/ic_baseline_search_24"
 		android:title="@string/menu_search"
 		app:actionViewClass="android.widget.SearchView"
-		app:showAsAction="always"/>
+		app:showAsAction="always" />
 </menu>

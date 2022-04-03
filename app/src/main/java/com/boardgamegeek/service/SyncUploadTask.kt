@@ -9,15 +9,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.KEY_SYNC_UPLOADS
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.getText
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
 import com.boardgamegeek.util.LargeIconLoader.Callback
-import com.boardgamegeek.util.NotificationUtils
 import timber.log.Timber
-import java.util.*
 
 abstract class SyncUploadTask(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val notificationMessages = ArrayList<CharSequence>()
@@ -37,12 +33,12 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     @get:PluralsRes
     protected abstract val summarySuffixResId: Int
 
-    protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, imageUrl: String, thumbnailUrl: String, heroImageUrl: String) {
+    protected fun notifyUser(title: CharSequence, message: CharSequence, id: Int, vararg imageUrl: String) {
         if (prefs[KEY_SYNC_UPLOADS, true] != true) return
 
         notificationMessages.add(context.getText(R.string.msg_play_upload, title, message))
 
-        val loader = LargeIconLoader(context, imageUrl, thumbnailUrl, heroImageUrl, object : Callback {
+        val loader = LargeIconLoader(context, *imageUrl, callback = object : Callback {
             override fun onSuccessfulIconLoad(bitmap: Bitmap) {
                 buildAndNotify(title, message, id, bitmap)
             }
@@ -55,36 +51,36 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     }
 
     private fun buildAndNotify(title: CharSequence, message: CharSequence, id: Int, largeIcon: Bitmap? = null) {
-        val builder = NotificationUtils
-                .createNotificationBuilder(context,
-                        notificationTitleResId,
-                        NotificationUtils.CHANNEL_ID_SYNC_UPLOAD,
-                        notificationIntent)
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setLargeIcon(largeIcon)
-                .setOnlyAlertOnce(true)
-                .setGroup(notificationMessageTag)
-                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+        val builder = context.createNotificationBuilder(
+            notificationTitleResId,
+            NotificationChannels.SYNC_UPLOAD,
+            notificationIntent
+        )
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setLargeIcon(largeIcon)
+            .setOnlyAlertOnce(true)
+            .setGroup(notificationMessageTag)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
         val action = createMessageAction()
         if (action != null) {
             builder.addAction(action)
         }
-        NotificationUtils.notify(context, notificationMessageTag, id, builder)
+        context.notify(builder, notificationMessageTag, id)
         showNotificationSummary()
     }
 
     private fun showNotificationSummary() {
-        val builder = NotificationUtils
-                .createNotificationBuilder(context,
-                        notificationTitleResId,
-                        NotificationUtils.CHANNEL_ID_SYNC_UPLOAD,
-                        notificationSummaryIntent)
-                .setGroup(notificationMessageTag)
-                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                .setGroupSummary(true)
+        val builder = context.createNotificationBuilder(
+            notificationTitleResId,
+            NotificationChannels.SYNC_UPLOAD,
+            notificationSummaryIntent
+        )
+            .setGroup(notificationMessageTag)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+            .setGroupSummary(true)
         when (val messageCount = notificationMessages.size) {
             0 -> return
             1 -> builder.setContentText(notificationMessages[0])
@@ -97,7 +93,7 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
                 }
             }
         }
-        NotificationUtils.notify(context, notificationMessageTag, 0, builder)
+        context.notify(builder, notificationMessageTag)
     }
 
     protected open fun createMessageAction(): Action? {
@@ -107,14 +103,11 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
     protected fun notifyUploadError(errorMessage: CharSequence) {
         if (errorMessage.isBlank()) return
         Timber.e(errorMessage.toString())
-        val builder = NotificationUtils
-                .createNotificationBuilder(context,
-                        notificationTitleResId,
-                        NotificationUtils.CHANNEL_ID_ERROR, notificationSummaryIntent)
-                .setContentText(errorMessage)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
+        val builder = context.createNotificationBuilder(notificationTitleResId, NotificationChannels.ERROR, notificationSummaryIntent)
+            .setContentText(errorMessage)
+            .setCategory(NotificationCompat.CATEGORY_ERROR)
         val detail = NotificationCompat.BigTextStyle(builder)
         detail.bigText(errorMessage)
-        NotificationUtils.notify(context, notificationErrorTag, 0, builder)
+        context.notify(builder, notificationErrorTag)
     }
 }

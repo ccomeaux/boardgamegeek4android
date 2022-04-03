@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -12,34 +13,47 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentNewPlayPlayerIsNewBinding
+import com.boardgamegeek.databinding.RowNewPlayPlayerIsNewBinding
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import kotlinx.android.synthetic.main.fragment_new_play_player_is_new.*
-import kotlinx.android.synthetic.main.row_new_play_player_is_new.view.*
 import kotlin.properties.Delegates
 
-class NewPlayPlayerIsNewFragment : Fragment(R.layout.fragment_new_play_player_is_new) {
+class NewPlayPlayerIsNewFragment : Fragment() {
+    private var _binding: FragmentNewPlayPlayerIsNewBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
     private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel) }
 
-    override fun onResume() {
-        super.onResume()
-        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_new_players)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentNewPlayPlayerIsNewBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
 
-        viewModel.mightBeNewPlayers.observe(viewLifecycleOwner, { entity ->
+        viewModel.mightBeNewPlayers.observe(viewLifecycleOwner) { entity ->
             adapter.players = entity.sortedBy { it.seat }
-        })
+        }
 
-        nextButton.setOnClickListener {
+        binding.nextButton.setOnClickListener {
             viewModel.finishPlayerIsNew()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_new_players)
     }
 
     private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
@@ -83,44 +97,46 @@ class NewPlayPlayerIsNewFragment : Fragment(R.layout.fragment_new_play_player_is
             holder.bind(position)
         }
 
-        inner class PlayersViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class PlayersViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowNewPlayPlayerIsNewBinding.bind(itemView)
+
             fun bind(position: Int) {
                 val entity = players.getOrNull(position)
                 entity?.let { player ->
-                    itemView.nameView.text = player.name
-                    itemView.usernameView.setTextOrHide(player.username)
+                    binding.nameView.text = player.name
+                    binding.usernameView.setTextOrHide(player.username)
 
                     if (player.color.isBlank()) {
-                        itemView.colorView.isInvisible = true
-                        itemView.teamView.isVisible = false
-                        itemView.seatView.setTextColor(Color.TRANSPARENT.getTextColor())
+                        binding.colorView.isInvisible = true
+                        binding.teamView.isVisible = false
+                        binding.seatView.setTextColor(Color.TRANSPARENT.getTextColor())
                     } else {
                         val color = player.color.asColorRgb()
                         if (color == Color.TRANSPARENT) {
-                            itemView.colorView.isInvisible = true
-                            itemView.teamView.setTextOrHide(player.color)
+                            binding.colorView.isInvisible = true
+                            binding.teamView.setTextOrHide(player.color)
                         } else {
-                            itemView.colorView.setColorViewValue(color)
-                            itemView.colorView.isVisible = true
-                            itemView.teamView.isVisible = false
+                            binding.colorView.setColorViewValue(color)
+                            binding.colorView.isVisible = true
+                            binding.teamView.isVisible = false
                         }
-                        itemView.seatView.setTextColor(color.getTextColor())
+                        binding.seatView.setTextColor(color.getTextColor())
                     }
 
                     if (player.seat == null) {
-                        itemView.sortView.setTextOrHide(player.sortOrder)
-                        itemView.seatView.isInvisible = true
+                        binding.sortView.setTextOrHide(player.sortOrder)
+                        binding.seatView.isInvisible = true
                     } else {
-                        itemView.sortView.isVisible = false
-                        itemView.seatView.text = player.seat.toString()
-                        itemView.seatView.isVisible = true
+                        binding.sortView.isVisible = false
+                        binding.seatView.text = player.seat.toString()
+                        binding.seatView.isVisible = true
                     }
 
-                    itemView.isNewCheckBox.isChecked = player.isNew
+                    binding.isNewCheckBox.isChecked = player.isNew
 
-                    itemView.isNewCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                    binding.isNewCheckBox.setOnCheckedChangeListener { _, isChecked ->
                         viewModel.addIsNewToPlayer(player.id, isChecked)
-                        itemView.isNewCheckBox.setOnCheckedChangeListener { _, _ -> }
+                        binding.isNewCheckBox.setOnCheckedChangeListener { _, _ -> }
                     }
                 }
             }

@@ -15,7 +15,7 @@ class AcquiredFromSorter(context: Context) : CollectionSorter(context) {
     override val descriptionResId = R.string.collection_sort_acquired_from
 
     override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
-        return items.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, { it.acquiredFrom }))
+        return items.sortedBy { it.acquiredFrom }
     }
 
     override fun getHeaderText(item: CollectionItemEntity) = item.acquiredFrom.ifBlank { nowhere }

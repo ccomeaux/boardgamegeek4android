@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -8,20 +7,21 @@
 	android:gravity="center_vertical"
 	android:minHeight="56dp"
 	android:orientation="vertical"
-	android:paddingBottom="@dimen/padding_half"
-	android:paddingTop="@dimen/padding_half">
+	android:paddingTop="@dimen/padding_half"
+	android:paddingBottom="@dimen/padding_half">
 
-	<view class="com.boardgamegeek.ui.GamePlaysFragment$InProgressPlay"
+	<view
 		android:id="@id/line1"
+		class="com.boardgamegeek.ui.GamePlaysFragment$InProgressPlay"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.RowTitle"
-		tools:text="Title"/>
+		tools:text="Title" />
 
 	<TextView
 		android:id="@+id/line2"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-		tools:text="Text 1"/>
+		tools:text="Text 1" />
 </LinearLayout>

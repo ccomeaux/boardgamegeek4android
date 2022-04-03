@@ -22,7 +22,8 @@
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="center"
 			android:scaleType="fitXY"
-			tools:background="#0f0" />
+			tools:background="#0f0"
+			tools:ignore="ContentDescription" />
 
 		<TextView
 			android:id="@+id/seatView"
@@ -82,8 +83,9 @@
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
+			android:contentDescription="@string/rating"
 			android:scaleType="center"
-			android:src="@drawable/ic_rating"
+			android:src="@drawable/ic_baseline_star_rate_24"
 			tools:tint="#2000"
 			tools:tintMode="src_in" />
 
@@ -107,7 +109,7 @@
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
 			android:scaleType="center"
-			android:src="@drawable/ic_score"
+			android:src="@drawable/ic_baseline_emoji_events_24"
 			tools:tint="#2000"
 			tools:tintMode="src_in" />
 
@@ -126,7 +128,7 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical|end"
 		android:background="?attr/selectableItemBackgroundBorderless"
-		android:src="@drawable/ic_more_vert"
+		android:src="@drawable/ic_baseline_more_vert_24"
 		android:visibility="gone"
 		tools:visibility="visible" />
 
@@ -136,7 +138,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/sort"
-		android:src="@drawable/ic_drag_handle"
+		android:src="@drawable/ic_baseline_drag_handle_24"
 		android:visibility="gone"
 		tools:visibility="visible" />
 </merge>

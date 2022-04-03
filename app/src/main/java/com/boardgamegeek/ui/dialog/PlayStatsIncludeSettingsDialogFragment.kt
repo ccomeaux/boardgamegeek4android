@@ -9,40 +9,48 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogPlayStatsSettingsIncludeBinding
 import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_ACCESSORIES
 import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_EXPANSIONS
 import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_INCOMPLETE
 import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.set
-import kotlinx.android.synthetic.main.dialog_play_stats_settings_include.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
 
 class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
-    lateinit var layout: View
+    private var _binding: DialogPlayStatsSettingsIncludeBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_play_stats_settings_include, null)
-
+        _binding = DialogPlayStatsSettingsIncludeBinding.inflate(layoutInflater, null, false)
+        val prefs = requireContext().preferences()
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setTitle(R.string.title_settings)
-                .setView(layout)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    defaultSharedPreferences[LOG_PLAY_STATS_INCOMPLETE] = includeIncompleteGamesView.isChecked
-                    defaultSharedPreferences[LOG_PLAY_STATS_EXPANSIONS] = includeExpansionsView.isChecked
-                    defaultSharedPreferences[LOG_PLAY_STATS_ACCESSORIES] = includeAccessoriesView.isChecked
-                }
-                .create()
+            .setTitle(R.string.title_settings)
+            .setView(binding.root)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                prefs[LOG_PLAY_STATS_INCOMPLETE] = binding.includeIncompleteGamesView.isChecked
+                prefs[LOG_PLAY_STATS_EXPANSIONS] = binding.includeExpansionsView.isChecked
+                prefs[LOG_PLAY_STATS_ACCESSORIES] = binding.includeAccessoriesView.isChecked
+            }
+            .create()
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        includeIncompleteGamesView.isChecked = defaultSharedPreferences[LOG_PLAY_STATS_INCOMPLETE, false] ?: false
-        includeExpansionsView.isChecked = defaultSharedPreferences[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
-        includeAccessoriesView.isChecked = defaultSharedPreferences[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+        val prefs = requireContext().preferences()
+        binding.includeIncompleteGamesView.isChecked = prefs[LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+        binding.includeExpansionsView.isChecked = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+        binding.includeAccessoriesView.isChecked = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

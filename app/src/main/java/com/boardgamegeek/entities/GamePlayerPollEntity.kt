@@ -28,5 +28,6 @@ data class GamePlayerPollEntity(val results: List<GamePlayerPollResultsEntity>) 
 
     companion object {
         const val maxPlayerCount = 100
+        const val separator = "|"
     }
 }

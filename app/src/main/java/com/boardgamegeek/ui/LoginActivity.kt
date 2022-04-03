@@ -5,36 +5,34 @@ import android.accounts.AccountAuthenticatorResponse
 import android.accounts.AccountManager
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.auth.BggCookieJar
-import com.boardgamegeek.auth.NetworkAuthenticator
-import com.boardgamegeek.events.SignInEvent
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.fade
-import kotlinx.android.synthetic.main.activity_login.*
-import org.greenrobot.eventbus.EventBus
-import org.jetbrains.anko.intentFor
+import com.boardgamegeek.databinding.ActivityLoginBinding
+import com.boardgamegeek.extensions.*
+import com.boardgamegeek.ui.viewmodel.LoginViewModel
 import timber.log.Timber
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
 class LoginActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
+    private val viewModel by viewModels<LoginViewModel>()
     private var accountAuthenticatorResponse: AccountAuthenticatorResponse? = null
 
     private var username: String? = null
     private var password: String? = null
 
-    private var userLoginTask: UserLoginTask? = null
     private lateinit var accountManager: AccountManager
     private var isRequestingNewAccount = false
+    private var isAuthenticating = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,34 +40,49 @@ class LoginActivity : AppCompatActivity() {
         accountAuthenticatorResponse = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
         accountAuthenticatorResponse?.onRequestContinued()
 
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         accountManager = AccountManager.get(this)
         username = intent.getStringExtra(KEY_USERNAME)
         isRequestingNewAccount = username == null
 
-        usernameView.setText(username)
-        usernameView.isEnabled = isRequestingNewAccount
+        binding.usernameView.setText(username)
+        binding.usernameView.isEnabled = isRequestingNewAccount
         if (isRequestingNewAccount) {
-            usernameView.requestFocus()
+            binding.usernameView.requestFocus()
         } else {
-            passwordView.requestFocus()
+            binding.passwordView.requestFocus()
         }
-        passwordView.setOnEditorActionListener { _, actionId, _ ->
+        binding.passwordView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == R.integer.login_action_id || actionId == EditorInfo.IME_NULL) {
                 attemptLogin()
                 return@setOnEditorActionListener true
             }
             false
         }
-        signInButton.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             attemptLogin()
+        }
+
+        viewModel.isAuthenticating.observe(this) {
+            isAuthenticating = it ?: false
+            showProgress(isAuthenticating)
+        }
+
+        viewModel.authenticationResult.observe(this) {
+            if (it == null) {
+                binding.passwordContainer.error = getString(R.string.error_incorrect_password)
+                binding.passwordView.requestFocus()
+            } else {
+                createAccount(it)
+            }
         }
     }
 
     override fun onBackPressed() {
-        if (userLoginTask != null) {
-            userLoginTask?.cancel(true)
+        if (isAuthenticating) {
+            viewModel.cancel()
         } else {
             super.onBackPressed()
         }
@@ -80,27 +93,27 @@ class LoginActivity : AppCompatActivity() {
      * missing fields, etc.), the errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
-        if (userLoginTask != null) {
+        if (isAuthenticating) {
             return
         }
 
         // Reset errors.
-        usernameContainer.error = null
-        passwordContainer.error = null
+        binding.usernameContainer.error = null
+        binding.passwordContainer.error = null
 
         // Store values at the time of the login attempt.
         if (isRequestingNewAccount) {
-            username = usernameView.text.toString().trim()
+            username = binding.usernameView.text.toString().trim()
         }
-        password = passwordView.text.toString()
+        password = binding.passwordView.text.toString()
         val focusView = when {
             username.isNullOrBlank() -> {
-                usernameContainer.error = getString(R.string.error_field_required)
-                usernameView
+                binding.usernameContainer.error = getString(R.string.error_field_required)
+                binding.usernameView
             }
             password.isNullOrEmpty() -> {
-                passwordContainer.error = getString(R.string.error_field_required)
-                passwordView
+                binding.passwordContainer.error = getString(R.string.error_field_required)
+                binding.passwordView
             }
             else -> null
         }
@@ -109,10 +122,9 @@ class LoginActivity : AppCompatActivity() {
             focusView.requestFocus()
         } else {
             // Show a progress spinner, and kick off a background task to perform the user login attempt.
-            loginStatusMessageView.setText(R.string.login_progress_signing_in)
+            binding.loginStatusMessageView.setText(R.string.login_progress_signing_in)
             showProgress(true)
-            userLoginTask = UserLoginTask()
-            userLoginTask?.executeAsyncTask()
+            viewModel.login(username, password)
         }
     }
 
@@ -120,35 +132,8 @@ class LoginActivity : AppCompatActivity() {
      * Shows the progress UI and hides the login form.
      */
     private fun showProgress(show: Boolean) {
-        loginStatusView.fade(show)
-        loginFormView.fade(!show)
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate the user.
-     */
-    inner class UserLoginTask : AsyncTask<Void?, Void?, BggCookieJar?>() {
-        override fun doInBackground(vararg params: Void?): BggCookieJar? {
-            return NetworkAuthenticator.authenticate(
-                username.orEmpty(), password .orEmpty(), "Dialog", applicationContext
-            )
-        }
-
-        override fun onPostExecute(bggCookieJar: BggCookieJar?) {
-            userLoginTask = null
-            showProgress(false)
-            if (bggCookieJar != null) {
-                createAccount(bggCookieJar)
-            } else {
-                passwordContainer.error = getString(R.string.error_incorrect_password)
-                passwordView.requestFocus()
-            }
-        }
-
-        override fun onCancelled() {
-            userLoginTask = null
-            showProgress(false)
-        }
+        binding.loginStatusView.fade(show)
+        binding.loginFormView.fade(!show)
     }
 
     private fun createAccount(bggCookieJar: BggCookieJar) {
@@ -176,23 +161,24 @@ class LoginActivity : AppCompatActivity() {
                     when {
                         accounts.isEmpty() -> {
                             Timber.v("no account!")
-                            passwordContainer.error = getString(R.string.error_account_list_zero)
+                            binding.passwordContainer.error = getString(R.string.error_account_list_zero)
                             return
                         }
                         accounts.size != 1 -> {
                             Timber.w("multiple accounts!")
-                            passwordContainer.error = getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE)
+                            binding.passwordContainer.error = getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE)
                             return
                         }
                         else -> {
                             val existingAccount = accounts[0]
                             when {
                                 existingAccount == null -> {
-                                    passwordContainer.error = getString(R.string.error_account_list_zero)
+                                    binding.passwordContainer.error = getString(R.string.error_account_list_zero)
                                     return
                                 }
                                 existingAccount.name != account.name -> {
-                                    passwordContainer.error = getString(R.string.error_account_name_mismatch, existingAccount.name, account.name)
+                                    binding.passwordContainer.error =
+                                        getString(R.string.error_account_name_mismatch, existingAccount.name, account.name)
                                     return
                                 }
                                 else -> {
@@ -203,14 +189,12 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                passwordContainer.error = e.localizedMessage
+                binding.passwordContainer.error = e.localizedMessage
                 return
             }
         } else {
             accountManager.setPassword(account, password)
         }
-        EventBus.getDefault().post(SignInEvent(username!!))
-
         val extras = bundleOf(
             AccountManager.KEY_ACCOUNT_NAME to username,
             AccountManager.KEY_ACCOUNT_TYPE to Authenticator.ACCOUNT_TYPE
@@ -221,13 +205,14 @@ class LoginActivity : AppCompatActivity() {
             it.onResult(extras)
             accountAuthenticatorResponse = null
         }
+        preferences()[AccountPreferences.KEY_USERNAME] = username
+
         finish()
     }
 
     companion object {
         private const val KEY_USERNAME = "USERNAME"
 
-        @JvmStatic
         fun createIntentBundle(context: Context, response: AccountAuthenticatorResponse?, accountName: String?): Bundle {
             val intent = context.intentFor<LoginActivity>(
                 KEY_USERNAME to accountName,

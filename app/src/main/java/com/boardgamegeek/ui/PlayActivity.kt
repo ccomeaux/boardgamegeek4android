@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
+import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.intentFor
 
 class PlayActivity : SimpleSinglePaneActivity() {
     private var internalId = BggContract.INVALID_ID.toLong()
@@ -27,6 +27,11 @@ class PlayActivity : SimpleSinglePaneActivity() {
         if (internalId == BggContract.INVALID_ID.toLong()) finish()
 
         viewModel.setId(internalId)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.reload()
     }
 
     override fun readIntent(intent: Intent) {

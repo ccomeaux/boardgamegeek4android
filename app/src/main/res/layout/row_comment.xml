@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/commentLayout"
 	style="@style/RowContainer"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -12,10 +14,10 @@
 		android:id="@+id/usernameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
 		android:textAppearance="@style/TextAppearance.RowTitle"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		tools:text="ccomeaux" />
 
 	<TextView
@@ -23,12 +25,12 @@
 		style="@style/RatingSmall.Regular"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentRight="true"
 		android:layout_gravity="end|center_vertical"
 		android:gravity="center"
 		android:minWidth="56dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		tools:background="#0f0"
 		tools:text="8.5" />
 
@@ -36,9 +38,10 @@
 		android:id="@+id/commentView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/ratingView"
 		android:paddingTop="@dimen/padding_half"
 		android:textAppearance="@style/TextAppearance.RowDetail"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ratingView"
 		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

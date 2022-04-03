@@ -8,11 +8,14 @@ import com.boardgamegeek.provider.BggContract.Games
 class AverageRatingFilterer(context: Context) : RatingFilterer(context) {
     override val typeResourceId = R.string.collection_filter_type_average_rating
 
-    override val columnName = Games.STATS_AVERAGE
+    override val columnName = Games.Columns.STATS_AVERAGE
 
-    override fun toShortDescription() = describe(R.string.average_rating_abbr, R.string.unrated_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_baseline_star_half_24
 
-    override fun toLongDescription() = describe(R.string.average_rating, R.string.unrated)
+    override fun chipText() = describe(R.string.unrated_abbr)
+
+    override fun description() = describe(R.string.unrated, R.string.average_rating)
 
     override fun filter(item: CollectionItemEntity) = filter(item.averageRating)
 }

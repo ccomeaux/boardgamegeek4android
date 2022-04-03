@@ -4,23 +4,23 @@ import android.content.Context
 import android.os.Parcelable
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GeekListItemEntity(
-        val id: Long = BggContract.INVALID_ID.toLong(),
-        val objectId: Int = BggContract.INVALID_ID,
-        val objectName: String = "",
-        private val objectType: String = "",
-        private val subtype: String = "",
-        val imageId: Int = 0,
-        val username: String = "",
-        val body: String = "",
-        val numberOfThumbs: Int = 0,
-        val postDateTime: Long = 0L,
-        val editDateTime: Long = 0L,
-        val comments: List<GeekListCommentEntity> = emptyList()
+    val id: Long = BggContract.INVALID_ID.toLong(),
+    val objectId: Int = BggContract.INVALID_ID,
+    val objectName: String = "",
+    private val objectType: String = "",
+    private val subtype: String = "",
+    val imageId: Int = 0,
+    val username: String = "",
+    val body: String = "",
+    val numberOfThumbs: Int = 0,
+    val postDateTime: Long = 0L,
+    val editDateTime: Long = 0L,
+    val comments: List<GeekListCommentEntity> = emptyList()
 ) : Parcelable {
     @IgnoredOnParcel
     val isBoardGame: Boolean = "thing" == objectType

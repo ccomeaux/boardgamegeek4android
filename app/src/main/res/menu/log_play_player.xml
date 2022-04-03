@@ -4,10 +4,10 @@
 		<item
 			android:id="@+id/win"
 			android:checkable="true"
-			android:title="@string/win"/>
+			android:title="@string/win" />
 		<item
 			android:id="@+id/new_"
 			android:checkable="true"
-			android:title="@string/new_label"/>
+			android:title="@string/new_label" />
 	</group>
 </menu>

@@ -1,158 +1,172 @@
 package com.boardgamegeek.ui.dialog
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
-import com.appyvet.materialrangebar.RangeBar
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogSliderFilterBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.filterer.CollectionFilterer
-import kotlinx.android.synthetic.main.dialog_slider_filter.view.*
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
+import com.google.android.material.slider.RangeSlider
+import kotlin.math.roundToInt
 
 abstract class SliderFilterDialog : CollectionFilterDialog {
-    private var low: Int = 0
-    private var high: Int = 0
+    private var _binding: DialogSliderFilterBinding? = null
+    private val binding get() = _binding!!
+
+    protected var low = 0f
+    protected var high = 0f
+    protected var checkboxIsChecked = false
+    protected var rangeIsIgnored = false
 
     @get:StringRes
     protected abstract val titleResId: Int
 
-    protected open val checkboxVisibility: Int = View.VISIBLE
+    protected open val supportsCheckbox: Boolean = true
 
     protected open val checkboxTextResId: Int
         @StringRes
         get() = R.string.include_missing_values
 
+    // allows a single point value, in addition to a range
     protected open val supportsSlider = true
 
     protected open val supportsNone: Boolean
         get() = supportsSlider
 
-    protected open val rangeInterval = 1
-
     protected open val descriptionResId: Int
         @StringRes
         get() = INVALID_STRING_RES_ID
 
-    protected abstract val absoluteMin: Int
+    protected abstract val valueFrom: Float
+    protected abstract val valueTo: Float
+    protected open val stepSize = 1.0f
 
-    protected abstract val absoluteMax: Int
+    override fun createDialog(activity: FragmentActivity, filter: CollectionFilterer?) {
+        val viewModel by lazy { ViewModelProvider(activity)[CollectionViewViewModel::class.java] }
+        _binding = DialogSliderFilterBinding.inflate(LayoutInflater.from(activity), null, false)
 
-    override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {
-        @SuppressLint("InflateParams")
-        val layout = LayoutInflater.from(context).inflate(R.layout.dialog_slider_filter, null)
+        initValues(filter).apply {
+            low = min.coerceIn(valueFrom, valueTo)
+            high = max.coerceIn(valueFrom, valueTo)
+            checkboxIsChecked = isChecked
+            rangeIsIgnored = ignoreRange
+        }
 
-        val initialValues = initValues(filter)
-        low = initialValues.min.coerceIn(absoluteMin, absoluteMax)
-        high = initialValues.max.coerceIn(absoluteMin, absoluteMax)
+        val type = when {
+            rangeIsIgnored && supportsNone -> RangeType.NONE
+            low == high && supportsSlider -> RangeType.SINGLE
+            else -> RangeType.RANGE
+        }
+        configRange(type)
 
-        layout.rangeBar.apply {
-            tickStart = absoluteMin.toFloat()
-            tickEnd = absoluteMax.toFloat()
-            setRangePinsByValue(low.toFloat(), high.toFloat())
-            if (low == high && supportsSlider) setRangeBarEnabled(false)
-            setPinTextFormatter { value -> getPinText(context, value) }
-            setOnRangeBarChangeListener(object : RangeBar.OnRangeBarChangeListener {
-                override fun onRangeChangeListener(rangeBar: RangeBar?, leftPinIndex: Int, rightPinIndex: Int, leftPinValue: String?, rightPinValue: String?) {
-                    high = (rightPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
-                    low = if (isRangeBar) {
-                        (leftPinIndex + absoluteMin).coerceIn(absoluteMin, absoluteMax)
-                    } else {
-                        high
-                    }
-                }
+        binding.rangeSlider.apply {
+            valueFrom = this@SliderFilterDialog.valueFrom
+            valueTo = this@SliderFilterDialog.valueTo
+            stepSize = this@SliderFilterDialog.stepSize
+            values = if (low == high && supportsSlider) listOf(low) else listOf(low, high)
 
-                override fun onTouchStarted(rangeBar: RangeBar?) {
-                }
+            setLabelFormatter { value ->
+                return@setLabelFormatter formatSliderLabel(activity, value)
+            }
 
-                override fun onTouchEnded(rangeBar: RangeBar?) {
-                }
+            addOnChangeListener(RangeSlider.OnChangeListener { slider, _, _ ->
+                low = slider.values.first()
+                high = slider.values.last()
+                binding.displayTextView.text = describeRange(activity)
             })
         }
 
-        layout.minDownButton.setOnClickListener {
-            layout.rangeBar.apply {
-                if (leftIndex > 0) {
-                    updateRange(this, leftIndex - 1, rightIndex)
+        binding.minDownButton.setOnClickListener {
+            binding.rangeSlider.apply {
+                val first = values.first()
+                if (first > valueFrom) {
+                    val newValue = (first - stepSize).coerceAtLeast(valueFrom)
+                    values = if (values.size == 1) listOf(newValue) else listOf(newValue, values.last())
                 }
             }
         }
 
-        layout.minUpButton.setOnClickListener {
-            layout.rangeBar.apply {
-                if (leftIndex < tickCount - 1) {
-                    if (leftIndex == rightIndex) {
-                        updateRange(this, leftIndex + 1, rightIndex + 1)
-                    } else {
-                        updateRange(this, leftIndex + 1, rightIndex)
-                    }
+        binding.minUpButton.setOnClickListener {
+            binding.rangeSlider.apply {
+                val firstValue = values.first()
+                val lastValue = values.last()
+                if (firstValue < valueTo) {
+                    val newValue = (firstValue + stepSize).coerceAtMost(valueTo)
+                    values = if (values.size == 1)
+                        listOf(newValue)
+                    else
+                        listOf(newValue, if (firstValue == lastValue) newValue else lastValue)
                 }
             }
         }
 
-        layout.maxUpButton.setOnClickListener {
-            layout.rangeBar.apply {
-                if (rightIndex < tickCount - 1) {
-                    updateRange(this, leftIndex, rightIndex + 1)
+        binding.maxUpButton.setOnClickListener {
+            binding.rangeSlider.apply {
+                val lastValue = values.last()
+                if (lastValue < valueTo) {
+                    values = listOf(values.first(), (lastValue + stepSize).coerceAtMost(valueTo))
                 }
             }
         }
 
-        layout.maxDownButton.setOnClickListener {
-            layout.rangeBar.apply {
-                if (rightIndex > 0) {
-                    if (leftIndex == rightIndex) {
-                        updateRange(this, leftIndex - 1, rightIndex - 1)
-                    } else {
-                        updateRange(this, leftIndex, rightIndex - 1)
-                    }
+        binding.maxDownButton.setOnClickListener {
+            binding.rangeSlider.apply {
+                val firstValue = values.first()
+                val lastValue = values.last()
+                if (lastValue > valueFrom) {
+                    val newValue = (lastValue - stepSize).coerceAtLeast(valueFrom)
+                    values = listOf(if (firstValue == lastValue) newValue else firstValue, newValue)
                 }
             }
         }
 
-        layout.rangeRadioButton.apply {
-            isVisible = supportsSlider
-            isChecked = (low != high) && !initialValues.ignoreRange
+        binding.rangeRadioButton.apply {
+            isVisible = supportsSlider || supportsNone
+            isChecked = (low != high) && !rangeIsIgnored
             setOnClickListener {
-                configRange(layout, RangeType.RANGE)
+                binding.checkBox.isEnabled = true
+                rangeIsIgnored = false
+                configRange(RangeType.RANGE)
             }
         }
 
-        layout.singleValueRadioButton.apply {
+        binding.singleValueRadioButton.apply {
             isVisible = supportsSlider
-            isChecked = (low == high) && !initialValues.ignoreRange
+            isChecked = (low == high) && !rangeIsIgnored
             setOnClickListener {
-                configRange(layout, RangeType.SINGLE)
+                binding.checkBox.isEnabled = true
+                rangeIsIgnored = false
+                configRange(RangeType.SINGLE)
             }
         }
 
-        layout.noneRadioButton.apply {
+        binding.noneRadioButton.apply {
             isVisible = supportsNone
-            isChecked = initialValues.ignoreRange
+            isChecked = rangeIsIgnored
             setOnClickListener {
-                layout.checkBox.isChecked = true
-                configRange(layout, RangeType.NONE)
+                binding.checkBox.isChecked = true
+                binding.checkBox.isEnabled = false
+                rangeIsIgnored = isChecked
+                configRange(RangeType.NONE)
             }
         }
 
-        if (supportsSlider) {
-            val type = when {
-                initialValues.ignoreRange -> RangeType.NONE
-                (low == high) -> RangeType.SINGLE
-                else -> RangeType.RANGE
-            }
-            configRange(layout, type)
-        }
-
-        layout.checkBox.apply {
-            visibility = checkboxVisibility
+        binding.checkBox.apply {
+            isVisible = supportsCheckbox
             setText(checkboxTextResId)
-            isChecked = initialValues.isChecked
+            isChecked = checkboxIsChecked
+            setOnCheckedChangeListener { _, _ ->
+                checkboxIsChecked = isChecked
+            }
         }
 
-        layout.explanationView.apply {
+        binding.explanationView.apply {
             visibility = if (descriptionResId == INVALID_STRING_RES_ID) {
                 View.GONE
             } else {
@@ -161,62 +175,54 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             }
         }
 
-        val builder = AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
-                .setTitle(titleResId)
-                .setNegativeButton(R.string.clear) { _, _ -> listener?.removeFilter(getType(context)) }
-                .setPositiveButton(R.string.set) { _, _ ->
-                    val l = if (layout.noneRadioButton.isChecked) 0 else low
-                    listener?.addFilter(getPositiveData(context, l, high, layout.checkBox.isChecked, layout.noneRadioButton.isChecked))
-                }
-                .setView(layout)
+        binding.displayTextView.text = describeRange(activity)
 
-        builder.create().show()
+        activity.createThemedBuilder()
+            .setTitle(titleResId)
+            .setNegativeButton(R.string.clear) { _, _ ->
+                viewModel.removeFilter(getType(activity))
+            }
+            .setPositiveButton(R.string.set) { _, _ ->
+                if (binding.rangeRadioButton.isChecked && low == valueFrom && high == valueTo && !binding.checkBox.isChecked) {
+                    viewModel.removeFilter(getType(activity))
+                } else {
+                    viewModel.addFilter(createFilterer(activity))
+                }
+            }
+            .setView(binding.root)
+            .create()
+            .show()
     }
 
     enum class RangeType {
         RANGE, SINGLE, NONE
     }
 
-    private fun configRange(layout: View, type: RangeType) {
-        layout.rangeButtonContainer.isVisible = type != RangeType.NONE
-        layout.rangeBar.isVisible = type != RangeType.NONE
-        layout.rangeBar.setRangeBarEnabled(type == RangeType.RANGE)
-        layout.minDownButton.isVisible = type == RangeType.RANGE
-        layout.minUpButton.isVisible = type == RangeType.RANGE
-        layout.buttonSpace.isVisible = type == RangeType.RANGE
+    private fun configRange(type: RangeType) {
+        binding.displayTextView.isVisible = type != RangeType.NONE
+        binding.rangeButtonContainer.isVisible = type != RangeType.NONE
+        binding.rangeSlider.isVisible = type != RangeType.NONE
+        binding.maxDownButton.isVisible = type == RangeType.RANGE
+        binding.maxUpButton.isVisible = type == RangeType.RANGE
+        binding.buttonSpace.isVisible = type == RangeType.RANGE
         if (type == RangeType.RANGE) {
-            layout.rangeBar.apply {
-                if (leftIndex == rightIndex) {
-                    if (leftIndex > 0) {
-                        updateRange(this, leftIndex - rangeInterval, rightIndex)
-                    } else {
-                        updateRange(this, leftIndex, rightIndex + rangeInterval)
-                    }
-                } else {
-                    updateRange(this, leftIndex, rightIndex)
-                }
-            }
+            binding.rangeSlider.apply { values = listOf(low, high) }
         } else if (type == RangeType.SINGLE) {
-            layout.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
+            binding.rangeSlider.apply { values = listOf(low) } // TODO remember low & high?
         }
-    }
-
-    private fun updateRange(rangeBar: RangeBar, leftPinIndex: Int, rightPinIndex: Int) {
-        rangeBar.setRangePinsByIndices(
-                leftPinIndex.coerceIn(0, rangeBar.tickCount - 1),
-                rightPinIndex.coerceIn(0, rangeBar.tickCount - 1)
-        )
-        // HACK to make the pins remain visible when using the up/down buttons
-        rangeBar.left = rangeBar.left + 1
     }
 
     protected abstract fun initValues(filter: CollectionFilterer?): InitialValues
 
-    protected abstract fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer
+    protected abstract fun createFilterer(context: Context): CollectionFilterer
 
-    protected open fun getPinText(context: Context, value: String) = value
+    protected open fun describeRange(context: Context): String {
+        return if (low == high) formatSliderLabel(context, low) else "${formatSliderLabel(context, low)} - ${formatSliderLabel(context, high)}"
+    }
 
-    data class InitialValues(val min: Int, val max: Int, val isChecked: Boolean = false, val ignoreRange: Boolean = false)
+    protected open fun formatSliderLabel(context: Context, value: Float) = value.roundToInt().toString()
+
+    data class InitialValues(val min: Float, val max: Float, val isChecked: Boolean = false, val ignoreRange: Boolean = false)
 
     companion object {
         private const val INVALID_STRING_RES_ID = -1

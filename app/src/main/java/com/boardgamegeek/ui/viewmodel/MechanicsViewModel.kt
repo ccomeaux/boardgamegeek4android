@@ -1,12 +1,8 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.db.MechanicDao
-import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.repository.MechanicRepository
 
 class MechanicsViewModel(application: Application) : AndroidViewModel(application) {
@@ -24,29 +20,37 @@ class MechanicsViewModel(application: Application) : AndroidViewModel(applicatio
         sort(SortType.ITEM_COUNT)
     }
 
-    val mechanics: LiveData<List<MechanicEntity>> = Transformations.switchMap(sort) {
-        repository.loadMechanics(it.sortBy)
+    val mechanics = sort.switchMap {
+        liveData {
+            emit(repository.loadMechanics(it.sortBy))
+        }
     }
 
     fun sort(sortType: SortType) {
-        _sort.value = when (sortType) {
-            SortType.NAME -> MechanicsSortByName()
-            SortType.ITEM_COUNT -> MechanicsSortByItemCount()
+        if (_sort.value?.sortType != sortType) {
+            _sort.value = when (sortType) {
+                SortType.NAME -> MechanicsSort.ByName()
+                SortType.ITEM_COUNT -> MechanicsSort.ByItemCount()
+            }
         }
     }
-}
 
-sealed class MechanicsSort {
-    abstract val sortType: MechanicsViewModel.SortType
-    abstract val sortBy: MechanicDao.SortType
-}
+    fun refresh() {
+        _sort.value?.let { _sort.value = it }
+    }
 
-class MechanicsSortByName : MechanicsSort() {
-    override val sortType = MechanicsViewModel.SortType.NAME
-    override val sortBy = MechanicDao.SortType.NAME
-}
+    sealed class MechanicsSort {
+        abstract val sortType: SortType
+        abstract val sortBy: MechanicDao.SortType
 
-class MechanicsSortByItemCount : MechanicsSort() {
-    override val sortType = MechanicsViewModel.SortType.ITEM_COUNT
-    override val sortBy = MechanicDao.SortType.ITEM_COUNT
+        class ByName : MechanicsSort() {
+            override val sortType = SortType.NAME
+            override val sortBy = MechanicDao.SortType.NAME
+        }
+
+        class ByItemCount : MechanicsSort() {
+            override val sortType = SortType.ITEM_COUNT
+            override val sortBy = MechanicDao.SortType.ITEM_COUNT
+        }
+    }
 }

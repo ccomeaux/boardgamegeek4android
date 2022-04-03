@@ -3,14 +3,15 @@ package com.boardgamegeek.entities
 import java.util.*
 
 data class PlayerEntity(
-        val name: String,
-        val username: String,
-        val playCount: Int = 0,
-        val winCount: Int = 0,
-        val rawAvatarUrl: String = "") {
+    val name: String,
+    val username: String,
+    val playCount: Int = 0,
+    val winCount: Int = 0,
+    val rawAvatarUrl: String = "",
+) {
 
     val id: String
-        get() = if (username.isBlank()) "P|$name" else "U|${username.toLowerCase(Locale.getDefault())}"
+        get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"
 
     val avatarUrl: String = rawAvatarUrl
         get() = if (field == "N/A") "" else field

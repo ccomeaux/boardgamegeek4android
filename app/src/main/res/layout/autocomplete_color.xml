@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:minHeight="@dimen/dropdownitem_min_height"
+	android:minHeight="@dimen/dropdown_item_min_height"
 	android:orientation="horizontal">
 
 	<TextView
@@ -15,15 +16,16 @@
 		android:padding="@dimen/padding_standard" />
 
 	<FrameLayout
-		android:layout_width="@dimen/dropdownitem_min_height"
-		android:layout_height="@dimen/dropdownitem_min_height">
+		android:layout_width="@dimen/dropdown_item_min_height"
+		android:layout_height="@dimen/dropdown_item_min_height">
 
 		<ImageView
 			android:id="@+id/color_view"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="center"
-			android:scaleType="fitXY" />
+			android:scaleType="fitXY"
+			tools:ignore="ContentDescription" />
 	</FrameLayout>
 
 </LinearLayout>

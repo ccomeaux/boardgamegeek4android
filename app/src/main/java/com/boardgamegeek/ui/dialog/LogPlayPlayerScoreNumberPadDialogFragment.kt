@@ -13,14 +13,12 @@ class LogPlayPlayerScoreNumberPadDialogFragment : NumberPadDialogFragment() {
 
     companion object {
         fun newInstance(
-                requestCode: Int,
-                initialValue: String,
-                colorDescription: String? = null,
-                subtitle: String? = null
-        ): NumberPadDialogFragment {
-            return LogPlayPlayerScoreNumberPadDialogFragment().apply {
-                arguments = createBundle(requestCode, R.string.score, initialValue, colorDescription, subtitle)
-            }
+            requestCode: Int,
+            initialValue: String,
+            colorDescription: String? = null,
+            subtitle: String? = null,
+        ) = LogPlayPlayerScoreNumberPadDialogFragment().apply {
+            arguments = createBundle(requestCode, R.string.score, initialValue, colorDescription, subtitle)
         }
     }
 }

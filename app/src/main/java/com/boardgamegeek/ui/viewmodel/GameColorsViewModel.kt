@@ -1,40 +1,47 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import com.boardgamegeek.livedata.AbsentLiveData
+import androidx.lifecycle.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
+import kotlinx.coroutines.launch
 
 class GameColorsViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
     private val _gameId = MutableLiveData<Int>()
 
-    fun setGameId(gameId: Int?) {
+    fun setGameId(gameId: Int) {
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
-    val colors: LiveData<List<String>> = Transformations.switchMap(_gameId) { gameId ->
-        when (gameId) {
-            BggContract.INVALID_ID -> AbsentLiveData.create()
-            else -> gameRepository.getPlayColors(gameId)
+    fun refresh(){
+        _gameId.value?.let { _gameId.value = it }
+    }
+
+    val colors = _gameId.switchMap { gameId ->
+        liveData {
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
         }
     }
 
     fun addColor(color: String?) {
-        if (color.isNullOrBlank()) return
-        gameRepository.addPlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+        viewModelScope.launch {
+            gameRepository.addPlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+            refresh()
+        }
     }
 
-    fun removeColor(color: String): Int {
-        if (color.isBlank()) return 0
-        return gameRepository.deletePlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+    fun removeColor(color: String) {
+        viewModelScope.launch {
+            gameRepository.deletePlayColor(_gameId.value ?: BggContract.INVALID_ID, color)
+            refresh()
+        }
     }
 
     fun computeColors() {
-        gameRepository.computePlayColors(_gameId.value ?: BggContract.INVALID_ID)
+        viewModelScope.launch {
+            gameRepository.computePlayColors(_gameId.value ?: BggContract.INVALID_ID)
+            refresh()
+        }
     }
 }

@@ -2,20 +2,20 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import com.boardgamegeek.entities.GeekListEntity
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.model.GeekListEntry
 import com.boardgamegeek.io.model.GeekListsResponse
-import com.boardgamegeek.livedata.GeekListsDataSource
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.livedata.GeekListsPagingSource
+import com.boardgamegeek.repository.GeekListRepository
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class GeekListsViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = GeekListRepository()
     private val _sort = MutableLiveData<String>()
 
     fun setSort(sort: SortType) {
@@ -24,43 +24,26 @@ class GeekListsViewModel(application: Application) : AndroidViewModel(applicatio
             SortType.RECENT -> BggService.GEEK_LIST_SORT_RECENT
             SortType.ACTIVE -> BggService.GEEK_LIST_SORT_ACTIVE
         }
-        if (_sort.value != sortString) _sort.value = sortString
-    }
-
-    private var dataSourceFactory: DataSource.Factory<Int, GeekListEntry> = GeekListsDataSourceFactory(BggService.GEEK_LIST_SORT_HOT)
-
-    private val config = PagedList.Config.Builder()
-            .setPageSize(GeekListsResponse.PAGE_SIZE)
-            .setInitialLoadSizeHint(GeekListsResponse.PAGE_SIZE)
-            .setPrefetchDistance(10)
-            .setEnablePlaceholders(false)
-            .build()
-
-    val geekLists: LiveData<PagedList<GeekListEntity>> = Transformations.switchMap(_sort) {
-        dataSourceFactory = GeekListsDataSourceFactory(it)
-        LivePagedListBuilder(dataSourceFactory.map { item ->
-            val id = if (item.href.isEmpty()) {
-                BggContract.INVALID_ID
-            } else {
-                val start: Int = item.href.indexOf("/geeklist/") + 10
-                val end = item.href.lastIndexOf("/")
-                item.href.substring(start, end).toIntOrNull() ?: BggContract.INVALID_ID
+        if (_sort.value != sortString) {
+            _sort.value = sortString
+            FirebaseAnalytics.getInstance(getApplication()).logEvent("Sort") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekLists")
+                param("SortBy", sort.toString())
             }
-
-            GeekListEntity(
-                    id,
-                    item.title.trim(),
-                    item.username.trim(),
-                    numberOfItems = item.numitems,
-                    numberOfThumbs = item.numpositive
-            )
-        }, config).build()
+        }
     }
 
-    class GeekListsDataSourceFactory(private val sort: String) : DataSource.Factory<Int, GeekListEntry>() {
-        override fun create(): DataSource<Int, GeekListEntry> {
-            return GeekListsDataSource(sort)
-        }
+    val geekLists = _sort.switchMap { sort ->
+        Pager(
+            PagingConfig(
+                pageSize = GeekListsResponse.PAGE_SIZE,
+                initialLoadSize = GeekListsResponse.PAGE_SIZE,
+                prefetchDistance = 30,
+                enablePlaceholders = true,
+            )
+        ) {
+            GeekListsPagingSource(sort, repository)
+        }.flow.asLiveData()
     }
 
     enum class SortType {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.Toolbar
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/toolbar_done_cancel"
 	style="@style/ActionBar"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar">
 
 	<LinearLayout
@@ -18,11 +18,13 @@
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/menu_cancel"/>
+				android:contentDescription="@string/cancel"
+				android:src="@drawable/ic_baseline_clear_24"
+				app:tint="#fff" />
 
 			<TextView
 				style="@style/ActionBarButtonText"
-				android:text="@string/cancel"/>
+				android:text="@string/cancel" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -32,11 +34,13 @@
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/menu_done"/>
+				android:contentDescription="@string/done"
+				android:src="@drawable/ic_baseline_check_24"
+				app:tint="#fff" />
 
 			<TextView
 				style="@style/ActionBarButtonText"
-				android:text="@string/done"/>
+				android:text="@string/done" />
 		</LinearLayout>
 	</LinearLayout>
 

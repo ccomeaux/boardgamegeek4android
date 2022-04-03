@@ -1,39 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_edit"
-		android:icon="@drawable/menu_edit"
+		android:icon="@drawable/ic_baseline_edit_24"
 		android:title="@string/menu_edit"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/menu_delete"
-		android:icon="@drawable/menu_delete"
+		android:icon="@drawable/ic_baseline_delete_24"
 		android:title="@string/menu_delete"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/menu_rematch"
-		android:icon="@drawable/menu_replay"
+		android:icon="@drawable/ic_baseline_replay_24"
 		android:title="@string/rematch"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/menu_change_game"
+		android:icon="@drawable/ic_baseline_change_circle_24"
 		android:title="@string/menu_change_game"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/menu_send"
-		android:icon="@drawable/menu_send"
+		android:icon="@drawable/ic_baseline_send_24"
 		android:title="@string/send"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/menu_discard"
+		android:icon="@drawable/ic_baseline_remove_24"
 		android:title="@string/menu_discard_changes"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 	<item
 		android:id="@+id/menu_share"
-		android:icon="@drawable/menu_share"
+		android:icon="@drawable/ic_baseline_share_24"
 		android:title="@string/menu_share"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 
 </menu>

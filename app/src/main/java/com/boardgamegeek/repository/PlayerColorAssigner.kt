@@ -1,40 +1,40 @@
 package com.boardgamegeek.repository
 
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.db.PlayDao
+import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerColorEntity
 import com.boardgamegeek.extensions.queryStrings
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class PlayerColorAssigner(private val application: BggApplication, private val play: Play) {
+class PlayerColorAssigner(private val application: BggApplication, private val gameId: Int, private val players: List<PlayPlayerEntity>) {
     private val colorsAvailable = mutableListOf<String>()
     private val playersNeedingColor = mutableListOf<PlayerColorChoices>()
     private val results = mutableListOf<PlayerResult>()
     private var round = 0
-    private val dao = PlayDao(application)
+    private val repository = PlayRepository(application)
 
-    fun execute(): List<PlayerResult> {
+    suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
         colorsAvailable.clear()
-        val gameColors = (application.contentResolver?.queryStrings(BggContract.Games.buildColorsUri(play.gameId), BggContract.GameColors.COLOR)?.filterNotNull()
-                ?: emptyList())
-        val takenColors = play.players.filter { it.color.isNotEmpty() }.map { it.color }
-        colorsAvailable.addAll(gameColors - takenColors)
+        val gameColors = (application.contentResolver?.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR).orEmpty())
+        val takenColors = players.filter { it.color.isNotEmpty() }.map { it.color }
+        colorsAvailable.addAll(gameColors - takenColors.toSet())
 
         playersNeedingColor.clear()
-        play.players.filter { it.color.isEmpty() && it.username.isNotBlank() }.distinctBy { it.username }.forEach { player ->
+        players.filter { it.color.isBlank() && it.username.isNotBlank() }.distinctBy { it.username }.forEach { player ->
             playersNeedingColor.add(PlayerColorChoices(player.username, PlayerType.USER))
         }
-        play.players.filter { it.color.isEmpty() && it.username.isBlank() && it.name.isNotBlank() }.distinctBy { it.name }.forEach { player ->
+        players.filter { it.color.isBlank() && it.username.isBlank() && it.name.isNotBlank() }.distinctBy { it.name }.forEach { player ->
             playersNeedingColor.add(PlayerColorChoices(player.name, PlayerType.NON_USER))
         }
 
         playersNeedingColor.forEach { player ->
             val colors = when (player.type) {
-                PlayerType.USER -> dao.loadUserColors(player.name)
-                PlayerType.NON_USER -> dao.loadPlayerColors(player.name)
+                PlayerType.USER -> repository.loadUserColors(player.name)
+                PlayerType.NON_USER -> repository.loadPlayerColors(player.name)
             }
             player.setColors(colors.filter { colorsAvailable.contains(it.description) })
         }
@@ -56,7 +56,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val p
             val username = playersNeedingColor.random()
             assignColorToPlayer(color, username, "random")
         }
-        return results
+        results
     }
 
     /**

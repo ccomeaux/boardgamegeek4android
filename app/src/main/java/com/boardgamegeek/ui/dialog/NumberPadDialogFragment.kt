@@ -10,16 +10,16 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogNumberPadBinding
 import com.boardgamegeek.extensions.*
-import kotlinx.android.synthetic.main.dialog_number_pad.*
-import org.jetbrains.anko.childrenRecursiveSequence
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.text.ParseException
 import kotlin.math.min
 
 abstract class NumberPadDialogFragment : DialogFragment() {
+    private var _binding: DialogNumberPadBinding? = null
+    private val binding get() = _binding!!
     private var minValue = DEFAULT_MIN_VALUE
     private var maxValue = DEFAULT_MAX_VALUE
     private var maxMantissa = DEFAULT_MAX_MANTISSA
@@ -32,73 +32,73 @@ abstract class NumberPadDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        val window = dialog?.window
-        if (window != null) {
-            val dm = resources.displayMetrics
+        dialog?.window?.let { window ->
             val width = min(
-                    requireActivity().resources.getDimensionPixelSize(R.dimen.dialog_width),
-                    dm.widthPixels * 3 / 4)
+                requireActivity().resources.getDimensionPixelSize(R.dimen.dialog_width),
+                resources.displayMetrics.widthPixels * 3 / 4
+            )
             val height = window.attributes.height
             window.setLayout(width, height)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.dialog_number_pad, container, false)
+        _binding = DialogNumberPadBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        decimalSeparator.text = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
+        binding.decimalSeparator.text = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
 
         minValue = arguments?.getDouble(KEY_MIN_VALUE) ?: DEFAULT_MIN_VALUE
         maxValue = arguments?.getDouble(KEY_MAX_VALUE) ?: DEFAULT_MAX_VALUE
         maxMantissa = arguments?.getInt(KEY_MAX_MANTISSA) ?: DEFAULT_MAX_MANTISSA
 
-        plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
+        binding.plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
 
         val titleResId = arguments?.getInt(KEY_TITLE) ?: 0
-        if (titleResId != 0) titleView.setText(titleResId)
-        subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
+        if (titleResId != 0) binding.titleView.setText(titleResId)
+        binding.subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
 
         if (arguments?.containsKey(KEY_INITIAL_VALUE) == true) {
-            outputView.text = arguments?.getString(KEY_INITIAL_VALUE)
+            binding.outputView.text = arguments?.getString(KEY_INITIAL_VALUE)
             enableDelete()
         }
 
         if (arguments?.containsKey(KEY_COLOR) == true) {
             val color = arguments?.getInt(KEY_COLOR) ?: Color.TRANSPARENT
-            headerView.setBackgroundColor(color)
+            binding.headerView.setBackgroundColor(color)
             if (color != Color.TRANSPARENT && color.isColorDark()) {
-                titleView.setTextColor(Color.WHITE)
-                subtitleView.setTextColor(Color.WHITE)
+                binding.titleView.setTextColor(Color.WHITE)
+                binding.subtitleView.setTextColor(Color.WHITE)
             } else {
-                titleView.setTextColor(Color.BLACK)
-                subtitleView.setTextColor(Color.BLACK)
+                binding.titleView.setTextColor(Color.BLACK)
+                binding.subtitleView.setTextColor(Color.BLACK)
             }
         }
 
-        deleteView.setOnClickListener {
-            val text = outputView.text
+        binding.deleteView.setOnClickListener {
+            val text = binding.outputView.text
             if (text.isNotEmpty()) {
                 val output = text.subSequence(0, text.length - 1).toString()
                 maybeUpdateOutput(output, view)
             }
         }
-        deleteView.setOnLongClickListener {
-            outputView.text = ""
+        binding.deleteView.setOnLongClickListener {
+            binding.outputView.text = ""
             enableDelete()
             true
         }
 
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: DEFAULT_REQUEST_CODE
         val requestKey = arguments?.getString(KEY_REQUEST_KEY).orEmpty()
-        doneView.setOnClickListener {
-            done(parseDouble(outputView.text.toString()), requestCode, requestKey)
+        binding.doneView.setOnClickListener {
+            done(parseDouble(binding.outputView.text.toString()), requestCode, requestKey)
             dismiss()
         }
 
-        plusMinusView.setOnClickListener {
-            val output = outputView.text.toString()
+        binding.plusMinusView.setOnClickListener {
+            val output = binding.outputView.text.toString()
             val signedOutput = if (output.isNotEmpty() && output[0] == '-') {
                 output.substring(1)
             } else {
@@ -107,27 +107,32 @@ abstract class NumberPadDialogFragment : DialogFragment() {
             maybeUpdateOutput(signedOutput, it)
         }
 
-        numberPadView.childrenRecursiveSequence().filterIsInstance<TextView>().forEach {
+        binding.numberPadView.childrenRecursiveSequence().filterIsInstance<TextView>().forEach {
             it.setOnClickListener { textView ->
-                val output = outputView.text.toString() + (textView as TextView).text
+                val output = binding.outputView.text.toString() + (textView as TextView).text
                 maybeUpdateOutput(output, it)
             }
         }
     }
 
-    abstract fun done(output: Double, requestCode: Int, requestKey:String)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    abstract fun done(output: Double, requestCode: Int, requestKey: String)
 
     private fun maybeUpdateOutput(output: String, view: View) {
         if (isWithinLength(output) && isWithinRange(output)) {
             maybeBuzz(view)
-            outputView.text = output
+            binding.outputView.text = output
             enableDelete()
         }
     }
 
     private fun maybeBuzz(v: View) {
         // TODO - store in a field and listen for changes
-        if (defaultSharedPreferences[KEY_HAPTIC_FEEDBACK, true] == true) {
+        if (requireContext().preferences()[KEY_HAPTIC_FEEDBACK, true] == true) {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }
@@ -179,7 +184,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     }
 
     private fun enableDelete() {
-        deleteView.isEnabled = outputView.length() > 0
+        binding.deleteView.isEnabled = binding.outputView.length() > 0
     }
 
     companion object {
@@ -198,15 +203,15 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         const val DEFAULT_REQUEST_CODE = 0
 
         fun createBundle(
-                requestCode: Int,
-                @StringRes titleResId: Int,
-                initialValue: String,
-                colorDescription: String?,
-                subtitle: String?,
-                minValue: Double = DEFAULT_MIN_VALUE,
-                maxValue: Double = DEFAULT_MAX_VALUE,
-                maxMantissa: Int = DEFAULT_MAX_MANTISSA,
-                requestKey: String = "",
+            requestCode: Int,
+            @StringRes titleResId: Int,
+            initialValue: String,
+            colorDescription: String?,
+            subtitle: String?,
+            minValue: Double = DEFAULT_MIN_VALUE,
+            maxValue: Double = DEFAULT_MAX_VALUE,
+            maxMantissa: Int = DEFAULT_MAX_MANTISSA,
+            requestKey: String = "",
         ): Bundle {
             return Bundle().apply {
                 putInt(KEY_TITLE, titleResId)

@@ -2,10 +2,9 @@ package com.boardgamegeek.provider
 
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GameColorsColumns.COLOR
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_COLORS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 /**
  * /games/13/colors/green
@@ -19,8 +18,8 @@ class GamesIdColorsNameProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         val color = uri.lastPathSegment
         return SelectionBuilder()
-                .table(Tables.GAME_COLORS)
-                .whereEquals(GAME_ID, gameId)
-                .whereEquals(COLOR, color)
+            .table(Tables.GAME_COLORS)
+            .whereEquals(GameColors.Columns.GAME_ID, gameId)
+            .whereEquals(GameColors.Columns.COLOR, color)
     }
 }

@@ -5,45 +5,44 @@ import com.boardgamegeek.R
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.RatingFilterer
 import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
-    override val checkboxTextResId = R.string.unrated
-
-    override val absoluteMin = (RatingFilterer.lowerBound * FACTOR).toInt()
-    override val absoluteMax = (RatingFilterer.upperBound * FACTOR).toInt()
-
     override fun getType(context: Context) = createFilterer(context).type
-
-    override val rangeInterval = 10
-
-    override fun getPositiveData(context: Context, min: Int, max: Int, checkbox: Boolean, ignoreRange: Boolean): CollectionFilterer {
-        return createFilterer(context).apply {
-            this.min = min.toDouble() / FACTOR
-            this.max = max.toDouble() / FACTOR
-            includeUndefined = checkbox
-            this.ignoreRange = ignoreRange
-        }
-    }
-
-    abstract fun createFilterer(context: Context): T
+    override val checkboxTextResId = R.string.unrated
+    override val valueFrom = RatingFilterer.lowerBound.toFloat()
+    override val valueTo = RatingFilterer.upperBound.toFloat()
+    override val stepSize = 0.1f
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         @Suppress("UNCHECKED_CAST")
-        val f = filter as T?
+        val f = filter as? T
         return InitialValues(
-                ((f?.min ?: RatingFilterer.lowerBound) * FACTOR).toInt(),
-                ((f?.max ?: RatingFilterer.upperBound) * FACTOR).toInt(),
-                f?.includeUndefined ?: false,
-                f?.ignoreRange ?: false
+            ((f?.min ?: RatingFilterer.lowerBound)).toFloat(),
+            ((f?.max ?: RatingFilterer.upperBound)).toFloat(),
+            f?.includeUndefined ?: false,
+            f?.ignoreRange ?: false
         )
     }
 
-    override fun getPinText(context: Context, value: String): String {
-        return FORMAT.format((value.toIntOrNull() ?: 0).toDouble() / FACTOR)
+    override fun createFilterer(context: Context): CollectionFilterer {
+        return createTypedFilterer(context).apply {
+            min = low.round()
+            max = high.round()
+            includeUndefined = checkboxIsChecked
+            ignoreRange = rangeIsIgnored
+        }
     }
 
+    private fun Float.round() = (this * 10).roundToInt().toDouble() / 10.0
+
+    override fun formatSliderLabel(context: Context, value: Float): String {
+        return FORMAT.format(value)
+    }
+
+    abstract fun createTypedFilterer(context: Context): T
+
     companion object {
-        private const val FACTOR = 10
         private val FORMAT = DecimalFormat("#.0")
     }
 }

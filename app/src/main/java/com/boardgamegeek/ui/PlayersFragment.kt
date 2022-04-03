@@ -1,66 +1,67 @@
 package com.boardgamegeek.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPlayersBinding
+import com.boardgamegeek.databinding.RowPlayersPlayerBinding
 import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import kotlinx.android.synthetic.main.fragment_players.*
-import kotlinx.android.synthetic.main.row_players_player.view.*
-import kotlin.properties.Delegates
 
 class PlayersFragment : Fragment() {
+    private var _binding: FragmentPlayersBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<PlayersViewModel>()
+    private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel) }
 
-    private val adapter: PlayersAdapter by lazy {
-        PlayersAdapter(viewModel)
-    }
-
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_players, container, false)
+        _binding = FragmentPlayersBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        val sectionItemDecoration = RecyclerSectionItemDecoration(
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(
+            RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter)
-        recyclerView.addItemDecoration(sectionItemDecoration)
+                adapter
+            )
+        )
 
-        viewModel.players.observe(viewLifecycleOwner, Observer {
+        viewModel.players.observe(viewLifecycleOwner) {
             adapter.players = it
-            progressBar?.hide()
-            if (adapter.itemCount == 0) {
-                recyclerView.fadeOut()
-                emptyContainer.fadeIn()
-            } else {
-                emptyContainer.fadeOut()
-                recyclerView.fadeIn(recyclerView.windowToken != null)
-            }
-        })
+            binding.progressBar.hide()
+            binding.emptyContainer.isVisible = it.isNullOrEmpty()
+            binding.recyclerView.isVisible = !it.isNullOrEmpty()
+        }
     }
 
-    class PlayersAdapter(val viewModel: PlayersViewModel) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-        var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            autoNotify(oldValue, newValue) { old, new ->
-                old.id == new.id
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    class PlayersAdapter(val viewModel: PlayersViewModel) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), SectionCallback {
+        var players: List<PlayerEntity> = emptyList()
+            @SuppressLint("NotifyDataSetChanged")
+            set(value) {
+                field = value
+                notifyDataSetChanged()
             }
-        }
 
         init {
             setHasStableIds(true)
@@ -97,14 +98,15 @@ class PlayersFragment : Fragment() {
             }
         }
 
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            fun bind(player: PlayerEntity?) {
-                player?.let { p ->
-                    itemView.nameView.text = p.name
-                    itemView.usernameView.setTextOrHide(player.username)
-                    itemView.quantityView.setTextOrHide(viewModel.getDisplayText(p))
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowPlayersPlayerBinding.bind(itemView)
+            fun bind(playerEntity: PlayerEntity?) {
+                playerEntity?.let { player ->
+                    binding.nameView.text = player.name
+                    binding.usernameView.setTextOrHide(player.username)
+                    binding.quantityView.setTextOrHide(viewModel.getDisplayText(player))
                     itemView.setOnClickListener {
-                        BuddyActivity.start(itemView.context, p.username, p.name)
+                        BuddyActivity.start(itemView.context, player.username, player.name)
                     }
                 }
             }

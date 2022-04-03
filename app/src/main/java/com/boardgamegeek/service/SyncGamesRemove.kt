@@ -13,6 +13,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /**
@@ -39,7 +40,7 @@ class SyncGamesRemove(application: BggApplication, service: BggService, syncResu
                 // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
                 for (gameId in gameIds) {
                     Timber.i("Deleting game ID=$gameId")
-                    count += dao.delete(gameId)
+                    count += runBlocking { dao.delete(gameId) }
                 }
                 syncResult.stats.numDeletes += count.toLong()
                 Timber.i("Deleted $count games")
@@ -63,15 +64,15 @@ class SyncGamesRemove(application: BggApplication, service: BggService, syncResu
         val date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("Fetching games that aren't in the collection and have not been viewed since $date")
 
-        var selection = "collection.${Collection.GAME_ID} IS NULL AND games.${Games.LAST_VIEWED}<?"
+        var selection = "collection.${Collection.Columns.GAME_ID} IS NULL AND games.${Games.Columns.LAST_VIEWED}<?"
         if (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
-            selection += " AND games.${Games.NUM_PLAYS}=0"
+            selection += " AND games.${Games.Columns.NUM_PLAYS}=0"
         }
         return context.contentResolver.queryInts(
                 Games.CONTENT_URI,
-                Games.GAME_ID,
+                Games.Columns.GAME_ID,
                 selection,
                 arrayOf(hoursAgo.toString()),
-                "games.${Games.UPDATED}")
+                "games.${Games.Columns.UPDATED}")
     }
 }

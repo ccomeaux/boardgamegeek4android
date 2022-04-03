@@ -1,41 +1,44 @@
 package com.boardgamegeek.ui.adapter
 
 import android.content.Context
-import android.database.Cursor
-import android.net.Uri
-import android.provider.BaseColumns
-import androidx.cursoradapter.widget.SimpleCursorAdapter
+import android.widget.ArrayAdapter
+import android.widget.Filter
+import android.widget.Filterable
 import com.boardgamegeek.R
 
-/**
- * A simple adapter to use for [android.widget.AutoCompleteTextView].
- */
-open class AutoCompleteAdapter @JvmOverloads constructor(
-        private val context: Context,
-        private val columnName: String,
-        private val uri: Uri,
-        private val sortOrder: String? = null,
-        private val extraColumnName: String? = null
-) : SimpleCursorAdapter(
-        context,
-        R.layout.autocomplete_item,
-        null,
-        arrayOf(BaseColumns._ID, columnName),
-        intArrayOf(0, R.id.autocomplete_item),
-        0) {
+class AutoCompleteAdapter(context: Context) : ArrayAdapter<String>(context, R.layout.autocomplete_item), Filterable {
+    private var listComplete = listOf<String>()
+    private var listFiltered = listOf<String>()
 
-    init {
-        stringConversionColumn = 1
+    override fun getCount() = listFiltered.size
+
+    override fun getItem(index: Int) = listFiltered.getOrNull(index)
+
+    fun addData(list: List<String>) {
+        listComplete = list.filter { it.isNotBlank() }
+        listFiltered = listComplete
+        notifyDataSetChanged()
     }
 
-    override fun runQueryOnBackgroundThread(constraint: CharSequence): Cursor? {
-        return context.contentResolver.query(uri,
-                arrayOf(BaseColumns._ID, columnName, extraColumnName),
-                if (constraint.isEmpty()) defaultSelection else "$columnName LIKE ?",
-                if (constraint.isEmpty()) defaultSelectionArgs else arrayOf("$constraint%"),
-                sortOrder)
-    }
+    override fun getFilter(): Filter = object : Filter() {
+        @Suppress("RedundantNullableReturnType")
+        override fun performFiltering(constraint: CharSequence?): FilterResults? {
+            val filter = constraint?.toString().orEmpty()
 
-    open val defaultSelection: String? = null
-    open val defaultSelectionArgs: Array<String>? = null
+            val filteredList = if (filter.isEmpty()) listComplete else {
+                listComplete.filter { it.contains(filter, ignoreCase = true) }
+            }
+
+            return FilterResults().apply {
+                values = filteredList
+                count = filteredList.size
+            }
+        }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+            @Suppress("UNCHECKED_CAST")
+            listFiltered = results?.values as? List<String> ?: emptyList()
+            notifyDataSetChanged()
+        }
+    }
 }

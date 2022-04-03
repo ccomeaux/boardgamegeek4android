@@ -25,21 +25,26 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun deflate() = "$min$DELIMITER$max$DELIMITER${if (includeUndefined) "1" else "0"}"
 
-    override fun toShortDescription() = describe(R.string.unknown_abbr)
+    override val iconResourceId: Int
+        get() = R.drawable.ic_baseline_schedule_24
 
-    override fun toLongDescription() = describe(R.string.unknown)
+    override fun chipText() = describe(R.string.unknown_abbr)
+
+    override fun description() = "${context.getString(R.string.title_play_time)} ${describe(R.string.unknown)}"
 
     private fun describe(@StringRes unknownResId: Int): String {
-        val range = when {
-            min == lowerBound && max == upperBound -> ""
-            max == lowerBound -> max.asTime()
-            min == lowerBound -> max.asTime().andLess()
-            max == upperBound -> min.asTime().andMore()
-            min == max -> max.asTime()
-            else -> "${min.asTime()}-${max.asTime()}"
-        }
+        val range = describeRange()
         val unknown = if (includeUndefined) " (+${context.getString(unknownResId)})" else ""
         return range + unknown
+    }
+
+    fun describeRange(delimiter: String = "-") = when {
+        min == lowerBound && max == upperBound -> ""
+        max == lowerBound -> max.asTime()
+        min == lowerBound -> max.asTime().andLess()
+        max == upperBound -> min.asTime().andMore()
+        min == max -> max.asTime()
+        else -> "${min.asTime()}$delimiter${max.asTime()}"
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {

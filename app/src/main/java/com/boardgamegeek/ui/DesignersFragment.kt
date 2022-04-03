@@ -1,71 +1,73 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentDesignersBinding
+import com.boardgamegeek.databinding.RowDesignerBinding
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
-import com.boardgamegeek.ui.viewmodel.DesignsViewModel
+import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import kotlinx.android.synthetic.main.fragment_designers.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
-import kotlinx.android.synthetic.main.row_designer.view.*
 import kotlin.properties.Delegates
 
-class DesignersFragment : Fragment(R.layout.fragment_designers) {
-    private val viewModel by activityViewModels<DesignsViewModel>()
+class DesignersFragment : Fragment() {
+    private var _binding: FragmentDesignersBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel by activityViewModels<DesignersViewModel>()
+    private val adapter: DesignersAdapter by lazy { DesignersAdapter(viewModel) }
 
-    private val adapter: DesignersAdapter by lazy {
-        DesignersAdapter(viewModel)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentDesignersBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
-                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter))
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(
+            RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
+        )
 
-        viewModel.designers.observe(viewLifecycleOwner, Observer {
-            showData(it)
-            progressBar.hide()
-        })
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.progress.observe(viewLifecycleOwner, Observer {
+        viewModel.designers.observe(viewLifecycleOwner) {
+            adapter.designers = it
+            binding.recyclerView.isVisible = adapter.itemCount > 0
+            binding.emptyTextView.isVisible = adapter.itemCount == 0
+            binding.progressBar.hide()
+            binding.swipeRefresh.isRefreshing = false
+        }
+
+        viewModel.progress.observe(viewLifecycleOwner) {
             if (it == null) {
-                progressContainer.isVisible = false
+                binding.horizontalProgressBar.progressContainer.isVisible = false
             } else {
-                progressContainer.isVisible = it.second > 0
-                progressView.max = it.second
-                progressView.progress = it.first
+                binding.horizontalProgressBar.progressContainer.isVisible = it.second > 0
+                binding.horizontalProgressBar.progressView.max = it.second
+                binding.horizontalProgressBar.progressView.progress = it.first
             }
-        })
-    }
-
-    private fun showData(designers: List<PersonEntity>) {
-        adapter.designers = designers
-        if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
-        } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
         }
     }
 
-    class DesignersAdapter(private val viewModel: DesignsViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    class DesignersAdapter(private val viewModel: DesignersViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(),
+        AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
         var designers: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
@@ -105,13 +107,15 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
             }
         }
 
-        inner class DesignerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class DesignerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowDesignerBinding.bind(itemView)
+
             fun bind(designer: PersonEntity?) {
                 designer?.let { d ->
-                    itemView.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
-                    itemView.nameView.text = d.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
-                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
+                    binding.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
+                    binding.nameView.text = d.name
+                    binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
+                    binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForDesigner(itemView.context, d.id, d.name)
                     }

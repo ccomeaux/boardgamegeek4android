@@ -2,11 +2,11 @@ package com.boardgamegeek.provider
 
 import android.content.ContentUris
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
-import com.boardgamegeek.provider.BggContract.GamesExpansionsColumns.EXPANSION_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_EXPANSIONS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.provider.BggContract.GamesExpansions
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdExpansionsIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = GamesExpansions.CONTENT_ITEM_TYPE
@@ -17,8 +17,8 @@ class GamesIdExpansionsIdProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         val expansionId = ContentUris.parseId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_EXPANSIONS)
-                .whereEquals(GAME_ID, gameId)
-                .whereEquals(EXPANSION_ID, expansionId)
+            .table(Tables.GAMES_EXPANSIONS)
+            .whereEquals(GamesExpansions.Columns.GAME_ID, gameId)
+            .whereEquals(GamesExpansions.Columns.EXPANSION_ID, expansionId)
     }
 }

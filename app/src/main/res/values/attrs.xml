@@ -37,4 +37,8 @@
 	<declare-styleable name="RatingView">
 		<attr name="hideWhenZero" format="boolean"/>
 	</declare-styleable>
+	<declare-styleable name="DataStepRow">
+		<attr name="titleLabel" format="string"/>
+		<attr name="descriptionLabel" format="string"/>
+	</declare-styleable>
 </resources>

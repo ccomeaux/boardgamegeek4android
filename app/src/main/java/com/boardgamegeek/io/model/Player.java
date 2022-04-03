@@ -3,6 +3,7 @@ package com.boardgamegeek.io.model;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "player")
 public class Player {
 	@Attribute public String username;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:app="http://schemas.android.com/apk/res-auto"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:orientation="vertical">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -13,47 +13,48 @@
 		android:elevation="@dimen/material_elevation_subtle"
 		android:minHeight="@dimen/view_row_height"
 		android:orientation="vertical"
-		android:paddingBottom="@dimen/material_margin_vertical"
 		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical"
 		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/material_margin_vertical">
+		android:paddingBottom="@dimen/material_margin_vertical">
 
 		<TextView
 			android:id="@+id/usernameView"
 			style="@style/TextWithImage"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_user_small"
 			android:ellipsize="end"
-			tools:text="ccomeaux"/>
+			app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
+			tools:text="ccomeaux" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/postDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_clock_small"
+			android:drawableLeft="@drawable/ic_outline_schedule_18"
 			android:paddingTop="@dimen/padding_half"
 			app:isForumTimestamp="true"
-			tools:text="Yesterday"/>
+			tools:text="Yesterday" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/editDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_edit_small"
+			android:drawableLeft="@drawable/ic_outline_edit_18"
 			android:paddingTop="@dimen/padding_half"
 			app:isForumTimestamp="true"
-			tools:text="Today (3 edits)"/>
+			tools:text="Today (3 edits)" />
 
 	</LinearLayout>
 
 	<FrameLayout style="@style/WebViewContainer">
+
 		<WebView
 			android:id="@+id/bodyView"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"/>
+			android:layout_height="match_parent" />
 	</FrameLayout>
 
 </LinearLayout>

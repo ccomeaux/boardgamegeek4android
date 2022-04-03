@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	   xmlns:tools="http://schemas.android.com/tools"
-	   tools:parentTag="android.widget.TableRow">
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:parentTag="android.widget.TableRow">
 
 	<TextView
 		android:id="@+id/valueView"
 		style="@style/Text.NumberStat"
 		android:layout_gravity="center_vertical"
-		tools:text="42"/>
+		tools:text="42" />
 
 	<LinearLayout
 		android:id="@+id/labelContainer"
@@ -20,14 +20,15 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			tools:text="Label"/>
+			tools:text="Label" />
 
 		<ImageView
 			android:id="@+id/infoImageView"
 			android:layout_width="@dimen/icon_width"
 			android:layout_height="@dimen/icon_width"
+			android:contentDescription="@string/information"
 			android:scaleType="center"
-			android:src="@drawable/ic_action_info_light"
-			android:visibility="invisible"/>
+			android:src="@drawable/ic_outline_info_24"
+			android:visibility="invisible" />
 	</LinearLayout>
 </merge>

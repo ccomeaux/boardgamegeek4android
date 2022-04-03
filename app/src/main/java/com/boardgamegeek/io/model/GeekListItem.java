@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 
 import java.util.List;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
 public class GeekListItem {
 	@Attribute public String id;

@@ -5,11 +5,12 @@ import android.content.Context
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollResultsColumns.PLAYER_COUNT
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS
+import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults
+import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 import timber.log.Timber
 
 class GamesIdSuggestedPlayerCountPollResultsProvider : BaseProvider() {
@@ -22,20 +23,20 @@ class GamesIdSuggestedPlayerCountPollResultsProvider : BaseProvider() {
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
-                .whereEquals(GAME_ID, gameId)
+            .table(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
+            .whereEquals(GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID, gameId)
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.POLLS_JOIN_GAMES)
-                .whereEquals("${Tables.GAMES}.$GAME_ID", gameId)
+            .table(Tables.POLLS_JOIN_GAMES)
+            .whereEquals("${Tables.GAMES}.${Games.Columns.GAME_ID}", gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         val gameId = Games.getGameId(uri)
-        values.put(GamePolls.GAME_ID, gameId)
+        values.put(GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID, gameId)
         try {
             val roeId = db.insertOrThrow(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, null, values)
             if (roeId != -1L) {

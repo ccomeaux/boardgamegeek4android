@@ -1,12 +1,12 @@
 package com.boardgamegeek.entities
 
 data class GamePlayerPollResultsEntity(
-        val totalVotes: Int = 0,
-        val playerCount: String = "0",
-        val bestVoteCount: Int = 0,
-        val recommendedVoteCount: Int = 0,
-        val notRecommendedVoteCount: Int = 0,
-        private val recommendation: Int = UNKNOWN
+    val totalVotes: Int = 0,
+    val playerCount: String = "0",
+    val bestVoteCount: Int = 0,
+    val recommendedVoteCount: Int = 0,
+    val notRecommendedVoteCount: Int = 0,
+    private val recommendation: Int = UNKNOWN
 ) {
     val calculatedRecommendation by lazy {
         if (recommendation == UNKNOWN) {

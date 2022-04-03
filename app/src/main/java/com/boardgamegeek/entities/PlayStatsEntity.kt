@@ -14,7 +14,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
     }
 
     val numberOfPlays: Int by lazy {
-        games.sumBy { it.playCount }
+        games.sumOf { it.playCount }
     }
 
     val numberOfPlayedGames: Int by lazy {
@@ -99,6 +99,6 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
     }
 
     private val totalCdf: Double by lazy {
-        games.asSequence().filter { it.isOwned }.sumByDouble { it.playCount.toDouble().cdf(lambda) }
+        games.asSequence().filter { it.isOwned }.sumOf { it.playCount.toDouble().cdf(lambda) }
     }
 }

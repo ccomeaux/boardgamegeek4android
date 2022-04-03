@@ -6,7 +6,7 @@ import org.simpleframework.xml.ElementList;
 
 import java.util.List;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class ThreadResponse {
 	@Attribute(required = false) public int id;
 	@Attribute(required = false) private int numarticles;

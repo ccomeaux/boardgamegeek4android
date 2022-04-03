@@ -176,6 +176,11 @@
 		<item name="android:scaleType">center</item>
 	</style>
 
+	<style name="DrawerHeaderImage">
+		<item name="android:height">@dimen/drawer_header_image_size</item>
+		<item name="android:width">@dimen/drawer_header_image_size</item>
+	</style>
+
 	<style name="RowContainer">
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">48dp</item>
@@ -333,7 +338,6 @@
 	</style>
 
 	<style name="BottomActionBar" parent="Widget.MaterialComponents.BottomAppBar">
-		<item name="android:backgroundTint">?attr/colorPrimary</item>
 		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
@@ -591,7 +595,6 @@
 
 	<style name="GeekListInfoBar">
 		<item name="android:background">@color/info_background</item>
-		<item name="android:elevation">@dimen/material_elevation_subtle</item>
 		<item name="android:minHeight">48dp</item>
 		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
@@ -609,7 +612,6 @@
 	</style>
 
 	<style name="TextWithImage.Secondary">
-		<item name="android:drawableTint">@color/secondary_text</item>
 		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
@@ -649,8 +651,8 @@
 
 	<style name="InfoText">
 		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:drawableEnd">@drawable/ic_action_info_light</item>
+		<item name="android:drawableEnd">@drawable/ic_outline_info_24</item>
 		<item name="android:drawablePadding">@dimen/padding_standard</item>
-		<item name="android:drawableRight">@drawable/ic_action_info_light</item>
+		<item name="android:drawableRight">@drawable/ic_outline_info_24</item>
 	</style>
 </resources>

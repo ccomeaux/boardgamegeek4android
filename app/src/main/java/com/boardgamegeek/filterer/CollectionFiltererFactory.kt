@@ -30,5 +30,6 @@ class CollectionFiltererFactory(context: Context) {
 
     companion object {
         const val TYPE_UNKNOWN = -1
+        const val TYPE_STATUS = 1
     }
 }

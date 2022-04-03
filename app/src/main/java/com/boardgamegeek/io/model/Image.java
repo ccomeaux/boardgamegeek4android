@@ -2,6 +2,7 @@ package com.boardgamegeek.io.model;
 
 import java.util.List;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class Image {
 	String type;
 	String id;
@@ -20,17 +21,17 @@ public class Image {
 	public Images images;
 	List<Link> links;
 
-	class Dimensions {
+	static class Dimensions {
 		int width;
 		int height;
 	}
 
-	class Source {
+	static class Source {
 		String type;
 		String id;
 	}
 
-	public class Images {
+	public static class Images {
 		ImageData micro;
 		public ImageData small;
 		public ImageData medium;
@@ -42,13 +43,13 @@ public class Image {
 		ImageData original;
 	}
 
-	public class ImageData {
+	public static class ImageData {
 		public String url;
 		int width;
 		int height;
 	}
 
-	class Link {
+	static class Link {
 		String rel;
 		String url;
 	}

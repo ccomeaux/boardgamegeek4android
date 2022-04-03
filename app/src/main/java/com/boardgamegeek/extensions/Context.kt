@@ -1,23 +1,27 @@
-@file:JvmName("ContextUtils")
+@file:Suppress("NOTHING_TO_INLINE", "unused")
 
 package com.boardgamegeek.extensions
 
-import android.content.ContentResolver
-import android.content.Context
-import android.content.SharedPreferences
+import android.app.Activity
+import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.os.Build
 import android.text.Html
 import android.text.SpannedString
 import android.text.TextUtils
+import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
+import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.persister.PlayPersister
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.service.SyncService
-import com.boardgamegeek.util.NotificationUtils
 
 fun Context.preferences(name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
     PreferenceManager.getDefaultSharedPreferences(this)
@@ -58,17 +62,59 @@ fun Context.versionName(): String {
     }
 }
 
-fun Context?.logQuickPlay(gameId: Int, gameName: String) {
-    val play = Play(gameId = gameId, gameName = gameName).apply {
-        updateTimestamp = System.currentTimeMillis()
-    }
-    PlayPersister(this).save(play, BggContract.INVALID_ID.toLong(), false)
-    SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-}
-
-fun Context?.cancelSync() {
-    NotificationUtils.cancel(this, NotificationUtils.TAG_SYNC_PROGRESS)
+fun Context.cancelSync() {
+    this.cancelNotification(NotificationTags.SYNC_PROGRESS)
     Authenticator.getAccount(this)?.let { account ->
         ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY)
     }
+}
+
+inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<String, Any?>) = startActivity(T::class.java, params)
+
+fun Context.startActivity(activity: Class<out Activity>, params: Array<out Pair<String, Any?>>) {
+    startActivity(createIntent(activity, params))
+}
+
+inline fun <reified T : Any> Context.intentFor(vararg params: Pair<String, Any?>): Intent = createIntent(T::class.java, params)
+
+fun <T> Context.createIntent(clazz: Class<out T>, params: Array<out Pair<String, Any?>>): Intent {
+    val intent = Intent(this, clazz)
+    if (params.isNotEmpty()) intent.putExtras(bundleOf(*params))
+    return intent
+}
+
+
+inline fun Context.toast(message: Int): Toast = Toast
+    .makeText(this, message, Toast.LENGTH_SHORT)
+    .apply {
+        show()
+    }
+
+inline fun Context.toast(message: CharSequence): Toast = Toast
+    .makeText(this, message, Toast.LENGTH_SHORT)
+    .apply {
+        show()
+    }
+
+inline fun Context.longToast(message: Int): Toast = Toast
+    .makeText(this, message, Toast.LENGTH_LONG)
+    .apply {
+        show()
+    }
+
+fun Context.showDialog(message: String, okButtonResId: Int = R.string.ok, okListener: DialogInterface.OnClickListener) {
+    AlertDialog.Builder(this)
+        .setMessage(message)
+        .setCancelable(true)
+        .setNegativeButton(R.string.cancel, null)
+        .setPositiveButton(okButtonResId, okListener)
+        .show()
+}
+
+fun Context.getBitmap(@DrawableRes resId: Int, tintColor: Int? = null): Bitmap {
+    return AppCompatResources.getDrawable(this, resId)!!.apply {
+        if (tintColor != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setTint(tintColor)
+        }
+    }.toBitmap()
 }

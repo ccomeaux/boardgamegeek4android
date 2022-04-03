@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout style="@style/RowContainer"
-			  xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content"
-			  android:gravity="center_vertical"
-			  android:orientation="vertical"
-			  android:paddingBottom="@dimen/padding_extra"
-			  android:paddingTop="@dimen/padding_extra">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_vertical"
+	android:orientation="vertical"
+	android:paddingTop="@dimen/padding_extra"
+	android:paddingBottom="@dimen/padding_extra">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -19,41 +20,41 @@
 			style="@style/TextWithImage"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_user_small"
-			android:drawableStart="@drawable/ic_user_small"
-			tools:text="ccomeaux"/>
+			app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
+			app:drawableStartCompat="@drawable/ic_outline_account_circle_18"
+			tools:text="ccomeaux" />
 
 		<View
 			android:layout_width="1dp"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<TextView
 			android:id="@+id/numberOfThumbsView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_thumbs_small"
-			android:drawableStart="@drawable/ic_thumbs_small"
-			tools:text="13"/>
+			app:drawableLeftCompat="@drawable/ic_outline_thumb_up_18"
+			app:drawableStartCompat="@drawable/ic_outline_thumb_up_18"
+			tools:text="13" />
 
 		<View
 			android:layout_width="1dp"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/postedDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_clock_small"
-			android:drawableStart="@drawable/ic_clock_small"
-			tools:text="Yesterday"/>
+			android:drawableStart="@drawable/ic_outline_schedule_18"
+			android:drawableLeft="@drawable/ic_outline_schedule_18"
+			tools:text="Yesterday" />
 
 		<View
 			android:id="@+id/datetimeDividerView"
@@ -61,16 +62,16 @@
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/editedDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_edit_small"
-			android:drawableStart="@drawable/ic_edit_small"
-			tools:text="2 hours ago"/>
+			android:drawableStart="@drawable/ic_outline_edit_18"
+			android:drawableLeft="@drawable/ic_outline_edit_18"
+			tools:text="2 hours ago" />
 	</LinearLayout>
 
 	<TextView
@@ -79,6 +80,6 @@
 		android:layout_height="wrap_content"
 		android:paddingTop="@dimen/padding_half"
 		android:textAppearance="@style/TextAppearance.Body"
-		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!"/>
+		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!" />
 
 </LinearLayout>

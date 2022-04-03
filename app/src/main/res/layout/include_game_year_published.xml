@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="0dp"
 	android:layout_height="match_parent"
 	android:layout_weight="1"
 	android:orientation="horizontal"
+	tools:ignore="UseCompoundDrawables"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/yearIcon"
 		style="@style/Icon"
-		android:src="@drawable/ic_calendar"/>
+		android:contentDescription="@string/published_prefix"
+		app:srcCompat="@drawable/ic_baseline_calendar_today_24" />
 
 	<TextView
 		android:id="@+id/yearView"
@@ -20,7 +22,6 @@
 		android:gravity="center_vertical"
 		android:textAppearance="@style/Text.Primary"
 		android:textStyle="bold"
-		tools:text="1996"/>
+		tools:text="1996" />
 </LinearLayout>
 
-				

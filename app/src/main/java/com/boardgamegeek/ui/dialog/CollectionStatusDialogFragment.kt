@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.dialog
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
@@ -13,10 +12,11 @@ import androidx.appcompat.app.AlertDialog.Builder
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
-import kotlinx.android.synthetic.main.dialog_collection_status.*
+import com.boardgamegeek.databinding.DialogCollectionStatusBinding
 
 class CollectionStatusDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogCollectionStatusBinding? = null
+    private val binding get() = _binding!!
     private var listener: Listener? = null
 
     interface Listener {
@@ -30,41 +30,47 @@ class CollectionStatusDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_status, null)
+        _binding = DialogCollectionStatusBinding.inflate(layoutInflater)
 
         val builder = Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setTitle(R.string.title_add_a_copy)
-                .setView(layout)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    if (listener != null) {
-                        val statuses = container.children.filterIsInstance<CheckBox>().filter {
-                            it.isChecked
-                        }.map { it.tag as String }.toList()
-                        val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0
-                        listener?.onSelectStatuses(statuses, wishlistPriority)
-                    }
+            .setTitle(R.string.title_add_a_copy)
+            .setView(binding.root)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                if (listener != null) {
+                    val statuses = binding.container.children.filterIsInstance<CheckBox>().filter {
+                        it.isChecked
+                    }.map { it.tag as String }.toList()
+                    val wishlistPriority = if (binding.wishlistView.isChecked) binding.wishlistPriorityView.selectedItemPosition + 1 else 0
+                    listener?.onSelectStatuses(statuses, wishlistPriority)
                 }
-                .setNegativeButton(R.string.cancel, null)
+            }
+            .setNegativeButton(R.string.cancel, null)
         return builder.create()
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
-        wishlistPriorityView.isEnabled = wishlistView.isChecked
-        wishlistView.setOnClickListener {
-            wishlistPriorityView.isEnabled = wishlistView.isChecked
+        binding.wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
+        binding.wishlistPriorityView.isEnabled = binding.wishlistView.isChecked
+        binding.wishlistView.setOnClickListener {
+            binding.wishlistPriorityView.isEnabled = binding.wishlistView.isChecked
         }
     }
 
-    private class WishlistPriorityAdapter(context: Context)
-        : ArrayAdapter<String>(context,
-            R.layout.spinner_textview,
-            context.resources.getStringArray(R.array.wishlist_priority_finite)) {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private class WishlistPriorityAdapter(context: Context) : ArrayAdapter<String>(
+        context,
+        R.layout.spinner_textview,
+        context.resources.getStringArray(R.array.wishlist_priority_finite)
+    ) {
         init {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }

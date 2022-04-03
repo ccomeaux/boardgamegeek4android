@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-	style="@style/RowContainer.Medium"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<com.boardgamegeek.ui.widget.ForegroundLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.Medium"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/activatable_background"
+	android:background="@drawable/bg_activatable"
 	android:foreground="?android:attr/selectableItemBackground">
 
 	<LinearLayout
@@ -24,7 +23,8 @@
 				android:layout_height="@dimen/color_circle_diameter"
 				android:layout_gravity="center"
 				android:scaleType="fitXY"
-				tools:background="#f60"/>
+				tools:background="#f60"
+				tools:ignore="ContentDescription" />
 		</FrameLayout>
 
 		<TextView
@@ -33,10 +33,10 @@
 			android:layout_height="match_parent"
 			android:layout_weight="1"
 			android:gravity="center_vertical"
-			android:paddingLeft="16dp"
 			android:paddingStart="16dp"
+			android:paddingLeft="16dp"
 			android:textAppearance="@style/TextAppearance.RowTitle"
-			tools:text="Orange"/>
+			tools:text="Orange" />
 	</LinearLayout>
 
 </com.boardgamegeek.ui.widget.ForegroundLinearLayout>

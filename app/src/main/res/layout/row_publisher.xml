@@ -34,7 +34,7 @@
 		app:layout_constraintStart_toEndOf="@id/thumbnailView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="Hans im Gluck"/>
+		tools:text="Greater Than Games"/>
 
 	<TextView
 		android:id="@+id/countView"

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/playersCard"
 	style="@style/Card"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:visibility="gone"
@@ -25,7 +25,7 @@
 				style="@style/Text.Header.Card"
 				android:layout_width="0dp"
 				android:layout_weight="1"
-				android:text="@string/title_players"/>
+				android:text="@string/title_players" />
 
 			<ImageView
 				android:id="@+id/playersSkillHelpView"
@@ -33,9 +33,10 @@
 				android:layout_height="@dimen/icon_width"
 				android:layout_gravity="right"
 				android:background="?attr/selectableItemBackgroundBorderless"
+				android:contentDescription="@string/help_title"
 				android:scaleType="center"
-				android:src="@drawable/ic_help"
-				android:tint="@color/accent"/>
+				android:src="@drawable/ic_baseline_help_outline_18"
+				app:tint="@color/accent" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -50,7 +51,7 @@
 				android:layout_weight="3"
 				android:text="@string/title_player"
 				android:textAppearance="@style/Text"
-				android:textStyle="bold"/>
+				android:textStyle="bold" />
 
 			<TextView
 				android:layout_width="0dp"
@@ -60,7 +61,7 @@
 				android:paddingLeft="@dimen/padding_half"
 				android:text="@string/title_wins"
 				android:textAppearance="@style/Text"
-				android:textStyle="bold"/>
+				android:textStyle="bold" />
 
 			<TextView
 				android:layout_width="0dp"
@@ -70,7 +71,7 @@
 				android:paddingLeft="@dimen/padding_half"
 				android:text="@string/title_win_skill"
 				android:textAppearance="@style/Text"
-				android:textStyle="bold"/>
+				android:textStyle="bold" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -80,6 +81,6 @@
 			android:layout_gravity="center_horizontal"
 			android:divider="@drawable/list_divider"
 			android:orientation="vertical"
-			android:showDividers="middle"/>
+			android:showDividers="middle" />
 	</LinearLayout>
 </androidx.cardview.widget.CardView>

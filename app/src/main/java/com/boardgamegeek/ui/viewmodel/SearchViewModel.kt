@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.SearchResultEntity
-import com.boardgamegeek.livedata.AbsentLiveData
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
+import kotlinx.coroutines.launch
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val _query = MutableLiveData<Pair<String, Boolean>>()
@@ -16,6 +14,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         get() = _query
 
     private val repository = SearchRepository(getApplication())
+    private val playRepository = PlayRepository(getApplication())
 
     fun search(query: String) {
         if (_query.value?.first != query) _query.value = (query to true)
@@ -25,10 +24,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (_query.value?.first != query || _query.value?.second != false) _query.value = query to false
     }
 
-    val searchResults: LiveData<RefreshableResource<List<SearchResultEntity>>> = Transformations.switchMap(_query) { q ->
-        when {
-            q.first.isNotBlank() -> repository.search(q.first, q.second)
-            else -> AbsentLiveData.create()
+    val searchResults: LiveData<RefreshableResource<List<SearchResultEntity>>> = _query.switchMap { q ->
+        liveData {
+            when {
+                q.first.isNotBlank() ->
+                    try {
+                        emit(RefreshableResource.refreshing(null))
+                        val results = repository.search(q.first, q.second)
+                        if (results.isEmpty() && q.second) {
+                            searchInexact(q.first)
+                        } else {
+                            emit(RefreshableResource.success(results))
+                        }
+                    } catch (e: Exception) {
+                        emit(RefreshableResource.error(e, application))
+                    }
+                else -> emit(RefreshableResource.success(null))
+            }
+        }
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            playRepository.logQuickPlay(gameId, gameName)
         }
     }
 }

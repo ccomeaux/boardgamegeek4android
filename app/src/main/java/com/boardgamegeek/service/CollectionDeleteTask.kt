@@ -2,7 +2,7 @@ package com.boardgamegeek.service
 
 import android.content.ContentValues
 import com.boardgamegeek.entities.CollectionItemForUploadEntity
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Collection
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 
@@ -10,12 +10,12 @@ class CollectionDeleteTask(client: OkHttpClient, collectionItem: CollectionItemF
     override fun createForm(): FormBody {
         @Suppress("SpellCheckingInspection")
         return super.createFormBuilder()
-                .add("collid", collectionItem.collectionId.toString())
-                .add("action", "delete")
-                .build()
+            .add("collid", collectionItem.collectionId.toString())
+            .add("action", "delete")
+            .build()
     }
 
     override fun appendContentValues(contentValues: ContentValues) {
-        contentValues.put(BggContract.Collection.COLLECTION_DIRTY_TIMESTAMP, 0)
+        contentValues.put(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, 0)
     }
 }

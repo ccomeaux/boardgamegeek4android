@@ -2,24 +2,20 @@ package com.boardgamegeek.ui.adapter
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowCommentBinding
 import com.boardgamegeek.entities.GameCommentEntity
 import com.boardgamegeek.extensions.*
-import kotlinx.android.synthetic.main.row_comment.view.*
 
-class GameCommentsPagedListAdapter : PagedListAdapter<GameCommentEntity, GameCommentsPagedListAdapter.CommentViewHolder>(AsyncDifferConfig.Builder(diffCallback).build()) {
-
+class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCommentsPagedListAdapter.CommentViewHolder>(diffCallback) {
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<GameCommentEntity>() {
-            override fun areItemsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity): Boolean =
-                    oldItem.username == newItem.username
+            override fun areItemsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity) = oldItem.username == newItem.username
 
-            override fun areContentsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity): Boolean =
-                    oldItem == newItem
+            override fun areContentsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity) = oldItem == newItem
         }
     }
 
@@ -32,12 +28,15 @@ class GameCommentsPagedListAdapter : PagedListAdapter<GameCommentEntity, GameCom
     }
 
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding = RowCommentBinding.bind(itemView)
+
         fun bind(comment: GameCommentEntity?) {
-            itemView.usernameView.text = comment?.username ?: ""
-            itemView.ratingView.text = comment?.rating?.asRating(itemView.context) ?: ""
-            itemView.ratingView.setTextViewBackground((comment?.rating
-                    ?: 0.0).toColor(ratingColors))
-            itemView.commentView.setTextOrHide(comment?.comment)
+            binding.usernameView.text = comment?.username.orEmpty()
+            binding.ratingView.text = comment?.rating?.asPersonalRating(itemView.context).orEmpty()
+            binding.ratingView.setTextViewBackground(
+                (comment?.rating ?: 0.0).toColor(BggColors.ratingColors)
+            )
+            binding.commentView.setTextOrHide(comment?.comment)
         }
     }
 }

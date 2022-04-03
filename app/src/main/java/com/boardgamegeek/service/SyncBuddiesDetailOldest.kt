@@ -24,15 +24,15 @@ class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, 
 
     private val max = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_BUDDIES_MAX)
 
-    override fun fetchBuddyNames(): List<String?> {
+    override fun fetchBuddyNames(): List<String> {
         val count = context.contentResolver.queryCount(Buddies.CONTENT_URI)
         if (count == 0) return emptyList()
         // attempt to sync all buddies every "days" days but no more than "max" at a time
         val limit = (count / days).coerceIn(1, max)
         return context.contentResolver.queryStrings(
                 Buddies.CONTENT_URI,
-                Buddies.BUDDY_NAME,
-                sortOrder = "${Buddies.UPDATED} LIMIT $limit"
+                Buddies.Columns.BUDDY_NAME,
+                sortOrder = "${Buddies.Columns.UPDATED} LIMIT $limit"
         )
     }
 }

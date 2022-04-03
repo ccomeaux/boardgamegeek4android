@@ -1,5 +1,3 @@
-@file:JvmName("IntUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context
@@ -7,11 +5,12 @@ import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.RANK_UNKNOWN
-import com.boardgamegeek.entities.YEAR_UNKNOWN
+import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.io.BggService
 import java.math.BigDecimal
 import java.math.MathContext
+import java.text.NumberFormat
 import kotlin.reflect.KProperty
 
 /**
@@ -40,7 +39,7 @@ fun Int.toOrdinal(): String {
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()
-        this == YEAR_UNKNOWN -> context.getString(R.string.year_zero)
+        this == GameEntity.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
         this > 0 -> context.getString(R.string.year_positive, this.toString())
         else -> context.getString(R.string.year_negative, (-this).toString())
     }
@@ -60,7 +59,7 @@ fun Int.asWishListPriority(context: Context?): String {
 }
 
 fun Int.isRankValid(): Boolean {
-    return this != RANK_UNKNOWN
+    return this != GameRankEntity.RANK_UNKNOWN
 }
 
 fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {
@@ -145,7 +144,6 @@ fun Int.hoursAgo(): Long {
  * E.g. [1,3,4,5] would return "1, 3 - 5"
  * Assumes list is already sorted
  */
-// TODO Collection
 fun Collection<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = Int.MAX_VALUE): String {
     when {
         this == null -> return ""
@@ -220,6 +218,10 @@ fun Int.orderOfMagnitude(): String {
     val zeros = (toString().length - 1) % 3
     val number = digit + ("0".repeat(zeros)) + suffix
     return if (this < 10) number else "$number+"
+}
+
+fun Int.toFormattedString(): String {
+    return this.toString().format(NumberFormat.getInstance())
 }
 
 class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {

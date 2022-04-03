@@ -1,29 +1,19 @@
 package com.boardgamegeek.repository
 
-import androidx.lifecycle.LiveData
-import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
-import com.boardgamegeek.entities.GeekListEntity
-import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.io.model.GeekListResponse
-import com.boardgamegeek.livedata.NetworkLoader
-import com.boardgamegeek.mappers.GeekListMapper
-import retrofit2.Call
+import com.boardgamegeek.io.model.GeekListsResponse
+import com.boardgamegeek.mappers.mapToEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class GeekListRepository(val application: BggApplication) {
-    fun getGeekList(geekListId: Int): LiveData<RefreshableResource<GeekListEntity>> {
-        return object : NetworkLoader<GeekListEntity, GeekListResponse>(application) {
-            override val typeDescriptionResId: Int
-                get() = R.string.title_geeklist
+class GeekListRepository {
+    suspend fun getGeekLists(sort: String?, page: Int) = withContext(Dispatchers.IO) {
+        val response = Adapter.createForJson().geekLists(sort, GeekListsResponse.PAGE_SIZE, page)
+        response.mapToEntity()
+    }
 
-            override fun createCall(): Call<GeekListResponse> {
-                return Adapter.createForXml().geekList(geekListId, 1)
-            }
-
-            override fun parseResult(result: GeekListResponse): GeekListEntity {
-                return GeekListMapper().map(result)
-            }
-        }.asLiveData()
+    suspend fun getGeekList(geekListId: Int) = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().geekList(geekListId, 1)
+        response.mapToEntity()
     }
 }

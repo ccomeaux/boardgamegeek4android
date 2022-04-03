@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<androidx.preference.PreferenceScreen
-		android:icon="@drawable/ic_account_circle_black_24dp"
+		android:icon="@drawable/ic_baseline_account_circle_24"
 		android:key="com.boardgamegeek.prefs.ACCOUNT"
 		android:summary="@string/pref_account_summary"
 		android:title="@string/pref_account">
 		<intent
 			android:action="@string/intent_action_account"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek"/>
+			android:targetPackage="com.boardgamegeek" />
 	</androidx.preference.PreferenceScreen>
 	<androidx.preference.PreferenceScreen
-		android:icon="@drawable/ic_action_refresh_light"
+		android:icon="@drawable/ic_baseline_sync_24"
 		android:key="com.boardgamegeek.prefs.SYNC"
 		android:summary="@string/pref_sync_summary"
 		android:title="@string/pref_sync">
 		<intent
 			android:action="@string/intent_action_sync"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek"/>
+			android:targetPackage="com.boardgamegeek" />
 	</androidx.preference.PreferenceScreen>
 	<PreferenceScreen
-		android:icon="@drawable/ic_storage"
+		android:icon="@drawable/ic_baseline_storage_24"
 		android:key="com.boardgamegeek.prefs.DATA"
 		android:summary="@string/pref_data_summary"
 		android:title="@string/pref_data">
 		<intent
 			android:action="@string/intent_action_data"
 			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
-			android:targetPackage="com.boardgamegeek"/>
+			android:targetPackage="com.boardgamegeek" />
 	</PreferenceScreen>
 </androidx.preference.PreferenceScreen>
