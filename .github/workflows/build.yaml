@@ -15,4 +15,4 @@ jobs:
       - name: Debug missing file
         run: cat /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
       - name: Build the app
-        run: ./gradlew build --debug
+        run: ./gradlew build
