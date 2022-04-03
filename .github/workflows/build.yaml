@@ -12,5 +12,7 @@ jobs:
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: echo $DATA > /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
+      - name: Debug missing file
+        run: cat /home/runner/work/boardgamegeek4android/boardgamegeek4android/app/google-services.json
       - name: Build the app
-        run: ./gradlew build
+        run: ./gradlew build --debug
