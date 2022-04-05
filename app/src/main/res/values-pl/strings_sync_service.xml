@@ -10,12 +10,12 @@
 	<string name="sync_notification_collection_full">Synchronizacja całej Twojej kolekcji</string>
 	<string name="sync_notification_collection_partial">Wyszukiwanie ostatnich zmian w Twojej kolekcji</string>
 	<string name="sync_notification_collection_unupdated">Uzupełnianie luk w Twojej kolekcji</string>
-	<string name="sync_notification_collection_downloading">Pobieranie kolekcji \"%s\": %s</string>
-	<string name="sync_notification_collection_saving">Zapisywanie %,d pozycji z kolekcji \"%s\": %s</string>
-	<string name="sync_notification_collection_detail">Synchronizacja kolekcji \"%s\": %s</string>
+	<string name="sync_notification_collection_downloading">Pobieranie kolekcji \"%1$s\": %2$s</string>
+	<string name="sync_notification_collection_saving">Zapisywanie %1$,d pozycji z kolekcji \"%2$s\": %3$s</string>
+	<string name="sync_notification_collection_detail">Synchronizacja kolekcji \"%1$s\": %2$s</string>
 	<string name="sync_notification_collection_since">Synchronizacja %1$s z kolekcji zmodyfikowanych od %2$s</string>
 	<string name="sync_notification_collection_since_downloading">Pobieranie %1$s z kolekcji zmodyfikowanych od %2$s</string>
-	<string name="sync_notification_collection_since_saving" tools:ignore="PluralsCandidate">Zapisywanie %,d %s z kolekcji zmodyfikowanych od %s</string>
+	<string name="sync_notification_collection_since_saving" tools:ignore="PluralsCandidate">Zapisywanie %1$,d %2$s z kolekcji zmodyfikowanych od %3$s</string>
 	<string name="sync_notification_collection_update_games">Aktualizacja %1$,d gier [%2$s]</string>
 	<string name="sync_notification_games_oldest">Odświeżanie starych gier</string>
 	<string name="sync_notification_games_unupdated">Pobieranie szczegółów nowo dodanych gier</string>

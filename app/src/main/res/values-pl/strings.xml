@@ -655,7 +655,7 @@
 	<string name="error_incorrect_password">Nieprawidłowe hasło</string>
 	<string name="error_account_list_zero">Nie mozna dodać konta. Upewnij się, że w sekcji Konta w ustawieniach swojego urządzenia nie istnieje żadne inne konto BoardGameGeek.</string>
 	<string name="error_account_list_multiple">Nie dopuszcza się wielokrotnych konta typu %s.</string>
-	<string name="error_account_name_mismatch">Istniejące konto dla %s nie pasuje do podanego konta dla %s.</string>
+	<string name="error_account_name_mismatch">Istniejące konto dla %1$s nie pasuje do podanego konta dla %2$s.</string>
 	<string name="error_account_set_auth_token_security_exception">O-o! Nie nie jest błąd, który chcieliśmy zobaczyć. Jeśli masz zainstalowaną aplikację ScorePal, to wiedz, że aplikacje te przeszkadzają sobie w logowaniu się. Pracujemy nad tym.</string>
 	<string name="error_field_required">Pole wymagane</string>
 	<string name="information">Informacja</string>
