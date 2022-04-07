@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.dialog
 
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
@@ -24,11 +25,19 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     private var maxValue = DEFAULT_MAX_VALUE
     private var maxMantissa = DEFAULT_MAX_MANTISSA
     private val decimal = DecimalFormatSymbols.getInstance().decimalSeparator
+    private var useHapticFeedback = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NO_TITLE, 0)
     }
+
+    private val preferenceListener: SharedPreferences.OnSharedPreferenceChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == KEY_HAPTIC_FEEDBACK) {
+                useHapticFeedback = sharedPreferences[KEY_HAPTIC_FEEDBACK, true] == true
+            }
+        }
 
     override fun onResume() {
         super.onResume()
@@ -40,6 +49,13 @@ abstract class NumberPadDialogFragment : DialogFragment() {
             val height = window.attributes.height
             window.setLayout(width, height)
         }
+        useHapticFeedback = requireContext().preferences()[KEY_HAPTIC_FEEDBACK, true] == true
+        requireContext().preferences().registerOnSharedPreferenceChangeListener(preferenceListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().preferences().unregisterOnSharedPreferenceChangeListener(preferenceListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -124,16 +140,10 @@ abstract class NumberPadDialogFragment : DialogFragment() {
 
     private fun maybeUpdateOutput(output: String, view: View) {
         if (isWithinLength(output) && isWithinRange(output)) {
-            maybeBuzz(view)
+            if (useHapticFeedback)
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             binding.outputView.text = output
             enableDelete()
-        }
-    }
-
-    private fun maybeBuzz(v: View) {
-        // TODO - store in a field and listen for changes
-        if (requireContext().preferences()[KEY_HAPTIC_FEEDBACK, true] == true) {
-            v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }
 
