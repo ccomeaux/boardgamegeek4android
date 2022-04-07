@@ -3,6 +3,9 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import com.boardgamegeek.extensions.getPathValue
+import com.boardgamegeek.extensions.getPathValueAsInt
+import com.boardgamegeek.extensions.getPathValueAsLong
 
 class BggContract {
     object Thumbnails {
@@ -60,8 +63,8 @@ class BggContract {
             const val PLAYER_COUNTS_BEST = "player_counts_best"
             const val PLAYER_COUNTS_RECOMMENDED = "player_counts_recommended"
             const val PLAYER_COUNTS_NOT_RECOMMENDED = "player_count_nots_recommended"
-            const val UPDATED = "updated"
-            const val UPDATED_LIST = "updated_list"
+            const val UPDATED = COL_UPDATED
+            const val UPDATED_LIST = COL_UPDATED_LIST
             const val POLLS_COUNT = "polls_count"
         }
 
@@ -211,45 +214,15 @@ class BggContract {
             return builder
         }
 
-        fun getGameId(uri: Uri?): Int {
-            // TODO use generic function
-            return uri?.pathSegments?.let {
-                if (it.size > 1 && it.getOrNull(0) == PATH_GAMES) it.getOrNull(1)?.toIntOrNull() else null
-            } ?: INVALID_ID
-        }
+        fun getGameId(uri: Uri) = uri.getPathValueAsInt(PATH_GAMES)
 
-        fun getPollName(uri: Uri): String {
-            return getPathValue(uri, PATH_POLLS)
-        }
+        fun getPollName(uri: Uri) = uri.getPathValue(PATH_POLLS)
 
-        fun getPollResultsKey(uri: Uri): String {
-            return getPathValue(uri, PATH_POLL_RESULTS)
-        }
+        fun getPollResultsKey(uri: Uri) = uri.getPathValue(PATH_POLL_RESULTS)
 
-        fun getPollResultsResultKey(uri: Uri): String {
-            return getPathValue(uri, PATH_POLL_RESULTS_RESULT)
-        }
+        fun getPollResultsResultKey(uri: Uri) = uri.getPathValue(PATH_POLL_RESULTS_RESULT)
 
-        fun getPollPlayerCount(uri: Uri): String {
-            return getPathValue(uri, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
-        }
-
-        private fun getPathValue(uri: Uri, path: String): String {
-            // TODO use find()
-            if (path.isEmpty()) {
-                return ""
-            }
-            var isNextValue = false
-            for (segment in uri.pathSegments) {
-                if (isNextValue) {
-                    return segment
-                }
-                if (path == segment) {
-                    isNextValue = true
-                }
-            }
-            return ""
-        }
+        fun getPollPlayerCount(uri: Uri) = uri.getPathValue(PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
 
         fun createRecommendedPlayerCountColumn(playerCount: String): String {
             return Columns.PLAYER_COUNT_RECOMMENDATION_PREFIX + playerCount
@@ -285,7 +258,7 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(gameRankId.toString()).build()
         }
 
-        fun getRankId(uri: Uri) = uri.lastPathSegment?.toIntOrNull() ?: INVALID_ID
+        fun getRankId(uri: Uri) = uri.getPathValueAsInt(PATH_RANKS)
     }
 
     object Designers {
@@ -300,9 +273,7 @@ class BggContract {
             const val WHITMORE_SCORE = "whitmore_score"
             const val DESIGNER_STATS_UPDATED_TIMESTAMP = "designer_stats_updated_timestamp"
             const val ITEM_COUNT = "item_count"
-
-            //TODO
-            const val UPDATED = "updated"
+            const val UPDATED = COL_UPDATED
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_DESIGNERS).build()
@@ -318,7 +289,7 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(designerId.toString()).appendPath(PATH_COLLECTION).build()
         }
 
-        fun getDesignerId(uri: Uri) = uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: INVALID_ID
+        fun getDesignerId(uri: Uri) = uri.getPathValueAsInt(PATH_DESIGNERS)
     }
 
     object Artists {
@@ -334,9 +305,7 @@ class BggContract {
             const val WHITMORE_SCORE = "whitmore_score"
             const val ARTIST_STATS_UPDATED_TIMESTAMP = "artist_stats_updated_timestamp"
             const val ITEM_COUNT = "item_count"
-
-            //TODO
-            const val UPDATED = "updated"
+            const val UPDATED = COL_UPDATED
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ARTISTS).build()
@@ -352,7 +321,7 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(artistId.toString()).appendPath(PATH_COLLECTION).build()
         }
 
-        fun getArtistId(uri: Uri) = uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: INVALID_ID
+        fun getArtistId(uri: Uri) = uri.getPathValueAsInt(PATH_ARTISTS)
     }
 
     object Publishers {
@@ -367,9 +336,7 @@ class BggContract {
             const val WHITMORE_SCORE = "whitmore_score"
             const val PUBLISHER_STATS_UPDATED_TIMESTAMP = "publisher_stats_updated_timestamp"
             const val ITEM_COUNT = "item_count"
-
-            //TODO
-            const val UPDATED = "updated"
+            const val UPDATED = COL_UPDATED
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PUBLISHERS).build()
@@ -381,13 +348,11 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(publisherId.toString()).build()
         }
 
-        fun getPublisherId(uri: Uri): Int {
-            return uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: INVALID_ID
-        }
-
         fun buildCollectionUri(publisherId: Int): Uri {
             return CONTENT_URI.buildUpon().appendPath(publisherId.toString()).appendPath(PATH_COLLECTION).build()
         }
+
+        fun getPublisherId(uri: Uri) = uri.getPathValueAsInt(PATH_PUBLISHERS)
     }
 
     object Mechanics {
@@ -395,7 +360,7 @@ class BggContract {
             const val MECHANIC_ID = "mechanic_id"
             const val MECHANIC_NAME = "mechanic_name"
             const val ITEM_COUNT = "item_count"
-            const val UPDATED = "updated"
+            const val UPDATED = COL_UPDATED
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MECHANICS).build()
@@ -412,13 +377,11 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(mechanicId.toString())
         }
 
-        fun getMechanicId(uri: Uri): Int {
-            return uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: INVALID_ID
-        }
-
         fun buildCollectionUri(mechanicId: Int): Uri {
             return createMechanicUri(mechanicId).appendPath(PATH_COLLECTION).build()
         }
+
+        fun getMechanicId(uri: Uri) = uri.getPathValueAsInt(PATH_MECHANICS)
     }
 
     object Categories {
@@ -426,7 +389,7 @@ class BggContract {
             const val CATEGORY_ID = "category_id"
             const val CATEGORY_NAME = "category_name"
             const val ITEM_COUNT = "item_count"
-            const val UPDATED = "updated"
+            const val UPDATED = COL_UPDATED
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_CATEGORIES).build()
@@ -443,13 +406,11 @@ class BggContract {
             return createCategoryUri(categoryId).appendPath(PATH_COLLECTION).build()
         }
 
-        fun getCategoryId(uri: Uri): Int {
-            return uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: INVALID_ID
-        }
-
         private fun createCategoryUri(categoryId: Int): Uri.Builder {
             return CONTENT_URI.buildUpon().appendPath(categoryId.toString())
         }
+
+        fun getCategoryId(uri: Uri) = uri.getPathValueAsInt(PATH_CATEGORIES)
     }
 
     object GamesExpansions {
@@ -511,10 +472,8 @@ class BggContract {
             const val HAS_PARTS_DIRTY_TIMESTAMP = "has_parts_dirty_timestamp"
             const val COLLECTION_HERO_IMAGE_URL = "collection_hero_image_url"
             const val PRIVATE_INFO_INVENTORY_LOCATION = "inventory_location"
-
-            // TODO use constants
-            const val UPDATED = "updated"
-            const val UPDATED_LIST = "updated_list"
+            const val UPDATED = COL_UPDATED
+            const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
@@ -536,25 +495,21 @@ class BggContract {
             return CONTENT_URI.buildUpon().appendPath(PATH_INVENTORY_LOCATION).build()
         }
 
-        fun getId(uri: Uri): Long {
-            return uri.pathSegments.getOrNull(1)?.toLongOrNull() ?: INVALID_ID.toLong()
-        }
+        fun getId(uri: Uri) = uri.getPathValueAsLong(PATH_COLLECTION)
     }
 
     object Buddies {
         object Columns {
             const val BUDDY_ID = "buddy_id"
             const val BUDDY_NAME = "buddy_name"
-            const val BUDDY_FIRSTNAME = "buddy_firtname" // TODO no "S"?!
+            const val BUDDY_FIRSTNAME = "buddy_firtname"
             const val BUDDY_LASTNAME = "buddy_lastname"
             const val AVATAR_URL = "avatar_url"
             const val PLAY_NICKNAME = "play_nickname"
             const val BUDDY_FLAG = "buddy_flag"
             const val SYNC_HASH_CODE = "sync_hash_code"
-
-            // TODO use constants
-            const val UPDATED = "updated"
-            const val UPDATED_LIST = "updated_list"
+            const val UPDATED = COL_UPDATED
+            const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_BUDDIES).build()
@@ -562,13 +517,11 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy"
         const val DEFAULT_SORT = "${Columns.BUDDY_LASTNAME}$COLLATE_NOCASE ASC, ${Columns.BUDDY_FIRSTNAME}$COLLATE_NOCASE ASC"
 
-        fun buildBuddyUri(buddyName: String?): Uri {
+        fun buildBuddyUri(buddyName: String): Uri {
             return CONTENT_URI.buildUpon().appendPath(buddyName).build()
         }
 
-        fun getBuddyName(uri: Uri): String { // TODO null-able?
-            return uri.pathSegments[1]
-        }
+        fun getBuddyName(uri: Uri) = uri.getPathValue(PATH_BUDDIES)
     }
 
     object PlayerColors {
@@ -701,7 +654,7 @@ class BggContract {
             const val DELETE_TIMESTAMP = "delete_timestamp"
             const val UPDATE_TIMESTAMP = "update_timestamp"
             const val DIRTY_TIMESTAMP = "dirty_timestamp"
-            const val SYNC_TIMESTAMP = "updated_list"
+            const val SYNC_TIMESTAMP = COL_UPDATED_LIST
             const val SUM_QUANTITY = "sum_quantity"
             const val SUM_WINS = "sum_wins"
             const val MAX_DATE = "max_date"
@@ -712,7 +665,6 @@ class BggContract {
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play"
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.play"
 
-        // TODO define table name in a better spot
         const val DEFAULT_SORT = "${Columns.DATE} DESC, plays.${Columns.PLAY_ID} DESC"
 
         /**
@@ -775,7 +727,7 @@ class BggContract {
             return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_COLOR).build()
         }
 
-        fun getInternalId(uri: Uri) = uri.pathSegments[1].toLong()
+        fun getInternalId(uri: Uri) = uri.getPathValueAsLong(PATH_PLAYS)
     }
 
     object PlayPlayers {
@@ -801,7 +753,7 @@ class BggContract {
         const val DEFAULT_SORT = "${Columns.START_POSITION} ASC, play_players.${Columns.NAME}$COLLATE_NOCASE ASC"
         const val SORT_BY_SUM_QUANTITY = "${Plays.Columns.SUM_QUANTITY} DESC, $DEFAULT_SORT"
 
-        fun getPlayPlayerId(uri: Uri?) = uri?.lastPathSegment?.toLongOrNull() ?: INVALID_ID.toLong()
+        fun getPlayPlayerId(uri: Uri) = uri.getPathValueAsLong(PATH_PLAYERS)
     }
 
     object PlayLocations {
@@ -822,18 +774,11 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionview"
         const val DEFAULT_SORT = "${Columns.STARRED} DESC, ${Columns.NAME}$COLLATE_NOCASE ASC"
 
-        fun buildViewUri(viewId: Long): Uri = build(viewId).build()
+        fun buildViewUri(viewId: Long): Uri = builder(viewId).build()
 
-        // TODO move to next object
-        fun buildViewFilterUri(viewId: Long): Uri = build2(viewId).build()
+        fun builder(viewId: Long): Uri.Builder = CONTENT_URI.buildUpon().appendPath(viewId.toString())
 
-        fun buildViewFilterUri(viewId: Long, filterId: Long): Uri = build2(viewId).appendPath(filterId.toString()).build()
-
-        private fun build(viewId: Long): Uri.Builder = CONTENT_URI.buildUpon().appendPath(viewId.toString())
-
-        private fun build2(viewId: Long) = build(viewId).appendPath(PATH_FILTERS)
-
-        fun getViewId(uri: Uri?) = uri?.pathSegments?.getOrNull(1)?.toIntOrNull() ?: INVALID_ID
+        fun getViewId(uri: Uri) = uri.getPathValueAsInt(PATH_COLLECTION_VIEWS)
     }
 
     object CollectionViewFilters {
@@ -847,7 +792,13 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionviewfilter"
         const val DEFAULT_SORT = "${CollectionViews.Columns.STARRED} DESC, ${CollectionViews.Columns.NAME}$COLLATE_NOCASE ASC, ${Columns.TYPE} ASC"
 
-        fun getFilterType(uri: Uri?) = uri?.lastPathSegment?.toIntOrNull() ?: INVALID_ID
+        fun buildViewFilterUri(viewId: Long): Uri = build(viewId).build()
+
+        fun buildViewFilterUri(viewId: Long, filterId: Long): Uri = build(viewId).appendPath(filterId.toString()).build()
+
+        private fun build(viewId: Long) = CollectionViews.builder(viewId).appendPath(PATH_FILTERS)
+
+        fun getFilterType(uri: Uri) = uri.getPathValueAsInt(PATH_FILTERS)
     }
 
     companion object {
@@ -859,9 +810,8 @@ class BggContract {
 
         const val COLLATE_NOCASE = " COLLATE NOCASE"
 
-        // TODO prefix with COL_
-        const val UPDATED = "updated"
-        const val UPDATED_LIST = "updated_list"
+        const val COL_UPDATED = "updated"
+        const val COL_UPDATED_LIST = "updated_list"
 
         const val PATH_GAMES = "games"
         const val PATH_RANKS = "ranks"

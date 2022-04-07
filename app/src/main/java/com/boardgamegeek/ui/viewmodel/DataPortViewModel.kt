@@ -23,6 +23,7 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.ProgressData
 import com.boardgamegeek.livedata.ProgressLiveData
 import com.boardgamegeek.mappers.mapToExportable
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameRepository
@@ -197,8 +198,8 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                         CollectionViews.Columns.SORT_TYPE to item.sortType,
                     )
                     val insertedUri = contentResolver.insert(CollectionViews.CONTENT_URI, values)
-                    val viewId = CollectionViews.getViewId(insertedUri)
-                    val filterUri = CollectionViews.buildViewFilterUri(viewId.toLong())
+                    val viewId = insertedUri?.let { CollectionViews.getViewId(it) } ?: BggContract.INVALID_ID
+                    val filterUri = CollectionViewFilters.buildViewFilterUri(viewId.toLong())
                     val batch = arrayListOf<ContentProviderOperation>()
                     for (filter in item.filters) {
                         val builder = ContentProviderOperation.newInsert(filterUri)

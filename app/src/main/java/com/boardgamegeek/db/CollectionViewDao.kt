@@ -55,7 +55,7 @@ class CollectionViewDao(private val context: BggApplication) {
      */
     suspend fun load(viewId: Long): CollectionViewEntity? = withContext(Dispatchers.IO) {
         if (viewId <= 0L) return@withContext null
-        val uri = CollectionViews.buildViewFilterUri(viewId)
+        val uri = CollectionViewFilters.buildViewFilterUri(viewId)
         val projection = arrayOf(
             CollectionViews.Columns.NAME,
             CollectionViews.Columns.SORT_TYPE,
@@ -131,9 +131,12 @@ class CollectionViewDao(private val context: BggApplication) {
         )
         val filterUri = context.contentResolver.insert(CollectionViews.CONTENT_URI, values)
 
-        val filterId = CollectionViews.getViewId(filterUri)
-        val uri = CollectionViews.buildViewFilterUri(filterId.toLong())
-        insertDetails(uri, view.filters)
+        filterUri?.let {
+            val id = CollectionViews.getViewId(it)
+            val uri = CollectionViewFilters.buildViewFilterUri(id.toLong())
+            insertDetails(uri, view.filters)
+        } ?: BggContract.INVALID_ID
+
         filterUri?.lastPathSegment?.toLongOrNull() ?: BggContract.INVALID_ID.toLong()
     }
 
@@ -145,7 +148,7 @@ class CollectionViewDao(private val context: BggApplication) {
         )
         context.contentResolver.update(uri, values, null, null)
 
-        val viewFiltersUri = CollectionViews.buildViewFilterUri(view.id)
+        val viewFiltersUri = CollectionViewFilters.buildViewFilterUri(view.id)
         context.contentResolver.delete(viewFiltersUri, null, null)
         insertDetails(viewFiltersUri, view.filters)
     }
