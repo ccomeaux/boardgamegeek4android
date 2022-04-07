@@ -196,7 +196,7 @@ class GameDao(private val context: BggApplication) {
                 GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
                 GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
                 GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION, // TODO why is this not loading into the entity
+                GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
             )
             context.contentResolver.load(uri, projection)?.use {
                 if (it.moveToFirst()) {
@@ -207,6 +207,7 @@ class GameDao(private val context: BggApplication) {
                             bestVoteCount = it.getIntOrNull(2) ?: 0,
                             recommendedVoteCount = it.getIntOrNull(3) ?: 0,
                             notRecommendedVoteCount = it.getIntOrNull(4) ?: 0,
+                            recommendation = it.getIntOrNull(5) ?: GamePlayerPollResultsEntity.UNKNOWN,
                         )
                     } while (it.moveToNext())
                 }
