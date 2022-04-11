@@ -155,7 +155,7 @@ class GamePlayStatsFragment : Fragment() {
                             binding.dataView.fadeOut()
                             binding.emptyView.fadeIn()
                         } else {
-                            playEntities = data
+                            playEntities = data.sortedByDescending { it.dateInMillis }
                             viewModel.players.observe(viewLifecycleOwner) {
                                 playerEntities = it
 

@@ -46,7 +46,7 @@ class GamePlayStatsViewModel(application: Application) : AndroidViewModel(applic
         liveData {
             val list = when (gameId) {
                 BggContract.INVALID_ID -> null
-                else -> playRepository.loadPlaysByGame(gameId) // TODO sort by  ASC
+                else -> playRepository.loadPlaysByGame(gameId)
             }
             emit(RefreshableResource.success(list))
         }
