@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.UserEntity
@@ -26,6 +27,7 @@ import timber.log.Timber
 
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
+    private val imageDao = ImageDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
 
@@ -98,6 +100,7 @@ class UserRepository(val application: BggApplication) {
     suspend fun deleteUsers(): Int {
         syncPrefs.clearBuddyListTimestamps()
         val count = userDao.deleteUsers()
+        imageDao.deleteAvatars()
         Timber.i("Removed %d users", count)
         return count
     }
