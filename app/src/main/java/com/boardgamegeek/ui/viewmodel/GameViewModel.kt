@@ -8,6 +8,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
@@ -26,6 +27,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val gameRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES), TimeUnit.MINUTES)
     private val partialPlaysRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES), TimeUnit.MINUTES)
     private val fullPlaysRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS), TimeUnit.HOURS)
+
+    val username: LiveSharedPreference<String> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
+    val syncPlaysPreference: LiveSharedPreference<Boolean> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
+    val syncCollectionPreference: LiveSharedPreference<Set<String>> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_STATUSES)
 
     private val _gameId = MutableLiveData<Int>()
     val gameId: LiveData<Int>
