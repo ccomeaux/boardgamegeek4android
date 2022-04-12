@@ -15,39 +15,36 @@ class PersonStatsEntity(
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<BriefGameEntity>, context: Context): PersonStatsEntity {
-            val baseGameCollection = collection.filter { it.subtype == "boardgame" }
+            val baseGameCollection = collection.filter { it.subtype == BriefGameEntity.TYPE_BOARDGAME }
 
-            val averageRating =
-                (baseGameCollection.sumOf { it.personalRating }) /
-                        baseGameCollection.filter { it.personalRating > 0.0 }.size
+            val ratedGames = baseGameCollection.filter { it.personalRating > 0.0 }
+            val averageRating = if (ratedGames.isEmpty()) 0.0 else (ratedGames.sumOf { it.personalRating }) / ratedGames.size
 
-            val whitmoreScore = baseGameCollection
-                .filter { it.personalRating > 6.5 }
-                .sumOf { it.personalRating * 2.0 - 13.0 }
-                .toInt()
-            val whitmoreScoreWithExpansions = collection
-                .filter { it.subtype != "boardgameaccessory" }
-                .filter { it.personalRating > 6.5 }
-                .sumOf { it.personalRating * 2.0 - 13.0 }
-                .toInt()
-
-            val playCount = baseGameCollection.sumOf { it.playCount } // TODO handle expansions
+            val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
+            val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != BriefGameEntity.TYPE_ACCESSORY })
 
             val prefs = context.preferences()
-            val exp = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
-            val acc = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
-            val hIndexList = when {
-                exp && acc -> collection
-                acc -> collection.filter { it.subtype != "boardgameexpansion" }
-                acc -> collection.filter { it.subtype != "boardgameaccessory" }
+            val includeExpansions = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+            val includeAccessories = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+            val playCountsByGame = when {
+                includeExpansions && includeAccessories -> collection
+                includeAccessories -> collection.filter { it.subtype != BriefGameEntity.TYPE_EXPANSION }
+                includeExpansions -> collection.filter { it.subtype != BriefGameEntity.TYPE_ACCESSORY }
                 else -> baseGameCollection
             }
                 .distinctBy { it.gameId }
                 .map { it.playCount }
 
-            val hIndex = HIndexEntity.fromList(hIndexList)
+            val playCount = playCountsByGame.sum()
+
+            val hIndex = HIndexEntity.fromList(playCountsByGame)
 
             return PersonStatsEntity(averageRating, whitmoreScore, whitmoreScoreWithExpansions, playCount, hIndex)
         }
+
+        private fun calculateWhitmoreScore(games: List<BriefGameEntity>, neutralRating: Double = 6.5) = games
+            .filter { it.personalRating > neutralRating }
+            .sumOf { (it.personalRating - neutralRating) * 2.0 }
+            .toInt()
     }
 }

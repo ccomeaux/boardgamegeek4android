@@ -85,5 +85,8 @@ data class GameEntity(
 
     companion object {
         const val YEAR_UNKNOWN = 0
+        const val TYPE_BOARDGAME = "boardgame"
+        const val TYPE_EXPANSION = "boardgameexpansion"
+        const val TYPE_ACCESSORY = "boardgameaccessory"
     }
 }

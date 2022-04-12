@@ -1,6 +1,5 @@
 package com.boardgamegeek.repository
 
-import android.content.ContentValues
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
@@ -70,28 +69,29 @@ class ArtistRepository(val application: BggApplication) {
         val maxProgress = sortedList.size
         sortedList.forEachIndexed { i, data ->
             progress.postValue(i to maxProgress)
-            val collection = dao.loadCollection(data.id)
-            val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
-            updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
+            calculateStats(data.id, data.whitmoreScore)
         }
         prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS] = System.currentTimeMillis()
         progress.postValue(0 to 0)
     }
 
-    suspend fun calculateStats(artistId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
         val collection = dao.loadCollection(artistId)
-        val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
-        updateWhitmoreScore(artistId, linkedCollection.whitmoreScore)
-        linkedCollection
+        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+        updateWhitmoreScore(artistId, statsEntity.whitmoreScore, whitmoreScore)
+        statsEntity
     }
 
-    private suspend fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
-        val realOldScore = if (oldScore == -1) dao.loadArtist(id)?.whitmoreScore ?: 0 else oldScore
+    private suspend fun updateWhitmoreScore(artistId: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
+        val realOldScore = if (oldScore == -1) dao.loadArtist(artistId)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
-            dao.upsert(id, ContentValues().apply {
-                put(Artists.Columns.WHITMORE_SCORE, newScore)
-                put(Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, System.currentTimeMillis())
-            })
+            dao.upsert(
+                artistId,
+                contentValuesOf(
+                    Artists.Columns.WHITMORE_SCORE to newScore,
+                    Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
+                )
+            )
         }
     }
 }

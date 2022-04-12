@@ -21,5 +21,8 @@ data class BriefGameEntity(
 
     companion object {
         const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+        const val TYPE_BOARDGAME = GameEntity.TYPE_BOARDGAME
+        const val TYPE_EXPANSION = GameEntity.TYPE_EXPANSION
+        const val TYPE_ACCESSORY = GameEntity.TYPE_ACCESSORY
     }
 }
