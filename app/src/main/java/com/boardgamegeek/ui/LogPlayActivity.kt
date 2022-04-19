@@ -54,7 +54,7 @@ class LogPlayActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogplayBinding
     private val viewModel by viewModels<LogPlayViewModel>()
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
-    private val playAdapter: PlayAdapter by lazy { PlayAdapter() }
+    private val playerAdapter: PlayerAdapter by lazy { PlayerAdapter() }
     private val locationAdapter: LocationAdapter by lazy { LocationAdapter(this) }
 
     private var internalId = INVALID_ID.toLong()
@@ -395,7 +395,7 @@ class LogPlayActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { addField() }
 
         binding.recyclerView.setHasFixedSize(false)
-        binding.recyclerView.adapter = playAdapter
+        binding.recyclerView.adapter = playerAdapter
 
         swipePaint.color = ContextCompat.getColor(this@LogPlayActivity, R.color.delete)
         itemTouchHelper = ItemTouchHelper(
@@ -412,7 +412,7 @@ class LogPlayActivity : AppCompatActivity() {
                     actionState: Int,
                     isCurrentlyActive: Boolean
                 ) {
-                    if (viewHolder is PlayAdapter.PlayerViewHolder && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    if (viewHolder is PlayerAdapter.PlayerViewHolder && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                         val itemView = viewHolder.itemView
 
                         // fade and slide item
@@ -464,7 +464,7 @@ class LogPlayActivity : AppCompatActivity() {
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                    lastRemovedPlayer = playAdapter.getPlayer(viewHolder.bindingAdapterPosition)
+                    lastRemovedPlayer = playerAdapter.getPlayer(viewHolder.bindingAdapterPosition)
                     lastRemovedPlayer?.let { player ->
                         binding.coordinatorLayout.indefiniteSnackbar(
                             getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
@@ -481,18 +481,18 @@ class LogPlayActivity : AppCompatActivity() {
                     viewHolder: RecyclerView.ViewHolder,
                     target: RecyclerView.ViewHolder
                 ): Boolean {
-                    if (target !is PlayAdapter.PlayerViewHolder) return false
+                    if (target !is PlayerAdapter.PlayerViewHolder) return false
                     viewModel.reorderPlayers(viewHolder.bindingAdapterPosition + 1, target.bindingAdapterPosition + 1)
                     return true
                 }
 
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-                    (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemClear()
+                    (viewHolder as? PlayerAdapter.PlayerViewHolder)?.onItemClear()
                     super.clearView(recyclerView, viewHolder)
                 }
 
                 override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemDragging()
+                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) (viewHolder as? PlayerAdapter.PlayerViewHolder)?.onItemDragging()
                     super.onSelectedChanged(viewHolder, actionState)
                 }
 
@@ -593,7 +593,7 @@ class LogPlayActivity : AppCompatActivity() {
             bindNoWinStats(it)
             bindComments(it)
             bindPlayerHeader(it.players.size)
-            playAdapter.submit(it.players)
+            playerAdapter.submit(it.players)
             binding.progressView.hide()
 
             if (showNotification && internalId != INVALID_ID.toLong()) {
@@ -779,7 +779,7 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun editPlayer(position: Int) {
         isLaunchingActivity = true
-        val player = playAdapter.getPlayer(position)
+        val player = playerAdapter.getPlayer(position)
         if (player != null) {
             val input = createLaunchInput(player.seat)
             editPlayerLauncher.launch(input to (position to player))
@@ -804,7 +804,7 @@ class LogPlayActivity : AppCompatActivity() {
         cancelNotification(TAG_PLAY_TIMER, internalId)
     }
 
-    inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {
+    inner class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         var isDragging = false
 
         private var players = emptyList<PlayPlayerEntity>()
@@ -816,7 +816,8 @@ class LogPlayActivity : AppCompatActivity() {
             override fun getNewListSize() = newList.size
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return oldList[oldItemPosition].uiId == newList[newItemPosition].uiId
+                return oldList[oldItemPosition].uiId == newList[newItemPosition].uiId &&
+                        oldList[oldItemPosition].startingPosition == newList[newItemPosition].startingPosition
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
