@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
@@ -46,9 +48,11 @@ class CollectionSortDialogFragment : DialogFragment() {
         }
 
         createNames()
-        val radioButton = findRadioButtonByType(selectedType)
-        radioButton?.isChecked = true
-        binding.scrollContainer.requestChildFocus(radioButton, radioButton)
+        findRadioButtonByType(selectedType)?.let {
+            it.isChecked = true
+            binding.scrollContainer.requestChildFocus(it, it)
+        }
+
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val sortType = getTypeFromView(group.findViewById(checkedId))
             Timber.d("Sort by $sortType")
@@ -68,7 +72,7 @@ class CollectionSortDialogFragment : DialogFragment() {
 
     private fun hideRadioButtonIfNotSelected(radioButton: RadioButton, selectedType: Int) {
         if (findRadioButtonByType(selectedType) !== radioButton) {
-            radioButton.visibility = View.GONE
+            radioButton.isVisible = false
         }
     }
 
@@ -96,9 +100,7 @@ class CollectionSortDialogFragment : DialogFragment() {
         private const val KEY_SORT_TYPE = "sort_type"
 
         fun newInstance(sortType: Int) = CollectionSortDialogFragment().apply {
-            arguments = Bundle().apply {
-                putInt(KEY_SORT_TYPE, sortType)
-            }
+            arguments = bundleOf(KEY_SORT_TYPE to sortType)
         }
     }
 }

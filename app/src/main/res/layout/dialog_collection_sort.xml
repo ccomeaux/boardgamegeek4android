@@ -1,221 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/scrollContainer"
-	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:paddingBottom="@dimen/material_margin_vertical"
 	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical"
 	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical">
+	android:paddingBottom="@dimen/material_margin_vertical">
 
 	<RadioGroup
+
 		android:id="@+id/radioGroup"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:paddingBottom="40dp">
 
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_personal"/>
+			android:text="@string/collection_sort_personal" />
 
 		<RadioButton
 			android:id="@+id/my_rating"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_my_rating"/>
+			android:tag="@string/collection_sort_type_my_rating" />
 
 		<RadioButton
 			android:id="@+id/wishlist_priority"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_wishlist_priority"/>
+			android:tag="@string/collection_sort_type_wishlist_priority" />
 
 		<RadioButton
 			android:id="@+id/play_count_desc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_count_desc"/>
+			android:tag="@string/collection_sort_type_play_count_desc" />
 
 		<RadioButton
 			android:id="@+id/play_count_asc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_count_asc"/>
+			android:tag="@string/collection_sort_type_play_count_asc" />
 
 		<RadioButton
 			android:id="@+id/playDateMaxRadioButton"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_date_max"/>
+			android:tag="@string/collection_sort_type_play_date_max" />
 
 		<RadioButton
 			android:id="@+id/playDateMinRadioButton"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_date_min"/>
+			android:tag="@string/collection_sort_type_play_date_min" />
 
 		<RadioButton
 			android:id="@+id/lastModifiedView"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_last_modified"/>
+			android:tag="@string/collection_sort_type_last_modified" />
+
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_private_info"/>
+			android:text="@string/collection_sort_private_info" />
 
 		<RadioButton
 			android:id="@+id/acquisition_date"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_acquisition_date"/>
+			android:tag="@string/collection_sort_type_acquisition_date" />
 
 		<RadioButton
 			android:id="@+id/acquired_from"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_acquired_from"/>
+			android:tag="@string/collection_sort_type_acquired_from" />
 
 		<RadioButton
 			android:id="@+id/inventory_location"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_inventory_location"/>
+			android:tag="@string/collection_sort_type_inventory_location" />
 
 		<RadioButton
 			android:id="@+id/price_paid"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_price_paid"/>
+			android:tag="@string/collection_sort_type_price_paid" />
 
 		<RadioButton
 			android:id="@+id/current_value"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_current_value"/>
+			android:tag="@string/collection_sort_type_current_value" />
 
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_stats"/>
+			android:text="@string/collection_sort_stats" />
 
 		<RadioButton
 			android:id="@+id/name"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_collection_name"/>
+			android:tag="@string/collection_sort_type_collection_name" />
 
 		<RadioButton
 			android:id="@+id/year_published_asc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_year_published_asc"/>
+			android:tag="@string/collection_sort_type_year_published_asc" />
 
 		<RadioButton
 			android:id="@+id/year_published_desc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_year_published_desc"/>
+			android:tag="@string/collection_sort_type_year_published_desc" />
 
 		<RadioButton
 			android:id="@+id/play_time_asc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_time_asc"/>
+			android:tag="@string/collection_sort_type_play_time_asc" />
 
 		<RadioButton
 			android:id="@+id/play_time_desc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_play_time_desc"/>
+			android:tag="@string/collection_sort_type_play_time_desc" />
 
 		<RadioButton
 			android:id="@+id/suggested_age_asc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_suggested_age_asc"/>
+			android:tag="@string/collection_sort_type_suggested_age_asc" />
 
 		<RadioButton
 			android:id="@+id/suggested_age_desc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_suggested_age_desc"/>
+			android:tag="@string/collection_sort_type_suggested_age_desc" />
 
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_community"/>
+			android:text="@string/collection_sort_community" />
 
 		<RadioButton
 			android:id="@+id/rank"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_rank"/>
+			android:tag="@string/collection_sort_type_rank" />
 
 		<RadioButton
 			android:id="@+id/geek_rating"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_geek_rating"/>
+			android:tag="@string/collection_sort_type_geek_rating" />
 
 		<RadioButton
 			android:id="@+id/average_rating"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_average_rating"/>
+			android:tag="@string/collection_sort_type_average_rating" />
 
 		<RadioButton
 			android:id="@+id/average_weight_asc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_average_weight_asc"/>
+			android:tag="@string/collection_sort_type_average_weight_asc" />
 
 		<RadioButton
 			android:id="@+id/average_weight_desc"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_average_weight_desc"/>
+			android:tag="@string/collection_sort_type_average_weight_desc" />
 
 		<TextView
 			style="@style/Text.Header.Section.Dialog"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_local"/>
+			android:text="@string/collection_sort_local" />
 
 		<RadioButton
 			android:id="@+id/last_viewed"
 			style="@style/DialogRadioButton"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:tag="@string/collection_sort_type_last_viewed"/>
+			android:tag="@string/collection_sort_type_last_viewed" />
 	</RadioGroup>
 </ScrollView>
