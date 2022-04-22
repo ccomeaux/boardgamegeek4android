@@ -4,27 +4,23 @@ import android.accounts.Account
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
-import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
-import com.boardgamegeek.mappers.PlayMapper
-import com.boardgamegeek.pref.getPlaysNewestTimestamp
-import com.boardgamegeek.pref.getPlaysOldestTimestamp
-import com.boardgamegeek.pref.setPlaysNewestTimestamp
-import com.boardgamegeek.pref.setPlaysOldestTimestamp
-import com.boardgamegeek.tasks.CalculatePlayStatsTask
 import com.boardgamegeek.util.RemoteConfig
-import retrofit2.Response
+import kotlinx.coroutines.runBlocking
+import retrofit2.HttpException
 import timber.log.Timber
+import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
+import com.boardgamegeek.repository.PlayRepository
 
-class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
+class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
+    SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
-    private val playDao: PlayDao = PlayDao(application)
+    private val playRepository = PlayRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 
@@ -42,28 +38,35 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
             startTime = System.currentTimeMillis()
 
-            val newestSyncDate = syncPrefs.getPlaysNewestTimestamp()
-            if (executeCall(account.name, newestSyncDate?.asDateForApi(), null)) {
+            val newestSyncDate = syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
+            val minDate = if (newestSyncDate == 0L) null else newestSyncDate.asDateForApi()
+            if (executeCall(account.name, minDate, null)) {
                 cancel()
                 return
             }
-            val deletedCount = playDao.deleteUnupdatedPlaysSince(startTime, newestSyncDate ?: 0L)
-            syncResult.stats.numDeletes += deletedCount.toLong()
-            Timber.i("...deleted $deletedCount unupdated plays")
+            if (minDate != null) {
+                val deletedCount = runBlocking { playRepository.deleteUnupdatedPlaysSince(startTime, newestSyncDate) }
+                syncResult.stats.numDeletes += deletedCount.toLong()
+                Timber.i("...deleted $deletedCount unupdated plays")
+            }
 
-            val oldestDate = syncPrefs.getPlaysOldestTimestamp()
+            val oldestDate = syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
             if (oldestDate > 0) {
-                val date = oldestDate.asDateForApi()
-                if (executeCall(account.name, null, date)) {
+                val maxDate = oldestDate.asDateForApi()
+                if (executeCall(account.name, null, maxDate)) {
                     cancel()
                     return
                 }
-                val count = playDao.deleteUnupdatedPlaysBefore(startTime, newestSyncDate ?: 0L)
-                syncResult.stats.numDeletes += count.toLong()
-                Timber.i("...deleted $count unupdated plays")
-                syncPrefs.setPlaysOldestTimestamp(0L)
+                if (oldestDate != Long.MAX_VALUE) {
+                    val count = runBlocking { playRepository.deleteUnupdatedPlaysBefore(startTime, oldestDate) }
+                    syncResult.stats.numDeletes += count.toLong()
+                    Timber.i("...deleted $count unupdated plays")
+                }
+                syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
             }
-            CalculatePlayStatsTask(application).executeAsyncTask()
+            runBlocking {
+                playRepository.calculatePlayStats()
+            }
         } finally {
             Timber.i("...complete!")
         }
@@ -77,7 +80,6 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
      * @return true if the sync operation should cancel
      */
     private fun executeCall(username: String, minDate: String?, maxDate: String?): Boolean {
-        var response: PlaysResponse?
         var page = 1
         do {
             if (isCancelled) {
@@ -89,28 +91,34 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
             val message = formatNotificationMessage(minDate, maxDate, page)
             updateProgressNotification(message)
-            val call = service.plays(username, minDate, maxDate, page)
-            val r: Response<PlaysResponse>
+
+            var response: PlaysResponse?
+
             try {
-                r = call.execute()
-                if (!r.isSuccessful) {
-                    showError(message, r.code())
-                    syncResult.stats.numIoExceptions++
-                    return true
+                response = runBlocking { service.plays(username, minDate, maxDate, page) }
+                val plays = response.plays.mapToEntity(startTime)
+                persist(plays)
+                plays.maxOfOrNull { it.dateInMillis }?.let {
+                    if (it > syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L) {
+                        syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] = it
+                    }
+                }
+                plays.minOfOrNull { it.dateInMillis }?.let {
+                    if (it < syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE) {
+                        syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
+                    }
                 }
             } catch (e: Exception) {
-                showError(message, e)
+                if (e is HttpException) {
+                    showError(message, e.code())
+                } else {
+                    showError(message, e)
+                }
                 syncResult.stats.numIoExceptions++
                 return true
             }
-
-            response = r.body()
-            val mapper = PlayMapper()
-            val plays = mapper.map(response?.plays, startTime)
-            persist(plays)
-            updateTimestamps(plays)
             page++
-        } while (response != null && response.hasMorePages())
+        } while (response?.hasMorePages() == true)
         return false
     }
 
@@ -129,26 +137,13 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
 
     private fun persist(plays: List<PlayEntity>) {
         if (plays.isNotEmpty()) {
-            playDao.save(plays, startTime)
+            runBlocking {
+                playRepository.saveFromSync(plays, startTime)
+            }
             syncResult.stats.numEntries += plays.size.toLong()
             Timber.i("...saved ${plays.size} plays")
         } else {
             Timber.i("...no plays to update")
         }
     }
-
-    private fun updateTimestamps(plays: List<PlayEntity>) {
-        val newestDate = newestDate(plays)
-        if (newestDate > syncPrefs.getPlaysNewestTimestamp() ?: 0L) {
-            syncPrefs.setPlaysNewestTimestamp(newestDate)
-        }
-        val oldestDate = oldestDate(plays)
-        if (oldestDate < syncPrefs.getPlaysOldestTimestamp()) {
-            syncPrefs.setPlaysOldestTimestamp(oldestDate)
-        }
-    }
-
-    private fun newestDate(plays: List<PlayEntity>) = plays.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
-
-    private fun oldestDate(plays: List<PlayEntity>) = plays.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
 }

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-	android:id="@+id/root_container"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/root_container"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -12,7 +11,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:gravity="center"/>
+		android:gravity="center" />
 
 	<TextView
 		android:id="@+id/emptyView"
@@ -20,14 +19,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:text="@string/empty_forums"
-		android:visibility="gone"/>
+		android:visibility="gone" />
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/recyclerView"
+		style="@style/RecyclerViewVerticalList"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:clipToPadding="true"
-		android:scrollbars="vertical"
 		android:visibility="gone"
-		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

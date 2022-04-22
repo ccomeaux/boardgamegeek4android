@@ -9,11 +9,11 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.startUp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class GamePlayStatsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
@@ -63,9 +63,9 @@ class GamePlayStatsActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, gameId: Int, gameName: String, @ColorInt headerColor: Int) {
             context.startActivity<GamePlayStatsActivity>(
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_HEADER_COLOR to headerColor
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
+                KEY_HEADER_COLOR to headerColor,
             )
         }
     }

@@ -4,13 +4,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowTopGameBinding
 import com.boardgamegeek.entities.TopGameEntity
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
-import kotlinx.android.synthetic.main.row_top_game.view.*
 import kotlin.properties.Delegates
 
 class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), AutoUpdatableAdapter {
@@ -37,18 +37,22 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
     override fun getItemId(position: Int) = (results.getOrNull(position)?.id ?: BggContract.INVALID_ID).toLong()
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding = RowTopGameBinding.bind(itemView)
+
         fun bind(game: TopGameEntity?) {
             if (game == null) return
-            itemView.nameView.text = game.name
-            itemView.yearView.text = game.yearPublished.asYear(itemView.context)
-            itemView.rankView.text = game.rank.toString()
-            itemView.thumbnailView.loadThumbnailInList(game.thumbnailUrl)
+            binding.nameView.text = game.name
+            binding.yearView.text = game.yearPublished.asYear(itemView.context)
+            binding.rankView.text = game.rank.toString()
+            binding.thumbnailView.loadThumbnailInList(game.thumbnailUrl)
 
             itemView.setOnClickListener {
-                GameActivity.start(itemView.context,
-                        game.id,
-                        game.name,
-                        game.thumbnailUrl)
+                GameActivity.start(
+                    itemView.context,
+                    game.id,
+                    game.name,
+                    game.thumbnailUrl,
+                )
             }
         }
     }

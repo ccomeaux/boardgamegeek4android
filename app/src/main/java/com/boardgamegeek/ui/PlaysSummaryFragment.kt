@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,45 +11,46 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.databinding.FragmentPlaysSummaryBinding
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
-import kotlinx.android.synthetic.main.fragment_plays_summary.*
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.support.v4.startActivity
 
 class PlaysSummaryFragment : Fragment() {
+    private var _binding: FragmentPlaysSummaryBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel by activityViewModels<PlaysSummaryViewModel>()
     private var syncPlays = false
     private var syncPlaysTimestamp = 0L
     private var oldestSyncDate = Long.MAX_VALUE
     private var newestSyncDate = 0L
 
-    val viewModel by activityViewModels<PlaysSummaryViewModel>()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_plays_summary, container, false)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentPlaysSummaryBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener {
-            swipeRefreshLayout.isRefreshing = viewModel.refresh()
+        binding.swipeRefreshLayout.setBggColors()
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.swipeRefreshLayout.isRefreshing = viewModel.refresh()
         }
 
-        syncButton.setOnClickListener {
-            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS] = true
-            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
+        binding.syncButton.setOnClickListener {
+            val prefs = requireContext().preferences()
+            prefs[PREFERENCES_KEY_SYNC_PLAYS] = true
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
             viewModel.refresh()
         }
 
-        syncCancelButton.setOnClickListener {
-            defaultSharedPreferences[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
+        binding.syncCancelButton.setOnClickListener {
+            requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
         }
 
-        viewModel.plays.observe(viewLifecycleOwner) { swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
+        viewModel.plays.observe(viewLifecycleOwner) { binding.swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
         viewModel.playsInProgress.observe(viewLifecycleOwner) { playEntities -> bindInProgressPlays(playEntities) }
         viewModel.playsNotInProgress.observe(viewLifecycleOwner) { playEntities -> bindRecentPlays(playEntities) }
         viewModel.playCount.observe(viewLifecycleOwner) { playCount -> bindPlayCount(playCount ?: 0) }
@@ -58,8 +58,8 @@ class PlaysSummaryFragment : Fragment() {
         viewModel.locations.observe(viewLifecycleOwner) { locationEntities -> bindLocations(locationEntities) }
         viewModel.colors.observe(viewLifecycleOwner) { playerColorEntities -> bindColors(playerColorEntities) }
         viewModel.hIndex.observe(viewLifecycleOwner) {
-            hIndexView.text = context?.getText(R.string.game_h_index_prefix, it.description)
-            morePlayStatsButton.setOnClickListener {
+            binding.hIndexView.text = context?.getText(R.string.game_h_index_prefix, it.description)
+            binding.morePlayStatsButton.setOnClickListener {
                 startActivity<PlayStatsActivity>()
             }
         }
@@ -81,43 +81,50 @@ class PlaysSummaryFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun bindStatusMessage() {
-        syncStatusView.text = when {
+        binding.syncStatusView.text = when {
             oldestSyncDate == Long.MAX_VALUE && newestSyncDate <= 0L -> getString(R.string.plays_sync_status_none)
-            oldestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), millisAsDate(newestSyncDate))
-            newestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), millisAsDate(oldestSyncDate))
-            else -> String.format(getString(R.string.plays_sync_status_range), millisAsDate(oldestSyncDate), millisAsDate(newestSyncDate))
+            oldestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), newestSyncDate.asDate(requireContext()))
+            newestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), oldestSyncDate.asDate(requireContext()))
+            else -> String.format(
+                getString(R.string.plays_sync_status_range),
+                oldestSyncDate.asDate(requireContext()),
+                newestSyncDate.asDate(requireContext())
+            )
         }
     }
 
-    private fun millisAsDate(millis: Long) = DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_DATE)
-
     private fun bindSyncCard() {
-        syncCard.isGone = syncPlays || syncPlaysTimestamp > 0
+        binding.syncCard.isGone = syncPlays || syncPlaysTimestamp > 0
     }
 
     private fun bindInProgressPlays(plays: List<PlayEntity>?) {
         val numberOfPlaysInProgress = plays?.size ?: 0
         val visibility = if (numberOfPlaysInProgress == 0) View.GONE else View.VISIBLE
-        playsInProgressSubtitle.visibility = visibility
-        playsInProgressContainer.visibility = visibility
-        recentPlaysSubtitle.visibility = visibility
+        binding.playsInProgressSubtitle.visibility = visibility
+        binding.playsInProgressContainer.visibility = visibility
+        binding.recentPlaysSubtitle.visibility = visibility
 
-        playsInProgressContainer.removeAllViews()
+        binding.playsInProgressContainer.removeAllViews()
         if (numberOfPlaysInProgress > 0) {
             plays?.forEach {
-                addPlayToContainer(it, playsInProgressContainer)
+                addPlayToContainer(it, binding.playsInProgressContainer)
             }
-            playsCard.isVisible = true
+            binding.playsCard.isVisible = true
         }
     }
 
     private fun bindRecentPlays(plays: List<PlayEntity>?) {
-        recentPlaysContainer.removeAllViews()
+        binding.recentPlaysContainer.removeAllViews()
         if (plays != null && plays.isNotEmpty()) {
-            plays.forEach { addPlayToContainer(it, recentPlaysContainer) }
-            playsCard.isVisible = true
-            recentPlaysContainer.isVisible = true
+            plays.forEach { addPlayToContainer(it, binding.recentPlaysContainer) }
+            binding.playsCard.isVisible = true
+            binding.recentPlaysContainer.isVisible = true
         }
     }
 
@@ -129,47 +136,47 @@ class PlaysSummaryFragment : Fragment() {
     }
 
     private fun bindPlayCount(playCount: Int) {
-        morePlaysButton.isVisible = true
-        morePlaysButton.setText(R.string.more)
+        binding.morePlaysButton.isVisible = true
+        binding.morePlaysButton.setText(R.string.more)
         val morePlaysCount = playCount - PlaysSummaryViewModel.ITEMS_TO_DISPLAY
         if (morePlaysCount > 0) {
-            morePlaysButton.text = String.format(getString(R.string.more_suffix), morePlaysCount)
+            binding.morePlaysButton.text = String.format(getString(R.string.more_suffix), morePlaysCount)
         }
-        morePlaysButton.setOnClickListener { startActivity<PlaysActivity>() }
+        binding.morePlaysButton.setOnClickListener { startActivity<PlaysActivity>() }
     }
 
     private fun bindPlayers(players: List<PlayerEntity>?) {
-        playersContainer.removeAllViews()
+        binding.playersContainer.removeAllViews()
         if (players == null || players.isEmpty()) {
-            playersCard.isGone = true
-            morePlayersButton.isGone = true
+            binding.playersCard.isGone = true
+            binding.morePlayersButton.isGone = true
         } else {
-            playersCard.isVisible = true
+            binding.playersCard.isVisible = true
             for (player in players) {
-                createRowWithPlayCount(playersContainer, player.description, player.playCount).apply {
+                createRowWithPlayCount(binding.playersContainer, player.description, player.playCount).apply {
                     setOnClickListener { BuddyActivity.start(requireContext(), player.username, player.name) }
                 }
             }
-            morePlayersButton.isVisible = true
+            binding.morePlayersButton.isVisible = true
         }
-        morePlayersButton.setOnClickListener { PlayersActivity.start(requireContext()) }
+        binding.morePlayersButton.setOnClickListener { PlayersActivity.start(requireContext()) }
     }
 
     private fun bindLocations(locations: List<LocationEntity>?) {
-        locationsContainer.removeAllViews()
+        binding.locationsContainer.removeAllViews()
         if (locations == null || locations.isEmpty()) {
-            locationsCard.isGone = true
-            moreLocationsButton.isGone = true
+            binding.locationsCard.isGone = true
+            binding.moreLocationsButton.isGone = true
         } else {
-            locationsCard.isVisible = true
+            binding.locationsCard.isVisible = true
             for ((name, playCount) in locations) {
-                createRowWithPlayCount(locationsContainer, name, playCount).apply {
+                createRowWithPlayCount(binding.locationsContainer, name, playCount).apply {
                     setOnClickListener { LocationActivity.start(context, name) }
                 }
             }
-            moreLocationsButton.isVisible = true
+            binding.moreLocationsButton.isVisible = true
         }
-        moreLocationsButton.setOnClickListener { startActivity<LocationsActivity>() }
+        binding.moreLocationsButton.setOnClickListener { startActivity<LocationsActivity>() }
     }
 
     private fun createRow(container: ViewGroup, title: String, text: String): View {
@@ -185,19 +192,24 @@ class PlaysSummaryFragment : Fragment() {
     }
 
     private fun bindColors(colors: List<PlayerColorEntity>?) {
-        colorsContainer.removeAllViews()
+        binding.colorsContainer.removeAllViews()
         if (colors == null || colors.isEmpty()) {
-            colorsCard.isGone = true
+            binding.colorsCard.isGone = true
         } else {
-            colorsCard.isVisible = true
+            binding.colorsCard.isVisible = true
             colors.forEach {
-                colorsContainer.addView(requireContext().createSmallCircle().apply {
+                binding.colorsContainer.addView(requireContext().createSmallCircle().apply {
                     setColorViewValue(it.rgb)
                 })
             }
         }
-        editColorsButton.setOnClickListener {
-            PlayerColorsActivity.start(requireContext(), AccountUtils.getUsername(context), null)
+        binding.editColorsButton.setOnClickListener {
+            val username = requireContext().preferences()[AccountPreferences.KEY_USERNAME, ""]
+            if (username.isNullOrBlank()) {
+                toast("Can't figure out your username.")
+            } else {
+                PlayerColorsActivity.start(requireContext(), username, null)
+            }
         }
     }
 }

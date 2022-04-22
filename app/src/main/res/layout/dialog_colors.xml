@@ -49,6 +49,6 @@
 		android:layout_marginTop="@dimen/padding_extra"
 		android:text="@string/title_add_team_color"
 		android:visibility="gone"
-		app:icon="@drawable/ic_action_add"
+		app:icon="@drawable/ic_baseline_add_24"
 		tools:visibility="visible" />
 </LinearLayout>

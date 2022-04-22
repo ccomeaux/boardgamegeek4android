@@ -21,5 +21,4 @@
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 		tools:text="Text 1"/>
-
 </LinearLayout>

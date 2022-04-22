@@ -8,13 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
-import kotlinx.android.synthetic.main.row_poll_players.view.*
 
 class PlayerNumberRow @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
     private var totalVoteCount: Int = 0
     private var bestVoteCount: Int = 0
@@ -58,7 +59,7 @@ class PlayerNumberRow @JvmOverloads constructor(
     }
 
     fun setText(text: CharSequence) {
-        labelView.text = text
+        findViewById<TextView>(R.id.labelView).text = text
     }
 
     fun setVotes(bestVoteCount: Int, recommendedVoteCount: Int, notRecommendedVoteCount: Int, totalVoteCount: Int) {
@@ -66,29 +67,31 @@ class PlayerNumberRow @JvmOverloads constructor(
         this.recommendedVoteCount = recommendedVoteCount
         this.notRecommendedVoteCount = notRecommendedVoteCount
         this.totalVoteCount = totalVoteCount
-        adjustSegment(bestSegment, bestVoteCount)
-        adjustSegment(recommendedSegment, recommendedVoteCount)
-        adjustSegment(missingVotesSegment, totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
-        adjustSegment(notRecommendedSegment, notRecommendedVoteCount)
-        votesView.text = (bestVoteCount + recommendedVoteCount + notRecommendedVoteCount).toString()
+        val actualVotes = bestVoteCount + recommendedVoteCount + notRecommendedVoteCount
+
+        adjustSegment(findViewById(R.id.bestSegment), bestVoteCount)
+        adjustSegment(findViewById(R.id.recommendedSegment), recommendedVoteCount)
+        adjustSegment(findViewById(R.id.missingVotesSegment), totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
+        adjustSegment(findViewById(R.id.notRecommendedSegment), notRecommendedVoteCount)
+        findViewById<TextView>(R.id.votesView).text = actualVotes.toString()
     }
 
     fun showNoVotes(show: Boolean) {
-        missingVotesSegment.visibility = if (show) View.VISIBLE else View.GONE
-        votesView.visibility = if (show) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.missingVotesSegment).isVisible = show
+        findViewById<TextView>(R.id.votesView).isVisible = !show
     }
 
     fun setHighlight() {
-        labelView.setBackgroundResource(R.drawable.highlight)
+        findViewById<TextView>(R.id.labelView).setBackgroundResource(R.drawable.bg_highlight)
     }
 
     fun clearHighlight() {
         @Suppress("DEPRECATION")
-        labelView.setBackgroundDrawable(null)
+        findViewById<TextView>(R.id.labelView).setBackgroundDrawable(null)
     }
 
     private fun adjustSegment(segment: View, votes: Int) {
-        segment.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, votes.toFloat())
+        segment.layoutParams = LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, votes.toFloat())
     }
 
     internal class SavedState : BaseSavedState {
@@ -116,6 +119,7 @@ class PlayerNumberRow @JvmOverloads constructor(
 
         companion object {
             @JvmField
+            @Suppress("unused")
             val CREATOR = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
                     return SavedState(source)

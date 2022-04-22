@@ -1,5 +1,3 @@
-@file:JvmName("TextViewUtils")
-
 package com.boardgamegeek.extensions
 
 import android.graphics.Color

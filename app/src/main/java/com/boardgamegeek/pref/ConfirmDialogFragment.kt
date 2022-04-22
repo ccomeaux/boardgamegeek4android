@@ -1,29 +1,28 @@
 package com.boardgamegeek.pref
 
-import android.os.Bundle
+import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceDialogFragmentCompat
-import com.boardgamegeek.extensions.executeAsyncTask
-import com.boardgamegeek.tasks.*
+import com.boardgamegeek.ui.viewmodel.SettingsViewModel
 
 class ConfirmDialogFragment : PreferenceDialogFragmentCompat() {
+    private val viewModel by activityViewModels<SettingsViewModel>()
+
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
-            val key = arguments?.getString(ARG_KEY)
-            val task: ToastingAsyncTask? = when (key) {
-                "clear" -> ClearDatabaseTask(context)
-                "collection" -> ResetCollectionTask(context)
-                "plays" -> ResetPlaysTask(context)
-                "buddies" -> ResetBuddiesTask(context)
-                else -> null
+            when (arguments?.getString(ARG_KEY)) {
+                "clear" -> viewModel.clearAllData()
+                "collection" -> viewModel.resetCollectionItems()
+                "plays" -> viewModel.resetPlays()
+                "buddies" -> viewModel.resetUsers()
             }
-            task?.executeAsyncTask()
         }
     }
 
     companion object {
         fun newInstance(key: String): ConfirmDialogFragment {
             return ConfirmDialogFragment().apply {
-                arguments = Bundle().apply { putString(ARG_KEY, key) }
+                arguments = bundleOf(ARG_KEY to key)
             }
         }
     }

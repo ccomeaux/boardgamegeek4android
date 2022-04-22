@@ -12,10 +12,11 @@ import com.boardgamegeek.extensions.getSyncStatusesOrDefault
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -131,10 +132,11 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 val items = response.body()?.items
                 if (items != null && items.size > 0) {
                     updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
-                    val mapper = CollectionItemMapper()
                     for (item in items) {
-                        val pair = mapper.map(item)
-                        dao.saveItem(pair.first, pair.second, timestamp)
+                        val (collectionItem, game) = item.mapToEntities()
+                        runBlocking {
+                            dao.saveItem(collectionItem, game, timestamp)
+                        }
                     }
                     syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, timestamp)
                     syncResult.stats.numUpdates += items.size.toLong()
@@ -178,7 +180,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
                 Collection.CONTENT_URI,
-                "${Collection.UPDATED_LIST}<?",
+                "${Collection.Columns.UPDATED_LIST}<?",
                 arrayOf(timestamp.toString()))
         Timber.i("Deleted $count old collection items")
         // TODO: delete thumbnail images associated with this list (both collection and game)

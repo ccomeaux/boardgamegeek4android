@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/ratingContainer"
 	style="@style/CardRow.Clickable"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="0dp"
 	android:layout_height="wrap_content"
 	android:layout_weight="1"
@@ -13,7 +12,8 @@
 	<ImageView
 		android:id="@+id/ratingIcon"
 		style="@style/Icon"
-		android:src="@drawable/ic_rating"/>
+		android:contentDescription="@string/rating"
+		android:src="@drawable/ic_baseline_star_rate_24" />
 
 	<LinearLayout
 		style="@style/CardRowContent"
@@ -31,7 +31,7 @@
 			android:textAppearance="@style/Text.Primary"
 			android:textStyle="bold"
 			tools:background="#088"
-			tools:text="7.43"/>
+			tools:text="7.43" />
 
 		<TextView
 			android:id="@+id/ratingVotesView"
@@ -40,8 +40,7 @@
 			android:maxLines="1"
 			android:paddingTop="@dimen/padding_half"
 			android:textAppearance="@style/Text.Secondary.Small"
-			tools:text="42,000 ratings &amp; 39,123 comments"/>
+			tools:text="42,000 ratings &amp; 39,123 comments" />
 	</LinearLayout>
 </LinearLayout>
 
-				

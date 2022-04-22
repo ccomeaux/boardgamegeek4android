@@ -1,5 +1,7 @@
 package com.boardgamegeek.extensions
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -15,6 +17,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -26,7 +29,10 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
 import com.boardgamegeek.R
+import com.google.android.material.snackbar.Snackbar
+import java.util.*
 import kotlin.math.pow
 
 fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
@@ -34,46 +40,49 @@ fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
 }
 
 fun View.fadeIn(animate: Boolean = true) {
-    if (visibility != VISIBLE) {
-        if (animate) {
-            startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
-        } else {
-            clearAnimation()
+    clearAnimation()
+    if (animate) {
+        val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        apply {
+            alpha = 0f
+            visibility = VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(animationDuration.toLong())
+                .setListener(null)
         }
+    } else {
         visibility = VISIBLE
     }
 }
 
 fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
-    if (this.visibility == VISIBLE) {
-        if (animate) {
-            val animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
-            animation.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation) {}
-
-                override fun onAnimationEnd(animation: Animation) {
-                    this@fadeOut.visibility = visibility
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {}
-            })
-            startAnimation(animation)
-        } else {
-            clearAnimation()
-            this.visibility = visibility
+    clearAnimation()
+    if (animate) {
+        val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        apply {
+            animate()
+                .alpha(0f)
+                .setDuration(animationDuration.toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        this@apply.visibility = visibility
+                    }
+                })
         }
+    } else {
+        clearAnimation()
+        this.visibility = visibility
     }
 }
 
 fun View.slideUpIn() {
-    if (this.visibility == VISIBLE) return
     val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_up)
     this.startAnimation(animation)
     this.visibility = VISIBLE
 }
 
 fun View.slideDownOut() {
-    if (this.visibility == GONE) return
     val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_down)
     animation.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationStart(animation: Animation) {}
@@ -86,6 +95,7 @@ fun View.slideDownOut() {
     this.startAnimation(animation)
 }
 
+@Suppress("SpellCheckingInspection")
 /**
  * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
  * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
@@ -102,7 +112,13 @@ fun View.setColorViewValue(color: Int) {
         }
 
         colorChoiceDrawable.setColor(color)
-        colorChoiceDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt(), color.darkenColor())
+        colorChoiceDrawable.setStroke(
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                1f,
+                resources.displayMetrics
+            ).toInt(), color.darkenColor()
+        )
 
         setImageDrawable(colorChoiceDrawable)
     } else if (this is TextView) {
@@ -119,7 +135,11 @@ fun View.applyDarkScrim() {
 }
 
 @SuppressLint("RtlHardcoded")
-private fun makeCubicGradientScrimDrawable(@ColorInt baseColor: Int, numberOfStops: Int = 3, gravity: Int = Gravity.BOTTOM): Drawable {
+private fun makeCubicGradientScrimDrawable(
+    @ColorInt baseColor: Int,
+    numberOfStops: Int = 3,
+    gravity: Int = Gravity.BOTTOM
+): Drawable {
     val numStops = numberOfStops.coerceAtLeast(2)
     val paintDrawable = PaintDrawable().apply {
         shape = RectShape()
@@ -139,13 +159,14 @@ private fun makeCubicGradientScrimDrawable(@ColorInt baseColor: Int, numberOfSto
     paintDrawable.shaderFactory = object : ShapeDrawable.ShaderFactory() {
         override fun resize(width: Int, height: Int): Shader {
             return LinearGradient(
-                    width * x0,
-                    height * y0,
-                    width * x1,
-                    height * y1,
-                    stopColors,
-                    null,
-                    Shader.TileMode.CLAMP)
+                width * x0,
+                height * y0,
+                width * x1,
+                height * y1,
+                stopColors,
+                null,
+                Shader.TileMode.CLAMP
+            )
         }
     }
 
@@ -167,7 +188,11 @@ fun View.setViewBackground(@ColorInt color: Int) {
     }
 
     backgroundDrawable.setColor(color)
-    backgroundDrawable.setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(), color.darkenColor())
+    backgroundDrawable.cornerRadius = resources.getDimensionPixelSize(R.dimen.colored_background_corner_radius).toFloat()
+    backgroundDrawable.setStroke(
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, r.displayMetrics).toInt(),
+        color.darkenColor()
+    )
 
     ViewCompat.setBackground(this, backgroundDrawable)
 }
@@ -188,11 +213,71 @@ fun View.setSelectableBackground(backgroundResId: Int = android.R.attr.selectabl
     visibility = VISIBLE
 }
 
-fun View.setOrClearOnClickListener(clickable: Boolean, l: (View) -> Unit) {
+fun View.setOrClearOnClickListener(clickable: Boolean = false, l: (View) -> Unit = { }) {
     if (clickable) {
         setOnClickListener(l)
     } else {
         setOnClickListener { }
         isClickable = false
+    }
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.snackbar(messageResourceId: Int) = Snackbar
+    .make(this, messageResourceId, Snackbar.LENGTH_SHORT)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.snackbar(message: CharSequence) = Snackbar
+    .make(this, message, Snackbar.LENGTH_SHORT)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.longSnackbar(messageResourceId: Int) = Snackbar
+    .make(this, messageResourceId, Snackbar.LENGTH_LONG)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.longSnackbar(message: CharSequence) = Snackbar
+    .make(this, message, Snackbar.LENGTH_LONG)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.indefiniteSnackbar(message: CharSequence) = Snackbar
+    .make(this, message, Snackbar.LENGTH_INDEFINITE)
+    .apply { show() }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.indefiniteSnackbar(message: CharSequence, actionText: CharSequence, noinline action: (View) -> Unit) = Snackbar
+    .make(this, message, Snackbar.LENGTH_INDEFINITE)
+    .setAction(actionText, action)
+    .apply { show() }
+
+fun View.childrenRecursiveSequence(): Sequence<View> = ViewChildrenRecursiveSequence(this)
+
+private class ViewChildrenRecursiveSequence(private val view: View) : Sequence<View> {
+    override fun iterator(): Iterator<View> {
+        return if (view is ViewGroup) RecursiveViewIterator(view) else emptyList<View>().iterator()
+    }
+
+    private class RecursiveViewIterator(view: ViewGroup) : Iterator<View> {
+        private val sequences = arrayListOf(view.children)
+        private var current = sequences.removeLast().iterator()
+
+        override fun next(): View {
+            if (!hasNext()) throw NoSuchElementException()
+            val view = current.next()
+            if (view is ViewGroup && view.childCount > 0) {
+                sequences.add(view.children)
+            }
+            return view
+        }
+
+        override fun hasNext(): Boolean {
+            if (!current.hasNext() && sequences.isNotEmpty()) {
+                current = sequences.removeLast().iterator()
+            }
+            return current.hasNext()
+        }
     }
 }

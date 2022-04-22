@@ -2,15 +2,14 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.HotGameEntity
 import com.boardgamegeek.io.model.HotGame
+import com.boardgamegeek.io.model.HotnessResponse
 
-class HotGameMapper {
-    fun map(from: HotGame): HotGameEntity {
-        return HotGameEntity(
-                rank = from.rank,
-                id = from.id,
-                name = from.name,
-                yearPublished = from.yearPublished,
-                thumbnailUrl = from.thumbnailUrl.orEmpty()
-        )
-    }
-}
+fun HotGame.mapToEntity() = HotGameEntity(
+        rank = this.rank,
+        id = this.id,
+        name = this.name,
+        yearPublished = this.yearPublished,
+        thumbnailUrl = this.thumbnailUrl.orEmpty()
+)
+
+fun HotnessResponse.mapToEntity() = this.games.map { it.mapToEntity() }

@@ -8,6 +8,9 @@ import org.simpleframework.xml.Root;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
 public class Game {
 	public static final int PAGE_SIZE = 100;
@@ -114,6 +117,7 @@ public class Game {
 		@Attribute public String value;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return String.valueOf(id);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/scoresCard"
 	style="@style/Card"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	tools:showIn="@layout/fragment_game_play_stats">
@@ -23,7 +23,7 @@
 				style="@style/Text.Header.Card"
 				android:layout_width="0dp"
 				android:layout_weight="1"
-				android:text="@string/title_scores"/>
+				android:text="@string/title_scores" />
 
 			<ImageView
 				android:id="@+id/scoreHelpView"
@@ -31,9 +31,10 @@
 				android:layout_height="@dimen/icon_width"
 				android:layout_gravity="right"
 				android:background="?attr/selectableItemBackgroundBorderless"
+				android:contentDescription="@string/help_title"
 				android:scaleType="center"
-				android:src="@drawable/ic_help"
-				android:tint="@color/accent"/>
+				android:src="@drawable/ic_baseline_help_outline_18"
+				app:tint="@color/accent" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -48,57 +49,57 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:drawableLeft="@drawable/ic_score_low"
+				android:drawableLeft="@drawable/ic_baseline_thumb_down_18"
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_low"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text" />
 
-			<androidx.legacy.widget.Space
+			<android.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<TextView
 				android:id="@+id/averageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_score_average"
+				android:drawableLeft="@drawable/ic_baseline_thumbs_up_down_18"
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_average"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text" />
 
-			<androidx.legacy.widget.Space
+			<android.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<TextView
 				android:id="@+id/averageWinScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_score_average_win"
+				android:drawableLeft="@drawable/ic_baseline_star_18"
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_average_win"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text" />
 
-			<androidx.legacy.widget.Space
+			<android.widget.Space
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"/>
+				android:layout_weight="1" />
 
 			<TextView
 				android:id="@+id/highScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:drawableLeft="@drawable/ic_score_high"
+				android:drawableLeft="@drawable/ic_baseline_thumb_up_18"
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_high"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text"/>
+				android:textAppearance="@style/Text" />
 		</LinearLayout>
 
 		<com.boardgamegeek.ui.widget.ScoreGraphView
@@ -106,6 +107,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="40dp"
 			android:visibility="gone"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 	</LinearLayout>
 </androidx.cardview.widget.CardView>

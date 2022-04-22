@@ -13,52 +13,57 @@
 	android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
 	<com.boardgamegeek.ui.widget.BezelImageView
-		android:id="@+id/account_image"
+		android:id="@+id/accountImageView"
+		style="@style/DrawerHeaderImage"
 		android:layout_width="@dimen/drawer_header_image_size"
 		android:layout_height="@dimen/drawer_header_image_size"
-		android:elevation="2dp"
+		android:focusable="false"
 		android:src="@drawable/person_image_empty"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:maskDrawable="@drawable/circle_mask" />
 
 	<TextView
-		android:id="@+id/account_info_primary"
+		android:id="@+id/accountInfoPrimaryView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginTop="24dp"
+		android:focusable="false"
 		android:gravity="bottom"
-		android:minHeight="36dp"
 		android:textAppearance="@style/Text.Title"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/account_image"
+		app:layout_constraintTop_toBottomOf="@id/accountImageView"
 		tools:text="Chris Comeaux" />
 
 	<TextView
-		android:id="@+id/account_info_secondary"
+		android:id="@+id/accountInfoSecondaryView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginBottom="24dp"
 		android:gravity="bottom"
-		android:minHeight="20dp"
 		android:textAppearance="@style/Text.Subtitle"
+		android:textColor="@color/material_on_primary_emphasis_medium"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/account_info_primary"
+		app:layout_constraintTop_toBottomOf="@id/accountInfoPrimaryView"
 		tools:text="ccomeaux" />
 
 	<Button
-		android:id="@+id/singInButton"
+		android:id="@+id/signInButton"
 		style="@style/ColoredIconButton"
 		android:layout_width="wrap_content"
-		app:icon="@drawable/ic_login"
 		android:layout_height="wrap_content"
+		android:focusable="false"
 		android:text="@string/action_sign_in"
+		app:icon="@drawable/ic_login"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<androidx.constraintlayout.widget.Group
-		android:id="@+id/signed_in"
+		android:id="@+id/signedInGroup"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="gone"
-		app:constraint_referenced_ids="account_image,account_info_primary,account_info_secondary" />
+		app:constraint_referenced_ids="accountImageView,accountInfoPrimaryView,accountInfoSecondaryView"
+		tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

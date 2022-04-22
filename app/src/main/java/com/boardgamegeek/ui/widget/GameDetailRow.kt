@@ -10,7 +10,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
@@ -23,13 +25,12 @@ import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import com.boardgamegeek.ui.PersonActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
-import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 
 class GameDetailRow @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0,
-        defStyleRes: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     private val oneMore: String by lazy {
@@ -45,7 +46,7 @@ class GameDetailRow @JvmOverloads constructor(
     private var type: ProducerType = ProducerType.UNKNOWN
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true)
+        LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this)
 
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         context.withStyledAttributes(0, intArrayOf(android.R.attr.selectableItemBackground)) {
@@ -62,14 +63,16 @@ class GameDetailRow @JvmOverloads constructor(
             icon = getDrawable(R.styleable.GameDetailRow_icon_res)
             queryToken = getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID)
         }
-        iconView.isVisible = (icon != null)
-        iconView.setImageDrawable(icon)
+        findViewById<ImageView>(R.id.iconView).apply {
+            isVisible = (icon != null)
+            setImageDrawable(icon)
+        }
 
         type = ProducerType.fromInt(queryToken)
     }
 
     fun clear() {
-        dataView.text = ""
+        findViewById<TextView>(R.id.dataView).text = ""
         setOnClickListener { }
     }
 
@@ -81,9 +84,11 @@ class GameDetailRow @JvmOverloads constructor(
             visibility = View.VISIBLE
             if (list.size == 1) {
                 list[0].apply {
-                    dataView.maxLines = 1
-                    dataView.text = name
-                    descriptionView.setTextOrHide(description)
+                    findViewById<TextView>(R.id.dataView).apply {
+                        maxLines = 1
+                        text = name
+                    }
+                    findViewById<TextView>(R.id.descriptionView).setTextOrHide(description)
                     setOnClickListener {
                         when (type) {
                             ProducerType.ARTIST -> PersonActivity.startForArtist(context, id, name)
@@ -98,9 +103,11 @@ class GameDetailRow @JvmOverloads constructor(
                     }
                 }
             } else {
-                dataView.maxLines = 2
-                dataView.text = generateName(list.map { it.name })
-                descriptionView.visibility = View.GONE
+                findViewById<TextView>(R.id.dataView).apply {
+                    maxLines = 2
+                    text = generateName(list.map { it.name })
+                }
+                findViewById<TextView>(R.id.descriptionView).isVisible = false
                 setOnClickListener {
                     GameDetailActivity.start(context, label, gameId, gameName, type)
                 }
@@ -109,7 +116,7 @@ class GameDetailRow @JvmOverloads constructor(
     }
 
     fun colorize(@ColorInt color: Int) {
-        iconView.setOrClearColorFilter(color)
+        findViewById<ImageView>(R.id.iconView).setOrClearColorFilter(color)
     }
 
     private fun generateName(names: List<String>): CharSequence {
@@ -118,6 +125,7 @@ class GameDetailRow @JvmOverloads constructor(
             2 -> "${names[0]} & ${names[1]}"
             else -> {
                 val paint = TextPaint()
+                val dataView = findViewById<TextView>(R.id.dataView)
                 paint.textSize = dataView.textSize
                 val avail = (dataView.width * 2).toFloat()
                 val summary = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

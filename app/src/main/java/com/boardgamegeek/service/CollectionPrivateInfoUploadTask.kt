@@ -1,14 +1,14 @@
 package com.boardgamegeek.service
 
 import android.content.ContentValues
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.provider.BggContract.Collection
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.text.DecimalFormat
 
 class CollectionPrivateInfoUploadTask(client: OkHttpClient) : CollectionUploadTask(client) {
-    override val timestampColumn = BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP
+    override val timestampColumn = Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP
 
     override val isDirty: Boolean
         get() = collectionItem.privateInfoTimestamp > 0
@@ -40,7 +40,7 @@ class CollectionPrivateInfoUploadTask(client: OkHttpClient) : CollectionUploadTa
     }
 
     override fun appendContentValues(contentValues: ContentValues) {
-        contentValues.put(BggContract.Collection.PRIVATE_INFO_DIRTY_TIMESTAMP, 0)
+        contentValues.put(Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP, 0)
     }
 
     companion object {
@@ -48,14 +48,14 @@ class CollectionPrivateInfoUploadTask(client: OkHttpClient) : CollectionUploadTa
     }
 
     // Example response body
-    //	<table cellspacing=1 cellpadding=1 width='100%' class='collectiontable_ownership'>
+    //	<table>
     //	<tr>
     //	<td nowrap width='100'>Quantity:</td>
     //	<td nowrap>1</td>
     //	</tr>
     //	<tr>
     //	<td width='100'>Comments:</td>
-    //	<td>Privenn</td>
+    //	<td>Private</td>
     //	</tr>
     //	</table>
 }

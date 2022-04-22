@@ -54,8 +54,6 @@
 	<string name="pref_sync_clear">Wyczyść dane lokalne</string>
 	<string name="pref_sync_clear_pos">Wyczyść</string>
 	<string name="pref_sync_clear_info_message">Na pewno chcesz wyczyścić wszystkie zsynchronizowane informacje? UWAGA: Ta operacja nie może być cofnięta, ale zawsze możesz z powrotem zsynchronizować te dane.</string>
-	<string name="pref_sync_clear_success">Czyszczenie zakończono</string>
-	<string name="pref_sync_clear_failure">Czyszczenie nieudane – czy na pewno jesteś zalogowany\?</string>
 	<string name="pref_sync_reset_collection">Zsynchronizuj ponownie całą kolekcję</string>
 	<string name="pref_sync_re_sync_plays">Zsynchronizuj ponownie wszystkie rozgrywki</string>
 	<string name="pref_sync_reset_buddies">Zsynchronizuj ponownie wszystkich GeekBuddies</string>
@@ -63,8 +61,6 @@
 	<string name="pref_sync_reset_collection_info_message">Nastąpi wymuszona pełna synchronizacja wszystkich danych całej kolekcji. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszystkie pozycje z kolekcji są widoczne.</string>
 	<string name="pref_sync_re_sync_plays_info_message">Nastąpi wymuszona pełna synchronizacja wszystkich danych rozgrywek. (Zazwyczaj synchronizowane są tylko ostatnio rozgrywki). Może to trochę potrwać, ale jest zalecane jeśli nie wszystkie rozgrywki są widoczne.</string>
 	<string name="pref_sync_reset_buddies_info_message">Nastąpi usunięcie wszystkich GeekBuddies a potem wymuszona pełna synchronizacja. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszyscy GeekBudyy są widoczni.</string>
-	<string name="pref_sync_reset_success">Synchronizacja rozpoczęta</string>
-	<string name="pref_sync_reset_failure">Synchronizacja nieudana – czy na pewno jesteś zalogowany\?</string>
 	<string name="pref_sync_timestamps">Pokaż stan sychronizacji</string>
 	<string name="pref_sync_timestamps_title">Stan sychronizacji</string>
 	<string name="pref_sync_timestamps_collection_full">Pełna</string>

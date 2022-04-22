@@ -10,7 +10,7 @@ class AverageRatingFilterDialog : RatingFilterDialog<AverageRatingFilterer>() {
 
     override fun getType(context: Context) = AverageRatingFilterer(context).type
 
-    override fun createFilterer(context: Context): AverageRatingFilterer {
+    override fun createTypedFilterer(context: Context): AverageRatingFilterer {
         return AverageRatingFilterer(context)
     }
 }

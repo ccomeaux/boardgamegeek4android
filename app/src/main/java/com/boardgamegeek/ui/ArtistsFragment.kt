@@ -1,71 +1,73 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentArtistsBinding
+import com.boardgamegeek.databinding.RowArtistBinding
 import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import kotlinx.android.synthetic.main.fragment_artists.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
-import kotlinx.android.synthetic.main.row_artist.view.*
 import kotlin.properties.Delegates
 
-class ArtistsFragment : Fragment(R.layout.fragment_artists) {
+class ArtistsFragment : Fragment() {
+    private var _binding: FragmentArtistsBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<ArtistsViewModel>()
+    private val adapter: ArtistsAdapter by lazy { ArtistsAdapter(viewModel) }
 
-    private val adapter: ArtistsAdapter by lazy {
-        ArtistsAdapter(viewModel)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentArtistsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
-                resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
-                adapter))
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(
+            RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
+        )
 
-        viewModel.artists.observe(viewLifecycleOwner, Observer {
-            showData(it)
-            progressBar.hide()
-        })
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
-        viewModel.progress.observe(viewLifecycleOwner, Observer {
+        viewModel.artists.observe(viewLifecycleOwner) {
+            adapter.artists = it
+            binding.recyclerView.isVisible = adapter.itemCount > 0
+            binding.emptyTextView.isVisible = adapter.itemCount == 0
+            binding.progressBar.hide()
+            binding.swipeRefresh.isRefreshing = false
+        }
+
+        viewModel.progress.observe(viewLifecycleOwner) {
             if (it == null) {
-                progressContainer.isVisible = false
+                binding.horizontalProgressBar.progressContainer.isVisible = false
             } else {
-                progressContainer.isVisible = it.second > 0
-                progressView.max = it.second
-                progressView.progress = it.first
+                binding.horizontalProgressBar.progressContainer.isVisible = it.second > 0
+                binding.horizontalProgressBar.progressView.max = it.second
+                binding.horizontalProgressBar.progressView.progress = it.first
             }
-        })
-    }
-
-    private fun showData(artists: List<PersonEntity>) {
-        adapter.artists = artists
-        if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
-        } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
         }
     }
 
-    class ArtistsAdapter(private val viewModel: ArtistsViewModel) : RecyclerView.Adapter<ArtistsAdapter.ArtistViewHolder>(), AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    class ArtistsAdapter(private val viewModel: ArtistsViewModel) : RecyclerView.Adapter<ArtistsAdapter.ArtistViewHolder>(), AutoUpdatableAdapter,
+        RecyclerSectionItemDecoration.SectionCallback {
         var artists: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
@@ -105,13 +107,15 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
             }
         }
 
-        inner class ArtistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class ArtistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val binding = RowArtistBinding.bind(itemView)
+
             fun bind(artist: PersonEntity?) {
                 artist?.let { a ->
-                    itemView.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
-                    itemView.nameView.text = a.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
-                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
+                    binding.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
+                    binding.nameView.text = a.name
+                    binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                    binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
                     itemView.setOnClickListener {
                         PersonActivity.startForArtist(itemView.context, a.id, a.name)
                     }

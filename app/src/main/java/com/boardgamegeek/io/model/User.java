@@ -1,18 +1,13 @@
 package com.boardgamegeek.io.model;
 
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.StringUtils;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class User {
-	@Attribute
-	private String id;
-
-	@Attribute
-	public String name;
+	@Attribute public String id;
+	@Attribute public String name;
 
 	@Path(value = "firstname")
 	@Attribute(name = "value")
@@ -72,8 +67,4 @@ public class User {
 
 	@Element(required = false)
 	public Buddies buddies;
-
-	public int getId() {
-		return StringUtils.parseInt(id, BggContract.INVALID_ID);
-	}
 }

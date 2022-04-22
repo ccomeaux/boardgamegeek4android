@@ -7,7 +7,6 @@ import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
-import com.boardgamegeek.util.SelectionBuilder
 
 /**
  * Syncs all games in the collection that have not been updated completely.
@@ -18,7 +17,8 @@ class SyncGamesUnupdated(application: BggApplication, service: BggService, syncR
 
     override val exitLogMessage = "...no more unupdated games"
 
-    override val selection: String? = "games.${Games.UPDATED}".whereZeroOrNull()
+    @Suppress("RedundantNullableReturnType")
+    override val selection: String? = "games.${Games.Columns.UPDATED}".whereZeroOrNull()
 
     override val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED)
 

@@ -5,17 +5,16 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.use
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.GameMapper
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.IOException
 
 abstract class SyncGames(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
     private val dao = GameDao(application)
-    private val gameMapper = GameMapper()
 
     protected open val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX)
 
@@ -56,11 +55,13 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
                             val games = response.body()?.games.orEmpty()
                             if (games.isNotEmpty()) {
                                 for (game in games) {
-                                    val entity = gameMapper.map(game)
-                                    if (entity.name.isBlank()) {
-                                        dao.delete(entity.id)
-                                    } else {
-                                        dao.save(entity, timestamp)
+                                    val entity = game.mapToEntity()
+                                    runBlocking {
+                                        if (entity.name.isBlank()) {
+                                            dao.delete(entity.id)
+                                        } else {
+                                            dao.save(entity, timestamp)
+                                        }
                                     }
                                 }
                                 syncResult.stats.numUpdates += games.size.toLong()
@@ -116,18 +117,20 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
             val timestamp = System.currentTimeMillis()
             val response = call.execute()
             if (response.isSuccessful) {
-                val games =  response.body()?.games.orEmpty()
-                detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
-                for (game in games) {
-                    val entity = gameMapper.map(game)
-                    if (entity.name.isBlank()) {
-                        dao.delete(entity.id)
-                    } else {
-                        dao.save(entity, timestamp)
+                runBlocking {
+                    val games = response.body()?.games.orEmpty()
+                    detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
+                    for (game in games) {
+                        val entity = game.mapToEntity()
+                        if (entity.name.isBlank()) {
+                            dao.delete(entity.id)
+                        } else {
+                            dao.save(entity, timestamp)
+                        }
                     }
+                    syncResult.stats.numUpdates += games.size.toLong()
+                    Timber.i("...saved %,d games", games.size)
                 }
-                syncResult.stats.numUpdates += games.size.toLong()
-                Timber.i("...saved %,d games", games.size)
             } else {
                 showError(detail, response.code())
                 syncResult.stats.numIoExceptions++
@@ -163,11 +166,13 @@ abstract class SyncGames(application: BggApplication, service: BggService, syncR
 
     private fun getGames(gamesPerFetch: Int): Map<Int, String> {
         val games = mutableMapOf<Int, String>()
-        val cursor = context.contentResolver.query(Games.CONTENT_URI,
-                arrayOf(Games.GAME_ID, Games.GAME_NAME),
-                selection,
-                null,
-                "games.${Games.UPDATED_LIST} LIMIT $gamesPerFetch")
+        val cursor = context.contentResolver.query(
+            Games.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            selection,
+            null,
+            "games.${Games.Columns.UPDATED_LIST} LIMIT $gamesPerFetch"
+        )
         cursor?.use {
             while (it.moveToNext()) {
                 games[it.getInt(0)] = it.getString(1)

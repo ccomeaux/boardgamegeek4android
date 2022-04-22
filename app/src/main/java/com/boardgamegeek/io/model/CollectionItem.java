@@ -11,6 +11,7 @@ import org.simpleframework.xml.Text;
 
 import java.util.List;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
 public class CollectionItem {
 	@Attribute private String objecttype; // "thing"
@@ -76,5 +77,4 @@ public class CollectionItem {
 		@Path("rating/median") @Attribute(name = "value", required = false) public String median; // non-brief
 		@Path("rating") @ElementList(required = false) public List<Rank> ranks; // non-brief
 	}
-
 }

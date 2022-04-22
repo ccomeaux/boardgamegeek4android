@@ -1,7 +1,9 @@
 package com.boardgamegeek.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -15,14 +17,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentNewPlayPlayerSortBinding
+import com.boardgamegeek.databinding.RowNewPlayPlayerSortBinding
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import kotlinx.android.synthetic.main.fragment_new_play_player_sort.*
-import kotlinx.android.synthetic.main.row_new_play_player_sort.view.*
 import kotlin.properties.Delegates
 
-class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sort) {
+class NewPlayPlayerSortFragment : Fragment() {
+    private var _binding: FragmentNewPlayPlayerSortBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
     private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel, itemTouchHelper) }
     private val itemTouchHelper by lazy {
@@ -32,9 +36,7 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
             }
 
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                val fromPosition = viewHolder.adapterPosition
-                val toPosition = target.adapterPosition
-                return viewModel.movePlayer(fromPosition, toPosition)
+                return viewModel.movePlayer(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
             }
 
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
@@ -51,39 +53,50 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_sort)
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentNewPlayPlayerSortBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner, { entity ->
+        viewModel.addedPlayers.observe(viewLifecycleOwner) { entity ->
             if (entity.all { it.seat != null }) {
                 adapter.players = entity.sortedBy { it.seat }
             } else {
                 adapter.players = entity
             }
-        })
+        }
 
-        randomizeAllButton.setOnClickListener {
+        binding.randomizeAllButton.setOnClickListener {
             viewModel.randomizePlayers()
         }
-        randomizeStartButton.setOnClickListener {
+        binding.randomizeStartButton.setOnClickListener {
             viewModel.randomizeStartPlayer()
         }
-        clearButton.setOnClickListener {
+        binding.clearButton.setOnClickListener {
             viewModel.clearSortOrder()
         }
 
-        nextButton.setOnClickListener {
+        binding.nextButton.setOnClickListener {
             viewModel.finishPlayerSort()
         }
 
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_sort)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
@@ -118,8 +131,8 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
         }
     }
 
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val itemTouchHelper: ItemTouchHelper)
-        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
+    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val itemTouchHelper: ItemTouchHelper) :
+        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
         var isDraggable = false
         var isDragging = false
@@ -161,42 +174,45 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
             holder.bind(position)
         }
 
-        inner class PlayersViewHolder(view: View, private val itemTouchHelper: ItemTouchHelper) : RecyclerView.ViewHolder(view) {
+        inner class PlayersViewHolder(itemView: View, private val itemTouchHelper: ItemTouchHelper) : RecyclerView.ViewHolder(itemView) {
+            val binding = RowNewPlayPlayerSortBinding.bind(itemView)
+
+            @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
                 val entity = players.getOrNull(position)
                 entity?.let { player ->
-                    itemView.nameView.text = player.name
-                    itemView.usernameView.setTextOrHide(player.username)
+                    binding.nameView.text = player.name
+                    binding.usernameView.setTextOrHide(player.username)
 
                     if (player.color.isBlank()) {
-                        itemView.colorView.isInvisible = true
-                        itemView.teamView.isVisible = false
-                        itemView.seatView.setTextColor(Color.TRANSPARENT.getTextColor())
+                        binding.colorView.isInvisible = true
+                        binding.teamView.isVisible = false
+                        binding.seatView.setTextColor(Color.TRANSPARENT.getTextColor())
                     } else {
                         val color = player.color.asColorRgb()
                         if (color == Color.TRANSPARENT) {
-                            itemView.colorView.isInvisible = true
-                            itemView.teamView.setTextOrHide(player.color)
+                            binding.colorView.isInvisible = true
+                            binding.teamView.setTextOrHide(player.color)
                         } else {
-                            itemView.colorView.setColorViewValue(color)
-                            itemView.colorView.isVisible = true
-                            itemView.teamView.isVisible = false
+                            binding.colorView.setColorViewValue(color)
+                            binding.colorView.isVisible = true
+                            binding.teamView.isVisible = false
                         }
-                        itemView.seatView.setTextColor(color.getTextColor())
+                        binding.seatView.setTextColor(color.getTextColor())
                     }
 
                     if (player.seat == null) {
-                        itemView.sortView.setTextOrHide(player.sortOrder)
-                        itemView.seatView.isInvisible = true
+                        binding.sortView.setTextOrHide(player.sortOrder)
+                        binding.seatView.isInvisible = true
                     } else {
-                        itemView.sortView.isVisible = false
-                        itemView.seatView.text = player.seat.toString()
-                        itemView.seatView.isVisible = true
+                        binding.sortView.isVisible = false
+                        binding.seatView.text = player.seat.toString()
+                        binding.seatView.isVisible = true
                     }
 
-                    itemView.dragHandle.isVisible = isDraggable
+                    binding.dragHandle.isVisible = isDraggable
                     if (isDraggable) {
-                        itemView.dragHandle.setOnTouchListener { v, event ->
+                        binding.dragHandle.setOnTouchListener { v, event ->
                             if (event.action == MotionEvent.ACTION_DOWN) {
                                 itemTouchHelper.startDrag(this@PlayersViewHolder)
                             } else if (event.action == MotionEvent.ACTION_UP) {
@@ -214,6 +230,7 @@ class NewPlayPlayerSortFragment : Fragment(R.layout.fragment_new_play_player_sor
                 itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.light_blue_transparent))
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             fun onItemClear() {
                 isDragging = false
                 itemView.setBackgroundColor(Color.TRANSPARENT)

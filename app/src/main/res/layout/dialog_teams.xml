@@ -24,5 +24,5 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_extra"
 		android:text="@string/title_add_team_color"
-		app:icon="@drawable/ic_action_add" />
+		app:icon="@drawable/ic_baseline_add_24" />
 </LinearLayout>

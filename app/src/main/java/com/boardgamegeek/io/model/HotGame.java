@@ -4,10 +4,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 
+@SuppressWarnings("SpellCheckingInspection" )
 @Root(name = "item")
 public class HotGame {
 	@Attribute public int id;
-
 	@Attribute public int rank;
 
 	@Attribute(name = "value")

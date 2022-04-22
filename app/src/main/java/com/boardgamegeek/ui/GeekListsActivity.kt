@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 
 class GeekListsActivity : TopLevelSinglePaneActivity() {
-    override val answersContentType = "GeekLists"
+    override val firebaseContentType = "GeekLists"
 
     override fun onCreatePane(): Fragment = GeekListsFragment()
 

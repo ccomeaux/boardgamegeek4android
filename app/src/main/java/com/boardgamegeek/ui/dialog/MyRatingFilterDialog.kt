@@ -9,7 +9,7 @@ class MyRatingFilterDialog : RatingFilterDialog<MyRatingFilterer>() {
 
     override fun getType(context: Context) = MyRatingFilterer(context).type
 
-    override fun createFilterer(context: Context): MyRatingFilterer {
+    override fun createTypedFilterer(context: Context): MyRatingFilterer {
         return MyRatingFilterer(context)
     }
 }

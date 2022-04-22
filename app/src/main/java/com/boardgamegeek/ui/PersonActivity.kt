@@ -5,19 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.linkToBgg
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.clearTask
-import org.jetbrains.anko.clearTop
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.toast
 import java.util.*
 
 class PersonActivity : HeroTabActivity() {
@@ -44,7 +39,7 @@ class PersonActivity : HeroTabActivity() {
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
         name = intent.getStringExtra(KEY_PERSON_NAME).orEmpty()
         personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
+        emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
 
         initializeViewPager()
         safelySetTitle(name)
@@ -52,41 +47,31 @@ class PersonActivity : HeroTabActivity() {
         emptyMessageDescription = when (personType) {
             PersonType.ARTIST -> {
                 viewModel.setArtistId(id)
-                getString(R.string.title_artist).toLowerCase(Locale.getDefault())
+                getString(R.string.title_artist).lowercase(Locale.getDefault())
             }
             PersonType.DESIGNER -> {
                 viewModel.setDesignerId(id)
-                getString(R.string.title_designer).toLowerCase(Locale.getDefault())
+                getString(R.string.title_designer).lowercase(Locale.getDefault())
             }
             PersonType.PUBLISHER -> {
                 viewModel.setPublisherId(id)
-                getString(R.string.title_publisher).toLowerCase(Locale.getDefault())
+                getString(R.string.title_publisher).lowercase(Locale.getDefault())
             }
         }
 
-        viewModel.details.observe(this, Observer {
-            when {
-                it == null -> return@Observer
-                it.status == Status.ERROR -> toast(if (it.message.isBlank()) getString(R.string.empty_person, emptyMessageDescription) else it.message)
-                it.data == null -> return@Observer
-                else -> {
-                    it.data.apply {
-                        safelySetTitle(name)
-                    }
+        viewModel.details.observe(this) {
+            if (it?.status == Status.ERROR) {
+                toast(it.message.ifBlank { getString(R.string.empty_person, emptyMessageDescription) })
+            }
+            it?.data?.let { person ->
+                safelySetTitle(person.name)
+                if (person.heroImageUrl.isNotBlank()) {
+                    loadToolbarImage(person.heroImageUrl)
+                } else if (person.thumbnailUrl.isNotBlank()) {
+                    loadToolbarImage(person.thumbnailUrl)
                 }
             }
-        })
-        viewModel.images.observe(this, Observer { resource ->
-            resource?.let { entity ->
-                entity.data?.let {
-                    if (it.heroImageUrl.isBlank()) {
-                        loadToolbarImage(it.thumbnailUrl)
-                    } else {
-                        loadToolbarImage(it.heroImageUrl)
-                    }
-                }
-            }
-        })
+        }
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
@@ -108,7 +93,6 @@ class PersonActivity : HeroTabActivity() {
                     PersonType.PUBLISHER -> "boardgamepublisher"
                 }
                 linkToBgg(path, id)
-                return true
             }
             android.R.id.home -> {
                 when (personType) {
@@ -117,10 +101,10 @@ class PersonActivity : HeroTabActivity() {
                     PersonType.PUBLISHER -> startActivity(intentFor<PublishersActivity>().clearTop())
                 }
                 finish()
-                return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
     override fun createAdapter() = adapter
@@ -158,9 +142,9 @@ class PersonActivity : HeroTabActivity() {
 
         private fun createIntent(context: Context, id: Int, name: String, personType: PersonType): Intent {
             return context.intentFor<PersonActivity>(
-                    KEY_PERSON_ID to id,
-                    KEY_PERSON_NAME to name,
-                    KEY_PERSON_TYPE to personType
+                KEY_PERSON_ID to id,
+                KEY_PERSON_NAME to name,
+                KEY_PERSON_TYPE to personType,
             )
         }
     }

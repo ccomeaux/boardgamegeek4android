@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_collection_status"
-		android:icon="@drawable/menu_collection"
+		android:icon="@drawable/ic_baseline_library_books_24"
 		android:title="@string/menu_collection_status_"
 		app:showAsAction="ifRoom">
-		<menu>
-		</menu>
+		<menu />
 	</item>
 	<item
 		android:id="@+id/menu_collection_random_game"
-		android:icon="@drawable/menu_random"
+		android:icon="@drawable/ic_baseline_casino_24"
 		android:title="@string/menu_collection_random_game"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 
 </menu>

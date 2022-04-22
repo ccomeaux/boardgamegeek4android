@@ -1,5 +1,3 @@
-@file:JvmName("DoubleUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context
@@ -20,7 +18,7 @@ fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.
 }
 
 fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
-    return asScore(context, defaultResId)
+    return asScore(context, defaultResId, DecimalFormat("#0.0"))
 }
 
 fun Double.asBoundedRating(context: Context): String {
@@ -50,7 +48,7 @@ fun Double.toDescription(context: Context, @ArrayRes arrayResId: Int, @StringRes
 }
 
 @ColorInt
-fun Double.toColor(colors: IntArray): Int {
+fun Double.toColor(colors: List<Int>): Int {
     return if (this < 1 || this > colors.size) Color.TRANSPARENT
     else {
         val index = this.toInt()

@@ -7,13 +7,12 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
+import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.startActivity
 
 class PlayerPlaysActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlaysViewModel>()
@@ -22,7 +21,7 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
     private var playCount = -1
 
     override val optionsMenuId: Int
-        get() = R.menu.player
+        get() = R.menu.text_only
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,14 +38,14 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
         }
 
         viewModel.setPlayerName(name)
-        viewModel.plays.observe(this, Observer {
-            playCount = it.data?.sumBy { play -> play.quantity } ?: 0
+        viewModel.plays.observe(this) {
+            playCount = it.data?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
-        })
+        }
     }
 
     override fun readIntent(intent: Intent) {
-        name = intent.getStringExtra(KEY_PLAYER_NAME) ?: ""
+        name = intent.getStringExtra(KEY_PLAYER_NAME).orEmpty()
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -55,7 +54,7 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.setActionBarCount(R.id.menu_list_count, playCount)
+        menu.setActionBarCount(R.id.menu_text, playCount)
         return true
     }
 
@@ -75,7 +74,7 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
 
         fun start(context: Context, playerName: String?) {
             context.startActivity<PlayerPlaysActivity>(
-                    KEY_PLAYER_NAME to playerName
+                KEY_PLAYER_NAME to playerName
             )
         }
     }

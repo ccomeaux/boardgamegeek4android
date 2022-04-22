@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	style="@style/RowContainer.Medium"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.Medium"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:gravity="center_vertical"
@@ -19,14 +18,16 @@
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="left|center_vertical"
 			android:scaleType="fitXY"
-			tools:background="#00f"/>
+			tools:background="#00f"
+			tools:ignore="ContentDescription" />
 
 		<ImageView
 			android:id="@+id/dragHandle"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="match_parent"
 			android:scaleType="center"
-			android:src="@drawable/drag_grip"/>
+			android:src="@drawable/ic_baseline_drag_handle_24"
+			tools:ignore="ContentDescription" />
 	</FrameLayout>
 
 	<TextView
@@ -35,6 +36,6 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:textAppearance="@style/TextAppearance.RowTitle"
-		tools:text="Blue"/>
+		tools:text="Blue" />
 
 </LinearLayout>

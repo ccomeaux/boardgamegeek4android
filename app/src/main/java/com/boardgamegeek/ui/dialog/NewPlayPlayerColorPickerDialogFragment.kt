@@ -2,9 +2,9 @@ package com.boardgamegeek.ui.dialog
 
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
+import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
-import com.boardgamegeek.util.ColorUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 
@@ -28,16 +28,24 @@ class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     }
 
     companion object {
-        fun launch(activity: FragmentActivity, playerDescription: String, featuredColors: List<String>, selectedColor: String?, disabledColors: List<String>, playerIndex: Int) {
+        fun launch(
+            activity: FragmentActivity,
+            playerDescription: String,
+            featuredColors: List<String>,
+            selectedColor: String?,
+            disabledColors: List<String>,
+            playerIndex: Int,
+        ) {
             val df = NewPlayPlayerColorPickerDialogFragment().apply {
                 arguments = createBundle(
-                        title = playerDescription,
-                        ColorUtils.colorList,
-                        ArrayList(featuredColors),
-                        selectedColor,
-                        ArrayList(disabledColors),
-                        requestCode = playerIndex,
-                        showAddButton = true)
+                    title = playerDescription,
+                    BggColors.colorList,
+                    ArrayList(featuredColors),
+                    selectedColor,
+                    ArrayList(disabledColors),
+                    requestCode = playerIndex,
+                    showAddButton = true
+                )
             }
             activity.showAndSurvive(df)
         }

@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementList;
 
 import java.util.List;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class ForumResponse {
 	public static final int PAGE_SIZE = 50;
 	@Attribute private int id;

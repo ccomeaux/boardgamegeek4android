@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementList;
 
 import java.util.List;
 
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 public class CollectionResponse {
 	@Attribute(required = false) public int totalitems;
 	@Attribute(required = false) private String pubdate;

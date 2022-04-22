@@ -4,20 +4,21 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentBuddyCollectionBinding
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.fadeIn
-import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import kotlinx.android.synthetic.main.fragment_buddy_collection.*
 
-class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
+class BuddyCollectionFragment : Fragment() {
+    private var _binding: FragmentBuddyCollectionBinding? = null
+    private val binding get() = _binding!!
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private var currentStatus = BuddyCollectionViewModel.DEFAULT_STATUS
     private lateinit var statuses: Map<String, String>
@@ -37,36 +38,51 @@ class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
         firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
     }
 
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentBuddyCollectionBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter))
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(
+            RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
+        )
 
-        viewModel.status.observe(viewLifecycleOwner, {
+        viewModel.status.observe(viewLifecycleOwner) {
             currentStatus = it ?: BuddyCollectionViewModel.DEFAULT_STATUS
-        })
-        viewModel.collection.observe(viewLifecycleOwner, { (status, data, message) ->
-            when (status) {
-                Status.REFRESHING -> progressView.show()
-                Status.ERROR -> {
-                    showError(message)
-                    progressView.hide()
-                }
-                Status.SUCCESS -> {
-                    activity?.invalidateOptionsMenu()
-                    if (data == null || data.isEmpty()) {
-                        showError(R.string.empty_buddy_collection)
-                    } else {
-                        adapter.items = data
-                        emptyView.fadeOut()
-                        recyclerView.fadeIn(isResumed)
+        }
+        viewModel.collection.observe(viewLifecycleOwner) { resource ->
+            resource?.let { (status, data, message) ->
+                when (status) {
+                    Status.REFRESHING -> binding.progressView.show()
+                    Status.ERROR -> {
+                        showError(message)
+                        binding.progressView.hide()
                     }
-                    progressView.hide()
+                    Status.SUCCESS -> {
+                        activity?.invalidateOptionsMenu()
+                        if (data == null || data.isEmpty()) {
+                            showError(R.string.empty_buddy_collection)
+                        } else {
+                            adapter.items = data
+                            binding.emptyView.isVisible = false
+                            binding.recyclerView.isVisible = true
+                        }
+                        binding.progressView.hide()
+                    }
                 }
             }
-        })
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -117,8 +133,8 @@ class BuddyCollectionFragment : Fragment(R.layout.fragment_buddy_collection) {
     }
 
     private fun showError(message: String) {
-        emptyView.text = message
-        emptyView.fadeIn()
-        recyclerView.fadeOut()
+        binding.emptyView.text = message
+        binding.emptyView.isVisible = true
+        binding.recyclerView.isVisible = false
     }
 }

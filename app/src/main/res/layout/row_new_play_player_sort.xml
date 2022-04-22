@@ -18,7 +18,8 @@
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:background="#0f0" />
+		tools:background="#0f0"
+		tools:ignore="ContentDescription" />
 
 	<TextView
 		android:id="@+id/seatView"
@@ -46,7 +47,7 @@
 		app:layout_constraintStart_toEndOf="@+id/colorView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="Bilbo Baggins" />
+		tools:text="@tools:sample/full_names" />
 
 	<TextView
 		android:id="@+id/usernameView"
@@ -60,7 +61,7 @@
 		app:layout_constraintStart_toEndOf="@+id/colorView"
 		app:layout_constraintTop_toBottomOf="@+id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
-		tools:text="underhill" />
+		tools:text="username" />
 
 	<TextView
 		android:id="@+id/teamView"
@@ -96,9 +97,10 @@
 		android:layout_height="@dimen/color_circle_diameter"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:scaleType="centerInside"
-		android:src="@drawable/ic_drag_handle"
+		android:src="@drawable/ic_baseline_drag_handle_24"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintRight_toRightOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		tools:ignore="ContentDescription" />
 </androidx.constraintlayout.widget.ConstraintLayout>

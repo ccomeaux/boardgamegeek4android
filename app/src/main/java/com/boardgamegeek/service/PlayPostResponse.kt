@@ -1,3 +1,5 @@
+@file:Suppress("LeakingThis")
+
 package com.boardgamegeek.service
 
 import android.text.Html
@@ -6,6 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
+// TODO replace this whole thing with coroutines
 abstract class PlayPostResponse(client: OkHttpClient, request: Request) {
     protected val gson = Gson()
     protected var error: String? = null

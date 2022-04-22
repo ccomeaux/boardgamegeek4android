@@ -5,6 +5,7 @@ package com.boardgamegeek.extensions
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.io.BggService
 import timber.log.Timber
 import java.text.DateFormat
@@ -20,6 +21,20 @@ fun String?.sortName(sortIndex: Int): String {
     val i = sortIndex - 1
     return "${substring(i)}, ${substring(0, i).trim()}"
 }
+
+fun String.getImageId(): Int {
+    val invalidImageId = 0
+    if (isBlank()) return invalidImageId
+    "/pic\\d+.".toRegex().find(this)?.let {
+        return it.value.findFirstNumber() ?: invalidImageId
+    }
+    "/avatar_\\d+.".toRegex().find(this)?.let {
+        return it.value.findFirstNumber() ?: invalidImageId
+    }
+    return invalidImageId
+}
+
+fun String.findFirstNumber() = "\\d+".toRegex().find(this)?.value?.toIntOrNull()
 
 /**
  * Describes the rank with either the subtype or the family name.
@@ -66,6 +81,20 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     }
 }
 
+fun String?.asYear(unknownYear: Int = GameEntity.YEAR_UNKNOWN): Int {
+    if (this.isNullOrBlank()) return unknownYear
+    val l = this.toLong()
+    return if (l > Integer.MAX_VALUE) {
+        try {
+            (l - Long.MAX_VALUE).toInt() - 1
+        } catch (e: Exception) {
+            unknownYear
+        }
+    } else {
+        this.toIntOrNull() ?: unknownYear
+    }
+}
+
 fun String?.asCurrency(): String {
     return when (this) {
         null, "USD", "CAD", "AUD" -> "$"
@@ -106,3 +135,7 @@ fun String.truncate(length: Int): String {
         else -> this.take(length)
     }
 }
+
+fun String.toShortLabel() = this.truncate(12)
+
+fun String.toLongLabel() = this.truncate(25)

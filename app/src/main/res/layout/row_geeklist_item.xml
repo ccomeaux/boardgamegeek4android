@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout style="@style/RowContainer.WithThumbnail"
-			  xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content"
-			  android:background="?android:attr/selectableItemBackground"
-			  android:orientation="horizontal">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.WithThumbnail"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?android:attr/selectableItemBackground"
+	android:orientation="horizontal">
 
 	<TextView
 		android:id="@+id/orderView"
 		style="@style/RowRank"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		tools:text="19"/>
+		tools:text="19" />
 
 	<ImageView
 		android:id="@+id/thumbnailView"
@@ -20,7 +20,7 @@
 		android:layout_width="@dimen/thumbnail_size"
 		android:layout_height="@dimen/thumbnail_size"
 		android:contentDescription="@string/thumbnail"
-		android:src="@drawable/thumbnail_image_empty"/>
+		android:src="@drawable/thumbnail_image_empty" />
 
 	<LinearLayout
 		android:layout_width="0dp"
@@ -35,14 +35,15 @@
 			android:ellipsize="end"
 			android:maxLines="2"
 			android:textAppearance="@style/TextAppearance.RowTitle"
-			tools:text="Puerto Rico"/>
+			tools:text="Puerto Rico" />
 
 		<TextView
 			android:id="@+id/usernameView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_user_small"
-			tools:text="ccomeaux"/>
+			android:layout_marginTop="@dimen/padding_half"
+			android:drawableLeft="@drawable/ic_outline_account_circle_18"
+			tools:text="ccomeaux" />
 	</LinearLayout>
 </LinearLayout>

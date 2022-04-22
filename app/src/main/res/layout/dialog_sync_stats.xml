@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:tools="http://schemas.android.com/tools"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:clipToPadding="false">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:clipToPadding="false">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:paddingBottom="12dp"
 		android:paddingLeft="@dimen/material_margin_dialog"
+		android:paddingTop="16dp"
 		android:paddingRight="@dimen/material_margin_dialog"
-		android:paddingTop="16dp">
+		android:paddingBottom="12dp">
 
 		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/title_collection"
-			android:textAppearance="@style/TextAppearance.Title"/>
+			android:textAppearance="@style/TextAppearance.Title" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -30,7 +30,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/pref_sync_timestamps_collection_full"
-				android:textColor="@color/dialog_text"/>
+				android:textColor="@color/dialog_text" />
 
 			<TextView
 				android:id="@+id/sync_timestamp_collection_full"
@@ -38,7 +38,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="2"
 				android:textColor="@color/dialog_text"
-				tools:text="January 1, 1970 12:00 AM"/>
+				tools:text="January 1, 1970 12:00 AM" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -51,7 +51,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/pref_sync_timestamps_collection_partial"
-				android:textColor="@color/dialog_text"/>
+				android:textColor="@color/dialog_text" />
 
 			<TextView
 				android:id="@+id/sync_timestamp_collection_partial"
@@ -59,14 +59,13 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="2"
 				android:textColor="@color/dialog_text"
-				tools:text="January 1 12:00 AM"/>
+				tools:text="January 1 12:00 AM" />
 		</LinearLayout>
 
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-					  xmlns:tools="http://schemas.android.com/tools"
-					  android:layout_width="match_parent"
-					  android:layout_height="16dp"
-					  tools:background="#ff0">
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="16dp"
+			tools:background="#ff0">
 
 			<View
 				android:id="@+id/divider"
@@ -74,7 +73,7 @@
 				android:layout_height="@dimen/divider_height"
 				android:layout_gravity="bottom"
 				android:background="@color/list_divider"
-				tools:background="#f00"/>
+				tools:background="#f00" />
 		</LinearLayout>
 
 		<TextView
@@ -83,27 +82,26 @@
 			android:gravity="bottom"
 			android:minHeight="32dp"
 			android:text="@string/title_buddies"
-			android:textAppearance="@style/TextAppearance.Subtitle"/>
+			android:textAppearance="@style/TextAppearance.Subtitle" />
 
 		<TextView
 			android:id="@+id/sync_timestamp_buddy"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:textColor="@color/dialog_text"
-			tools:text="January 1 12:00 AM"/>
+			tools:text="January 1 12:00 AM" />
 
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-					  xmlns:tools="http://schemas.android.com/tools"
-					  android:layout_width="match_parent"
-					  android:layout_height="16dp"
-					  tools:background="#ff0">
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="16dp"
+			tools:background="#ff0">
 
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/divider_height"
 				android:layout_gravity="bottom"
 				android:background="@color/list_divider"
-				tools:background="#f00"/>
+				tools:background="#f00" />
 		</LinearLayout>
 
 		<TextView
@@ -112,13 +110,13 @@
 			android:gravity="bottom"
 			android:minHeight="32dp"
 			android:text="@string/title_plays"
-			android:textAppearance="@style/TextAppearance.Subtitle"/>
+			android:textAppearance="@style/TextAppearance.Subtitle" />
 
 		<TextView
 			android:id="@+id/sync_timestamp_plays"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:textColor="@color/dialog_text"
-			tools:text="January 1"/>
+			tools:text="January 1" />
 	</LinearLayout>
 </ScrollView>

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<androidx.cardview.widget.CardView
-	style="@style/Card.NoPadding"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/Card.NoPadding"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	tools:context=".ui.ThreadActivity">
@@ -19,25 +18,25 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="@color/info_background"
-			android:paddingBottom="@dimen/padding_standard"
 			android:paddingLeft="@dimen/material_margin_horizontal_card_contents"
+			android:paddingTop="@dimen/padding_standard"
 			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
-			android:paddingTop="@dimen/padding_standard">
+			android:paddingBottom="@dimen/padding_standard">
 
 			<TextView
 				android:id="@+id/usernameView"
 				style="@style/TextWithImage"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_user_small"
 				android:ellipsize="end"
-				tools:text="ccomeaux"/>
+				app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
+				tools:text="ccomeaux" />
 
 			<HorizontalScrollView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/usernameView"
+				android:layout_alignParentLeft="true"
 				android:layout_toLeftOf="@+id/viewButton">
 
 				<LinearLayout
@@ -50,9 +49,9 @@
 						style="@style/TextWithImage.Secondary"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:drawableLeft="@drawable/ic_clock_small"
+						android:drawableLeft="@drawable/ic_outline_schedule_18"
 						app:isForumTimestamp="true"
-						tools:text="2 days ago"/>
+						tools:text="2 days ago" />
 
 					<View
 						android:id="@+id/dateDivider"
@@ -60,16 +59,16 @@
 						android:layout_height="match_parent"
 						android:layout_marginLeft="@dimen/padding_standard"
 						android:layout_marginRight="@dimen/padding_standard"
-						android:background="@color/list_divider"/>
+						android:background="@color/list_divider" />
 
 					<com.boardgamegeek.ui.widget.TimestampView
 						android:id="@+id/editDateView"
 						style="@style/TextWithImage.Secondary"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:drawableLeft="@drawable/ic_edit_small"
+						android:drawableLeft="@drawable/ic_outline_edit_18"
 						app:isForumTimestamp="true"
-						tools:text="Yesterday"/>
+						tools:text="Yesterday" />
 				</LinearLayout>
 			</HorizontalScrollView>
 
@@ -82,22 +81,22 @@
 				android:layout_centerInParent="true"
 				android:background="?attr/selectableItemBackgroundBorderless"
 				android:contentDescription="@string/view"
-				android:paddingBottom="@dimen/padding_half"
 				android:paddingLeft="0dp"
-				android:paddingRight="0dp"
 				android:paddingTop="@dimen/padding_half"
-				android:src="@drawable/ic_open_in_new"/>
+				android:paddingRight="0dp"
+				android:paddingBottom="@dimen/padding_half"
+				android:src="@drawable/ic_baseline_launch_24" />
 		</RelativeLayout>
 
 		<TextView
 			android:id="@+id/bodyView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/padding_standard"
 			android:paddingLeft="@dimen/material_margin_horizontal_card_contents"
-			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
 			android:paddingTop="@dimen/padding_standard"
+			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
+			android:paddingBottom="@dimen/padding_standard"
 			android:textAppearance="@style/Text.Body"
-			tools:text="This is a lot of text. A whole lot of text. A bunch of really, long, somewhat interesting words. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text."/>
+			tools:text="This is a lot of text. A whole lot of text. A bunch of really, long, somewhat interesting words. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text." />
 	</LinearLayout>
 </androidx.cardview.widget.CardView>

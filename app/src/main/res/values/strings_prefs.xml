@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--suppress CheckTagEmptyBody -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
 	<string name="pref_log">Logging plays</string>
 	<string name="pref_log_summary">Options to record plays</string>
@@ -36,7 +36,7 @@
 	<string name="pref_sync_group_how">How</string>
 	<string name="pref_sync_group_tasks">Tasks</string>
 	<string name="pref_sync_statuses">Collection</string>
-	<string name="pref_sync_buddies">GeekBuddies</string>
+	<string name="pref_sync_buddies" tools:ignore="MissingTranslation">GeekBuddies</string>
 	<string name="pref_sync_plays">Plays</string>
 	<string name="pref_sync_upload">Show upload notifications</string>
 	<string name="pref_sync_notifications">Show progress notifications</string>
@@ -55,8 +55,6 @@
 	<string name="pref_sync_clear">Clear local data</string>
 	<string name="pref_sync_clear_pos">Clear</string>
 	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed, but you can always re-sync.</string>
-	<string name="pref_sync_clear_success">Clear complete</string>
-	<string name="pref_sync_clear_failure">Clear unsuccessful - are you sure you\'re signed in\?</string>
 	<string name="pref_sync_reset_collection">Re-sync entire collection</string>
 	<string name="pref_sync_re_sync_plays">Re-sync all plays</string>
 	<string name="pref_sync_reset_buddies">Re-sync GeekBuddies</string>
@@ -64,8 +62,6 @@
 	<string name="pref_sync_reset_collection_info_message">This will force a complete sync on collection data. Normally only recently modified collection items are synced. This may take a while, but it is recommended if all collection items aren\'t appearing.</string>
 	<string name="pref_sync_re_sync_plays_info_message">This will force a complete sync on all play data. (Normally only recent plays are synced.) This may take a while, but it is recommended if all plays aren\'t appearing.</string>
 	<string name="pref_sync_reset_buddies_info_message">This will delete all GeekBuddies, then force a complete sync. This may take a while, but it is recommended if all GeekBuddies aren\'t appearing.</string>
-	<string name="pref_sync_reset_success">Sync started</string>
-	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
 	<string name="pref_sync_timestamps">View sync status</string>
 	<string name="pref_sync_timestamps_title">Sync status</string>
 	<string name="pref_sync_timestamps_collection_full">Full</string>
@@ -94,7 +90,7 @@
 	<string name="pref_about_authors">Authors</string>
 	<string name="pref_about_licenses">Open source licenses</string>
 	<string name="pref_about_contact_us">Contact Us</string>
-	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
+	<string name="pref_about_contact_us_summary" translatable="false">bgg4android@gmail.com</string>
 	<string name="pref_feedback_title">Feedback</string>
 	<string name="pref_about_privacy_policy">Privacy Policy</string>
 	<string name="pref_about_trello_board">Trello Board</string>

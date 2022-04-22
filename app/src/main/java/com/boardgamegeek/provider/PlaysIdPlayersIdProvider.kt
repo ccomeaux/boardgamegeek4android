@@ -1,9 +1,12 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.provider.BggContract.*
+import android.provider.BaseColumns
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PLAYERS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_PLAYS
+import com.boardgamegeek.provider.BggContract.PlayPlayers
+import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class PlaysIdPlayersIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = PlayPlayers.CONTENT_ITEM_TYPE
@@ -14,8 +17,8 @@ class PlaysIdPlayersIdProvider : BaseProvider() {
         val internalId = Plays.getInternalId(uri)
         val rowId = PlayPlayers.getPlayPlayerId(uri)
         return SelectionBuilder()
-                .table(Tables.PLAY_PLAYERS)
-                .whereEquals(PlayPlayers._PLAY_ID, internalId)
-                .whereEquals(PlayPlayers._ID, rowId)
+            .table(Tables.PLAY_PLAYERS)
+            .whereEquals(PlayPlayers.Columns._PLAY_ID, internalId)
+            .whereEquals(BaseColumns._ID, rowId)
     }
 }

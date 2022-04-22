@@ -1,19 +1,17 @@
 package com.boardgamegeek.ui.adapter
 
-import android.graphics.Color
+import android.annotation.SuppressLint
 import android.util.SparseBooleanArray
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.asColorRgb
-import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.setColorViewValue
-import kotlinx.android.synthetic.main.row_color.view.*
+import com.boardgamegeek.databinding.RowColorBinding
+import com.boardgamegeek.extensions.*
 import kotlin.properties.Delegates
 
 class GameColorRecyclerViewAdapter(private val callback: Callback?) :
-        RecyclerView.Adapter<GameColorRecyclerViewAdapter.ViewHolder>(), AutoUpdatableAdapter {
+    RecyclerView.Adapter<GameColorRecyclerViewAdapter.ViewHolder>(), AutoUpdatableAdapter {
     private val selectedItems = SparseBooleanArray()
 
     var colors: List<String> by Delegates.observable(emptyList()) { _, old, new ->
@@ -38,15 +36,12 @@ class GameColorRecyclerViewAdapter(private val callback: Callback?) :
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val binding = RowColorBinding.bind(itemView)
+
         fun bind(position: Int) {
             getColorName(position)?.let { colorName ->
-                itemView.colorNameView.text = colorName
-                val color = colorName.asColorRgb()
-                if (color != Color.TRANSPARENT) {
-                    itemView.colorView.setColorViewValue(color)
-                } else {
-                    itemView.colorView.setImageDrawable(null)
-                }
+                binding.colorNameView.text = colorName
+                binding.colorView.setOrClearColorViewValue(colorName.asColorRgb())
                 itemView.isActivated = selectedItems[position, false]
                 itemView.setOnLongClickListener { callback?.onItemLongPress(position) ?: false }
                 itemView.setOnClickListener { callback?.onItemClick(position) }
@@ -59,14 +54,11 @@ class GameColorRecyclerViewAdapter(private val callback: Callback?) :
     }
 
     fun toggleSelection(position: Int) {
-        if (selectedItems[position, false]) {
-            selectedItems.delete(position)
-        } else {
-            selectedItems.put(position, true)
-        }
+        selectedItems.toggle(position)
         notifyItemChanged(position)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun clearSelections() {
         selectedItems.clear()
         notifyDataSetChanged()
@@ -76,10 +68,6 @@ class GameColorRecyclerViewAdapter(private val callback: Callback?) :
         get() = selectedItems.size()
 
     fun getSelectedColors(): List<String> {
-        val colors = mutableListOf<String>()
-        for (i in 0 until selectedItems.size()) {
-            getColorName(selectedItems.keyAt(i))?.let { colors.add(it) }
-        }
-        return colors
+        return selectedItems.filterTrue().mapNotNull { getColorName(it) }
     }
 }

@@ -31,7 +31,8 @@
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="center"
 			android:scaleType="fitXY"
-			tools:background="#0f0" />
+			tools:background="#0f0"
+			tools:ignore="ContentDescription" />
 
 		<TextView
 			android:id="@+id/seatView"
@@ -91,8 +92,9 @@
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
+			android:contentDescription="@string/rating"
 			android:scaleType="center"
-			android:src="@drawable/ic_rating"
+			android:src="@drawable/ic_baseline_star_rate_24"
 			tools:tint="#2000"
 			tools:tintMode="src_in" />
 
@@ -116,7 +118,7 @@
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
 			android:scaleType="center"
-			android:src="@drawable/ic_score"
+			android:src="@drawable/ic_baseline_emoji_events_24"
 			tools:tint="#2000"
 			tools:tintMode="src_in" />
 

@@ -1,13 +1,11 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
 import androidx.core.content.ContextCompat
@@ -15,25 +13,20 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.events.SignInEvent
-import com.boardgamegeek.events.SignOutEvent
+import com.boardgamegeek.databinding.ActivityDrawerBaseBinding
+import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import org.jetbrains.anko.defaultSharedPreferences
-import org.jetbrains.anko.startActivity
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
  */
 abstract class DrawerActivity : BaseActivity() {
+    private lateinit var binding: ActivityDrawerBaseBinding
     lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
@@ -45,13 +38,14 @@ abstract class DrawerActivity : BaseActivity() {
     protected open val navigationItemId: Int
         get() = 0
 
-    protected open val layoutResId: Int
-        @LayoutRes
-        get() = R.layout.activity_drawer_base
+    protected open fun bindLayout() {
+        binding = ActivityDrawerBaseBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutResId)
+        bindLayout()
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation)
@@ -68,45 +62,34 @@ abstract class DrawerActivity : BaseActivity() {
             true
         }
 
-        val signInButton = navigationView.getHeaderView(0).findViewById<Button>(R.id.singInButton)
-        signInButton.setOnClickListener { startActivity<LoginActivity>() }
+        navigationView.getHeaderView(0).findViewById<Button>(R.id.signInButton)?.let {
+            it.setOnClickListener { startActivity<LoginActivity>() }
+        }
 
-        viewModel.user.observe(this, {
-            refreshDrawer()
-        })
+        viewModel.user.observe(this) {
+            navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
+            refreshHeader(it?.data)
+        }
 
-        syncViewModel.currentSyncTimestamp.observe(this, {
+        syncViewModel.currentSyncTimestamp.observe(this) {
             invalidateOptionsMenu()
-        })
+        }
+        syncViewModel.username.observe(this) {
+            viewModel.setUsername(it)
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        EventBus.getDefault().register(this)
-        if (defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER, false] != true) {
+        if (preferences()[KEY_HAS_SEEN_NAV_DRAWER, false] != true) {
             drawerLayout.openDrawer(GravityCompat.START)
-            defaultSharedPreferences[KEY_HAS_SEEN_NAV_DRAWER] = true
+            preferences()[KEY_HAS_SEEN_NAV_DRAWER] = true
         }
     }
 
     override fun onResume() {
         super.onResume()
-        refreshDrawer()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SignInEvent) {
-        viewModel.setUsername(event.username)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SignOutEvent) {
-        viewModel.setUsername("")
+        navigationView.setCheckedItem(navigationItemId)
     }
 
     override fun onBackPressed() {
@@ -115,12 +98,6 @@ abstract class DrawerActivity : BaseActivity() {
         } else {
             super.onBackPressed()
         }
-    }
-
-    private fun refreshDrawer() {
-        navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
-        refreshHeader()
-        navigationView.setCheckedItem(navigationItemId)
     }
 
     private fun selectItem(menuItemId: Int) {
@@ -142,41 +119,33 @@ abstract class DrawerActivity : BaseActivity() {
         drawerLayout.closeDrawer(navigationView)
     }
 
-    private fun refreshHeader() {
+    private fun refreshHeader(user: UserEntity?) {
         val view = navigationView.getHeaderView(0)
-        val primaryView = view.findViewById<TextView>(R.id.account_info_primary)
-        val secondaryView = view.findViewById<TextView>(R.id.account_info_secondary)
-        val imageView = view.findViewById<ImageView>(R.id.account_image)
-        val signedInGroup = view.findViewById<Group>(R.id.signed_in)
-        val signInButton = view.findViewById<Button>(R.id.singInButton)
+        val primaryView = view.findViewById<TextView>(R.id.accountInfoPrimaryView)
+        val secondaryView = view.findViewById<TextView>(R.id.accountInfoSecondaryView)
+        val imageView = view.findViewById<ImageView>(R.id.accountImageView)
+        val signedInGroup = view.findViewById<Group>(R.id.signedInGroup)
+        val signInButton = view.findViewById<Button>(R.id.signInButton)
 
-        if (Authenticator.isSignedIn(this)) {
-            val fullName = AccountUtils.getFullName(this)
-            val username = AccountUtils.getUsername(this)
-            if (fullName.isNullOrBlank()) {
-                if (username.isNullOrBlank()) {
-                    val account = Authenticator.getAccount(this)
-                    if (account != null) viewModel.setUsername(account.name)
-                    return
-                } else {
-                    primaryView.text = username
-                    secondaryView.text = ""
-                    viewModel.setUsername(username)
-                }
+        if (Authenticator.isSignedIn(this) && user != null) {
+            if (user.fullName.isNotBlank() && user.userName.isNotBlank()) {
+                primaryView.text = user.fullName
+                secondaryView.text = user.userName
+                primaryView.setOnClickListener { }
+                secondaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
+            } else if (user.userName.isNotBlank()) {
+                primaryView.text = user.userName
+                secondaryView.text = ""
+                primaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
+                secondaryView.setOnClickListener { }
             } else {
-                primaryView.text = fullName
-                secondaryView.text = username
-                viewModel.setUsername(username)
+                Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
             }
-            secondaryView.setOnClickListener {
-                linkToBgg("user/$username")
-            }
-            val avatarUrl = AccountUtils.getAvatarUrl(this)
-            if (avatarUrl.isNullOrBlank()) {
-                imageView.visibility = View.GONE
+            if (user.avatarUrl.isBlank()) {
+                imageView.isVisible = false
             } else {
-                imageView.visibility = View.VISIBLE
-                imageView.loadThumbnail(avatarUrl, R.drawable.person_image_empty)
+                imageView.isVisible = true
+                imageView.loadThumbnail(user.avatarUrl, R.drawable.person_image_empty)
             }
             signedInGroup.isVisible = true
             signInButton.isVisible = false

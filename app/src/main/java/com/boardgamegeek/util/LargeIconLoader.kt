@@ -13,8 +13,8 @@ import com.squareup.picasso.Target
 import timber.log.Timber
 import java.util.*
 
-class LargeIconLoader(private val context: Context, imageUrl: String, thumbnailUrl: String, heroImageUrl: String, private val callback: Callback?) : Target {
-    private val imageUrls: Queue<String>
+class LargeIconLoader(private val context: Context, vararg urls: String, private val callback: Callback?) : Target {
+    private val imageUrls: Queue<String> = LinkedList()
     private var currentImageUrl: String? = null
 
     private val requestCreator: RequestCreator
@@ -24,10 +24,7 @@ class LargeIconLoader(private val context: Context, imageUrl: String, thumbnailU
                 .centerCrop()
 
     init {
-        this.imageUrls = LinkedList()
-        imageUrls.add(heroImageUrl)
-        imageUrls.add(thumbnailUrl)
-        imageUrls.add(imageUrl)
+        imageUrls.addAll(urls)
     }
 
     @WorkerThread
@@ -46,7 +43,6 @@ class LargeIconLoader(private val context: Context, imageUrl: String, thumbnailU
                 Timber.i("Didn't find an image at %s", currentImageUrl)
                 executeInBackground()
             }
-
         }
     }
 

@@ -11,16 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityNewPlayBinding
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.INVALID_ID
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
-import com.boardgamegeek.util.ImageUtils
-import kotlinx.android.synthetic.main.activity_new_play.*
-import org.jetbrains.anko.startActivity
 
 class NewPlayActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityNewPlayBinding
     private var startTime = 0L
     private var gameName = ""
     private val viewModel by viewModels<NewPlayViewModel>()
@@ -32,34 +31,37 @@ class NewPlayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val gameId = intent.getIntExtra(KEY_GAME_ID, INVALID_ID)
-        gameName = intent.getStringExtra(KEY_GAME_NAME) ?: ""
+        gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
 
-        setContentView(R.layout.activity_new_play)
+        binding = ActivityNewPlayBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.menu_cancel)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_clear_24)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        viewModel.insertedId.observe(this, {
+        viewModel.insertedId.observe(this) {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
-                this.cancel(TAG_PLAY_TIMER, it)
+                this.cancelNotification(TAG_PLAY_TIMER, it)
                 SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
             } else {
-                launchPlayingNotification(it,
-                        gameName,
-                        viewModel.location.value.orEmpty(),
-                        viewModel.addedPlayers.value?.size ?: 0,
-                        startTime,
-                        thumbnailUrl.orEmpty(),
-                        imageUrl.orEmpty(),
-                        heroImageUrl.orEmpty())
+                launchPlayingNotification(
+                    it,
+                    gameName,
+                    viewModel.location.value.orEmpty(),
+                    viewModel.addedPlayers.value?.size ?: 0,
+                    startTime,
+                    thumbnailUrl.orEmpty(),
+                    heroImageUrl.orEmpty(),
+                    imageUrl.orEmpty(),
+                )
             }
             setResult(Activity.RESULT_OK)
             finish()
-        })
+        }
 
-        viewModel.game.observe(this, {
-            it.data?.let { entity ->
+        viewModel.game.observe(this) {
+            it?.let { entity ->
                 gameName = entity.name
                 thumbnailUrl = entity.thumbnailUrl
                 imageUrl = entity.imageUrl
@@ -68,7 +70,7 @@ class NewPlayActivity : AppCompatActivity() {
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-                thumbnailView.loadUrl(entity.heroImageUrl, object : ImageUtils.Callback {
+                binding.thumbnailView.loadUrl(entity.heroImageUrl, object : ImageLoadCallback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
                         summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }
@@ -78,71 +80,71 @@ class NewPlayActivity : AppCompatActivity() {
                     }
                 })
             }
-        })
+        }
 
-        viewModel.startTime.observe(this, {
+        viewModel.startTime.observe(this) {
             startTime = viewModel.startTime.value ?: 0L
             updateSummary()
             invalidateOptionsMenu()
-        })
+        }
 
-        viewModel.length.observe(this, { updateSummary() })
+        viewModel.length.observe(this) { updateSummary() }
 
-        viewModel.location.observe(this, { updateSummary() })
+        viewModel.location.observe(this) { updateSummary() }
 
-        viewModel.currentStep.observe(this, {
+        viewModel.currentStep.observe(this) {
             when (it) {
                 NewPlayViewModel.Step.LOCATION, null -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .add(R.id.fragmentContainer, NewPlayLocationsFragment())
-                            .commit()
+                        .beginTransaction()
+                        .add(R.id.fragmentContainer, NewPlayLocationsFragment())
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_COLOR -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_SORT -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_NEW -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerIsNewFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerIsNewFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.PLAYERS_WIN -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayPlayerWinFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayPlayerWinFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
                 NewPlayViewModel.Step.COMMENTS -> {
                     supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, NewPlayCommentsFragment())
-                            .addToBackStack(null)
-                            .commit()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, NewPlayCommentsFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
             }
             updateSummary()
-        })
+        }
 
         viewModel.setGame(gameId, gameName)
     }
@@ -154,7 +156,7 @@ class NewPlayActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.timer)?.setIcon(if (startTime > 0L) R.drawable.menu_timer_off else R.drawable.menu_timer)
+        menu?.findItem(R.id.timer)?.setIcon(if (startTime > 0L) R.drawable.ic_outline_timer_off_24 else R.drawable.ic_outline_timer_24)
         return true
     }
 
@@ -185,10 +187,11 @@ class NewPlayActivity : AppCompatActivity() {
 
     private fun maybeDiscard(): Boolean {
         return if ((viewModel.startTime.value ?: 0) > 0 ||
-                viewModel.location.value.orEmpty().isNotBlank() ||
-                viewModel.addedPlayers.value.orEmpty().isNotEmpty() ||
-                viewModel.comments.isNotBlank()) {
-            createDiscardDialog(this, R.string.play, isNew = false).show()
+            viewModel.location.value.orEmpty().isNotBlank() ||
+            viewModel.addedPlayers.value.orEmpty().isNotEmpty() ||
+            viewModel.comments.isNotBlank()
+        ) {
+            createDiscardDialog(R.string.play, isNew = false).show()
             true
         } else false
     }
@@ -199,16 +202,16 @@ class NewPlayActivity : AppCompatActivity() {
         summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.Step.LOCATION
         summaryView.startTime = startTime
         summaryView.length = viewModel.length.value ?: 0
-        summaryView.location = viewModel.location.value ?: ""
+        summaryView.location = viewModel.location.value.orEmpty()
         summaryView.playerCount = viewModel.addedPlayers.value?.size ?: 0
 
         summaryView.updateText()
     }
 
     class PlaySummary @JvmOverloads constructor(
-            context: Context,
-            attrs: AttributeSet? = null,
-            defStyleAttr: Int = android.R.attr.textViewStyle
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = android.R.attr.textViewStyle
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
         var gameName = ""
         var step = NewPlayViewModel.Step.LOCATION
@@ -235,7 +238,9 @@ class NewPlayActivity : AppCompatActivity() {
                 else -> ""
             }
             summary += when {
-                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR || step == NewPlayViewModel.Step.PLAYERS_SORT -> " ${context.getString(R.string.with)}"
+                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR || step == NewPlayViewModel.Step.PLAYERS_SORT -> " ${context.getString(
+                        R.string.with
+                    )}"
                 step > NewPlayViewModel.Step.PLAYERS -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
                 else -> ""
             }
@@ -250,8 +255,8 @@ class NewPlayActivity : AppCompatActivity() {
 
         fun start(context: Context, gameId: Int, gameName: String) {
             context.startActivity<NewPlayActivity>(
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName
+                KEY_GAME_ID to gameId,
+                KEY_GAME_NAME to gameName,
             )
         }
     }

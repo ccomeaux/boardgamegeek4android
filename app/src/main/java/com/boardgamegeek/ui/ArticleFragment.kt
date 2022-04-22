@@ -1,40 +1,56 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentArticleBinding
 import com.boardgamegeek.entities.ArticleEntity
 import com.boardgamegeek.extensions.setWebViewText
-import kotlinx.android.synthetic.main.fragment_article.*
-import org.jetbrains.anko.support.v4.withArguments
-import java.text.NumberFormat
+import com.boardgamegeek.extensions.toFormattedString
 
-class ArticleFragment : Fragment(R.layout.fragment_article) {
-    private var article = ArticleEntity()
+class ArticleFragment : Fragment() {
+    private var _binding: FragmentArticleBinding? = null
+    private val binding get() = _binding!!
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentArticleBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        article = arguments?.getParcelable(KEY_ARTICLE) ?: ArticleEntity()
+        val article = arguments?.getParcelable(KEY_ARTICLE) ?: ArticleEntity()
 
-        usernameView.text = article.username
-        postDateView.timestamp = article.postTicks
+        binding.usernameView.text = article.username
+        binding.postDateView.timestamp = article.postTicks
         if (article.numberOfEdits > 0) {
-            editDateView.format = resources.getQuantityString(R.plurals.edit_timestamp, article.numberOfEdits)
-            editDateView.formatArg = NumberFormat.getInstance().format(article.numberOfEdits)
-            editDateView.timestamp = article.editTicks
-            editDateView.visibility = View.VISIBLE
+            binding.editDateView.format = resources.getQuantityString(R.plurals.edit_timestamp, article.numberOfEdits)
+            binding.editDateView.formatArg = article.numberOfEdits.toFormattedString()
+            binding.editDateView.timestamp = article.editTicks
+            binding.editDateView.isVisible = true
         } else {
-            editDateView.visibility = View.GONE
+            binding.editDateView.isVisible = false
         }
-        bodyView.setWebViewText(article.body)
+        binding.bodyView.setWebViewText(article.body)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {
         private const val KEY_ARTICLE = "ARTICLE"
+
         fun newInstance(article: ArticleEntity): ArticleFragment {
-            return ArticleFragment().withArguments(
-                    KEY_ARTICLE to article
-            )
+            return ArticleFragment().apply {
+                arguments = bundleOf(KEY_ARTICLE to article)
+            }
         }
     }
 }

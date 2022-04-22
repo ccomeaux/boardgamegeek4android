@@ -8,10 +8,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.*
 
 class PersonPagerAdapter(
-        private val activity: FragmentActivity,
-        private val id: Int,
-        private val name: String,
-        private val type: PersonActivity.PersonType
+    private val activity: FragmentActivity,
+    private val id: Int,
+    private val name: String,
+    private val type: PersonActivity.PersonType
 ) : FragmentStateAdapter(activity) {
     override fun createFragment(position: Int): Fragment {
         return when (position) {
@@ -47,7 +47,5 @@ class PersonPagerAdapter(
         return activity.getString(resId)
     }
 
-    override fun getItemCount(): Int {
-        return 4
-    }
+    override fun getItemCount() = 4
 }

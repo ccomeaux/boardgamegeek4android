@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout
-	style="@style/GeekListInfoBar"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/GeekListInfoBar"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
@@ -12,9 +12,9 @@
 		style="@style/TextWithImage"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_user_small"
 		android:paddingBottom="@dimen/padding_standard"
-		tools:text="ccomeaux"/>
+		app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
+		tools:text="ccomeaux" />
 
 	<TextView
 		android:id="@+id/descriptionView"
@@ -26,7 +26,7 @@
 		android:paddingBottom="@dimen/padding_standard"
 		android:visibility="gone"
 		tools:text="@tools:sample/lorem/random"
-		tools:visibility="visible"/>
+		tools:visibility="visible" />
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -39,23 +39,23 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_items_small"
-			tools:text="42"/>
+			app:drawableLeftCompat="@drawable/ic_baseline_format_list_bulleted_18"
+			tools:text="42" />
 
 		<View
 			android:layout_width="1dp"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<TextView
 			android:id="@+id/thumbCountView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_thumbs_small"
-			tools:text="13"/>
+			app:drawableLeftCompat="@drawable/ic_outline_thumb_up_18"
+			tools:text="13" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -69,22 +69,22 @@
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_clock_small"
-			tools:text="Yesterday"/>
+			android:drawableLeft="@drawable/ic_outline_schedule_18"
+			tools:text="Yesterday" />
 
 		<View
 			android:layout_width="1dp"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="@dimen/padding_standard"
 			android:layout_marginRight="@dimen/padding_standard"
-			android:background="@color/list_divider"/>
+			android:background="@color/list_divider" />
 
 		<com.boardgamegeek.ui.widget.TimestampView
 			android:id="@+id/editedDateView"
 			style="@style/TextWithImage.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_edit_small"
-			tools:text="2 hours ago"/>
+			android:drawableLeft="@drawable/ic_outline_edit_18"
+			tools:text="2 hours ago" />
 	</LinearLayout>
 </LinearLayout>

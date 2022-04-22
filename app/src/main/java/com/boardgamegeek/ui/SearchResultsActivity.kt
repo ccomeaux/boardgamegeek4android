@@ -9,11 +9,11 @@ import androidx.activity.viewModels
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.longToast
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.longToast
 
 class SearchResultsActivity : SimpleSinglePaneActivity() {
     companion object {
@@ -98,7 +98,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
                 if (uri == null) {
                     longToast(R.string.search_error_no_data)
                 } else {
-                    val gameName = intent.getStringExtra(SearchManager.EXTRA_DATA_KEY) ?: ""
+                    val gameName = intent.getStringExtra(SearchManager.EXTRA_DATA_KEY).orEmpty()
                     GameActivity.start(this, Games.getGameId(uri), gameName)
                 }
                 finish()
@@ -106,7 +106,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
             Intent.ACTION_SEARCH,
             ACTION_VOICE_SEARCH -> {
                 // searches invoked by the device
-                val query = intent.getStringExtra(SearchManager.QUERY) ?: ""
+                val query = intent.getStringExtra(SearchManager.QUERY).orEmpty()
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
                     param(FirebaseAnalytics.Param.SEARCH_TERM, query)
                     param("exact", true.toString())

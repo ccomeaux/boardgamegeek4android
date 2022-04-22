@@ -1,31 +1,29 @@
 package com.boardgamegeek.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.ShortcutInfo
-import android.content.pm.ShortcutManager
-import android.graphics.BitmapFactory
-import android.graphics.drawable.Icon
-import android.os.Build
-import android.os.Build.VERSION_CODES
+import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Pair
 import android.util.SparseBooleanArray
 import android.view.*
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.AccountUtils
+import com.boardgamegeek.databinding.FragmentCollectionBinding
+import com.boardgamegeek.databinding.RowCollectionBinding
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.YEAR_UNKNOWN
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
@@ -33,36 +31,27 @@ import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.noPreviousCollectionSync
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
 import com.boardgamegeek.ui.dialog.*
-import com.boardgamegeek.ui.dialog.CollectionFilterDialog.OnFilterChangedListener
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.DialogUtils
-import com.boardgamegeek.util.HttpUtils
-import com.boardgamegeek.util.ImageUtils.loadThumbnail
-import com.boardgamegeek.util.ShortcutUtils
+import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.android.material.chip.Chip
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.fragment_collection.*
-import kotlinx.android.synthetic.main.row_collection.view.*
-import org.jetbrains.anko.support.v4.toast
-import org.jetbrains.anko.support.v4.withArguments
 import timber.log.Timber
 import java.text.NumberFormat
-import java.util.*
 
-class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Callback, OnFilterChangedListener {
+class CollectionFragment : Fragment(), ActionMode.Callback {
+    private var _binding: FragmentCollectionBinding? = null
+    private val binding get() = _binding!!
     private var viewId = CollectionView.DEFAULT_DEFAULT_ID
     private var viewName = ""
     private var sorter: CollectionSorter? = null
-    private val filters: MutableList<CollectionFilterer> = ArrayList()
+    private val filters = mutableListOf<CollectionFilterer>()
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = 0
     private var actionMode: ActionMode? = null
@@ -77,110 +66,111 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = Firebase.analytics
-        readBundle(arguments)
+        isCreatingShortcut = arguments?.getBoolean(KEY_IS_CREATING_SHORTCUT) ?: false
+        changingGamePlayId = arguments?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
         setHasOptionsMenu(true)
     }
 
-    private fun readBundle(bundle: Bundle?) {
-        isCreatingShortcut = bundle?.getBoolean(KEY_IS_CREATING_SHORTCUT) ?: false
-        changingGamePlayId = bundle?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentCollectionBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        listView.adapter = adapter
+        binding.listView.adapter = adapter
 
         if (isCreatingShortcut) {
-            Snackbar.make(swipeRefreshLayout, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show()
+            binding.swipeRefreshLayout.longSnackbar(R.string.msg_shortcut_create)
         } else if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-            Snackbar.make(swipeRefreshLayout, R.string.msg_change_play_game, Snackbar.LENGTH_LONG).show()
+            binding.swipeRefreshLayout.longSnackbar(R.string.msg_change_play_game)
         }
 
-        footerToolbar?.inflateMenu(R.menu.collection_fragment)
-        footerToolbar?.setOnMenuItemClickListener(footerMenuListener)
-        invalidateMenu()
+        binding.footerToolbar.inflateMenu(R.menu.collection_fragment)
+        binding.footerToolbar.setOnMenuItemClickListener(footerMenuListener)
+        binding.footerToolbar.menu.apply {
+            if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
+                findItem(R.id.menu_collection_random_game)?.isVisible = false
+                findItem(R.id.menu_create_shortcut)?.isVisible = false
+                findItem(R.id.menu_collection_view_save)?.isVisible = false
+                findItem(R.id.menu_collection_view_delete)?.isVisible = false
+                findItem(R.id.menu_share)?.isVisible = false
+            } else {
+                findItem(R.id.menu_collection_random_game)?.isVisible = true
+                findItem(R.id.menu_create_shortcut)?.isVisible = true
+                findItem(R.id.menu_collection_view_save)?.isVisible = true
+                findItem(R.id.menu_collection_view_delete)?.isVisible = true
+                findItem(R.id.menu_share)?.isVisible = true
+            }
+        }
 
         setEmptyText()
-        emptyButton.setOnClickListener {
+        binding.emptyButton.setOnClickListener {
             startActivity(Intent(context, SettingsActivity::class.java))
         }
 
-        swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener {
-            swipeRefreshLayout.isRefreshing = viewModel.refresh()
+        binding.swipeRefreshLayout.setBggColors()
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.swipeRefreshLayout.isRefreshing = viewModel.refresh()
         }
 
-        progressBar.show()
+        binding.progressBar.show()
         viewModel.selectedViewId.observe(viewLifecycleOwner) {
-            progressBar.show()
+            binding.progressBar.show()
+            binding.listView.isVisible = false
             viewId = it
+            binding.footerToolbar.menu.findItem(R.id.menu_create_shortcut)?.isEnabled = it > 0
         }
         viewModel.selectedViewName.observe(viewLifecycleOwner) {
             viewName = it
         }
+        viewModel.views.observe(viewLifecycleOwner) {
+            binding.footerToolbar.menu.findItem(R.id.menu_collection_view_delete)?.isEnabled = it?.isNotEmpty() == true
+        }
         viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->
             sorter = collectionSorterFactory.create(sortType)
-            sortDescriptionView.text = if (sorter == null) "" else requireActivity().getString(R.string.by_prefix, sorter?.description.orEmpty())
+            binding.sortDescriptionView.text =
+                if (sorter == null) "" else requireActivity().getString(R.string.by_prefix, sorter?.description.orEmpty())
+            val hasFiltersApplied = filters.size > 0
+            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
+            binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
         }
-        viewModel.effectiveFilters.observe(viewLifecycleOwner) {
+        viewModel.effectiveFilters.observe(viewLifecycleOwner) { filterList ->
             filters.clear()
-            it?.let { filters.addAll(it) }
+            filterList?.let { filters.addAll(filterList) }
             setEmptyText()
             bindFilterButtons()
+            val hasFiltersApplied = filters.size > 0
+            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
+            binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
         }
         viewModel.items.observe(viewLifecycleOwner) {
             it?.let { showData(it) }
         }
+        viewModel.isFiltering.observe(viewLifecycleOwner) {
+            it?.let { if (it) binding.progressBar.show() else binding.progressBar.hide() }
+        }
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
-            swipeRefreshLayout.post { swipeRefreshLayout?.isRefreshing = it }
+            it?.let { binding.swipeRefreshLayout.isRefreshing = it }
         }
         viewModel.refresh()
     }
 
     private fun showData(items: List<CollectionItemEntity>) {
         adapter.items = items
-
-        listView.addHeader(adapter)
-
-        rowCountView.text = numberFormat.format(items.size)
-        invalidateMenu()
-
-        if (items.isEmpty()) {
-            emptyContainer.fadeIn()
-            listView.fadeOut()
-        } else {
-            listView.fadeIn()
-            emptyContainer.fadeOut()
+        binding.footerToolbar.menu.apply {
+            findItem(R.id.menu_collection_random_game)?.isEnabled = items.isNotEmpty()
+            findItem(R.id.menu_share)?.isEnabled = items.isNotEmpty()
         }
-        progressBar.hide()
-    }
 
-    private fun invalidateMenu() {
-        val menu = footerToolbar.menu
-        if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-            menu.findItem(R.id.menu_collection_random_game)?.isVisible = false
-            menu.findItem(R.id.menu_create_shortcut)?.isVisible = false
-            menu.findItem(R.id.menu_collection_view_save)?.isVisible = false
-            menu.findItem(R.id.menu_collection_view_delete)?.isVisible = false
-            menu.findItem(R.id.menu_share)?.isVisible = false
-        } else {
-            menu.findItem(R.id.menu_collection_random_game)?.isVisible = true
-            menu.findItem(R.id.menu_create_shortcut)?.isVisible = true
-            menu.findItem(R.id.menu_collection_view_save)?.isVisible = true
-            menu.findItem(R.id.menu_collection_view_delete)?.isVisible = true
-            menu.findItem(R.id.menu_share)?.isVisible = true
-            val hasFiltersApplied = filters.size > 0
-            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
-            val hasViews = activity?.contentResolver?.getCount(CollectionViews.CONTENT_URI) ?: 0 > 0
-            val hasItems = adapter.itemCount > 0
-            val hasViewSelected = viewId > 0
-            menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
-            menu.findItem(R.id.menu_collection_view_delete)?.isEnabled = hasViews
-            menu.findItem(R.id.menu_collection_random_game)?.isEnabled = hasItems
-            menu.findItem(R.id.menu_create_shortcut)?.isEnabled = hasViewSelected
-            menu.findItem(R.id.menu_share)?.isEnabled = hasItems
-        }
+        binding.listView.addHeader(adapter)
+        binding.rowCountView.text = numberFormat.format(items.size)
+
+        binding.emptyContainer.isVisible = items.isEmpty()
+        binding.listView.isVisible = items.isNotEmpty()
+        binding.progressBar.hide()
     }
 
     private val footerMenuListener = Toolbar.OnMenuItemClickListener { item ->
@@ -193,17 +183,17 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 return@OnMenuItemClickListener true
             }
             R.id.menu_create_shortcut -> if (viewId > 0) {
-                ShortcutUtils.createCollectionShortcut(context, viewId, viewName)
+                viewModel.createShortcut()
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_view_save -> {
                 val name = if (viewId <= 0) "" else viewName
                 val dialog = SaveViewDialogFragment.newInstance(name, createViewDescription(sorter, filters))
-                DialogUtils.showAndSurvive(this@CollectionFragment, dialog)
+                dialog.show(this@CollectionFragment.parentFragmentManager, "view_save")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_view_delete -> {
-                DialogUtils.showAndSurvive(this@CollectionFragment, DeleteViewDialogFragment.newInstance())
+                DeleteViewDialogFragment.newInstance().show(this@CollectionFragment.parentFragmentManager, "view_delete")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_share -> {
@@ -211,12 +201,13 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_sort -> {
-                DialogUtils.showAndSurvive(this@CollectionFragment, CollectionSortDialogFragment.newInstance(sorter?.type
-                        ?: CollectionSorterFactory.TYPE_DEFAULT))
+                CollectionSortDialogFragment.newInstance(sorter?.type ?: CollectionSorterFactory.TYPE_DEFAULT)
+                    .show(this@CollectionFragment.parentFragmentManager, "collection_sort")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_filter -> {
-                DialogUtils.showAndSurvive(this@CollectionFragment, CollectionFilterDialogFragment.newInstance(filters.map { it.type }))
+                CollectionFilterDialogFragment.newInstance(filters.map { it.type })
+                    .show(this@CollectionFragment.parentFragmentManager, "collection_filter")
                 return@OnMenuItemClickListener true
             }
         }
@@ -230,48 +221,34 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
             else -> getString(R.string.title_collection)
         }
         val text = StringBuilder(description)
-                .append("\n")
-                .append("-".repeat(description.length))
-                .append("\n")
+            .append("\n")
+            .append("-".repeat(description.length))
+            .append("\n")
 
         val maxGames = 10
         adapter.items.take(maxGames).map { text.append("\u2022 ${formatGameLink(it.gameId, it.collectionName)}") }
         val leftOverCount = adapter.itemCount - maxGames
         if (leftOverCount > 0) text.append(getString(R.string.and_more, leftOverCount)).append("\n")
 
-        val username = AccountUtils.getUsername(context)
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         text.append("\n")
-                .append(createViewDescription(sorter, filters))
-                .append("\n")
-                .append("\n")
-                .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${HttpUtils.encode(username)}"))
-        requireActivity().share(getString(R.string.share_collection_subject, AccountUtils.getFullName(context), username), text, R.string.title_share_collection)
-    }
-
-    override fun removeFilter(type: Int) {
-        progressBar.show()
-        viewModel.removeFilter(type)
-    }
-
-    override fun addFilter(filter: CollectionFilterer) {
-        progressBar.show()
-        viewModel.addFilter(filter)
-        firebaseAnalytics.logEvent("Filter", bundleOf(
-                FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
-                "FilterBy" to filter.type.toString()
-        ))
+            .append(createViewDescription(sorter, filters))
+            .append("\n")
+            .append("\n")
+            .append(getString(R.string.share_collection_complete_footer, "https://www.boardgamegeek.com/collection/user/${username.encodeForUrl()}"))
+        val fullName = prefs[AccountPreferences.KEY_FULL_NAME, ""]
+        requireActivity().share(getString(R.string.share_collection_subject, fullName, username), text, R.string.title_share_collection)
     }
 
     private fun setEmptyText() {
-        val syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null) ?: emptySet()
+        val syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty()
         if (syncedStatuses.isEmpty()) {
             setEmptyStateForSettingsAction(R.string.empty_collection_sync_off)
         } else {
             if (SyncPrefs.getPrefs(requireContext()).noPreviousCollectionSync()) {
                 setEmptyStateForNoAction(R.string.empty_collection_sync_never)
             } else if (filters.isNotEmpty()) {
-                val appliedStatuses = filters.filterIsInstance<CollectionStatusFilterer>().firstOrNull()?.getSelectedStatusesSet()
-                        ?: emptySet()
+                val appliedStatuses = filters.filterIsInstance<CollectionStatusFilterer>().firstOrNull()?.getSelectedStatusesSet().orEmpty()
                 if (syncedStatuses.containsAll(appliedStatuses)) {
                     setEmptyStateForNoAction(R.string.empty_collection_filter_on)
                 } else {
@@ -284,45 +261,49 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     }
 
     private fun setEmptyStateForSettingsAction(@StringRes textResId: Int) {
-        emptyTextView.setText(textResId)
-        emptyButton.visibility = View.VISIBLE
+        binding.emptyTextView.setText(textResId)
+        binding.emptyButton.isVisible = true
     }
 
     private fun setEmptyStateForNoAction(@StringRes textResId: Int) {
-        emptyTextView.setText(textResId)
-        emptyButton.visibility = View.GONE
+        binding.emptyTextView.setText(textResId)
+        binding.emptyButton.isVisible = false
     }
 
     private fun bindFilterButtons() {
-        chipGroup.removeAllViews()
+        binding.chipGroup.removeAllViews()
         for (filter in filters) {
-            if (filter.toShortDescription().isNotEmpty()) {
-                chipGroup.addView(Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter).apply {
+            if (filter.isValid) {
+                binding.chipGroup.addView(Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter).apply {
                     layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    text = filter.toShortDescription()
+                    text = filter.chipText()
+                    if (filter.iconResourceId != CollectionFilterer.INVALID_ICON) {
+                        chipIcon = AppCompatResources.getDrawable(requireContext(), filter.iconResourceId)
+                        chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+                    }
                     setOnClickListener { launchFilterDialog(filter.type) }
                     setOnLongClickListener {
-                        removeFilter(filter.type)
+                        viewModel.removeFilter(filter.type)
                         true
                     }
                 })
             }
         }
-        val show = chipGroup.childCount > 0
+        val show = binding.chipGroup.childCount > 0
         if (show) {
-            chipGroupScrollView.slideUpIn()
+            binding.chipGroupScrollView.slideUpIn()
         } else {
-            chipGroupScrollView.slideDownOut()
+            binding.chipGroupScrollView.slideDownOut()
         }
-        swipeRefreshLayout.apply {
-            setPadding(paddingLeft, paddingTop, paddingRight, if (show) resources.getDimensionPixelSize(R.dimen.chip_group_height) else 0)
-        }
+        binding.swipeRefreshLayout.updatePadding(
+            bottom = if (show) resources.getDimensionPixelSize(R.dimen.chip_group_height) else 0
+        )
     }
 
     fun launchFilterDialog(filterType: Int): Boolean {
         val dialog = CollectionFilterDialogFactory().create(requireContext(), filterType)
         return if (dialog != null) {
-            dialog.createDialog(requireContext(), this, filters.firstOrNull { it.type == filterType })
+            dialog.createDialog(requireActivity(), filters.firstOrNull { it.type == filterType })
             true
         } else {
             Timber.w("Couldn't find a filter dialog of type %s", filterType)
@@ -332,6 +313,7 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
 
     inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), SectionCallback {
         var items: List<CollectionItemEntity> = emptyList()
+            @SuppressLint("NotifyDataSetChanged")
             set(value) {
                 field = value
                 notifyDataSetChanged()
@@ -345,21 +327,17 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
 
         fun getItem(position: Int) = items.getOrNull(position)
 
-        val selectedItemCount = selectedItems.size()
+        val selectedItemCount: Int
+            get() = selectedItems.filterTrue().size
 
         val selectedItemPositions: List<Int>
-            get() {
-                val items = ArrayList<Int>(selectedItems.size())
-                (0 until selectedItems.size()).mapTo(items) { selectedItems.keyAt(it) }
-                return items
-            }
+            get() = selectedItems.filterTrue()
 
+        fun getSelectedItems() = selectedItemPositions.mapNotNull { items.getOrNull(it) }
+
+        @SuppressLint("NotifyDataSetChanged")
         fun toggleSelection(position: Int) {
-            if (selectedItems[position, false]) {
-                selectedItems.delete(position)
-            } else {
-                selectedItems.put(position, true)
-            }
+            selectedItems.toggle(position)
             notifyDataSetChanged() // I'd prefer to call notifyItemChanged(position), but that causes the section header to appear briefly
             actionMode?.let {
                 if (selectedItemCount == 0) {
@@ -371,8 +349,9 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
 
         fun clearSelection() {
+            val oldSelectedItems = selectedItems.clone()
             selectedItems.clear()
-            notifyDataSetChanged()
+            oldSelectedItems.filterTrue().forEach { notifyItemChanged(it) }
         }
 
         override fun getItemCount() = items.size
@@ -388,31 +367,43 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
 
         inner class CollectionItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val binding = RowCollectionBinding.bind(itemView)
+
             fun bindView(item: CollectionItemEntity?, position: Int) {
                 if (item == null) return
-                itemView.nameView.text = item.collectionName
-                val year = if (item.collectionYearPublished == YEAR_UNKNOWN) item.gameYearPublished else item.collectionYearPublished
-                itemView.yearView.text = year.asYear(context)
-                itemView.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
-                itemView.favoriteView.isVisible = item.isFavorite
+                binding.nameView.text = item.collectionName
+                binding.yearView.text = item.yearPublished.asYear(context)
+                binding.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
+                binding.favoriteView.isVisible = item.isFavorite
                 val ratingText = sorter?.getRatingText(item).orEmpty()
+                binding.ratingView.setTextOrHide(ratingText)
                 if (ratingText.isNotEmpty()) {
-                    itemView.ratingView.text = ratingText
-                    sorter?.getRating(item)?.let { itemView.ratingView.setTextViewBackground(it.toColor(ratingColors)) }
-                    itemView.ratingView.visibility = View.VISIBLE
-                    itemView.infoView.visibility = View.GONE
+                    sorter?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(BggColors.ratingColors)) }
+                    binding.infoView.isVisible = false
                 } else {
-                    itemView.infoView.setTextOrHide(sorter?.getDisplayInfo(item))
-                    itemView.infoView.visibility = View.VISIBLE
-                    itemView.ratingView.visibility = View.GONE
+                    binding.infoView.setTextOrHide(sorter?.getDisplayInfo(item))
                 }
-                itemView.thumbnailView.loadThumbnail(item.thumbnailUrl)
+                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 itemView.isActivated = selectedItems[position, false]
                 itemView.setOnClickListener {
                     when {
-                        isCreatingShortcut -> createShortcut(item.gameId, item.gameName, item.thumbnailUrl)
+                        isCreatingShortcut -> {
+                            GameActivity.createShortcutInfo(requireContext(), item.gameId, item.gameName)?.let {
+                                val intent = ShortcutManagerCompat.createShortcutResultIntent(requireContext(), it)
+                                requireActivity().setResult(Activity.RESULT_OK, intent)
+                                requireActivity().finish()
+                            }
+                        }
                         changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
-                            LogPlayActivity.changeGame(requireContext(), changingGamePlayId, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl, item.heroImageUrl)
+                            LogPlayActivity.changeGame(
+                                requireContext(),
+                                changingGamePlayId,
+                                item.gameId,
+                                item.gameName,
+                                item.thumbnailUrl,
+                                item.imageUrl,
+                                item.heroImageUrl
+                            )
                             requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
                         }
                         actionMode == null -> GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
@@ -447,42 +438,6 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         }
     }
 
-    fun createShortcut(id: Int, name: String, thumbnailUrl: String) {
-        val shortcutIntent = GameActivity.createIntentAsShortcut(requireContext(), id, name, thumbnailUrl)
-        if (shortcutIntent != null) {
-            val intent: Intent?
-            if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
-                intent = createShortcutForOreo(id, name, thumbnailUrl, shortcutIntent)
-            } else {
-                intent = ShortcutUtils.createShortcutIntent(context, name, shortcutIntent)
-                val file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl)
-                if (file != null && file.exists()) {
-                    @Suppress("DEPRECATION")
-                    intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.absolutePath))
-                }
-            }
-            intent?.let { requireActivity().setResult(Activity.RESULT_OK, it) }
-        }
-        requireActivity().finish()
-    }
-
-    @RequiresApi(api = VERSION_CODES.O)
-    private fun createShortcutForOreo(id: Int, name: String, thumbnailUrl: String, shortcutIntent: Intent): Intent? {
-        val shortcutManager = requireContext().getSystemService(ShortcutManager::class.java)
-                ?: return null
-        val builder = ShortcutInfo.Builder(context, ShortcutUtils.createGameShortcutId(id))
-                .setShortLabel(name.truncate(ShortcutUtils.SHORT_LABEL_LENGTH))
-                .setLongLabel(name.truncate(ShortcutUtils.LONG_LABEL_LENGTH))
-                .setIntent(shortcutIntent)
-        val file = ShortcutUtils.getThumbnailFile(context, thumbnailUrl)
-        if (file != null && file.exists()) {
-            builder.setIcon(Icon.createWithAdaptiveBitmap(BitmapFactory.decodeFile(file.absolutePath)))
-        } else {
-            builder.setIcon(Icon.createWithResource(context, R.drawable.ic_adaptive_game))
-        }
-        return shortcutManager.createShortcutResultIntent(builder.build())
-    }
-
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.game_context, menu)
         adapter.clearSelection()
@@ -504,57 +459,54 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        if (!adapter.selectedItemPositions.iterator().hasNext()) return false
-        val ci = adapter.getItem(adapter.selectedItemPositions.iterator().next())
+        val items = adapter.getSelectedItems()
+        if (items.isEmpty()) return false
+
         when (item.itemId) {
             R.id.menu_log_play_form -> {
-                ci?.let { LogPlayActivity.logPlay(requireContext(), it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl, it.arePlayersCustomSorted) }
-                mode.finish()
-                return true
+                items.firstOrNull()?.let {
+                    LogPlayActivity.logPlay(
+                        requireContext(),
+                        it.gameId,
+                        it.gameName,
+                        it.thumbnailUrl,
+                        it.imageUrl,
+                        it.heroImageUrl,
+                        it.arePlayersCustomSorted
+                    )
+                }
             }
             R.id.menu_log_play_quick -> {
-                toast(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
-                for (position in adapter.selectedItemPositions) {
-                    adapter.getItem(position)?.let { context.logQuickPlay(it.gameId, it.gameName) }
+                items.forEach {
+                    viewModel.logQuickPlay(it.gameId, it.gameName)
                 }
-                mode.finish()
-                return true
+                toast(resources.getQuantityString(R.plurals.msg_logging_plays, items.size))
             }
             R.id.menu_log_play_wizard -> {
-                ci?.let { NewPlayActivity.start(requireContext(), it.gameId, it.gameName) }
-                mode.finish()
-                return true
+                items.firstOrNull()?.let { NewPlayActivity.start(requireContext(), it.gameId, it.gameName) }
             }
             R.id.menu_share -> {
                 val shareMethod = "Collection"
-                if (adapter.selectedItemCount == 1) {
-                    ci?.let { requireActivity().shareGame(it.gameId, it.gameName, shareMethod, firebaseAnalytics) }
+                if (items.size == 1) {
+                    items.firstOrNull()?.let { requireActivity().shareGame(it.gameId, it.gameName, shareMethod, firebaseAnalytics) }
                 } else {
-                    val games: MutableList<Pair<Int, String>> = ArrayList(adapter.selectedItemCount)
-                    for (position in adapter.selectedItemPositions) {
-                        adapter.getItem(position)?.let { games.add(Pair.create(it.gameId, it.gameName)) }
-                    }
-                    requireActivity().shareGames(games, shareMethod, firebaseAnalytics)
+                    requireActivity().shareGames(items.map { it.gameId to it.gameName }, shareMethod, firebaseAnalytics)
                 }
-                mode.finish()
-                return true
             }
             R.id.menu_link -> {
-                ci?.gameId?.let { activity.linkBgg(it) }
-                mode.finish()
-                return true
+                items.firstOrNull()?.gameId?.let { activity.linkBgg(it) }
             }
+            else -> return false
         }
-        return false
+        mode.finish()
+        return true
     }
 
     private fun createViewDescription(sort: CollectionSorter?, filters: List<CollectionFilterer>): String {
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))
-            filters.forEach {
-                text.append("\n\u2022 ${it.toLongDescription()}")
-            }
+            filters.map { "\n\u2022 ${it.description()}" }.forEach { text.append(it) }
         }
         text.append("\n\n")
         sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }
@@ -566,15 +518,15 @@ class CollectionFragment : Fragment(R.layout.fragment_collection), ActionMode.Ca
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
         fun newInstance(isCreatingShortcut: Boolean): CollectionFragment {
-            return CollectionFragment().withArguments(
-                    KEY_IS_CREATING_SHORTCUT to isCreatingShortcut
-            )
+            return CollectionFragment().apply {
+                arguments = bundleOf(KEY_IS_CREATING_SHORTCUT to isCreatingShortcut)
+            }
         }
 
         fun newInstanceForPlayGameChange(playId: Long): CollectionFragment {
-            return CollectionFragment().withArguments(
-                    KEY_CHANGING_GAME_PLAY_ID to playId
-            )
+            return CollectionFragment().apply {
+                arguments = bundleOf(KEY_CHANGING_GAME_PLAY_ID to playId)
+            }
         }
     }
 }

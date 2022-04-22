@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_log_play"
-		android:icon="@drawable/menu_log_play"
+		android:icon="@drawable/ic_baseline_event_available_24"
 		android:title="@string/menu_log_play"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -26,12 +26,12 @@
 	</item>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="@drawable/menu_share"
+		android:icon="@drawable/ic_baseline_share_24"
 		android:title="@string/menu_share"
 		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/menu_link"
-		android:icon="@drawable/menu_view"
+		android:icon="@drawable/ic_baseline_open_in_browser_24"
 		android:title="@string/link_bgg"
 		app:showAsAction="ifRoom" />
 

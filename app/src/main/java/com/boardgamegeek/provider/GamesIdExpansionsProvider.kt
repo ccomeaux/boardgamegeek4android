@@ -5,10 +5,11 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.provider.BaseColumns._ID
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.GamesColumns.GAME_ID
+import com.boardgamegeek.provider.BggContract.Companion.PATH_EXPANSIONS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.provider.BggContract.GamesExpansions
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdExpansionsProvider : BaseProvider() {
     override fun getType(uri: Uri) = GamesExpansions.CONTENT_TYPE
@@ -20,19 +21,19 @@ class GamesIdExpansionsProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-                .table(Tables.GAMES_EXPANSIONS_JOIN_EXPANSIONS)
-                .mapToTable(_ID, Tables.GAMES_EXPANSIONS)
-                .mapToTable(GAME_ID, Tables.GAMES_EXPANSIONS)
-                .whereEquals("${Tables.GAMES_EXPANSIONS}.$GAME_ID", gameId)
+            .table(Tables.GAMES_EXPANSIONS_JOIN_EXPANSIONS)
+            .mapToTable(_ID, Tables.GAMES_EXPANSIONS)
+            .mapToTable(GamesExpansions.Columns.GAME_ID, Tables.GAMES_EXPANSIONS)
+            .whereEquals("${Tables.GAMES_EXPANSIONS}.${GamesExpansions.Columns.GAME_ID}", gameId)
     }
 
     public override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
-        return SelectionBuilder().table(Tables.GAMES_EXPANSIONS).whereEquals(GAME_ID, gameId)
+        return SelectionBuilder().table(Tables.GAMES_EXPANSIONS).whereEquals(GamesExpansions.Columns.GAME_ID, gameId)
     }
 
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri {
-        values.put(GAME_ID, Games.getGameId(uri))
+        values.put(GamesExpansions.Columns.GAME_ID, Games.getGameId(uri))
         val rowId = db.insertOrThrow(Tables.GAMES_EXPANSIONS, null, values)
         return Games.buildExpansionUri(rowId)
     }

@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui.dialog
 
 import android.content.Context
-import com.boardgamegeek.util.ColorUtils
+import com.boardgamegeek.extensions.BggColors
 import java.util.*
 
 class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
@@ -37,7 +37,7 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
             return ColorPickerWithListenerDialogFragment().apply {
                 arguments = createBundle(
                         0,
-                        ColorUtils.colorList,
+                        BggColors.colorList,
                         featuredColors,
                         selectedColor,
                         disabledColors,

@@ -3,8 +3,9 @@ package com.boardgamegeek.provider
 import android.content.ContentUris
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_ARTISTS
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
 import com.boardgamegeek.provider.BggDatabase.GamesArtists
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesIdArtistsIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Artists.CONTENT_ITEM_TYPE
@@ -15,8 +16,8 @@ class GamesIdArtistsIdProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         val artistId = ContentUris.parseId(uri)
         return SelectionBuilder()
-                .table(BggDatabase.Tables.GAMES_ARTISTS)
-                .whereEquals(GamesArtists.GAME_ID, gameId)
-                .whereEquals(GamesArtists.ARTIST_ID, artistId)
+            .table(BggDatabase.Tables.GAMES_ARTISTS)
+            .whereEquals(GamesArtists.GAME_ID, gameId)
+            .whereEquals(GamesArtists.ARTIST_ID, artistId)
     }
 }

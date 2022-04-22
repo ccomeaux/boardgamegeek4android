@@ -8,8 +8,8 @@ import com.boardgamegeek.extensions.cancelSync
 class SignOutDialogFragment : PreferenceDialogFragmentCompat() {
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
-            context.cancelSync()
-            Authenticator.signOut(context)
+            requireContext().cancelSync()
+            Authenticator.signOut(requireContext())
         }
     }
 

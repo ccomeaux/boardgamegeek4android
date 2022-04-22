@@ -4,8 +4,9 @@ import android.content.ContentUris
 import android.net.Uri
 import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.*
+import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
+import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
 import com.boardgamegeek.provider.BggDatabase.Tables
-import com.boardgamegeek.util.SelectionBuilder
 
 class GamesMechanicsIdProvider : BaseProvider() {
     override fun getType(uri: Uri) = Mechanics.CONTENT_ITEM_TYPE

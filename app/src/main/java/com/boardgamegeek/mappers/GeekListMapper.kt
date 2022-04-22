@@ -3,67 +3,68 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.entities.GeekListCommentEntity
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
-import com.boardgamegeek.io.model.GeekListResponse
+import com.boardgamegeek.extensions.toMillis
+import com.boardgamegeek.io.model.*
 import com.boardgamegeek.provider.BggContract
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GeekListMapper {
-    fun map(from: GeekListResponse): GeekListEntity {
-        val items = mutableListOf<GeekListItemEntity>()
-        from.items?.forEach { item ->
-            val comments = mutableListOf<GeekListCommentEntity>()
-            item.comments?.forEach { comment ->
-                comments += GeekListCommentEntity(
-                        FORMAT.parse(comment.postdate.orEmpty())?.time ?: 0L,
-                        FORMAT.parse(comment.editdate.orEmpty())?.time ?: 0L,
-                        comment.thumbs.toIntOrNull() ?: 0,
-                        comment.username.orEmpty(),
-                        comment.content.orEmpty().trim()
-                )
-            }
+fun GeekListsResponse.mapToEntity() = this.lists.map { it.mapToEntity() }
 
-            items += GeekListItemEntity(
-                    item.id.toLongOrNull() ?: BggContract.INVALID_ID.toLong(),
-                    item.objectid.toIntOrNull() ?: BggContract.INVALID_ID,
-                    item.objectname.orEmpty(),
-                    item.objecttype.orEmpty(),
-                    item.subtype.orEmpty(),
-                    item.imageid.toIntOrNull() ?: 0,
-                    item.username.orEmpty(),
-                    item.body.orEmpty(),
-                    item.thumbs.toIntOrNull() ?: 0,
-                    FORMAT.parse(item.postdate.orEmpty())?.time ?: 0L,
-                    FORMAT.parse(item.editdate.orEmpty())?.time ?: 0L,
-                    comments
-            )
-        }
-        val comments = mutableListOf<GeekListCommentEntity>()
-        from.comments?.forEach { comment ->
-            comments += GeekListCommentEntity(
-                    FORMAT.parse(comment.postdate.orEmpty())?.time ?: 0L,
-                    FORMAT.parse(comment.editdate.orEmpty())?.time ?: 0L,
-                    comment.thumbs.toIntOrNull() ?: 0,
-                    comment.username.orEmpty(),
-                    comment.content.orEmpty().trim()
-            )
-        }
+fun GeekListResponse.mapToEntity() = GeekListEntity(
+        id = id,
+        title = title.orEmpty().trim(),
+        username = username.orEmpty(),
+        description = description.orEmpty().trim(),
+        numberOfItems = numitems.toIntOrNull() ?: 0,
+        numberOfThumbs = thumbs.toIntOrNull() ?: 0,
+        postTicks = postdate.toMillis(FORMAT),
+        editTicks = editdate.toMillis(FORMAT),
+        items = items?.map { it.mapToEntity() }.orEmpty(),
+        comments = comments.mapToEntity()
+)
 
-        return GeekListEntity(
-                from.id,
-                from.title.orEmpty().trim(),
-                from.username.orEmpty(),
-                from.description.orEmpty().trim(),
-                from.numitems.toIntOrNull() ?: 0,
-                from.thumbs.toIntOrNull() ?: 0,
-                FORMAT.parse(from.postdate.orEmpty())?.time ?: 0L,
-                FORMAT.parse(from.editdate.orEmpty())?.time ?: 0L,
-                items,
-                comments
-        )
+fun GeekListEntry.mapToEntity(): GeekListEntity {
+    val id = if (this.href.isEmpty()) {
+        BggContract.INVALID_ID
+    } else {
+        this.href.substring(
+                this.href.indexOf("/geeklist/") + 10,
+                this.href.lastIndexOf("/"),
+        ).toIntOrNull() ?: BggContract.INVALID_ID
     }
-
-    companion object {
-        private val FORMAT = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
-    }
+    return GeekListEntity(
+            id = id,
+            title = this.title.orEmpty().trim(),
+            username = this.username.orEmpty().trim(),
+            numberOfItems = this.numitems,
+            numberOfThumbs = this.numpositive
+    )
 }
+
+private fun GeekListItem.mapToEntity() = GeekListItemEntity(
+        id = this.id.toLongOrNull() ?: BggContract.INVALID_ID.toLong(),
+        objectId = this.objectid.toIntOrNull() ?: BggContract.INVALID_ID,
+        objectName = this.objectname.orEmpty(),
+        objectType = this.objecttype.orEmpty(),
+        subtype = this.subtype.orEmpty(),
+        imageId = this.imageid.toIntOrNull() ?: 0,
+        username = this.username.orEmpty(),
+        body = this.body.orEmpty(),
+        numberOfThumbs = this.thumbs.toIntOrNull() ?: 0,
+        postDateTime = this.postdate.toMillis(FORMAT),
+        editDateTime = this.editdate.toMillis(FORMAT),
+        comments = this.comments.mapToEntity()
+)
+
+private fun GeekListComment.mapToEntity() = GeekListCommentEntity(
+        postDate = this.postdate.toMillis(FORMAT),
+        editDate = this.editdate.toMillis(FORMAT),
+        numberOfThumbs = this.thumbs.toIntOrNull() ?: 0,
+        username = this.username.orEmpty(),
+        content = this.content.orEmpty().trim()
+)
+
+private fun List<GeekListComment>?.mapToEntity() = this?.map { it.mapToEntity() }.orEmpty()
+
+private val FORMAT = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)

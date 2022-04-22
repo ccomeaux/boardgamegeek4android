@@ -1,132 +1,133 @@
 package com.boardgamegeek.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.StringRes
-import androidx.core.view.children
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentDataBinding
 import com.boardgamegeek.export.Constants
+import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.DataPortViewModel
 import com.boardgamegeek.ui.widget.DataStepRow
 import com.boardgamegeek.util.FileUtils
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import org.jetbrains.anko.support.v4.toast
 import timber.log.Timber
 
-class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
-    private lateinit var fileTypesView: ViewGroup
+class DataFragment : Fragment() {
+    private var _binding: FragmentDataBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by activityViewModels<DataPortViewModel>()
+
+    @Suppress("RedundantNullableReturnType")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentDataBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fileTypesView = view.findViewById(R.id.backup_types)
-        createDataRow(Constants.TYPE_COLLECTION_VIEWS, R.string.backup_type_collection_view, R.string.backup_description_collection_view)
-        createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game)
-        createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user)
+
+        binding.collectionViewsRow.onExport {
+            registerForCollectionViewsExport.launch(Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION)
+        }
+        binding.collectionViewsRow.onImport {
+            registerForCollectionViewsImport.launch(null)
+        }
+
+        binding.gamesRow.onExport {
+            registerForGamesExport.launch(Constants.TYPE_GAMES_DESCRIPTION)
+        }
+        binding.gamesRow.onImport {
+            registerForGamesImport.launch(null)
+        }
+
+        binding.usersRow.onExport {
+            registerForUsersExport.launch(Constants.TYPE_USERS_DESCRIPTION)
+        }
+        binding.usersRow.onImport {
+            registerForUsersImport.launch(null)
+        }
 
         viewModel.message.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { content ->
                 toast(content)
             }
         }
-        viewModel.collectionViewProgress.observe(viewLifecycleOwner) { event ->
-            updateProgress(Constants.TYPE_COLLECTION_VIEWS, event.first, event.second) // TODO separate import / export
+        viewModel.collectionViewProgress.observe(viewLifecycleOwner) { binding.collectionViewsRow.updateProgressBar(it) }
+        viewModel.gameProgress.observe(viewLifecycleOwner) { binding.gamesRow.updateProgressBar(it) }
+        viewModel.userProgress.observe(viewLifecycleOwner) { binding.usersRow.updateProgressBar(it) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private val registerForCollectionViewsExport =
+        registerForActivityResult(ExportFileContract()) { uri ->
+            doExport(uri, binding.collectionViewsRow) { viewModel.exportCollectionViews(it) }
         }
-        viewModel.gameProgress.observe(viewLifecycleOwner) { event ->
-            updateProgress(Constants.TYPE_GAMES, event.first, event.second)
+
+    private val registerForCollectionViewsImport =
+        registerForActivityResult(ImportFileContract()) { uri ->
+            doImport(uri, binding.collectionViewsRow) { viewModel.importCollectionViews(it) }
         }
-        viewModel.userProgress.observe(viewLifecycleOwner) { event ->
-            updateProgress(Constants.TYPE_USERS, event.first, event.second)
+
+    private val registerForGamesExport =
+        registerForActivityResult(ExportFileContract()) { uri ->
+            doExport(uri, binding.gamesRow) { viewModel.exportGames(it) }
+        }
+
+    private val registerForGamesImport =
+        registerForActivityResult(ImportFileContract()) { uri ->
+            doImport(uri, binding.gamesRow) { viewModel.importGames(it) }
+        }
+
+    private val registerForUsersExport =
+        registerForActivityResult(ExportFileContract()) { uri ->
+            doExport(uri, binding.usersRow) { viewModel.exportUsers(it) }
+        }
+
+    private val registerForUsersImport =
+        registerForActivityResult(ImportFileContract()) { uri ->
+            doImport(uri, binding.usersRow) { viewModel.importUsers(it) }
+        }
+
+    private fun doExport(uri: Uri?, dataStepRow: DataStepRow, export: (Uri) -> Unit) {
+        uri?.let {
+            tryUriPermission(it)
+            dataStepRow.initProgressBar()
+            export(it)
+            logAction("Export")
         }
     }
 
-    private fun updateProgress(type: Int, max: Int, progress: Int) {
-        findRow(type)?.let { row ->
-            row.updateProgressBar(max, progress)
-            if (progress >= max) {
-                row.hideProgressBar()
-            }
+    private fun doImport(uri: Uri?, dataStepRow: DataStepRow, import: (Uri) -> Unit) {
+        uri?.let {
+            tryUriPermission(it)
+            dataStepRow.initProgressBar()
+            import(it)
+            logAction("Import")
         }
     }
 
-    private fun createDataRow(type: Int, @StringRes typeResId: Int, @StringRes descriptionResId: Int) {
-        val row = DataStepRow(requireContext())
-        row.setListener(this)
-        row.bind(type, typeResId, descriptionResId)
-        row.tag = type
-        fileTypesView.addView(row)
-    }
-
-    override fun onExportClicked(type: Int) {
-        startActivityForResult(createIntent(type, Intent.ACTION_CREATE_DOCUMENT), REQUEST_EXPORT + type)
-    }
-
-    override fun onImportClicked(type: Int) {
-        startActivityForResult(createIntent(type, Intent.ACTION_OPEN_DOCUMENT), REQUEST_IMPORT + type)
-    }
-
-    private fun createIntent(type: Int, action: String): Intent {
-        val typeDescription = when (type) {
-            Constants.TYPE_COLLECTION_VIEWS -> Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION
-            Constants.TYPE_GAMES -> Constants.TYPE_GAMES_DESCRIPTION
-            Constants.TYPE_USERS -> Constants.TYPE_USERS_DESCRIPTION
-            else -> ""
-        }
-        return Intent(action).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            setType("text/json")
-            putExtra(Intent.EXTRA_TITLE, FileUtils.getExportFileName(typeDescription))
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode != Activity.RESULT_OK || !isAdded) return
-        val uri: Uri = data?.data ?: return
+    private fun tryUriPermission(uri: Uri) {
         try {
-            val modeFlags: Int = data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            requireContext().contentResolver.takePersistableUriPermission(uri, modeFlags)
+            requireContext().contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
         } catch (e: SecurityException) {
             Timber.e(e, "Could not persist URI permissions for '%s'.", uri.toString())
-        }
-        when (requestCode) {
-            REQUEST_EXPORT_COLLECTION_VIEW -> {
-                findRow(Constants.TYPE_COLLECTION_VIEWS)?.initProgressBar()
-                viewModel.exportCollectionViews(uri)
-                logAction("Export")
-            }
-            REQUEST_EXPORT_GAME -> {
-                findRow(Constants.TYPE_GAMES)?.initProgressBar()
-                viewModel.exportGames(uri)
-                logAction("Export")
-            }
-            REQUEST_EXPORT_USER -> {
-                findRow(Constants.TYPE_USERS)?.initProgressBar()
-                viewModel.exportUsers(uri)
-                logAction("Export")
-            }
-            REQUEST_IMPORT_COLLECTION_VIEW -> {
-                findRow(Constants.TYPE_COLLECTION_VIEWS)?.initProgressBar()
-                viewModel.importCollectionViews(uri)
-                logAction("Import")
-            }
-            REQUEST_IMPORT_GAME -> {
-                findRow(Constants.TYPE_GAMES)?.initProgressBar()
-                viewModel.importGames(uri)
-                logAction("Import")
-            }
-            REQUEST_IMPORT_USER -> {
-                findRow(Constants.TYPE_USERS)?.initProgressBar()
-                viewModel.importUsers(uri)
-                logAction("Import")
-            }
         }
     }
 
@@ -136,18 +137,28 @@ class DataFragment : Fragment(R.layout.fragment_data), DataStepRow.Listener {
         }
     }
 
-    private fun findRow(type: Int): DataStepRow? {
-        return fileTypesView.children.firstOrNull { (it.tag as? Int) == type } as? DataStepRow
+    class ExportFileContract : ActivityResultContract<String, Uri?>() {
+        override fun createIntent(context: Context, typeDescription: String): Intent {
+            return Intent(Intent.ACTION_CREATE_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/*")
+                .putExtra(Intent.EXTRA_TITLE, FileUtils.getExportFileName(typeDescription))
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+            return if (resultCode == Activity.RESULT_OK) intent?.data else null
+        }
     }
 
-    companion object {
-        private const val REQUEST_EXPORT = 1000
-        private const val REQUEST_EXPORT_COLLECTION_VIEW = REQUEST_EXPORT + Constants.TYPE_COLLECTION_VIEWS
-        private const val REQUEST_EXPORT_GAME = REQUEST_EXPORT + Constants.TYPE_GAMES
-        private const val REQUEST_EXPORT_USER = REQUEST_EXPORT + Constants.TYPE_USERS
-        private const val REQUEST_IMPORT = 2000
-        private const val REQUEST_IMPORT_COLLECTION_VIEW = REQUEST_IMPORT + Constants.TYPE_COLLECTION_VIEWS
-        private const val REQUEST_IMPORT_GAME = REQUEST_IMPORT + Constants.TYPE_GAMES
-        private const val REQUEST_IMPORT_USER = REQUEST_IMPORT + Constants.TYPE_USERS
+    class ImportFileContract : ActivityResultContract<Unit, Uri?>() {
+        override fun createIntent(context: Context, input: Unit?): Intent {
+            return Intent(Intent.ACTION_OPEN_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/*")
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+            return if (resultCode == Activity.RESULT_OK) intent?.data else null
+        }
     }
 }

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="0dp"
 	android:layout_height="match_parent"
 	android:layout_weight="1"
 	android:orientation="horizontal"
+	tools:ignore="UseCompoundDrawables"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/playTimeIcon"
 		style="@style/Icon"
-		android:src="@drawable/ic_time"/>
+		android:contentDescription="@string/title_play_time"
+		app:srcCompat="@drawable/ic_baseline_schedule_24" />
 
 	<TextView
 		android:id="@+id/playTimeView"
@@ -19,6 +21,5 @@
 		android:layout_height="match_parent"
 		android:gravity="center_vertical"
 		android:textAppearance="@style/Text.Primary"
-		tools:text="90 min"/>
+		tools:text="90 min" />
 </LinearLayout>
-			

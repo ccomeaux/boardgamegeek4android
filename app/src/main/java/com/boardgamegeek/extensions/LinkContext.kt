@@ -5,10 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import org.jetbrains.anko.toast
 import timber.log.Timber
 
 const val BOARDGAME_PATH = "boardgame"
@@ -25,22 +24,22 @@ fun Context?.linkBgg(gameId: Int) {
 
 fun Context?.linkBgPrices(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://boardgameprices.com/compare-prices-for?q=${HttpUtils.encode(gameName)}")
+    link("http://boardgameprices.com/compare-prices-for?q=${gameName.encodeForUrl()}")
 }
 
 fun Context?.linkBgPricesUk(gameName: String) {
     if (gameName.isBlank()) return
-    link("https://boardgameprices.co.uk/item/search?search=${HttpUtils.encode(gameName)}")
+    link("https://boardgameprices.co.uk/item/search?search=${gameName.encodeForUrl()}")
 }
 
 fun Context?.linkAmazon(gameName: String, domain: String) {
     if (gameName.isBlank()) return
-    link("http://$domain/gp/aw/s/?i=toys&keywords=${HttpUtils.encode(gameName)}")
+    link("http://$domain/gp/aw/s/?i=toys&keywords=${gameName.encodeForUrl()}")
 }
 
 fun Context?.linkEbay(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName))
+    link("http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + gameName.encodeForUrl())
 }
 
 fun Context?.linkToBgg(path: String) {

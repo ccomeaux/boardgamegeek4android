@@ -1,54 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<com.boardgamegeek.ui.widget.ForegroundLinearLayout
-	style="@style/RowContainer"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/RowContainer.Tall"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/activatable_background"
+	android:background="@drawable/bg_activatable"
 	android:foreground="?android:attr/selectableItemBackground">
 
-	<LinearLayout
-		android:layout_width="match_parent"
+	<TextView
+		android:id="@+id/rankView"
+		style="@style/RowRank"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
-		android:orientation="horizontal">
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="42" />
 
-		<TextView
-			android:id="@+id/rankView"
-			style="@style/RowRank"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			tools:text="42"/>
+	<ImageView
+		android:id="@+id/thumbnailView"
+		style="@style/ImageList"
+		android:layout_width="@dimen/thumbnail_list_size"
+		android:layout_height="@dimen/thumbnail_list_size"
+		android:contentDescription="@string/thumbnail"
+		android:src="@drawable/thumbnail_image_empty"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toEndOf="@id/rankView"
+		app:layout_constraintTop_toTopOf="parent" />
 
-		<ImageView
-			android:id="@+id/thumbnailView"
-			style="@style/ImageList"
-			android:layout_width="@dimen/thumbnail_list_size"
-			android:layout_height="@dimen/thumbnail_list_size"
-			android:contentDescription="@string/thumbnail"
-			android:src="@drawable/thumbnail_image_empty"/>
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/padding_standard"
+		android:layout_marginLeft="@dimen/padding_standard"
+		android:layout_marginBottom="4dp"
+		android:ellipsize="end"
+		android:maxLines="2"
+		android:textAppearance="@style/TextAppearance.RowTitle"
+		app:layout_constrainedWidth="true"
+		app:layout_constraintBottom_toTopOf="@id/yearView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toEndOf="@id/thumbnailView"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		app:layout_constraintWidth="true"
+		tools:text="Gaia Project" />
 
-		<LinearLayout
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/nameView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textAppearance="@style/TextAppearance.RowTitle"
-				tools:text="Gaia Project"/>
-
-			<TextView
-				android:id="@+id/yearView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-				tools:text="2017"/>
-		</LinearLayout>
-	</LinearLayout>
-
-</com.boardgamegeek.ui.widget.ForegroundLinearLayout>
+	<TextView
+		android:id="@+id/yearView"
+		style="@style/TextWithImage.Secondary"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/padding_standard"
+		android:layout_marginLeft="@dimen/padding_standard"
+		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toEndOf="@id/thumbnailView"
+		app:layout_constraintTop_toBottomOf="@id/nameView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="2017" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,19 +6,25 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.use
 import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.CollectionItemMapper
+import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.util.RemoteConfig
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.IOException
 
 /**
  * Syncs collection items that have not yet been updated completely with stats and private info (in batches).
  */
-class SyncCollectionUnupdated(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
+class SyncCollectionUnupdated(
+    application: BggApplication,
+    service: BggService,
+    syncResult: SyncResult,
+    private val account: Account
+) : SyncTask(application, service, syncResult) {
     private var detail: String = ""
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
@@ -37,8 +43,8 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
             var numberOfFetches = 0
             val dao = CollectionDao(application)
             val options = mutableMapOf(
-                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                BggService.COLLECTION_QUERY_KEY_STATS to "1",
             )
             var previousGameList = mapOf<Int, String>()
 
@@ -57,7 +63,11 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
 
                 if (gameList.isNotEmpty()) {
                     val gameDescription = gameList.values.toList().formatList()
-                    detail = context.getString(R.string.sync_notification_collection_update_games, gameList.size, gameDescription)
+                    detail = context.getString(
+                        R.string.sync_notification_collection_update_games,
+                        gameList.size,
+                        gameDescription
+                    )
                     if (numberOfFetches > 1) {
                         detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches)
                     }
@@ -99,11 +109,13 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
 
     private fun queryGames(): Map<Int, String> {
         val games = mutableMapOf<Int, String>()
-        val cursor = context.contentResolver.query(Collection.CONTENT_URI,
-                arrayOf(Collection.GAME_ID, Collection.GAME_NAME),
-                "collection.${Collection.UPDATED}".whereZeroOrNull(),
-                null,
-                "collection.${Collection.UPDATED_LIST} DESC LIMIT $gamesPerFetch")
+        val cursor = context.contentResolver.query(
+            Collection.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "collection.${Collection.Columns.UPDATED}".whereZeroOrNull(),
+            null,
+            "collection.${Collection.Columns.UPDATED_LIST} DESC LIMIT $gamesPerFetch"
+        )
         cursor?.use {
             while (it.moveToNext()) {
                 games[it.getInt(0)] = it.getString(1)
@@ -123,10 +135,11 @@ class SyncCollectionUnupdated(application: BggApplication, service: BggService, 
             if (response.isSuccessful) {
                 val items = response.body()?.items
                 return if (items != null && items.size > 0) {
-                    val mapper = CollectionItemMapper()
                     for (item in items) {
-                        val pair = mapper.map(item)
-                        dao.saveItem(pair.first, pair.second, timestamp)
+                        val (collectionItem, game) = item.mapToEntities()
+                        runBlocking {
+                            dao.saveItem(collectionItem, game, timestamp)
+                        }
                     }
                     syncResult.stats.numUpdates += items.size.toLong()
                     Timber.i("...saved %,d collection items", items.size)

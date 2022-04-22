@@ -7,31 +7,31 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 
 class PersonStatsEntity(
-        val averageRating: Double,
-        val whitmoreScore: Int,
-        val whitmoreScoreWithExpansions: Int,
-        val playCount: Int,
-        val hIndex: HIndexEntity
+    val averageRating: Double,
+    val whitmoreScore: Int,
+    val whitmoreScoreWithExpansions: Int,
+    val playCount: Int,
+    val hIndex: HIndexEntity
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<BriefGameEntity>, context: Context): PersonStatsEntity {
             val baseGameCollection = collection.filter { it.subtype == "boardgame" }
 
             val averageRating =
-                    (baseGameCollection.sumByDouble { it.personalRating }) /
-                            baseGameCollection.filter { it.personalRating > 0.0 }.size
+                (baseGameCollection.sumOf { it.personalRating }) /
+                        baseGameCollection.filter { it.personalRating > 0.0 }.size
 
             val whitmoreScore = baseGameCollection
-                    .filter { it.personalRating > 6.5 }
-                    .sumByDouble { it.personalRating * 2.0 - 13.0 }
-                    .toInt()
+                .filter { it.personalRating > 6.5 }
+                .sumOf { it.personalRating * 2.0 - 13.0 }
+                .toInt()
             val whitmoreScoreWithExpansions = collection
-                    .filter { it.subtype != "boardgameaccessory" }
-                    .filter { it.personalRating > 6.5 }
-                    .sumByDouble { it.personalRating * 2.0 - 13.0 }
-                    .toInt()
+                .filter { it.subtype != "boardgameaccessory" }
+                .filter { it.personalRating > 6.5 }
+                .sumOf { it.personalRating * 2.0 - 13.0 }
+                .toInt()
 
-            val playCount = baseGameCollection.sumBy { it.playCount } // TODO handle expansions
+            val playCount = baseGameCollection.sumOf { it.playCount } // TODO handle expansions
 
             val prefs = context.preferences()
             val exp = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
@@ -42,8 +42,8 @@ class PersonStatsEntity(
                 acc -> collection.filter { it.subtype != "boardgameaccessory" }
                 else -> baseGameCollection
             }
-                    .distinctBy { it.gameId }
-                    .map { it.playCount }
+                .distinctBy { it.gameId }
+                .map { it.playCount }
 
             val hIndex = HIndexEntity.fromList(hIndexList)
 

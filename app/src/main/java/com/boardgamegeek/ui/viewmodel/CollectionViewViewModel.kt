@@ -2,258 +2,291 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import android.content.SharedPreferences
-import android.content.pm.ShortcutInfo
-import android.content.pm.ShortcutManager
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.core.content.getSystemService
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.*
-import com.boardgamegeek.R
-import com.boardgamegeek.db.CollectionViewDao
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.BggApplication
+import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.entities.CollectionViewFilterEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
-import com.boardgamegeek.mappers.createShortcutName
-import com.boardgamegeek.mappers.map
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
-import kotlinx.coroutines.CoroutineScope
+import com.boardgamegeek.ui.CollectionActivity
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
+    private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val viewRepository = CollectionViewRepository(getApplication())
     private val itemRepository = CollectionItemRepository(getApplication())
+    private val playRepository = PlayRepository(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val defaultViewId
+    val defaultViewId
         get() = prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID, DEFAULT_DEFAULT_ID] ?: DEFAULT_DEFAULT_ID
 
     private val collectionFiltererFactory: CollectionFiltererFactory by lazy { CollectionFiltererFactory(application) }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 
-    val views: LiveData<List<CollectionViewEntity>> = viewRepository.load()
-
-    private val _selectedViewId = MutableLiveData<Long>()
+    private val syncTimestamp = MutableLiveData<Long>()
+    private val viewsTimestamp = MutableLiveData<Long>()
     private val _sortType = MutableLiveData<Int>()
     private val _addedFilters = MutableLiveData<List<CollectionFilterer>>()
-    private val _removedFilters = MutableLiveData<List<Int>>()
+    private val _removedFilterTypes = MutableLiveData<List<Int>>()
 
-    val effectiveSortType = MediatorLiveData<Int>()
-    val effectiveFilters = MediatorLiveData<List<CollectionFilterer>>()
-    val items = MediatorLiveData<List<CollectionItemEntity>>()
-    private val syncTimestamp = MutableLiveData<Long>()
-    private val _items: LiveData<RefreshableResource<List<CollectionItemEntity>>> = Transformations.switchMap(syncTimestamp) {
-        itemRepository.loadCollection()
-    }
-    val isRefreshing: LiveData<Boolean> = Transformations.map(_items) {
-        it.status == Status.REFRESHING
-    }
+    private val _effectiveSortType = MediatorLiveData<Int>()
+    val effectiveSortType: LiveData<Int>
+        get() = _effectiveSortType
 
-    private val selectedView: LiveData<CollectionViewEntity> = Transformations.switchMap(_selectedViewId) {
-        _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
-        _addedFilters.value = emptyList()
-        _removedFilters.value = emptyList()
-        viewRepository.load(it)
-    }
+    private val _effectiveFilters = MediatorLiveData<List<CollectionFilterer>>()
+    val effectiveFilters: LiveData<List<CollectionFilterer>>
+        get() = _effectiveFilters
 
-    init {
-        effectiveSortType.addSource(selectedView) {
-            createEffectiveSort(it, _sortType.value)
-        }
-        effectiveSortType.addSource(_sortType) {
-            createEffectiveSort(selectedView.value, it)
-        }
+    private val _items = MediatorLiveData<List<CollectionItemEntity>>()
+    val items: LiveData<List<CollectionItemEntity>>
+        get() = _items
 
-        effectiveFilters.addSource(selectedView) {
-            createEffectiveFilters(it,
-                    _addedFilters.value.orEmpty(),
-                    _removedFilters.value.orEmpty()
-            )
+    private val _allItems: LiveData<List<CollectionItemEntity>> = syncTimestamp.switchMap {
+        liveData {
+            try {
+                emit(itemRepository.load())
+                _isRefreshing.postValue(true)
+                itemRepository.refresh()
+                emit(itemRepository.load())
+            } catch (e: Exception) {
+                _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
+            } finally {
+                _isRefreshing.postValue(false)
+            }
         }
-        effectiveFilters.addSource(_addedFilters) {
-            createEffectiveFilters(selectedView.value,
-                    it,
-                    _removedFilters.value.orEmpty()
-            )
-        }
-        effectiveFilters.addSource(_removedFilters) {
-            createEffectiveFilters(selectedView.value,
-                    _addedFilters.value.orEmpty(),
-                    it
-            )
-        }
-
-        items.addSource(effectiveFilters) {
-            filterAndSortItems(filters = it)
-        }
-        items.addSource(effectiveSortType) {
-            filterAndSortItems(sortType = it)
-        }
-        items.addSource(_items) {
-            filterAndSortItems(itemList = it.data.orEmpty())
-        }
-
-        _selectedViewId.value = defaultViewId
     }
 
+    private val _errorMessage = MediatorLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val _isFiltering = MediatorLiveData<Boolean>()
+    val isFiltering: LiveData<Boolean>
+        get() = _isFiltering
+
+    private val _isRefreshing = MediatorLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
+    private val _selectedViewId = MutableLiveData<Long>()
     val selectedViewId: LiveData<Long>
         get() = _selectedViewId
 
-    private fun createEffectiveFilters(loadedView: CollectionViewEntity?, addedFilters: List<CollectionFilterer>, removedFilters: List<Int>) {
-        // inflate filters
-        val loadedFilters = mutableListOf<CollectionFilterer>()
-        for ((type, data) in loadedView?.filters.orEmpty()) {
-            val filter = collectionFiltererFactory.create(type)
-            filter?.inflate(data)
-            if (filter?.isValid == true) {
-                loadedFilters.add(filter)
-            }
-        }
-
-        val addedTypes = addedFilters.map { af -> af.type }
-        val filters: MutableList<CollectionFilterer> = mutableListOf()
-        loadedFilters.forEach { lf ->
-            if (!addedTypes.contains(lf.type) && !removedFilters.contains(lf.type))
-                filters.add(lf)
-        }
-        addedFilters.forEach { af ->
-            if (!removedFilters.contains(af.type))
-                filters.add(af)
-        }
-        effectiveFilters.value = filters
+    val views: LiveData<List<CollectionViewEntity>> = viewsTimestamp.switchMap {
+        liveData { emit(viewRepository.load()) }
     }
 
-    private fun createEffectiveSort(loadedView: CollectionViewEntity?, sortType: Int?) {
-        effectiveSortType.value = if (sortType == null || sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
-            loadedView?.sortType ?: CollectionSorterFactory.TYPE_DEFAULT
-        } else {
-            sortType
+    private val selectedView: LiveData<CollectionViewEntity> = _selectedViewId.switchMap {
+        liveData {
+            _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
+            _addedFilters.value = emptyList()
+            _removedFilterTypes.value = emptyList()
+            emit(viewRepository.load(it))
+        }
+    }
+
+    val selectedViewName: LiveData<String> = selectedView.map {
+        it.name
+    }
+
+    init {
+        refreshViews()
+        viewModelScope.launch { initMediators() }
+        _selectedViewId.value = defaultViewId
+    }
+
+    private suspend fun initMediators() = withContext(Dispatchers.Default) {
+        _effectiveSortType.addSource(selectedView) {
+            createEffectiveSort(it, _sortType.value)
+        }
+        _effectiveSortType.addSource(_sortType) {
+            createEffectiveSort(selectedView.value, it)
+        }
+
+        _effectiveFilters.addSource(selectedView) {
+            createEffectiveFilters(
+                it,
+                _addedFilters.value.orEmpty(),
+                _removedFilterTypes.value.orEmpty()
+            )
+        }
+        _effectiveFilters.addSource(_addedFilters) {
+            createEffectiveFilters(
+                selectedView.value,
+                it,
+                _removedFilterTypes.value.orEmpty()
+            )
+        }
+        _effectiveFilters.addSource(_removedFilterTypes) {
+            createEffectiveFilters(
+                selectedView.value,
+                _addedFilters.value.orEmpty(),
+                it
+            )
+        }
+
+        _items.addSource(effectiveFilters) {
+            filterAndSortItems(filters = it)
+        }
+        _items.addSource(effectiveSortType) {
+            filterAndSortItems(sortType = it)
+        }
+        _items.addSource(_allItems) {
+            filterAndSortItems(itemList = it.orEmpty())
         }
     }
 
     fun selectView(viewId: Long) {
         if (_selectedViewId.value != viewId) {
-            updateShortcuts(viewId)
+            _isFiltering.postValue(true)
+            viewModelScope.launch { viewRepository.updateShortcuts(viewId) }
             _selectedViewId.value = viewId
         }
     }
 
-    private val shortcutManager: ShortcutManager? by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            application.getSystemService()
-        } else {
-            null
-        }
-    }
-
-    val dao = CollectionViewDao(getApplication())
-
-    private fun updateShortcuts(viewId: Long) {
-        if (viewId <= 0) return
-        CoroutineScope(Dispatchers.Default).launch {
-            dao.updateShortcutCount(viewId)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                shortcutManager?.reportShortcutUsed(createShortcutName(viewId))
-                setShortcuts()
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
-    private suspend fun setShortcuts() {
-        val shortcuts = mutableListOf<ShortcutInfo>()
-        dao.loadShortcuts().filter { it.name.isNotBlank() }.take(SHORTCUT_COUNT).forEach {
-            shortcuts += it.map(getApplication())
-        }
-        shortcutManager?.dynamicShortcuts = shortcuts
-    }
-
-    companion object {
-        private const val SHORTCUT_COUNT = 3
-    }
+    fun findViewId(viewName: String) = views.value?.find { it.name == viewName }?.id ?: BggContract.INVALID_ID.toLong()
 
     fun setSort(sortType: Int) {
         val type = when (sortType) {
             CollectionSorterFactory.TYPE_UNKNOWN -> CollectionSorterFactory.TYPE_DEFAULT
             else -> sortType
         }
-        if (_sortType.value != sortType) _sortType.value = type
+        if (_sortType.value != type) {
+            _isFiltering.postValue(true)
+            _sortType.value = type
+        }
     }
 
     fun addFilter(filter: CollectionFilterer) {
-        if (filter.isValid) {
-            val removedFilters = _removedFilters.value?.toMutableList() ?: mutableListOf()
-            if (removedFilters.remove(filter.type)) {
-                _removedFilters.value = removedFilters
-            }
+        viewModelScope.launch(Dispatchers.Default) {
+            _isFiltering.postValue(true)
+            if (filter.isValid) {
+                val removedFilters = _removedFilterTypes.value.orEmpty().toMutableList()
+                if (removedFilters.remove(filter.type)) {
+                    _removedFilterTypes.postValue(removedFilters)
+                }
 
-            val filters = _addedFilters.value?.toMutableList() ?: mutableListOf()
-            filters.apply {
-                remove(filter)
-                add(filter)
+                val filters = _addedFilters.value.orEmpty().toMutableList()
+                filters.apply {
+                    remove(filter)
+                    add(filter)
+                }
+                firebaseAnalytics.logEvent(
+                    "Filter",
+                    bundleOf(
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
+                        "FilterBy" to filter.type.toString()
+                    )
+                )
+                _addedFilters.postValue(filters)
             }
-            _addedFilters.value = filters
         }
     }
 
     fun removeFilter(type: Int) {
-        val filters = _addedFilters.value?.toMutableList() ?: mutableListOf()
-        filters.find { it.type == type }?.let {
-            filters.remove(it)
-            _addedFilters.value = filters
-        }
+        viewModelScope.launch(Dispatchers.Default) {
+            _isFiltering.postValue(true)
 
-        val removedFilters = _removedFilters.value?.toMutableList() ?: mutableListOf()
-        removedFilters.apply {
-            remove(type)
-            add(type)
+            val filters = _addedFilters.value.orEmpty().toMutableList()
+            filters.find { it.type == type }?.let {
+                if (filters.remove(it)) {
+                    _addedFilters.postValue(filters)
+                }
+            }
+
+            val removedFilters = _removedFilterTypes.value.orEmpty().toMutableList()
+            removedFilters.apply {
+                remove(type)
+                add(type)
+            }
+            _removedFilterTypes.postValue(removedFilters)
         }
-        _removedFilters.value = removedFilters
     }
 
-    val selectedViewName: LiveData<String> = Transformations.map(selectedView) {
-        it?.name ?: application.getString(R.string.title_collection)
+    private fun createEffectiveFilters(
+        loadedView: CollectionViewEntity?,
+        addedFilters: List<CollectionFilterer>,
+        removedFilterTypes: List<Int>
+    ) {
+        viewModelScope.launch(Dispatchers.Default) {
+            // inflate filters
+            val loadedFilters = mutableListOf<CollectionFilterer>()
+            for ((type, data) in loadedView?.filters.orEmpty()) {
+                val filter = collectionFiltererFactory.create(type)
+                filter?.inflate(data)
+                if (filter?.isValid == true) {
+                    loadedFilters.add(filter)
+                }
+            }
+
+            val addedTypes = addedFilters.map { af -> af.type }
+            val filters: MutableList<CollectionFilterer> = mutableListOf()
+            loadedFilters.forEach { lf ->
+                if (!addedTypes.contains(lf.type) && !removedFilterTypes.contains(lf.type))
+                    filters.add(lf)
+            }
+            addedFilters.forEach { af ->
+                if (!removedFilterTypes.contains(af.type))
+                    filters.add(af)
+            }
+            _effectiveFilters.postValue(filters)
+        }
+    }
+
+    private fun createEffectiveSort(loadedView: CollectionViewEntity?, sortType: Int?) {
+        _effectiveSortType.value = if (sortType == null || sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
+            loadedView?.sortType ?: CollectionSorterFactory.TYPE_DEFAULT
+        } else {
+            sortType
+        }
     }
 
     private fun filterAndSortItems(
-            itemList: List<CollectionItemEntity>? = _items.value?.data,
-            filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
-            sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+        itemList: List<CollectionItemEntity>? = _allItems.value,
+        filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
+        sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
         if (itemList == null) return
-        var list = itemList.asSequence()
-        if (_selectedViewId.value == DEFAULT_DEFAULT_ID) {
-            list = list.filter {
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_IN_TRADE) && it.wantInTrade) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_BUY) && it.wantToPlay) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_PLAY) && it.wantToPlay) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_PREORDERED) && it.preOrdered) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 1) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED) && it.rating > 0.0) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
-                        (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
-            }.asSequence()
-        } else {
+        viewModelScope.launch(Dispatchers.Default) {
+            var list = itemList.asSequence()
+            if (_selectedViewId.value == DEFAULT_DEFAULT_ID && filters.none { it.type == CollectionFiltererFactory.TYPE_STATUS }) {
+                list = list.filter {
+                    (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_IN_TRADE) && it.wantInTrade) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_BUY) && it.wantToPlay) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_PLAY) && it.wantToPlay) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PREORDERED) && it.preOrdered) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 1) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED) && it.rating > 0.0) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
+                }.asSequence()
+            }
             filters.forEach { f ->
                 list = list.filter { f.filter(it) }.asSequence()
             }
-        }
-        val sorter = collectionSorterFactory.create(sortType)
-        if (sorter == null) {
-            items.value = list.toList()
-        } else {
-            items.value = sorter.sort(list.toList())
+            val sorter = collectionSorterFactory.create(sortType)
+            _items.postValue(sorter?.sort(list.toList()) ?: list.toList())
         }
     }
 
@@ -264,51 +297,71 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         } else false
     }
 
-    fun insert(name: String, isDefault: Boolean): Long {
-        val filterEntities = mutableListOf<CollectionViewFilterEntity>()
-        effectiveFilters.value?.forEach { f ->
-            filterEntities.add(CollectionViewFilterEntity(f.type, f.deflate()))
+    fun insert(name: String, isDefault: Boolean) {
+        viewModelScope.launch {
+            val view = CollectionViewEntity(
+                id = 0L, //ignored
+                name = name,
+                sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
+            )
+            val viewId = viewRepository.insertView(view)
+            refreshViews()
+            setOrRemoveDefault(viewId, isDefault)
+            selectView(viewId)
         }
-        val view = CollectionViewEntity(
-                0L, //ignored
-                name,
-                _sortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filterEntities
-        )
-        val viewId = viewRepository.insertView(view)
-        setOrRemoveDefault(viewId, isDefault)
-        selectView(viewId)
-        return viewId
     }
 
     fun update(isDefault: Boolean) {
-        val filterEntities = mutableListOf<CollectionViewFilterEntity>()
-        effectiveFilters.value?.forEach { f ->
-            filterEntities.add(CollectionViewFilterEntity(f.type, f.deflate()))
+        viewModelScope.launch {
+            val view = CollectionViewEntity(
+                id = _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
+                name = selectedViewName.value.orEmpty(),
+                sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
+            )
+            viewRepository.updateView(view)
+            refreshViews()
+            setOrRemoveDefault(view.id, isDefault)
         }
-        val view = CollectionViewEntity(
-                _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
-                selectedViewName.value ?: "",
-                effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filterEntities
-        )
-        viewRepository.updateView(view)
-        setOrRemoveDefault(view.id, isDefault)
     }
 
     fun deleteView(viewId: Long) {
-        viewRepository.deleteView(viewId)
-        if (viewId == _selectedViewId.value) {
-            selectView(defaultViewId)
+        viewModelScope.launch {
+            viewRepository.deleteView(viewId)
+            refreshViews()
+            if (viewId == _selectedViewId.value) {
+                selectView(defaultViewId)
+            }
+        }
+    }
+
+    private fun refreshViews() {
+        viewsTimestamp.postValue(System.currentTimeMillis())
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            playRepository.logQuickPlay(gameId, gameName)
         }
     }
 
     private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {
         if (isDefault) {
             prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID] = viewId
-        } else {
-            if (viewId == defaultViewId) {
-                prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
+        } else if (viewId == defaultViewId) {
+            prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
+        }
+    }
+
+    fun createShortcut() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val context = getApplication<BggApplication>().applicationContext
+            val viewId = _selectedViewId.value ?: BggContract.INVALID_ID.toLong()
+            val viewName = selectedViewName.value.orEmpty()
+            if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+                val info = CollectionActivity.createShortcutInfo(context, viewId, viewName)
+                ShortcutManagerCompat.requestPinShortcut(context, info, null)
             }
         }
     }

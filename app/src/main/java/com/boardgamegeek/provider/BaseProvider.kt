@@ -10,11 +10,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.KEY_SYNC_NOTIFICATIONS
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.util.NotificationUtils
-import com.boardgamegeek.util.SelectionBuilder
+import com.boardgamegeek.extensions.*
 import java.io.FileNotFoundException
 
 abstract class BaseProvider {
@@ -24,7 +20,15 @@ abstract class BaseProvider {
 
     abstract val path: String
 
-    open fun query(resolver: ContentResolver, db: SQLiteDatabase, uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    open fun query(
+        resolver: ContentResolver,
+        db: SQLiteDatabase,
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
+    ): Cursor? {
         val builder = buildExpandedSelection(uri, projection).where(selection, *(selectionArgs.orEmpty()))
         builder.limit(uri.getQueryParameter(BggContract.QUERY_KEY_LIMIT))
         return builder.query(db, projection, getSortOrder(sortOrder))
@@ -49,6 +53,7 @@ abstract class BaseProvider {
         throw UnsupportedOperationException("Unknown uri: $uri")
     }
 
+    @Suppress("RedundantNullableReturnType")
     open fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
         throw UnsupportedOperationException("Unknown uri inserting: $uri")
     }
@@ -75,7 +80,7 @@ abstract class BaseProvider {
     }
 
     protected fun queryInt(db: SQLiteDatabase, builder: SelectionBuilder, columnName: String, defaultValue: Int = BggContract.INVALID_ID): Int {
-        builder.query(db, arrayOf(columnName), null)?.use {
+        builder.query(db, arrayOf(columnName), null).use {
             if (it.moveToFirst()) {
                 return it.getInt(0)
             }
@@ -86,12 +91,12 @@ abstract class BaseProvider {
     protected fun notifyException(context: Context?, e: SQLException) {
         val prefs = context?.preferences()
         if (prefs != null && prefs[KEY_SYNC_NOTIFICATIONS, false] == true) {
-            val builder = NotificationUtils
-                    .createNotificationBuilder(context, R.string.title_error, NotificationUtils.CHANNEL_ID_ERROR)
-                    .setContentText(e.localizedMessage)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
-            builder.setStyle(NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.localizedMessage))
-            NotificationUtils.notify(context, NotificationUtils.TAG_PROVIDER_ERROR, 0, builder)
+            val builder = context
+                .createNotificationBuilder(R.string.title_error, NotificationChannels.ERROR)
+                .setContentText(e.localizedMessage)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(e.toString())                    .setSummaryText(e.localizedMessage))
+            context.notify(builder, NotificationTags.PROVIDER_ERROR)
         }
     }
 }

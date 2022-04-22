@@ -15,7 +15,7 @@ class InventoryLocationSorter(context: Context) : CollectionSorter(context) {
     override val descriptionResId = R.string.collection_sort_inventory_location
 
     override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
-        return items.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, { it.inventoryLocation }))
+        return items.sortedBy { it.inventoryLocation }
     }
 
     override fun getHeaderText(item: CollectionItemEntity) = item.inventoryLocation.ifBlank { nowhere }

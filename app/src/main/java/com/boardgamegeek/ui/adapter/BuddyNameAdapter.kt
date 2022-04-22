@@ -5,20 +5,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.*
-import java.util.*
+import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.setTextOrHide
 
 class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
-    private val resultList = ArrayList<Result>()
+    private var playerList = listOf<PlayerEntity>()
+    private var userList = listOf<UserEntity>()
+    private var resultList = listOf<Result>()
 
-    class Result(val title: String,
-                 val subtitle: String,
-                 val username: String,
-                 avatarUrl: String = "") {
-        val avatarUrl: String = avatarUrl
-            get() = if (field == INVALID_URL) "" else field
-
+    class Result(
+        val title: String,
+        val subtitle: String,
+        val username: String,
+        val avatarUrl: String = "",
+    ) {
         override fun toString() = username
     }
 
@@ -37,89 +40,64 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
         return view
     }
 
-    override fun getFilter() = PlayerFilter()
+    fun addPlayers(list: List<PlayerEntity>) {
+        playerList = list
+            .filter { it.username.isNotBlank() }
+            .sortedByDescending { it.playCount }
+            .distinctBy { it.username }
+        notifyDataSetChanged()
+    }
 
-    inner class PlayerFilter : Filter() {
-        override fun performFiltering(constraint: CharSequence?): FilterResults? {
-            val filter = constraint?.toString() ?: ""
+    fun addUsers(list: List<UserEntity>) {
+        userList = list.sortedBy { it.userName }
+        notifyDataSetChanged()
+    }
 
-            // list all buddies + players with a username that aren't buddies, sorted by username
-            val resultList = arrayListOf<Result>()
-            val players = queryPlayerHistory(filter)
-            val (buddies, buddyUserNames) = queryBuddies(filter)
-            resultList.addAll(buddies)
-            players.filterTo(resultList) { player ->
-                buddyUserNames.asSequence().none { it.equals(player.username, true) }
+    override fun getFilter(): Filter = object : Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            val filter = constraint?.toString().orEmpty()
+
+            val playerListFiltered = if (filter.isEmpty()) playerList else {
+                playerList.filter { it.username.startsWith(filter, ignoreCase = true) }
             }
-            resultList.sortBy { it.username }
+
+            val userListFiltered = if (filter.isEmpty()) userList else {
+                userList.filter { it.userName.startsWith(filter, ignoreCase = true) }
+            }
+
+            val playerResults = playerListFiltered.map { player ->
+                Result(
+                    player.name,
+                    player.username,
+                    player.username,
+                    player.avatarUrl,
+                )
+            }
+            val usernames = playerResults.map { it.username }
+            val userResults = userListFiltered
+                .asSequence()
+                .filterNot {
+                    usernames.contains(it.userName)
+                }
+                .map {
+                    Result(
+                        it.fullName,
+                        it.userName,
+                        it.userName,
+                        it.avatarUrl,
+                    )
+                }
 
             return FilterResults().apply {
-                values = resultList
-                count = resultList.size
+                values = playerResults + userResults
+                count = (playerResults + userResults).size
             }
         }
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-            resultList.clear()
-            val values = if (results != null && results.count > 0) {
-                @Suppress("UNCHECKED_CAST")
-                results.values as? ArrayList<Result>
-            } else null
-            if (values != null && values.size > 0) {
-                resultList.addAll(values)
-                notifyDataSetChanged()
-            } else {
-                notifyDataSetInvalidated()
-            }
+            @Suppress("UNCHECKED_CAST")
+            resultList = results?.values as? List<Result> ?: emptyList()
+            notifyDataSetChanged()
         }
-    }
-
-    private fun queryPlayerHistory(input: String): List<Result> {
-        val results = arrayListOf<Result>()
-        val cursor = context.contentResolver.query(Plays.buildPlayersByUniqueUserUri(),
-                arrayOf(PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME),
-                if (input.isBlank()) null else "${PlayPlayers.USER_NAME} LIKE ?",
-                if (input.isBlank()) null else arrayOf("$input%"),
-                PlayPlayers.NAME)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                do {
-                    val username = it.getStringOrNull(1) ?: ""
-                    val nickname = it.getStringOrNull(2) ?: ""
-                    results += Result(nickname, username, username)
-                } while (it.moveToNext())
-            }
-        }
-        return results
-    }
-
-    private fun queryBuddies(input: String): Pair<List<Result>, Set<String>> {
-        val results = arrayListOf<Result>()
-        val userNames = hashSetOf<String>()
-        val cursor = context.contentResolver.query(Buddies.CONTENT_URI,
-                arrayOf(Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, Buddies.PLAY_NICKNAME, Buddies.AVATAR_URL),
-                if (input.isBlank()) null else "${Buddies.BUDDY_NAME} LIKE ?",
-                if (input.isBlank()) null else arrayOf("$input%"),
-                Buddies.NAME_SORT)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                do {
-                    val userName = it.getStringOrNull(1) ?: ""
-                    val firstName = it.getStringOrNull(2) ?: ""
-                    val lastName = it.getStringOrNull(3) ?: ""
-                    val nickname = it.getStringOrNull(4) ?: ""
-                    val avatarUrl = it.getStringOrNull(5) ?: ""
-                    val fullName = "${firstName.trim()} ${lastName.trim()}".trim()
-
-                    results += Result(
-                            if (nickname.isBlank()) fullName else nickname,
-                            userName,
-                            userName,
-                            avatarUrl)
-                    userNames.add(userName)
-                } while (it.moveToNext())
-            }
-        }
-        return results to userNames
     }
 }

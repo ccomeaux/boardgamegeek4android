@@ -2,11 +2,15 @@ package com.boardgamegeek.pref
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.View
 import android.widget.TextView
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.asDate
+import com.boardgamegeek.extensions.asDateTime
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 
 class SyncTimestampsDialogFragment : PreferenceDialogFragmentCompat() {
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
@@ -19,35 +23,22 @@ class SyncTimestampsDialogFragment : PreferenceDialogFragmentCompat() {
         val buddies = view.findViewById<TextView>(R.id.sync_timestamp_buddy)
         val playsView = view.findViewById<TextView>(R.id.sync_timestamp_plays)
 
-        setDateTime(collectionFull, syncPrefs.getLastCompleteCollectionTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-        setDateTime(collectionPartial, syncPrefs.getPartialCollectionSyncLastCompletedAt(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        collectionFull.text = syncPrefs.getLastCompleteCollectionTimestamp().asDateTime(requireContext())
+        collectionPartial.text = syncPrefs.getPartialCollectionSyncLastCompletedAt().asDateTime(requireContext())
 
-        setDateTime(buddies, syncPrefs.getBuddiesTimestamp(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        buddies.text = syncPrefs.getBuddiesTimestamp().asDateTime(requireContext(), abbreviate = false)
 
-        val oldestDate = syncPrefs.getPlaysOldestTimestamp()
-        val newestDate = syncPrefs.getPlaysNewestTimestamp()
-        if (oldestDate == java.lang.Long.MAX_VALUE && (newestDate == null || newestDate <= 0L)) {
-            playsView.setText(R.string.plays_sync_status_none)
-        } else {
-            playsView.text = if (newestDate == null || newestDate <= 0L) {
-                String.format(requireContext().getString(R.string.plays_sync_status_old),
-                        DateUtils.formatDateTime(requireContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE))
-            } else if (oldestDate <= 0L) {
-                String.format(requireContext().getString(R.string.plays_sync_status_new),
-                        DateUtils.formatDateTime(requireContext(), newestDate, DateUtils.FORMAT_SHOW_DATE))
-            } else {
-                String.format(requireContext().getString(R.string.plays_sync_status_range),
-                        DateUtils.formatDateTime(requireContext(), oldestDate, DateUtils.FORMAT_SHOW_DATE),
-                        DateUtils.formatDateTime(requireContext(), newestDate, DateUtils.FORMAT_SHOW_DATE))
-            }
-        }
-    }
-
-    private fun setDateTime(view: TextView, timeStamp: Long, flags: Int) {
-        view.text = if (timeStamp == 0L) {
-            requireContext().getString(R.string.never)
-        } else {
-            DateUtils.formatDateTime(context, timeStamp, flags)
+        val oldestDate = syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
+        val newestDate = syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
+        playsView.text = when {
+            oldestDate == Long.MAX_VALUE && newestDate <= 0L -> getString(R.string.plays_sync_status_none)
+            oldestDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), newestDate.asDate(requireContext()))
+            newestDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), oldestDate.asDate(requireContext()))
+            else -> String.format(
+                getString(R.string.plays_sync_status_range),
+                oldestDate.asDate(requireContext()),
+                newestDate.asDate(requireContext())
+            )
         }
     }
 

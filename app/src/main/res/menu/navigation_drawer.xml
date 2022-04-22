@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:keep="@menu/navigation_drawer">
 	<group
 		android:id="@+id/personal"
 		android:checkableBehavior="single">
 		<item
 			android:id="@+id/collection"
-			android:icon="@drawable/ic_collection"
-			android:title="@string/title_collection"/>
+			android:icon="@drawable/ic_baseline_library_books_24"
+			android:title="@string/title_collection" />
 		<item
 			android:id="@+id/collection_details"
-			android:icon="@drawable/ic_collection"
-			android:title="@string/title_collection_details"/>
+			android:icon="@drawable/ic_baseline_library_books_24"
+			android:title="@string/title_collection_details" />
 		<item
 			android:id="@+id/plays"
-			android:icon="@drawable/ic_plays"
-			android:title="@string/title_plays"/>
+			android:icon="@drawable/ic_baseline_event_24"
+			android:title="@string/title_plays" />
 		<item
 			android:id="@+id/geek_buddies"
-			android:icon="@drawable/ic_user"
-			android:title="@string/title_buddies"/>
+			android:icon="@drawable/ic_baseline_person_24"
+			android:title="@string/title_buddies" />
 	</group>
 	<group
 		android:id="@+id/content"
 		android:checkableBehavior="single">
 		<item
 			android:id="@+id/search"
-			android:icon="@drawable/ic_action_search"
-			android:title="@string/title_search"/>
+			android:icon="@drawable/ic_baseline_search_24"
+			android:title="@string/title_search" />
 		<item
 			android:id="@+id/hotness"
-			android:icon="@drawable/ic_hotness"
-			android:title="@string/title_hotness"/>
+			android:icon="@drawable/ic_baseline_whatshot_24"
+			android:title="@string/title_hotness" />
 
 		<item
 			android:id="@+id/top_games"
-			android:icon="@drawable/ic_top_games"
-			android:title="@string/title_top_games"/>
+			android:icon="@drawable/ic_baseline_trending_up_24"
+			android:title="@string/title_top_games" />
 		<item
 			android:id="@+id/geeklists"
-			android:icon="@drawable/ic_geek_list"
-			android:title="@string/title_geeklists"/>
+			android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+			android:title="@string/title_geeklists" />
 		<item
 			android:id="@+id/forums"
-			android:icon="@drawable/ic_forums"
-			android:title="@string/title_forums"/>
+			android:icon="@drawable/ic_baseline_forum_24"
+			android:title="@string/title_forums" />
 	</group>
-	<group
-		android:checkableBehavior="single">
+	<group android:checkableBehavior="single">
 		<item
 			android:id="@+id/data"
-			android:icon="@drawable/ic_data"
-			android:title="@string/title_backup"/>
+			android:icon="@drawable/ic_baseline_file_copy_24"
+			android:title="@string/title_backup" />
 		<item
 			android:id="@+id/settings"
-			android:icon="@drawable/ic_settings"
-			android:title="@string/title_settings"/>
+			android:icon="@drawable/ic_baseline_settings_24"
+			android:title="@string/title_settings" />
 	</group>
 </menu>
