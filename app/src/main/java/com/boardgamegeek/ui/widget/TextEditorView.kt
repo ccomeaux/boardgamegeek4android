@@ -44,9 +44,6 @@ class TextEditorView @JvmOverloads constructor(
     val contentText: String
         get() = findViewById<TextView>(R.id.contentView).tag.toString()
 
-    val headerText: String
-        get() = findViewById<TextView>(R.id.headerView).text.toString()
-
     fun setContent(content: CharSequence, timestamp: Long) {
         findViewById<TextView>(R.id.contentView).apply {
             tag = content

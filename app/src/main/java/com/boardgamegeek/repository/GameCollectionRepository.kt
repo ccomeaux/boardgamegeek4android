@@ -217,7 +217,25 @@ class GameCollectionRepository(val application: BggApplication) {
         } else 0
     }
 
-    suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
+    suspend fun updateComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun updateCondition(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+
+    suspend fun updateHasParts(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+
+    suspend fun updateWantParts(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+
+    private suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
         withContext(Dispatchers.IO) {
             if (internalId != INVALID_ID.toLong()) {
                 val values = contentValuesOf(

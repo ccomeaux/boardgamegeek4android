@@ -125,7 +125,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
             setEdited(true)
             viewModelScope.launch {
                 gameCollectionRepository.updatePrivateInfo(
-                    item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong(),
+                    internalId,
                     priceCurrency,
                     pricePaid,
                     currentValueCurrency,
@@ -155,7 +155,6 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         if (itemModified) {
             setEdited(true)
             viewModelScope.launch {
-                val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
                 gameCollectionRepository.updateStatuses(internalId, statuses, wishlistPriority)
                 refresh()
             }
@@ -167,28 +166,49 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
         if (rating != currentRating) {
             setEdited(true)
             viewModelScope.launch {
-                val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
                 gameCollectionRepository.updateRating(internalId, rating)
                 refresh()
             }
         }
     }
 
-    fun updateText(text: String, textColumn: String, timestampColumn: String, originalText: String? = null) {
+    fun updateComment(text: String, originalText: String?) {
+        updateText(text, originalText) { gameCollectionRepository.updateComment(internalId, it) }
+    }
+
+    fun updatePrivateComment(text: String, originalText: String?) {
+        updateText(text, originalText) { gameCollectionRepository.updatePrivateComment(internalId, it) }
+    }
+
+    fun updateWishlistComment(text: String, originalText: String?) {
+        updateText(text, originalText) { gameCollectionRepository.updateWishlistComment(internalId, it) }
+    }
+
+    fun updateCondition(text: String, originalText: String?) {
+        updateText(text, originalText) { gameCollectionRepository.updateCondition(internalId, it) }
+    }
+
+    fun updateHasParts(text: String, originalText: String?) {
+        updateText(text, originalText) { gameCollectionRepository.updateHasParts(internalId, it) }
+    }
+
+    fun updateWantParts(text: String, originalText: String?) {
+        updateText(text, originalText) { gameCollectionRepository.updateWantParts(internalId, it) }
+    }
+
+    private fun updateText(text: String, originalText: String?, update: suspend (String) -> Unit) {
         if (text != originalText) {
             setEdited(true)
             viewModelScope.launch {
-                val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
-                gameCollectionRepository.updateText(internalId, text, textColumn, timestampColumn)
-                refresh()
-            }
+                update(text)
+            }.invokeOnCompletion { refresh() }
         }
     }
 
     fun delete() {
         setEdited(false)
         viewModelScope.launch {
-            gameCollectionRepository.markAsDeleted(item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong())
+            gameCollectionRepository.markAsDeleted(internalId)
             refresh()
         }
     }
@@ -196,7 +216,6 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
     fun reset() {
         setEdited(false)
         viewModelScope.launch {
-            val internalId = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
             gameCollectionRepository.resetTimestamps(internalId)
             forceRefresh.set(true)
             refresh()
@@ -206,4 +225,6 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
     private fun setEdited(edited: Boolean) {
         if (_isEdited.value != edited) _isEdited.value = edited
     }
+
+    private val internalId get() = item.value?.data?.internalId ?: BggContract.INVALID_ID.toLong()
 }

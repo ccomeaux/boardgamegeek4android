@@ -15,12 +15,9 @@ import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
-import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
+import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
-import com.boardgamegeek.ui.widget.TextEditorView
 
 class GameCollectionItemFragment : Fragment() {
     private var _binding: FragmentGameCollectionItemBinding? = null
@@ -79,22 +76,22 @@ class GameCollectionItemFragment : Fragment() {
         }
         binding.wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
         binding.commentView.setOnClickListener {
-            onTextEditorClick(binding.commentView, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+            EditCollectionCommentDialogFragment.show(parentFragmentManager, binding.commentView.contentText)
         }
         binding.privateInfoCommentView.setOnClickListener {
-            onTextEditorClick(binding.privateInfoCommentView, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+            EditCollectionPrivateCommentDialogFragment.show(parentFragmentManager, binding.privateInfoCommentView.contentText)
         }
         binding.wishlistCommentView.setOnClickListener {
-            onTextEditorClick(binding.wishlistCommentView, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+            EditCollectionWishlistCommentDialogFragment.show(parentFragmentManager, binding.wishlistCommentView.contentText)
         }
         binding.conditionView.setOnClickListener {
-            onTextEditorClick(binding.conditionView, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+            EditCollectionConditionDialogFragment.show(parentFragmentManager, binding.conditionView.contentText)
         }
         binding.wantPartsView.setOnClickListener {
-            onTextEditorClick(binding.wantPartsView, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+            EditCollectionWantPartsDialogFragment.show(parentFragmentManager, binding.wantPartsView.contentText)
         }
         binding.hasPartsView.setOnClickListener {
-            onTextEditorClick(binding.hasPartsView, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+            EditCollectionHasPartsDialogFragment.show(parentFragmentManager, binding.hasPartsView.contentText)
         }
         binding.privateInfoEditContainer.setOnClickListener {
             val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
@@ -233,18 +230,6 @@ class GameCollectionItemFragment : Fragment() {
         }
         val wishlistPriority = if (binding.wishlistView.isChecked) binding.wishlistPriorityView.selectedItemPosition + 1 else 0
         viewModel.updateStatuses(statuses, wishlistPriority)
-    }
-
-    private fun onTextEditorClick(view: TextEditorView, textColumn: String, timestampColumn: String) {
-        // TODO refactor to use view model, not direct data access
-        showAndSurvive(
-            EditCollectionTextDialogFragment.newInstance(
-                view.headerText,
-                view.contentText,
-                textColumn,
-                timestampColumn
-            )
-        )
     }
 
     private fun updateUi(item: CollectionItemEntity) {
