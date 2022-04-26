@@ -22,20 +22,23 @@ class GameCollectionRepository(val application: BggApplication) {
     private val gameDao = GameDao(application)
     private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
 
-    suspend fun loadCollectionItem(collectionId: Int) = dao.load(collectionId)
+    suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
 
-    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int): CollectionItemEntity? =
+    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): CollectionItemEntity? =
         withContext(Dispatchers.IO) {
-            if (gameId != INVALID_ID && !username.isNullOrBlank()) {
+            if ((gameId != INVALID_ID || collectionId != INVALID_ID) && !username.isNullOrBlank()) {
                 val timestamp = System.currentTimeMillis()
-                val response = Adapter.createForXmlWithAuth(application).collectionC(
-                    username, mapOf(
-                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                        BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                        //BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType TODO determine if needed
-                    )
+                val options = mutableMapOf(
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
                 )
+                options += if (collectionId != INVALID_ID)
+                    BggService.COLLECTION_QUERY_KEY_COLLECTION_ID to collectionId.toString()
+                else
+                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
+                if (subType.isNotBlank())
+                    options += BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType // this is required for accessories
+                val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
 
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
@@ -47,13 +50,7 @@ class GameCollectionRepository(val application: BggApplication) {
                         entity = item.copy(internalId = internalId, syncTimestamp = timestamp)
                     }
                 }
-                Timber.i(
-                    "Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId
-                )
-
-                val deleteCount = dao.delete(gameId, collectionIds)
-                Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-
+                Timber.i("Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId)
                 entity
             } else null
         }

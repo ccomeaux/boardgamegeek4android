@@ -58,7 +58,7 @@ class GameCollectionItemActivity : HeroActivity() {
         }
         if (collectionId == BggContract.INVALID_ID) binding.fab.hide() else binding.fab.ensureShown()
 
-        viewModel.setId(collectionId)
+        viewModel.setInternalId(internalId)
         viewModel.item.observe(this) { resource ->
             binding.swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
             if (resource?.status == Status.SUCCESS) {

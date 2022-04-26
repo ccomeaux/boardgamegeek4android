@@ -26,6 +26,7 @@ class CollectionIdProvider : BaseProvider() {
             .mapToTable(Collection.Columns.GAME_ID, Tables.COLLECTION)
             .mapToTable(Collection.Columns.UPDATED, Tables.COLLECTION)
             .mapToTable(Collection.Columns.UPDATED_LIST, Tables.COLLECTION)
+            .map(BggContract.Plays.Columns.MAX_DATE, "(SELECT MAX(${BggContract.Plays.Columns.DATE}) FROM ${Tables.PLAYS} WHERE ${Tables.PLAYS}.${BggContract.Plays.Columns.OBJECT_ID}=${Tables.GAMES}.${BggContract.Games.Columns.GAME_ID})")
             .whereEquals("${Tables.COLLECTION}.${BaseColumns._ID}", id)
     }
 

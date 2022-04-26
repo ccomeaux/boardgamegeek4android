@@ -31,17 +31,17 @@ class CollectionDao(private val context: BggApplication) {
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    suspend fun load(collectionId: Int): CollectionItemEntity? = withContext(Dispatchers.IO) {
-        resolver.load(
-            Collection.CONTENT_URI,
-            projection(),
-            "collection.${Collection.Columns.COLLECTION_ID}=?",
-            arrayOf(collectionId.toString())
-        )?.use {
-            if (it.moveToFirst()) {
-                entityFromCursor(it)
-            } else null
-        }
+    suspend fun load(internalId: Long): CollectionItemEntity? = withContext(Dispatchers.IO) {
+        if (internalId != INVALID_ID.toLong()) {
+            resolver.load(
+                Collection.buildUri(internalId),
+                projection(),
+            )?.use {
+                if (it.moveToFirst()) {
+                    entityFromCursor(it)
+                } else null
+            }
+        } else null
     }
 
     fun load(includeDeletedItems: Boolean = false): List<CollectionItemEntity> {

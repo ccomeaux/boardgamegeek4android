@@ -102,6 +102,7 @@ interface BggService {
         const val COLLECTION_QUERY_KEY_BRIEF = "brief"
         const val COLLECTION_QUERY_KEY_SUBTYPE = "subtype"
         const val COLLECTION_QUERY_STATUS_PLAYED = "played"
+        const val COLLECTION_QUERY_KEY_COLLECTION_ID = "collid"
 
         // val COLLECTION_QUERY_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val COLLECTION_QUERY_DATE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
