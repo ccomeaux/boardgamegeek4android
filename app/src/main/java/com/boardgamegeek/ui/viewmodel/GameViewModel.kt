@@ -16,17 +16,20 @@ import com.boardgamegeek.repository.ImageRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.GameActivity
-import com.boardgamegeek.util.RateLimiter
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-    private val itemsRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES), TimeUnit.MINUTES)
-    private val gameRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES), TimeUnit.MINUTES)
-    private val partialPlaysRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES), TimeUnit.MINUTES)
-    private val fullPlaysRateLimiter = RateLimiter<Int>(RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS), TimeUnit.HOURS)
+    private val isGameRefreshing = AtomicBoolean()
+    private val areItemsRefreshing = AtomicBoolean()
+    private val arePlaysRefreshing = AtomicBoolean()
+    private val gameRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
+    private val itemsRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
+    private val playsFullMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
+    private val playsPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
 
     val username: LiveSharedPreference<String> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
     val syncPlaysPreference: LiveSharedPreference<Boolean> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
@@ -83,13 +86,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
                     val game = gameRepository.loadGame(gameId)
                     emit(RefreshableResource.success(game))
-                    val refreshedGame = if (game == null || gameRateLimiter.shouldProcess(gameId, game.updated)) {
-                        emit(RefreshableResource.refreshing(game))
-                        gameRepository.refreshGame(gameId)
-                        val loadedGame = gameRepository.loadGame(gameId)
-                        emit(RefreshableResource.success(loadedGame))
-                        gameRateLimiter.reset(gameId)
-                        loadedGame
+                    val refreshedGame = if (isGameRefreshing.compareAndSet(false, true)) {
+                        if (game == null || game.updated.isOlderThan(gameRefreshMinutes, TimeUnit.MINUTES)) {
+                            emit(RefreshableResource.refreshing(game))
+                            gameRepository.refreshGame(gameId)
+                            val loadedGame = gameRepository.loadGame(gameId)
+                            emit(RefreshableResource.success(loadedGame))
+                            isGameRefreshing.set(false)
+                            loadedGame
+                        } else {
+                            isGameRefreshing.set(false)
+                            game
+                        }
                     } else game
                     refreshedGame?.let {
                         if (it.heroImageUrl.isBlank()) {
@@ -102,7 +110,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 }
             } catch (e: Exception) {
                 emit(RefreshableResource.error(e, application))
-                gameRateLimiter.reset(gameId)
+                isGameRefreshing.set(false)
             }
         }
     }
@@ -239,21 +247,24 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
                     val items = gameCollectionRepository.loadCollectionItems(gameId)
                     emit(RefreshableResource.success(items))
-                    val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                    val refreshedItems = if (itemsRateLimiter.shouldProcess(gameId, lastUpdated)) {
-                        emit(RefreshableResource.refreshing(items))
-                        gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
-                        val newItems = gameCollectionRepository.loadCollectionItems(gameId)
-                        emit(RefreshableResource.success(newItems))
-                        itemsRateLimiter.reset(gameId)
-                        newItems
+                    val refreshedItems = if (areItemsRefreshing.compareAndSet(false, true)) {
+                        val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
+                        val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes, TimeUnit.MINUTES)) {
+                            emit(RefreshableResource.refreshing(items))
+                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
+                            val newItems = gameCollectionRepository.loadCollectionItems(gameId)
+                            emit(RefreshableResource.success(newItems))
+                            newItems
+                        } else items
+                        areItemsRefreshing.set(false)
+                        refreshedItems
                     } else items
                     if (refreshedItems.any { it.isDirty })
                         SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
                 }
             } catch (e: Exception) {
                 emit(RefreshableResource.error(e, application))
-                itemsRateLimiter.reset(gameId)
+                areItemsRefreshing.set(false)
             }
         }
     }
@@ -267,27 +278,29 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
                     val plays = gameRepository.getPlays(gameId)
-                    emit(RefreshableResource.refreshing(plays))
-                    val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
-                    val refreshedPlays = when {
-                        fullPlaysRateLimiter.shouldProcess(gameId, lastUpdated) -> {
-                            gameRepository.refreshPlays(gameId)
-                            fullPlaysRateLimiter.reset(gameId)
-                            gameRepository.getPlays(gameId)
+                    if (arePlaysRefreshing.compareAndSet(false, true)) {
+                        emit(RefreshableResource.refreshing(plays))
+                        val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
+                        val rPlays = when {
+                            lastUpdated.isOlderThan(playsFullMinutes, TimeUnit.MINUTES) -> {
+                                gameRepository.refreshPlays(gameId)
+                                gameRepository.getPlays(gameId)
+                            }
+                            lastUpdated.isOlderThan(playsPartialMinutes, TimeUnit.MINUTES) -> {
+                                gameRepository.refreshPartialPlays(gameId)
+                                gameRepository.getPlays(gameId)
+                            }
+                            else -> plays
                         }
-                        partialPlaysRateLimiter.shouldProcess(gameId, lastUpdated) -> {
-                            gameRepository.refreshPartialPlays(gameId)
-                            partialPlaysRateLimiter.reset(gameId)
-                            gameRepository.getPlays(gameId)
-                        }
-                        else -> plays
+                        arePlaysRefreshing.set(false)
+                        emit(RefreshableResource.success(rPlays))
+                    } else {
+                        emit(RefreshableResource.success(plays))
                     }
-                    emit(RefreshableResource.success(refreshedPlays))
                 }
             } catch (e: Exception) {
                 emit(RefreshableResource.error(e, application))
-                fullPlaysRateLimiter.reset(gameId)
-                partialPlaysRateLimiter.reset(gameId)
+                arePlaysRefreshing.set(false)
             }
         }
     }
