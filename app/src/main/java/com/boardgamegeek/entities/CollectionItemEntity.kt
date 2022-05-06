@@ -73,11 +73,10 @@ data class CollectionItemEntity(
     val arePlayersCustomSorted: Boolean = false,
     val minPlayerCount: Int = 0,
     val maxPlayerCount: Int = 0,
-    val subType: String = "",
+    val subtype: GameEntity.Subtype? = null,
     val bestPlayerCounts: String = "",
     val recommendedPlayerCounts: String = "",
-
-    ) {
+) {
     val isDirty: Boolean by lazy {
         when {
             deleteTimestamp > 0L -> true

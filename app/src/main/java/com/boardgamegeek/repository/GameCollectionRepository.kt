@@ -6,6 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
@@ -24,7 +25,7 @@ class GameCollectionRepository(val application: BggApplication) {
 
     suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
 
-    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subType: String = BggService.THING_SUBTYPE_BOARDGAME): CollectionItemEntity? =
+    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: GameEntity.Subtype?): CollectionItemEntity? =
         withContext(Dispatchers.IO) {
             if ((gameId != INVALID_ID || collectionId != INVALID_ID) && !username.isNullOrBlank()) {
                 val timestamp = System.currentTimeMillis()
@@ -36,8 +37,7 @@ class GameCollectionRepository(val application: BggApplication) {
                     BggService.COLLECTION_QUERY_KEY_COLLECTION_ID to collectionId.toString()
                 else
                     BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
-                if (subType.isNotBlank())
-                    options += BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType // this is required for accessories
+                options.addSubtype(subtype)
                 val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
 
                 val collectionIds = mutableListOf<Int>()
@@ -64,22 +64,18 @@ class GameCollectionRepository(val application: BggApplication) {
 
     suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)
 
-    suspend fun refreshCollectionItems(
-        gameId: Int,
-        subType: String = BggService.THING_SUBTYPE_BOARDGAME
-    ): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
+    suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             val list = mutableListOf<CollectionItemEntity>()
             // TODO This doesn't sync only-played games (the played flag needs to be set explicitly)
-            val response = Adapter.createForXmlWithAuth(application).collectionC(
-                username, mapOf(
-                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                    BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
-                )
+            val options = mutableMapOf(
+                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
             )
+            options.addSubtype(subtype)
+            val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
             val collectionIds = arrayListOf<Int>()
             response.items?.forEach { collectionItem ->
                 val (item, game) = collectionItem.mapToEntities()
@@ -94,6 +90,16 @@ class GameCollectionRepository(val application: BggApplication) {
 
             list
         } else null
+    }
+
+    private fun MutableMap<String, String>.addSubtype(subtype: GameEntity.Subtype?) {
+        subtype?.let {
+            this += BggService.COLLECTION_QUERY_KEY_SUBTYPE to when (it) {
+                GameEntity.Subtype.BOARDGAME -> BggService.ThingSubtype.BOARDGAME
+                GameEntity.Subtype.BOARDGAME_EXPANSION -> BggService.ThingSubtype.BOARDGAME_EXPANSION
+                GameEntity.Subtype.BOARDGAME_ACCESSORY -> BggService.ThingSubtype.BOARDGAME_ACCESSORY
+            }.code
+        }
     }
 
     suspend fun loadAcquiredFrom() = dao.loadAcquiredFrom()

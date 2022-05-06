@@ -78,11 +78,13 @@ interface BggService {
     @GET("/xmlapi/geeklist/{id}")
     suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
 
-    companion object {
-        const val THING_SUBTYPE_BOARDGAME = "boardgame"
-        const val THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion"
-        const val THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory"
+    enum class ThingSubtype(val code: String) {
+        BOARDGAME("boardgame"),
+        BOARDGAME_EXPANSION("boardgameexpansion"),
+        BOARDGAME_ACCESSORY("boardgameaccessory"),
+    }
 
+    companion object {
         const val RANK_TYPE_SUBTYPE = "subtype"
         const val RANK_TYPE_FAMILY = "family"
 

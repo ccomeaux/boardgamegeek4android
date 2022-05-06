@@ -16,7 +16,6 @@ import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -85,7 +84,7 @@ class GameDao(private val context: BggApplication) {
                         id = it.getInt(0),
                         name = it.getStringOrNull(1).orEmpty(),
                         description = it.getStringOrNull(2).orEmpty(),
-                        subtype = it.getStringOrNull(3).orEmpty(),
+                        subtype = it.getStringOrNull(3).toSubtype(),
                         thumbnailUrl = it.getStringOrNull(4).orEmpty(),
                         imageUrl = it.getStringOrNull(5).orEmpty(),
                         yearPublished = it.getIntOrNull(6) ?: GameEntity.YEAR_UNKNOWN,
@@ -446,11 +445,11 @@ class GameDao(private val context: BggApplication) {
             }.joinTo(" AND ").toString(),
             selectionArgs = arrayListOf<String>().apply {
                 if (!includeExpansions && !includeAccessories) {
-                    add(BggService.THING_SUBTYPE_BOARDGAME)
+                    add(GameEntity.Subtype.BOARDGAME.code)
                 } else if (!includeExpansions) {
-                    add(BggService.THING_SUBTYPE_BOARDGAME_EXPANSION)
+                    add(GameEntity.Subtype.BOARDGAME_EXPANSION.code)
                 } else if (!includeAccessories) {
-                    add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
+                    add(GameEntity.Subtype.BOARDGAME_ACCESSORY.code)
                 }
             }.toTypedArray(),
             sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
@@ -584,7 +583,7 @@ class GameDao(private val context: BggApplication) {
             Games.Columns.THUMBNAIL_URL to game.thumbnailUrl,
             Games.Columns.IMAGE_URL to game.imageUrl,
             Games.Columns.DESCRIPTION to game.description,
-            Games.Columns.SUBTYPE to game.subtype,
+            Games.Columns.SUBTYPE to game.subtype?.code.orEmpty(),
             Games.Columns.YEAR_PUBLISHED to game.yearPublished,
             Games.Columns.MIN_PLAYERS to game.minPlayers,
             Games.Columns.MAX_PLAYERS to game.maxPlayers,

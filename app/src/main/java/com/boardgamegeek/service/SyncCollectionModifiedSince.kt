@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.SyncResult
 import android.text.format.DateUtils
-import androidx.collection.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
@@ -12,7 +11,9 @@ import com.boardgamegeek.extensions.getSyncStatusesOrDefault
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.pref.*
+import com.boardgamegeek.pref.getCurrentCollectionSyncTimestamp
+import com.boardgamegeek.pref.getPartialCollectionSyncLastCompletedAt
+import com.boardgamegeek.pref.setPartialCollectionSyncLastCompletedAt
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
@@ -23,7 +24,8 @@ import java.util.*
 /**
  * Syncs the user's collection modified since the date stored in the sync service.
  */
-class SyncCollectionModifiedSince(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
+class SyncCollectionModifiedSince(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
+    SyncTask(application, service, syncResult) {
     private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS)
     private val statusesToSync = prefs.getSyncStatusesOrDefault()
 
@@ -55,7 +57,7 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
 
             if (wasSleepInterrupted(fetchPauseMillis)) return
 
-            syncBySubtype(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
+            syncBySubtype(BggService.ThingSubtype.BOARDGAME_ACCESSORY)
             if (isCancelled) {
                 Timber.i("...cancelled")
                 return
@@ -67,31 +69,34 @@ class SyncCollectionModifiedSince(application: BggApplication, service: BggServi
         }
     }
 
-    private fun syncBySubtype(subtype: String = "") {
+    private fun syncBySubtype(subtype: BggService.ThingSubtype? = null) {
         val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
         val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
         if (lastStatusSync > lastPartialSync) {
-            Timber.i("Subtype [$subtype] has been synced in the current sync request.")
+            Timber.i("Subtype [${subtype?.code ?: "<none>"}] has been synced in the current sync request.")
             return
         }
 
         val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
-        val subtypeDescription = context.getString(when (subtype) {
-            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
-            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
-            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
-            else -> R.string.items
-        })
+        val subtypeDescription = context.getString(
+            when (subtype) {
+                BggService.ThingSubtype.BOARDGAME -> R.string.games
+                BggService.ThingSubtype.BOARDGAME_EXPANSION -> R.string.expansions
+                BggService.ThingSubtype.BOARDGAME_ACCESSORY -> R.string.accessories
+                else -> R.string.items
+            }
+        )
 
         val formattedDateTime = DateUtils.formatDateTime(context, lastStatusSync, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
         updateProgressNotification(context.getString(R.string.sync_notification_collection_since_downloading, subtypeDescription, formattedDateTime))
 
-        val options = ArrayMap<String, String>()
-        options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
-        options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
-        options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = modifiedSince
-        if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
+        val options = mutableMapOf(
+            BggService.COLLECTION_QUERY_KEY_STATS to "1",
+            BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+            BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
+        )
+        subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
 
         val dao = CollectionDao(application)
         val call = service.collection(account.name, options)

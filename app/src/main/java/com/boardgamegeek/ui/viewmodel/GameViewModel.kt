@@ -251,7 +251,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
                         val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes, TimeUnit.MINUTES)) {
                             emit(RefreshableResource.refreshing(items))
-                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype.orEmpty())
+                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype)
                             val newItems = gameCollectionRepository.loadCollectionItems(gameId)
                             emit(RefreshableResource.success(newItems))
                             newItems

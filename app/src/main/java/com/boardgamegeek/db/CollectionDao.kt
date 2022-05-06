@@ -120,7 +120,7 @@ class CollectionDao(private val context: BggApplication) {
             lastPlayDate = cursor.getString(COLUMN_MAX_DATE).orEmpty().toMillis(playDateFormat),
             minPlayerCount = cursor.getIntOrNull(COLUMN_MIN_PLAYERS) ?: 0,
             maxPlayerCount = cursor.getIntOrNull(COLUMN_MAX_PLAYERS) ?: 0,
-            subType = cursor.getString(COLUMN_SUBTYPE).orEmpty(),
+            subtype = cursor.getString(COLUMN_SUBTYPE).toSubtype(),
             bestPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_BEST).orEmpty(),
             recommendedPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_RECOMMENDED).orEmpty(),
         )
@@ -320,7 +320,7 @@ class CollectionDao(private val context: BggApplication) {
                             it.getStringOrNull(8).orEmpty(),
                             it.getDoubleOrNull(9) ?: 0.0,
                             it.getBoolean(10),
-                            it.getStringOrNull(11).orEmpty(),
+                            it.getStringOrNull(11).toSubtype(),
                             it.getIntOrNull(12) ?: 0
                         )
                     } while (it.moveToNext())

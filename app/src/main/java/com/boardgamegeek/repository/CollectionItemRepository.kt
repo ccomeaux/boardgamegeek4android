@@ -35,7 +35,7 @@ class CollectionItemRepository(val application: BggApplication) {
         } else if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
             Timber.i("Collection sync is already under way")
         } else {
-            listOf("", BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY).forEach { subtype ->
+            listOf(null, BggService.ThingSubtype.BOARDGAME_ACCESSORY).forEach { subtype ->
                 refreshSubtype(subtype)
             }
             syncPrefs.setPartialCollectionSyncLastCompletedAt()
@@ -47,7 +47,7 @@ class CollectionItemRepository(val application: BggApplication) {
         SyncService.sync(application, SyncService.FLAG_SYNC_COLLECTION)
     }
 
-    private suspend fun refreshSubtype(subtype: String, timestamp: Long = System.currentTimeMillis()) {
+    private suspend fun refreshSubtype(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {
         val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
         val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
         if (lastStatusSync <= lastPartialSync) {
@@ -57,7 +57,7 @@ class CollectionItemRepository(val application: BggApplication) {
                 BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
                 BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
             )
-            if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
+            subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
             val response = Adapter.createForXml().collectionC(username, options)
 
             var count = 0

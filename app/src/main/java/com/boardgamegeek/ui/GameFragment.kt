@@ -106,7 +106,7 @@ class GameFragment : Fragment() {
 
         gameName = game.name
 
-        binding.ranksInclude.rankView.text = game.overallRank.asRank(requireContext(), game.subtype)
+        binding.ranksInclude.rankView.text = game.overallRank.asRank(requireContext(), game.subtype?.code.orEmpty())
         binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
 
         binding.ratingsInclude.ratingView.text = game.rating.asRating(context)

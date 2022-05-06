@@ -12,7 +12,7 @@ data class BriefGameEntity(
     val gameHeroImageUrl: String,
     val personalRating: Double = 0.0,
     val isFavorite: Boolean = false,
-    val subtype: String = "boardgame",
+    val subtype: GameEntity.Subtype? = GameEntity.Subtype.BOARDGAME,
     val playCount: Int = 0,
 ) {
     val name = collectionName.ifBlank { gameName }
@@ -21,8 +21,5 @@ data class BriefGameEntity(
 
     companion object {
         const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
-        const val TYPE_BOARDGAME = GameEntity.TYPE_BOARDGAME
-        const val TYPE_EXPANSION = GameEntity.TYPE_EXPANSION
-        const val TYPE_ACCESSORY = GameEntity.TYPE_ACCESSORY
     }
 }

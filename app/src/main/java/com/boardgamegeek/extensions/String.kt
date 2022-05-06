@@ -1,5 +1,3 @@
-@file:JvmName("StringUtils")
-
 package com.boardgamegeek.extensions
 
 import android.content.Context
@@ -42,10 +40,10 @@ fun String.findFirstNumber() = "\\d+".toRegex().find(this)?.value?.toIntOrNull()
 fun String.asRankDescription(context: Context, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {
     when (type) {
         BggService.RANK_TYPE_SUBTYPE -> {
-            @StringRes val resId = when (this) {
-                BggService.THING_SUBTYPE_BOARDGAME -> R.string.title_board_game
-                BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.title_expansion
-                BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.title_accessory
+            @StringRes val resId = when (this.toSubtype()) {
+                GameEntity.Subtype.BOARDGAME -> R.string.title_board_game
+                GameEntity.Subtype.BOARDGAME_EXPANSION -> R.string.title_expansion
+                GameEntity.Subtype.BOARDGAME_ACCESSORY -> R.string.title_accessory
                 else -> return this
             }
             return context.getText(resId)
@@ -104,6 +102,10 @@ fun String?.asCurrency(): String {
         else -> ""
     }
 }
+
+fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
+
+fun String?.toSubtype() = GameEntity.Subtype.values().find { this == it.code }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andMore() = "${this}+"

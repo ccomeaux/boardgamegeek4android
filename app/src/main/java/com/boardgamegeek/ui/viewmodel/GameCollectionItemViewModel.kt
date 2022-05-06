@@ -61,7 +61,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
                             it.syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
                         ) {
                             emit(RefreshableResource.refreshing(it))
-                            gameCollectionRepository.refreshCollectionItem(it.gameId, it.collectionId, it.subType)
+                            gameCollectionRepository.refreshCollectionItem(it.gameId, it.collectionId, it.subtype)
                             val loadedItem = gameCollectionRepository.loadCollectionItem(internalId)
                             emit(RefreshableResource.success(loadedItem))
                             loadedItem ?: it

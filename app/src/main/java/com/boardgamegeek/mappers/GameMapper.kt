@@ -3,6 +3,9 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.replaceHtmlLineFeeds
 import com.boardgamegeek.extensions.sortName
+import com.boardgamegeek.extensions.toSubtype
+import com.boardgamegeek.extensions.toThingSubtype
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Game
 
 fun Game.mapToEntity(): GameEntity {
@@ -14,7 +17,7 @@ fun Game.mapToEntity(): GameEntity {
         imageUrl = this.image.orEmpty(),
         thumbnailUrl = this.thumbnail.orEmpty(),
         description = this.description.replaceHtmlLineFeeds().trim(),
-        subtype = this.type.orEmpty(),
+        subtype = this.type.toThingSubtype().mapToEntitySubtype(),
         yearPublished = this.yearpublished?.toIntOrNull() ?: GameEntity.YEAR_UNKNOWN,
         minPlayers = this.minplayers?.toIntOrNull() ?: 0,
         maxPlayers = this.maxplayers?.toIntOrNull() ?: 0,
@@ -71,6 +74,13 @@ private fun createRanks(from: Game): List<GameRankEntity> {
         )
     }
     return ranks
+}
+
+private fun BggService.ThingSubtype?.mapToEntitySubtype(): GameEntity.Subtype? = when (this){
+    BggService.ThingSubtype.BOARDGAME -> GameEntity.Subtype.BOARDGAME
+    BggService.ThingSubtype.BOARDGAME_EXPANSION -> GameEntity.Subtype.BOARDGAME_EXPANSION
+    BggService.ThingSubtype.BOARDGAME_ACCESSORY -> GameEntity.Subtype.BOARDGAME_ACCESSORY
+    null -> null
 }
 
 private const val playerPollName = "suggested_numplayers"

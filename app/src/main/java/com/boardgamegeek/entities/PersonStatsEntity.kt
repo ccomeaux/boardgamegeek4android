@@ -15,21 +15,21 @@ class PersonStatsEntity(
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<BriefGameEntity>, context: Context): PersonStatsEntity {
-            val baseGameCollection = collection.filter { it.subtype == BriefGameEntity.TYPE_BOARDGAME }
+            val baseGameCollection = collection.filter { it.subtype == GameEntity.Subtype.BOARDGAME }
 
             val ratedGames = baseGameCollection.filter { it.personalRating > 0.0 }
             val averageRating = if (ratedGames.isEmpty()) 0.0 else (ratedGames.sumOf { it.personalRating }) / ratedGames.size
 
             val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
-            val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != BriefGameEntity.TYPE_ACCESSORY })
+            val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_ACCESSORY })
 
             val prefs = context.preferences()
             val includeExpansions = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
             val includeAccessories = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
             val playCountsByGame = when {
                 includeExpansions && includeAccessories -> collection
-                includeAccessories -> collection.filter { it.subtype != BriefGameEntity.TYPE_EXPANSION }
-                includeExpansions -> collection.filter { it.subtype != BriefGameEntity.TYPE_ACCESSORY }
+                includeAccessories -> collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_EXPANSION }
+                includeExpansions -> collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_ACCESSORY }
                 else -> baseGameCollection
             }
                 .distinctBy { it.gameId }
