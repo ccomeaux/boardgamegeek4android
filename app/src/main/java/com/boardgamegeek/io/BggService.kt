@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection")
+@file:Suppress("SpellCheckingInspection", "unused")
 
 package com.boardgamegeek.io
 
@@ -121,17 +121,21 @@ interface BggService {
 
         const val HOTNESS_TYPE_BOARDGAME = "boardgame"
 
-        const val FORUM_TYPE_REGION = "region"
-        const val FORUM_TYPE_THING = "thing"
-        const val FORUM_TYPE_PERSON = "person"
-        const val FORUM_TYPE_COMPANY = "company"
-
-        const val FORUM_REGION_BOARDGAME = 1
-        // const val FORUM_REGION_RPG = 2
-        // const val FORUM_REGION_VIDEOGAME = 3
-
         const val GEEK_LIST_SORT_HOT = "hot"
         const val GEEK_LIST_SORT_RECENT = "recent"
         const val GEEK_LIST_SORT_ACTIVE = "active"
+    }
+
+    enum class ForumType(val id: String) {
+        REGION("region"),
+        THING("thing"),
+        PERSON("person"),
+        COMPANY("company"),
+    }
+
+    enum class ForumRegion(val id: Int) {
+        BOARDGAME(1),
+        RPG(2),
+        VIDEOGAME(3),
     }
 }

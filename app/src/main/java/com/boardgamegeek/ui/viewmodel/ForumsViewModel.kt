@@ -21,7 +21,7 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
     private val repository = ForumRepository(application)
 
     fun setRegion() {
-        if (_id.value?.first != ForumType.REGION) _id.value = (ForumType.REGION to BggService.FORUM_REGION_BOARDGAME)
+        if (_id.value?.first != ForumType.REGION) _id.value = (ForumType.REGION to BggService.ForumRegion.BOARDGAME.id)
     }
 
     fun setGameId(gameId: Int) {
