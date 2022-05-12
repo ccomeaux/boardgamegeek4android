@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 
 class HotnessRepository(val application: BggApplication) {
     suspend fun getHotness(): List<HotGameEntity> = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().getHotness(BggService.HOTNESS_TYPE_BOARDGAME)
+        val response = Adapter.createForXml().getHotness(BggService.HotnessType.BOARDGAME)
         response.mapToEntity()
     }
 }

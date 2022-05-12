@@ -62,7 +62,7 @@ interface BggService {
     suspend fun search(@Query("query") query: String?, @Query("type") type: String?, @Query("exact") exact: Int): SearchResponse
 
     @GET("/xmlapi2/hot")
-    suspend fun getHotness(@Query("type") type: String?): HotnessResponse
+    suspend fun getHotness(@Query("type") type: HotnessType?): HotnessResponse
 
     @GET("/xmlapi2/forumlist")
     suspend fun forumList(@Query("type") type: String?, @Query("id") id: Int): ForumListResponse
@@ -114,13 +114,32 @@ interface BggService {
         const val PERSON_TYPE_DESIGNER = "boardgamedesigner"
 
         const val SEARCH_TYPE_BOARD_GAME = "boardgame"
-        // const val SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion"
-        // const val SEARCH_TYPE_RPG = "rpg"
-        // const val SEARCH_TYPE_RPG_ITEM = "rpgitem"
-        // const val SEARCH_TYPE_VIDEO_GAME = "videogame"
-        // other search types: boardgameartist, boardgamedesigner, boardgamepublisher
+    }
 
-        const val HOTNESS_TYPE_BOARDGAME = "boardgame"
+    enum class HotnessType {
+        @SerializedName("boardgame")
+        BOARDGAME,
+
+        @SerializedName("boardgameexpansion")
+        BOARD_GAME_EXPANSION,
+
+        @SerializedName("rpg")
+        RPG,
+
+        @SerializedName("rpgitem")
+        RPG_ITEM,
+
+        @SerializedName("videogame")
+        VIDEO_GAME,
+
+        @SerializedName("boardgameartist")
+        BOARDGAME_ARTIST,
+
+        @SerializedName("boardgamedesigner")
+        BOARDGAME_DESIGNER,
+
+        @SerializedName("boardgamepublisher")
+        BOARDGAME_PUBLISHER,
     }
 
     enum class GeekListSort {
