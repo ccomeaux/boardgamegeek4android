@@ -3,6 +3,7 @@
 package com.boardgamegeek.io
 
 import com.boardgamegeek.io.model.*
+import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -73,7 +74,7 @@ interface BggService {
     suspend fun thread(@Query("id") id: Int): ThreadResponse
 
     @GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&tradelists=0&version=v5")
-    suspend fun geekLists(@Query("sort") sort: String?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
+    suspend fun geekLists(@Query("sort") sort: GeekListSort?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
 
     @GET("/xmlapi/geeklist/{id}")
     suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
@@ -120,10 +121,17 @@ interface BggService {
         // other search types: boardgameartist, boardgamedesigner, boardgamepublisher
 
         const val HOTNESS_TYPE_BOARDGAME = "boardgame"
+    }
 
-        const val GEEK_LIST_SORT_HOT = "hot"
-        const val GEEK_LIST_SORT_RECENT = "recent"
-        const val GEEK_LIST_SORT_ACTIVE = "active"
+    enum class GeekListSort {
+        @SerializedName("hot")
+        HOT,
+
+        @SerializedName("recent")
+        RECENT,
+
+        @SerializedName("active")
+        ACTIVE,
     }
 
     enum class ForumType(val id: String) {

@@ -37,6 +37,7 @@ object Adapter {
 
     private fun createBuilderWithoutConverterFactory(context: Context?) = Retrofit.Builder()
         .baseUrl("https://boardgamegeek.com/")
+        .addConverterFactory(EnumConverterFactory())
         .client(
             if (context == null) {
                 getHttpClient(true)

@@ -16,13 +16,13 @@ import com.google.firebase.analytics.ktx.logEvent
 
 class GeekListsViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GeekListRepository()
-    private val _sort = MutableLiveData<String>()
+    private val _sort = MutableLiveData<BggService.GeekListSort>()
 
     fun setSort(sort: SortType) {
         val sortString = when (sort) {
-            SortType.HOT -> BggService.GEEK_LIST_SORT_HOT
-            SortType.RECENT -> BggService.GEEK_LIST_SORT_RECENT
-            SortType.ACTIVE -> BggService.GEEK_LIST_SORT_ACTIVE
+            SortType.HOT -> BggService.GeekListSort.HOT
+            SortType.RECENT -> BggService.GeekListSort.RECENT
+            SortType.ACTIVE -> BggService.GeekListSort.ACTIVE
         }
         if (_sort.value != sortString) {
             _sort.value = sortString
