@@ -59,7 +59,7 @@ interface BggService {
     suspend fun company(@Query("id") id: Int): CompanyResponse
 
     @GET("/xmlapi2/search")
-    suspend fun search(@Query("query") query: String?, @Query("type") type: String?, @Query("exact") exact: Int): SearchResponse
+    suspend fun search(@Query("query") query: String?, @Query("type") type: SearchType?, @Query("exact") exact: Int): SearchResponse
 
     @GET("/xmlapi2/hot")
     suspend fun getHotness(@Query("type") type: HotnessType?): HotnessResponse
@@ -112,8 +112,11 @@ interface BggService {
 
         const val PERSON_TYPE_ARTIST = "boardgameartist"
         const val PERSON_TYPE_DESIGNER = "boardgamedesigner"
+    }
 
-        const val SEARCH_TYPE_BOARD_GAME = "boardgame"
+    enum class SearchType {
+        @SerializedName("boardgame")
+        BOARDGAME,
     }
 
     enum class HotnessType {
