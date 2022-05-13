@@ -29,7 +29,7 @@ class ArtistRepository(val application: BggApplication) {
     suspend fun delete() = dao.delete()
 
     suspend fun refreshArtist(artistId: Int): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().person(BggService.PERSON_TYPE_ARTIST, artistId)
+        val response = Adapter.createForXml().person(BggService.PersonType.ARTIST, artistId)
         if (!response.name.isNullOrBlank()) {
             val missingArtistMessage = "This page does not exist. You can edit this page to create it."
             dao.upsert(

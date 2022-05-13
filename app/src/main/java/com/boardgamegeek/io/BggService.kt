@@ -50,7 +50,7 @@ interface BggService {
     suspend fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): User
 
     @GET("/xmlapi/{type}/{id}")
-    suspend fun person(@Path("type") type: String?, @Path("id") id: Int): Person
+    suspend fun person(@Path("type") type: PersonType?, @Path("id") id: Int): Person
 
     @GET("/xmlapi2/person")
     suspend fun person(@Query("id") id: Int): PersonResponse
@@ -109,9 +109,14 @@ interface BggService {
 
         // val COLLECTION_QUERY_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val COLLECTION_QUERY_DATE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    }
 
-        const val PERSON_TYPE_ARTIST = "boardgameartist"
-        const val PERSON_TYPE_DESIGNER = "boardgamedesigner"
+    enum class PersonType {
+        @SerializedName("boardgameartist")
+        ARTIST,
+
+        @SerializedName("boardgamedesigner")
+        DESIGNER,
     }
 
     enum class SearchType {

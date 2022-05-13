@@ -29,7 +29,7 @@ class DesignerRepository(val application: BggApplication) {
     suspend fun delete() = dao.delete()
 
     suspend fun refreshDesigner(designerId: Int): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().person(BggService.PERSON_TYPE_DESIGNER, designerId)
+        val response = Adapter.createForXml().person(BggService.PersonType.DESIGNER, designerId)
         val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
         dao.upsert(
             designerId, contentValuesOf(
