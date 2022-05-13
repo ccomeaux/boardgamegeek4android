@@ -76,7 +76,7 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
                     emit(RefreshableResource.refreshing(list))
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
                     when (it.mode) {
-                        Mode.GAME -> gameRepository.refreshPlays(it.id) // TODO - full or partial?
+                        Mode.GAME -> gameRepository.refreshPlays(it.id)
                         else -> playRepository.refreshPlays()
                     }
                     loadPlays(it)

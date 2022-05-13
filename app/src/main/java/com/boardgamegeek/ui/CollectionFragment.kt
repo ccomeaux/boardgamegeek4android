@@ -450,6 +450,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         menu.findItem(R.id.menu_log_play_form)?.isVisible = count == 1
         menu.findItem(R.id.menu_log_play_wizard)?.isVisible = count == 1
         menu.findItem(R.id.menu_link)?.isVisible = count == 1
+        // TODO: disable Navigation Drawer open/close when the ActionBar is enabled
         return true
     }
 

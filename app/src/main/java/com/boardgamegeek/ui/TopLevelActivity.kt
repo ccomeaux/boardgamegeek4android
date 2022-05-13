@@ -19,7 +19,6 @@ abstract class TopLevelActivity : DrawerActivity() {
         activityTitle = title
 
         drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
-            // TODO: finish and start CAB with the drawer open/close
             override fun onDrawerClosed(drawerView: View) {
                 supportActionBar?.title = activityTitle
             }
