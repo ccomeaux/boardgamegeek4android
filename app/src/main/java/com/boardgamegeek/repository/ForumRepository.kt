@@ -24,7 +24,7 @@ class ForumRepository(application: Application) {
         loadForums(BggService.ForumType.REGION, region.id)
 
     private suspend fun loadForums(type: BggService.ForumType, id: Int): List<ForumEntity> = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().forumList(type.id, id)
+        val response = Adapter.createForXml().forumList(type, id)
         response.mapToEntity()
     }
 

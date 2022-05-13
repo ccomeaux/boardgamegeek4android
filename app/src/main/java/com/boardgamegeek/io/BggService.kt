@@ -65,7 +65,7 @@ interface BggService {
     suspend fun getHotness(@Query("type") type: HotnessType?): HotnessResponse
 
     @GET("/xmlapi2/forumlist")
-    suspend fun forumList(@Query("type") type: String?, @Query("id") id: Int): ForumListResponse
+    suspend fun forumList(@Query("type") type: ForumType?, @Query("id") id: Int): ForumListResponse
 
     @GET("/xmlapi2/forum")
     suspend fun forum(@Query("id") id: Int, @Query("page") page: Int): ForumResponse
@@ -156,11 +156,18 @@ interface BggService {
         ACTIVE,
     }
 
-    enum class ForumType(val id: String) {
-        REGION("region"),
-        THING("thing"),
-        PERSON("person"),
-        COMPANY("company"),
+    enum class ForumType {
+        @SerializedName("region")
+        REGION,
+
+        @SerializedName("thing")
+        THING,
+
+        @SerializedName("person")
+        PERSON,
+
+        @SerializedName("company")
+        COMPANY,
     }
 
     enum class ForumRegion(val id: Int) {
