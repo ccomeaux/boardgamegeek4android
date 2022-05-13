@@ -77,7 +77,7 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
-    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.IO) {
+    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.Default) {
         if (gameId != INVALID_ID || username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             var page = 1

@@ -498,9 +498,9 @@ class PlayDao(private val context: BggApplication) {
         UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
     }
 
-    suspend fun save(play: PlayEntity, startTime: Long = System.currentTimeMillis()): SaveStatus {
+    suspend fun save(play: PlayEntity, startTime: Long = System.currentTimeMillis()): SaveStatus = withContext(Dispatchers.IO) {
         val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
-        return when {
+        when {
             !play.isSynced -> {
                 Timber.i("Can't sync a play without a play ID.")
                 SaveStatus.ERROR
@@ -990,35 +990,34 @@ class PlayDao(private val context: BggApplication) {
             get() = dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0
 
         companion object {
-            fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate? {
+            suspend fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate? = withContext(Dispatchers.IO) {
                 if (playId <= 0) {
                     Timber.i("Can't sync a play without a play ID.")
-                    return null
-                }
-                val cursor = resolver.query(
-                    Plays.CONTENT_URI,
-                    arrayOf(
-                        BaseColumns._ID,
-                        Plays.Columns.SYNC_HASH_CODE,
-                        Plays.Columns.DELETE_TIMESTAMP,
-                        Plays.Columns.UPDATE_TIMESTAMP,
-                        Plays.Columns.DIRTY_TIMESTAMP
-                    ),
-                    "${Plays.Columns.PLAY_ID}=?",
-                    arrayOf(playId.toString()),
                     null
-                )
-                return cursor?.use {
-                    if (it.moveToFirst()) {
-                        PlaySyncCandidate(
-                            internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                            syncHashCode = it.getIntOrNull(1) ?: 0,
-                            deleteTimestamp = it.getLongOrNull(2) ?: 0L,
-                            updateTimestamp = it.getLongOrNull(3) ?: 0L,
-                            dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
-                        )
-                    } else {
+                } else {
+                    val cursor = resolver.query(
+                        Plays.CONTENT_URI,
+                        arrayOf(
+                            BaseColumns._ID,
+                            Plays.Columns.SYNC_HASH_CODE,
+                            Plays.Columns.DELETE_TIMESTAMP,
+                            Plays.Columns.UPDATE_TIMESTAMP,
+                            Plays.Columns.DIRTY_TIMESTAMP,
+                        ),
+                        "${Plays.Columns.PLAY_ID}=?",
+                        arrayOf(playId.toString()),
                         null
+                    )
+                    cursor?.use {
+                        if (it.moveToFirst()) {
+                            PlaySyncCandidate(
+                                internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                                syncHashCode = it.getIntOrNull(1) ?: 0,
+                                deleteTimestamp = it.getLongOrNull(2) ?: 0L,
+                                updateTimestamp = it.getLongOrNull(3) ?: 0L,
+                                dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
+                            )
+                        } else null
                     }
                 }
             }
