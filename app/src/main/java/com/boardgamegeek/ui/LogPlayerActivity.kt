@@ -186,7 +186,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             }
             til.setEndIconDrawable(R.drawable.ic_baseline_keyboard_24)
         }
-        editText.focusWithKeyboard()
+        editText.requestFocusAndKeyboard()
     }
 
     private fun bindUi() {

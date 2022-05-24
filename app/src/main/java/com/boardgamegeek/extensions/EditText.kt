@@ -3,6 +3,7 @@ package com.boardgamegeek.extensions
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.core.content.getSystemService
+import androidx.core.view.postDelayed
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util.*
@@ -45,7 +46,9 @@ fun EditText.getDoubleOrNull(): Double? {
     }
 }
 
-fun EditText.focusWithKeyboard() {
+fun EditText.requestFocusAndKeyboard() {
     requestFocus()
-    context.getSystemService<InputMethodManager>()?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+    this.postDelayed(200) {
+        context.getSystemService<InputMethodManager>()?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+    }
 }

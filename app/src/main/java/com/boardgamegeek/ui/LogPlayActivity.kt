@@ -155,7 +155,7 @@ class LogPlayActivity : AppCompatActivity() {
             cancelPlayingNotification()
             binding.lengthView.apply {
                 this.selectAll()
-                this.focusWithKeyboard()
+                this.requestFocusAndKeyboard()
             }
         }
 
@@ -333,7 +333,7 @@ class LogPlayActivity : AppCompatActivity() {
                 binding.timerGroup.isVisible = false
             }
         }
-        binding.timerButton.isEnabled = (dateInMillis ?: 0 + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
+        binding.timerButton.isEnabled = ((dateInMillis ?: 0) + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
     }
 
     private fun bindQuantity(play: PlayEntity) {
@@ -341,15 +341,17 @@ class LogPlayActivity : AppCompatActivity() {
         binding.quantityFrame.isVisible = play.quantity != 1 || isUserShowingQuantity || preferences().showLogPlayQuantity()
     }
 
-    private fun bindIncomplete(play: PlayEntity) {
-        binding.incompleteView.isChecked = play.incomplete
-        binding.incompleteView.isVisible = play.incomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete()
-    }
+    private fun bindIncomplete(isIncomplete: Boolean) =
+        binding.incompleteView.apply {
+            isChecked = isIncomplete
+            isVisible = isIncomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete()
+        }
 
-    private fun bindNoWinStats(play: PlayEntity) {
-        binding.noWinStatsView.isChecked = play.noWinStats
-        binding.noWinStatsView.isVisible = play.noWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats()
-    }
+    private fun bindNoWinStats(doNotCountWinStats: Boolean) =
+        binding.noWinStatsView.apply {
+            isChecked = doNotCountWinStats
+            isVisible = doNotCountWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats()
+        }
 
     private fun bindComments(play: PlayEntity) {
         binding.commentsView.setTextKeepState(play.comments)
@@ -572,42 +574,44 @@ class LogPlayActivity : AppCompatActivity() {
         }
         viewModel.internalId.observe(this) { internalId = it }
         viewModel.play.observe(this) {
-            this.play = it
-            dateInMillis = it.dateInMillis
-            length = it.length
-            startTime = it.startTime
-            playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
-            playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
-            playerCount = it.players.size
-            playerDescriptions = it.players.mapIndexed { i, p ->
-                p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
-            }
-            usedColors = it.players.map { p -> p.color }
+            it?.let {
+                this.play = it
+                dateInMillis = it.dateInMillis
+                length = it.length
+                startTime = it.startTime
+                playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
+                playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
+                playerCount = it.players.size
+                playerDescriptions = it.players.mapIndexed { i, p ->
+                    p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
+                }
+                usedColors = it.players.map { p -> p.color }
 
-            bindHeader()
-            bindDate(it)
-            bindLocation(it)
-            bindLength()
-            bindQuantity(it)
-            bindIncomplete(it)
-            bindNoWinStats(it)
-            bindComments(it)
-            bindPlayerHeader(it.players.size)
-            playerAdapter.submit(it.players)
-            binding.progressView.hide()
+                bindHeader()
+                bindDate(it)
+                bindLocation(it)
+                bindLength()
+                bindQuantity(it)
+                bindIncomplete(it.incomplete)
+                bindNoWinStats(it.noWinStats)
+                bindComments(it)
+                bindPlayerHeader(it.players.size)
+                playerAdapter.submit(it.players)
+                binding.progressView.hide()
 
-            if (showNotification && internalId != INVALID_ID.toLong()) {
-                showNotification = false
-                this.launchPlayingNotification(
-                    internalId,
-                    it.gameName,
-                    it.location,
-                    it.players.size,
-                    it.startTime,
-                    thumbnailUrl,
-                    imageUrl,
-                    heroImageUrl
-                )
+                if (showNotification && internalId != INVALID_ID.toLong()) {
+                    showNotification = false
+                    this.launchPlayingNotification(
+                        internalId,
+                        it.gameName,
+                        it.location,
+                        it.players.size,
+                        it.startTime,
+                        thumbnailUrl,
+                        imageUrl,
+                        heroImageUrl
+                    )
+                }
             }
         }
         viewModel.loadPlay(
@@ -691,30 +695,35 @@ class LogPlayActivity : AppCompatActivity() {
                     resources.getString(R.string.location) -> {
                         isUserShowingLocation = true
                         binding.locationFrame.isVisible = true
-                        binding.locationView.requestFocus()
+                        binding.locationView.requestFocusAndKeyboard()
+                        binding.locationView.showDropDown()
                     }
                     resources.getString(R.string.length) -> {
                         isUserShowingLength = true
                         binding.lengthGroup.isVisible = true
-                        binding.lengthView.requestFocus()
+                        binding.lengthView.requestFocusAndKeyboard()
                     }
                     resources.getString(R.string.quantity) -> {
                         isUserShowingQuantity = true
                         binding.quantityFrame.isVisible = true
-                        binding.quantityView.requestFocus()
+                        binding.quantityView.setAndSelectExistingText("1")
+                        binding.quantityView.requestFocusAndKeyboard()
+                        viewModel.updateQuantity(1)
                     }
                     resources.getString(R.string.incomplete) -> {
                         isUserShowingIncomplete = true
+                        bindIncomplete(true).requestFocus()
                         viewModel.updateIncomplete(true)
                     }
                     resources.getString(R.string.noWinStats) -> {
                         isUserShowingNoWinStats = true
+                        bindNoWinStats(true).requestFocus()
                         viewModel.updateNoWinStats(true)
                     }
                     resources.getString(R.string.comments) -> {
                         isUserShowingComments = true
                         binding.commentsFrame.isVisible = true
-                        binding.commentsView.requestFocus()
+                        binding.commentsView.requestFocusAndKeyboard()
                     }
                     resources.getString(R.string.title_players) -> {
                         isUserShowingPlayers = true
@@ -732,7 +741,7 @@ class LogPlayActivity : AppCompatActivity() {
     private fun createAddFieldArray(): Array<CharSequence> {
         val list = mutableListOf<CharSequence>()
         if (!binding.locationFrame.isVisible) list.add(getString(R.string.location))
-        if (!binding.lengthFrame.isVisible || !binding.timer.isVisible) list.add(getString(R.string.length))
+        if (!binding.lengthFrame.isVisible && !binding.timer.isVisible) list.add(getString(R.string.length))
         if (!binding.quantityFrame.isVisible) list.add(getString(R.string.quantity))
         if (!binding.incompleteView.isVisible) list.add(getString(R.string.incomplete))
         if (!binding.noWinStatsView.isVisible) list.add(getString(R.string.noWinStats))

@@ -234,15 +234,15 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun updateIncomplete(checked: Boolean) {
-        if (play.value?.incomplete != checked) {
-            _play.value = play.value?.copy(incomplete = checked)
+    fun updateIncomplete(isIncomplete: Boolean) {
+        if (play.value?.incomplete != isIncomplete) {
+            _play.value = play.value?.copy(incomplete = isIncomplete)
         }
     }
 
-    fun updateNoWinStats(checked: Boolean) {
-        if (play.value?.noWinStats != checked) {
-            _play.value = play.value?.copy(noWinStats = checked)
+    fun updateNoWinStats(doNotCountWinStats: Boolean) {
+        if (play.value?.noWinStats != doNotCountWinStats) {
+            _play.value = play.value?.copy(noWinStats = doNotCountWinStats)
         }
     }
 
