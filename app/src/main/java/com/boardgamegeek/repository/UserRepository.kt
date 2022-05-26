@@ -107,7 +107,6 @@ class UserRepository(val application: BggApplication) {
 
     suspend fun resetUsers() {
         deleteUsers()
-        //TODO remove buddy colors
         SyncService.sync(application, SyncService.FLAG_SYNC_BUDDIES)
     }
 }
