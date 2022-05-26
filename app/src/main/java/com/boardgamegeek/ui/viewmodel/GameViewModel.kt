@@ -19,6 +19,7 @@ import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -109,7 +110,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
             } catch (e: Exception) {
-                emit(RefreshableResource.error(e, application))
+                Timber.w(e)
+                emit(RefreshableResource.error(e, application, latestValue?.data))
                 isGameRefreshing.set(false)
             }
         }
@@ -263,7 +265,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
                 }
             } catch (e: Exception) {
-                emit(RefreshableResource.error(e, application))
+                Timber.w(e)
+                emit(RefreshableResource.error(e, application, latestValue?.data))
                 areItemsRefreshing.set(false)
             }
         }
@@ -299,7 +302,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
             } catch (e: Exception) {
-                emit(RefreshableResource.error(e, application))
+                Timber.w(e)
+                emit(RefreshableResource.error(e, application, latestValue?.data))
                 arePlaysRefreshing.set(false)
             }
         }
