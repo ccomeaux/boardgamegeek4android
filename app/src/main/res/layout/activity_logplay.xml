@@ -11,26 +11,27 @@
 
 	<include layout="@layout/actionbar_done_cancel" />
 
-	<androidx.core.widget.NestedScrollView
+	<androidx.coordinatorlayout.widget.CoordinatorLayout
+		android:id="@+id/coordinatorLayout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:fillViewport="true">
+		android:layout_height="match_parent">
 
-		<androidx.coordinatorlayout.widget.CoordinatorLayout
-			android:id="@+id/coordinatorLayout"
+		<androidx.core.widget.ContentLoadingProgressBar
+			android:id="@+id/progressView"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:visibility="gone" />
+
+		<androidx.core.widget.NestedScrollView
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
-
-			<androidx.core.widget.ContentLoadingProgressBar
-				android:id="@+id/progressView"
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				tools:visibility="gone" />
+			android:layout_height="match_parent"
+			android:fillViewport="true">
 
 			<androidx.constraintlayout.widget.ConstraintLayout
 				android:layout_width="match_parent"
+				android:paddingBottom="@dimen/fab_buffer"
 				android:layout_height="match_parent">
 
 				<androidx.constraintlayout.widget.Guideline
@@ -331,46 +332,22 @@
 					tools:itemCount="4"
 					tools:listitem="@layout/row_play_player"
 					tools:visibility="visible" />
-
-				<LinearLayout
-					android:id="@+id/addPlayerFrame"
-					style="@style/FormRow"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:descendantFocusability="blocksDescendants"
-					android:focusable="false"
-					android:gravity="center"
-					android:minHeight="64dp"
-					android:paddingVertical="@dimen/padding_half"
-					android:visibility="gone"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/recyclerView"
-					tools:visibility="visible">
-
-					<Button
-						android:id="@+id/addPlayerButton"
-						android:layout_width="wrap_content"
-						android:layout_height="match_parent"
-						android:layout_gravity="center_horizontal"
-						android:layout_marginTop="@dimen/padding_extra"
-						android:text="@string/title_add_players" />
-				</LinearLayout>
 			</androidx.constraintlayout.widget.ConstraintLayout>
 
-			<com.google.android.material.floatingactionbutton.FloatingActionButton
-				android:id="@+id/fab"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="bottom|right"
-				android:layout_margin="@dimen/padding_fab"
-				android:contentDescription="@string/add_field"
-				android:src="@drawable/ic_baseline_add_24"
-				android:visibility="gone"
-				app:elevation="@dimen/fab_elevation"
-				app:pressedTranslationZ="@dimen/fab_translation"
-				app:rippleColor="@color/medium_blue"
-				tools:visibility="visible" />
-		</androidx.coordinatorlayout.widget.CoordinatorLayout>
-	</androidx.core.widget.NestedScrollView>
+		</androidx.core.widget.NestedScrollView>
+
+		<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/fab"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|right"
+			android:layout_margin="@dimen/padding_fab"
+			android:contentDescription="@string/add_field"
+			android:src="@drawable/ic_baseline_add_24"
+			android:visibility="gone"
+			app:elevation="@dimen/fab_elevation"
+			app:pressedTranslationZ="@dimen/fab_translation"
+			app:rippleColor="@color/medium_blue"
+			tools:visibility="visible" />
+	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -19,7 +18,6 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -241,14 +239,6 @@ class LogPlayActivity : AppCompatActivity() {
             }
             popup.show()
         }
-
-        binding.addPlayerButton.setOnClickListener {
-            if (preferences()[LOG_EDIT_PLAYER_PROMPTED, false] == true) {
-                addPlayers(preferences()[LOG_EDIT_PLAYER, false] ?: false)
-            } else {
-                promptToEditPlayers()
-            }
-        }
     }
 
     private fun addPlayers(editPlayer: Boolean) {
@@ -297,7 +287,6 @@ class LogPlayActivity : AppCompatActivity() {
                     fabColor = color
                     binding.fab.colorize(color)
                     binding.fab.post { binding.fab.show() }
-                    ViewCompat.setBackgroundTintList(binding.addPlayerButton, ColorStateList.valueOf(color))
                 }
             })
         }
@@ -364,7 +353,6 @@ class LogPlayActivity : AppCompatActivity() {
         binding.playersLabel.text = if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
         binding.assignColorsButton.isEnabled = playerCount > 0
         binding.recyclerView.isVisible = showPlayers
-        binding.addPlayerFrame.isVisible = showPlayers
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -728,6 +716,11 @@ class LogPlayActivity : AppCompatActivity() {
                     resources.getString(R.string.title_players) -> {
                         isUserShowingPlayers = true
                         bindPlayerHeader(playerCount)
+                        if (preferences()[LOG_EDIT_PLAYER_PROMPTED, false] == true) {
+                            addPlayers(preferences()[LOG_EDIT_PLAYER, false] ?: false)
+                        } else {
+                            promptToEditPlayers()
+                        }
                     }
                 }
                 firebaseAnalytics.logEvent("AddField") {
@@ -746,7 +739,7 @@ class LogPlayActivity : AppCompatActivity() {
         if (!binding.incompleteView.isVisible) list.add(getString(R.string.incomplete))
         if (!binding.noWinStatsView.isVisible) list.add(getString(R.string.noWinStats))
         if (!binding.commentsFrame.isVisible) list.add(getString(R.string.comments))
-        if (!binding.playerHeader.isVisible) list.add(getString(R.string.title_players))
+        list.add(getString(R.string.title_players))
         return list.toTypedArray()
     }
 
