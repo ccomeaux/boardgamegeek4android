@@ -3,6 +3,7 @@ package com.boardgamegeek.ui
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
@@ -92,56 +93,30 @@ class NewPlayActivity : AppCompatActivity() {
 
         viewModel.location.observe(this) { updateSummary() }
 
+        viewModel.playDate.observe(this) { updateSummary() }
+
         viewModel.currentStep.observe(this) {
-            when (it) {
-                NewPlayViewModel.Step.LOCATION, null -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .add(R.id.fragmentContainer, NewPlayLocationsFragment())
-                        .commit()
-                }
-                NewPlayViewModel.Step.PLAYERS -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragmentContainer, NewPlayAddPlayersFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-                NewPlayViewModel.Step.PLAYERS_COLOR -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragmentContainer, NewPlayPlayerColorsFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-                NewPlayViewModel.Step.PLAYERS_SORT -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragmentContainer, NewPlayPlayerSortFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-                NewPlayViewModel.Step.PLAYERS_NEW -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragmentContainer, NewPlayPlayerIsNewFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-                NewPlayViewModel.Step.PLAYERS_WIN -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragmentContainer, NewPlayPlayerWinFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-                NewPlayViewModel.Step.COMMENTS -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragmentContainer, NewPlayCommentsFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
+            val fragment = when (it) {
+                NewPlayViewModel.Step.DATE -> NewPlayDateFragment()
+                NewPlayViewModel.Step.LOCATION, null -> NewPlayLocationsFragment()
+                NewPlayViewModel.Step.ADD_PLAYERS -> NewPlayAddPlayersFragment()
+                NewPlayViewModel.Step.PLAYERS_COLOR -> NewPlayPlayerColorsFragment()
+                NewPlayViewModel.Step.PLAYERS_SORT -> NewPlayPlayerSortFragment()
+                NewPlayViewModel.Step.PLAYERS_NEW -> NewPlayPlayerIsNewFragment()
+                NewPlayViewModel.Step.PLAYERS_WIN -> NewPlayPlayerWinFragment()
+                NewPlayViewModel.Step.COMMENTS -> NewPlayCommentsFragment()
+            }
+            if (it == null || it == NewPlayViewModel.INITIAL_STEP) {
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragmentContainer, fragment)
+                    .commit()
+            } else {
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
             updateSummary()
         }
@@ -199,12 +174,12 @@ class NewPlayActivity : AppCompatActivity() {
     private fun updateSummary() {
         val summaryView = findViewById<PlaySummary>(R.id.summaryView)
         summaryView.gameName = gameName
-        summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.Step.LOCATION
+        summaryView.date = viewModel.playDate.value
+        summaryView.step = viewModel.currentStep.value ?: NewPlayViewModel.INITIAL_STEP
         summaryView.startTime = startTime
         summaryView.length = viewModel.length.value ?: 0
         summaryView.location = viewModel.location.value.orEmpty()
         summaryView.playerCount = viewModel.addedPlayers.value?.size ?: 0
-
         summaryView.updateText()
     }
 
@@ -214,7 +189,8 @@ class NewPlayActivity : AppCompatActivity() {
         defStyleAttr: Int = android.R.attr.textViewStyle
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
         var gameName = ""
-        var step = NewPlayViewModel.Step.LOCATION
+        var step = NewPlayViewModel.INITIAL_STEP
+        var date: Long? = null
         var startTime = 0L
         var length = 0
         var location = ""
@@ -227,21 +203,29 @@ class NewPlayActivity : AppCompatActivity() {
 
         private fun createSummary(): String {
             var summary = gameName
+
+            date?.let {
+                val d = DateUtils.formatDateTime(
+                    context,
+                    it,
+                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
+                )
+                summary += "  ${context.getString(R.string.on)} $d"
+            }
+
             if (startTime > 0L || length > 0) {
                 val totalLength = length + if (startTime > 0L) startTime.howManyMinutesOld() else 0
                 summary += " ${context.getString(R.string.for_)} $totalLength ${context.getString(R.string.minutes_abbr)}"
             }
 
             summary += when {
-                step == NewPlayViewModel.Step.LOCATION -> " ${context.getString(R.string.at)}"
+                step == NewPlayViewModel.Step.LOCATION -> " ${context.getString(R.string.at)}..."
                 step > NewPlayViewModel.Step.LOCATION -> if (location.isNotBlank()) " ${context.getString(R.string.at)} $location" else ""
                 else -> ""
             }
             summary += when {
-                step == NewPlayViewModel.Step.PLAYERS || step == NewPlayViewModel.Step.PLAYERS_COLOR || step == NewPlayViewModel.Step.PLAYERS_SORT -> " ${context.getString(
-                        R.string.with
-                    )}"
-                step > NewPlayViewModel.Step.PLAYERS -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
+                step in NewPlayViewModel.Step.ADD_PLAYERS..NewPlayViewModel.Step.COMMENTS -> " ${context.getString(R.string.with)}..."
+                step > NewPlayViewModel.Step.PLAYERS_WIN -> " ${context.getString(R.string.with)} $playerCount ${context.getString(R.string.players)}"
                 else -> ""
             }
 

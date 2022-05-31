@@ -15,11 +15,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private var playDate: Long = Calendar.getInstance().timeInMillis
-    private var _comments: String = ""
-    val comments: String
-        get() = _comments
-
     private val playRepository = PlayRepository(getApplication())
     private val gameRepository = GameRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
@@ -31,6 +26,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     val currentStep: LiveData<Step>
         get() = _currentStep
 
+    private var _playDate = MutableLiveData<Long>()
+    val playDate: LiveData<Long>
+        get() = _playDate
+
     private val _startTime = MutableLiveData<Long>()
     val startTime: LiveData<Long>
         get() = _startTime
@@ -39,6 +38,10 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     val length: LiveData<Int> = Transformations.map(_lengthInMillis) {
         (it / 60_000).toInt()
     }
+
+    private var _comments: String = ""
+    val comments: String
+        get() = _comments
 
     private val _location = MutableLiveData<String>()
     val location: LiveData<String>
@@ -79,8 +82,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     init {
-        _currentStep.value = Step.LOCATION
-        playDate = Calendar.getInstance().timeInMillis
+        _currentStep.value = INITIAL_STEP
+        _playDate.value = Calendar.getInstance().timeInMillis
 
         locations.addSource(rawLocations) { result ->
             result?.let { locations.value = filterLocations(result, locationFilter) }
@@ -174,6 +177,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         locations.value = filterLocations(result, filter)
     }.also { locationFilter = filter }
 
+    fun setDate(date: Long) {
+        if (_playDate.value != date) _playDate.value = date
+        _currentStep.value = Step.LOCATION
+    }
+
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
         val newList = (list?.filter { it.name.isNotBlank() } ?: emptyList()).toMutableList()
         if (isLastPlayRecent()) {
@@ -187,7 +195,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun setLocation(name: String) {
         if (_location.value != name) _location.value = name
-        _currentStep.value = Step.PLAYERS
+        _currentStep.value = Step.ADD_PLAYERS
     }
 
     fun addPlayer(player: PlayerEntity) {
@@ -203,7 +211,6 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 }
                 assemblePlayers()
 
-                // TODO make this LiveData
                 val plays = playRepository.loadPlaysByPlayer(
                     player.playerName,
                     gameId.value ?: BggContract.INVALID_ID,
@@ -340,7 +347,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     fun finishPlayerSort() {
         _currentStep.value = when {
             playerMightBeNewMap.values.any { it } -> Step.PLAYERS_NEW
-            startTime.value ?: 0L == 0L -> Step.PLAYERS_WIN
+            (startTime.value ?: 0L) == 0L -> Step.PLAYERS_WIN
             else -> Step.COMMENTS
         }
     }
@@ -352,7 +359,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerIsNew() {
-        _currentStep.value = if (startTime.value ?: 0L == 0L) Step.PLAYERS_WIN else Step.COMMENTS
+        _currentStep.value = if ((startTime.value ?: 0L) == 0L) Step.PLAYERS_WIN else Step.COMMENTS
     }
 
     fun addWinToPlayer(playerId: String, isWin: Boolean) {
@@ -465,7 +472,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun toggleTimer() {
         val lengthInMillis = _lengthInMillis.value ?: 0L
-        if (startTime.value ?: 0L == 0L) {
+        if ((startTime.value ?: 0L) == 0L) {
             _startTime.value = System.currentTimeMillis() - lengthInMillis
             _lengthInMillis.value = 0
         } else {
@@ -492,7 +499,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             val play = PlayEntity(
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,
-                PlayEntity.currentDate(),
+                PlayEntity.millisToRawDate(playDate.value ?: System.currentTimeMillis()),
                 gameId.value ?: BggContract.INVALID_ID,
                 gameName.value.orEmpty(),
                 quantity = 1,
@@ -514,12 +521,17 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     enum class Step {
+        DATE,
         LOCATION,
-        PLAYERS,
+        ADD_PLAYERS,
         PLAYERS_COLOR,
         PLAYERS_SORT,
         PLAYERS_NEW,
         PLAYERS_WIN,
         COMMENTS
+    }
+
+    companion object {
+        val INITIAL_STEP = Step.DATE
     }
 }

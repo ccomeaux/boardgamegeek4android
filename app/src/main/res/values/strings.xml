@@ -57,6 +57,9 @@
 	<string name="range">Range</string>
 	<string name="single_value">Single value</string>
 	<string name="none">None</string>
+	<string name="today">Today</string>
+	<string name="yesterday">Yesterday</string>
+	<string name="earlier">Earlier…</string>
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
@@ -303,6 +306,7 @@
 	<string name="empty_linked_collection">No games for this %s.</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
+	<string name="title_date">Date</string>
 	<string name="title_dates">Dates</string>
 	<string name="title_play_time">Play Time</string>
 	<string name="title_advanced">Advanced</string>
