@@ -141,6 +141,8 @@ class CollectionViewDao(private val context: BggApplication) {
     }
 
     suspend fun update(view: CollectionViewEntity) = withContext(Dispatchers.IO) {
+        if (view.id == BggContract.INVALID_ID.toLong()) return@withContext
+
         val uri = CollectionViews.buildViewUri(view.id)
         val values = contentValuesOf(
             CollectionViews.Columns.NAME to view.name,
@@ -158,6 +160,7 @@ class CollectionViewDao(private val context: BggApplication) {
     }
 
     suspend fun delete(viewId: Long): Boolean = withContext(Dispatchers.IO) {
+        if (viewId == BggContract.INVALID_ID.toLong()) return@withContext false
         context.contentResolver.delete(CollectionViews.buildViewUri(viewId), null, null) > 0
     }
 
