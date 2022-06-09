@@ -54,7 +54,7 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
                 if (message.isBlank()) {
                     snackbar?.dismiss()
                 } else {
-                    snackbar = rootContainer?.indefiniteSnackbar(message)
+                    snackbar = rootContainer?.longSnackbar(message)
                 }
             }
         }
