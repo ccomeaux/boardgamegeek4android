@@ -430,9 +430,9 @@ class GameDao(private val context: BggApplication) {
                 Plays.Columns.SUM_QUANTITY,
                 Plays.Columns.ITEM_NAME,
                 Games.Columns.GAME_RANK,
-                Games.Columns.GAME_ID
+                Games.Columns.GAME_ID,
             ),
-            selection = arrayListOf<String>().apply {
+            selection = mutableListOf<String>().apply {
                 add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
                 if (!includeIncompletePlays) {
                     add(Plays.Columns.INCOMPLETE.whereZeroOrNull())
@@ -443,7 +443,7 @@ class GameDao(private val context: BggApplication) {
                     add(Games.Columns.SUBTYPE.whereNotEqualsOrNull())
                 }
             }.joinTo(" AND ").toString(),
-            selectionArgs = arrayListOf<String>().apply {
+            selectionArgs = mutableListOf<String>().apply {
                 if (!includeExpansions && !includeAccessories) {
                     add(GameEntity.Subtype.BOARDGAME.code)
                 } else if (!includeExpansions) {
@@ -460,7 +460,7 @@ class GameDao(private val context: BggApplication) {
                         it.getIntOrNull(3) ?: INVALID_ID,
                         it.getStringOrNull(1).orEmpty(),
                         it.getIntOrNull(0) ?: 0,
-                        it.getIntOrNull(2) ?: 0,
+                        it.getIntOrNull(2) ?: GameRankEntity.RANK_UNKNOWN,
                     )
                 } while (it.moveToNext())
             }

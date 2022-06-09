@@ -32,7 +32,6 @@ class SelectionBuilder {
     private var selection = ""
     private val selectionArgs = mutableListOf<String>()
     private val groupBy = mutableListOf<String>()
-    private var having: String? = null
     private var limit: String? = null
 
     /**
@@ -44,7 +43,6 @@ class SelectionBuilder {
         selection = ""
         selectionArgs.clear()
         groupBy.clear()
-        having = null
         limit = null
         return this
     }
@@ -94,10 +92,6 @@ class SelectionBuilder {
         checkNotNull(tableName) { "Table not specified" }
     }
 
-    private fun assertHaving() {
-        check(!(!having.isNullOrEmpty() && groupBy.size == 0)) { "Group by must be specified for Having clause" }
-    }
-
     fun map(fromColumn: String, toClause: String?): SelectionBuilder {
         projectionMap[fromColumn] = "$toClause AS $fromColumn"
         return this
@@ -134,11 +128,6 @@ class SelectionBuilder {
         return this
     }
 
-    fun having(having: String?): SelectionBuilder {
-        this.having = having
-        return this
-    }
-
     /**
      * Return selection arguments for current internal state.
      *
@@ -165,15 +154,14 @@ class SelectionBuilder {
     }
 
     override fun toString(): String {
-        return ("table=[$tableName], selection=[$selection], selectionArgs=${getSelectionArgs().contentToString()}, groupBy=[${getGroupByClause()}], having=[$having]")
+        return ("table=[$tableName], selection=[$selection], selectionArgs=${getSelectionArgs().contentToString()}, groupBy=[${getGroupByClause()}]")
     }
 
     /**
      * Execute query using the current internal state as `WHERE` clause.
      */
     fun query(db: SQLiteDatabase, columns: Array<String>?, orderBy: String?): Cursor {
-        assertHaving()
-        return query(db, columns, getGroupByClause(), having, orderBy, limit)
+        return query(db, columns, getGroupByClause(), null, orderBy, limit)
     }
 
     /**

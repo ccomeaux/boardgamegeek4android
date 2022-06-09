@@ -53,7 +53,6 @@ class BggContract {
             const val CUSTOM_PLAYER_SORT = "custom_player_sort"
             const val GAME_RANK = "game_rank"
             const val SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL = "suggested_player_count_poll_vote_total"
-            const val PLAYER_COUNT_RECOMMENDATION_PREFIX = "player_count_recommendation_"
             const val HERO_IMAGE_URL = "hero_image_url"
             const val ICON_COLOR = "ICON_COLOR"
             const val DARK_COLOR = "DARK_COLOR"
@@ -223,19 +222,6 @@ class BggContract {
         fun getPollResultsResultKey(uri: Uri) = uri.getPathValue(PATH_POLL_RESULTS_RESULT)
 
         fun getPollPlayerCount(uri: Uri) = uri.getPathValue(PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
-
-        fun createRecommendedPlayerCountColumn(playerCount: String): String {
-            return Columns.PLAYER_COUNT_RECOMMENDATION_PREFIX + playerCount
-        }
-
-        fun getRecommendedPlayerCountFromColumn(column: String): String? {
-            if (column.startsWith(Columns.PLAYER_COUNT_RECOMMENDATION_PREFIX)) {
-                val delimiter = Columns.PLAYER_COUNT_RECOMMENDATION_PREFIX.substring(Columns.PLAYER_COUNT_RECOMMENDATION_PREFIX.length - 1)
-                val parts = column.split(delimiter.toRegex()).toTypedArray()
-                return parts[parts.size - 1]
-            }
-            return null
-        }
     }
 
     object GameRanks {
@@ -847,7 +833,6 @@ class BggContract {
         const val QUERY_VALUE_UNIQUE_USER = "uniqueuser"
         const val QUERY_VALUE_COLOR = "color"
         const val QUERY_VALUE_PLAY = "play"
-        const val QUERY_KEY_HAVING = "having"
         const val QUERY_KEY_LIMIT = "limit"
 
         const val FRAGMENT_SIMPLE = "simple"
