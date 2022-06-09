@@ -11,7 +11,6 @@ import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
@@ -83,7 +82,6 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         _currentStep.value = INITIAL_STEP
-        _playDate.value = Calendar.getInstance().timeInMillis
 
         locations.addSource(rawLocations) { result ->
             result?.let { locations.value = filterLocations(result, locationFilter) }
@@ -91,8 +89,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
         availablePlayers.addSource(allPlayers) { result ->
             result?.let {
-                availablePlayers.value =
-                    filterPlayers(result, playersByLocation.value, _addedPlayers.value, playerFilter)
+                availablePlayers.value = filterPlayers(result, playersByLocation.value, _addedPlayers.value, playerFilter)
             }
         }
         availablePlayers.addSource(playersByLocation) { result ->

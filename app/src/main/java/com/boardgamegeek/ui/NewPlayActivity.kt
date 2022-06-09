@@ -204,13 +204,15 @@ class NewPlayActivity : AppCompatActivity() {
         private fun createSummary(): String {
             var summary = gameName
 
-            date?.let {
-                val d = DateUtils.formatDateTime(
-                    context,
-                    it,
-                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
-                )
-                summary += "  ${context.getString(R.string.on)} $d"
+            if (step == NewPlayViewModel.Step.DATE) {
+                summary += " ${context.getString(R.string.on)}..."
+            } else {
+                date?.let {
+                    val d = DateUtils.formatDateTime(
+                        context, it, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
+                    )
+                    summary += " ${context.getString(R.string.on)} $d"
+                }
             }
 
             if (startTime > 0L || length > 0) {
