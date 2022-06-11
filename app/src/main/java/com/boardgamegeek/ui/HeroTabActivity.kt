@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.databinding.ActivityHeroTabBinding
 import com.boardgamegeek.extensions.ImageLoadCallback
 import com.boardgamegeek.extensions.applyDarkScrim
@@ -31,7 +30,6 @@ abstract class HeroTabActivity : DrawerActivity() {
 
     protected fun initializeViewPager() {
         binding.viewPager.adapter = createAdapter()
-        createOnPageChangeListener()?.let { binding.viewPager.registerOnPageChangeCallback(it) }
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = getPageTitle(position)
         }.attach()
@@ -40,10 +38,6 @@ abstract class HeroTabActivity : DrawerActivity() {
     protected abstract fun getPageTitle(position: Int): CharSequence
 
     protected abstract fun createAdapter(): FragmentStateAdapter
-
-    protected open fun createOnPageChangeListener(): ViewPager2.OnPageChangeCallback? {
-        return null
-    }
 
     protected fun safelySetTitle(title: String?) {
         if (!title.isNullOrBlank()) {
