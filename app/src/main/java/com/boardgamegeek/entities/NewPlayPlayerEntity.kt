@@ -37,5 +37,7 @@ data class NewPlayPlayerEntity(
     val seat: Int?
         get() = sortOrder.toIntOrNull()
 
-    var favoriteColors = emptyList<String>()
+    var favoriteColorsForGame = emptyList<String>()
+
+    var favoriteColor: String? = null
 }

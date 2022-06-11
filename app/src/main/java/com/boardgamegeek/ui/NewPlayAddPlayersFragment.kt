@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +26,7 @@ class NewPlayAddPlayersFragment : Fragment() {
     private var _binding: FragmentNewPlayAddPlayersBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
-    private val adapter: PlayersAdapter by lazy {        PlayersAdapter(viewModel, binding.filterEditText)    }
+    private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel, binding.filterEditText) }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -86,8 +87,9 @@ class NewPlayAddPlayersFragment : Fragment() {
                         isCloseIconVisible = true
                         if (player.avatarUrl.isBlank()) {
                             setChipIconResource(R.drawable.ic_baseline_account_circle_24)
-                            // TODO use non-user's favorite color if available
-                            setChipIconTintResource(R.color.dark_blue)
+                            if (player.favoriteColor?.isNotBlank() == true) {
+                                chipIconTint = ColorStateList.valueOf(player.favoriteColor.asColorRgb())
+                            }
                         } else {
                             loadIcon(player.avatarUrl, R.drawable.ic_baseline_account_circle_24)
                         }

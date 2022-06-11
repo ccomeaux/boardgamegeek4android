@@ -76,7 +76,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             val o = oldList[oldItemPosition]
             val n = newList[newItemPosition]
-            return o.id == n.id && o.color == n.color && o.favoriteColors == n.favoriteColors
+            return o.id == n.id && o.color == n.color && o.favoriteColorsForGame == n.favoriteColorsForGame
         }
     }
 
@@ -149,7 +149,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
                         binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_group_24)
                     }
 
-                    val favoriteColor = player.favoriteColors.firstOrNull() ?: ""
+                    val favoriteColor = player.favoriteColorsForGame.firstOrNull().orEmpty()
                     val favoriteColorRgb = favoriteColor.asColorRgb()
                     if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
                         binding.favoriteColorView.setColorViewValue(favoriteColorRgb)

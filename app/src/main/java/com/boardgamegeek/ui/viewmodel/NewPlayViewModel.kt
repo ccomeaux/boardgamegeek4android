@@ -440,7 +440,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 rankedChoices += gameColorList
                     .filterNot { favoriteForPlayer.contains(it) }
                     .filterNot { playerColors.containsValue(it) }
-                favoriteColors = rankedChoices
+                favoriteColorsForGame = rankedChoices
+                favoriteColor = favoriteForPlayer.firstOrNull()
                 sortOrder = playerSort[id].orEmpty()
                 isNew = playerIsNew[id] ?: false
                 isWin = playerWin[id] ?: false
