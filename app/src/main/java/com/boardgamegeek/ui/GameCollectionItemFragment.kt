@@ -322,7 +322,12 @@ class GameCollectionItemFragment : Fragment() {
             else -> item.lastModifiedDate
         }
         binding.updatedView.timestamp = item.syncTimestamp
-        binding.idView.text = item.collectionId.toString()
+        if (item.collectionId != INVALID_ID) {
+            binding.idView.text = item.collectionId.toString()
+            binding.idView.isVisible = true
+        } else {
+            binding.idView.isVisible = false
+        }
     }
 
     private fun getStatusDescription(item: CollectionItemEntity): String {

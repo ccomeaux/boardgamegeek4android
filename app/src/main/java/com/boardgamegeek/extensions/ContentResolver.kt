@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
+import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
@@ -80,12 +81,13 @@ fun ContentResolver.queryInts(
     columnName: String,
     selection: String? = null,
     selectionArgs: Array<String>? = null,
-    sortOrder: String? = null
+    sortOrder: String? = null,
+    valueIfNull: Int = 0,
 ): List<Int> {
     val list = arrayListOf<Int>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         while (it.moveToNext()) {
-            list.add(it.getInt(0))
+            list.add(it.getIntOrNull(0) ?: valueIfNull)
         }
     }
     return list

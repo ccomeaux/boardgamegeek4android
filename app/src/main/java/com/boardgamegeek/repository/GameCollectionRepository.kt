@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
@@ -22,6 +23,7 @@ class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
     private val gameDao = GameDao(application)
     private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
     suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
 
@@ -68,7 +70,8 @@ class GameCollectionRepository(val application: BggApplication) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             val list = mutableListOf<CollectionItemEntity>()
-            // TODO This doesn't sync only-played games (the played flag needs to be set explicitly)
+            val collectionIds = arrayListOf<Int>()
+
             val options = mutableMapOf(
                 BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
                 BggService.COLLECTION_QUERY_KEY_STATS to "1",
@@ -76,14 +79,32 @@ class GameCollectionRepository(val application: BggApplication) {
             )
             options.addSubtype(subtype)
             val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
-            val collectionIds = arrayListOf<Int>()
             response.items?.forEach { collectionItem ->
                 val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
                 list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                 collectionIds += collectionId
             }
-            Timber.i("Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId)
+
+            val statuses = prefs.getSyncStatusesOrDefault()
+            if ((response.items == null || response.items.isNotEmpty()) && statuses.contains(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
+                val options = mutableMapOf(
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+                    BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
+                )
+                options.addSubtype(subtype)
+                val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
+                response.items?.forEach { collectionItem ->
+                    val (item, game) = collectionItem.mapToEntities()
+                    val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
+                    list += item.copy(internalId = internalId, syncTimestamp = timestamp)
+                    collectionIds += collectionId
+                }
+            }
+
+            Timber.i("Synced %,d collection item(s) for game '%s'", list.size, gameId)
 
             val deleteCount = dao.delete(gameId, collectionIds)
             Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)

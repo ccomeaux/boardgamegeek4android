@@ -63,7 +63,7 @@ class CollectionDao(private val context: BggApplication) {
         return CollectionItemEntity(
             internalId = cursor.getLong(COLUMN_ID),
             gameId = cursor.getInt(COLUMN_GAME_ID),
-            collectionId = cursor.getInt(COLUMN_COLLECTION_ID),
+            collectionId = cursor.getIntOrNull(COLUMN_COLLECTION_ID) ?: INVALID_ID,
             collectionName = cursor.getStringOrNull(COLUMN_COLLECTION_NAME).orEmpty(),
             sortName = cursor.getStringOrNull(COLUMN_COLLECTION_SORT_NAME).orEmpty(),
             gameName = cursor.getStringOrNull(COLUMN_GAME_NAME).orEmpty(),
@@ -361,20 +361,22 @@ class CollectionDao(private val context: BggApplication) {
      * @param protectedCollectionIds list of collection IDs not to delete.
      * @return the number or rows deleted.
      */
-    fun delete(gameId: Int, protectedCollectionIds: List<Int>): Int {
+    fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int {
         // determine the collection IDs that are no longer in the collection
         val collectionIdsToDelete = resolver.queryInts(
             Collection.CONTENT_URI,
             Collection.Columns.COLLECTION_ID,
             "collection.${Collection.Columns.GAME_ID}=?",
-            arrayOf(gameId.toString())
-        )
-            .toMutableList()
+            arrayOf(gameId.toString()),
+            valueIfNull = INVALID_ID,
+        ).toMutableList()
         collectionIdsToDelete.removeAll(protectedCollectionIds.toSet())
-        // remove them
+        collectionIdsToDelete.removeAll(setOf(INVALID_ID))
+        // delete them
+        var numberOfDeletedRows = 0
         if (collectionIdsToDelete.size > 0) {
             for (collectionId in collectionIdsToDelete) {
-                resolver.delete(
+                numberOfDeletedRows += resolver.delete(
                     Collection.CONTENT_URI,
                     "${Collection.Columns.COLLECTION_ID}=?",
                     arrayOf(collectionId.toString())
@@ -382,7 +384,7 @@ class CollectionDao(private val context: BggApplication) {
             }
         }
 
-        return collectionIdsToDelete.size
+        return numberOfDeletedRows
     }
 
     suspend fun saveItem(

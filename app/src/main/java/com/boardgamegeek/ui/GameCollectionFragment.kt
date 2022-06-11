@@ -66,14 +66,12 @@ class GameCollectionFragment : Fragment() {
     }
 
     private fun showData(items: List<CollectionItemEntity>) {
+        adapter.items = items
         if (items.isNotEmpty()) {
-            adapter.items = items
             binding.syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
             binding.emptyMessage.isVisible = false
-            binding.recyclerView.isVisible = true
         } else {
             binding.syncTimestamp.timestamp = System.currentTimeMillis()
-            binding.recyclerView.isVisible = false
             showError(hasData = false)
         }
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
