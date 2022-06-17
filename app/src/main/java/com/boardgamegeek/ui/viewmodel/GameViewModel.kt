@@ -340,7 +340,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                             winnablePlaysColor,
                             allPlaysColor,
                         )
-                        // refresh() TODO - stop this
+                        refresh()
                     }
                 }
             }
