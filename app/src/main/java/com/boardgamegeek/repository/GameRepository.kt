@@ -6,10 +6,7 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.extensions.AccountPreferences
-import com.boardgamegeek.extensions.get
-import com.boardgamegeek.extensions.getImageId
-import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
@@ -154,6 +151,8 @@ class GameRepository(val application: BggApplication) {
             Timber.d(numberOfRowsModified.toString())
         }
     }
+
+    suspend fun updateColors(gameId: Int, colors: List<String>) = dao.updateColors(gameId, colors)
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
         if (gameId != INVALID_ID) {

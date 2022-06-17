@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import android.content.ContentProviderOperation
 import android.content.ContentValues
 import android.net.Uri
 import android.provider.BaseColumns
@@ -10,10 +11,8 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.BriefBuddyEntity
 import com.boardgamegeek.entities.UserEntity
-import com.boardgamegeek.extensions.load
-import com.boardgamegeek.extensions.queryInt
-import com.boardgamegeek.extensions.queryLong
-import com.boardgamegeek.extensions.queryString
+import com.boardgamegeek.extensions.*
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Avatars
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.provider.BggContract.Companion.COLLATE_NOCASE
@@ -183,5 +182,23 @@ class UserDao(private val context: BggApplication) {
             "${Buddies.Columns.UPDATED_LIST}<?",
             arrayOf(updateTimestamp.toString())
         )
+    }
+
+    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = withContext(Dispatchers.IO) {
+        if (context.contentResolver.rowExists(Buddies.buildBuddyUri(username))) {
+            val batch = arrayListOf<ContentProviderOperation>()
+            colors.filter { it.second.isNotBlank() }.forEach { (sort, color) ->
+                val builder = if (context.contentResolver.rowExists(BggContract.PlayerColors.buildUserUri(username, sort))) {
+                    ContentProviderOperation
+                        .newUpdate(BggContract.PlayerColors.buildUserUri(username, sort))
+                } else {
+                    ContentProviderOperation
+                        .newInsert(BggContract.PlayerColors.buildUserUri(username))
+                        .withValue(BggContract.PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, sort)
+                }
+                batch.add(builder.withValue(BggContract.PlayerColors.Columns.PLAYER_COLOR, color).build())
+            }
+            context.contentResolver.applyBatch(batch)
+        }
     }
 }

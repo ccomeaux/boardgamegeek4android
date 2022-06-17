@@ -817,4 +817,15 @@ class GameDao(private val context: BggApplication) {
         // remove unused associations
         return existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
     }
+
+    suspend fun updateColors(gameId: Int, colors: List<String>) = withContext(Dispatchers.IO) {
+        if (resolver.rowExists(Games.buildGameUri(gameId))) {
+            val gameColorsUri = Games.buildColorsUri(gameId)
+            resolver.delete(gameColorsUri, null, null)
+            val values = colors.filter { it.isNotBlank() }.map { contentValuesOf(GameColors.Columns.COLOR to it) }
+            if (values.isNotEmpty()) {
+                resolver.bulkInsert(gameColorsUri, values.toTypedArray())
+            }
+        }
+    }
 }

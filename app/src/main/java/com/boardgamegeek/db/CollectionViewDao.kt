@@ -126,7 +126,7 @@ class CollectionViewDao(private val context: BggApplication) {
     suspend fun insert(view: CollectionViewEntity): Long = withContext(Dispatchers.IO) {
         val values = contentValuesOf(
             CollectionViews.Columns.NAME to view.name,
-            CollectionViews.Columns.STARRED to false,
+            CollectionViews.Columns.STARRED to view.starred,
             CollectionViews.Columns.SORT_TYPE to view.sortType,
         )
         val filterUri = context.contentResolver.insert(CollectionViews.CONTENT_URI, values)

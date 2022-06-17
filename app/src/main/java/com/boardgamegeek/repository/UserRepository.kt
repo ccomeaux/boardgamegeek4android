@@ -109,4 +109,6 @@ class UserRepository(val application: BggApplication) {
         deleteUsers()
         SyncService.sync(application, SyncService.FLAG_SYNC_BUDDIES)
     }
+
+    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = userDao.updateColors(username, colors)
 }
