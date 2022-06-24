@@ -17,9 +17,44 @@ inline fun ContentResolver.load(
     projection: Array<String>? = null,
     selection: String? = null,
     selectionArgs: Array<String>? = null,
-    sortOrder: String? = null
+    sortOrder: String? = null,
 ): Cursor? {
     return this.query(uri, projection, selection, selectionArgs, sortOrder)
+}
+
+suspend fun <T> ContentResolver.loadEntity(
+    uri: Uri,
+    projection: Array<String>? = null,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null,
+    populateEntity: suspend (cursor: Cursor) -> T,
+): T? {
+    this.query(uri, projection, selection, selectionArgs, sortOrder)?.use {
+        return if (it.moveToFirst()) {
+            populateEntity(it)
+        } else null
+    }
+    return null
+}
+
+suspend fun <T> ContentResolver.loadList(
+    uri: Uri,
+    projection: Array<String>? = null,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null,
+    populateEntity: suspend (cursor: Cursor) -> T,
+): List<T> {
+    val list = mutableListOf<T>()
+    this.query(uri, projection, selection, selectionArgs, sortOrder)?.use {
+        if (it.moveToFirst()) {
+            do {
+                list += populateEntity(it)
+            } while (it.moveToNext())
+        }
+    }
+    return list
 }
 
 fun ContentResolver.applyBatch(batch: ArrayList<ContentProviderOperation>?, debugMessage: String = ""): Array<ContentProviderResult> {

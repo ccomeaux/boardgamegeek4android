@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui
 
 import android.content.res.ColorStateList
+import android.graphics.BlendMode
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
@@ -139,12 +142,27 @@ class NewPlayAddPlayersFragment : Fragment() {
                 player?.let { p ->
                     binding.nameView.text = p.name
                     binding.usernameView.text = p.username
-                    binding.avatarView.loadThumbnail(p.avatarUrl, R.drawable.person_image_empty)
+                    binding.avatarView.loadThumbnail(p.avatarUrl, R.drawable.person_image_empty, object : ImageLoadCallback {
+                        override fun onSuccessfulImageLoad(palette: Palette?) {
+                        }
+
+                        override fun onFailedImageLoad() {
+                            tintPlayer(p)
+                        }
+                    })
+                    if (p.avatarUrl.isBlank() && p.favoriteColor != null) {
+                        tintPlayer(p)
+                    }
                     itemView.setOnClickListener {
                         viewModel.addPlayer(p)
                         filterView.text = ""
                     }
                 }
+            }
+
+            private fun tintPlayer(p: PlayerEntity) {
+                binding.avatarView.imageTintBlendMode = BlendMode.COLOR_BURN
+                binding.avatarView.imageTintList = ColorStateList.valueOf(p.favoriteColor ?: Color.TRANSPARENT)
             }
         }
     }

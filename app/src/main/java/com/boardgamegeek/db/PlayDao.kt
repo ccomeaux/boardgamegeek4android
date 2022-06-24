@@ -25,7 +25,7 @@ class PlayDao(private val context: BggApplication) {
     }
 
     suspend fun loadPlay(id: Long): PlayEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.load(
+        context.contentResolver.loadEntity(
             Plays.buildPlayWithGameUri(id),
             arrayOf(
                 BaseColumns._ID,
@@ -50,41 +50,38 @@ class PlayDao(private val context: BggApplication) {
                 Games.Columns.HERO_IMAGE_URL,
                 Games.Columns.UPDATED_PLAYS,
             ),
-        )?.use {
-            if (it.moveToFirst()) {
-                val players = loadPlayers(id)
-                val play = PlayEntity(
-                    internalId = it.getLong(0),
-                    playId = it.getInt(1),
-                    rawDate = it.getString(2),
-                    gameId = it.getInt(3),
-                    gameName = it.getString(4),
-                    quantity = it.getIntOrNull(5) ?: 1,
-                    length = it.getIntOrNull(6) ?: 0,
-                    location = it.getStringOrNull(7).orEmpty(),
-                    incomplete = it.getInt(8) == 1,
-                    noWinStats = it.getInt(9) == 1,
-                    comments = it.getStringOrNull(10).orEmpty(),
-                    syncTimestamp = it.getLong(11),
-                    initialPlayerCount = it.getInt(12),
-                    dirtyTimestamp = it.getLong(13),
-                    updateTimestamp = it.getLong(14),
-                    deleteTimestamp = it.getLong(15),
-                    startTime = it.getLong(16),
-                    imageUrl = it.getStringOrNull(17).orEmpty(),
-                    thumbnailUrl = it.getStringOrNull(18).orEmpty(),
-                    heroImageUrl = it.getStringOrNull(19).orEmpty(),
-                    updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
-                    _players = players,
-                )
-                play
-            } else null
+        ) {
+            val internalId = it.getLong(0)
+            val players = loadPlayers(internalId)
+            PlayEntity(
+                internalId = internalId,
+                playId = it.getInt(1),
+                rawDate = it.getString(2),
+                gameId = it.getInt(3),
+                gameName = it.getString(4),
+                quantity = it.getIntOrNull(5) ?: 1,
+                length = it.getIntOrNull(6) ?: 0,
+                location = it.getStringOrNull(7).orEmpty(),
+                incomplete = it.getInt(8) == 1,
+                noWinStats = it.getInt(9) == 1,
+                comments = it.getStringOrNull(10).orEmpty(),
+                syncTimestamp = it.getLong(11),
+                initialPlayerCount = it.getInt(12),
+                dirtyTimestamp = it.getLong(13),
+                updateTimestamp = it.getLong(14),
+                deleteTimestamp = it.getLong(15),
+                startTime = it.getLong(16),
+                imageUrl = it.getStringOrNull(17).orEmpty(),
+                thumbnailUrl = it.getStringOrNull(18).orEmpty(),
+                heroImageUrl = it.getStringOrNull(19).orEmpty(),
+                updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                _players = players,
+            )
         }
     }
 
     private suspend fun loadPlayers(internalId: Long): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
-        val players = mutableListOf<PlayPlayerEntity>()
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             Plays.buildPlayerUri(internalId),
             arrayOf(
                 BaseColumns._ID,
@@ -99,25 +96,20 @@ class PlayDao(private val context: BggApplication) {
                 PlayPlayers.Columns.WIN,
                 Plays.Columns.PLAY_ID,
             ),
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    players += PlayPlayerEntity(
-                        name = it.getStringOrNull(1).orEmpty(),
-                        username = it.getStringOrNull(2).orEmpty(),
-                        startingPosition = it.getStringOrNull(3).orEmpty(),
-                        color = it.getStringOrNull(4).orEmpty(),
-                        score = it.getStringOrNull(5).orEmpty(),
-                        rating = it.getDoubleOrNull(6) ?: 0.0,
-                        userId = it.getIntOrNull(7),
-                        isNew = it.getBoolean(8),
-                        isWin = it.getBoolean(9),
-                        playId = it.getIntOrNull(10) ?: INVALID_ID,
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            PlayPlayerEntity(
+                name = it.getStringOrNull(1).orEmpty(),
+                username = it.getStringOrNull(2).orEmpty(),
+                startingPosition = it.getStringOrNull(3).orEmpty(),
+                color = it.getStringOrNull(4).orEmpty(),
+                score = it.getStringOrNull(5).orEmpty(),
+                rating = it.getDoubleOrNull(6) ?: 0.0,
+                userId = it.getIntOrNull(7),
+                isNew = it.getBoolean(8),
+                isWin = it.getBoolean(9),
+                playId = it.getIntOrNull(10) ?: INVALID_ID,
+            )
         }
-        players
     }
 
     suspend fun loadPlays(sortBy: PlaysSortBy) = loadPlays(Plays.CONTENT_URI, createPlaySelectionAndArgs(), sortBy)
@@ -160,7 +152,6 @@ class PlayDao(private val context: BggApplication) {
         sortBy: PlaysSortBy = PlaysSortBy.DATE,
         includePlayers: Boolean = false,
     ): List<PlayEntity> = withContext(Dispatchers.IO) {
-        val list = mutableListOf<PlayEntity>()
         val sortOrder = when (sortBy) {
             PlaysSortBy.DATE -> ""
             PlaysSortBy.LOCATION -> Plays.Columns.LOCATION.ascending()
@@ -169,7 +160,7 @@ class PlayDao(private val context: BggApplication) {
             PlaysSortBy.UPDATED_DATE -> Plays.Columns.UPDATE_TIMESTAMP.descending()
             PlaysSortBy.DELETED_DATE -> Plays.Columns.DELETE_TIMESTAMP.descending()
         }
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             uri,
             arrayOf(
                 BaseColumns._ID,
@@ -196,41 +187,35 @@ class PlayDao(private val context: BggApplication) {
             ),
             selection.first,
             selection.second,
-            sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    val internalId = it.getLong(0)
-                    val players = if (includePlayers) loadPlayers(internalId) else null
-                    val play = PlayEntity(
-                        internalId = internalId,
-                        playId = it.getInt(1),
-                        rawDate = it.getString(2),
-                        gameId = it.getInt(3),
-                        gameName = it.getString(4),
-                        quantity = it.getIntOrNull(5) ?: 1,
-                        length = it.getIntOrNull(6) ?: 0,
-                        location = it.getStringOrNull(7).orEmpty(),
-                        incomplete = it.getInt(8) == 1,
-                        noWinStats = it.getInt(9) == 1,
-                        comments = it.getStringOrNull(10).orEmpty(),
-                        syncTimestamp = it.getLong(11),
-                        initialPlayerCount = it.getInt(12),
-                        dirtyTimestamp = it.getLong(13),
-                        updateTimestamp = it.getLong(14),
-                        deleteTimestamp = it.getLong(15),
-                        startTime = it.getLong(16),
-                        imageUrl = it.getStringOrNull(17).orEmpty(),
-                        thumbnailUrl = it.getStringOrNull(18).orEmpty(),
-                        heroImageUrl = it.getStringOrNull(19).orEmpty(),
-                        updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
-                        _players = players,
-                    )
-                    list += play
-                } while (it.moveToNext())
-            }
+            sortOrder,
+        ) {
+            val internalId = it.getLong(0)
+            val players = if (includePlayers) loadPlayers(internalId) else null
+            PlayEntity(
+                internalId = internalId,
+                playId = it.getInt(1),
+                rawDate = it.getString(2),
+                gameId = it.getInt(3),
+                gameName = it.getString(4),
+                quantity = it.getIntOrNull(5) ?: 1,
+                length = it.getIntOrNull(6) ?: 0,
+                location = it.getStringOrNull(7).orEmpty(),
+                incomplete = it.getInt(8) == 1,
+                noWinStats = it.getInt(9) == 1,
+                comments = it.getStringOrNull(10).orEmpty(),
+                syncTimestamp = it.getLong(11),
+                initialPlayerCount = it.getInt(12),
+                dirtyTimestamp = it.getLong(13),
+                updateTimestamp = it.getLong(14),
+                deleteTimestamp = it.getLong(15),
+                startTime = it.getLong(16),
+                imageUrl = it.getStringOrNull(17).orEmpty(),
+                thumbnailUrl = it.getStringOrNull(18).orEmpty(),
+                heroImageUrl = it.getStringOrNull(19).orEmpty(),
+                updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                _players = players,
+            )
         }
-        list
     }
 
     private fun createPlaySelectionAndArgs() =
@@ -258,7 +243,9 @@ class PlayDao(private val context: BggApplication) {
         "${PlayPlayers.Columns.USER_NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(username)
 
     private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
-        "${PlayPlayers.Columns.USER_NAME}='' AND play_players.${PlayPlayers.Columns.NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
+        "${PlayPlayers.Columns.USER_NAME}='' AND play_players.${PlayPlayers.Columns.NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(
+            playerName
+        )
 
     private fun addGamePlaySelectionAndArgs(existing: Pair<String, Array<String>>, gameId: Int) =
         "${existing.first} AND ${Plays.Columns.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
@@ -283,6 +270,26 @@ class PlayDao(private val context: BggApplication) {
         return loadPlayers(Plays.buildPlayersByUniquePlayerUri(), selection to selectionArgs, PlayerSortBy.PLAY_COUNT)
     }
 
+    suspend fun loadPlayerFavoriteColors() = withContext(Dispatchers.IO) {
+        context.contentResolver.loadList(
+            PlayerColors.CONTENT_URI,
+            arrayOf(
+                PlayerColors.Columns.PLAYER_NAME,
+                PlayerColors.Columns.PLAYER_TYPE,
+                PlayerColors.Columns.PLAYER_COLOR,
+            ),
+            "${PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER}=1",
+        ) {
+            val name = it.getStringOrNull(0).orEmpty()
+            val type = it.getIntOrNull(1) ?: PlayerColors.TYPE_PLAYER
+            val player = if (type == PlayerColors.TYPE_USER)
+                PlayerEntity(name = "", username = name)
+            else
+                PlayerEntity(name = name, username = "")
+            player to (it.getStringOrNull(2).orEmpty())
+        }.toMap()
+    }
+
     suspend fun loadUserPlayer(username: String): PlayerEntity? = withContext(Dispatchers.IO) {
         loadPlayer(
             Plays.buildPlayersByUniqueUserUri(),
@@ -300,7 +307,7 @@ class PlayDao(private val context: BggApplication) {
     }
 
     private suspend fun loadPlayer(uri: Uri, selection: String, selectionArgs: Array<String>): PlayerEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.load(
+        context.contentResolver.loadEntity(
             uri,
             arrayOf(
                 PlayPlayers.Columns.NAME,
@@ -310,43 +317,34 @@ class PlayDao(private val context: BggApplication) {
             ),
             selection,
             selectionArgs
-        )?.use {
-            if (it.moveToFirst()) {
-                PlayerEntity(
-                    name = it.getStringOrNull(0).orEmpty(),
-                    username = it.getStringOrNull(1).orEmpty(),
-                    playCount = it.getIntOrNull(2) ?: 0,
-                    winCount = it.getIntOrNull(3) ?: 0,
-                )
-            } else null
+        ) {
+            PlayerEntity(
+                name = it.getStringOrNull(0).orEmpty(),
+                username = it.getStringOrNull(1).orEmpty(),
+                playCount = it.getIntOrNull(2) ?: 0,
+                winCount = it.getIntOrNull(3) ?: 0,
+            )
         }
     }
 
     suspend fun loadColors(uri: Uri): List<PlayerColorEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<PlayerColorEntity>()
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             uri,
             arrayOf(
                 BaseColumns._ID,
                 PlayerColors.Columns.PLAYER_COLOR,
-                PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER
+                PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER,
             )
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += PlayerColorEntity(
-                        description = it.getStringOrNull(1).orEmpty(),
-                        sortOrder = it.getIntOrNull(2) ?: 0,
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            PlayerColorEntity(
+                description = it.getStringOrNull(1).orEmpty(),
+                sortOrder = it.getIntOrNull(2) ?: 0,
+            )
         }
-        results
     }
 
     suspend fun loadPlayerDetail(uri: Uri, selection: String, selectionArgs: Array<String>): List<PlayerDetailEntity> = withContext(Dispatchers.IO) {
-        val list = mutableListOf<PlayerDetailEntity>()
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             uri,
             arrayOf(
                 BaseColumns._ID,
@@ -356,19 +354,14 @@ class PlayDao(private val context: BggApplication) {
             ),
             selection,
             selectionArgs
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    list += PlayerDetailEntity(
-                        id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                        name = it.getStringOrNull(1).orEmpty(),
-                        username = it.getStringOrNull(2).orEmpty(),
-                        color = it.getStringOrNull(3).orEmpty(),
-                    )
-                } while (it.moveToNext())
-            } else list
+        ) {
+            PlayerDetailEntity(
+                id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                name = it.getStringOrNull(1).orEmpty(),
+                username = it.getStringOrNull(2).orEmpty(),
+                color = it.getStringOrNull(3).orEmpty(),
+            )
         }
-        list
     }
 
     enum class LocationSortBy {
@@ -377,12 +370,11 @@ class PlayDao(private val context: BggApplication) {
 
     suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.NAME): List<LocationEntity> =
         withContext(Dispatchers.IO) {
-            val results = arrayListOf<LocationEntity>()
             val sortOrder = when (sortBy) {
                 LocationSortBy.NAME -> ""
                 LocationSortBy.PLAY_COUNT -> Plays.Columns.SUM_QUANTITY.descending()
             }
-            context.contentResolver.load(
+            context.contentResolver.loadList(
                 Plays.buildLocationsUri(),
                 arrayOf(
                     BaseColumns._ID,
@@ -390,25 +382,18 @@ class PlayDao(private val context: BggApplication) {
                     Plays.Columns.SUM_QUANTITY
                 ),
                 sortOrder = sortOrder
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += LocationEntity(
-                            name = it.getStringOrNull(1).orEmpty(),
-                            playCount = it.getIntOrNull(2) ?: 0,
-                        )
-                    } while (it.moveToNext())
-                }
+            ) {
+                LocationEntity(
+                    name = it.getStringOrNull(1).orEmpty(),
+                    playCount = it.getIntOrNull(2) ?: 0,
+                )
             }
-            results
         }
 
     suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
-        val results = mutableListOf<PlayerEntity>()
         val selection = if (location.isNotBlank()) "${Plays.Columns.LOCATION}=?" else null
         val selectionArgs = if (location.isNotBlank()) arrayOf(location) else null
-
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             Plays.buildPlayersByUniqueNameUri(),
             arrayOf(
                 PlayPlayers.Columns.NAME,
@@ -420,19 +405,14 @@ class PlayDao(private val context: BggApplication) {
             selection,
             selectionArgs,
             PlayPlayers.SORT_BY_SUM_QUANTITY
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += PlayerEntity(
-                        name = it.getStringOrNull(0).orEmpty(),
-                        username = it.getStringOrNull(1).orEmpty(),
-                        playCount = it.getIntOrNull(3) ?: 0,
-                        rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            PlayerEntity(
+                name = it.getStringOrNull(0).orEmpty(),
+                username = it.getStringOrNull(1).orEmpty(),
+                playCount = it.getIntOrNull(3) ?: 0,
+                rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
+            )
         }
-        results
     }
 
     /**
@@ -456,13 +436,12 @@ class PlayDao(private val context: BggApplication) {
         selection: Pair<String?, Array<String>?>? = null,
         sortBy: PlayerSortBy = PlayerSortBy.NAME
     ): List<PlayerEntity> = withContext(Dispatchers.IO) {
-        val results = mutableListOf<PlayerEntity>()
         val sortOrder = when (sortBy) {
             PlayerSortBy.NAME -> PlayPlayers.Columns.NAME.collateNoCase()
             PlayerSortBy.PLAY_COUNT -> Plays.Columns.SUM_QUANTITY.descending()
             PlayerSortBy.WIN_COUNT -> Plays.Columns.SUM_WINS.descending()
         }
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             uri,
             arrayOf(
                 PlayPlayers.Columns.NAME,
@@ -474,20 +453,15 @@ class PlayDao(private val context: BggApplication) {
             selection?.first,
             selection?.second,
             sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += PlayerEntity(
-                        name = it.getStringOrNull(0).orEmpty(),
-                        username = it.getStringOrNull(1).orEmpty(),
-                        playCount = it.getIntOrNull(2) ?: 0,
-                        winCount = it.getIntOrNull(3) ?: 0,
-                        rawAvatarUrl = it.getStringOrNull(4).orEmpty(),
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            PlayerEntity(
+                name = it.getStringOrNull(0).orEmpty(),
+                username = it.getStringOrNull(1).orEmpty(),
+                playCount = it.getIntOrNull(2) ?: 0,
+                winCount = it.getIntOrNull(3) ?: 0,
+                rawAvatarUrl = it.getStringOrNull(4).orEmpty(),
+            )
         }
-        results
     }
 
     suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
@@ -747,14 +721,13 @@ class PlayDao(private val context: BggApplication) {
         selection: Pair<String?, Array<String>?>? = null,
         sortBy: PlayerSortBy = PlayerSortBy.NAME
     ): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
-        val results = mutableListOf<PlayPlayerEntity>()
         val defaultSortOrder = "${PlayPlayers.Columns.START_POSITION.ascending()}, ${PlayPlayers.Columns.NAME.collateNoCase()}"
         val sortOrder = when (sortBy) {
             PlayerSortBy.NAME -> defaultSortOrder
             PlayerSortBy.PLAY_COUNT -> "${Plays.Columns.SUM_QUANTITY.descending()}, $defaultSortOrder"
             PlayerSortBy.WIN_COUNT -> "${Plays.Columns.SUM_WINS.descending()}, $defaultSortOrder"
         }
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             uri,
             arrayOf(
                 PlayPlayers.Columns.NAME,
@@ -771,25 +744,20 @@ class PlayDao(private val context: BggApplication) {
             selection?.first,
             selection?.second,
             sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += PlayPlayerEntity(
-                        name = it.getStringOrNull(0).orEmpty(),
-                        username = it.getStringOrNull(1).orEmpty(),
-                        startingPosition = it.getStringOrNull(2).orEmpty(),
-                        color = it.getStringOrNull(3).orEmpty(),
-                        score = it.getStringOrNull(4).orEmpty(),
-                        rating = it.getDoubleOrNull(5) ?: 0.0,
-                        userId = it.getIntOrNull(6),
-                        isNew = it.getBoolean(7),
-                        isWin = it.getBoolean(8),
-                        playId = it.getIntOrNull(9) ?: INVALID_ID,
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            PlayPlayerEntity(
+                name = it.getStringOrNull(0).orEmpty(),
+                username = it.getStringOrNull(1).orEmpty(),
+                startingPosition = it.getStringOrNull(2).orEmpty(),
+                color = it.getStringOrNull(3).orEmpty(),
+                score = it.getStringOrNull(4).orEmpty(),
+                rating = it.getDoubleOrNull(5) ?: 0.0,
+                userId = it.getIntOrNull(6),
+                isNew = it.getBoolean(7),
+                isWin = it.getBoolean(8),
+                playId = it.getIntOrNull(9) ?: INVALID_ID,
+            )
         }
-        results
     }
 
     suspend fun saveColorsForPlayer(uri: Uri, colors: List<String>?) = withContext(Dispatchers.IO) {
@@ -995,7 +963,7 @@ class PlayDao(private val context: BggApplication) {
                     Timber.i("Can't sync a play without a play ID.")
                     null
                 } else {
-                    val cursor = resolver.query(
+                    resolver.loadEntity(
                         Plays.CONTENT_URI,
                         arrayOf(
                             BaseColumns._ID,
@@ -1006,18 +974,14 @@ class PlayDao(private val context: BggApplication) {
                         ),
                         "${Plays.Columns.PLAY_ID}=?",
                         arrayOf(playId.toString()),
-                        null
-                    )
-                    cursor?.use {
-                        if (it.moveToFirst()) {
-                            PlaySyncCandidate(
-                                internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                                syncHashCode = it.getIntOrNull(1) ?: 0,
-                                deleteTimestamp = it.getLongOrNull(2) ?: 0L,
-                                updateTimestamp = it.getLongOrNull(3) ?: 0L,
-                                dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
-                            )
-                        } else null
+                    ) {
+                        PlaySyncCandidate(
+                            internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
+                            syncHashCode = it.getIntOrNull(1) ?: 0,
+                            deleteTimestamp = it.getLongOrNull(2) ?: 0L,
+                            updateTimestamp = it.getLongOrNull(3) ?: 0L,
+                            dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
+                        )
                     }
                 }
             }

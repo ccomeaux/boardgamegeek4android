@@ -160,7 +160,7 @@ private fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: ImageL
  * Loads the URL into an ImageView, centering and fitting it into the image. If the URL appears to be for the same image, no placeholder or fade
  * animation is shown.
  */
-fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
+fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty, callback: ImageLoadCallback? = null) {
     val tag = getTag(R.id.image)
     val isSameImage = tag != null && tag == imageUrl?.getImageId()
     val requestCreator = Picasso.with(context)
@@ -176,9 +176,11 @@ fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.
     requestCreator.into(this, object : Callback {
         override fun onSuccess() {
             setTag(R.id.url, imageUrl)
+            callback?.onSuccessfulImageLoad(PaletteTransformation.getPalette((drawable as BitmapDrawable).bitmap))
         }
 
         override fun onError() {
+            callback?.onFailedImageLoad()
         }
     })
 }

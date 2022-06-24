@@ -20,6 +20,8 @@ data class PlayerEntity(
 
     val playerName = if (isUser()) username else name
 
+    var favoriteColor: Int? = null
+
     fun isUser() = username.isNotBlank()
 
     override fun hashCode(): Int {

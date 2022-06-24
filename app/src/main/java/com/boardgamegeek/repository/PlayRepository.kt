@@ -46,7 +46,7 @@ class PlayRepository(val application: BggApplication) {
         LENGTH(PlayDao.PlaysSortBy.LENGTH),
     }
 
-    suspend fun loadPlay(internalId: Long): PlayEntity? = playDao.loadPlay(internalId)
+    suspend fun loadPlay(internalId: Long) = playDao.loadPlay(internalId)
 
     suspend fun refreshPlay(
         internalId: Long,
@@ -107,12 +107,12 @@ class PlayRepository(val application: BggApplication) {
             saveFromSync(plays, syncInitiatedTimestamp)
 
             plays.maxOfOrNull { it.dateInMillis }?.let {
-                if (it > syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L) {
+                if (it > (syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L)) {
                     syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] = it
                 }
             }
             plays.minOfOrNull { it.dateInMillis }?.let {
-                if (it < syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE) {
+                if (it < (syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
                     syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
                 }
             }
@@ -137,7 +137,7 @@ class PlayRepository(val application: BggApplication) {
                 saveFromSync(plays, syncInitiatedTimestamp)
 
                 plays.minOfOrNull { it.dateInMillis }?.let {
-                    if (it < syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE) {
+                    if (it < (syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
                         syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
                     }
                 }
@@ -158,13 +158,11 @@ class PlayRepository(val application: BggApplication) {
         calculatePlayStats()
     }
 
-    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long): Int {
-        return playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
-    }
+    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) =
+        playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
 
-    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long): Int {
-        return playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
-    }
+    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
+        playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
 
     suspend fun refreshPlays(timeInMillis: Long) = withContext(Dispatchers.IO) {
         if (timeInMillis <= 0L && !username.isNullOrBlank()) {
@@ -209,33 +207,22 @@ class PlayRepository(val application: BggApplication) {
         games.toList()
     }
 
-    suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME): List<PlayerEntity> {
-        return playDao.loadPlayers(Plays.buildPlayersByUniquePlayerUri(), sortBy = sortBy)
-    }
+    suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME) =
+        playDao.loadPlayers(Plays.buildPlayersByUniquePlayerUri(), sortBy = sortBy)
 
-    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> {
-        return playDao.loadPlayersByGame(gameId)
-    }
+    suspend fun loadPlayersByGame(gameId: Int) = playDao.loadPlayersByGame(gameId)
 
-    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
-        return playDao.loadPlayersForStats(includeIncompletePlays)
-    }
+    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean) = playDao.loadPlayersForStats(includeIncompletePlays)
 
-    suspend fun loadUserPlayer(username: String): PlayerEntity? {
-        return playDao.loadUserPlayer(username)
-    }
+    suspend fun loadPlayerFavoriteColors() = playDao.loadPlayerFavoriteColors()
 
-    suspend fun loadNonUserPlayer(playerName: String): PlayerEntity? {
-        return playDao.loadNonUserPlayer(playerName)
-    }
+    suspend fun loadUserPlayer(username: String) = playDao.loadUserPlayer(username)
 
-    suspend fun loadUserColors(username: String): List<PlayerColorEntity> {
-        return playDao.loadColors(PlayerColors.buildUserUri(username))
-    }
+    suspend fun loadNonUserPlayer(playerName: String) = playDao.loadNonUserPlayer(playerName)
 
-    suspend fun loadPlayerColors(playerName: String): List<PlayerColorEntity> {
-        return playDao.loadColors(PlayerColors.buildPlayerUri(playerName))
-    }
+    suspend fun loadUserColors(username: String) = playDao.loadColors(PlayerColors.buildUserUri(username))
+
+    suspend fun loadPlayerColors(playerName: String) = playDao.loadColors(PlayerColors.buildPlayerUri(playerName))
 
     suspend fun savePlayerColors(playerName: String, colors: List<String>?) {
         playDao.saveColorsForPlayer(PlayerColors.buildPlayerUri(playerName), colors)
@@ -245,25 +232,19 @@ class PlayRepository(val application: BggApplication) {
         playDao.saveColorsForPlayer(PlayerColors.buildUserUri(username), colors)
     }
 
-    suspend fun loadUserPlayerDetail(username: String): List<PlayerDetailEntity> {
-        return playDao.loadPlayerDetail(
-            Plays.buildPlayerUri(),
-            "${PlayPlayers.Columns.USER_NAME}=?",
-            arrayOf(username)
-        )
-    }
+    suspend fun loadUserPlayerDetail(username: String) = playDao.loadPlayerDetail(
+        Plays.buildPlayerUri(),
+        "${PlayPlayers.Columns.USER_NAME}=?",
+        arrayOf(username)
+    )
 
-    suspend fun loadNonUserPlayerDetail(playerName: String): List<PlayerDetailEntity> {
-        return playDao.loadPlayerDetail(
-            Plays.buildPlayerUri(),
-            "${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=?",
-            arrayOf("", playerName)
-        )
-    }
+    suspend fun loadNonUserPlayerDetail(playerName: String) = playDao.loadPlayerDetail(
+        Plays.buildPlayerUri(),
+        "${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=?",
+        arrayOf("", playerName)
+    )
 
-    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME): List<LocationEntity> {
-        return playDao.loadLocations(sortBy)
-    }
+    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy)
 
     suspend fun logQuickPlay(gameId: Int, gameName: String) {
         val playEntity = PlayEntity(
@@ -301,9 +282,7 @@ class PlayRepository(val application: BggApplication) {
         )
     }
 
-    suspend fun delete(internalId: Long): Boolean {
-        return playDao.delete(internalId)
-    }
+    suspend fun delete(internalId: Long) = playDao.delete(internalId)
 
     suspend fun markAsSynced(internalId: Long, playId: Int) {
         playDao.update(
@@ -358,7 +337,7 @@ class PlayRepository(val application: BggApplication) {
         gameDao.update(gameId, contentValuesOf(Games.Columns.NUM_PLAYS to playCount))
     }
 
-    suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadPlayersByLocation(location: String = "") = withContext(Dispatchers.IO) {
         playDao.loadPlayersByLocation(location)
     }
 

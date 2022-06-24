@@ -55,13 +55,16 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     // Players
     val availablePlayers = MediatorLiveData<List<PlayerEntity>>()
-    private val allPlayers = liveData { emit(playRepository.loadPlayersByLocation()) }
+    private val _allPlayers = liveData { emit(playRepository.loadPlayersByLocation()) }
     private val playersByLocation: LiveData<List<PlayerEntity>> = location.switchMap {
         liveData {
             emit(playRepository.loadPlayersByLocation(it))
         }
     }
-    private var playerFilter = ""
+    private val playerFavoriteColors: LiveData<Map<PlayerEntity, String>> = liveData {
+        emit(playRepository.loadPlayerFavoriteColors())
+    }
+    private val playerFilter = MutableLiveData<String>()
     private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()
     val addedPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
     private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
@@ -87,19 +90,24 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             result?.let { locations.value = filterLocations(result, locationFilter) }
         }
 
-        availablePlayers.addSource(allPlayers) { result ->
+        availablePlayers.addSource(_allPlayers) { result ->
             result?.let {
-                availablePlayers.value = filterPlayers(result, playersByLocation.value, _addedPlayers.value, playerFilter)
+                availablePlayers.value = assembleAvailablePlayers(allPlayers = result)
             }
         }
         availablePlayers.addSource(playersByLocation) { result ->
             result?.let {
-                availablePlayers.value = filterPlayers(allPlayers.value, result, _addedPlayers.value, playerFilter)
+                availablePlayers.value = assembleAvailablePlayers(locationPlayers = result)
             }
         }
         availablePlayers.addSource(_addedPlayers) { result ->
             result?.let {
-                availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, result, playerFilter)
+                availablePlayers.value = assembleAvailablePlayers(addedPlayers = result)
+            }
+        }
+        availablePlayers.addSource(playerFavoriteColors) { result ->
+            result?.let {
+                availablePlayers.value = assembleAvailablePlayers(favoriteColors = result)
             }
         }
 
@@ -180,7 +188,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
-        val newList = (list?.filter { it.name.isNotBlank() } ?: emptyList()).toMutableList()
+        val newList = (list?.filter { it.name.isNotBlank() }.orEmpty()).toMutableList()
         if (isLastPlayRecent()) {
             newList.find { it.name == prefs.getLastPlayLocation() }?.let {
                 newList.remove(it)
@@ -377,15 +385,16 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         _currentStep.value = Step.COMMENTS
     }
 
-    fun filterPlayers(filter: String) = availablePlayers.value?.let {
-        availablePlayers.value = filterPlayers(allPlayers.value, playersByLocation.value, _addedPlayers.value, filter)
-    }.also { playerFilter = filter }
+    fun filterPlayers(filter: String) {
+        playerFilter.value = filter
+    }
 
-    private fun filterPlayers(
-        allPlayers: List<PlayerEntity>?,
-        locationPlayers: List<PlayerEntity>?,
-        addedPlayers: List<PlayerEntity>?,
-        filter: String
+    private fun assembleAvailablePlayers(
+        allPlayers: List<PlayerEntity>? = _allPlayers.value,
+        locationPlayers: List<PlayerEntity>? = playersByLocation.value,
+        addedPlayers: List<PlayerEntity>? = _addedPlayers.value,
+        filter: String? = playerFilter.value,
+        favoriteColors: Map<PlayerEntity, String>? = playerFavoriteColors.value,
     ): List<PlayerEntity> {
         val newList = mutableListOf<PlayerEntity>()
         // show players in this order:
@@ -412,27 +421,39 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
             }.asIterable()
         }
         // then filter out added players and those not matching the current filter
-        return newList.filter {
-            !(addedPlayers ?: emptyList()).contains(it) &&
-                    (it.name.contains(filter, true) || it.username.contains(filter, true))
+        val filteredList = newList.filter {
+            !(addedPlayers.orEmpty()).contains(it) && (it.name.contains(filter.orEmpty(), true) || it.username.contains(filter.orEmpty(), true))
         }
+        val favColors = favoriteColors.orEmpty()
+        filteredList.forEach { player ->
+            if (player.isUser()) {
+                favColors.keys.find { it.isUser() && it.username == player.username }?.let { key ->
+                    player.favoriteColor = favColors[key].asColorRgb()
+                }
+            } else {
+                favColors.keys.find { !it.isUser() && it.name == player.name }?.let { key ->
+                    player.favoriteColor = favColors[key].asColorRgb()
+                }
+            }
+        }
+        return filteredList
     }
 
     private fun assemblePlayers(
-        addedPlayers: List<PlayerEntity> = _addedPlayers.value ?: emptyList(),
-        playerColors: Map<String, String> = playerColorMap.value ?: emptyMap(),
+        addedPlayers: List<PlayerEntity> = _addedPlayers.value.orEmpty(),
+        playerColors: Map<String, String> = playerColorMap.value.orEmpty(),
         favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
-        playerSort: Map<String, String> = playerSortMap.value ?: emptyMap(),
-        playerIsNew: Map<String, Boolean> = playerIsNewMap.value ?: emptyMap(),
-        playerWin: Map<String, Boolean> = playerWinMap.value ?: emptyMap(),
-        playerScores: Map<String, String> = playerScoresMap.value ?: emptyMap(),
-        gameColorList: List<String> = gameColors.value ?: emptyList(),
+        playerSort: Map<String, String> = playerSortMap.value.orEmpty(),
+        playerIsNew: Map<String, Boolean> = playerIsNewMap.value.orEmpty(),
+        playerWin: Map<String, Boolean> = playerWinMap.value.orEmpty(),
+        playerScores: Map<String, String> = playerScoresMap.value.orEmpty(),
+        gameColorList: List<String> = gameColors.value.orEmpty(),
     ) {
         val players = mutableListOf<NewPlayPlayerEntity>()
         addedPlayers.forEach { playerEntity ->
             val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
                 color = playerColors[id].orEmpty()
-                val favoriteForPlayer = favoriteColorsMap[id]?.map { it.description } ?: emptyList()
+                val favoriteForPlayer = favoriteColorsMap[id]?.map { it.description }.orEmpty()
                 val rankedChoices = favoriteForPlayer
                     .filter { gameColorList.contains(it) }
                     .filterNot { playerColors.containsValue(it) }
@@ -453,7 +474,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun assembleMightBeNewPlayers(
-        players: List<NewPlayPlayerEntity> = mightBeNewPlayers.value ?: emptyList(),
+        players: List<NewPlayPlayerEntity> = mightBeNewPlayers.value.orEmpty(),
         newMap: MutableMap<String, Boolean> = playerMightBeNewMap
     ) {
         mightBeNewPlayers.value = players.filter { newMap[it.id] ?: false }
@@ -487,11 +508,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 PlayPlayerEntity(
                     player.name,
                     player.username,
-                    (playerSortMap.value ?: emptyMap())[player.id].orEmpty(),
-                    color = (playerColorMap.value ?: emptyMap())[player.id].orEmpty(),
-                    isNew = (playerIsNewMap.value ?: emptyMap())[player.id] ?: false,
-                    isWin = (playerWinMap.value ?: emptyMap())[player.id] ?: false,
-                    score = (playerScoresMap.value ?: emptyMap())[player.id].orEmpty(),
+                    (playerSortMap.value.orEmpty())[player.id].orEmpty(),
+                    color = (playerColorMap.value.orEmpty())[player.id].orEmpty(),
+                    isNew = (playerIsNewMap.value.orEmpty())[player.id] ?: false,
+                    isWin = (playerWinMap.value.orEmpty())[player.id] ?: false,
+                    score = (playerScoresMap.value.orEmpty())[player.id].orEmpty(),
                 )
             }
             val play = PlayEntity(
