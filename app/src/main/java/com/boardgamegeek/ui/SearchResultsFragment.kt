@@ -83,7 +83,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 when (status) {
                     Status.REFRESHING -> binding.progress.progressContainer.isVisible = true
                     Status.ERROR -> {
-                        binding.emptyView.text = getString(R.string.search_error, viewModel.query.value, message)
+                        binding.emptyView.text = getString(R.string.search_error, viewModel.query.value?.first.orEmpty(), message)
                         binding.emptyView.isVisible = true
                         binding.recyclerView.isVisible = false
                         binding.progress.progressContainer.isVisible = false
