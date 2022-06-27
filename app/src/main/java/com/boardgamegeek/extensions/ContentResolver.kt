@@ -28,7 +28,7 @@ suspend fun <T> ContentResolver.loadEntity(
     selection: String? = null,
     selectionArgs: Array<String>? = null,
     sortOrder: String? = null,
-    populateEntity: suspend (cursor: Cursor) -> T,
+    populateEntity: suspend (cursor: Cursor) -> T?,
 ): T? {
     this.query(uri, projection, selection, selectionArgs, sortOrder)?.use {
         return if (it.moveToFirst()) {
@@ -44,14 +44,14 @@ suspend fun <T> ContentResolver.loadList(
     selection: String? = null,
     selectionArgs: Array<String>? = null,
     sortOrder: String? = null,
-    populateEntity: suspend (cursor: Cursor) -> T,
+    populateEntity: suspend (cursor: Cursor) -> T?,
 ): List<T> {
     val list = mutableListOf<T>()
-    this.query(uri, projection, selection, selectionArgs, sortOrder)?.use {
-        if (it.moveToFirst()) {
+    this.query(uri, projection, selection, selectionArgs, sortOrder)?.use { cursor ->
+        if (cursor.moveToFirst()) {
             do {
-                list += populateEntity(it)
-            } while (it.moveToNext())
+                populateEntity(cursor)?.let { list += it }
+            } while (cursor.moveToNext())
         }
     }
     return list

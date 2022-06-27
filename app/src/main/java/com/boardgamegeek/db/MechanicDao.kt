@@ -7,7 +7,7 @@ import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
 import com.boardgamegeek.extensions.descending
-import com.boardgamegeek.extensions.load
+import com.boardgamegeek.extensions.loadList
 import com.boardgamegeek.provider.BggContract.Mechanics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,13 +20,12 @@ class MechanicDao(private val context: BggApplication) {
     }
 
     suspend fun loadMechanics(sortBy: SortType): List<MechanicEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<MechanicEntity>()
         val sortByName = Mechanics.Columns.MECHANIC_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
             SortType.ITEM_COUNT -> Mechanics.Columns.ITEM_COUNT.descending().plus(", $sortByName")
         }
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             Mechanics.CONTENT_URI,
             arrayOf(
                 Mechanics.Columns.MECHANIC_ID,
@@ -34,18 +33,13 @@ class MechanicDao(private val context: BggApplication) {
                 Mechanics.Columns.ITEM_COUNT
             ),
             sortOrder = sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += MechanicEntity(
-                        it.getInt(0),
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getIntOrNull(2) ?: 0
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            MechanicEntity(
+                it.getInt(0),
+                it.getStringOrNull(1).orEmpty(),
+                it.getIntOrNull(2) ?: 0
+            )
         }
-        results
     }
 
     suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType) =
