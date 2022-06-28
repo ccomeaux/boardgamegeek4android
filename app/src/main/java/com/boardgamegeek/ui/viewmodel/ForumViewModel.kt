@@ -3,10 +3,10 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.liveData
 import com.boardgamegeek.io.model.ForumResponse
 import com.boardgamegeek.livedata.ForumPagingSource
 import com.boardgamegeek.repository.ForumRepository
@@ -29,6 +29,6 @@ class ForumViewModel(application: Application) : AndroidViewModel(application) {
             )
         ) {
             ForumPagingSource(forumId, repository)
-        }.flow.asLiveData()
+        }.liveData
     }
 }

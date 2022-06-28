@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.liveData
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.livedata.CommentsPagingSource
 import com.boardgamegeek.provider.BggContract
@@ -40,6 +41,6 @@ class GameCommentsViewModel(application: Application) : AndroidViewModel(applica
             )
         ) {
             CommentsPagingSource(it.first, sortByRating, repository)
-        }.flow.asLiveData()
+        }.liveData
     }
 }

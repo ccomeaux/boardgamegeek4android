@@ -3,10 +3,10 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.liveData
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GeekListsResponse
 import com.boardgamegeek.livedata.GeekListsPagingSource
@@ -43,7 +43,7 @@ class GeekListsViewModel(application: Application) : AndroidViewModel(applicatio
             )
         ) {
             GeekListsPagingSource(sort, repository)
-        }.flow.asLiveData()
+        }.liveData
     }
 
     enum class SortType {
