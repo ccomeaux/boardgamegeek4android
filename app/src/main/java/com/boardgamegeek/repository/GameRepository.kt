@@ -6,11 +6,13 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.AccountPreferences
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.getImageId
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
@@ -54,9 +56,9 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)
 
-    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
+    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE)
 
-    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
+    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.SUGGESTED_PLAYER_AGE)
 
     suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId)
 

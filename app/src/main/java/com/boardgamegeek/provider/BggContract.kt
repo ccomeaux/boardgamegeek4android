@@ -838,8 +838,6 @@ class BggContract {
         const val FRAGMENT_SIMPLE = "simple"
         const val FRAGMENT_PLAYS = "plays"
 
-        const val POLL_TYPE_LANGUAGE_DEPENDENCE = "language_dependence"
-        const val POLL_TYPE_SUGGESTED_PLAYER_AGE = "suggested_playerage"
 
         fun buildBasicUri(path: String?, id: Long): Uri? {
             return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(id.toString()).build()

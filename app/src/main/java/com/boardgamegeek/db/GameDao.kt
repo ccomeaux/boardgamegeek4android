@@ -25,8 +25,6 @@ import com.boardgamegeek.provider.BggContract.Companion.PATH_DESIGNERS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_EXPANSIONS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
-import com.boardgamegeek.provider.BggContract.Companion.POLL_TYPE_LANGUAGE_DEPENDENCE
-import com.boardgamegeek.provider.BggContract.Companion.POLL_TYPE_SUGGESTED_PLAYER_AGE
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
 import kotlinx.coroutines.Dispatchers
@@ -151,16 +149,15 @@ class GameDao(private val context: BggApplication) {
         } else emptyList()
     }
 
-    suspend fun loadPoll(gameId: Int, pollType: String): GamePollEntity? = withContext(Dispatchers.IO) {
-        // TODO convert pollType to enum
-        if (gameId != INVALID_ID &&
-            pollType in arrayOf(
-                POLL_TYPE_SUGGESTED_PLAYER_AGE,
-                POLL_TYPE_LANGUAGE_DEPENDENCE,
-            )
-        ) {
+    enum class PollType(val code: String) {
+        LANGUAGE_DEPENDENCE("language_dependence"),
+        SUGGESTED_PLAYER_AGE("suggested_playerage"),
+    }
+
+    suspend fun loadPoll(gameId: Int, pollType: PollType): GamePollEntity? = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
             val results = context.contentResolver.loadList(
-                Games.buildPollResultsResultUri(gameId, pollType),
+                Games.buildPollResultsResultUri(gameId, pollType.code),
                 arrayOf(
                     GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
                     GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
