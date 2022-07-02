@@ -344,8 +344,6 @@
 	<string name="collection_sort_last_viewed">Ostatnio oglądana</string>
 	<string name="collection_sort_last_modified">Ostatnio zmodyfikowane</string>
 	<string name="collection_sort_my_rating">Moja ocena</string>
-	<string name="collection_sort_play_count_asc">Najrzadziej grane</string>
-	<string name="collection_sort_play_count_desc">Najczęściej grane</string>
 	<string name="collection_sort_play_date_max">Grane ostatnio</string>
 	<string name="collection_sort_play_date_min">Grane najdawniej</string>
 	<string name="collection_sort_play_time">Czas rozgrywki</string>
@@ -385,13 +383,6 @@
 	<string name="menu_sort_first_name">Imię</string>
 	<string name="menu_sort_last_name">Nazwisko</string>
 	<string name="undo">Cofnij</string>
-	<string name="newest">Najnowsze</string>
-	<string name="oldest">Najstarsze</string>
-	<string name="shortest">Najkrótsze</string>
-	<string name="longest">Najdłuższe</string>
-	<string name="youngest">Najmłodsze</string>
-	<string name="heaviest">Najtrudniejsze</string>
-	<string name="lightest">Najłatwiejsze</string>
 	<string name="year_negative">%s p.n.e.</string>
 	<string name="menu_play_time">Czas rozgrywki</string>
 	<string name="menu_play_count">Liczba rozgrywek</string>

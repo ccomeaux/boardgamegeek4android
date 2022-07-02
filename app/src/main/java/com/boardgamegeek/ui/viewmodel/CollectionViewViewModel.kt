@@ -286,7 +286,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                 list = list.filter { f.filter(it) }.asSequence()
             }
             val sorter = collectionSorterFactory.create(sortType)
-            _items.postValue(sorter?.sort(list.toList()) ?: list.toList())
+            _items.postValue(sorter?.first?.sort(list.toList(), sorter.second) ?: list.toList())
         }
     }
 

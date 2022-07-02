@@ -8,32 +8,28 @@ abstract class CollectionSorter(protected val context: Context) {
     @get:StringRes
     protected abstract val descriptionResId: Int
 
-    /**
-     * Gets the description to display in the UI when this sort is applied. Subclasses should set descriptionId
-     * to control this value.
-     */
     val description: String
-        get() {
-            var description = context.getString(descriptionResId)
-            if (subDescriptionResId != 0) {
-                description += " - " + context.getString(subDescriptionResId)
-            }
-            return description
-        }
-
-    @StringRes
-    protected open val subDescriptionResId = 0
-
-    /**
-     * The unique type.
-     */
-    val type: Int
-        get() = context.getString(typeResId).toIntOrNull() ?: CollectionSorterFactory.TYPE_DEFAULT
+        get() = context.getString(descriptionResId)
 
     @get:StringRes
-    protected abstract val typeResId: Int
+    protected abstract val ascendingSortTypeResId: Int
 
-    open fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> = items.toList()
+    @get:StringRes
+    protected abstract val descendingSortTypeResId: Int
+
+    val ascendingSortType: Int
+        get() = context.getString(ascendingSortTypeResId).toIntOrNull() ?: CollectionSorterFactory.TYPE_DEFAULT
+
+    val descendingSortType: Int
+        get() = context.getString(descendingSortTypeResId).toIntOrNull() ?: CollectionSorterFactory.TYPE_DEFAULT
+
+    fun getType(direction: Boolean) = if (direction) descendingSortType else ascendingSortType
+
+    open fun sortAscending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> = items.toList()
+
+    open fun sortDescending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> = sortAscending(items).reversed()
+
+    fun sort(items: Iterable<CollectionItemEntity>, direction: Boolean) = if (direction) sortDescending(items) else sortAscending(items)
 
     open fun getHeaderText(item: CollectionItemEntity): String = ""
 

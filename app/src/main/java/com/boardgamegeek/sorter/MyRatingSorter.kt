@@ -8,13 +8,21 @@ import com.boardgamegeek.extensions.asPersonalRating
 import java.text.DecimalFormat
 
 class MyRatingSorter(context: Context) : RatingSorter(context) {
-    @StringRes
-    public override val typeResId = R.string.collection_sort_type_my_rating
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_my_rating_asc
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_my_rating
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_my_rating
 
-    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.rating }
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_my_rating
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.rating }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.rating }
 
     override val displayFormat = DecimalFormat("0.0")
 

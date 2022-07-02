@@ -7,13 +7,21 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import java.text.DecimalFormat
 
 class AverageRatingSorter(context: Context) : RatingSorter(context) {
-    @StringRes
-    public override val typeResId = R.string.collection_sort_type_average_rating
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_average_rating_asc
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_average_rating
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_average_rating
 
-    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.averageRating }
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_average_rating
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.averageRating }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.averageRating }
 
     override val displayFormat = DecimalFormat("0.00")
 

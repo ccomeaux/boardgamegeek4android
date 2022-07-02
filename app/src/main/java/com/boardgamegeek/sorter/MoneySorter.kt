@@ -10,21 +10,19 @@ abstract class MoneySorter(context: Context) : CollectionSorter(context) {
     protected abstract fun amount(item: CollectionItemEntity): Double
     protected abstract fun currency(item: CollectionItemEntity): String
 
-    override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
-        return items.sortedWith(compareBy<CollectionItemEntity> { currency(it) }.thenByDescending { amount(it) })
+    override fun sortAscending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
+        return items.sortedWith(compareBy<CollectionItemEntity> { currency(it) }.thenBy { amount(it) })
     }
 
-    private fun round(value: Double): Double {
-        return (ceil(value / 10).toInt() * 10).toDouble()
+    override fun sortDescending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
+        return items.sortedWith(compareByDescending<CollectionItemEntity> { currency(it) }.thenByDescending { amount(it) })
     }
 
-    override fun getHeaderText(item: CollectionItemEntity): String {
-        return round(amount(item)).asMoney(currency(item), DecimalFormat("0")).ifEmpty { MISSING_DATA }
-    }
+    private fun round(value: Double) = (ceil(value / 10).toInt() * 10).toDouble()
 
-    override fun getDisplayInfo(item: CollectionItemEntity): String {
-        return amount(item).asMoney(currency(item)).ifEmpty { MISSING_DATA }
-    }
+    override fun getHeaderText(item: CollectionItemEntity) = round(amount(item)).asMoney(currency(item), DecimalFormat("0")).ifEmpty { MISSING_DATA }
+
+    override fun getDisplayInfo(item: CollectionItemEntity) = amount(item).asMoney(currency(item)).ifEmpty { MISSING_DATA }
 
     companion object {
         private const val MISSING_DATA = "-"

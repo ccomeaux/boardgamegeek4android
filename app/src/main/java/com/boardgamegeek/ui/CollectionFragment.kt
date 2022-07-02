@@ -50,7 +50,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private val binding get() = _binding!!
     private var viewId = CollectionView.DEFAULT_DEFAULT_ID
     private var viewName = ""
-    private var sorter: CollectionSorter? = null
+    private var sorter: Pair<CollectionSorter, Boolean>? = null
     private val filters = mutableListOf<CollectionFilterer>()
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = 0
@@ -132,9 +132,11 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->
             sorter = collectionSorterFactory.create(sortType)
             binding.sortDescriptionView.text =
-                if (sorter == null) "" else requireActivity().getString(R.string.by_prefix, sorter?.description.orEmpty())
+                sorter?.first?.let { requireActivity().getString(R.string.by_prefix, it.description) }.orEmpty() +
+                        sorter?.second?.let { if (it) " v" else " ^" }.orEmpty()
+            // TODO show direction from sorter.second
             val hasFiltersApplied = filters.size > 0
-            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
+            val hasSortApplied = sorter?.let { it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT } ?: false
             binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
         }
         viewModel.effectiveFilters.observe(viewLifecycleOwner) { filterList ->
@@ -143,7 +145,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             setEmptyText()
             bindFilterButtons()
             val hasFiltersApplied = filters.size > 0
-            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
+            val hasSortApplied = sorter?.let { it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT } ?: false
             binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
         }
         viewModel.items.observe(viewLifecycleOwner) {
@@ -201,7 +203,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_sort -> {
-                CollectionSortDialogFragment.newInstance(sorter?.type ?: CollectionSorterFactory.TYPE_DEFAULT)
+                CollectionSortDialogFragment.newInstance(sorter?.first?.getType(sorter?.second ?: false) ?: CollectionSorterFactory.TYPE_DEFAULT)
                     .show(this@CollectionFragment.parentFragmentManager, "collection_sort")
                 return@OnMenuItemClickListener true
             }
@@ -373,15 +375,15 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                 if (item == null) return
                 binding.nameView.text = item.collectionName
                 binding.yearView.text = item.yearPublished.asYear(context)
-                binding.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
+                binding.timestampView.timestamp = sorter?.first?.getTimestamp(item) ?: 0L
                 binding.favoriteView.isVisible = item.isFavorite
-                val ratingText = sorter?.getRatingText(item).orEmpty()
+                val ratingText = sorter?.first?.getRatingText(item).orEmpty()
                 binding.ratingView.setTextOrHide(ratingText)
                 if (ratingText.isNotEmpty()) {
-                    sorter?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(BggColors.ratingColors)) }
+                    sorter?.first?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(BggColors.ratingColors)) }
                     binding.infoView.isVisible = false
                 } else {
-                    binding.infoView.setTextOrHide(sorter?.getDisplayInfo(item))
+                    binding.infoView.setTextOrHide(sorter?.first?.getDisplayInfo(item))
                 }
                 binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 itemView.isActivated = selectedItems[position, false]
@@ -434,7 +436,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         override fun getSectionHeader(position: Int): CharSequence {
             val item = items.getOrNull(position) ?: return "-"
-            return sorter?.getHeaderText(item) ?: return "-"
+            return sorter?.first?.getHeaderText(item) ?: return "-"
         }
     }
 
@@ -503,14 +505,21 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         return true
     }
 
-    private fun createViewDescription(sort: CollectionSorter?, filters: List<CollectionFilterer>): String {
+    private fun createViewDescription(sort: Pair<CollectionSorter, Boolean>?, filters: List<CollectionFilterer>): String {
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))
             filters.map { "\n\u2022 ${it.description()}" }.forEach { text.append(it) }
         }
         text.append("\n\n")
-        sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }
+        sort?.let {
+            if (it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT) text.append(
+                getString(
+                    R.string.sort_description,
+                    it.first.description
+                )
+            )
+        }
         return text.trim().toString()
     }
 

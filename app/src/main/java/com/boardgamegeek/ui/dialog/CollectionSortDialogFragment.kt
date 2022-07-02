@@ -1,12 +1,14 @@
 package com.boardgamegeek.ui.dialog
 
 import android.app.Dialog
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -28,7 +30,7 @@ import timber.log.Timber
 class CollectionSortDialogFragment : DialogFragment() {
     private var _binding: DialogCollectionSortBinding? = null
     private val binding get() = _binding!!
-
+    private var selectedType: Int = CollectionSorterFactory.TYPE_DEFAULT
     private val viewModel by activityViewModels<CollectionViewViewModel>()
     private val factory by lazy { CollectionSorterFactory(requireContext()) }
 
@@ -43,23 +45,34 @@ class CollectionSortDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
+        selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
 
         if (requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
-            binding.playDateMax.hideIfNotSelected(selectedType)
-            binding.playDateMin.hideIfNotSelected(selectedType)
+            if (findChipByType(selectedType, binding.container) !== binding.playDate) {
+                binding.playDate.isVisible = false
+            }
         }
 
         createNames(binding.container)
 
         findChipByType(selectedType, binding.container)?.let {
-            it.isChecked = true
-            it.chipIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_arrow_upward_24)
-            it.isChipIconVisible = true
-            binding.scrollContainer.scrollToDescendant(it)
+            selectChip(it, factory.create(selectedType)?.second ?: false)
         }
 
         wireUp(binding.container)
+    }
+
+    private fun selectChip(chip: Chip, direction: Boolean) {
+        chip.isChecked = true
+        chip.chipIcon = AppCompatResources.getDrawable(
+            requireContext(), if (direction)
+                R.drawable.ic_baseline_arrow_downward_24
+            else
+                R.drawable.ic_baseline_arrow_upward_24
+        )
+        chip.chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+        chip.isChipIconVisible = true
+        binding.scrollContainer.scrollToDescendant(chip)
     }
 
     override fun onDestroyView() {
@@ -67,17 +80,11 @@ class CollectionSortDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    private fun Chip.hideIfNotSelected(selectedType: Int) {
-        if (findChipByType(selectedType, binding.container) !== this) {
-            isVisible = false
-        }
-    }
-
     private fun createNames(view: View) {
         if (view is ChipGroup)
             view.children.filterIsInstance<Chip>().forEach {
                 val sortType = getSortTypeFromView(it)
-                val sorter = factory.create(sortType)
+                val sorter = factory.create(sortType)?.first
                 it.text = sorter?.description.orEmpty()
             }
         else if (view is ViewGroup)
@@ -87,15 +94,16 @@ class CollectionSortDialogFragment : DialogFragment() {
     private fun wireUp(view: View) {
         if (view is ChipGroup)
             view.setOnCheckedChangeListener { group, checkedId ->
-                if (checkedId != View.NO_ID) {
-                    Timber.w("$group $checkedId")
-                    val sortType = getSortTypeFromView(group.findViewById(checkedId))
-                    Timber.d("Sort by $sortType")
-                    viewModel.setSort(sortType)
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
-                        param("SortBy", sortType.toString())
-                    }
+                val sortType = if (checkedId != View.NO_ID) {
+                    getSortTypeFromView(group.findViewById(checkedId))
+                } else {
+                    factory.reverse(selectedType)
+                } ?: CollectionSorterFactory.TYPE_DEFAULT
+                Timber.d("Sort by $sortType")
+                viewModel.setSort(sortType)
+                FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+                    param("SortBy", sortType.toString())
                 }
                 dismiss()
             }
@@ -106,9 +114,15 @@ class CollectionSortDialogFragment : DialogFragment() {
     private fun findChipByType(type: Int, view: View): Chip? {
         return when (view) {
             is ChipGroup -> {
-                view.children.filterIsInstance<Chip>().find {
+                val chip = view.children.filterIsInstance<Chip>().find {
                     getSortTypeFromView(it) == type
                 }
+                if (chip == null) {
+                    val reversedType = factory.reverse(type)
+                    view.children.filterIsInstance<Chip>().find {
+                        getSortTypeFromView(it) == reversedType
+                    }
+                } else chip
             }
             is ViewGroup -> {
                 view.children.forEach {
@@ -121,7 +135,7 @@ class CollectionSortDialogFragment : DialogFragment() {
         }
     }
 
-    private fun getSortTypeFromView(view: View) = view.tag.toString().toIntOrNull() ?: CollectionSorterFactory.TYPE_UNKNOWN
+    private fun getSortTypeFromView(view: View) = view.tag?.toString()?.toIntOrNull() ?: CollectionSorterFactory.TYPE_UNKNOWN
 
     companion object {
         private const val KEY_SORT_TYPE = "sort_type"

@@ -369,10 +369,8 @@
 	<string name="collection_sort_last_viewed">Last Viewed</string>
 	<string name="collection_sort_last_modified">Last Modified</string>
 	<string name="collection_sort_my_rating">My Rating</string>
-	<string name="collection_sort_play_count_asc">Least Played</string>
-	<string name="collection_sort_play_count_desc">Most Played</string>
-	<string name="collection_sort_play_date_max">Most Recently Played</string>
-	<string name="collection_sort_play_date_min">Least Recently Played</string>
+	<string name="collection_sort_play_count">Play Count</string>
+	<string name="collection_sort_play_date">Last Played</string>
 	<string name="collection_sort_play_time">Play Time</string>
 	<string name="collection_sort_rank">Rank</string>
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
@@ -410,15 +408,8 @@
 	<string name="menu_sort_first_name">First name</string>
 	<string name="menu_sort_last_name">Last name</string>
 	<string name="undo">Undo</string>
-	<string name="newest">Newest</string>
-	<string name="oldest">Oldest</string>
-	<string name="shortest">Shortest</string>
-	<string name="longest">Longest</string>
-	<string name="youngest">Youngest</string>
-	<string name="heaviest">Heaviest</string>
-	<string name="lightest">Lightest</string>
-	<string name="year_positive">%s</string>
-	<string name="year_zero">\?</string>
+	<string name="year_positive" translatable="false">%s</string>
+	<string name="year_zero" translatable="false">\?</string>
 	<string name="year_negative">%s BC</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_play_count">Play Count</string>

@@ -6,11 +6,24 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asMinutes
 
-abstract class PlayTimeSorter(context: Context) : CollectionSorter(context) {
+class PlayTimeSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue = context.resources.getString(R.string.text_unknown)
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_play_time
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_play_time_asc
+
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_play_time_desc
+
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_play_time
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.playingTime }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.playingTime }
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         val minutes = item.playingTime
