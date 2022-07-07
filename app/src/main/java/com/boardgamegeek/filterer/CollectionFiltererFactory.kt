@@ -24,9 +24,7 @@ class CollectionFiltererFactory(context: Context) {
         filterers.add(FavoriteFilterer(context))
     }
 
-    fun create(type: Int): CollectionFilterer? {
-        return filterers.find { it.type == type }
-    }
+    fun create(type: Int): CollectionFilterer? = filterers.find { it.type == type }
 
     companion object {
         const val TYPE_UNKNOWN = -1

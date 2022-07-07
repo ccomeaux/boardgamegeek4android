@@ -18,13 +18,12 @@ import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
-import com.boardgamegeek.ui.dialog.CollectionFilterDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 
-class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogFragment.Listener {
+class CollectionActivity : TopLevelSinglePaneActivity() {
     private var viewId: Long = 0
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
@@ -135,10 +134,6 @@ class CollectionActivity : TopLevelSinglePaneActivity(), CollectionFilterDialogF
         } else {
             CollectionFragment.newInstance(isCreatingShortcut)
         }
-    }
-
-    override fun onFilterSelected(filterType: Int) {
-        (fragment as CollectionFragment).launchFilterDialog(filterType)
     }
 
     companion object {

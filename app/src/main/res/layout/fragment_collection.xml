@@ -88,29 +88,13 @@
 		app:hideOnScroll="true"
 		app:layout_insetEdge="bottom">
 
-		<LinearLayout
+		<TextView
+			android:id="@+id/rowCountView"
+			style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:gravity="center_vertical"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/rowCountView"
-				style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:maxLines="1"
-				tools:text="42" />
-
-			<TextView
-				android:id="@+id/sortDescriptionView"
-				style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:maxLines="1"
-				tools:text="by Name" />
-
-		</LinearLayout>
+			android:maxLines="1"
+			tools:text="42" />
 	</com.google.android.material.bottomappbar.BottomAppBar>
 
 	<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
