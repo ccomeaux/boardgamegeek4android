@@ -341,7 +341,7 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
-    suspend fun loadPlayInfo(
+    suspend fun loadGamesForPlayStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
@@ -349,10 +349,10 @@ class GameDao(private val context: BggApplication) {
         context.contentResolver.loadList(
             Games.CONTENT_PLAYS_URI,
             arrayOf(
-                Plays.Columns.SUM_QUANTITY,
-                Plays.Columns.ITEM_NAME,
-                Games.Columns.GAME_RANK,
                 Games.Columns.GAME_ID,
+                Games.Columns.GAME_NAME,
+                Games.Columns.GAME_RANK,
+                Plays.Columns.SUM_QUANTITY,
             ),
             selection = mutableListOf<String>().apply {
                 add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
@@ -377,9 +377,9 @@ class GameDao(private val context: BggApplication) {
             sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
         ) {
             GameForPlayStatEntity(
-                id = it.getIntOrNull(3) ?: INVALID_ID,
+                id = it.getIntOrNull(0) ?: INVALID_ID,
                 name = it.getStringOrNull(1).orEmpty(),
-                playCount = it.getIntOrNull(0) ?: 0,
+                playCount = it.getIntOrNull(3) ?: 0,
                 bggRank = it.getIntOrNull(2) ?: GameRankEntity.RANK_UNKNOWN,
             )
         }

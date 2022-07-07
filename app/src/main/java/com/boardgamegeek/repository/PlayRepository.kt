@@ -190,21 +190,36 @@ class PlayRepository(val application: BggApplication) {
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
-    ): List<GameForPlayStatEntity> {
-        // TODO use PlayDao if either of these is false
-        // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
-        // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
-        val playInfo = gameDao.loadPlayInfo(includeIncompletePlays, includeExpansions, includeAccessories)
-        return filterGamesOwned(playInfo)
-    }
-
-    private suspend fun filterGamesOwned(playInfo: List<GameForPlayStatEntity>): List<GameForPlayStatEntity> = withContext(Dispatchers.Default) {
-        val items = collectionDao.load()
-        val games = mutableListOf<GameForPlayStatEntity>()
-        playInfo.forEach { game ->
-            games += game.copy(isOwned = items.any { item -> item.gameId == game.id && item.own })
-        }
-        games.toList()
+    ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
+        val games = if (!syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
+            // If played games aren't synced, count the plays instead
+            // We can't respect the expansion/accessory flags, so we include them all
+            val allPlays = playDao.loadPlays()
+            val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
+            val gameMap = plays.groupingBy { it.gameId to it.gameName }.fold(0) { accumulator, element ->
+                accumulator + element.quantity
+            }
+            gameMap.map {
+                GameForPlayStatEntity(
+                    id = it.key.first,
+                    name = it.key.second,
+                    playCount = it.value,
+                )
+            }
+        } else gameDao.loadGamesForPlayStats(includeIncompletePlays, includeExpansions, includeAccessories).filter { it.playCount > 0 }
+        if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_OWN)) {
+            val items = collectionDao.load()
+            games.map {
+                val isOwned = items.any { item -> item.gameId == it.id && item.own }
+                if (it.bggRank == GameRankEntity.RANK_UNKNOWN) {
+                    items.find { item -> item.gameId == it.id && item.own }?.let { item ->
+                        it.copy(isOwned = isOwned, bggRank = item.rank)
+                    } ?: it
+                } else {
+                    it.copy(isOwned = isOwned)
+                }
+            }
+        } else games
     }
 
     suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME) =
