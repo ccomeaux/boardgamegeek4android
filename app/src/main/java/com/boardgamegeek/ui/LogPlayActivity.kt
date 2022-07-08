@@ -806,10 +806,37 @@ class LogPlayActivity : AppCompatActivity() {
         cancelNotification(TAG_PLAY_TIMER, internalId)
     }
 
+    class PlayerCallback : ListUpdateCallback {
+        private var adapter: RecyclerView.Adapter<*>? = null
+        var firstInsert = -1
+
+        fun bind(adapter: RecyclerView.Adapter<*>) {
+            this.adapter = adapter
+        }
+
+        override fun onChanged(position: Int, count: Int, payload: Any?) {
+            adapter?.notifyItemRangeChanged(position, count, payload)
+        }
+
+        override fun onInserted(position: Int, count: Int) {
+            if (firstInsert == -1 || firstInsert > position) firstInsert = position
+            adapter?.notifyItemRangeInserted(position, count)
+        }
+
+        override fun onMoved(fromPosition: Int, toPosition: Int) {
+            adapter?.notifyItemMoved(fromPosition, toPosition)
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            adapter?.notifyItemRangeRemoved(position, count)
+        }
+    }
+
     inner class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         var isDragging = false
 
         private var players = emptyList<PlayPlayerEntity>()
+        private val callback = PlayerCallback()
 
         private inner class Diff(private val oldList: List<PlayPlayerEntity>, private val newList: List<PlayPlayerEntity>) :
             DiffUtil.Callback() {
@@ -835,12 +862,18 @@ class LogPlayActivity : AppCompatActivity() {
             val oldPlayers = this.players
             this.players = players
             val diffResult = DiffUtil.calculateDiff(Diff(oldPlayers, this.players))
-            diffResult.dispatchUpdatesTo(this)
-            // TODO: smooth scroll to the "newest" player
+            diffResult.dispatchUpdatesTo(callback)
+            if (callback.firstInsert >= 0) {
+                // if a player was inserted, scroll down to show it
+                binding.nestedScrollView.postDelayed(500L) {
+                    binding.nestedScrollView.fullScroll(View.FOCUS_DOWN)
+                }
+            }
         }
 
         init {
             setHasStableIds(true)
+            callback.bind(this)
         }
 
         override fun getItemCount(): Int {
@@ -932,7 +965,7 @@ class LogPlayActivity : AppCompatActivity() {
                     players.getOrNull(position)?.let { player ->
                         val fragment = LogPlayPlayerRatingNumberPadDialogFragment.newInstance(
                             position,
-                            player.rating.asBoundedRating(this@LogPlayActivity), // TODO does this work for other locales?
+                            player.rating.asBoundedRating(this@LogPlayActivity),
                             player.color,
                             player.fullDescription
                         )
