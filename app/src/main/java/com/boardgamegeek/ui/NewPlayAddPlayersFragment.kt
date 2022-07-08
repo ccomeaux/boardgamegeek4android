@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -81,11 +83,9 @@ class NewPlayAddPlayersFragment : Fragment() {
             }
         }
         viewModel.addedPlayers.observe(viewLifecycleOwner) {
-            // TODO don't delete and recreate
-            binding.chipGroup.removeAllViews()
-            it?.let { list ->
-                for (player in list) {
-                    binding.chipGroup.addView(Chip(context).apply {
+            it?.let { playerList ->
+                for (player in playerList) {
+                    findOrCreateChip(player.id).apply {
                         text = player.description
                         isCloseIconVisible = true
                         if (player.avatarUrl.isBlank()) {
@@ -100,11 +100,23 @@ class NewPlayAddPlayersFragment : Fragment() {
                         setOnCloseIconClickListener {
                             viewModel.removePlayer(player)
                         }
-                    })
+                    }
+                }
+                val usedTags = playerList.map { player -> player.id }
+                binding.chipGroup.children.forEach { chip ->
+                    if (!usedTags.contains(chip.tag)) binding.chipGroup.removeView(chip)
                 }
             }
         }
         viewModel.filterPlayers("")
+    }
+
+    private fun findOrCreateChip(playerId: String): Chip {
+        return binding.chipGroup.findViewWithTag(playerId) ?: Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            tag = playerId
+            binding.chipGroup.addView(this)
+        }
     }
 
     override fun onResume() {
