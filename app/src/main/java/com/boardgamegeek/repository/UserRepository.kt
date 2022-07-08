@@ -83,6 +83,12 @@ class UserRepository(val application: BggApplication) {
         upsertedCount to deletedCount
     }
 
+    suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().user(username)
+        val user = response.mapToEntity()
+        user.userName == username
+    }
+
     suspend fun updateNickName(username: String, nickName: String) {
         if (username.isNotBlank()) {
             userDao.upsert(contentValuesOf(Buddies.Columns.PLAY_NICKNAME to nickName), username)

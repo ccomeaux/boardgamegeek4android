@@ -32,6 +32,10 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
+    private val _isUsernameValid = MutableLiveData<Event<Boolean>>()
+    val isUsernameValid: LiveData<Event<Boolean>>
+        get() = _isUsernameValid
+
     fun setUsername(name: String?) {
         if (_userTypeAndName.value?.first != name) _userTypeAndName.value = (name to TYPE_USER)
     }
@@ -156,6 +160,16 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 )
                 setPlayerName(newName)
+            }
+        }
+    }
+
+    fun validateUsername(username: String) {
+        viewModelScope.launch {
+            if (username.isBlank())
+                _isUsernameValid.value = Event(false)
+            else {
+                _isUsernameValid.value = Event(userRepository.validateUsername(username))
             }
         }
     }

@@ -716,6 +716,9 @@
 	<string name="h_index">H-Index</string>
 	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23</string>
 	<string name="ampersand">%1$s &amp; %2$s</string>
+	<string name="validate">Validate</string>
+	<string name="not_found">Not Found</string>
+	<string name="valid">Valid</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

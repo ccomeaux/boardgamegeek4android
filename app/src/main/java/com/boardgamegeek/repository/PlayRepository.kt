@@ -409,7 +409,6 @@ class PlayRepository(val application: BggApplication) {
     }
 
     suspend fun addUsernameToPlayer(playerName: String, username: String) = withContext(Dispatchers.IO) {
-        // TODO verify username exists on BGG
         val batch = arrayListOf<ContentProviderOperation>()
         batch += playDao.createDirtyPlaysForNonUserPlayerOperations(playerName)
         batch += playDao.createAddUsernameOperation(playerName, username)
