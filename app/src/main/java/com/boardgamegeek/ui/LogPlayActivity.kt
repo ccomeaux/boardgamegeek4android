@@ -20,11 +20,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayBinding
@@ -567,12 +569,6 @@ class LogPlayActivity : AppCompatActivity() {
                 dateInMillis = it.dateInMillis
                 length = it.length
                 startTime = it.startTime
-                playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
-                playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
-                playerCount = it.players.size
-                playerDescriptions = it.players.mapIndexed { i, p ->
-                    p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
-                }
                 usedColors = it.players.map { p -> p.color }
 
                 bindHeader()
@@ -583,8 +579,6 @@ class LogPlayActivity : AppCompatActivity() {
                 bindIncomplete(it.incomplete)
                 bindNoWinStats(it.noWinStats)
                 bindComments(it)
-                bindPlayerHeader(it.players.size)
-                playerAdapter.submit(it.players)
                 binding.progressView.hide()
 
                 if (showNotification && internalId != INVALID_ID.toLong()) {
@@ -602,6 +596,19 @@ class LogPlayActivity : AppCompatActivity() {
                 }
             }
         }
+        viewModel.players.observe(this) {
+            it?.let {
+                playersHaveColors = it.any { player -> player.color.isNotBlank() }
+                playersHaveStartingPositions = it.any { player -> player.startingPosition.isNotBlank() }
+                playerCount = it.size
+                playerDescriptions = it.mapIndexed { i, p ->
+                    p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
+                }
+
+                bindPlayerHeader(it.size)
+                playerAdapter.submit(it)
+            }
+        }
         viewModel.loadPlay(
             internalId,
             gameId,
@@ -611,7 +618,7 @@ class LogPlayActivity : AppCompatActivity() {
             isChangingGame,
         )
 
-        binding.fab.postDelayed({ binding.fab.show() }, 2000)
+        binding.fab.postDelayed({ binding.fab.show() }, 2_000)
     }
 
     override fun onResume() {

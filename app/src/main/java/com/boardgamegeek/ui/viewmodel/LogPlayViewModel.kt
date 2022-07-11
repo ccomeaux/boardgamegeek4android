@@ -37,6 +37,10 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     val play: LiveData<PlayEntity>
         get() = _play
 
+    private val _players = MutableLiveData<List<PlayPlayerEntity>>()
+    val players: LiveData<List<PlayPlayerEntity>>
+        get() = _players
+
     private val _customPlayerSort = MutableLiveData<Boolean>()
     val customPlayerSort: LiveData<Boolean>
         get() = _customPlayerSort
@@ -63,8 +67,8 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         _playersByLocation.addSource(_location) { result ->
             result?.let { filterPlayersByLocation(location = it) }
         }
-        _playersByLocation.addSource(_play) { result ->
-            result?.let { filterPlayersByLocation(currentPlayers = result.players) }
+        _playersByLocation.addSource(_players) { result ->
+            result?.let { filterPlayersByLocation(currentPlayers = it) }
         }
     }
 
@@ -79,7 +83,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private fun filterPlayersByLocation(
         location: String = _location.value.orEmpty(),
-        currentPlayers: List<PlayPlayerEntity> = play.value?.players.orEmpty(),
+        currentPlayers: List<PlayPlayerEntity> = players.value.orEmpty(),
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             val allPlayers = playRepository.loadPlayersByLocation(location)
@@ -131,6 +135,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             fetchedPlay?.let {
                 if (originalPlay == null) originalPlay = it.copy()
                 _location.postValue(it.location)
+                _players.postValue(it.players)
                 _customPlayerSort.postValue(arePlayersCustomSorted)
                 val pp = if (isRequestingToEndPlay) {
                     it.copy(
@@ -252,61 +257,56 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun isDirty(): Boolean {
+        return play.value != originalPlay
+    }
+
     fun addPlayers(players: List<PlayerEntity>) {
-        play.value?.let { it ->
-            val playPlayers = it.players.toMutableList()
-            playPlayers.addAll(players.mapIndexed { index, pe ->
-                if (customPlayerSort.value != true) {
-                    PlayPlayerEntity(name = pe.name, username = pe.username, startingPosition = (index + it.players.size + 1).toString())
-                } else PlayPlayerEntity(name = pe.name, username = pe.username)
-            })
-            if (customPlayerSort.value != true) playPlayers.sortBy { it.seat }
-            _play.value = it.copy(_players = playPlayers)
+        val newPlayers = _players.value.orEmpty().toMutableList()
+        val initialPosition = _players.value?.size ?: 0
+        newPlayers += players.mapIndexed { index, entity ->
+            if (customPlayerSort.value != true) {
+                PlayPlayerEntity(name = entity.name, username = entity.username, startingPosition = (initialPosition + 1 + index).toString())
+            } else PlayPlayerEntity(name = entity.name, username = entity.username)
         }
+        if (customPlayerSort.value != true) newPlayers.sortBy { it.seat }
+        _players.value = newPlayers
     }
 
     fun editPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), position: Int? = null) {
-        play.value?.let {
-            val players = it.players.toMutableList()
-            if (position in it.players.indices) {
+        players.value?.let {
+            val players = it.toMutableList()
+            if (position in it.indices) {
                 position?.let { pos -> players[pos] = player }
             } else {
                 players += player
             }
             if (customPlayerSort.value != true) players.sortBy { player -> player.seat }
-            _play.value = it.copy(_players = players)
+            _players.value = players
         }
     }
 
     fun addPlayer(player: PlayPlayerEntity = PlayPlayerEntity()) {
-        play.value?.let {
-            var players = it.players.toMutableList()
-            if (customPlayerSort.value != true) {
-                players.add(player.seat - 1, player)
-                players = addSeats(players).toMutableList()
-                players.sortBy { player -> player.seat }
-            } else {
-                players += player
-            }
-            _play.value = it.copy(_players = players)
+        val players = _players.value.orEmpty().toMutableList()
+        val newPlayers = if (customPlayerSort.value != true) {
+            addSeats(players + player).toMutableList()
+        } else {
+            players + player
         }
+        _players.value = newPlayers
     }
 
     fun removePlayer(player: PlayPlayerEntity) {
-        play.value?.let {
-            if (it.players.isNotEmpty()) {
-                val players = it.players.toMutableList()
-                players.remove(player)
+        players.value?.let {
+            if (it.isNotEmpty()) {
+                val newPlayers = it.toMutableList()
+                newPlayers.remove(player)
                 val seatedPlayers = if (customPlayerSort.value != true) {
-                    addSeats(players)
-                } else players
-                _play.value = it.copy(_players = seatedPlayers)
+                    addSeats(newPlayers)
+                } else newPlayers
+                _players.value = seatedPlayers
             }
         }
-    }
-
-    fun isDirty(): Boolean {
-        return play.value != originalPlay
     }
 
     fun clearPositions() {
@@ -314,16 +314,15 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun pickStartPlayer(playerIndex: Int) {
-        play.value?.let {
-            val players = addSeats(it.players, playerIndex)
-            _play.value = it.copy(_players = players)
+        players.value?.let {
+            val players = addSeats(it, playerIndex)
+            _players.value = players
         }
     }
 
     fun pickRandomStartPlayer() {
-        play.value?.let {
-            val players = addSeats(it.players, it.players.indices.random()) // TODO - if this is "0", need to animate something
-            _play.value = it.copy(_players = players)
+        players.value?.let {
+            _players.value = addSeats(it, it.indices.random()) // TODO - if this is "0", need to animate something
         }
     }
 
@@ -331,62 +330,47 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
      * Return the list of players, with seats assigned from 1 to N, starting at the specified index and re-sorted to begin at seat 1.
      */
     private fun addSeats(players: List<PlayPlayerEntity>, playerIndex: Int = 0): List<PlayPlayerEntity> {
-        val newPlayers = mutableListOf<PlayPlayerEntity>()
-        for (index in players.indices) {
-            newPlayers += players[index].copy(startingPosition = ((index - playerIndex + players.size) % players.size + 1).toString())
-        }
-        return newPlayers.sortedBy { player -> player.seat }
+        return players.mapIndexed { index, playPlayerEntity ->
+            playPlayerEntity.copy(startingPosition = ((index - playerIndex + players.size) % players.size + 1).toString())
+        }.sortedBy { player -> player.seat }
     }
 
     fun randomizePlayerOrder() {
-        play.value?.let {
-            if (it.players.isNotEmpty()) {
-                val sortedPlayers = mutableListOf<PlayPlayerEntity>()
-                val players = it.players.shuffled()
-                for (index in it.players.indices) {
-                    sortedPlayers += players[index].copy(startingPosition = (index + 1).toString())
-                }
-                _play.value = it.copy(_players = sortedPlayers)
+        players.value?.let {
+            if (it.isNotEmpty()) {
+                _players.value = addSeats(it.shuffled())
             }
         }
     }
 
     fun reorderPlayers(fromSeat: Int, toSeat: Int) {
-        play.value?.let {
-            if (it.players.isNotEmpty() && customPlayerSort.value != true) {
-                val players = it.players.toMutableList()
-                getPlayerAtSeat(players, fromSeat)?.let { movingPlayer ->
-                    players.remove(movingPlayer)
-                    players.add(toSeat - 1, movingPlayer)
-                    _play.value = it.copy(_players = addSeats(players))
+        players.value?.let {
+            if (it.isNotEmpty() && customPlayerSort.value != true) {
+                val newPlayers = it.toMutableList()
+                newPlayers.find { p -> p.seat == fromSeat }?.let { movingPlayer ->
+                    newPlayers.remove(movingPlayer)
+                    newPlayers.add(toSeat - 1, movingPlayer)
+                    _players.value = addSeats(newPlayers)
                 }
             }
         }
     }
 
-    private fun getPlayerAtSeat(players: List<PlayPlayerEntity>, seat: Int): PlayPlayerEntity? {
-        return players.find { it.seat == seat }
-    }
-
     fun assignColors(clearExisting: Boolean = false) {
-        _play.value?.let { play ->
+        players.value?.let {
             viewModelScope.launch(Dispatchers.Default) {
-                val existingPlayers = if (clearExisting) {
-                    play.players.map { it.copy(color = "") }.toMutableList()
-                } else {
-                    play.players.toMutableList()
-                }
-                val results = PlayerColorAssigner(getApplication(), play.gameId, existingPlayers).execute()
-                val players = mutableListOf<PlayPlayerEntity>()
+                val existingPlayers = if (clearExisting) it.map { it.copy(color = "") } else it
+                val results = PlayerColorAssigner(getApplication(), _play.value?.gameId ?: INVALID_ID, existingPlayers).execute()
+                val newPlayers = mutableListOf<PlayPlayerEntity>()
                 existingPlayers.forEach { ppe ->
                     val result = if (ppe.username.isEmpty()) {
                         results.find { it.type == PlayerColorAssigner.PlayerType.NON_USER && it.name == ppe.name }
                     } else {
                         results.find { it.type == PlayerColorAssigner.PlayerType.USER && it.name == ppe.username }
                     }
-                    players += if (result == null) ppe.copy() else ppe.copy(color = result.color)
+                    newPlayers += if (result == null) ppe.copy() else ppe.copy(color = result.color)
                 }
-                _play.postValue(play.copy(_players = players))
+                _players.postValue(newPlayers)
             }
         }
     }
@@ -396,14 +380,14 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun addScoreToPlayer(playerIndex: Int, score: Double) {
-        play.value?.let {
-            val players = it.players.mapIndexed { i, player ->
+        players.value?.let {
+            val newPlayers = it.mapIndexed { i, player ->
                 if (i == playerIndex) player.copy(score = scoreFormat.format(score)) else player.copy()
             }
-            val highScore = players.maxOfOrNull { player -> player.numericScore ?: -Double.MAX_VALUE }
-            _play.value = it.copy(_players = players.map { ppe ->
+            val highScore = newPlayers.maxOfOrNull { player -> player.numericScore ?: -Double.MAX_VALUE }
+            _players.value = newPlayers.map { ppe ->
                 ppe.copy(isWin = (ppe.numericScore == highScore))
-            })
+            }
         }
     }
 
@@ -420,17 +404,16 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun modifyPlayers(indexFunction: (PlayPlayerEntity) -> PlayPlayerEntity) {
-        play.value?.let {
-            _play.value = it.copy(_players = it.players.map { players -> indexFunction(players) })
+        players.value?.let {
+            _players.value = it.map { players -> indexFunction(players) }
         }
     }
 
     private fun modifyPlayerAtIndex(playerIndex: Int, indexFunction: (PlayPlayerEntity) -> PlayPlayerEntity) {
-        play.value?.let {
-            val players = it.players.mapIndexed { i, player ->
+        players.value?.let {
+            _players.value = it.mapIndexed { i, player ->
                 if (i == playerIndex) indexFunction(player) else player.copy()
             }
-            _play.value = it.copy(_players = players)
         }
     }
 
@@ -452,6 +435,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
                         updateTimestamp = now,
                         deleteTimestamp = 0,
                         dirtyTimestamp = now,
+                        _players = players.value.orEmpty()
                     )
                 )
                 if (internalIdToDelete != INVALID_ID.toLong()) {
