@@ -5,10 +5,8 @@
 	android:id="@+id/scrollContainer"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:paddingLeft="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical"
-	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingBottom="@dimen/material_margin_vertical">
+	android:layout_marginVertical="@dimen/material_margin_vertical"
+	android:paddingHorizontal="@dimen/activity_horizontal_margin">
 
 	<LinearLayout
 		android:id="@+id/container"
@@ -24,7 +22,7 @@
 
 		<com.google.android.material.chip.ChipGroup
 			android:id="@+id/chipGroup"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:singleSelection="true">
 
@@ -78,7 +76,7 @@
 
 		<com.google.android.material.chip.ChipGroup
 			android:id="@+id/privateInfoChipGroup"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:singleSelection="true">
 
@@ -131,7 +129,7 @@
 
 		<com.google.android.material.chip.ChipGroup
 			android:id="@+id/infoChipGroup"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:singleSelection="true">
 
@@ -176,7 +174,7 @@
 
 		<com.google.android.material.chip.ChipGroup
 			android:id="@+id/communityChipGroup"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:singleSelection="true">
 
@@ -221,7 +219,7 @@
 
 		<com.google.android.material.chip.ChipGroup
 			android:id="@+id/localChipGroup"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:singleSelection="true">
 
@@ -233,5 +231,9 @@
 				android:tag="@string/collection_sort_type_last_viewed"
 				tools:text="Last Viewed" />
 		</com.google.android.material.chip.ChipGroup>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/fab_buffer" />
 	</LinearLayout>
 </ScrollView>
