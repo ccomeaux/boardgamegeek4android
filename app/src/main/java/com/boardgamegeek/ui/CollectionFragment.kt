@@ -408,19 +408,30 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
             fun bindView(item: CollectionItemEntity?, position: Int) {
                 if (item == null) return
+                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 binding.nameView.text = item.collectionName
                 binding.yearView.text = item.yearPublished.asYear(context)
-                binding.timestampView.timestamp = sorter?.first?.getTimestamp(item) ?: 0L
                 binding.favoriteView.isVisible = item.isFavorite
+
+                val timestamp = sorter?.first?.getTimestamp(item) ?: 0L
+                val rating = sorter?.first?.getRating(item) ?: 0.0
                 val ratingText = sorter?.first?.getRatingText(item).orEmpty()
-                binding.ratingView.setTextOrHide(ratingText)
-                if (ratingText.isNotEmpty()) {
-                    sorter?.first?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(BggColors.ratingColors)) }
+                if (timestamp > 0L) {
+                    binding.timestampView.isVisible = true
+                    binding.timestampView.timestamp = timestamp
+                    binding.ratingView.isVisible = false
+                    binding.infoView.isVisible = false
+                } else if (rating > 0.0 && ratingText.isNotEmpty()) {
+                    binding.timestampView.isVisible = false
+                    binding.ratingView.setTextOrHide(ratingText)
+                    binding.ratingView.setTextViewBackground(rating.toColor(BggColors.ratingColors))
                     binding.infoView.isVisible = false
                 } else {
+                    binding.timestampView.isVisible = false
+                    binding.ratingView.isVisible = false
                     binding.infoView.setTextOrHide(sorter?.first?.getDisplayInfo(item))
                 }
-                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
+
                 itemView.isActivated = selectedItems[position, false]
                 itemView.setOnClickListener {
                     when {
