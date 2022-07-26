@@ -48,7 +48,7 @@
 						android:id="@+id/descriptionView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:textAppearance="@style/Text.Body"
+						android:textAppearance="@style/TextAppearance.Body"
 						android:visibility="gone"
 						tools:text="@tools:sample/lorem/random"
 						tools:visibility="visible" />

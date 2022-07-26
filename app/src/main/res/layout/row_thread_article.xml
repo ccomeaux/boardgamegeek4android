@@ -96,7 +96,7 @@
 			android:paddingTop="@dimen/padding_standard"
 			android:paddingRight="@dimen/material_margin_horizontal_card_contents"
 			android:paddingBottom="@dimen/padding_standard"
-			android:textAppearance="@style/Text.Body"
+			android:textAppearance="@style/TextAppearance.Body"
 			tools:text="This is a lot of text. A whole lot of text. A bunch of really, long, somewhat interesting words. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text. This is a lot of text." />
 	</LinearLayout>
 </androidx.cardview.widget.CardView>
