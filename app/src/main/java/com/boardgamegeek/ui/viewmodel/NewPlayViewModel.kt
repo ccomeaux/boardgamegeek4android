@@ -21,6 +21,8 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private var gameId = MutableLiveData<Int>()
     private var gameName = MutableLiveData<String>()
 
+    private val steps = ArrayDeque<Step>()
+
     private val _currentStep = MutableLiveData<Step>()
     val currentStep: LiveData<Step>
         get() = _currentStep
@@ -84,7 +86,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     init {
-        _currentStep.value = INITIAL_STEP
+        addStep(INITIAL_STEP)
 
         locations.addSource(rawLocations) { result ->
             result?.let { locations.value = filterLocations(result, locationFilter) }
@@ -184,7 +186,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun setDate(date: Long) {
         if (_playDate.value != date) _playDate.value = date
-        _currentStep.value = Step.LOCATION
+        addStep(Step.LOCATION)
     }
 
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
@@ -200,7 +202,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     fun setLocation(name: String) {
         if (_location.value != name) _location.value = name
-        _currentStep.value = Step.ADD_PLAYERS
+        addStep(Step.ADD_PLAYERS)
     }
 
     fun addPlayer(player: PlayerEntity) {
@@ -248,10 +250,12 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishAddingPlayers() {
-        _currentStep.value = if ((_addedPlayers.value?.size ?: 0) > 0)
-            Step.PLAYERS_COLOR
-        else
-            Step.COMMENTS
+        addStep(
+            if ((_addedPlayers.value?.size ?: 0) > 0)
+                Step.PLAYERS_COLOR
+            else
+                Step.COMMENTS
+        )
     }
 
     fun addColorToPlayer(playerIndex: Int, color: String) {
@@ -264,7 +268,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerColors() {
-        _currentStep.value = Step.PLAYERS_SORT
+        addStep(Step.PLAYERS_SORT)
     }
 
     fun clearSortOrder() {
@@ -350,11 +354,12 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerSort() {
-        _currentStep.value = when {
+        val step = when {
             playerMightBeNewMap.values.any { it } -> Step.PLAYERS_NEW
             (startTime.value ?: 0L) == 0L -> Step.PLAYERS_WIN
             else -> Step.COMMENTS
         }
+        addStep(step)
     }
 
     fun addIsNewToPlayer(playerId: String, isNew: Boolean) {
@@ -364,7 +369,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerIsNew() {
-        _currentStep.value = if ((startTime.value ?: 0L) == 0L) Step.PLAYERS_WIN else Step.COMMENTS
+        addStep(if ((startTime.value ?: 0L) == 0L) Step.PLAYERS_WIN else Step.COMMENTS)
     }
 
     fun addWinToPlayer(playerId: String, isWin: Boolean) {
@@ -382,7 +387,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun finishPlayerWin() {
-        _currentStep.value = Step.COMMENTS
+        addStep(Step.COMMENTS)
     }
 
     fun filterPlayers(filter: String) {
@@ -537,6 +542,16 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
             _insertedId.value = playRepository.save(play)
         }
+    }
+
+    private fun addStep(step: Step) {
+        steps += step
+        _currentStep.value = step
+    }
+
+    fun previousPage() {
+        steps.removeLastOrNull()
+        _currentStep.value = steps.lastOrNull()
     }
 
     enum class Step {

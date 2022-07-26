@@ -3,14 +3,16 @@ package com.boardgamegeek.ui
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.palette.graphics.Palette
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityNewPlayBinding
 import com.boardgamegeek.extensions.*
@@ -40,6 +42,9 @@ class NewPlayActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_clear_24)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        binding.pager.adapter = WizardAdapter(this)
+        binding.pager.isUserInputEnabled = false
 
         viewModel.insertedId.observe(this) {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
@@ -96,28 +101,18 @@ class NewPlayActivity : AppCompatActivity() {
         viewModel.playDate.observe(this) { updateSummary() }
 
         viewModel.currentStep.observe(this) {
-            val fragment = when (it) {
-                NewPlayViewModel.Step.DATE -> NewPlayDateFragment()
-                NewPlayViewModel.Step.LOCATION, null -> NewPlayLocationsFragment()
-                NewPlayViewModel.Step.ADD_PLAYERS -> NewPlayAddPlayersFragment()
-                NewPlayViewModel.Step.PLAYERS_COLOR -> NewPlayPlayerColorsFragment()
-                NewPlayViewModel.Step.PLAYERS_SORT -> NewPlayPlayerSortFragment()
-                NewPlayViewModel.Step.PLAYERS_NEW -> NewPlayPlayerIsNewFragment()
-                NewPlayViewModel.Step.PLAYERS_WIN -> NewPlayPlayerWinFragment()
-                NewPlayViewModel.Step.COMMENTS -> NewPlayCommentsFragment()
-            }
-            if (it == null || it == NewPlayViewModel.INITIAL_STEP) {
-                supportFragmentManager
-                    .beginTransaction()
-                    .add(R.id.fragmentContainer, fragment)
-                    .commit()
-            } else {
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
+            binding.pager.currentItem = it?.let {
+                when (it) {
+                    NewPlayViewModel.Step.DATE -> 0
+                    NewPlayViewModel.Step.LOCATION -> 1
+                    NewPlayViewModel.Step.ADD_PLAYERS -> 2
+                    NewPlayViewModel.Step.PLAYERS_COLOR -> 3
+                    NewPlayViewModel.Step.PLAYERS_SORT -> 4
+                    NewPlayViewModel.Step.PLAYERS_NEW -> 5
+                    NewPlayViewModel.Step.PLAYERS_WIN -> 6
+                    NewPlayViewModel.Step.COMMENTS -> 7
+                }
+            } ?: 0
             updateSummary()
         }
 
@@ -153,11 +148,10 @@ class NewPlayActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount == 0) {
+        if (binding.pager.currentItem > 0)
+            viewModel.previousPage()
+        else
             if (!maybeDiscard()) super.onBackPressed()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun maybeDiscard(): Boolean {
@@ -183,6 +177,24 @@ class NewPlayActivity : AppCompatActivity() {
         summaryView.updateText()
     }
 
+    private inner class WizardAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
+        override fun getItemCount(): Int = 8
+
+        override fun createFragment(position: Int): Fragment {
+            return when (position) {
+                0 -> NewPlayDateFragment()
+                1 -> NewPlayLocationsFragment()
+                2 -> NewPlayAddPlayersFragment()
+                3 -> NewPlayPlayerColorsFragment()
+                4 -> NewPlayPlayerSortFragment()
+                5 -> NewPlayPlayerIsNewFragment()
+                6 -> NewPlayPlayerWinFragment()
+                7 -> NewPlayCommentsFragment()
+                else -> ErrorFragment()
+            }
+        }
+    }
+
     class PlaySummary @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
@@ -206,13 +218,8 @@ class NewPlayActivity : AppCompatActivity() {
 
             if (step == NewPlayViewModel.Step.DATE) {
                 summary += " ${context.getString(R.string.on)}..."
-            } else {
-                date?.let {
-                    val d = DateUtils.formatDateTime(
-                        context, it, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
-                    )
-                    summary += " ${context.getString(R.string.on)} $d"
-                }
+            } else if (step > NewPlayViewModel.Step.DATE) {
+                date?.let { summary += " ${context.getString(R.string.on)} ${it.asPastDaySpan(context)}" }
             }
 
             if (startTime > 0L || length > 0) {
