@@ -96,17 +96,6 @@
 		<item name="android:textSize">12sp</item>
 	</style>
 
-	<style name="Text.Dialog">
-		<item name="android:textColor">@color/dialog_text</item>
-		<item name="android:paddingLeft">4dp</item>
-		<item name="android:paddingRight">4dp</item>
-	</style>
-
-	<style name="Text.DialogHeader">
-		<item name="android:textSize">18sp</item>
-		<item name="android:textColor">@color/dialog_text</item>
-	</style>
-
 
 	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2" />
 
@@ -138,6 +127,15 @@
 
 	<style name="TextAppearance.Empty" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">@color/secondary_text</item>
+	</style>
+
+	<style name="TextAppearance.Dialog" parent="@style/TextAppearance.MaterialComponents.Body1">>
+		<item name="android:textColor">@color/dialog_text</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="TextAppearance.Dialog.Header">
+		<item name="android:textSize">18sp</item>
 	</style>
 
 	<style name="DrawerIcon">

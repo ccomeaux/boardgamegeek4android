@@ -24,7 +24,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
-			android:textAppearance="@style/Text.DialogHeader"
+			android:textAppearance="@style/TextAppearance.Dialog.Header"
 			tools:text="1.0 - 10.0" />
 
 		<RadioGroup
@@ -125,20 +125,20 @@
 
 	<CheckBox
 		android:id="@+id/checkBox"
-		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/padding_extra"
-		android:text="@string/include_missing_values" />
+		android:text="@string/include_missing_values"
+		android:textAppearance="@style/TextAppearance.Dialog" />
 
 	<TextView
 		android:id="@+id/explanationView"
-		style="@style/Text.Dialog"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:paddingTop="@dimen/padding_extra"
 		android:text="@string/filter_description_player_number"
+		android:textAppearance="@style/TextAppearance.Dialog"
 		android:visibility="gone"
 		tools:visibility="visible" />
 </LinearLayout>

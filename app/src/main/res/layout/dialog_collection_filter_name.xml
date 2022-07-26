@@ -25,9 +25,9 @@
 
 	<CheckBox
 		android:id="@+id/startsWithCheckBox"
-		style="@style/Text.Dialog"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/padding_extra"
-		android:text="@string/starts_with" />
+		android:text="@string/starts_with"
+		android:textAppearance="@style/TextAppearance.Dialog" />
 </LinearLayout>
