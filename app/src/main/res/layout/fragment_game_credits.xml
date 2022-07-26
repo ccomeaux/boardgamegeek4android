@@ -36,7 +36,7 @@
 					android:layout_height="wrap_content"
 					android:padding="@dimen/material_margin_horizontal"
 					android:text="@string/empty_game"
-					android:textAppearance="@style/Text.Empty"
+					android:textAppearance="@style/TextAppearance.Empty"
 					android:visibility="gone"
 					tools:visibility="visible" />
 

@@ -39,11 +39,11 @@
 			android:paddingBottom="@dimen/material_margin_vertical">
 
 			<TextView
-				style="@style/Text.Empty"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center"
-				android:text="@string/empty_locations" />
+				android:text="@string/empty_locations"
+				android:textAppearance="@style/TextAppearance.Empty" />
 		</LinearLayout>
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

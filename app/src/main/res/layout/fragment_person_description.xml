@@ -42,7 +42,7 @@
 						android:id="@+id/emptyMessageView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:textAppearance="@style/Text.Empty" />
+						android:textAppearance="@style/TextAppearance.Empty" />
 
 					<TextView
 						android:id="@+id/descriptionView"

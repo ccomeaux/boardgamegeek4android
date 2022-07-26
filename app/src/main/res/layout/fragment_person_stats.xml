@@ -29,7 +29,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/empty_person_stats"
-			android:textAppearance="@style/Text.Empty"
+			android:textAppearance="@style/TextAppearance.Empty"
 			android:visibility="gone" />
 
 		<androidx.constraintlayout.widget.ConstraintLayout
