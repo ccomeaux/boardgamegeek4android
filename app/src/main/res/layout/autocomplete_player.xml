@@ -32,11 +32,11 @@
 
 		<TextView
 			android:id="@+id/player_subtitle"
-			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="1" />
+			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.Caption.Primary" />
 	</LinearLayout>
 
 </LinearLayout>

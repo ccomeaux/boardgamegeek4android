@@ -35,7 +35,7 @@
 			android:id="@+id/timestampView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Footnote2"
+			android:textAppearance="@style/TextAppearance.Caption.Secondary"
 			app:hideWhenEmpty="true"
 			tools:text="Yesterday"
 			tools:visibility="visible" />

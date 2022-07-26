@@ -62,23 +62,23 @@
 
 		<TextView
 			android:id="@+id/usernameView"
-			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.Caption.Primary"
 			tools:text="ccomeaux" />
 
 		<TextView
 			android:id="@+id/teamColorView"
-			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.Caption.Primary"
 			tools:text="They" />
 
 		<TextView
 			android:id="@+id/startingPositionView"
-			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.Caption.Primary"
 			tools:text="First" />
 	</LinearLayout>
 

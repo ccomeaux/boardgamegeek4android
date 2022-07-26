@@ -45,17 +45,17 @@
 
 				<TextView
 					android:id="@+id/id"
-					style="@style/Text.Footnote2"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
+					android:textAppearance="@style/TextAppearance.Caption.Secondary"
 					tools:text="12345" />
 
 				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/updated"
-					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:textAppearance="@style/TextAppearance.Caption.Secondary"
 					app:emptyMessage="@string/text_unknown"
 					tools:text="Yesterday" />
 			</LinearLayout>
