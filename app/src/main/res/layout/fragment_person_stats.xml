@@ -46,7 +46,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/average_rating"
-				android:textAppearance="@style/Text.Subtitle"
+				android:textAppearance="@style/TextAppearance.Subtitle"
 				app:layout_constraintBaseline_toBaselineOf="@id/averageRating"
 				app:layout_constraintStart_toStartOf="parent" />
 
@@ -65,7 +65,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/whitmore_score"
-				android:textAppearance="@style/Text.Subtitle"
+				android:textAppearance="@style/TextAppearance.Subtitle"
 				app:layout_constraintBaseline_toBaselineOf="@id/whitmoreScore"
 				app:layout_constraintStart_toStartOf="parent" />
 
@@ -85,7 +85,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/whitmore_score_with_expansions"
-				android:textAppearance="@style/Text.Subtitle"
+				android:textAppearance="@style/TextAppearance.Subtitle"
 				app:layout_constraintBaseline_toBaselineOf="@id/whitmoreScoreWithExpansions"
 				app:layout_constraintStart_toStartOf="parent" />
 
@@ -102,7 +102,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/play_count"
-				android:textAppearance="@style/Text.Subtitle"
+				android:textAppearance="@style/TextAppearance.Subtitle"
 				app:layout_constraintBaseline_toBaselineOf="@id/playCount"
 				app:layout_constraintStart_toStartOf="parent" />
 
@@ -122,7 +122,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/h_index"
-				android:textAppearance="@style/Text.Subtitle"
+				android:textAppearance="@style/TextAppearance.Subtitle"
 				app:layout_constraintBaseline_toBaselineOf="@id/hIndex"
 				app:layout_constraintStart_toStartOf="parent" />
 

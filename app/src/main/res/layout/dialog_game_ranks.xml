@@ -13,7 +13,7 @@
 		android:id="@+id/unRankedView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Subtitle"
+		android:textAppearance="@style/TextAppearance.Subtitle"
 		android:visibility="gone"
 		tools:text="Un-ranked Game"
 		tools:visibility="visible" />

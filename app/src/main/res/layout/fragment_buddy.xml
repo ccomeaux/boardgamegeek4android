@@ -47,16 +47,16 @@
 
 					<TextView
 						android:id="@+id/fullNameView"
-						style="@style/Text.Title"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:textAppearance="@style/TextAppearance.Title"
 						tools:text="Chris Comeaux" />
 
 					<TextView
 						android:id="@+id/usernameView"
-						style="@style/Text.Subtitle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:textAppearance="@style/TextAppearance.Subtitle"
 						tools:text="ccomeaux" />
 				</LinearLayout>
 			</LinearLayout>
@@ -80,13 +80,13 @@
 
 					<TextView
 						android:id="@+id/nicknameView"
-						style="@style/Text.Title"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
 						android:background="?attr/selectableItemBackground"
 						android:drawableEnd="@drawable/ic_baseline_edit_24"
 						android:drawableRight="@drawable/ic_baseline_edit_24"
 						android:gravity="center_vertical"
+						android:textAppearance="@style/TextAppearance.Title"
 						tools:text="Chris" />
 
 					<TextView

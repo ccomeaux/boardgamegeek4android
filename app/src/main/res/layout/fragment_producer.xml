@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipe_refresh"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/swipe_refresh"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
@@ -17,18 +16,18 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingBottom="@dimen/material_margin_vertical"
 			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingTop="@dimen/material_margin_vertical"
 			android:paddingRight="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/material_margin_vertical">
+			android:paddingBottom="@dimen/material_margin_vertical">
 
 			<TextView
 				android:id="@+id/name"
-				style="@style/Text.Title"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:paddingBottom="@dimen/padding_extra"
-				tools:text="Uwe Rosenberg"/>
+				android:textAppearance="@style/TextAppearance.Title"
+				tools:text="Uwe Rosenberg" />
 
 			<TextView
 				android:id="@+id/description"
@@ -36,7 +35,7 @@
 				android:layout_height="wrap_content"
 				android:autoLink="web"
 				android:paddingBottom="@dimen/padding_standard"
-				tools:text="Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here."/>
+				tools:text="Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here. Dude is good. And Talented. Very information about him goes here." />
 
 			<LinearLayout
 				android:layout_width="match_parent"
@@ -50,7 +49,7 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					tools:text="12345"/>
+					tools:text="12345" />
 
 				<com.boardgamegeek.ui.widget.TimestampView
 					android:id="@+id/updated"
@@ -58,7 +57,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					app:emptyMessage="@string/text_unknown"
-					tools:text="Yesterday"/>
+					tools:text="Yesterday" />
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>

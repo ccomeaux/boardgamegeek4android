@@ -30,7 +30,7 @@
 		android:layout_marginTop="24dp"
 		android:focusable="false"
 		android:gravity="bottom"
-		android:textAppearance="@style/Text.Title"
+		android:textAppearance="@style/TextAppearance.Title"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/accountImageView"
 		tools:text="Chris Comeaux" />
@@ -41,7 +41,7 @@
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="24dp"
 		android:gravity="bottom"
-		android:textAppearance="@style/Text.Subtitle"
+		android:textAppearance="@style/TextAppearance.Subtitle"
 		android:textColor="@color/material_on_primary_emphasis_medium"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/accountInfoPrimaryView"

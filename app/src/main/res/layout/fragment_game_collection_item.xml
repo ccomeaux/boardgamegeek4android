@@ -58,7 +58,7 @@
 					android:background="?attr/selectableItemBackground"
 					android:maxLines="2"
 					android:minHeight="32dp"
-					android:textAppearance="@style/Text.Title"
+					android:textAppearance="@style/TextAppearance.Title"
 					tools:text="Own" />
 
 				<LinearLayout
@@ -161,7 +161,7 @@
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
 				android:minHeight="32dp"
-				android:textAppearance="@style/Text.Title"
+				android:textAppearance="@style/TextAppearance.Title"
 				tools:text="Love to have" />
 
 			<LinearLayout
@@ -295,7 +295,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
-				android:textAppearance="@style/Text.Title"
+				android:textAppearance="@style/TextAppearance.Title"
 				tools:text="For Trade" />
 
 			<LinearLayout

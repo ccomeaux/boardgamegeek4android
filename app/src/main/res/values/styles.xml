@@ -120,10 +120,6 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Title" parent="@style/TextAppearance.MaterialComponents.Headline6" />
-
-	<style name="Text.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
-
 	<style name="Text.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5" />
 
 	<style name="Text.Empty" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
@@ -275,7 +271,7 @@
 		<item name="android:shadowRadius">2</item>
 	</style>
 
-	<style name="Text.Title.Overlay">
+	<style name="Text.Title.Overlay" parent="@style/TextAppearance.MaterialComponents.Headline6">
 		<item name="android:textColor">#fff</item>
 		<item name="android:shadowColor">#000</item>
 		<item name="android:shadowDx">0</item>
@@ -283,7 +279,7 @@
 		<item name="android:shadowRadius">3</item>
 	</style>
 
-	<style name="Text.Subtitle.Overlay">
+	<style name="Text.Subtitle.Overlay" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">#fff</item>
 		<item name="android:shadowColor">#000</item>
 		<item name="android:shadowDx">0</item>
@@ -384,7 +380,7 @@
 	</style>
 
 	<style name="RatingLarge">
-		<item name="android:textAppearance">@style/Text.Subtitle</item>
+		<item name="android:textAppearance">@style/TextAppearance.Subtitle</item>
 		<item name="android:paddingBottom">@dimen/padding_half</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
