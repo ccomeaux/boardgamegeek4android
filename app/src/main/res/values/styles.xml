@@ -157,9 +157,13 @@
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
-	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1" />
+	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+		<item name="fontWeight">500</item>
+	</style>
 
-	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Body2" />
+	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Caption">
+		<item name="fontWeight">600</item>
+	</style>
 
 	<style name="TextAppearance.RowDetail.Secondary">
 		<item name="android:textColor">@color/secondary_text</item>
@@ -616,7 +620,7 @@
 	</style>
 
 	<style name="TextWithImage.Secondary">
-		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
