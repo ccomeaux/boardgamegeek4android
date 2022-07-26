@@ -206,6 +206,10 @@
 		<item name="android:minHeight">88dp</item>
 	</style>
 
+	<style name="RowContainer.VeryTall.WithThumbnail">
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal_thumbnail</item>
+	</style>
+
 	<style name="RowSeparator" parent="@style/TextAppearance.MaterialComponents.Subtitle2">
 		<item name="android:background">@color/light_blue</item>
 		<item name="android:gravity">center</item>
@@ -405,7 +409,7 @@
 		<item name="android:textAppearance">@style/Text.Huge</item>
 	</style>
 
-	<style name="RatingSmall" parent="@style/Text">
+	<style name="RatingSmall">
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_half</item>
 		<item name="android:paddingRight">@dimen/padding_half</item>
