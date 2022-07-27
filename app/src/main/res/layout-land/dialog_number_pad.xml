@@ -60,7 +60,7 @@
 			android:fontFamily="sans-serif-light"
 			android:gravity="center"
 			android:lines="1"
-			android:textAppearance="@style/Text.Readout"
+			android:textAppearance="@style/TextAppearance.Readout"
 			tools:text="1234" />
 
 		<ImageView
