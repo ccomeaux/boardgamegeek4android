@@ -238,25 +238,25 @@
 
 					<androidx.appcompat.widget.SwitchCompat
 						android:id="@+id/newView"
-						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
 						android:layout_marginVertical="4dp"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
 						android:paddingRight="@dimen/edit_label_width"
-						android:text="@string/new_label" />
+						android:text="@string/new_label"
+						android:textAppearance="@style/TextAppearance.Big" />
 
 					<androidx.appcompat.widget.SwitchCompat
 						android:id="@+id/winView"
-						style="@style/Text.Big"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
 						android:layout_marginVertical="4dp"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
 						android:paddingRight="@dimen/edit_label_width"
-						android:text="@string/win" />
+						android:text="@string/win"
+						android:textAppearance="@style/TextAppearance.Big" />
 
 					<View
 						android:id="@+id/fabBuffer"

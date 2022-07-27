@@ -27,12 +27,11 @@
 
 		<TextView
 			android:id="@+id/seatView"
-			style="@style/Text.Huge"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="center"
-			android:fontFamily="sans-serif-condensed"
 			android:gravity="center"
+			android:textAppearance="@style/TextAppearance.Huge"
 			tools:text="1" />
 	</FrameLayout>
 
@@ -46,9 +45,9 @@
 
 		<TextView
 			android:id="@+id/nameView"
-			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.Big"
 			tools:text="Chris" />
 
 		<TextView
@@ -91,10 +90,10 @@
 
 		<TextView
 			android:id="@+id/ratingView"
-			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
+			android:textAppearance="@style/TextAppearance.Big"
 			tools:text="7.5" />
 	</FrameLayout>
 
@@ -115,10 +114,10 @@
 
 		<TextView
 			android:id="@+id/scoreView"
-			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
+			android:textAppearance="@style/TextAppearance.Big"
 			tools:text="529" />
 	</FrameLayout>
 
