@@ -39,7 +39,7 @@
 			android:layout_height="wrap_content"
 			android:maxLines="1"
 			android:paddingTop="@dimen/padding_half"
-			android:textAppearance="@style/Text.Secondary.Small"
+			android:textAppearance="@style/TextAppearance.Secondary.Small"
 			tools:text="42,000 ratings &amp; 39,123 comments" />
 	</LinearLayout>
 </LinearLayout>

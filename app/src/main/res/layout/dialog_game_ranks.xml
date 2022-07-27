@@ -38,13 +38,13 @@
 		android:id="@+id/votesView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Secondary"
+		android:textAppearance="@style/TextAppearance.Secondary"
 		tools:text="1,234 votes" />
 
 	<TextView
 		android:id="@+id/standardDeviationView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Secondary"
+		android:textAppearance="@style/TextAppearance.Secondary"
 		tools:text="Std Dev: 0.123" />
 </LinearLayout>

@@ -90,7 +90,7 @@
 					android:layout_marginRight="@dimen/material_margin_horizontal"
 					android:gravity="right"
 					android:text="@string/on"
-					android:textAppearance="@style/Text.Secondary"
+					android:textAppearance="@style/TextAppearance.Secondary"
 					app:layout_constraintBaseline_toBaselineOf="@id/dateView"
 					app:layout_constraintEnd_toEndOf="@id/guidelineData"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart" />

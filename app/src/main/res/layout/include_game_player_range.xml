@@ -34,7 +34,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary"
+			android:textAppearance="@style/TextAppearance.Secondary"
 			android:visibility="gone"
 			tools:text="Best w/ 3 &amp; Good w/ 3 - 4"
 			tools:visibility="visible" />

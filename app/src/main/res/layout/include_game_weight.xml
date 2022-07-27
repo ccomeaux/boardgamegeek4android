@@ -45,7 +45,7 @@
 				android:maxLines="1"
 				android:paddingStart="@dimen/padding_extra"
 				android:paddingLeft="@dimen/padding_extra"
-				android:textAppearance="@style/Text.Secondary.Small"
+				android:textAppearance="@style/TextAppearance.Secondary.Small"
 				android:textSize="12sp"
 				android:visibility="gone"
 				tools:text="1.50"
@@ -57,7 +57,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary.Small"
+			android:textAppearance="@style/TextAppearance.Secondary.Small"
 			android:visibility="gone"
 			tools:text="42,000 votes"
 			tools:visibility="visible" />

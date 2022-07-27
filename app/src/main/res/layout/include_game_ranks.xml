@@ -40,7 +40,7 @@
 			android:id="@+id/subtypeView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Secondary"
+			android:textAppearance="@style/TextAppearance.Secondary"
 			android:visibility="gone"
 			tools:text="#34 Strategy"
 			tools:visibility="visible" />

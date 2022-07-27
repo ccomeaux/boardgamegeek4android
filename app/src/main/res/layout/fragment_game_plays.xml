@@ -132,9 +132,9 @@
 
 					<TextView
 						android:id="@+id/lastPlayInfoView"
-						style="@style/Text.Secondary"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:textAppearance="@style/TextAppearance.Secondary"
 						tools:text="@tools:sample/lorem" />
 				</LinearLayout>
 			</LinearLayout>
