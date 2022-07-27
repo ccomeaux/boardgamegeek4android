@@ -5,9 +5,9 @@
 
 	<TextView
 		android:id="@+id/valueView"
-		style="@style/Text.Primary"
 		android:layout_gravity="center_vertical"
 		android:gravity="right"
+		android:textAppearance="@style/TextAppearance.Primary"
 		android:textStyle="bold"
 		tools:text="42" />
 

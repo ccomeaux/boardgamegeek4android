@@ -28,7 +28,7 @@
 			android:layout_width="64dp"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:textAppearance="@style/Text.Primary"
+			android:textAppearance="@style/TextAppearance.Primary"
 			android:textStyle="bold"
 			tools:background="#088"
 			tools:text="7.43" />

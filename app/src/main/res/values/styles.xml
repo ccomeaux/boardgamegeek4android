@@ -43,15 +43,15 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="Text.Primary" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
-		<item name="android:textColor">#000</item>
-	</style>
-
 	<!-- TextAppearance -->
 
-	<style name="TextAppearance.Secondary" parent="@style/TextAppearance.MaterialComponents.Body1">
+	<style name="TextAppearance.Primary" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
+		<item name="android:textColor">#000</item>
+		<item name="android:textSize">16sp</item>
+	</style>
+
+	<style name="TextAppearance.Secondary" parent="@style/TextAppearance.MaterialComponents.Body2">
 		<item name="android:textColor">@color/secondary_text</item>
-		<item name="android:textSize">14sp</item>
 	</style>
 
 	<style name="TextAppearance.Secondary.Small">
