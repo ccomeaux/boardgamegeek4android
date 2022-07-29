@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.extensions.asRating
+import com.boardgamegeek.extensions.asBoundedRating
 import com.boardgamegeek.extensions.firstChar
 
 class CollectionNameSorter(context: Context) : CollectionSorter(context) {
@@ -30,5 +30,5 @@ class CollectionNameSorter(context: Context) : CollectionSorter(context) {
 
     override fun getRating(item: CollectionItemEntity): Double = item.averageRating
 
-    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asRating(context, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asBoundedRating(context, R.string.unrated_abbr)
 }

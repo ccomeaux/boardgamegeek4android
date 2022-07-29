@@ -414,14 +414,14 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                 binding.favoriteView.isVisible = item.isFavorite
 
                 val timestamp = sorter?.first?.getTimestamp(item) ?: 0L
-                val rating = sorter?.first?.getRating(item) ?: 0.0
                 val ratingText = sorter?.first?.getRatingText(item).orEmpty()
                 if (timestamp > 0L) {
                     binding.timestampView.isVisible = true
                     binding.timestampView.timestamp = timestamp
                     binding.ratingView.isVisible = false
                     binding.infoView.isVisible = false
-                } else if (rating > 0.0 && ratingText.isNotEmpty()) {
+                } else if (ratingText.isNotEmpty()) {
+                    val rating = sorter?.first?.getRating(item) ?: 0.0
                     binding.timestampView.isVisible = false
                     binding.ratingView.setTextOrHide(ratingText)
                     binding.ratingView.setTextViewBackground(rating.toColor(BggColors.ratingColors))
