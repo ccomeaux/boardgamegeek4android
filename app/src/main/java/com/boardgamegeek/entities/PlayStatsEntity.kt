@@ -51,7 +51,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
 
     fun getHIndexGames(): List<Pair<String, Int>> {
         if (hIndex.h == 0) return emptyList()
-        return games.map { it.name to it.playCount }
+        return games.map { it.name to it.playCount }.sortedByDescending { it.second }
     }
 
     val friendless: Int by lazy {
