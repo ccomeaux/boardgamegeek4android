@@ -106,26 +106,26 @@
 							android:id="@+id/languageInclude"
 							layout="@layout/include_game_language_dependence" />
 					</LinearLayout>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/expansionsRow"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_baseline_flip_to_back_24"
+						bgg:label="@string/expansions"
+						bgg:query_token="@integer/query_token_expansions" />
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/baseGamesRow"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_baseline_flip_to_front_24"
+						bgg:label="@string/base_games"
+						bgg:query_token="@integer/query_token_base_games" />
+
 				</LinearLayout>
-
-
-				<com.boardgamegeek.ui.widget.GameDetailRow
-					android:id="@+id/expansionsRow"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:minHeight="@dimen/card_row_height"
-					bgg:icon_res="@drawable/ic_baseline_flip_to_back_24"
-					bgg:label="@string/expansions"
-					bgg:query_token="@integer/query_token_expansions" />
-
-				<com.boardgamegeek.ui.widget.GameDetailRow
-					android:id="@+id/baseGamesRow"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:minHeight="@dimen/card_row_height"
-					bgg:icon_res="@drawable/ic_baseline_flip_to_front_24"
-					bgg:label="@string/base_games"
-					bgg:query_token="@integer/query_token_base_games" />
 
 				<include
 					android:id="@+id/footer"
