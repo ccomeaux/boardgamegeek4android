@@ -6,6 +6,7 @@
 	</style>
 
 	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Caption">
+		<item name="android:textColor">@color/primary_text</item>
 		<item name="fontWeight">600</item>
 		<item name="android:textFontWeight">600</item>
 	</style>
