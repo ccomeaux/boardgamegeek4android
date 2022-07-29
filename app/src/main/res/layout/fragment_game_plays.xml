@@ -43,11 +43,12 @@
 
 					<TextView
 						android:id="@+id/playCountIcon"
-						style="@style/Text"
 						android:layout_width="@dimen/color_circle_diameter"
 						android:layout_height="match_parent"
 						android:fontFamily="sans-serif-condensed"
 						android:gravity="center"
+						android:textAppearance="@style/TextAppearance.Primary"
+						android:textStyle="bold"
 						tools:text="5+" />
 				</FrameLayout>
 
@@ -64,8 +65,7 @@
 						android:layout_height="wrap_content"
 						android:maxLines="1"
 						android:text="@string/title_plays"
-						android:textAppearance="@style/Text"
-						android:textStyle="bold" />
+						android:textAppearance="@style/TextAppearance.Primary" />
 
 					<TextView
 						android:id="@+id/playCountDescriptionView"
@@ -73,7 +73,7 @@
 						android:layout_height="wrap_content"
 						android:maxLines="1"
 						android:text="@string/title_plays"
-						android:textAppearance="@style/Text" />
+						android:textAppearance="@style/TextAppearance.Secondary" />
 				</LinearLayout>
 			</LinearLayout>
 
@@ -125,10 +125,10 @@
 
 					<TextView
 						android:id="@+id/lastPlayDateView"
-						style="@style/Text"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						tools:text="@tools:sample/lorem" />
+						android:textAppearance="@style/TextAppearance.Primary"
+						tools:text="@tools:sample/date/mmddyy" />
 
 					<TextView
 						android:id="@+id/lastPlayInfoView"
@@ -162,7 +162,7 @@
 					android:layout_weight="1"
 					android:maxLines="1"
 					android:text="@string/title_play_stats"
-					android:textAppearance="@style/Text" />
+					android:textAppearance="@style/TextAppearance.Primary" />
 			</LinearLayout>
 
 			<LinearLayout
@@ -186,7 +186,7 @@
 					android:layout_weight="1"
 					android:maxLines="1"
 					android:text="@string/title_colors"
-					android:textAppearance="@style/Text" />
+					android:textAppearance="@style/TextAppearance.Primary" />
 
 				<LinearLayout
 					android:id="@+id/colorsList"

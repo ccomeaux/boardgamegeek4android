@@ -23,10 +23,10 @@
 
 		<TextView
 			android:id="@+id/dataView"
-			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="2"
+			android:textAppearance="@style/TextAppearance.Primary"
 			tools:text="Wolfgang Kramer &amp; Richard Ulrich" />
 
 		<TextView

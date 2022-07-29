@@ -146,7 +146,7 @@
 					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/locationView"
-					tools:text="1 hrs 26 mins"/>
+					tools:text="1 hrs 26 mins" />
 
 				<Chronometer
 					android:id="@+id/timerView"
@@ -215,7 +215,7 @@
 					android:id="@+id/commentsView"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text"
+					android:textAppearance="@style/TextAppearance.Body"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/commentsLabel"
@@ -289,7 +289,6 @@
 
 			<TextView
 				android:id="@+id/emptyView"
-				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
@@ -297,6 +296,7 @@
 				android:paddingTop="@dimen/material_margin_vertical"
 				android:paddingRight="@dimen/material_margin_horizontal"
 				android:paddingBottom="@dimen/material_margin_vertical"
+				android:textAppearance="@style/TextAppearance.Empty"
 				android:visibility="gone"
 				tools:visibility="visible" />
 		</FrameLayout>

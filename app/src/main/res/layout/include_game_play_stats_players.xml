@@ -50,7 +50,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="3"
 				android:text="@string/title_player"
-				android:textAppearance="@style/Text"
+				android:textAppearance="@style/TextAppearance.Primary"
 				android:textStyle="bold" />
 
 			<TextView
@@ -60,7 +60,7 @@
 				android:gravity="center"
 				android:paddingLeft="@dimen/padding_half"
 				android:text="@string/title_wins"
-				android:textAppearance="@style/Text"
+				android:textAppearance="@style/TextAppearance.Primary"
 				android:textStyle="bold" />
 
 			<TextView
@@ -70,7 +70,7 @@
 				android:gravity="right"
 				android:paddingLeft="@dimen/padding_half"
 				android:text="@string/title_win_skill"
-				android:textAppearance="@style/Text"
+				android:textAppearance="@style/TextAppearance.Primary"
 				android:textStyle="bold" />
 		</LinearLayout>
 

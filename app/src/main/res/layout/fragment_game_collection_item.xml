@@ -223,7 +223,7 @@
 				android:id="@+id/viewPrivateInfoView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:textAppearance="@style/Text"
+				android:textAppearance="@style/TextAppearance.Body"
 				tools:text="Acquired on Jan 1, 1999" />
 
 			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
@@ -250,7 +250,7 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:textAppearance="@style/Text"
+					android:textAppearance="@style/TextAppearance.Body"
 					tools:text="Acquired on Jan 1, 1999" />
 
 				<ImageView

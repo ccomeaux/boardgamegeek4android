@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -32,13 +31,13 @@
 				android:src="@drawable/ic_baseline_person_24" />
 
 			<TextView
-				style="@style/Text"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:maxLines="1"
-				android:text="@string/link_geekbuddy_analysis" />
+				android:text="@string/link_geekbuddy_analysis"
+				android:textAppearance="@style/TextAppearance.Primary" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -57,13 +56,13 @@
 				android:src="@drawable/ic_baseline_open_in_browser_24" />
 
 			<TextView
-				style="@style/Text"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:maxLines="1"
-				android:text="@string/link_bgg" />
+				android:text="@string/link_bgg"
+				android:textAppearance="@style/TextAppearance.Primary" />
 		</LinearLayout>
 
 		<RelativeLayout
@@ -74,8 +73,8 @@
 			<ImageView
 				android:id="@+id/bgPricesLinkIcon"
 				style="@style/Icon"
-				android:layout_alignParentLeft="true"
 				android:layout_alignParentStart="true"
+				android:layout_alignParentLeft="true"
 				android:layout_alignParentTop="true"
 				android:src="@drawable/ic_baseline_local_atm_24" />
 
@@ -91,7 +90,7 @@
 				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
 				android:text="@string/link_bg_prices"
-				android:textAppearance="@style/Text" />
+				android:textAppearance="@style/TextAppearance.Primary" />
 
 			<TextView
 				android:id="@+id/bgPricesUkLink"
@@ -105,7 +104,7 @@
 				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
 				android:text="@string/link_bg_prices_uk"
-				android:textAppearance="@style/Text" />
+				android:textAppearance="@style/TextAppearance.Primary" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -116,14 +115,13 @@
 			<ImageView
 				android:id="@+id/amazonLinkIcon"
 				style="@style/Icon"
-				android:layout_alignParentLeft="true"
 				android:layout_alignParentStart="true"
+				android:layout_alignParentLeft="true"
 				android:layout_alignParentTop="true"
 				android:src="@drawable/ic_action_amazon" />
 
 			<TextView
 				android:id="@+id/amazonLink"
-				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentTop="true"
@@ -133,11 +131,11 @@
 				android:gravity="center_vertical"
 				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon" />
+				android:text="@string/link_amazon"
+				android:textAppearance="@style/TextAppearance.Primary" />
 
 			<TextView
 				android:id="@+id/amazonUkLink"
-				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/amazonLink"
@@ -147,11 +145,11 @@
 				android:gravity="center_vertical"
 				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon_uk" />
+				android:text="@string/link_amazon_uk"
+				android:textAppearance="@style/TextAppearance.Primary" />
 
 			<TextView
 				android:id="@+id/amazonDeLink"
-				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/amazonUkLink"
@@ -161,7 +159,8 @@
 				android:gravity="center_vertical"
 				android:maxLines="1"
 				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon_de" />
+				android:text="@string/link_amazon_de"
+				android:textAppearance="@style/TextAppearance.Primary" />
 		</RelativeLayout>
 
 		<LinearLayout
@@ -180,13 +179,13 @@
 				android:src="@drawable/ic_baseline_gavel_24" />
 
 			<TextView
-				style="@style/Text"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:maxLines="1"
-				android:text="@string/link_ebay" />
+				android:text="@string/link_ebay"
+				android:textAppearance="@style/TextAppearance.Primary" />
 		</LinearLayout>
 	</LinearLayout>
 </androidx.core.widget.NestedScrollView>

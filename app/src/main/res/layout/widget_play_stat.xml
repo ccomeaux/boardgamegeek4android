@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	tools:orientation="vertical"
 	tools:parentTag="android.widget.TableRow">
 
 	<TextView
@@ -18,11 +19,11 @@
 
 		<TextView
 			android:id="@+id/labelView"
-			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:paddingLeft="@dimen/padding_standard"
+			android:textAppearance="@style/TextAppearance.Basic"
 			tools:text="Label" />
 
 		<ImageView
@@ -32,6 +33,7 @@
 			android:contentDescription="@string/information"
 			android:scaleType="center"
 			android:src="@drawable/ic_outline_info_24"
-			android:visibility="invisible" />
+			android:visibility="invisible"
+			tools:visibility="visible" />
 	</LinearLayout>
 </merge>

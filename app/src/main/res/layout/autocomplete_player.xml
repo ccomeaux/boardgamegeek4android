@@ -24,11 +24,12 @@
 
 		<TextView
 			android:id="@+id/player_title"
-			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="1" />
+			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="@tools:sample/first_names" />
 
 		<TextView
 			android:id="@+id/player_subtitle"
@@ -36,7 +37,8 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:maxLines="1"
-			android:textAppearance="@style/TextAppearance.Caption.Primary" />
+			android:textAppearance="@style/TextAppearance.Secondary"
+			tools:text="@tools:sample/lorem" />
 	</LinearLayout>
 
 </LinearLayout>

@@ -24,7 +24,7 @@
 			android:gravity="center"
 			android:padding="@dimen/padding_standard"
 			android:text="@string/msg_warning_private_info"
-			android:textAppearance="@style/Text"
+			android:textAppearance="@style/TextAppearance.Body"
 			android:textColor="@color/inverse_text"
 			app:drawableLeftCompat="@drawable/ic_baseline_warning_24"
 			app:drawableStartCompat="@drawable/ic_baseline_warning_24"

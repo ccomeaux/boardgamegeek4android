@@ -45,6 +45,11 @@
 
 	<!-- TextAppearance -->
 
+	<style name="TextAppearance.Basic" parent="@style/TextAppearance.MaterialComponents.Body1">
+		<item name="android:textColor">@color/primary_text</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
 	<style name="TextAppearance.Primary" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
 		<item name="android:textColor">#000</item>
 		<item name="android:textSize">16sp</item>

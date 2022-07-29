@@ -1,7 +1,6 @@
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-	android:id="@+id/swipeRefreshLayout"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/swipeRefreshLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".ui.PlaysSummaryFragment">
@@ -35,7 +34,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:text="@string/msg_play_sync"
-						android:textAppearance="@style/TextAppearance.Subtitle"/>
+						android:textAppearance="@style/TextAppearance.Subtitle" />
 
 					<LinearLayout
 						android:layout_width="match_parent"
@@ -49,18 +48,18 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_gravity="end|bottom"
-							android:text="@string/cancel"/>
+							android:text="@string/cancel" />
 
 						<Space
 							android:layout_width="@dimen/padding_extra"
-							android:layout_height="match_parent"/>
+							android:layout_height="match_parent" />
 
 						<Button
 							android:id="@+id/syncButton"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_gravity="end|bottom"
-							android:text="@string/sync"/>
+							android:text="@string/sync" />
 					</LinearLayout>
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
@@ -78,7 +77,7 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_plays"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<Button
 					android:id="@+id/morePlaysButton"
@@ -88,7 +87,7 @@
 					android:layout_gravity="end|bottom"
 					android:text="@string/more"
 					android:visibility="gone"
-					tools:visibility="visible"/>
+					tools:visibility="visible" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -111,7 +110,7 @@
 						android:layout_height="wrap_content"
 						android:text="@string/title_in_progress"
 						android:visibility="gone"
-						tools:visibility="visible"/>
+						tools:visibility="visible" />
 
 					<LinearLayout
 						android:id="@+id/playsInProgressContainer"
@@ -119,7 +118,7 @@
 						android:layout_height="wrap_content"
 						android:divider="@drawable/list_divider"
 						android:orientation="vertical"
-						android:showDividers="middle"/>
+						android:showDividers="middle" />
 
 					<TextView
 						android:id="@+id/recentPlaysSubtitle"
@@ -129,7 +128,7 @@
 						android:gravity="bottom"
 						android:text="@string/title_recent"
 						android:visibility="gone"
-						tools:visibility="visible"/>
+						tools:visibility="visible" />
 
 					<LinearLayout
 						android:id="@+id/recentPlaysContainer"
@@ -137,7 +136,7 @@
 						android:layout_height="wrap_content"
 						android:divider="@drawable/list_divider"
 						android:orientation="vertical"
-						android:showDividers="middle"/>
+						android:showDividers="middle" />
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
 
@@ -155,7 +154,7 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_players"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<Button
 					android:id="@+id/morePlayersButton"
@@ -163,7 +162,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
-					android:text="@string/more"/>
+					android:text="@string/more" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -180,7 +179,7 @@
 					android:layout_height="wrap_content"
 					android:divider="@drawable/list_divider"
 					android:orientation="vertical"
-					android:showDividers="middle"/>
+					android:showDividers="middle" />
 			</androidx.cardview.widget.CardView>
 
 			<LinearLayout
@@ -197,7 +196,7 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_locations"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<Button
 					android:id="@+id/moreLocationsButton"
@@ -205,7 +204,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
-					android:text="@string/more"/>
+					android:text="@string/more" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -222,7 +221,7 @@
 					android:layout_height="wrap_content"
 					android:divider="@drawable/list_divider"
 					android:orientation="vertical"
-					android:showDividers="middle"/>
+					android:showDividers="middle" />
 			</androidx.cardview.widget.CardView>
 
 			<LinearLayout
@@ -239,7 +238,7 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_favorite_colors"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<Button
 					android:id="@+id/editColorsButton"
@@ -247,7 +246,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
-					android:text="@string/edit"/>
+					android:text="@string/edit" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -269,7 +268,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_vertical"
-						android:orientation="horizontal"/>
+						android:orientation="horizontal" />
 				</HorizontalScrollView>
 			</androidx.cardview.widget.CardView>
 
@@ -287,7 +286,7 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/title_play_stats"
-					android:textAppearance="@style/TextAppearance.Title"/>
+					android:textAppearance="@style/TextAppearance.Title" />
 
 				<Button
 					android:id="@+id/morePlayStatsButton"
@@ -295,7 +294,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="end|bottom"
-					android:text="@string/more"/>
+					android:text="@string/more" />
 			</LinearLayout>
 
 			<androidx.cardview.widget.CardView
@@ -305,23 +304,23 @@
 
 				<TextView
 					android:id="@+id/hIndexView"
-					style="@style/Text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center_vertical"
 					android:maxLines="1"
 					android:minHeight="56dp"
-					tools:text="H-Index 17"/>
+					android:textAppearance="@style/TextAppearance.Primary"
+					tools:text="H-Index 17" />
 			</androidx.cardview.widget.CardView>
 
 			<TextView
 				android:id="@+id/syncStatusView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:paddingBottom="@dimen/padding_standard"
 				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingTop="@dimen/padding_standard"
 				android:paddingRight="@dimen/activity_horizontal_margin"
-				android:paddingTop="@dimen/padding_standard"/>
+				android:paddingBottom="@dimen/padding_standard" />
 		</LinearLayout>
 	</ScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

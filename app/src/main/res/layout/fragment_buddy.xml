@@ -123,13 +123,13 @@
 
 					<TextView
 						android:id="@+id/collection_label"
-						style="@style/Text"
 						android:layout_width="0dp"
 						android:layout_height="match_parent"
 						android:layout_weight="1"
 						android:gravity="center_vertical"
 						android:maxLines="2"
-						android:text="@string/title_collection" />
+						android:text="@string/title_collection"
+						android:textAppearance="@style/TextAppearance.Primary" />
 				</LinearLayout>
 			</androidx.cardview.widget.CardView>
 
@@ -166,26 +166,26 @@
 
 						<TextView
 							android:id="@+id/playsView"
-							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
-							android:text="@string/title_plays" />
+							android:text="@string/title_plays"
+							android:textAppearance="@style/TextAppearance.Body" />
 
 						<TextView
 							android:id="@+id/winsView"
-							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
-							android:text="@string/title_wins" />
+							android:text="@string/title_wins"
+							android:textAppearance="@style/TextAppearance.Body" />
 
 						<TextView
 							android:id="@+id/winPercentageView"
-							style="@style/Text"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:maxLines="1"
+							android:textAppearance="@style/TextAppearance.Body"
 							tools:text="42%" />
 					</LinearLayout>
 				</LinearLayout>
@@ -214,13 +214,13 @@
 
 					<TextView
 						android:id="@+id/colors_label"
-						style="@style/Text"
 						android:layout_width="0dp"
 						android:layout_height="match_parent"
 						android:layout_weight="1"
 						android:gravity="center_vertical"
 						android:maxLines="2"
-						android:text="@string/title_favorite_colors" />
+						android:text="@string/title_favorite_colors"
+						android:textAppearance="@style/TextAppearance.Primary" />
 
 					<LinearLayout
 						android:id="@+id/colorContainer"

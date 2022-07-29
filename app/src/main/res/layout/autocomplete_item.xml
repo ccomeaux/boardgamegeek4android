@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/autocomplete_item"
-	style="@style/Text"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
+	android:layout_height="wrap_content"
 	android:gravity="center_vertical"
 	android:minHeight="@dimen/dropdown_item_min_height"
-	android:padding="@dimen/padding_standard" />
+	android:padding="@dimen/padding_standard"
+	android:textAppearance="@style/TextAppearance.Primary"
+	tools:text="@tools:sample/cities" />

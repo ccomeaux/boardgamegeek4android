@@ -16,7 +16,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:gravity="center_vertical"
 		android:text="@string/low_score"
-		android:textAppearance="@style/Text"
+		android:textAppearance="@style/TextAppearance.Basic"
 		app:drawableLeftCompat="@drawable/ic_baseline_thumb_down_18"
 		app:drawableTint="@color/score_low" />
 
@@ -27,7 +27,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:gravity="center_vertical"
 		android:text="@string/average_score"
-		android:textAppearance="@style/Text"
+		android:textAppearance="@style/TextAppearance.Basic"
 		app:drawableLeftCompat="@drawable/ic_baseline_thumbs_up_down_18"
 		app:drawableTint="@color/score_average" />
 
@@ -38,7 +38,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:gravity="center_vertical"
 		android:text="@string/average_winning_score"
-		android:textAppearance="@style/Text"
+		android:textAppearance="@style/TextAppearance.Basic"
 		app:drawableLeftCompat="@drawable/ic_baseline_star_18"
 		app:drawableTint="@color/score_average_win" />
 
@@ -50,7 +50,7 @@
 		android:drawablePadding="@dimen/padding_standard"
 		android:gravity="center_vertical"
 		android:text="@string/high_score"
-		android:textAppearance="@style/Text"
+		android:textAppearance="@style/TextAppearance.Basic"
 		app:drawableLeftCompat="@drawable/ic_baseline_thumb_up_18"
 		app:drawableTint="@color/score_high" />
 </LinearLayout>
