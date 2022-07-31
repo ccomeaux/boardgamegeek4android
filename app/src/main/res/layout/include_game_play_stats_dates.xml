@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-	style="@style/Card"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/Card"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	tools:showIn="@layout/fragment_game_play_stats">
@@ -14,15 +13,16 @@
 
 		<TextView
 			android:id="@+id/datesHeaderView"
-			style="@style/Text.Header.Card"
+			style="@style/CardTitle"
 			android:layout_width="wrap_content"
-			android:text="@string/title_dates"/>
+			android:layout_height="wrap_content"
+			android:text="@string/title_dates" />
 
 		<TableLayout
 			android:id="@+id/datesTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
-			android:stretchColumns="0,1"/>
+			android:stretchColumns="0,1" />
 	</LinearLayout>
 </androidx.cardview.widget.CardView>

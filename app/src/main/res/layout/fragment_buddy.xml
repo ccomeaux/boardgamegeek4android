@@ -73,8 +73,9 @@
 					android:orientation="vertical">
 
 					<TextView
-						style="@style/Text.Header.Card"
+						style="@style/CardTitle"
 						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
 						android:labelFor="@+id/nicknameView"
 						android:text="@string/nickname" />
 

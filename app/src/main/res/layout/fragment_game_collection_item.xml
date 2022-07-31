@@ -149,8 +149,9 @@
 
 			<TextView
 				android:id="@+id/wishlistHeader"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:tag="header"
 				android:text="@string/wishlist"
 				android:textStyle="bold" />
@@ -213,8 +214,9 @@
 
 			<TextView
 				android:id="@+id/privateInfoHeader"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:tag="header"
 				android:text="@string/private_info"
 				android:textStyle="bold" />
@@ -239,7 +241,7 @@
 
 				<TextView
 					android:id="@+id/privateInfoHintView"
-					style="@style/Text.Header.Card"
+					style="@style/CardTitle"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -284,8 +286,9 @@
 
 			<TextView
 				android:id="@+id/tradeHeader"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:tag="header"
 				android:text="@string/title_trade"
 				android:textStyle="bold" />

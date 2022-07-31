@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-	style="@style/Card"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/Card"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	tools:showIn="@layout/fragment_game_play_stats">
@@ -14,21 +13,22 @@
 
 		<TextView
 			android:id="@+id/playCountHeaderView"
-			style="@style/Text.Header.Card"
+			style="@style/CardTitle"
 			android:layout_width="wrap_content"
-			android:text="@string/title_play_count"/>
+			android:layout_height="wrap_content"
+			android:text="@string/title_play_count" />
 
 		<TableLayout
 			android:id="@+id/playCountTable"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
-			android:stretchColumns="0,1"/>
+			android:stretchColumns="0,1" />
 
 		<com.github.mikephil.charting.charts.HorizontalBarChart
 			android:id="@+id/playCountChart"
 			android:layout_width="match_parent"
 			android:layout_height="200dp"
-			android:padding="@dimen/padding_extra"/>
+			android:padding="@dimen/padding_extra" />
 	</LinearLayout>
 </androidx.cardview.widget.CardView>

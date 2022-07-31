@@ -202,9 +202,10 @@
 
 				<TextView
 					android:id="@+id/commentsLabel"
-					style="@style/Text.Header.Underline"
+					style="@style/TextAppearance.Title.Accent"
 					android:layout_width="0dp"
 					android:layout_height="@dimen/play_detail_row_height"
+					android:background="@drawable/underline"
 					android:gravity="bottom"
 					android:text="@string/comments"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
@@ -223,9 +224,10 @@
 
 				<TextView
 					android:id="@+id/playersLabel"
-					style="@style/Text.Header.Underline"
+					style="@style/TextAppearance.Title.Accent"
 					android:layout_width="0dp"
 					android:layout_height="@dimen/play_detail_row_height"
+					android:background="@drawable/underline"
 					android:gravity="bottom"
 					android:text="@string/title_players"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
