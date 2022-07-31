@@ -17,12 +17,13 @@
 		android:stretchMode="columnWidth"
 		tools:numColumns="4" />
 
-	<TextView
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/moreView"
-		style="@style/Text.Clickable.Caps"
+		style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
+		android:minHeight="@dimen/edit_row_height"
 		android:text="@string/more" />
 
 	<View

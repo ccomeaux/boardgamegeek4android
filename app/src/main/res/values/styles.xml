@@ -188,15 +188,8 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="Text.Clickable">
-		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:clickable">true</item>
-		<item name="android:minHeight">@dimen/edit_row_height</item>
-	</style>
-
-	<style name="Text.Clickable.Caps">
-		<item name="android:textAllCaps">true</item>
+	<style name="TextAppearance.Title.Accent">
+		<item name="android:textColor">@color/accent</item>
 	</style>
 
 	<style name="Text.Header" parent="@style/TextAppearance.MaterialComponents.Headline6">

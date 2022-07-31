@@ -105,10 +105,10 @@
 
 					<TextView
 						android:id="@+id/playsInProgressSubtitle"
-						style="@style/Text.Header"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/title_in_progress"
+						android:textAppearance="@style/TextAppearance.Title.Accent"
 						android:visibility="gone"
 						tools:visibility="visible" />
 
@@ -122,11 +122,11 @@
 
 					<TextView
 						android:id="@+id/recentPlaysSubtitle"
-						style="@style/Text.Header"
 						android:layout_width="wrap_content"
 						android:layout_height="40dp"
 						android:gravity="bottom"
 						android:text="@string/title_recent"
+						android:textAppearance="@style/TextAppearance.Title.Accent"
 						android:visibility="gone"
 						tools:visibility="visible" />
 
