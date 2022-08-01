@@ -70,7 +70,7 @@
 
 					<CheckBox
 						android:id="@+id/ownView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="own"
@@ -78,7 +78,7 @@
 
 					<CheckBox
 						android:id="@+id/preorderedView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="preordered"
@@ -86,7 +86,7 @@
 
 					<CheckBox
 						android:id="@+id/previouslyOwnedView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="previously_owned"
@@ -94,7 +94,7 @@
 
 					<CheckBox
 						android:id="@+id/wantToBuyView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="want_to_buy"
@@ -102,7 +102,7 @@
 
 					<CheckBox
 						android:id="@+id/wantToPlayView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="want_to_play"
@@ -176,7 +176,7 @@
 
 				<CheckBox
 					android:id="@+id/wishlistView"
-					style="@style/EditCheckbox.Card"
+					style="@style/CardCheckbox"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:tag="wishlist"
@@ -187,7 +187,7 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:theme="@style/EditSpinner.Card" />
+					android:theme="@style/CardSpinner" />
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
@@ -311,7 +311,7 @@
 
 				<CheckBox
 					android:id="@+id/wantInTradeView"
-					style="@style/EditCheckbox.Card"
+					style="@style/CardCheckbox"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:tag="want"
@@ -319,7 +319,7 @@
 
 				<CheckBox
 					android:id="@+id/forTradeView"
-					style="@style/EditCheckbox.Card"
+					style="@style/CardCheckbox"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:tag="for_trade"

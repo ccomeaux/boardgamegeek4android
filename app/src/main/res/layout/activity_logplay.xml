@@ -70,7 +70,6 @@
 
 				<TextView
 					android:id="@+id/headerView"
-					style="@style/Text.Title.Overlay"
 					android:layout_width="0dp"
 					android:layout_height="0dp"
 					android:background="#5000"
@@ -79,6 +78,7 @@
 					android:maxLines="2"
 					android:paddingLeft="@dimen/material_indent_horizontal"
 					android:paddingRight="@dimen/material_margin_horizontal"
+					android:textAppearance="@style/TextAppearance.Title.Overlay"
 					app:layout_constraintBottom_toBottomOf="@id/thumbnailView"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toStartOf="parent"

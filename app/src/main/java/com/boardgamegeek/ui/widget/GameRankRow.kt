@@ -16,8 +16,8 @@ import java.text.DecimalFormat
 class GameRankRow(context: Context, isFamily: Boolean) : LinearLayout(context) {
     init {
         LayoutInflater.from(context).inflate(R.layout.row_game_rank_subtype, this)
-        TextViewCompat.setTextAppearance(findViewById(R.id.rankView), if (isFamily) R.style.Text else R.style.TextAppearance_Subtitle)
-        TextViewCompat.setTextAppearance(findViewById(R.id.nameView), if (isFamily) R.style.Text else R.style.TextAppearance_Subtitle)
+        TextViewCompat.setTextAppearance(findViewById(R.id.rankView), if (isFamily) R.style.TextAppearance_Basic else R.style.TextAppearance_Subtitle)
+        TextViewCompat.setTextAppearance(findViewById(R.id.nameView), if (isFamily) R.style.TextAppearance_Basic else R.style.TextAppearance_Subtitle)
         findViewById<TextView>(R.id.ratingView).apply { setTypeface(typeface, if (isFamily) Typeface.NORMAL else Typeface.BOLD) }
     }
 

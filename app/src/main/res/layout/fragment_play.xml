@@ -69,7 +69,7 @@
 
 				<TextView
 					android:id="@+id/gameNameView"
-					style="@style/Text.Title.Overlay"
+					android:textAppearance="@style/TextAppearance.Title.Overlay"
 					android:layout_width="0dp"
 					android:layout_height="0dp"
 					android:background="#5000"

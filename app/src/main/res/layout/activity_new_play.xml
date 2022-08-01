@@ -30,7 +30,7 @@
 
 		<view
 			android:id="@+id/summaryView"
-			style="@style/Text.Subtitle.Overlay"
+			android:textAppearance="@style/TextAppearance.Subtitle.Overlay"
 			class="com.boardgamegeek.ui.NewPlayActivity$PlaySummary"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
