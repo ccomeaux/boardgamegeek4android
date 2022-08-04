@@ -404,6 +404,7 @@
 		<item name="android:background">?attr/selectableItemBackground</item>
 		<item name="android:clickable">true</item>
 		<item name="android:descendantFocusability">blocksDescendants</item>
+		<item name="android:focusable">true</item>
 	</style>
 
 	<style name="CardRowContent">
@@ -450,13 +451,10 @@
 	<style name="Icon">
 		<item name="android:layout_width">32dp</item>
 		<item name="android:layout_height">32dp</item>
-		<item name="android:paddingTop">4dp</item>
-		<item name="android:paddingBottom">4dp</item>
-		<item name="android:paddingRight">4dp</item>
-		<item name="android:paddingLeft">4dp</item>
+		<item name="android:padding">4dp</item>
 		<item name="android:layout_marginBottom">8dp</item>
 		<item name="android:layout_marginLeft">0dp</item>
-		<item name="android:layout_marginRight">24dp</item>
+		<item name="android:layout_marginRight">@dimen/game_row_icon_margin</item>
 		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:scaleType">centerInside</item>
 	</style>
@@ -543,4 +541,20 @@
 		<item name="checkedIconTint">@color/primary_dark</item>
 		<item name="closeIconVisible">false</item>
 	</style>
+
+	<style name="GameRow">
+		<item name="android:minHeight">@dimen/game_row_height</item>
+		<item name="android:paddingTop">@dimen/padding_half</item>
+		<item name="android:paddingBottom">@dimen/padding_half</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+	</style>
+
+	<style name="GameRow.Clickable">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:clickable">true</item>
+		<item name="android:descendantFocusability">blocksDescendants</item>
+		<item name="android:focusable">true</item>
+	</style>
+
 </resources>

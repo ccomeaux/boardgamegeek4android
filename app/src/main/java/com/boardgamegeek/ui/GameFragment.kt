@@ -27,6 +27,7 @@ class GameFragment : Fragment() {
     private val viewModel by activityViewModels<GameViewModel>()
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
+    private val scoreFormat = DecimalFormat("#,##0.00")
 
     @Suppress("DEPRECATION")
     private val rankSeparator = "  ${Html.fromHtml("&#9679;")}  "
@@ -40,7 +41,7 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.dataContainer.layoutTransition.setAnimateParentHierarchy(false)
+        binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
 
@@ -80,7 +81,7 @@ class GameFragment : Fragment() {
         if (message?.isNotBlank() == true) {
             binding.emptyMessage.text = message
             binding.emptyMessage.isVisible = true
-            binding.dataContainer.isVisible = false
+            binding.dataContainer?.isVisible = false
         }
     }
 
@@ -132,7 +133,7 @@ class GameFragment : Fragment() {
         if (game.averageWeight == 0.0) {
             binding.weightInclude.weightScoreView.isVisible = false
         } else {
-            binding.weightInclude.weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+            binding.weightInclude.weightScoreView.setTextOrHide(game.averageWeight.asScore(context, format = scoreFormat))
         }
         val textColor = binding.weightInclude.weightColorView.setTextViewBackground(game.averageWeight.toColor(BggColors.fiveStageColors))
         binding.weightInclude.weightView.setTextColor(textColor)
@@ -149,7 +150,7 @@ class GameFragment : Fragment() {
         binding.footer.lastModifiedView.timestamp = game.updated
 
         binding.emptyMessage.isVisible = false
-        binding.dataContainer.isVisible = true
+        binding.dataContainer?.isVisible = true
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>) {
@@ -167,7 +168,7 @@ class GameFragment : Fragment() {
         if (score == 0.0) {
             binding.languageInclude.languageScoreView.isVisible = false
         } else {
-            binding.languageInclude.languageScoreView.setTextOrHide(score.asScore(context))
+            binding.languageInclude.languageScoreView.setTextOrHide(score.asScore(context, format = scoreFormat))
         }
         binding.languageInclude.languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
 
@@ -181,17 +182,20 @@ class GameFragment : Fragment() {
     }
 
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
+        val voteCount = entity?.totalVotes ?: 0
         val message = if (entity?.modalValue.isNullOrBlank()) ""
         else requireContext().getText(R.string.age_community, entity?.modalValue.orEmpty())
         binding.agesInclude.playerAgePollView.setTextOrHide(message)
-        binding.agesInclude.playerAgeContainer.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+        binding.agesInclude.playerAgeVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, voteCount, voteCount))
+        binding.agesInclude.playerAgeContainer.setOrClearOnClickListener(voteCount > 0) {
             GamePollDialogFragment.launchSuggestedPlayerAge(this)
         }
     }
 
     private fun onPlayerCountQueryComplete(entity: GamePlayerPollEntity?) {
-        val bestCounts = entity?.bestCounts ?: emptySet()
-        val goodCounts = entity?.recommendedAndBestCounts ?: emptySet()
+        val bestCounts = entity?.bestCounts.orEmpty()
+        val goodCounts = entity?.recommendedAndBestCounts.orEmpty()
+        val voteCount = entity?.totalVotes ?: 0
 
         val best = requireContext().getText(R.string.best_prefix, bestCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount))
         val good = requireContext().getText(R.string.recommended_prefix, goodCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount))
@@ -202,7 +206,7 @@ class GameFragment : Fragment() {
             else -> ""
         }
         binding.playerRangeInclude.playerCountCommunityView.setTextOrHide(communityText)
-        binding.playerRangeInclude.playerCountContainer.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+        binding.playerRangeInclude.playerCountContainer.setOrClearOnClickListener(voteCount > 0) {
             GameSuggestedPlayerCountPollDialogFragment.launch(this)
         }
     }

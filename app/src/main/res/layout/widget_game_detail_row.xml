@@ -4,7 +4,7 @@
 	tools:gravity="center_vertical"
 	tools:layout_height="wrap_content"
 	tools:layout_width="match_parent"
-	tools:minHeight="@dimen/game_detail_row_height"
+	tools:minHeight="@dimen/game_row_height"
 	tools:orientation="horizontal"
 	tools:parentTag="android.widget.LinearLayout">
 

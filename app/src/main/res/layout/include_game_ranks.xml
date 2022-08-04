@@ -1,49 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	style="@style/CardRow"
-	android:layout_width="0dp"
+	android:id="@+id/rankContainer"
+	style="@style/GameRow.Clickable"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_weight="1"
-	android:orientation="horizontal"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/ranksIcon"
 		style="@style/Icon"
-		android:background="?attr/selectableItemBackgroundBorderless"
-		android:clickable="true"
-		android:contentDescription="@string/rank"
-		android:focusable="true"
-		android:src="@drawable/ic_baseline_emoji_events_24" />
-
-	<LinearLayout
-		android:id="@+id/rankContainer"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center_vertical"
-		android:background="?attr/selectableItemBackground"
-		android:clickable="true"
-		android:descendantFocusability="blocksDescendants"
-		android:focusable="true"
-		android:gravity="center_vertical"
-		android:orientation="vertical">
+		android:contentDescription="@string/rank"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/ic_baseline_emoji_events_24" />
 
-		<TextView
-			android:id="@+id/rankView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textAppearance="@style/TextAppearance.Primary"
-			tools:text="#42 Board Game" />
+	<TextView
+		android:id="@+id/rankView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/game_row_icon_margin"
+		android:textAppearance="@style/TextAppearance.Primary"
+		app:layout_constraintBottom_toTopOf="@+id/subtypeView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/ranksIcon"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="#42 Board Game" />
 
-		<TextView
-			android:id="@+id/subtypeView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textAppearance="@style/TextAppearance.Secondary"
-			android:visibility="gone"
-			tools:text="#34 Strategy"
-			tools:visibility="visible" />
-	</LinearLayout>
-</LinearLayout>
+	<TextView
+		android:id="@+id/subtypeView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Secondary"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@+id/rankView"
+		app:layout_constraintTop_toBottomOf="@+id/rankView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="#34 Strategy"
+		tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

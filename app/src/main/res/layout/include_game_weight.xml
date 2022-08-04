@@ -1,65 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/weightContainer"
-	style="@style/CardRow"
-	android:layout_width="0dp"
-	android:layout_height="match_parent"
-	android:layout_weight="1"
-	android:orientation="horizontal"
+	style="@style/GameRow"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/weightIcon"
 		style="@style/Icon"
-		android:contentDescription="@string/weight"
-		android:src="@drawable/ic_baseline_scale_24" />
-
-	<LinearLayout
-		style="@style/CardRowContent"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center_vertical"
-		android:gravity="center_vertical"
-		android:orientation="vertical">
+		android:contentDescription="@string/weight"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/ic_baseline_scale_24" />
 
-		<LinearLayout
-			android:id="@+id/weightColorView"
-			style="@style/RatingSmall.Wide"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			tools:background="#088">
+	<View
+		android:id="@+id/weightColorView"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		app:layout_constraintBottom_toBottomOf="@+id/weightView"
+		app:layout_constraintEnd_toEndOf="@+id/weightScoreView"
+		app:layout_constraintStart_toStartOf="@+id/weightView"
+		app:layout_constraintTop_toTopOf="@+id/weightView"
+		tools:background="#aaa" />
 
-			<TextView
-				android:id="@+id/weightView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:maxLines="1"
-				android:textAppearance="@style/TextAppearance.Primary"
-				tools:text="Light" />
+	<TextView
+		android:id="@+id/weightView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/game_row_icon_margin"
+		android:maxLines="1"
+		android:paddingVertical="@dimen/padding_half"
+		android:paddingLeft="@dimen/padding_extra"
+		android:textAppearance="@style/TextAppearance.Primary"
+		app:layout_constraintBottom_toTopOf="@id/weightVotesView"
+		app:layout_constraintEnd_toStartOf="@+id/weightScoreView"
+		app:layout_constraintStart_toEndOf="@id/weightIcon"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Light" />
 
-			<TextView
-				android:id="@+id/weightScoreView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:maxLines="1"
-				android:paddingStart="@dimen/padding_extra"
-				android:paddingLeft="@dimen/padding_extra"
-				android:textAppearance="@style/TextAppearance.Secondary.Small"
-				android:textSize="12sp"
-				android:visibility="gone"
-				tools:text="1.50"
-				tools:visibility="visible" />
-		</LinearLayout>
+	<TextView
+		android:id="@+id/weightScoreView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/padding_extra"
+		android:maxLines="1"
+		android:paddingRight="@dimen/padding_extra"
+		android:textAppearance="@style/TextAppearance.Secondary.Small"
+		android:visibility="gone"
+		app:layout_constraintBaseline_toBaselineOf="@id/weightView"
+		app:layout_constraintStart_toEndOf="@+id/weightView"
+		tools:text="1.50"
+		tools:visibility="visible" />
 
-		<TextView
-			android:id="@+id/weightVotesView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textAppearance="@style/TextAppearance.Secondary.Small"
-			android:visibility="gone"
-			tools:text="42,000 votes"
-			tools:visibility="visible" />
-	</LinearLayout>
-</LinearLayout>
+	<TextView
+		android:id="@+id/weightVotesView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.Secondary.Small"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@id/weightView"
+		app:layout_constraintTop_toBottomOf="@id/weightView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="42,000 votes"
+		tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
