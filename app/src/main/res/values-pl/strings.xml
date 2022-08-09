@@ -344,8 +344,6 @@
 	<string name="collection_sort_last_viewed">Ostatnio oglądana</string>
 	<string name="collection_sort_last_modified">Ostatnio zmodyfikowane</string>
 	<string name="collection_sort_my_rating">Moja ocena</string>
-	<string name="collection_sort_play_date_max">Grane ostatnio</string>
-	<string name="collection_sort_play_date_min">Grane najdawniej</string>
 	<string name="collection_sort_play_time">Czas rozgrywki</string>
 	<string name="collection_sort_rank">Ranking</string>
 	<string name="collection_sort_suggested_age">Sugerowany minimalny wiek</string>
