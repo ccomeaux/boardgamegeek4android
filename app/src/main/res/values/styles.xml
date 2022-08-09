@@ -314,26 +314,13 @@
 		<item name="android:paddingTop">@dimen/padding_half</item>
 	</style>
 
-	<style name="RatingLarge.Huge">
-		<item name="android:textAppearance">@style/TextAppearance.Huge</item>
-	</style>
-
 	<style name="RatingSmall">
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_half</item>
 		<item name="android:paddingRight">@dimen/padding_half</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:minWidth">64dp</item>
 		<item name="android:lines">1</item>
-	</style>
-
-	<style name="RatingSmall.Regular">
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
-	</style>
-
-	<style name="RatingSmall.Wide">
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
 	</style>
 
 	<!-- Forms -->
