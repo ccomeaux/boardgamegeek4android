@@ -112,6 +112,11 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 availablePlayers.value = assembleAvailablePlayers(favoriteColors = result)
             }
         }
+        availablePlayers.addSource(playerFilter) { result ->
+            result?.let {
+                availablePlayers.value = assembleAvailablePlayers(filter = result)
+            }
+        }
 
         addedPlayers.addSource(_addedPlayers) { list ->
             list?.let {
