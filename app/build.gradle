@@ -44,7 +44,7 @@ def gitBranchName = { ->
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
 
     buildFeatures {
         viewBinding true
@@ -55,7 +55,7 @@ android {
         applicationId "com.boardgamegeek"
 
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 32
         multiDexEnabled true
 
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
