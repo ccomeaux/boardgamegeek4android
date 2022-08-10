@@ -12,7 +12,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentThreadBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.set
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
@@ -31,7 +33,7 @@ class ThreadFragment : Fragment() {
     private var currentAdapterPosition = 0
     private var latestArticleId: Int = INVALID_ARTICLE_ID
 
-    val viewModel by activityViewModels<ThreadViewModel>()
+    private val viewModel by activityViewModels<ThreadViewModel>()
 
     private val adapter: ThreadRecyclerViewAdapter by lazy {
         ThreadRecyclerViewAdapter(forumId, forumTitle, objectId, objectName, objectType)
