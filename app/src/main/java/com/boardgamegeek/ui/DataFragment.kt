@@ -138,11 +138,11 @@ class DataFragment : Fragment() {
     }
 
     class ExportFileContract : ActivityResultContract<String, Uri?>() {
-        override fun createIntent(context: Context, typeDescription: String): Intent {
+        override fun createIntent(context: Context, input: String): Intent {
             return Intent(Intent.ACTION_CREATE_DOCUMENT)
                 .addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("application/*")
-                .putExtra(Intent.EXTRA_TITLE, FileUtils.getExportFileName(typeDescription))
+                .putExtra(Intent.EXTRA_TITLE, FileUtils.getExportFileName(input))
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Uri? {

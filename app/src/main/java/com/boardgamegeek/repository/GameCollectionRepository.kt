@@ -88,15 +88,15 @@ class GameCollectionRepository(val application: BggApplication) {
 
             val statuses = prefs.getSyncStatusesOrDefault()
             if ((response.items == null || response.items.isNotEmpty()) && statuses.contains(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
-                val options = mutableMapOf(
+                val playedOptions = mutableMapOf(
                     BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
                     BggService.COLLECTION_QUERY_KEY_STATS to "1",
                     BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
                     BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
                 )
-                options.addSubtype(subtype)
-                val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
-                response.items?.forEach { collectionItem ->
+                playedOptions.addSubtype(subtype)
+                val playedResponse = Adapter.createForXmlWithAuth(application).collectionC(username, playedOptions)
+                playedResponse.items?.forEach { collectionItem ->
                     val (item, game) = collectionItem.mapToEntities()
                     val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
                     list += item.copy(internalId = internalId, syncTimestamp = timestamp)
