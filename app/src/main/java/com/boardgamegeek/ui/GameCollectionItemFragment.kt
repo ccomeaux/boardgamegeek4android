@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -31,7 +32,6 @@ class GameCollectionItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         gameId = arguments?.getInt(KEY_GAME_ID, INVALID_ID) ?: INVALID_ID
         collectionId = arguments?.getInt(KEY_COLLECTION_ID, INVALID_ID) ?: INVALID_ID
     }
@@ -44,6 +44,28 @@ class GameCollectionItemFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.game_collection_fragment, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.menu_discard).isVisible = !isInEditMode && isDirty
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_discard -> {
+                        requireActivity().createDiscardDialog(R.string.collection_item, R.string.keep, isNew = false, finishActivity = false) {
+                            viewModel.reset()
+                        }.show()
+                    }
+                    else -> return false
+                }
+                return true
+            }
+        })
 
         listOf(
             binding.wantToBuyView,
@@ -160,28 +182,6 @@ class GameCollectionItemFragment : Fragment() {
         binding.invalidStatusView.text = message
         binding.invalidStatusView.isVisible = true
         binding.mainContainer.isVisible = false
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.game_collection_fragment, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.menu_discard).isVisible = !isInEditMode && isDirty
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_discard -> {
-                requireActivity().createDiscardDialog(R.string.collection_item, R.string.keep, isNew = false, finishActivity = false) {
-                    viewModel.reset()
-                }.show()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun bindVisibility() {

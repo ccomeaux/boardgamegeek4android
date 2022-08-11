@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -25,7 +26,6 @@ class GeekListsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sortType = savedInstanceState?.getSerializable(KEY_SORT_TYPE) as? SortType ?: SortType.HOT
-        setHasOptionsMenu(true)
     }
 
     @Suppress("RedundantNullableReturnType")
@@ -40,6 +40,38 @@ class GeekListsFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.geeklists, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(
+                    when (sortType) {
+                        SortType.RECENT -> R.id.menu_sort_geeklists_recent
+                        SortType.ACTIVE -> R.id.menu_sort_geeklists_active
+                        SortType.HOT -> R.id.menu_sort_geeklists_hot
+                    }
+                )?.isChecked = true
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_sort_geeklists_recent -> SortType.RECENT
+                    R.id.menu_sort_geeklists_active -> SortType.ACTIVE
+                    R.id.menu_sort_geeklists_hot -> SortType.HOT
+                    else -> null
+                }?.let {
+                    if (it != sortType) {
+                        sortType = it
+                        menuItem.isChecked = true
+                        viewModel.setSort(sortType)
+                    }
+                    return true
+                } ?: return false
+            }
+        })
 
         adapter.addLoadStateListener { loadStates ->
             when (val state = loadStates.refresh) {
@@ -78,34 +110,6 @@ class GeekListsFragment : Fragment() {
         outState.putSerializable(KEY_SORT_TYPE, sortType)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.geeklists, menu)
-        menu.findItem(
-            when (sortType) {
-                SortType.RECENT -> R.id.menu_sort_geeklists_recent
-                SortType.ACTIVE -> R.id.menu_sort_geeklists_active
-                SortType.HOT -> R.id.menu_sort_geeklists_hot
-            }
-        )?.isChecked = true
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_sort_geeklists_recent -> SortType.RECENT
-            R.id.menu_sort_geeklists_active -> SortType.ACTIVE
-            R.id.menu_sort_geeklists_hot -> SortType.HOT
-            else -> null
-        }?.let {
-            if (it != sortType) {
-                sortType = it
-                item.isChecked = true
-                viewModel.setSort(sortType)
-            }
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     companion object {
         private const val KEY_SORT_TYPE = "KEY_SORT_TYPE"

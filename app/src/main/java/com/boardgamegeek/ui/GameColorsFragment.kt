@@ -6,6 +6,7 @@ import android.view.*
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -36,11 +37,6 @@ class GameColorsFragment : Fragment() {
         createAdapter()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentColorsBinding.inflate(inflater, container, false)
@@ -49,6 +45,21 @@ class GameColorsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.game_colors, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return if (menuItem.itemId == R.id.menu_colors_generate) {
+                    viewModel.computeColors()
+                    binding.containerView.snackbar(R.string.msg_colors_generated)
+                    true
+                } else false
+            }
+        })
+
         binding.fab.colorize(iconColor)
         setUpRecyclerView()
 
@@ -145,19 +156,6 @@ class GameColorsFragment : Fragment() {
             }
         })
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.game_colors, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_colors_generate) {
-            viewModel.computeColors()
-            binding.containerView.snackbar(R.string.msg_colors_generated)
-            true
-        } else super.onOptionsItemSelected(item)
     }
 
     private fun createAdapter(): GameColorRecyclerViewAdapter {

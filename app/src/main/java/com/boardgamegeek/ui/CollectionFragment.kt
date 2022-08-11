@@ -69,7 +69,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         firebaseAnalytics = Firebase.analytics
         isCreatingShortcut = arguments?.getBoolean(KEY_IS_CREATING_SHORTCUT) ?: false
         changingGamePlayId = arguments?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
-        setHasOptionsMenu(true)
     }
 
     @Suppress("RedundantNullableReturnType")

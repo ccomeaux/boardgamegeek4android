@@ -22,11 +22,6 @@ class GameCreditsFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentGameCreditsBinding.inflate(inflater, container, false)

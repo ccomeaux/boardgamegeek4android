@@ -18,7 +18,6 @@ import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
 
 class SearchResultsFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentSearchResultsBinding? = null
@@ -123,10 +122,6 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             snackbar.setText(resources.getQuantityString(messageId, count, count, queryText))
             if (isExactMatch) {
                 snackbar.setAction(R.string.more) {
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
-                        param(FirebaseAnalytics.Param.SEARCH_TERM, queryText)
-                        param("exact", false.toString())
-                    }
                     viewModel.searchInexact(queryText)
                 }
             } else {

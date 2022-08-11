@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,7 +29,31 @@ class CategoryCollectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.linked_collection, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(
+                    when (sortType) {
+                        CollectionSort.NAME -> R.id.menu_sort_name
+                        CollectionSort.RATING -> R.id.menu_sort_rating
+                    }
+                )?.isChecked = true
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_sort_name -> viewModel.setSort(CollectionSort.NAME)
+                    R.id.menu_sort_rating -> viewModel.setSort(CollectionSort.RATING)
+                    R.id.menu_refresh -> viewModel.refresh()
+                    else -> return false
+                }
+                return true
+            }
+        })
+
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
@@ -51,29 +76,5 @@ class CategoryCollectionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.linked_collection, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(
-            when (sortType) {
-                CollectionSort.NAME -> R.id.menu_sort_name
-                CollectionSort.RATING -> R.id.menu_sort_rating
-            }
-        )?.isChecked = true
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_sort_name -> viewModel.setSort(CollectionSort.NAME)
-            R.id.menu_sort_rating -> viewModel.setSort(CollectionSort.RATING)
-            R.id.menu_refresh -> viewModel.refresh()
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
     }
 }
