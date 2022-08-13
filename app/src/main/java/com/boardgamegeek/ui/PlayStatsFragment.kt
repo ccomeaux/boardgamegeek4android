@@ -227,9 +227,8 @@ class PlayStatsFragment : Fragment() {
             val rankedEntries = entries.filter { pair -> pair.first.isNotBlank() && pair.second > 0 }
                 .mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
 
-            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second
-                ?: hIndex.h + 1
-            val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: hIndex.h - 1
+            val nextHighestHIndex = entries.findLast { it.second > hIndex.h }?.second ?: (hIndex.h + 1)
+            val nextLowestHIndex = entries.find { it.second < hIndex.h }?.second ?: (hIndex.h - 1)
 
             val prefix = rankedEntries.filter { it.second == nextHighestHIndex && it.first.isNotBlank() }
             prefix.forEach {

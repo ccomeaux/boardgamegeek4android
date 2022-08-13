@@ -56,5 +56,5 @@ fun Palette.getPlayCountColors(context: Context): IntArray {
 private fun Palette.getColor(targets: Array<Target>, context: Context, @ColorRes defaultColorResId: Int, vararg usedTargets: Target): Pair<Int, Target> {
     return targets.find { !usedTargets.contains(it) && this[it] != null }?.let {
         this[it]!!.rgb to it
-    } ?: ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build()
+    } ?: (ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build())
 }

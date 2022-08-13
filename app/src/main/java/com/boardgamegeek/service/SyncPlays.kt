@@ -99,12 +99,12 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 val plays = response.plays.mapToEntity(startTime)
                 persist(plays)
                 plays.maxOfOrNull { it.dateInMillis }?.let {
-                    if (it > syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L) {
+                    if (it > (syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L)) {
                         syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] = it
                     }
                 }
                 plays.minOfOrNull { it.dateInMillis }?.let {
-                    if (it < syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE) {
+                    if (it < (syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
                         syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
                     }
                 }

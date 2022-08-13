@@ -58,7 +58,7 @@ fun Game.mapToEntity(): GameEntity {
 }
 
 private fun findPrimaryName(from: Game): Pair<String, Int> {
-    return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: "" to 0
+    return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: ("" to 0)
 }
 
 private fun createRanks(from: Game): List<GameRankEntity> {
