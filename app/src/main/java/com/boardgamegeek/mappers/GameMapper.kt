@@ -3,7 +3,6 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.replaceHtmlLineFeeds
 import com.boardgamegeek.extensions.sortName
-import com.boardgamegeek.extensions.toSubtype
 import com.boardgamegeek.extensions.toThingSubtype
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Game

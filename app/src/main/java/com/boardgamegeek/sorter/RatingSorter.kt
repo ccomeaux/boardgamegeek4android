@@ -4,7 +4,6 @@ import android.content.Context
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asBoundedRating
-import com.boardgamegeek.extensions.asRating
 import com.boardgamegeek.extensions.asScore
 import java.text.DecimalFormat
 
