@@ -12,8 +12,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longToast
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
 
 class SearchResultsActivity : SimpleSinglePaneActivity() {
     companion object {
@@ -70,10 +68,6 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null && query.length > 1) {
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
-                        param(FirebaseAnalytics.Param.SEARCH_TERM, query)
-                        param("exact", true.toString())
-                    }
                     viewModel.search(query)
                 }
                 // close the auto-complete list; don't pass to a different activity
@@ -107,10 +101,6 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
             ACTION_VOICE_SEARCH -> {
                 // searches invoked by the device
                 val query = intent.getStringExtra(SearchManager.QUERY).orEmpty()
-                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH) {
-                    param(FirebaseAnalytics.Param.SEARCH_TERM, query)
-                    param("exact", true.toString())
-                }
                 if (searchView == null) {
                     // sometimes this is invoked before the menu is created
                     viewModel.search(query)
