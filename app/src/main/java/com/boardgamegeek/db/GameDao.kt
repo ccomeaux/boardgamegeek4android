@@ -151,6 +151,7 @@ class GameDao(private val context: BggApplication) {
 
     enum class PollType(val code: String) {
         LANGUAGE_DEPENDENCE("language_dependence"),
+        @Suppress("SpellCheckingInspection")
         SUGGESTED_PLAYER_AGE("suggested_playerage"),
     }
 
