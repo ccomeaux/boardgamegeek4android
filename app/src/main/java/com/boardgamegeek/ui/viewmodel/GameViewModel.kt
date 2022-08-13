@@ -79,7 +79,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val game: LiveData<RefreshableResource<GameEntity>> = _gameId.switchMap { gameId ->
-        liveData {
+        liveData<RefreshableResource<GameEntity>> {
             try {
                 if (gameId == BggContract.INVALID_ID) {
                     emit(RefreshableResource.success(null))
@@ -114,7 +114,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 emit(RefreshableResource.error(e, application, latestValue?.data))
                 isGameRefreshing.set(false)
             }
-        }
+        }.distinctUntilChanged()
     }
 
     val ranks = game.switchMap {
