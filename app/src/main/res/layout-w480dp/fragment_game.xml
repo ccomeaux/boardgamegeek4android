@@ -40,6 +40,7 @@
 				style="@style/EmptyMessage"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
+				android:padding="@dimen/material_margin_horizontal"
 				android:text="@string/empty_game"
 				android:visibility="gone"
 				app:layout_constraintBottom_toBottomOf="parent"
