@@ -122,10 +122,10 @@ class GameFragment : Fragment() {
         binding.yearInclude.yearView.text = game.yearPublished.asYear(context)
 
         binding.playingTimeInclude.playTimeView.text =
-            requireContext().getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
+            requireContext().getQuantityText(R.plurals.mins_suffix, game.minPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
 
         binding.playerRangeInclude.playerCountView.text =
-            requireContext().getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
+            requireContext().getQuantityText(R.plurals.player_range_suffix, game.minPlayers, (game.minPlayers to game.maxPlayers).asRange())
 
         binding.agesInclude.playerAgeView.text = game.minimumAge.asAge(context)
 
