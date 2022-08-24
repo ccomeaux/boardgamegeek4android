@@ -81,7 +81,16 @@ class GameFragment : Fragment() {
         if (message?.isNotBlank() == true) {
             binding.emptyMessage.text = message
             binding.emptyMessage.isVisible = true
-            binding.dataContainer?.isVisible = false
+            binding.ranksInclude.root.isVisible = true
+            binding.ratingsInclude.root.isVisible = true
+            binding.yearInclude.root.isVisible = true
+            binding.playingTimeInclude.root.isVisible = true
+            binding.playerRangeInclude.root.isVisible = true
+            binding.agesInclude.root.isVisible = true
+            binding.weightInclude.root.isVisible = true
+            binding.languageInclude.root.isVisible = false
+            binding.baseGamesRow.isVisible = false
+            binding.expansionsRow.isVisible = false
         }
     }
 
@@ -109,6 +118,7 @@ class GameFragment : Fragment() {
 
         binding.ranksInclude.rankView.text = game.overallRank.asRank(requireContext(), game.subtype?.code.orEmpty())
         binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
+        binding.ranksInclude.root.isVisible = true
 
         binding.ratingsInclude.ratingView.text = game.rating.asBoundedRating(context, DecimalFormat("#0.0"), R.string.unrated)
         binding.ratingsInclude.ratingView.setTextViewBackground(game.rating.toColor(BggColors.ratingColors))
@@ -118,16 +128,21 @@ class GameFragment : Fragment() {
         binding.ratingsInclude.ratingContainer.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
             CommentsActivity.startRating(requireContext(), gameId, gameName)
         }
+        binding.ratingsInclude.root.isVisible = true
 
         binding.yearInclude.yearView.text = game.yearPublished.asYear(context)
+        binding.yearInclude.root.isVisible = true
 
         binding.playingTimeInclude.playTimeView.text =
             requireContext().getQuantityText(R.plurals.mins_suffix, game.minPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
+        binding.playingTimeInclude.root.isVisible = true
 
         binding.playerRangeInclude.playerCountView.text =
             requireContext().getQuantityText(R.plurals.player_range_suffix, game.minPlayers, (game.minPlayers to game.maxPlayers).asRange())
+        binding.playerRangeInclude.root.isVisible = true
 
         binding.agesInclude.playerAgeView.text = game.minimumAge.asAge(context)
+        binding.agesInclude.root.isVisible = true
 
         binding.weightInclude.weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
         if (game.averageWeight == 0.0) {
@@ -145,12 +160,12 @@ class GameFragment : Fragment() {
                 game.numberOfUsersWeighting
             )
         )
+        binding.weightInclude.root.isVisible = true
 
         binding.footer.gameIdView.text = game.id.toString()
         binding.footer.lastModifiedView.timestamp = game.updated
 
         binding.emptyMessage.isVisible = false
-        binding.dataContainer?.isVisible = true
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>) {
@@ -179,6 +194,7 @@ class GameFragment : Fragment() {
         binding.languageInclude.languageContainer.setOrClearOnClickListener(totalVotes > 0) {
             GamePollDialogFragment.launchLanguageDependence(this)
         }
+        binding.languageInclude.root.isVisible = true
     }
 
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
@@ -197,8 +213,8 @@ class GameFragment : Fragment() {
         val goodCounts = entity?.recommendedAndBestCounts.orEmpty()
         val voteCount = entity?.totalVotes ?: 0
 
-        val best = requireContext().getText(R.string.best_prefix, bestCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount))
-        val good = requireContext().getText(R.string.recommended_prefix, goodCounts.asRange(max = GamePlayerPollEntity.maxPlayerCount))
+        val best = requireContext().getText(R.string.best_prefix, bestCounts.toList().asRange())
+        val good = requireContext().getText(R.string.recommended_prefix, goodCounts.toList().asRange())
         val communityText = when {
             bestCounts.isNotEmpty() && goodCounts.isNotEmpty() && bestCounts != goodCounts -> getString(R.string.ampersand, best, good)
             bestCounts.isNotEmpty() -> best
@@ -213,5 +229,6 @@ class GameFragment : Fragment() {
 
     private fun onListQueryComplete(list: List<GameDetailEntity>, view: GameDetailRow) {
         view.bindData(viewModel.gameId.value ?: BggContract.INVALID_ID, gameName, list)
+        view.isVisible = list.isNotEmpty()
     }
 }
