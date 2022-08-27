@@ -235,8 +235,8 @@
 	<style name="RowRank">
 		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6</item>
 		<item name="android:gravity">end|center_vertical</item>
-		<item name="android:minWidth">32dp</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:minWidth">40dp</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
 	</style>
 
 	<style name="ImageList">

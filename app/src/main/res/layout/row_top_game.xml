@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	style="@style/RowContainer.Tall"
+	style="@style/RowContainer.WithThumbnail"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?android:attr/selectableItemBackground">
@@ -13,6 +13,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/thumbnailView"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="42" />
@@ -25,15 +26,16 @@
 		android:contentDescription="@string/thumbnail"
 		android:src="@drawable/thumbnail_image_empty"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/nameView"
 		app:layout_constraintStart_toEndOf="@id/rankView"
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<TextView
 		android:id="@+id/nameView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/padding_standard"
-		android:layout_marginLeft="@dimen/padding_standard"
+		android:layout_marginBottom="@dimen/padding_half"
 		android:ellipsize="end"
 		android:maxLines="2"
 		android:textAppearance="@style/TextAppearance.RowTitle"
@@ -42,20 +44,18 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@id/thumbnailView"
-		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintTop_toTopOf="@id/thumbnailView"
 		app:layout_constraintVertical_chainStyle="packed"
-		app:layout_constraintWidth="true"
 		tools:text="Princes of Florence" />
 
 	<TextView
 		android:id="@+id/yearView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginStart="@dimen/padding_standard"
-		android:layout_marginLeft="@dimen/padding_standard"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toEndOf="@id/thumbnailView"
+		app:layout_constraintBottom_toBottomOf="@id/thumbnailView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@id/nameView"
 		app:layout_constraintTop_toBottomOf="@id/nameView"
 		app:layout_constraintVertical_chainStyle="packed"
 		tools:text="2001" />
