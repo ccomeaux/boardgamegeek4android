@@ -87,7 +87,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
         )
 
         binding.acquisitionDateView.setOnClickListener {
-            val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(acquisitionDate).build()
+            val date = if (acquisitionDate == 0L) System.currentTimeMillis() else acquisitionDate
+            val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(date).build()
             datePicker.addOnPositiveButtonClickListener {
                 setAndDisplayAcquisitionDate(it.fromLocalToUtc())
             }
