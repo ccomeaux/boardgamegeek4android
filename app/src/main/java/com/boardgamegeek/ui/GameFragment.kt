@@ -209,8 +209,12 @@ class GameFragment : Fragment() {
     }
 
     private fun onPlayerCountQueryComplete(entity: GamePlayerPollEntity?) {
-        val bestCounts = entity?.bestCounts.orEmpty()
-        val goodCounts = entity?.recommendedAndBestCounts.orEmpty()
+        val bestCounts = entity?.results
+            ?.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST }
+            ?.toSet() ?: emptySet()
+        val goodCounts = entity?.results
+            ?.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST || it.calculatedRecommendation == GamePlayerPollResultsEntity.RECOMMENDED }
+            ?.toSet() ?: emptySet()
         val voteCount = entity?.totalVotes ?: 0
 
         val best = requireContext().getText(R.string.best_prefix, bestCounts.toList().asRange())
@@ -224,6 +228,24 @@ class GameFragment : Fragment() {
         binding.playerRangeInclude.playerCountCommunityView.setTextOrHide(communityText)
         binding.playerRangeInclude.playerCountContainer.setOrClearOnClickListener(voteCount > 0) {
             GameSuggestedPlayerCountPollDialogFragment.launch(this)
+        }
+    }
+
+    private fun List<GamePlayerPollResultsEntity>.asRange(comma: String = ", ", dash: String = " - "): String {
+       return this.sortedBy { it.playerNumber }.fold(mutableListOf<MutableList<GamePlayerPollResultsEntity>>()) { accumulator, element ->
+            val current = element.playerNumber
+            val last = accumulator.lastOrNull()?.lastOrNull()?.playerNumber ?: Int.MAX_VALUE
+            if (accumulator.isEmpty() || last != current - 1) {
+                accumulator += mutableListOf(element)
+            } else accumulator.last() += element
+            accumulator
+        }.joinToString(comma) {
+            if (it.size == 1)
+                it.first().playerCount
+            else if (it.last().playerCount.endsWith('+'))
+                it.first().playerCount + "+"
+            else
+                it.first().playerCount + dash + it.last().playerCount
         }
     }
 

@@ -19,6 +19,8 @@ data class GamePlayerPollResultsEntity(
         }
     }
 
+    val playerNumber = playerCount.trimEnd('+').toIntOrNull() ?: Int.MAX_VALUE
+
     companion object {
         const val BEST = 2
         const val RECOMMENDED = 1
