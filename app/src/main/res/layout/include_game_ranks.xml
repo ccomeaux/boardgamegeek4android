@@ -15,6 +15,7 @@
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/rank"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/rankView"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:srcCompat="@drawable/ic_baseline_emoji_events_24" />
@@ -23,7 +24,6 @@
 		android:id="@+id/rankView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/game_row_icon_margin"
 		android:textAppearance="@style/TextAppearance.Primary"
 		app:layout_constraintBottom_toTopOf="@+id/subtypeView"
 		app:layout_constraintEnd_toEndOf="parent"

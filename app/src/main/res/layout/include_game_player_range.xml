@@ -17,17 +17,18 @@
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/player_range"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/playerCountView"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:srcCompat="@drawable/ic_baseline_group_24" />
 
 	<TextView
 		android:id="@+id/playerCountView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="24dp"
 		android:textAppearance="@style/TextAppearance.Primary"
 		app:layout_constraintBottom_toTopOf="@+id/playerCountCommunityView"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@id/playerCountIcon"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
@@ -35,12 +36,13 @@
 
 	<TextView
 		android:id="@+id/playerCountCommunityView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:maxLines="1"
 		android:textAppearance="@style/TextAppearance.Secondary"
 		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="@id/playerCountView"
 		app:layout_constraintTop_toBottomOf="@+id/playerCountView"
 		app:layout_constraintVertical_chainStyle="packed"

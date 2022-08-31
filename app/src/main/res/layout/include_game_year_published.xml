@@ -15,18 +15,19 @@
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/year_published"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/yearView"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:srcCompat="@drawable/ic_baseline_calendar_today_24" />
 
 	<TextView
 		android:id="@+id/yearView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginStart="@dimen/game_row_icon_margin"
 		android:textAppearance="@style/TextAppearance.Primary"
 		android:textStyle="bold"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/yearIcon"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="1996" />
