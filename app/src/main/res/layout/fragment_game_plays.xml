@@ -12,208 +12,281 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<LinearLayout
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:id="@+id/constraintLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/padding_standard"
-			android:paddingRight="@dimen/material_margin_horizontal">
+			android:animateLayoutChanges="true"
+			android:paddingTop="@dimen/padding_standard">
 
-			<LinearLayout
+			<View
 				android:id="@+id/playCountContainer"
 				style="@style/CardRow.Clickable"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:baselineAligned="false"
-				android:orientation="horizontal">
+				android:minHeight="@dimen/edit_label_width"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
 
-				<FrameLayout
-					android:layout_width="@dimen/edit_label_width"
-					android:layout_height="match_parent">
+			<ImageView
+				android:id="@+id/playCountBackground"
+				style="@style/Icon"
+				android:layout_width="@dimen/color_circle_diameter"
+				android:layout_height="@dimen/color_circle_diameter"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:contentDescription="@string/play_stat_play_count"
+				android:scaleType="fitXY"
+				app:layout_constraintBottom_toBottomOf="@id/playCountContainer"
+				app:layout_constraintEnd_toStartOf="@id/playCountView"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/playCountContainer"
+				tools:background="#0f0" />
 
-					<ImageView
-						android:id="@+id/playCountBackground"
-						android:layout_width="@dimen/color_circle_diameter"
-						android:layout_height="@dimen/color_circle_diameter"
-						android:layout_gravity="left|center_vertical"
-						android:contentDescription="@string/play_stat_play_count"
-						android:scaleType="fitXY"
-						tools:background="#0f0" />
+			<TextView
+				android:id="@+id/playCountIcon"
+				android:layout_width="@dimen/color_circle_diameter"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:fontFamily="sans-serif-condensed"
+				android:gravity="center"
+				android:textAppearance="@style/TextAppearance.Primary"
+				android:textStyle="bold"
+				app:layout_constraintBottom_toBottomOf="@id/playCountContainer"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/playCountContainer"
+				tools:text="5+" />
 
-					<TextView
-						android:id="@+id/playCountIcon"
-						android:layout_width="@dimen/color_circle_diameter"
-						android:layout_height="match_parent"
-						android:fontFamily="sans-serif-condensed"
-						android:gravity="center"
-						android:textAppearance="@style/TextAppearance.Primary"
-						android:textStyle="bold"
-						tools:text="5+" />
-				</FrameLayout>
-
-				<LinearLayout
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:gravity="center_vertical"
-					android:orientation="vertical">
-
-					<TextView
-						android:id="@+id/playCountView"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:maxLines="1"
-						android:text="@string/title_plays"
-						android:textAppearance="@style/TextAppearance.Primary" />
-
-					<TextView
-						android:id="@+id/playCountDescriptionView"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:maxLines="1"
-						android:text="@string/title_plays"
-						android:textAppearance="@style/TextAppearance.Secondary" />
-				</LinearLayout>
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/inProgressPlaysContainer"
-				style="@style/CardRow"
-				android:layout_width="match_parent"
+			<TextView
+				android:id="@+id/playCountView"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
+				android:maxLines="1"
+				android:text="@string/title_plays"
+				android:textAppearance="@style/TextAppearance.Primary"
+				app:layout_constraintBottom_toTopOf="@id/playCountDescriptionView"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@id/playCountBackground"
+				app:layout_constraintTop_toTopOf="@id/playCountContainer"
+				app:layout_constraintVertical_chainStyle="packed" />
+
+			<TextView
+				android:id="@+id/playCountDescriptionView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:text="@string/title_plays"
+				android:textAppearance="@style/TextAppearance.Secondary"
 				android:visibility="gone"
-				tools:visibility="visible">
+				app:layout_constraintBottom_toBottomOf="@id/playCountContainer"
+				app:layout_constraintEnd_toEndOf="@id/playCountView"
+				app:layout_constraintStart_toStartOf="@id/playCountView"
+				app:layout_constraintTop_toBottomOf="@id/playCountView" />
 
-				<ImageView
-					android:id="@+id/inProgressPlaysIcon"
-					style="@style/Icon"
-					android:contentDescription="@string/title_in_progress"
-					android:src="@drawable/ic_outline_timer_24" />
+			<View
+				android:id="@+id/inProgressPlaysContainer"
+				style="@style/CardRow.Clickable"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:minHeight="@dimen/edit_label_width"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/playCountContainer" />
 
-				<LinearLayout
-					android:id="@+id/inProgressPlaysList"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical" />
-			</LinearLayout>
+			<ImageView
+				android:id="@+id/inProgressPlaysIcon"
+				style="@style/Icon"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:contentDescription="@string/title_in_progress"
+				android:src="@drawable/ic_outline_timer_24"
+				app:layout_constraintBottom_toBottomOf="@id/inProgressPlaysContainer"
+				app:layout_constraintEnd_toStartOf="@id/inProgressPlaysList"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/inProgressPlaysContainer" />
 
 			<LinearLayout
+				android:id="@+id/inProgressPlaysList"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				app:layout_constraintBottom_toBottomOf="@id/inProgressPlaysContainer"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@id/inProgressPlaysIcon"
+				app:layout_constraintTop_toTopOf="@id/inProgressPlaysContainer" />
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/inProgressPlaysViews"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:visibility="gone"
+				app:constraint_referenced_ids="inProgressPlaysContainer,inProgressPlaysIcon,inProgressPlaysList"
+				tools:visibility="visible" />
+
+			<View
 				android:id="@+id/lastPlayContainer"
 				style="@style/CardRow.Clickable"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
+				android:minHeight="@dimen/edit_label_width"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/inProgressPlaysContainer" />
+
+			<ImageView
+				android:id="@+id/playsIcon"
+				style="@style/Icon"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:contentDescription="@string/play_stat_last_play"
+				android:src="@drawable/ic_baseline_event_24"
+				app:layout_constraintBottom_toBottomOf="@id/lastPlayContainer"
+				app:layout_constraintEnd_toStartOf="@id/lastPlayDateView"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/lastPlayContainer" />
+
+			<TextView
+				android:id="@+id/lastPlayDateView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:textAppearance="@style/TextAppearance.Primary"
+				app:layout_constraintBottom_toTopOf="@id/lastPlayInfoView"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@id/playsIcon"
+				app:layout_constraintTop_toTopOf="@id/lastPlayContainer"
+				app:layout_constraintVertical_chainStyle="packed"
+				tools:text="@tools:sample/date/mmddyy" />
+
+			<TextView
+				android:id="@+id/lastPlayInfoView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:textAppearance="@style/TextAppearance.Secondary"
+				app:layout_constraintBottom_toBottomOf="@id/lastPlayContainer"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="@id/lastPlayDateView"
+				app:layout_constraintTop_toBottomOf="@id/lastPlayDateView"
+				tools:text="@tools:sample/lorem" />
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/lastPlayViews"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
 				android:visibility="gone"
-				tools:visibility="visible">
+				app:constraint_referenced_ids="lastPlayContainer,playsIcon,lastPlayDateView,lastPlayInfoView"
+				tools:visibility="visible" />
 
-				<ImageView
-					android:id="@+id/playsIcon"
-					style="@style/Icon"
-					android:contentDescription="@string/play_stat_last_play"
-					android:src="@drawable/ic_baseline_event_24" />
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center_vertical"
-					android:minHeight="48dp"
-					android:orientation="vertical"
-					android:paddingTop="@dimen/padding_half"
-					android:paddingBottom="@dimen/padding_half">
-
-					<TextView
-						android:id="@+id/lastPlayDateView"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:textAppearance="@style/TextAppearance.Primary"
-						tools:text="@tools:sample/date/mmddyy" />
-
-					<TextView
-						android:id="@+id/lastPlayInfoView"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:textAppearance="@style/TextAppearance.Secondary"
-						tools:text="@tools:sample/lorem" />
-				</LinearLayout>
-			</LinearLayout>
-
-			<LinearLayout
+			<View
 				android:id="@+id/playStatsContainer"
 				style="@style/CardRow.Clickable"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
+				android:minHeight="@dimen/edit_label_width"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/lastPlayContainer" />
+
+			<ImageView
+				android:id="@+id/playStatsIcon"
+				style="@style/Icon"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:contentDescription="@string/play_stat_last_play"
+				android:src="@drawable/ic_baseline_pie_chart_24"
+				app:layout_constraintBottom_toBottomOf="@id/playStatsContainer"
+				app:layout_constraintEnd_toStartOf="@id/playStatsLabel"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/playStatsContainer" />
+
+			<TextView
+				android:id="@+id/playStatsLabel"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@string/title_play_stats"
+				android:textAppearance="@style/TextAppearance.Primary"
+				app:layout_constraintBottom_toBottomOf="@id/playStatsContainer"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@id/playStatsIcon"
+				app:layout_constraintTop_toTopOf="@id/playStatsContainer" />
+
+			<androidx.constraintlayout.widget.Group
+				android:id="@+id/playStatsViews"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
 				android:visibility="gone"
-				tools:visibility="visible">
+				app:constraint_referenced_ids="playStatsContainer,playStatsIcon,playStatsLabel"
+				tools:visibility="visible" />
 
-				<ImageView
-					android:id="@+id/playStatsIcon"
-					style="@style/Icon"
-					android:contentDescription="@string/title_play_stats"
-					android:src="@drawable/ic_baseline_pie_chart_24" />
-
-				<TextView
-					android:id="@+id/play_stats_label"
-					style="@style/CardRowContent"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:maxLines="1"
-					android:text="@string/title_play_stats"
-					android:textAppearance="@style/TextAppearance.Primary" />
-			</LinearLayout>
-
-			<LinearLayout
+			<View
 				android:id="@+id/colorsContainer"
 				style="@style/CardRow.Clickable"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal">
+				android:minHeight="@dimen/edit_label_width"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/playStatsContainer" />
 
-				<ImageView
-					android:id="@+id/colorsIcon"
-					style="@style/Icon"
-					android:contentDescription="@string/colors"
-					android:src="@drawable/ic_baseline_color_lens_24" />
+			<ImageView
+				android:id="@+id/colorsIcon"
+				style="@style/Icon"
+				android:layout_marginStart="@dimen/material_margin_horizontal"
+				android:layout_marginLeft="@dimen/material_margin_horizontal"
+				android:contentDescription="@string/colors"
+				android:src="@drawable/ic_baseline_color_lens_24"
+				app:layout_constraintBottom_toBottomOf="@id/colorsContainer"
+				app:layout_constraintEnd_toStartOf="@id/colorsLabel"
+				app:layout_constraintHorizontal_bias="0.0"
+				app:layout_constraintHorizontal_chainStyle="packed"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/colorsContainer" />
 
-				<TextView
-					android:id="@+id/colorsLabel"
-					style="@style/CardRowContent"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:maxLines="1"
-					android:text="@string/title_colors"
-					android:textAppearance="@style/TextAppearance.Primary" />
+			<TextView
+				android:id="@+id/colorsLabel"
+				style="@style/CardRowContent"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:maxLines="1"
+				android:text="@string/title_colors"
+				android:textAppearance="@style/TextAppearance.Primary"
+				app:layout_constraintBottom_toBottomOf="@id/colorsContainer"
+				app:layout_constraintEnd_toEndOf="@id/colorsList"
+				app:layout_constraintStart_toEndOf="@id/colorsIcon"
+				app:layout_constraintTop_toTopOf="@id/colorsContainer" />
 
-				<LinearLayout
-					android:id="@+id/colorsList"
-					style="@style/CardRowContent"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_gravity="center_vertical"
-					android:layout_weight="1"
-					android:minHeight="56dp"
-					android:orientation="horizontal"
-					android:visibility="gone" />
-			</LinearLayout>
+			<LinearLayout
+				android:id="@+id/colorsList"
+				style="@style/CardRowContent"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:layout_marginRight="@dimen/material_margin_horizontal"
+				android:gravity="right"
+				android:minHeight="56dp"
+				android:orientation="horizontal"
+				android:visibility="gone"
+				app:layout_constraintBottom_toBottomOf="@id/colorsContainer"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@id/colorsLabel"
+				app:layout_constraintTop_toTopOf="@id/colorsContainer" />
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/syncTimestampView"
-				android:layout_width="wrap_content"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:layout_gravity="right"
+				android:gravity="right"
+				android:paddingHorizontal="@dimen/material_margin_horizontal"
 				android:textAppearance="@style/TextAppearance.Caption.Secondary"
 				app:emptyMessage="@string/needs_updating"
 				app:format="@string/synced_prefix"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/colorsContainer"
 				tools:text="Yesterday" />
 
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/fab_buffer"
-				android:minHeight="@dimen/fab_buffer" />
-		</LinearLayout>
+				android:minHeight="@dimen/fab_buffer"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/colorsContainer" />
+		</androidx.constraintlayout.widget.ConstraintLayout>
 	</androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
