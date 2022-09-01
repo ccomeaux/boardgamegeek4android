@@ -94,7 +94,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     private fun wireUp(view: View) {
         if (view is ChipGroup)
             view.setOnCheckedStateChangeListener { group, checkedIds ->
-                val checkedId = checkedIds.first()
+                val checkedId = checkedIds.firstOrNull() ?: View.NO_ID
                 val sortType = if (checkedId != View.NO_ID) {
                     getSortTypeFromView(group.findViewById(checkedId))
                 } else {
