@@ -24,7 +24,6 @@ class PlayerRow @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    private val ratingFormat = DecimalFormat("0.0######")
     private val nameTypeface: Typeface
     private val usernameTypeface: Typeface
     private val scoreTypeface: Typeface
@@ -149,7 +148,7 @@ class PlayerRow @JvmOverloads constructor(
             if (player.rating == 0.0) {
                 ratingView.isVisible = false
             } else {
-                ratingView.setTextOrHide(player.rating.asScore(context, format = ratingFormat))
+                ratingView.setTextOrHide(player.rating.asPersonalRating(context))
             }
             ratingButton.isVisible = player.rating > 0
 
