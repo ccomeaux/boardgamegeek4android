@@ -30,7 +30,6 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayBinding
-import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
@@ -68,7 +67,6 @@ class LogPlayActivity : AppCompatActivity() {
     private var heroImageUrl: String = ""
     private var shouldCustomSortPlayers = false
 
-    private var play: PlayEntity? = null
     private var lastRemovedPlayer: PlayPlayerEntity? = null
     private val gameColors = ArrayList<String>()
     private val availablePlayers = mutableListOf<PlayerEntity>()
@@ -89,12 +87,11 @@ class LogPlayActivity : AppCompatActivity() {
     private var shouldDeletePlayOnActivityCancel = false
     private var isLaunchingActivity = false
     private var shouldSaveOnPause = true
-    private var showNotification = false
 
     private var dateInMillis: Long? = null
+    private var location: String = ""
     private var startTime: Long = 0L
     private var length: Int = 0
-    private var playersHaveColors = false
     private var playersHaveStartingPositions = false
     private var playerCount = 0
     private var playerDescriptions = listOf<String>()
@@ -133,17 +130,14 @@ class LogPlayActivity : AppCompatActivity() {
         binding.timerButton.setOnClickListener {
             if (length == 0) {
                 viewModel.startTimer()
-                showNotification = true
             } else {
                 this@LogPlayActivity.createThemedBuilder()
                     .setMessage(R.string.are_you_sure_timer_reset)
                     .setPositiveButton(R.string.continue_) { _, _ ->
                         viewModel.resumeTimer()
-                        showNotification = true
                     }
                     .setNegativeButton(R.string.reset) { _, _ ->
                         viewModel.startTimer()
-                        showNotification = true
                     }
                     .setCancelable(true)
                     .show()
@@ -168,7 +162,7 @@ class LogPlayActivity : AppCompatActivity() {
         binding.noWinStatsView.setOnCheckedChangeListener { _, isChecked -> viewModel.updateNoWinStats(isChecked) }
 
         binding.assignColorsButton.setOnClickListener {
-            if (playersHaveColors) {
+            if (usedColors.isNotEmpty()) {
                 val builder = AlertDialog.Builder(this@LogPlayActivity)
                     .setTitle(R.string.title_clear_colors)
                     .setMessage(R.string.msg_clear_colors)
@@ -228,7 +222,7 @@ class LogPlayActivity : AppCompatActivity() {
                     }
                     R.id.menu_random_start_player -> {
                         logPlayerOrder("RandomStarter")
-                        viewModel.pickRandomStartPlayer()
+                        viewModel.randomizeStartPlayer()
                         return@setOnMenuItemClickListener true
                     }
                     R.id.menu_random_player_order -> {
@@ -294,18 +288,6 @@ class LogPlayActivity : AppCompatActivity() {
         }
     }
 
-    private fun bindDate(play: PlayEntity) {
-        binding.dateButton.text = DateUtils.formatDateTime(
-            this, play.dateInMillis,
-            DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
-        )
-    }
-
-    private fun bindLocation(play: PlayEntity) {
-        binding.locationView.setTextKeepState(play.location)
-        binding.locationFrame.isVisible = play.location.isNotEmpty() || isUserShowingLocation || preferences().showLogPlayLocation()
-    }
-
     private fun bindLength() {
         when {
             startTime > 0L -> {
@@ -314,45 +296,39 @@ class LogPlayActivity : AppCompatActivity() {
                 binding.timerGroup.isVisible = true
             }
             length > 0 -> {
+                binding.timerGroup.isVisible = false
                 binding.lengthView.setTextKeepState(length.toString())
                 binding.lengthGroup.isVisible = true
-                binding.timerGroup.isVisible = false
             }
             else -> {
-                binding.lengthView.setText("")
-                binding.lengthGroup.isVisible = isUserShowingLength || preferences().showLogPlayLength()
                 binding.timerGroup.isVisible = false
+                binding.lengthView.setText("")
+                if (isUserShowingLength || preferences().showLogPlayLength())
+                    binding.lengthGroup.isVisible = true
             }
         }
         binding.timerButton.isEnabled = ((dateInMillis ?: 0) + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
     }
 
-    private fun bindQuantity(play: PlayEntity) {
-        binding.quantityView.setTextKeepState(play.quantity.toString())
-        binding.quantityFrame.isVisible = play.quantity != 1 || isUserShowingQuantity || preferences().showLogPlayQuantity()
-    }
-
     private fun bindIncomplete(isIncomplete: Boolean) =
         binding.incompleteView.apply {
             isChecked = isIncomplete
-            isVisible = isIncomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete()
+            if (isIncomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete())
+                isVisible = true
         }
 
     private fun bindNoWinStats(doNotCountWinStats: Boolean) =
         binding.noWinStatsView.apply {
             isChecked = doNotCountWinStats
-            isVisible = doNotCountWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats()
+            if (doNotCountWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats())
+                isVisible = true
         }
 
-    private fun bindComments(play: PlayEntity) {
-        binding.commentsView.setTextKeepState(play.comments)
-        binding.commentsFrame.isVisible = play.comments.isNotEmpty() || isUserShowingComments || preferences().showLogPlayComments()
-    }
-
-    private fun bindPlayerHeader(playerCount: Int) {
+    private fun bindPlayerHeader() {
         val showPlayers = isUserShowingPlayers || preferences().showLogPlayPlayerList() || playerCount != 0
         binding.playerHeader.isVisible = showPlayers
-        binding.playersLabel.text = if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
+        binding.playersLabel.text =
+            if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
         binding.assignColorsButton.isEnabled = playerCount > 0
         binding.recyclerView.isVisible = showPlayers
     }
@@ -538,11 +514,15 @@ class LogPlayActivity : AppCompatActivity() {
 
         shouldDeletePlayOnActivityCancel = if (internalId == INVALID_ID.toLong()) true else (isRequestingRematch || isChangingGame)
 
+        bindHeader()
         wireUi()
         if (isRequestingToEndPlay) {
             cancelPlayingNotification()
         }
 
+        viewModel.isLoading.observe(this) {
+            it?.let { binding.progressView.isVisible = it }
+        }
         viewModel.customPlayerSort.observe(this) {
             it?.let { shouldCustomSortPlayers = it }
         }
@@ -562,51 +542,74 @@ class LogPlayActivity : AppCompatActivity() {
             availablePlayers.clear()
             availablePlayers.addAll(it)
         }
-        viewModel.internalId.observe(this) { internalId = it }
-        viewModel.play.observe(this) {
+        viewModel.internalId.observe(this) {
+            internalId = it
+            updateNotification()
+        }
+        viewModel.dateInMillis.observe(this) {
             it?.let {
-                this.play = it
-                dateInMillis = it.dateInMillis
-                length = it.length
-                startTime = it.startTime
-                usedColors = it.players.map { p -> p.color }
-
-                bindHeader()
-                bindDate(it)
-                bindLocation(it)
+                dateInMillis = it
+                binding.dateButton.text = DateUtils.formatDateTime(
+                    this,
+                    it,
+                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
+                )
+            }
+        }
+        viewModel.location.observe(this) {
+            it?.let {
+                location = it
+                binding.locationView.setTextKeepState(it)
+                if (it.isNotEmpty() || isUserShowingLocation || preferences().showLogPlayLocation())
+                    binding.locationFrame.isVisible = true
+                updateNotification()
+            }
+        }
+        viewModel.length.observe(this) {
+            it?.let {
+                length = it
                 bindLength()
-                bindQuantity(it)
-                bindIncomplete(it.incomplete)
-                bindNoWinStats(it.noWinStats)
-                bindComments(it)
-                binding.progressView.hide()
-
-                if (showNotification && internalId != INVALID_ID.toLong()) {
-                    showNotification = false
-                    this.launchPlayingNotification(
-                        internalId,
-                        it.gameName,
-                        it.location,
-                        it.players.size,
-                        it.startTime,
-                        thumbnailUrl,
-                        imageUrl,
-                        heroImageUrl
-                    )
-                }
+            }
+        }
+        viewModel.startTime.observe(this) {
+            it?.let {
+                startTime = it
+                bindLength()
+                updateNotification()
+            }
+        }
+        viewModel.quantity.observe(this) {
+            it?.let {
+                binding.quantityView.setTextKeepState(it.toString())
+                if (it != 1 || isUserShowingQuantity || preferences().showLogPlayQuantity())
+                    binding.quantityFrame.isVisible = true
+            }
+        }
+        viewModel.incomplete.observe(this) {
+            it?.let { bindIncomplete(it) }
+        }
+        viewModel.doNotCountWinStats.observe(this) {
+            it?.let { bindNoWinStats(it) }
+        }
+        viewModel.comments.observe(this) {
+            it?.let { comments ->
+                binding.commentsView.setTextKeepState(comments)
+                if (comments.isNotEmpty() || isUserShowingComments || preferences().showLogPlayComments())
+                    binding.commentsFrame.isVisible = true
             }
         }
         viewModel.players.observe(this) {
             it?.let {
-                playersHaveColors = it.any { player -> player.color.isNotBlank() }
                 playersHaveStartingPositions = it.any { player -> player.startingPosition.isNotBlank() }
                 playerCount = it.size
                 playerDescriptions = it.mapIndexed { i, p ->
                     p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
                 }
+                usedColors = it.map { p -> p.color }
 
-                bindPlayerHeader(it.size)
+                bindPlayerHeader()
                 playerAdapter.submit(it)
+                updateNotification()
             }
         }
         viewModel.loadPlay(
@@ -641,6 +644,7 @@ class LogPlayActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        updateNotification()
         if (shouldSaveOnPause && !isLaunchingActivity) {
             saveDraft()
         }
@@ -677,6 +681,21 @@ class LogPlayActivity : AppCompatActivity() {
             }
             setResult(RESULT_CANCELED)
             finish()
+        }
+    }
+
+    private fun updateNotification() {
+        if (internalId != INVALID_ID.toLong()) {
+            this.launchPlayingNotification(
+                internalId,
+                gameName,
+                location,
+                playerCount,
+                startTime,
+                thumbnailUrl,
+                imageUrl,
+                heroImageUrl
+            )
         }
     }
 
@@ -722,7 +741,7 @@ class LogPlayActivity : AppCompatActivity() {
                     }
                     resources.getString(R.string.title_players) -> {
                         isUserShowingPlayers = true
-                        bindPlayerHeader(playerCount)
+                        bindPlayerHeader()
                         if (preferences()[LOG_EDIT_PLAYER_PROMPTED, false] == true) {
                             addPlayers(preferences()[LOG_EDIT_PLAYER, false] ?: false)
                         } else {
