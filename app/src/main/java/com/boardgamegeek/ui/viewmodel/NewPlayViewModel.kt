@@ -72,7 +72,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
     private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColorEntity>>()
     val selectedColors = MediatorLiveData<List<String>>()
-    private val playerSortMap = MutableLiveData<MutableMap<String, String>>()
+    private val playerSortMap = MutableLiveData<MutableMap<String, Int>>()
     private val playerMightBeNewMap = mutableMapOf<String, Boolean>()
     private val playerIsNewMap = MutableLiveData<MutableMap<String, Boolean>>()
     val mightBeNewPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
@@ -281,23 +281,23 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun randomizePlayers() {
-        val sortMap = mutableMapOf<String, String>()
+        val sortMap = mutableMapOf<String, Int>()
         val playerCount = _addedPlayers.value?.size ?: 0
         val collection = (1..playerCount).toMutableSet()
         _addedPlayers.value?.forEach { playerEntity ->
             val sortOrder = collection.random()
-            sortMap[playerEntity.id] = sortOrder.toString()
+            sortMap[playerEntity.id] = sortOrder
             collection.remove(sortOrder)
         }
         playerSortMap.value = sortMap
     }
 
     fun randomizeStartPlayer() {
-        val sortMap = mutableMapOf<String, String>()
+        val sortMap = mutableMapOf<String, Int>()
         val playerCount = _addedPlayers.value?.size ?: 0
         var sortOrder = (1..playerCount).random()
         _addedPlayers.value?.forEach { playerEntity ->
-            sortMap[playerEntity.id] = sortOrder.toString()
+            sortMap[playerEntity.id] = sortOrder
             sortOrder += 1
             if (sortOrder > playerCount) sortOrder -= playerCount
         }
@@ -307,50 +307,33 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     fun selectStartPlayer(index: Int) {
         val playerCount = _addedPlayers.value?.size ?: 0
         val sortMap = playerSortMap.value ?: mutableMapOf()
-        if (sortMap.isNotEmpty() && sortMap.values.all { it.toIntOrNull() != null }) {
+        if (sortMap.isNotEmpty()) {
             sortMap.forEach {
-                val number = (it.value.toInt() + playerCount - index - 1) % playerCount + 1
-                sortMap[it.key] = number.toString()
+                sortMap[it.key] = (it.value + playerCount - index - 1) % playerCount + 1
             }
         } else {
-            sortMap.clear()
             _addedPlayers.value?.forEachIndexed { i, playerEntity ->
-                val number = (i + playerCount - index) % playerCount + 1
-                sortMap[playerEntity.id] = number.toString()
+                sortMap[playerEntity.id] = (i + playerCount - index) % playerCount + 1
             }
         }
         playerSortMap.value = sortMap
     }
 
     fun movePlayer(fromPosition: Int, toPosition: Int): Boolean {
-        val sortMap = playerSortMap.value ?: mutableMapOf()
-        if (sortMap.isNotEmpty() && sortMap.values.all { it.toIntOrNull() != null }) {
-            val oldMap = sortMap.mapValues { it.value.toInt() }.toMutableMap()
-            val newMap = mutableMapOf<String, String>()
-            if (fromPosition < toPosition) {
-                // dragging down
+        val oldMap = playerSortMap.value ?: mutableMapOf()
+        if (oldMap.isNotEmpty()) {
+            val newMap = mutableMapOf<String, Int>()
+            if (fromPosition < toPosition) { // dragging down
                 for (seat in oldMap) {
-                    if (seat.value > fromPosition + 1 && seat.value <= toPosition + 1) {
-                        newMap[seat.key] = (seat.value - 1).toString()
-                    } else {
-                        newMap[seat.key] = seat.value.toString()
-                    }
+                    newMap[seat.key] = seat.value - if (seat.value in (fromPosition + 2)..(toPosition + 1)) 1 else 0
                 }
-            } else {
-                // dragging up
+            } else { // dragging up
                 for (seat in oldMap) {
-                    if (seat.value >= toPosition + 1 && seat.value < fromPosition + 1) {
-                        newMap[seat.key] = (seat.value + 1).toString()
-                    } else {
-                        newMap[seat.key] = seat.value.toString()
-                    }
+                    newMap[seat.key] = seat.value + if (seat.value in (toPosition + 1)..fromPosition) 1 else 0
                 }
             }
-            for (seat in oldMap) {
-                if (seat.value == fromPosition + 1) {
-                    newMap[seat.key] = (toPosition + 1).toString()
-                    break
-                }
+            oldMap.filter { it.value == fromPosition + 1 }.keys.firstOrNull()?.let {
+                newMap[it] = toPosition + 1
             }
             playerSortMap.value = newMap
             return true
@@ -453,7 +436,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         addedPlayers: List<PlayerEntity> = _addedPlayers.value.orEmpty(),
         playerColors: Map<String, String> = playerColorMap.value.orEmpty(),
         favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
-        playerSort: Map<String, String> = playerSortMap.value.orEmpty(),
+        playerSort: Map<String, Int> = playerSortMap.value.orEmpty(),
         playerIsNew: Map<String, Boolean> = playerIsNewMap.value.orEmpty(),
         playerWin: Map<String, Boolean> = playerWinMap.value.orEmpty(),
         playerScores: Map<String, String> = playerScoresMap.value.orEmpty(),
@@ -473,7 +456,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                     .filterNot { playerColors.containsValue(it) }
                 favoriteColorsForGame = rankedChoices
                 favoriteColor = favoriteForPlayer.firstOrNull()
-                sortOrder = playerSort[id].orEmpty()
+                sortOrder = playerSort[id]?.toString().orEmpty()
                 isNew = playerIsNew[id] ?: false
                 isWin = playerWin[id] ?: false
                 score = playerScores[id].orEmpty()
@@ -518,7 +501,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 PlayPlayerEntity(
                     player.name,
                     player.username,
-                    (playerSortMap.value.orEmpty())[player.id].orEmpty(),
+                    (playerSortMap.value.orEmpty())[player.id].toString(),
                     color = (playerColorMap.value.orEmpty())[player.id].orEmpty(),
                     isNew = (playerIsNewMap.value.orEmpty())[player.id] ?: false,
                     isWin = (playerWinMap.value.orEmpty())[player.id] ?: false,
