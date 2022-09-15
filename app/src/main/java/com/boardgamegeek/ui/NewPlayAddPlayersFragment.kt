@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -68,7 +69,7 @@ class NewPlayAddPlayersFragment : Fragment() {
 
         viewModel.availablePlayers.observe(viewLifecycleOwner) {
             adapter.players = it
-            binding.recyclerView.fadeIn()
+            binding.recyclerView.isVisible = true
             if (it.isEmpty()) {
                 binding.emptyView.setText(
                     if (binding.filterEditText.text.isNullOrBlank()) {
@@ -77,9 +78,9 @@ class NewPlayAddPlayersFragment : Fragment() {
                         R.string.empty_new_play_players_filter
                     }
                 )
-                binding.emptyView.fadeIn()
+                binding.emptyView.isVisible = true
             } else {
-                binding.emptyView.fadeOut()
+                binding.emptyView.isVisible = false
             }
         }
         viewModel.addedPlayers.observe(viewLifecycleOwner) {

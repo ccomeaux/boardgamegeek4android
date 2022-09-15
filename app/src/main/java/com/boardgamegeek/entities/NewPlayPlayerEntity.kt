@@ -8,9 +8,16 @@ import java.util.*
 data class NewPlayPlayerEntity(
     val name: String,
     val username: String,
-    private val rawAvatarUrl: String = ""
+    var isNew: Boolean = false,
+    var isWin: Boolean = false,
+    var score: String = "",
+    var color: String = "",
+    var sortOrder: String = "",
+    var favoriteColorsForGame: List<String> = emptyList(),
+    var favoriteColor: String? = null,
+    private val rawAvatarUrl: String = "",
 ) {
-    constructor(player: PlayerEntity) : this(player.name, player.username, player.rawAvatarUrl)
+    constructor(player: PlayerEntity) : this(player.name, player.username, rawAvatarUrl = player.rawAvatarUrl)
 
     val id: String
         get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"
@@ -20,24 +27,10 @@ data class NewPlayPlayerEntity(
 
     val description: String = if (username.isBlank()) name else "$name ($username)"
 
-    var isNew: Boolean = false
-
-    var isWin: Boolean = false
-
-    var score: String = ""
-
     fun getScoreDescription(context: Context?): String {
         return score.toDoubleOrNull()?.asScore(context, format = DecimalFormat("#,##0.###")) ?: score
     }
 
-    var color: String = ""
-
-    var sortOrder: String = ""
-
     val seat: Int?
         get() = sortOrder.toIntOrNull()
-
-    var favoriteColorsForGame = emptyList<String>()
-
-    var favoriteColor: String? = null
 }
