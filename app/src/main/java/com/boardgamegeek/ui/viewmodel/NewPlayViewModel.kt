@@ -237,21 +237,28 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun removePlayer(player: NewPlayPlayerEntity) {
-        val p = PlayerEntity(player.name, player.username)
+        val removedPlayer = PlayerEntity(player.name, player.username)
 
         val newList = _addedPlayers.value ?: mutableListOf()
-        newList.remove(p)
-        _addedPlayers.value = newList
+        newList.remove(removedPlayer).let { _addedPlayers.value = newList }
+
+        playerFavoriteColorMap.remove(removedPlayer.id)
 
         val newColorMap = playerColorMap.value ?: mutableMapOf()
-        newColorMap.remove(p.id)
-        playerColorMap.value = newColorMap
+        newColorMap.remove(removedPlayer.id)?.let { playerColorMap.value = newColorMap }
+
+        playerMightBeNewMap.remove(removedPlayer.id)
+        assembleMightBeNewPlayers()
 
         val newSortMap = playerSortMap.value ?: mutableMapOf()
-        newSortMap.remove(p.id)
-        playerSortMap.value = newSortMap
-
-        playerMightBeNewMap.remove(p.id)
+        if (newSortMap.isNotEmpty()) {
+            newSortMap.remove(removedPlayer.id)?.let { value ->
+                newSortMap.forEach {
+                    if (it.value > value) newSortMap[it.key] = it.value - 1
+                }
+            }
+            playerSortMap.value = newSortMap
+        }
     }
 
     fun finishAddingPlayers() {
