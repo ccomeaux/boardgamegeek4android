@@ -65,7 +65,6 @@ class LogPlayActivity : AppCompatActivity() {
     private var thumbnailUrl: String = ""
     private var imageUrl: String = ""
     private var heroImageUrl: String = ""
-    private var shouldCustomSortPlayers = false
 
     private var lastRemovedPlayer: PlayPlayerEntity? = null
     private val gameColors = ArrayList<String>()
@@ -176,11 +175,11 @@ class LogPlayActivity : AppCompatActivity() {
         }
         binding.playerSortButton.setOnClickListener {
             val popup = PopupMenu(this@LogPlayActivity, it)
-            popup.inflate(if (!shouldCustomSortPlayers && playerCount > 1) R.menu.log_play_player_sort else R.menu.log_play_player_sort_short)
+            popup.inflate(if (!playerAdapter.shouldCustomSortPlayers && playerCount > 1) R.menu.log_play_player_sort else R.menu.log_play_player_sort_short)
             popup.setOnMenuItemClickListener { item: MenuItem ->
                 when (item.itemId) {
                     R.id.menu_custom_player_order -> {
-                        if (shouldCustomSortPlayers) {
+                        if (playerAdapter.shouldCustomSortPlayers) {
                             logPlayerOrder("NotCustom")
                             if (playersHaveStartingPositions) {
                                 this@LogPlayActivity.createConfirmationDialog(
@@ -465,7 +464,7 @@ class LogPlayActivity : AppCompatActivity() {
                 }
 
                 override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-                    return if (shouldCustomSortPlayers) makeMovementFlags(
+                    return if (playerAdapter.shouldCustomSortPlayers) makeMovementFlags(
                         0,
                         getSwipeDirs(recyclerView, viewHolder)
                     ) else super.getMovementFlags(recyclerView, viewHolder)
@@ -486,7 +485,7 @@ class LogPlayActivity : AppCompatActivity() {
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        shouldCustomSortPlayers = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
+        playerAdapter.shouldCustomSortPlayers = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
 
         FirebaseAnalytics.getInstance(this).logEvent("DataManipulation") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
@@ -509,7 +508,7 @@ class LogPlayActivity : AppCompatActivity() {
             isUserShowingNoWinStats = it.getBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS)
             isUserShowingComments = it.getBoolean(KEY_IS_USER_SHOWING_COMMENTS)
             isUserShowingPlayers = it.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
-            shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
+            playerAdapter.shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
         }
 
         shouldDeletePlayOnActivityCancel = if (internalId == INVALID_ID.toLong()) true else (isRequestingRematch || isChangingGame)
@@ -524,7 +523,7 @@ class LogPlayActivity : AppCompatActivity() {
             it?.let { binding.progressView.isVisible = it }
         }
         viewModel.customPlayerSort.observe(this) {
-            it?.let { shouldCustomSortPlayers = it }
+            it?.let { playerAdapter.shouldCustomSortPlayers = it }
         }
 
         viewModel.colors.observe(this) {
@@ -639,7 +638,7 @@ class LogPlayActivity : AppCompatActivity() {
         outState.putBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS, isUserShowingNoWinStats)
         outState.putBoolean(KEY_IS_USER_SHOWING_COMMENTS, isUserShowingComments)
         outState.putBoolean(KEY_IS_USER_SHOWING_PLAYERS, isUserShowingPlayers)
-        outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, shouldCustomSortPlayers)
+        outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, playerAdapter.shouldCustomSortPlayers)
     }
 
     override fun onPause() {
@@ -812,7 +811,7 @@ class LogPlayActivity : AppCompatActivity() {
             val input = createLaunchInput(player.seat)
             editPlayerLauncher.launch(input to (position to player))
         } else {
-            Timber.w("TODO")
+            Timber.w("Attempting to edit a null player at position $position")
         }
     }
 
@@ -825,7 +824,7 @@ class LogPlayActivity : AppCompatActivity() {
         isRequestingToEndPlay = isRequestingToEndPlay,
         fabColor = fabColor,
         usedColors = usedColors,
-        autoPosition = if (!shouldCustomSortPlayers) autoPosition else LogPlayerActivity.INVALID_POSITION,
+        autoPosition = if (!playerAdapter.shouldCustomSortPlayers) autoPosition else LogPlayerActivity.INVALID_POSITION,
     )
 
     private fun cancelPlayingNotification() {
@@ -863,6 +862,12 @@ class LogPlayActivity : AppCompatActivity() {
 
         private var players = emptyList<PlayPlayerEntity>()
         private val callback = PlayerCallback()
+        var shouldCustomSortPlayers = false
+            @SuppressLint("NotifyDataSetChanged")
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
 
         private inner class Diff(private val oldList: List<PlayPlayerEntity>, private val newList: List<PlayPlayerEntity>) :
             DiffUtil.Callback() {
