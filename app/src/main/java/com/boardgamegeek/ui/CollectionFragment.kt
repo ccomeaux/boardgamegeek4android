@@ -134,10 +134,12 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             bindSortAndFilterButtons()
         }
         viewModel.effectiveFilters.observe(viewLifecycleOwner) { filterList ->
-            filters.clear()
-            filterList?.let { filters.addAll(filterList) }
-            setEmptyText()
-            bindSortAndFilterButtons()
+            filterList?.let {
+                filters.clear()
+                filters.addAll(it)
+                setEmptyText()
+                bindSortAndFilterButtons()
+            }
         }
         viewModel.items.observe(viewLifecycleOwner) {
             it?.let { showData(it) }
@@ -272,9 +274,13 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     private fun findOrCreateFilterChip(filterType: Int): Chip {
-        return binding.chipGroup.findViewWithTag(filterType) ?: Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter).apply {
+        return binding.chipGroup.findViewWithTag(filterType.toString()) ?: Chip(
+            requireContext(),
+            null,
+            R.style.Widget_MaterialComponents_Chip_Filter
+        ).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            tag = filterType
+            tag = filterType.toString()
             binding.chipGroup.addView(this)
         }
     }
@@ -300,6 +306,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             }
         }
 
+        val existingTags = binding.chipGroup.children.map { it.tag.toString() }.toList()
+
         for (filter in filters.filter { it.isValid }) {
             findOrCreateFilterChip(filter.type).apply {
                 text = filter.chipText()
@@ -316,9 +324,12 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             }
         }
 
-        val usedTags = filters.filter { it.isValid }.map { it.type } + sortTag
-        binding.chipGroup.children.forEach { chip ->
-            if (!usedTags.contains(chip.tag)) binding.chipGroup.removeView(chip)
+        val usedTags = filters.filter { it.isValid }.map { it.type.toString() } + sortTag
+        val tagsToRemove = existingTags - usedTags.toSet()
+        tagsToRemove.forEach { tag ->
+            binding.chipGroup.findViewWithTag<Chip>(tag)?.let { chip ->
+                binding.chipGroup.removeView(chip)
+            }
         }
 
         val show = binding.chipGroup.childCount > 0

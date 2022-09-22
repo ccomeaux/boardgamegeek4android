@@ -239,11 +239,11 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             val filters: MutableList<CollectionFilterer> = mutableListOf()
             loadedFilters.forEach { lf ->
                 if (!addedTypes.contains(lf.type) && !removedFilterTypes.contains(lf.type))
-                    filters.add(lf)
+                    filters += lf
             }
             addedFilters.forEach { af ->
                 if (!removedFilterTypes.contains(af.type))
-                    filters.add(af)
+                    filters += af
             }
             _effectiveFilters.postValue(filters)
         }
